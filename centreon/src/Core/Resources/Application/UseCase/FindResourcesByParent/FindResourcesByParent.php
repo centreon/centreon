@@ -63,32 +63,40 @@ final class FindResourcesByParent
         ResourceFilter $filter
     ): void {
         try {
+            // Save the search provided to be restored later on
             $searchProvided = $this->requestParameters->getSearchAsString();
             $parentFilter = (new ResourceFilter())->setTypes([ResourceFilter::TYPE_HOST]);
 
             if ($this->contact->isAdmin()) {
-                $childrenResponse = $this->findResourcesAsAdmin($filter);
-                $parentFilter->setHostIds($this->extractParentIdsFromResources($childrenResponse));
-                $this->requestParameters->unsetSearch();
-                $parentResponse = $this->findResourcesAsAdmin($parentFilter);
+                $children = $this->findResourcesAsAdmin($filter);
+                $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
+                // unset search provided in order to find parents linked to the resources found
+                $this->unsetInitialSearchParameter();
+                $parents = $this->findResourcesAsAdmin($parentFilter);
             } else {
-                $childrenResponse = $this->findResourcesAsUser($filter);
-                $parentFilter->setHostIds($this->extractParentIdsFromResources($childrenResponse));
-                $this->requestParameters->unsetSearch();
-                $parentResponse = $this->findResourcesAsUser($parentFilter);
+                $children = $this->findResourcesAsUser($filter);
+                $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
+                // unset search provided in order to find parents linked to the resources found
+                $this->unsetInitialSearchParameter();
+                $parents = $this->findResourcesAsUser($parentFilter);
            }
 
-            // Keep search and total from initial request
+            // Restore search and total from initial request (for accurate meta in presenter).
             $this->requestParameters->setSearch($searchProvided);
-            $this->requestParameters->setTotal((int) count($childrenResponse->resources));
+            $this->requestParameters->setTotal((int) count($children->resources));
 
-            $response = new FindResourcesResponse();
-            $response->resources = [...$childrenResponse->resources, ...$parentResponse->resources];
-            $presenter->presentResponse($response);
+            $presenter->presentResponse(
+                FindResourcesByParentFactory::createResponse($parents->resources, $children->resources)
+            );
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
+    }
+
+    private function unsetInitialSearchParameter(): void
+    {
+        $this->requestParameters->unsetSearch();
     }
 
     /**
@@ -99,7 +107,7 @@ final class FindResourcesByParent
     private function extractParentIdsFromResources(FindResourcesResponse $response): array
     {
         return array_map(
-            static fn (ResourceResponseDto $resource) => $resource->parent?->id,
+            static fn (ResourceResponseDto $resource) => (int) $resource->parent?->id,
             $response->resources
         );
     }

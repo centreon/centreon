@@ -30,9 +30,10 @@ use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
-use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
 use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
 use Core\Resources\Application\UseCase\FindResourcesByParent\FindResourcesByParentPresenterInterface;
+use Core\Resources\Application\UseCase\FindResourcesByParent\FindResourcesByParentResponse;
+use Core\Resources\Application\UseCase\FindResourcesByParent\Response\ResourcesByParentResponseDto;
 
 class FindResourcesByParentPresenter extends AbstractPresenter implements FindResourcesByParentPresenterInterface
 {
@@ -40,12 +41,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
     use PresenterTrait;
     private const IMAGE_DIRECTORY = '/img/media/',
         HOST_RESOURCE_TYPE = 'host',
-        SERVICE_RESOURCE_TYPE = 'service',
-        STATUS_CODE_OK = 0,
-        STATUS_CODE_WARNING = 1,
-        STATUS_CODE_CRITICAL = 2,
-        STATUS_CODE_UNKNOWN = 3,
-        STATUS_CODE_PENDING = 4;
+        SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
@@ -61,27 +57,18 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
     }
 
     /**
-     * @param FindResourcesResponse|ResponseStatusInterface $data
+     * @param FindResourcesByParentResponse|ResponseStatusInterface $data
      */
-    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $data): void
+    public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $data): void
     {
-        if ($data instanceof FindResourcesResponse) {
+        if ($data instanceof FindResourcesByParentResponse) {
             $result = [];
-            $resources = $data->resources;
-            $parentResources = array_filter(
-                $resources,
-                static fn (ResourceResponseDto $resource) => $resource->type === self::HOST_RESOURCE_TYPE
-            );
-            foreach ($parentResources as $parentResource) {
-                $parent = $this->createResourceFromResponse($parentResource);
-                $children = $this->findChildrenAmongResponse($parent['id'], $resources);
-                $parent['children']['total'] = count($children);
-                $parent['children']['status_count']['ok'] = $this->countResourcesInStatus(self::STATUS_CODE_OK, $children); 
-                $parent['children']['status_count']['warning'] = $this->countResourcesInStatus(self::STATUS_CODE_WARNING, $children); 
-                $parent['children']['status_count']['critical'] = $this->countResourcesInStatus(self::STATUS_CODE_CRITICAL, $children); 
-                $parent['children']['status_count']['unknown'] = $this->countResourcesInStatus(self::STATUS_CODE_UNKNOWN, $children); 
-                $parent['children']['status_count']['pending'] = $this->countResourcesInStatus(self::STATUS_CODE_PENDING, $children); 
-                $parent['children']['resources'] = $children;
+            foreach ($data->resources as $resourcesByParent) {
+                $parent = $this->createResourceFromResponse($resourcesByParent->parent);
+                $parent['children']['resources'] = $this->createChildrenFromResponse($resourcesByParent->children);
+                $parent['children']['total'] = $resourcesByParent->total;
+                $parent['children']['status_count'] = $this->createStatusesCountFromResponse($resourcesByParent);
+
                 $result[] = $parent;
             }
 
@@ -95,37 +82,32 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
     }
 
     /**
-     * @param int $status
-     * @param array<array<string, mixed>> $resources
+     * @param ResourcesByParentResponseDto $response
      *
-     * @return int
+     * @return array<string, int>
      */
-    public function countResourcesInStatus(int $status, array $resources): int
+    private function createStatusesCountFromResponse(ResourcesByParentResponseDto $response): array
     {
-        // @var array<array<string, mixed>> $resourceInStatus
-        $resourceInStatus = array_filter(
-            $resources,
-            static fn (array $resource) => $resource['status']['code'] === $status
-        );
-
-        return count($resourceInStatus);
+        return [
+            'ok' => $response->totalOK,
+            'warning' => $response->totalWarning,
+            'critical' => $response->totalCritical,
+            'unknown' => $response->totalUnknown,
+            'pending' => $response->totalPending,
+        ];
     }
 
     /**
-     * @param int $parentId
-     * @param ResourceResponseDto[] $resources
+     * @param ResourceResponseDto[] $children
      *
-     * @return array<array<string, mixed>>
+     * @return array<int, array<string, mixed>>
      */
-    private function findChildrenAmongResponse(int $parentId, array $resources): array
+    private function createChildrenFromResponse(array $children): array
     {
-        $result = [];
-        $children = array_filter($resources, static fn (ResourceResponseDto $resource) => $resource->parent?->id === $parentId);
-        foreach ($children as $child) {
-            $result[] = $this->createResourceFromResponse($child);
-        }
-
-        return $result;
+        return array_map(
+            fn (ResourceResponseDto $resource) => $this->createResourceFromResponse($resource),
+            $children
+        );
     }
 
     /**

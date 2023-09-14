@@ -87,8 +87,20 @@ final class FindResourcesByParentController extends AbstractController
             ->setTypes(
                 array_filter(
                     $this->validator->getResourceTypes(),
-                    static fn (string $resourceType) => $resourceType !== self::HOST_RESOURCE_TYPE
+                    $this->removeHostFromTypes(...)
                 )
             );
+    }
+
+    /**
+     * We do not want HOST resource type to be explicitely searched.
+     *
+     * @param string $resourceType
+     *
+     * @return bool
+     */
+    private function removeHostFromTypes(string $resourceType): bool
+    {
+        return $resourceType !== self::HOST_RESOURCE_TYPE;
     }
 }

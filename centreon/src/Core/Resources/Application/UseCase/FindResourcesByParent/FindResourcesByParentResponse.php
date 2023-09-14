@@ -23,13 +23,16 @@ declare(strict_types=1);
 
 namespace Core\Resources\Application\UseCase\FindResourcesByParent;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Resources\Application\UseCase\FindResourcesByParent\Response\ResourcesByParentResponseDto;
 
-interface FindResourcesByParentPresenterInterface
+final class FindResourcesByParentResponse 
 {
     /**
-     * @param FindResourcesByParentResponse|ResponseStatusInterface $data
+     * @param ResourcesByParentResponseDto[] $resources
      */
-    public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $data): void;
+    public function __construct(
+        public array $resources = [],
+    ) {
+    }
 }
 
