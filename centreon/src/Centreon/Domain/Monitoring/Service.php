@@ -232,6 +232,11 @@ class Service implements EntityDescriptorMetadataInterface
     private $status;
 
     /**
+     * @var bool|null
+     */
+    protected $notify;
+
+    /**
      * {@inheritdoc}
      */
     public static function loadEntityDescriptorMetadata(): array
@@ -949,5 +954,23 @@ class Service implements EntityDescriptorMetadataInterface
         }
 
         return $duration;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getNotify(): ?bool
+    {
+        return $this->notify;
+    }
+
+    /**
+     * @param bool|null $notify
+     * @return Service
+     */
+    public function setNotify(?bool $notify): self
+    {
+        $this->notify = $notify;
+        return $this;
     }
 }

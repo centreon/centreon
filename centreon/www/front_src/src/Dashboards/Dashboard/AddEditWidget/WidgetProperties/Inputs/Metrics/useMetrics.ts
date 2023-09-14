@@ -81,6 +81,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       buildListingEndpoint({
         baseEndpoint: metricsEndpoint,
         parameters: {
+          limit: 100,
           search: {
             lists: resources.map((resource) => ({
               field: resourceTypeQueryParameter[resource.resourceType],

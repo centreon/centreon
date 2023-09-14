@@ -2370,12 +2370,18 @@ CREATE TABLE `security_authentication_tokens` (
   `provider_token_refresh_id` int(11) DEFAULT NULL,
   `provider_configuration_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `token_name` varchar(255) DEFAULT NULL,
+  `token_type` enum('auto', 'manual') NOT NULL DEFAULT 'auto',
+  `creator_id` int(11) DEFAULT NULL,
+  `creator_name` varchar(255) DEFAULT NULL,
+  `is_revoked` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`token`),
   KEY `security_authentication_tokens_token_fk` (`token`),
   KEY `security_authentication_tokens_provider_token_id_fk` (`provider_token_id`),
   KEY `security_authentication_tokens_provider_token_refresh_id_fk` (`provider_token_refresh_id`),
   KEY `security_authentication_tokens_configuration_id_fk` (`provider_configuration_id`),
   KEY `security_authentication_tokens_user_id_fk` (`user_id`),
+  KEY `security_authentication_tokens_creator_id_fk` (`creator_id`),
   CONSTRAINT `security_authentication_tokens_configuration_id_fk` FOREIGN KEY (`provider_configuration_id`)
   REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE,
   CONSTRAINT `security_authentication_tokens_provider_token_id_fk` FOREIGN KEY (`provider_token_id`)
@@ -2383,7 +2389,9 @@ CREATE TABLE `security_authentication_tokens` (
   CONSTRAINT `security_authentication_tokens_provider_token_refresh_id_fk` FOREIGN KEY (`provider_token_refresh_id`)
   REFERENCES `security_token` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_authentication_tokens_user_id_fk` FOREIGN KEY (`user_id`)
-  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `security_authentication_tokens_creator_id_fk` FOREIGN KEY (`creator_id`)
+  REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contact_password` (
