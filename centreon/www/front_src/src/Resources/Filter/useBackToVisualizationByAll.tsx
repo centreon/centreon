@@ -1,16 +1,19 @@
 import { useEffect, useRef } from 'react';
 
-import { useAtomValue, useAtom } from 'jotai';
+import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 import { cond, equals, isNil, or } from 'ramda';
 
 import { Visualization } from '../models';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
+import { defaultSelectedColumnIds } from '../Listing/columns';
 
 import { searchAtom } from './filterAtoms';
 
 const useBackToVisualizationByAll = (): void => {
   const [visualization, setVisualization] = useAtom(selectedVisualizationAtom);
   const search = useAtomValue(searchAtom);
+  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const match = search.match(/^type:[^ ]+/);
 
@@ -41,6 +44,8 @@ const useBackToVisualizationByAll = (): void => {
     if (!mustBackToVisualizationByAll) {
       return;
     }
+
+    setSelectedColumnIds(defaultSelectedColumnIds);
     setVisualization(Visualization.All);
   }, [search]);
 };

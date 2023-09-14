@@ -205,7 +205,7 @@ const useLoadResources = (): LoadResources => {
         const result = response.result.map((item) => {
           return {
             ...item,
-            children: item?.children.services,
+            children: item?.children.resources,
             childrenCount: item?.children.status_count
           };
         });

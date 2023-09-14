@@ -41,7 +41,7 @@ import ParentResourceColumn from './Parent';
 import NotificationColumn from './Notification';
 import ChecksColumn from './Checks';
 import ParentAliasColumn from './ParentAlias';
-import SubItem from './SubItem';
+import SubItem from './ServiceSubItemColumn/SubItem';
 
 interface StyleProps {
   isHovered: boolean;
@@ -89,7 +89,7 @@ export const defaultSelectedColumnIds = [
 
 export const defaultSelectedColumnIdsforViewByHost = [
   'resource',
-  'children',
+  'services',
   'state',
   'graph',
   'duration',
@@ -136,20 +136,6 @@ export const getColumns = ({
       rowMemoProps: ['parent'],
       sortField: 'parent_name',
       sortable: true,
-      type: ColumnType.component,
-      width: 'max-content'
-    },
-    {
-      Component: SubItem,
-      // rowMemoProps: ['parent'],
-      displaySubItemsCaret: true,
-
-      getRenderComponentOnRowUpdateCondition: T,
-
-      id: 'children',
-
-      label: t(labelServices),
-      sortable: false,
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -315,16 +301,28 @@ export const getColumns = ({
   }
 
   if (equals(visualization, Visualization.Host)) {
-    const columnsForVisualizationByHost = columns.map((column) =>
-      equals(column.label, t(labelResource))
-        ? { ...column, label: t(labelHost) }
-        : column
-    );
-    // .map((column) =>
-    //   equals(column.label, t(labelParent))
-    //     ? { ...column, id: '', label: t(labelService) }
-    //     : column
-    // );
+    const subItemColumn = {
+      Component: SubItem,
+      displaySubItemsCaret: true,
+      id: 'services',
+      label: t(labelServices),
+      type: ColumnType.component,
+      width: 'max-content'
+    };
+
+    const columnsForVisualizationByHost = columns
+      .concat(subItemColumn)
+      .filter(
+        (item) =>
+          !equals(item.id, 'parent_resource') &&
+          !equals(item.id, 'status') &&
+          !equals(item.id, 'parent_alias')
+      )
+      .map((column) =>
+        equals(column.label, t(labelResource))
+          ? { ...column, label: t(labelHost) }
+          : column
+      );
 
     return columnsForVisualizationByHost;
   }
