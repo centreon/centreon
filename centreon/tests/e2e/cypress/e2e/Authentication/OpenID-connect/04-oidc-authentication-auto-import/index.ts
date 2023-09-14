@@ -18,10 +18,6 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users/current/parameters'
-  }).as('getUserParameters');
-  cy.intercept({
-    method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
   }).as('getOIDCProvider');
   cy.intercept({
@@ -103,13 +99,19 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit('/');
+
+      cy.intercept({
+        method: 'GET',
+        url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+      }).as('getUserInformation');
+
       cy.contains('Login with openid').should('be.visible').click();
 
       cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
-      cy.url().should('include', '/monitoring/resources');
-      cy.wait('@getUserParameters')
+      cy.wait('@getUserInformation')
         .its('response.statusCode')
         .should('eq', 200);
+      cy.url().should('include', '/monitoring/resources');
 
       cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');

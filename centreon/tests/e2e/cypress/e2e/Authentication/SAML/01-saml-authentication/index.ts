@@ -22,10 +22,6 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users/current/parameters'
-  }).as('getUserParameters');
-  cy.intercept({
-    method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('getSAMLProvider');
   cy.intercept({
@@ -83,6 +79,11 @@ Then(
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+    }).as('getUserInformation');
+
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-SAML-authentication'
     })
@@ -90,7 +91,7 @@ Then(
       .its('response.statusCode')
       .should('eq', 200);
 
-    cy.wait('@getUserParameters').its('response.statusCode').should('eq', 200);
+    cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
 
     cy.logout();
   }
