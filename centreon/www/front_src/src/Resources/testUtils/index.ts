@@ -30,7 +30,6 @@ const defaultStatuses = ['WARNING', 'DOWN', 'CRITICAL', 'UNKNOWN'];
 const defaultResourceTypes = [];
 const defaultStates = ['unhandled_problems'];
 const defaultStateTypes = ['hard'];
-
 const defaultSecondSortCriteria = { last_status_change: SortOrder.desc };
 
 const getListingEndpoint = ({
