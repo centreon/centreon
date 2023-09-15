@@ -281,6 +281,55 @@ class CentreonStatistics
     }
 
     /**
+     * get info about manually managed API tokens
+     *
+     * @return array
+     */
+    public function getApiTokensInfo()
+    {
+        $data = [];
+
+        $statementNbTokens = $this->dbConfig->query(
+            <<<'SQL'
+                SELECT count(token_type)
+                FROM security_authentication_tokens
+                WHERE token_type ='manual'
+                SQL
+        );
+        $data['total'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
+
+        $statementNbTokens = $this->dbConfig->query(
+            <<<'SQL'
+                SELECT count(contact_id)
+                FROM contact
+                WHERE
+                    contact_id IN (
+                        SELECT contact_id
+                        FROM contact
+                        WHERE
+                            contact_admin = '1'
+                            AND contact_name != 'centreon-gorgone'
+
+                    )
+                    OR contact_id IN (
+                        SELECT contact_id
+                        FROM contact
+                        JOIN acl_group_contacts_relations acl_grp_contact_rel
+                            ON contact.contact_id = acl_grp_contact_rel.contact_contact_id
+                        JOIN acl_group_actions_relations acl_grp_action_rel
+                            ON acl_grp_contact_rel.acl_group_id = acl_grp_action_rel.acl_group_id
+                        JOIN acl_actions_rules acl_action
+                            ON acl_grp_action_rel.acl_action_id = acl_action.acl_action_rule_id
+                            AND acl_action.acl_action_name = 'manage_tokens'
+                    )
+                SQL
+        );
+        $data['managers'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
+
+        return $data;
+    }
+
+    /**
      * Get Additional data
      *
      * @return array
@@ -310,7 +359,7 @@ class CentreonStatistics
      */
     private function getAclRelationsByProviderType(string $providerType): int
     {
-        $query = "SELECT  COUNT(*) AS acl_relation 
+        $query = "SELECT  COUNT(*) AS acl_relation
         FROM security_provider_access_group_relation gr
         INNER JOIN provider_configuration pc on pc.id = gr.provider_configuration_id
         WHERE pc.type = '$providerType'";
@@ -326,7 +375,7 @@ class CentreonStatistics
      */
     private function getContactGroupRelationsByProviderType(string $providerType): int
     {
-        $query = "SELECT  COUNT(*) AS cg_relation 
+        $query = "SELECT  COUNT(*) AS cg_relation
         FROM security_provider_contact_group_relation cg
         INNER JOIN provider_configuration pc on pc.id = cg.provider_configuration_id
         WHERE pc.type = '$providerType'";
