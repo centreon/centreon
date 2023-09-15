@@ -91,12 +91,10 @@ When(
 Then(
   'only users with the valid authentication conditions can access the platform',
   () => {
-    cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit('/');
-      cy.contains('Login with openid').should('be.visible').click();
-      cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
-      cy.url().should('include', '/monitoring/resources');
-    });
+    cy.visit('/');
+    cy.contains('Login with openid').should('be.visible').click();
+    cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
+    cy.url().should('include', '/monitoring/resources');
   }
 );
 
