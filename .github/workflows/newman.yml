@@ -2,8 +2,6 @@ name: Postman Tests
 
 on:
   push:
-    branches:
-      - main  # Change this to the appropriate branch if needed
 
 jobs:
   postman_tests:
