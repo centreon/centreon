@@ -71,9 +71,8 @@ jobs:
       working-directory: centreon/tests/rest_api
       
     - name: Upload HTML Reports
-      run: |
-        cd centreon/tests/rest_api
-      env:
+      uses: matt-ball/newman-action@master
+      with:
         collection: ${{ env.COLLECTIONS }}
         environment: ${{ env.ENVIRONMENTS }}
         reporters: '["newman-html-extra"]'
