@@ -29,6 +29,12 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 interface RequestParametersInterface
 {
     /**
+     * Converts search array to string
+     *
+     * @return string
+     */
+    public function getSearchAsString(): string;
+    /**
      * Add an extra parameter.
      *
      * @param string $parameterName Parameter name
@@ -135,6 +141,13 @@ interface RequestParametersInterface
      * @return array ['sort_by' => ..., 'limit' => ..., 'total' => ..., ...]
      */
     public function toArray(): array;
+
+    /**
+     * Re-initialize the search set previously
+     *
+     * @return void
+     */
+    public function unsetSearch(): void;
 
     /**
      * Remove a search parameter.

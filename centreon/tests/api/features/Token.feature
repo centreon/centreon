@@ -45,6 +45,37 @@ Feature:
       """
     Then the response code should be "400"
 
+    # deletor is admin
+    When I send a POST request to '/api/latest/administration/tokens' with body:
+      """
+      {
+        "name": "my-token",
+        "user_id": 1,
+        "expiration_date": "2123-08-31T15:46:00+02:00"
+      }
+      """
+    Then the response code should be "201"
+    When I send a DELETE request to '/api/latest/administration/tokens/my-token'
+    Then the response code should be "204"
+
+    When I send a POST request to '/api/latest/administration/tokens' with body:
+      """
+      {
+        "name": "someone-else-token",
+        "user_id": 18,
+        "expiration_date": "2123-08-31T15:46:00+02:00"
+      }
+      """
+    Then the response code should be "201"
+    When I send a DELETE request to '/api/latest/administration/tokens/someone-else-token'
+    Then the response code should be "404"
+    When I send a DELETE request to '/api/latest/administration/tokens/someone-else-token/users/18'
+    Then the response code should be "204"
+    When I send a DELETE request to '/api/latest/administration/tokens/unknown-token'
+    Then the response code should be "404"
+    When I send a DELETE request to '/api/latest/administration/tokens/unknown-token/users/18'
+    Then the response code should be "404"
+
     # creator is not admin, without tokens management rights
     Given the following CLAPI import data:
       """
@@ -82,6 +113,41 @@ Feature:
       }
       """
     Then the response code should be "409"
+
+    # deletor no admin, no token management rights
+    When I send a POST request to '/api/latest/administration/tokens' with body:
+      """
+      {
+        "name": "my-token",
+        "user_id": 20,
+        "expiration_date": "2123-08-31T15:46:00+02:00"
+      }
+      """
+    Then the response code should be "201"
+    When I send a DELETE request to '/api/latest/administration/tokens/my-token'
+    Then the response code should be "204"
+
+
+    When I am logged in
+    And I send a POST request to '/api/latest/administration/tokens' with body:
+      """
+      {
+        "name": "someone-else-token",
+        "user_id": 18,
+        "expiration_date": "2123-08-31T15:46:00+02:00"
+      }
+      """
+    Then the response code should be "201"
+
+    When I am logged in with "ala"/"Centreon@2022"
+    And I send a DELETE request to '/api/latest/administration/tokens/someone-else-token'
+    Then the response code should be "404"
+    When I send a DELETE request to '/api/latest/administration/tokens/someone-else-token/users/18'
+    Then the response code should be "400"
+    When I send a DELETE request to '/api/latest/administration/tokens/unknown-token'
+    Then the response code should be "404"
+    When I send a DELETE request to '/api/latest/administration/tokens/unknown-token/users/18'
+    Then the response code should be "404"
 
     # creator is not admin, with tokens management rights
     Given the following CLAPI import data:
@@ -125,3 +191,25 @@ Feature:
       }
       """
     Then the response code should be "201"
+
+    # deletor not admin, with management tokens rights
+    When I send a POST request to '/api/latest/administration/tokens' with body:
+      """
+      {
+        "name": "my-token",
+        "user_id": 20,
+        "expiration_date": "2123-08-31T15:46:00+02:00"
+      }
+      """
+    Then the response code should be "201"
+    When I send a DELETE request to '/api/latest/administration/tokens/my-token'
+    Then the response code should be "204"
+
+    When I send a DELETE request to '/api/latest/administration/tokens/someone-else-token'
+    Then the response code should be "404"
+    When I send a DELETE request to '/api/latest/administration/tokens/someone-else-token/users/18'
+    Then the response code should be "204"
+    When I send a DELETE request to '/api/latest/administration/tokens/unknown-token'
+    Then the response code should be "404"
+    When I send a DELETE request to '/api/latest/administration/tokens/unknown-token/users/18'
+    Then the response code should be "404"

@@ -99,18 +99,29 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit('/');
+
+      cy.intercept({
+        method: 'GET',
+        url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+      }).as('getUserInformation');
+
       cy.contains('Login with openid').should('be.visible').click();
 
       cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
+      cy.wait('@getUserInformation')
+        .its('response.statusCode')
+        .should('eq', 200);
       cy.url().should('include', '/monitoring/resources');
 
       cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
     });
+
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
+
     getUserContactId('oidc').then((oidcId) => {
       cy.visit(`/centreon/main.php?p=60301&o=c&contact_id=${oidcId}`)
         .wait('@getTimeZone')

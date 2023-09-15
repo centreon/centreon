@@ -26,10 +26,6 @@ beforeEach(() => {
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
   }).as('updateOIDCProvider');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('postLocalAuthentification');
 });
 
 Given('an administrator is logged on the platform', () => {
