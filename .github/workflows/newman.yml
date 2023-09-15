@@ -6,10 +6,10 @@ on:
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - collection: 'collections/*.postman_collection.json'
+    defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/rest_api
         
     env:
       CONTAINER_NAME: my_centreon_container
@@ -36,7 +36,6 @@ jobs:
         run: npm install pnpm -g
 
       - name: Install Dependencies
-        working-directory: centreon/tests/rest_api
         run: pnpm install -f ./centreon/tests/rest_api/package.json
 
       - name: Start Centreon Web Container
@@ -46,19 +45,26 @@ jobs:
         run: |
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
+      
+      - name: List contents of node_modules
+        run: |
+          ls -lR node_modules
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
-          collections=(${{ matrix.collection }})
-          for collection in "${collections[@]}"; do
-            environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
-            collection_name=$(basename "$collection" .postman_collection.json)
-            
-            # Create a directory to store HTML reports
-            mkdir -p newman
+          environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="collections"
 
+          # Create a directory to store HTML reports
+          mkdir -p newman
+
+          # Iterate over each Postman collection file in the specified directory
+          for collection_file in "$collection_path"/*.postman_collection.json; do
+            # Extract the collection name from the file name
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+             
             # Run Newman with the current collection file and generate an HTML report
-            pnpm newman run "$collection" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" || true
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
           done
         working-directory: centreon/tests/rest_api  
 
@@ -70,6 +76,44 @@ jobs:
         env:
           NODE_VERSION: 16
 
-      - name: Continue to Next Collection
-        if: ${{ always() }}
-        run: echo "Continuing to the next collection..."
+      - name: Extract Newman JSON Summary
+        id: extract-newman-summary
+        run: |
+          environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="collections"
+
+          for collection_file in "$collection_path"/*.postman_collection.json; do
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,json --reporter-json-export "newman/${collection_name}.json" || true
+          done
+        working-directory: centreon/tests/rest_api
+
+      - name: Create GitHub Summary
+        run: |
+          tests_passed=0
+          tests_failed=0
+          tests_skipped=0
+
+          for file in centreon/tests/rest_api/newman/*.json; do
+            tests_passed=$((tests_passed + $(jq -r '.run.stats.tests.passed' "$file")))
+            tests_failed=$((tests_failed + $(jq -r '.run.stats.tests.failed' "$file")))
+            tests_skipped=$((tests_skipped + $(jq -r '.run.stats.tests.skipped' "$file")))
+          done
+
+          echo "::set-output name=tests_passed::$tests_passed"
+          echo "::set-output name=tests_failed::$tests_failed"
+          echo "::set-output name=tests_skipped::$tests_skipped"
+        shell: bash
+
+      - name: GitHub Summary
+        run: |
+          tests_passed="${{ steps.create-github-summary.outputs.tests_passed }}"
+          tests_failed="${{ steps.create-github-summary.outputs.tests_failed }}"
+          tests_skipped="${{ steps.create-github-summary.outputs.tests_skipped }}"
+          
+          echo "::group::Postman Tests Summary"
+          echo "Tests Passed: $tests_passed"
+          echo "Tests Failed: $tests_failed"
+          echo "Tests Skipped: $tests_skipped"
+          echo "::endgroup::"
+        shell: bash
