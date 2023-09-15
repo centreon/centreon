@@ -11,7 +11,7 @@ info:
     + Added host template endpoints (POST, DELETE, PATCH)
     + Added service endpoints (POST, DELETE)
     + Added host endpoints (POST, DELETE)
-    + Added token endpoints (POST)
+    + Added token endpoints (POST, DELETE)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -261,6 +261,8 @@ paths:
     $ref: "./v23.10/Configuration/Notification/Notification.yaml"
   /configuration/notifications/resources:
     $ref: "./v23.10/Configuration/Notification/FindNotifiableResources.yaml"
+  /configuration/notifications/{notification_id}/rules:
+    $ref: "./v23.10/Configuration/Notification/FindNotifiableRule.yaml"
   /configuration/hosts/{host_id}:
     $ref: './v23.10/Configuration/Host/DeleteHost.yaml'
   /configuration/hosts/templates:
@@ -4584,6 +4586,10 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /administration/tokens:
     $ref: "./v23.10/Administration/Token/Tokens.yaml"
+  /administration/tokens/{token_name}:
+    $ref: "./v23.10/Administration/Token/DeleteToken.yaml"
+  /administration/tokens/{token_name}/users/{user_id}:
+    $ref: "./v23.10/Administration/Token/DeleteTokenByUser.yaml"
   /administration/parameters:
     post:
       tags:

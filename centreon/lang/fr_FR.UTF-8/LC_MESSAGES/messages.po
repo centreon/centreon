@@ -18189,3 +18189,12 @@ msgstr "L'utilisateur avec l'ID %d n'existe pas"
 
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "Error while deleting a token"
+msgstr "Erreur lors de la suppression d'un token"
+
+msgid "You are not allowed to delete tokens"
+msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
+
+msgid "You are not allowed to delete tokens linked to user ID %d"
+msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"

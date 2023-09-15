@@ -77,6 +77,10 @@ const resourceQueryParameters = [
   {
     name: 'only_with_performance_data',
     value: true
+  },
+  {
+    name: 'limit',
+    value: 30
   }
 ];
 

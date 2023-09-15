@@ -39,7 +39,19 @@ interface ReadTokenRepositoryInterface
     public function find(string $tokenString): ?Token;
 
     /**
-     * Determine if a token exists by its name.
+     * Find a token exists by its name and user ID.
+     *
+     * @param string $tokenName
+     * @param int $userId
+     *
+     * @throws \Throwable
+     *
+     * @return Token|null
+     */
+    public function findByNameAndUserId(string $tokenName, int $userId): ?Token;
+
+    /**
+     * Determine if a token exists by its name and user ID.
      *
      * @param string $tokenName
      * @param int $userId
@@ -48,5 +60,5 @@ interface ReadTokenRepositoryInterface
      *
      * @return bool
      */
-    public function existsByNameANdUserId(string $tokenName, int $userId): bool;
+    public function existsByNameAndUserId(string $tokenName, int $userId): bool;
 }
