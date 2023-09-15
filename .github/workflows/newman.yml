@@ -73,7 +73,6 @@ jobs:
     - name: Upload HTML Reports
       run: |
         cd centreon/tests/rest_api
-        sh -c "npx newman run $COLLECTIONS -e $ENVIRONMENTS --reporters newman-html-extra"
       env:
         collection: ${{ env.COLLECTIONS }}
         environment: ${{ env.ENVIRONMENTS }}
