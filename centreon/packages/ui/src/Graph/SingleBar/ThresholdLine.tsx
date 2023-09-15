@@ -2,6 +2,8 @@ import { equals } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
+import { margins } from '../common/margins';
+
 import { groupMargin } from './Thresholds';
 
 export const barHeights = {
@@ -66,11 +68,15 @@ export const ThresholdLine = ({
         strokeWidth={2}
         x1={scaledValue}
         x2={scaledValue}
-        y1={isSmall ? groupMargin - lineMargin : groupMargin + 3 * lineMargin}
+        y1={
+          isSmall
+            ? groupMargin - lineMargin
+            : groupMargin + lineMargin + margins.top
+        }
         y2={
           isSmall
             ? thresholdLineHeight + groupMargin - lineMargin
-            : groupMargin + 3 * lineMargin
+            : thresholdLineHeight + groupMargin + lineMargin + margins.top
         }
       />
       <line
@@ -79,11 +85,15 @@ export const ThresholdLine = ({
         strokeWidth={5}
         x1={scaledValue}
         x2={scaledValue}
-        y1={isSmall ? groupMargin - lineMargin : groupMargin + 3 * lineMargin}
+        y1={
+          isSmall
+            ? groupMargin - lineMargin
+            : groupMargin + lineMargin + margins.top
+        }
         y2={
           isSmall
             ? thresholdLineHeight + groupMargin - lineMargin
-            : groupMargin + 3 * lineMargin
+            : thresholdLineHeight + groupMargin + lineMargin + margins.top
         }
         onMouseEnter={onMouseEnter(scaledValue)}
         onMouseLeave={hideTooltip}

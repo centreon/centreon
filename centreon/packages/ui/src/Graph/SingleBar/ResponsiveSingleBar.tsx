@@ -14,6 +14,7 @@ import {
 } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
 import { getColorFromDataAndTresholds } from '../common/utils';
+import { margins } from '../common/margins';
 
 import { SingleBarProps } from './models';
 import Thresholds, { groupMargin } from './Thresholds';
@@ -137,7 +138,7 @@ const ResponsiveSingleBar = ({
             rx={4}
             style={springStyle}
             x={0}
-            y={groupMargin}
+            y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
           />
           <Bar
             fill="transparent"
@@ -147,7 +148,7 @@ const ResponsiveSingleBar = ({
             stroke={alpha(theme.palette.text.primary, 0.3)}
             width={maxBarWidth}
             x={0}
-            y={groupMargin}
+            y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
           />
           {thresholds.enabled && (
             <Thresholds
