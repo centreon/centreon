@@ -3,5 +3,6 @@ name: sort_by
 required: false
 description: "Sort the resulting data by its properties"
 schema:
-  type: object
+  type: string
   example: '{"host.name":"ASC"}'
+

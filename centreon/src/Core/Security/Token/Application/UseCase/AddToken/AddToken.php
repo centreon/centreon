@@ -31,7 +31,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\Token\Application\Exception\TokenException;
@@ -46,7 +46,6 @@ final class AddToken
     public function __construct(
         private readonly WriteTokenRepositoryInterface $writeTokenRepository,
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
-        private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ProviderAuthenticationFactoryInterface $providerFactory,
         private readonly AddTokenValidation $validation,
         private readonly ContactInterface $user,
@@ -116,9 +115,9 @@ final class AddToken
             expirationDate: $expirationDate,
             userId: $request->userId,
             configurationProviderId: $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),
-            name: $request->name,
+            name: new TrimmedString($request->name),
             creatorId: $this->user->getId(),
-            creatorName: $this->user->getName(),
+            creatorName: new TrimmedString($this->user->getName()),
         );
 
         $this->writeTokenRepository->add($newToken);
@@ -140,12 +139,10 @@ final class AddToken
         if (! ($apiToken = $this->readTokenRepository->find($tokenString))) {
             throw TokenException::errorWhileRetrievingObject();
         }
-        $userNames = $this->readContactRepository->findNamesByIds($apiToken->getUserId());
-
         $responseDto = new AddTokenResponse();
         $responseDto->name = $apiToken->getName();
         $responseDto->userId = $apiToken->getUserId();
-        $responseDto->userName = $userNames[$apiToken->getUserId()]['name'];
+        $responseDto->userName = $apiToken->getUserName();
         $responseDto->creatorId = $apiToken->getCreatorId();
         $responseDto->creatorName = $apiToken->getCreatorName();
         $responseDto->creationDate = $apiToken->getCreationDate();

@@ -16402,3 +16402,9 @@ msgstr ""
 
 # msgid "none"
 # msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""

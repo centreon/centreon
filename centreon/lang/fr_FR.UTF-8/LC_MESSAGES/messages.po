@@ -18201,3 +18201,9 @@ msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utili
 
 msgid "none"
 msgstr "aucun"
+
+msgid "Error while searching for authentication tokens"
+msgstr "Erreur lors de la recherche de jetons d'authentification"
+
+msgid "You are not allowed to list authentication tokens"
+msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
