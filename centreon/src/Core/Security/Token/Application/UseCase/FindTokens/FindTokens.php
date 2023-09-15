@@ -57,8 +57,7 @@ final class FindTokens
     public function __invoke(FindTokensPresenterInterface $presenter): void
     {
         try {
-            if (! $this->canDisplayTokens())
-            {
+            if (! $this->canDisplayTokens()) {
                 $this->error(
                     "User doesn't have sufficient rights to list tokens",
                     ['user_id' => $this->user->getId()]
