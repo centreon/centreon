@@ -90,30 +90,9 @@ jobs:
 
       - name: Create Custom Summary HTML
         run: |
-          cat > custom-summary.html <<EOF
-          <!DOCTYPE html>
-          <html>
-          <head>
-              <title>Custom Summary Report</title>
-          </head>
-          <body>
-              <h1>Custom Summary Report</h1>
-              <table border="1">
-                  <tr>
-                      <th>Collection</th>
-                      <th>Report</th>
-                  </tr>
-                  {{#executions}}
-                  <tr>
-                      <td><a href="{{collectionUrl}}">{{collectionName}}</a></td>
-                      <td><a href="{{reportUrl}}">{{reportName}}</a></td>
-                  </tr>
-                  {{/executions}}
-              </table>
-          </body>
-          </html>
-          EOF
-        working-directory: centreon/tests/rest_api
+            # Use jq to format the JSON data into the HTML template
+            echo "$executionsJson" | jq -r '.[] | "\(.collectionName) \(.collectionUrl) \(.reportName) \(.reportUrl)"' > custom-summary.html
+          working-directory: centreon/tests/rest_api
 
       - name: Upload Custom Summary HTML
         uses: actions/upload-artifact@v2
