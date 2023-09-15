@@ -55,15 +55,22 @@ jobs:
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
 
+          # Create a directory to store HTML reports
+          mkdir -p newman
+
           for collection_file in "$collection_path"/*.postman_collection.json; do
             collection_name=$(basename "$collection_file" .postman_collection.json)
             
-            # Run each collection with the matt-ball/newman-action, and use try...catch to capture errors
             echo "Running collection: $collection_name"
-            echo "NEWMAN_COLLECTION=$collection_file"
-            {
-              uses: matt-ball/newman-action@v1.0.4
-            } || true
+            
+            # Utilisez l'action matt-ball/newman-action pour exécuter la collection et générer le rapport
+            uses: matt-ball/newman-action@master
+            with:
+              collection: "$collection_file"
+              environment: "$environment_path"
+              reporters: cli,htmlextra
+              reporter-htmlextra-title: "$collection_name"
+              reporter-htmlextra-export: "newman/$collection_name.html" || true
           done
         working-directory: centreon/tests/rest_api  
 
