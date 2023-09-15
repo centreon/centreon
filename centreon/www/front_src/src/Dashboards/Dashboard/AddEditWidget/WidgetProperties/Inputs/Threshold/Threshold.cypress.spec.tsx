@@ -100,7 +100,7 @@ describe('Threshold', () => {
     cy.findByLabelText(labelShowThresholds).should('not.be.checked');
     cy.findAllByTestId('default').eq(0).children().eq(0).should('be.checked');
     cy.findAllByTestId('default').eq(1).children().eq(0).should('be.checked');
-    cy.contains('Default (None)').should('be.visible');
+    cy.contains('Default (none)').should('be.visible');
     cy.findByTestId(labelThreshold).should('not.exist');
 
     cy.makeSnapshot();
