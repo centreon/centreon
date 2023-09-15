@@ -28,7 +28,7 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          registry: ${{ secrets.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       
@@ -65,14 +65,14 @@ jobs:
             
             echo "Running collection: $collection_name"
             
-            # Utilisez l'action matt-ball/newman-action pour exécuter la collection
+            # Utilizez l'action matt-ball/newman-action pour exécuter la collection
             uses: matt-ball/newman-action@master
             with:
               collection: "$collection_file"
               environment: "$environment_path"
               reporters: cli,htmlextra
               reporter-htmlextra-title: "$collection_name"
-              reporter-htmlextra-export: "newman/$collection_name.html" || true
+              reporter-htmlextra-export: "newman/$collection_name.html"
           done
         working-directory: centreon/tests/rest_api  
 
