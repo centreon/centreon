@@ -50,29 +50,76 @@ jobs:
         run: |
           ls -lR node_modules
 
-      # - name: Run Postman Tests and Generate HTML Report
-      #   run: |
-      #     environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
-      #     collection_path="collections"
-
-      #     # Create a directory to store HTML reports
-      #     mkdir -p newman
-
-      #     # Iterate over each Postman collection file in the specified directory
-      #     for collection_file in "$collection_path"/*.postman_collection.json; do
-      #       # Extract the collection name from the file name
-      #       collection_name=$(basename "$collection_file" .postman_collection.json)
-
-      #       # Run Newman with the current collection file and generate an HTML report
-      #       pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
-      #     done
-      #   working-directory: centreon/tests/rest_api  
-
       - name: Run Postman Tests and Generate HTML Report
-        uses: matt-ball/newman-action@master
+        run: |
+          environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="collections"
+
+          # Create a directory to store HTML reports
+          mkdir -p newman
+
+          # Define an array to store execution information
+          executions=()
+
+          # Iterate over each Postman collection file in the specified directory
+          for collection_file in "$collection_path"/*.postman_collection.json; do
+            # Extract the collection name from the file name
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+
+            # Run Newman with the current collection file and generate an HTML report
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
+
+            # Store execution information in the array
+            executions+=("{\"collectionName\":\"$collection_name\", \"collectionUrl\":\"collections/$collection_name.postman_collection.json\", \"reportName\":\"$collection_name.html\", \"reportUrl\":\"newman/$collection_name.html\"}")
+          done
+
+          # Convert the executions array to a JSON string
+          executionsJson="[$(IFS=,; echo "${executions[*]}")]"
+
+          # Inject the executions JSON into the custom HTML template
+          echo "$executionsJson" > executions.json
+        working-directory: centreon/tests/rest_api  
+
+      - name: Upload HTML Reports
+        uses: actions/upload-artifact@v2
         with:
-            collection: centreon/tests/rest_api/collections
-            environment: centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json
+          name: postman-html-reports
+          path: centreon/tests/rest_api/newman/
+        env:
+          NODE_VERSION: 16
+
+      - name: Create Custom Summary HTML
+        run: |
+          cat > custom-summary.html <<EOF
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Custom Summary Report</title>
+          </head>
+          <body>
+              <h1>Custom Summary Report</h1>
+              <table border="1">
+                  <tr>
+                      <th>Collection</th>
+                      <th>Report</th>
+                  </tr>
+                  {{#executions}}
+                  <tr>
+                      <td><a href="{{collectionUrl}}">{{collectionName}}</a></td>
+                      <td><a href="{{reportUrl}}">{{reportName}}</a></td>
+                  </tr>
+                  {{/executions}}
+              </table>
+          </body>
+          </html>
+          EOF
+        working-directory: centreon/tests/rest_api
+
+      - name: Upload Custom Summary HTML
+        uses: actions/upload-artifact@v2
+        with:
+          name: custom-summary-html
+          path: centreon/tests/rest_api/custom-summary.html
 
       - name: Continue to Next Collection
         if: ${{ always() }}
