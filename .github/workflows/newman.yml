@@ -58,12 +58,14 @@ jobs:
           # Create a directory to store HTML reports
           mkdir -p newman
 
+          # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
+            # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
             
             echo "Running collection: $collection_name"
             
-            # Utilisez l'action matt-ball/newman-action pour exécuter la collection et générer le rapport
+            # Utilisez l'action matt-ball/newman-action pour exécuter la collection
             uses: matt-ball/newman-action@master
             with:
               collection: "$collection_file"
@@ -73,14 +75,6 @@ jobs:
               reporter-htmlextra-export: "newman/$collection_name.html" || true
           done
         working-directory: centreon/tests/rest_api  
-
-      - name: Upload HTML Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: postman-html-reports
-          path: centreon/tests/rest_api/newman/
-        env:
-          NODE_VERSION: 16
 
       - name: Continue to Next Collection
         if: ${{ always() }}
