@@ -122,3 +122,9 @@ export enum SortOrder {
   asc = 'asc',
   desc = 'desc'
 }
+
+export enum Visualization {
+  All = 'All',
+  Host = 'By host',
+  Service = 'By service'
+}

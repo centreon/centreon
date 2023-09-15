@@ -7,6 +7,90 @@ Feature:
     Given a running cloud platform instance of Centreon Web API
     And the endpoints are described in Centreon Web API documentation
 
+  Scenario: Retrieve a notifiable Rule
+    Given I am logged in
+    And a feature flag "notification" of bitmask 2
+    And the following CLAPI import data:
+    """
+    SG;ADD;service-grp1;service-grp1-alias
+    SG;ADD;service-grp2;service-grp2-alias
+    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    """
+
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
+    """
+    {
+      "name": "notification-name",
+      "timeperiod_id": 2,
+      "resources": [
+        {
+          "type": "hostgroup",
+          "events": 5,
+          "ids": [53,56],
+          "extra": {
+            "event_services": 2
+          }
+        },
+        {
+          "type": "servicegroup",
+          "events": 5,
+          "ids": [1,2]
+        }
+      ],
+      "messages": [
+        {
+          "channel": "Email",
+          "subject": "Hello world !",
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
+        }
+      ],
+      "users": [20,21],
+      "contactgroups": [3,5],
+      "is_activated": true
+    }
+    """
+    Then the response code should be "201"
+    And I store response values in:
+      | name           | path |
+      | notificationId | id   |
+
+    When I send a GET request to '/api/latest/configuration/notifications/<notificationId>/rules'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "notification_id": 1,
+        "channels": {
+            "email": {
+                "subject": "Hello world !",
+                "formatted_message": "a formatted message",
+                "contacts": [
+                    {
+                        "email_address": "user1@mail.com",
+                        "full_name": "user-name1"
+                    }, {
+                        "email_address": "user2@mail.com",
+                        "full_name": "user-name2"
+                    }, {
+                        "email_address": "guest@localhost",
+                        "full_name": "Guest"
+                    }, {
+                        "email_address": "user@localhost",
+                        "full_name": "User"
+                    }, {
+                        "email_address": "admin@centreon.com",
+                        "full_name": "admin admin"
+                    }
+                ]
+            },
+            "slack": null,
+            "sms": null
+        }
+    }
+    """
+
   Scenario: Notification creation as admin
     Given I am logged in
     And a feature flag "notification" of bitmask 2

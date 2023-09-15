@@ -116,6 +116,7 @@ if ($isRemote === false) {
         $infos = $oStatistics->getPlatformInfo();
         $timezone = $oStatistics->getPlatformTimezone();
         $authentication = $oStatistics->getAuthenticationOptions();
+        $authentication['api_token'] = $oStatistics->getApiTokensInfo();
         $additional = [];
 
         /*

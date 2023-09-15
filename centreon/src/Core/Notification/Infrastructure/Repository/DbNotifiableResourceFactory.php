@@ -32,7 +32,7 @@ class DbNotifiableResourceFactory
     public const NO_SERVICE_EVENTS = '0';
 
     /**
-     * @param array<int,array{
+     * @param iterable<int,array{
      *  notification_id: int,
      *  host_id: int,
      *  host_name: string,
@@ -47,7 +47,7 @@ class DbNotifiableResourceFactory
      *
      * @throws \Throwable
      *
-     * @return \Generator|null
+     * @return \Generator<NotifiableResource>
      */
     public static function createFromRecords(iterable $records): \Generator
     {

@@ -18117,3 +18117,42 @@ msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
 msgid "Manage the organization's authentication tokens"
 msgstr "Gérer les jetons d'authentification de l'organisation"
+
+msgid "Display view:"
+msgstr "Afficher la vue :"
+
+msgid "View all resources"
+msgstr "Afficher toutes les ressources"
+
+msgid "View by host"
+msgstr "Afficher par hôte"
+
+msgid "View by service"
+msgstr "Afficher par service"
+
+msgid "Error while adding a token"
+msgstr "Erreur lors de l'ajout d'un token"
+
+msgid "You are not allowed to add tokens"
+msgstr "Vous n'êtes pas autorisé à ajouter des tokens"
+
+msgid "Error while retrieving a token"
+msgstr "Erreur lors de la récupération du token"
+
+msgid "The token name '%s' already exists"
+msgstr "Le nom de token '%s' existe déjà"
+
+msgid "The user with ID %d doesn't exist"
+msgstr "L'utilisateur avec l'ID %d n'existe pas"
+
+msgid "You are not allowed to add tokens linked to user with ID %d"
+msgstr "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "Error while deleting a token"
+msgstr "Erreur lors de la suppression d'un token"
+
+msgid "You are not allowed to delete tokens"
+msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
+
+msgid "You are not allowed to delete tokens linked to user ID %d"
+msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"

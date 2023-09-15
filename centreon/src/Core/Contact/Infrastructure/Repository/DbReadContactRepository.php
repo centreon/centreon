@@ -73,4 +73,22 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
 
         return $names;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $userId): bool
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1 FROM `:db`.contact
+                WHERE contact_id = :userId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
 }

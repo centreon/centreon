@@ -138,10 +138,20 @@ Then(
 
     cy.session(username, () => {
       cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
-      cy.loginKeycloak(username)
-        .url()
-        .should('include', '/monitoring/resources')
-        .logout();
+
+      cy.intercept({
+        method: 'GET',
+        url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+      }).as('getUserInformation');
+
+      cy.loginKeycloak(username);
+
+      cy.wait('@getUserInformation')
+        .its('response.statusCode')
+        .should('eq', 200);
+      cy.url().should('include', '/monitoring/resources');
+
+      cy.logout();
 
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
     });
@@ -177,5 +187,8 @@ Then(
 );
 
 after(() => {
+  // avoid random "Cannot read properties of null (reading 'postMessage')" when stopping containers
+  cy.on('uncaught:exception', () => false);
+
   cy.stopWebContainer().stopOpenIdProviderContainer();
 });
