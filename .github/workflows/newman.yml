@@ -50,7 +50,7 @@ jobs:
       id: generate-list
       run: |
         collections=""
-        environments=""
+        environments=""  
         for file in centreon/tests/rest_api/collections/*.postman_collection.json; do
           collections="$collections,$file"
           environment="${file%.postman_collection.json}-Environment.json"
@@ -62,6 +62,15 @@ jobs:
         echo "ENVIRONMENTS=$environments" >> $GITHUB_ENV
       shell: bash
 
+    - name: Debug Collection and Environment
+      run: |
+        echo "COLLECTIONS: $COLLECTIONS"
+        echo "ENVIRONMENTS: $ENVIRONMENTS"
+      env:
+        COLLECTIONS: ${{ env.COLLECTIONS }}
+        ENVIRONMENTS: ${{ env.ENVIRONMENTS }}
+      shell: bash
+      
     - name: Upload HTML Reports
       uses: matt-ball/newman-action@v1.0.4
       with:
