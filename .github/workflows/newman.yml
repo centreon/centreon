@@ -50,11 +50,9 @@ jobs:
       id: generate-list
       run: |
         collections=""
-        environments=""  
+        environments="collections/Environment-for-Refactored-API-Test-Collection.json"  
         for file in collections/*.postman_collection.json; do
           collections="$collections,$file"
-          environment="${file%.postman_collection.json}-Environment.json"
-          environments="$environments,$environment"
         done
         collections="${collections:1}"  
         environments="${environments:1}"
