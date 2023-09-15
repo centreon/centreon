@@ -19,25 +19,13 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Common\Domain;
+namespace Core\Security\Token\Application\UseCase\FindTokens;
 
-/**
- * This object is *by purpose* a very simple ValueObject.
- * It forces the carried string to be explicitly trimmed.
- */
-final class TrimmedString implements \Stringable
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindTokensPresenterInterface
 {
-    public readonly string $value;
-
-    public function __construct(string|\Stringable $value)
-    {
-        $this->value = trim((string) $value);
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
-    }
+    public function presentResponse(FindTokensResponse|ResponseStatusInterface $response): void;
 }

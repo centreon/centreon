@@ -19,25 +19,22 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Common\Domain;
+namespace Core\Security\Token\Application\UseCase\FindTokens;
 
-/**
- * This object is *by purpose* a very simple ValueObject.
- * It forces the carried string to be explicitly trimmed.
- */
-final class TrimmedString implements \Stringable
+final class TokenDto
 {
-    public readonly string $value;
-
-    public function __construct(string|\Stringable $value)
+    public function __construct(
+        public string $name,
+        public int $userId,
+        public string $userName,
+        public ?int $creatorId,
+        public string $creatorName,
+        public \DateTimeInterface $creationDate,
+        public \DateTimeInterface $expirationDate,
+        public bool $isRevoked,
+    )
     {
-        $this->value = trim((string) $value);
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
     }
 }
