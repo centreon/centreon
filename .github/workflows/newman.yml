@@ -17,6 +17,9 @@ jobs:
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
 
     steps:
+      - name: Enable Unsecure Commands
+        run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
