@@ -2,6 +2,8 @@ name: Postman Tests
 
 on:
   push:
+    branches:
+      - main  # Change this to the appropriate branch if needed
 
 jobs:
   postman_tests:
@@ -10,7 +12,7 @@ jobs:
       run:
         shell: bash
         working-directory: centreon/tests/rest_api
-        
+
     env:
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost
@@ -28,10 +30,10 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          registry: ${{ secrets.DOCKER_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      
+
       - name: Install pnpm
         run: npm install pnpm -g
 
@@ -45,28 +47,25 @@ jobs:
         run: |
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
-      
-      - name: List contents of node_modules
-        run: |
-          ls -lR node_modules
 
-      - name: Run Postman Tests and Generate HTML Report
+      - name: Create HTML Reports Directory
+        run: mkdir -p newman
+
+      - name: Run Postman Tests with matt-ball/newman-action
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
 
-          # Create a directory to store HTML reports
-          mkdir -p newman
-
-          # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
-            # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
-
-            # Run Newman with the current collection file and generate an HTML report
-            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
+            
+            # Run each collection with the matt-ball/newman-action, and use try...catch to capture errors
+            echo "Running collection: $collection_name"
+            echo "::set-env name=NEWMAN_COLLECTION::$collection_file"
+            {
+                uses: matt-ball/newman-action@v1.0.4
+            } || true
           done
-        working-directory: centreon/tests/rest_api  
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
