@@ -25,6 +25,6 @@ export interface FeatureFlags {
 }
 
 export interface PlatformFeatures {
-  featuresFlags: FeatureFlags;
+  featureFlags: FeatureFlags;
   isCloudPlatform: boolean;
 }

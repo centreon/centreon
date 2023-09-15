@@ -25,6 +25,8 @@ import {
   selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
+import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
+import { PlatformFeatures } from '../../api/models';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadDetails from './useLoadResources/useLoadDetails';
@@ -115,6 +117,19 @@ const retrievedListingWithCriticalResources = {
   result: entitiesWithCriticalResources
 };
 
+const getPlatformFeatures = ({
+  enableThreeView = true
+}: {
+  enableThreeView?: boolean;
+}): PlatformFeatures => {
+  return {
+    featureFlags: {
+      resourceStatusThreeView: enableThreeView
+    },
+    isCloudPlatform: false
+  };
+};
+
 const ListingTest = (): JSX.Element => {
   useLoadDetails();
   useFilter();
@@ -126,6 +141,7 @@ const ListingTest = (): JSX.Element => {
 const store = createStore();
 
 store.set(selectedVisualizationAtom, Visualization.All);
+store.set(platformFeaturesAtom, getPlatformFeatures({}));
 
 const ListingTestWithJotai = (): JSX.Element => (
   <Provider store={store}>
@@ -662,6 +678,31 @@ describe('Resource Listing: Visualization by all resources', () => {
     columnToSort.forEach(({ label }) => {
       cy.findByLabelText(`${label} Drag handle`).should('exist');
     });
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Three views : Feature Flag', () => {
+  it('hides the three views icons if the feature is disabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ enableThreeView: false })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.findByTestId('three views').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+  it('displays the three views icons if the feature is enabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ enableThreeView: true })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.findByTestId('three views').should('be.visible');
 
     cy.makeSnapshot();
   });

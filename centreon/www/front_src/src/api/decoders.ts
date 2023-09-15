@@ -122,12 +122,12 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
 
 export const platformFeaturesDecoder = JsonDecoder.object<PlatformFeatures>(
   {
-    featuresFlags: featuresFlagDecoder,
+    featureFlags: featuresFlagDecoder,
     isCloudPlatform: JsonDecoder.boolean
   },
   'Platform features',
   {
-    featuresFlags: 'feature_flags',
+    featureFlags: 'feature_flags',
     isCloudPlatform: 'is_cloud_platform'
   }
 );

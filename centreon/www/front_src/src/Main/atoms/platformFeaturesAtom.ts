@@ -7,6 +7,6 @@ export const FeatureFlagsAtom = atom<FeatureFlags | null>(
   (get): FeatureFlags => {
     const platformFeatures = get(platformFeaturesAtom);
 
-    return platformFeatures?.featuresFlags as FeatureFlags;
+    return platformFeatures?.featureFlags as FeatureFlags;
   }
 );
