@@ -28,10 +28,10 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-            registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-            username: ${{ secrets.DOCKER_REGISTRY_ID }}
-            password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-        
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      
       - name: Install pnpm
         run: npm install pnpm -g
 
@@ -62,19 +62,25 @@ jobs:
           for collection_file in "$collection_path"/*.postman_collection.json; do
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
-            
-            echo "Running collection: $collection_name"
-            
-            # Utilizez l'action matt-ball/newman-action pour exécuter la collection
-            uses: matt-ball/newman-action@master
-            with:
-              collection: "$collection_file"
-              environment: "$environment_path"
-              reporters: cli,htmlextra
-              reporter-htmlextra-title: "$collection_name"
-              reporter-htmlextra-export: "newman/$collection_name.html"
+
+            # Run Newman with the current collection file and generate an HTML report
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
           done
         working-directory: centreon/tests/rest_api  
+        
+      - name: Upload HTML Reports
+        uses: matt-ball/newman-action@master
+        with:
+          collection: "collections/10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection.postman_collection.json"
+          environment: "collections/Environment-for-Refactored-API-Test-Collection.json"
+
+      - name: Upload HTML Reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: postman-html-reports
+          path: centreon/tests/rest_api/newman/
+        env:
+          NODE_VERSION: 16
 
       - name: Continue to Next Collection
         if: ${{ always() }}
