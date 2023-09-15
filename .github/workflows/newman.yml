@@ -92,7 +92,7 @@ jobs:
         run: |
             # Use jq to format the JSON data into the HTML template
             echo "$executionsJson" | jq -r '.[] | "\(.collectionName) \(.collectionUrl) \(.reportName) \(.reportUrl)"' > custom-summary.html
-          working-directory: centreon/tests/rest_api
+        working-directory: centreon/tests/rest_api
 
       - name: Upload Custom Summary HTML
         uses: actions/upload-artifact@v2
