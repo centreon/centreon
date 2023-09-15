@@ -17,9 +17,6 @@ jobs:
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
 
     steps:
-      - name: Enable Unsecure Commands
-        run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -63,7 +60,7 @@ jobs:
             
             # Run each collection with the matt-ball/newman-action, and use try...catch to capture errors
             echo "Running collection: $collection_name"
-            echo "::set-env name=NEWMAN_COLLECTION::$collection_file"
+            echo "NEWMAN_COLLECTION=$collection_file"
             {
               uses: matt-ball/newman-action@v1.0.4
             } || true
