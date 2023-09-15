@@ -68,7 +68,8 @@ jobs:
         COLLECTIONS: ${{ env.COLLECTIONS }}
         ENVIRONMENTS: ${{ env.ENVIRONMENTS }}
       shell: bash
-
+      working-directory: centreon/tests/rest_api
+      
     - name: Upload HTML Reports
       uses: matt-ball/newman-action@v1.0.4
       with:
