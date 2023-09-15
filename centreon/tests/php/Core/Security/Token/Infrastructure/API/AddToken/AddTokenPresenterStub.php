@@ -25,12 +25,13 @@ namespace Tests\Core\Security\Token\Infrastructure\API\AddToken;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenPresenterInterface;
+use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
 
 class AddTokenPresenterStub extends AbstractPresenter implements AddTokenPresenterInterface
 {
     public ResponseStatusInterface|AddTokenResponse $response;
+
     public function presentResponse(ResponseStatusInterface|AddTokenResponse $response): void
     {
         $this->response = $response;

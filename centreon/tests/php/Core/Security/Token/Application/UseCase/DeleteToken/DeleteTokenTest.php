@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Domain\TrimmedString;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Token\Application\Exception\TokenException;
@@ -35,7 +36,6 @@ use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\DeleteToken\DeleteToken;
 use Core\Security\Token\Domain\Model\Token;
-
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter(
@@ -55,13 +55,13 @@ beforeEach(function (): void {
     $this->expirationDate = $this->creationDate->add(new \DateInterval('P1Y'));
 
     $this->token = new Token(
-        tokenId: 34,
+        name: new TrimmedString('my-token-name'),
+        userId: $this->linkedUser['id'],
+        userName: new TrimmedString($this->linkedUser['name']),
+        creatorId: $this->creator['id'],
+        creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate,
         expirationDate: $this->expirationDate,
-        userId: $this->linkedUser['id'],
-        name: 'my-token-name',
-        creatorName: $this->creator['name'],
-        creatorId: $this->creator['id'],
         isRevoked: false
     );
 });
@@ -109,7 +109,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(TokenException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the token does not exist', function () {
+it('should present a NotFoundResponse when the token does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -128,16 +128,16 @@ it('should present a NotFoundResponse when the token does not exist', function (
         ->toBe('Token not found');
 });
 
-it('should present a NoContentResponse on success', function () {
+it('should present a NoContentResponse on success', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
 
    $this->readTokenRepository
-        ->expects($this->once())
-        ->method('findByNameAndUserId')
-        ->willReturn($this->token);
+       ->expects($this->once())
+       ->method('findByNameAndUserId')
+       ->willReturn($this->token);
 
     $this->user
         ->expects($this->once())

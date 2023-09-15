@@ -25,6 +25,7 @@ namespace Core\Security\Token\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\TrimmedString;
 use Security\Encryption;
 
 class NewToken
@@ -37,37 +38,34 @@ class NewToken
      * @param \DateTimeImmutable $expirationDate
      * @param int $userId
      * @param int $configurationProviderId
-     * @param string $name
+     * @param TrimmedString $name
      * @param int $creatorId
-     * @param string $creatorName
+     * @param TrimmedString $creatorName
      *
      * @throws AssertionFailedException
+     * @throws \Exception
      */
     public function __construct(
         private readonly \DateTimeImmutable $expirationDate,
         private readonly int $userId,
         private readonly int $configurationProviderId,
-        private string $name,
+        private readonly TrimmedString $name,
         private readonly int $creatorId,
-        private string $creatorName
+        private readonly TrimmedString $creatorName
     )
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
-
-        $this->name = trim($name);
-        $this->creatorName = trim($creatorName);
-
         $this->token = Encryption::generateRandomString();
         $this->creationDate = new \DateTimeImmutable();
 
         Assertion::minDate($this->expirationDate, $this->creationDate, "{$shortName}::expirationDate");
         Assertion::positiveInt($this->userId, "{$shortName}::userId");
         Assertion::positiveInt($this->configurationProviderId, "{$shortName}::configurationProviderId");
-        Assertion::notEmptyString($this->name, "{$shortName}::name");
-        Assertion::maxLength($this->name, Token::MAX_TOKEN_NAME_LENGTH, "{$shortName}::name");
+        Assertion::notEmptyString($this->name->value, "{$shortName}::name");
+        Assertion::maxLength($this->name->value, Token::MAX_TOKEN_NAME_LENGTH, "{$shortName}::name");
         Assertion::positiveInt($this->creatorId, "{$shortName}::creatorId");
-        Assertion::notEmptyString($this->creatorName, "{$shortName}::creatorName");
-        Assertion::maxLength($this->creatorName, Token::MAX_CREATOR_NAME_LENGTH, "{$shortName}::creatorName");
+        Assertion::notEmptyString($this->creatorName->value, "{$shortName}::creatorName");
+        Assertion::maxLength($this->creatorName->value, Token::MAX_USER_NAME_LENGTH, "{$shortName}::creatorName");
     }
 
     public function getToken(): string
@@ -97,7 +95,7 @@ class NewToken
 
     public function getName(): string
     {
-        return $this->name;
+        return $this->name->value;
     }
 
     public function getCreatorId(): int
@@ -107,6 +105,6 @@ class NewToken
 
     public function getCreatorName(): string
     {
-        return $this->creatorName;
+        return $this->creatorName->value;
     }
 }
