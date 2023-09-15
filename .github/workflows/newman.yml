@@ -66,7 +66,7 @@ jobs:
                 uses: matt-ball/newman-action@v1.0.4
             } || true
           done
-
+          
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
