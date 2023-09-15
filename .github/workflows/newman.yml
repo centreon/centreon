@@ -58,8 +58,6 @@ jobs:
         done
         collections="${collections:1}"  # Remove leading comma
         environments="${environments:1}"  # Remove leading comma
-        echo "::set-output name=collections::$collections"
-        echo "::set-output name=environments::$environments"
       shell: bash
 
     - name: Upload HTML Reports
