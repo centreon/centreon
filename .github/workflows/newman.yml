@@ -55,7 +55,7 @@ jobs:
           collections="$collections,$file"
         done
         collections="${collections:1}"  
-        environments="${environments:1}"
+        environments="${environments}"
         echo "COLLECTIONS=$collections" >> $GITHUB_ENV
         echo "ENVIRONMENTS=$environments" >> $GITHUB_ENV
       shell: bash
