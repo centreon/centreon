@@ -16,6 +16,15 @@ export interface PlatformVersions {
   widgets: Record<string, Version>;
 }
 
+export interface FeatureFlags {
+  adExclusionPeriods?: boolean;
+  dashboard?: boolean;
+  notification?: boolean;
+  resourceStatusThreeView?: boolean;
+  vault?: boolean;
+}
+
 export interface PlatformFeatures {
+  featuresFlags: FeatureFlags;
   isCloudPlatform: boolean;
 }
