@@ -16760,10 +16760,10 @@ msgstr ""
 # msgid "Business Views events"
 # msgstr ""
 
-# msgid "By turning off this option, all links included in the widget will be opened in the same tab"
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 # msgstr ""
 
-#  msgid "You are not allowed to add a service"
+#  msgid "You are not allowed to add a service."
 #  msgstr ""
 
 #  msgid "Error while adding the service"
@@ -16778,7 +16778,7 @@ msgstr ""
 #  msgid "'%s' does not exist with ID(s) '%s'"
 #  msgstr ""
 
-#  msgid "'%s' service name already exists for host ID %d"
+#  msgid "'%s' service name already exists for host ID %d."
 #  msgstr ""
 
 # msgid "Widget type"
@@ -16793,10 +16793,10 @@ msgstr ""
 # msgid "Gauge"
 # msgstr ""
 
-# msgid "Bar"
+# msgid "Bar chart"
 # msgstr ""
 
-# msgid "The default value is the value defined for the first metric used"
+# msgid "The default value is the value defined for the first metric used."
 # msgstr ""
 
 # msgid "None"
@@ -16811,7 +16811,7 @@ msgstr ""
 # msgid "Human readable"
 # msgstr ""
 
-# msgid "You can choose only one resource for each resource type"
+# msgid "You can choose only one resource for each resource type."
 # msgstr ""
 
 # msgid "View properties"

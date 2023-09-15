@@ -1,6 +1,6 @@
 export const labelSave = 'Save';
 export const labelEditDashboard = 'Edit dashboard';
-export const labelAddWidget = 'Add widget';
+export const labelAddWidget = 'Add a widget';
 export const labelEditWidget = 'Edit widget';
 export const labelAddAWidget = 'Add a widget';
 export const labelCancel = 'Cancel';
@@ -14,12 +14,12 @@ export const labelYourDashboardHasBeenSaved = 'Your dashboard has been saved';
 export const labelSelectAWidgetType = 'Select a widget type';
 export const labelSearch = 'Search';
 export const labelNoWidgetFound = 'No widget found';
-export const labelDeleteAWidget = 'Delete a widget';
+export const labelDeleteAWidget = 'Delete widget';
 export const labelDoYouWantToDeleteThisWidget =
   'Do you want to delete this widget?';
 export const labelWidgetType = 'Widget type';
 export const labelPleaseChooseAWidgetToActivatePreview =
-  'Select a widget type to activate the preview';
+  'Select a widget type to activate the preview.';
 export const labelDeleteWidget = 'Delete widget';
 export const labelTitle = 'Title';
 export const labelDescription = 'Description';
@@ -48,9 +48,9 @@ export const labelYouCanSelectUpToTwoMetricUnits =
 export const labelShowDescription = 'Show description';
 export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
-  'By turning off this option, all links included in the widget will be opened in the same tab';
-export const labelAddResource = 'Add resource';
-export const labelAddMetric = 'Add metric';
+  'By turning off this option, all links included in the widget will be opened in the same tab.';
+export const labelAddResource = 'Add a resource';
+export const labelAddMetric = 'Add a metric';
 export const labelAvailable = 'available';
 export const labelYourWidgetHasBeenModified =
   'Your widget has been modified successfully!';
@@ -70,19 +70,19 @@ export const labelCriticalThreshold = 'Critical threshold';
 export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
-  'Thresholds are automatically hidden if you select 2 metric units';
+  'Thresholds are automatically hidden if you select 2 metric units.';
 export const labelDisplayType = 'Display type';
 export const labelText = 'Text';
 export const labelGauge = 'Gauge';
-export const labelBar = 'Bar';
+export const labelBar = 'Bar chart';
 export const labelDefaultValueIsDefinedByFirstMetricUsed =
-  'The default value is the value defined for the first metric used';
+  'The default value is the value defined for the first metric used.';
 export const labelNone = 'None';
 export const labelValueFormat = 'Value format';
 export const labelRawValue = 'Raw value';
 export const labelHumanReadable = 'Human readable';
 export const labelYouCanChooseOnResourcePerResourceType =
-  'You can choose only one resource for each resource type';
+  'You can choose only one resource for each resource type.';
 export const labelViewProperties = 'View properties';
 export const labelYourRightsOnlyAllowToView =
   'Your rights only allow you to view the properties of a widget.';

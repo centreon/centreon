@@ -18028,8 +18028,8 @@ msgstr "Afficher la description"
 msgid "Open links in new tab"
 msgstr "Ouvrir les liens dans un nouvel onglet"
 
-msgid "By turning off this option, all links included in the widget will be opened in the same tab"
-msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet"
+msgid "By turning off this option, all links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
 
 msgid "Dataset selection"
 msgstr "Sélection du jeu de données"
@@ -18058,8 +18058,8 @@ msgstr "Votre widget a été créé avec succès !"
 msgid "Value settings"
 msgstr "Paramètres de valeur"
 
-msgid "By turning off this option, all the links included in the widget will be opened in the same tab"
-msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet"
+msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
 
 msgid "Graph type"
 msgstr "Type de graphique"
@@ -18130,11 +18130,11 @@ msgstr "Texte"
 msgid "Gauge"
 msgstr "Jauge"
 
-msgid "Bar"
-msgstr "Barre"
+msgid "Bar chart"
+msgstr "Diagramme à barres"
 
-msgid "The default value is the value defined for the first metric used"
-msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée"
+msgid "The default value is the value defined for the first metric used."
+msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée."
 
 msgid "Value format"
 msgstr "Format de valeur"
@@ -18145,8 +18145,8 @@ msgstr "Valeur brute"
 msgid "Human readable"
 msgstr "Lisible par l'humain"
 
-msgid "You can choose only one resource for each resource type"
-msgstr "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource"
+msgid "You can choose only one resource for each resource type."
+msgstr "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource."
 
 msgid "View properties"
 msgstr "Voir les propriétés"
