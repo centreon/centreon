@@ -100,10 +100,10 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         $statement->bindValue(':token', $tokenString, \PDO::PARAM_STR);
         $statement->execute();
 
-        /** @var false|TokenResultSet */
+        /** @var false|_Token */
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        return $result ? $this->createTokenFromArray($result) : null;
+        return $result ? $this->createToken($result) : null;
     }
 
     /**
@@ -112,37 +112,34 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     public function findByNameAndUserId(string $tokenName, int $userId): ?Token
     {
         $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
+            sprintf(<<<'SQL'
                 SELECT
+                    sat.token_name,
                     sat.user_id,
+                    contact.contact_name as user_name,
                     sat.creator_id,
                     sat.creator_name,
-                    sat.token,
-                    sat.token_name,
-                    sat.token_type,
                     sat.is_revoked,
-                    provider_token.id AS pt_id,
-                    provider_token.creation_date AS provider_token_creation_date,
-                    provider_token.expiration_date AS provider_token_expiration_date
+                    provider_token.creation_date as provider_token_creation_date,
+                    provider_token.expiration_date as provider_token_expiration_date
                 FROM `:db`.security_authentication_tokens sat
                 INNER JOIN `:db`.security_token provider_token
                     ON provider_token.id = sat.provider_token_id
+                INNER JOIN `:db`.contact
+                    ON contact.contact_id = sat.user_id
                 WHERE sat.token_name = :tokenName
                     AND sat.user_id = :userId
-                    AND sat.token_type = 'manual'
-                SQL
+                    AND sat.token_type = '%s'
+                SQL, self::TYPE_MANUAL)
         ));
         $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
         $statement->execute();
 
-        /** @var false|TokenResultSet */
+        /** @var false|_Token */
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        return $result ? $this->createTokenFromArray($result) : null;
-
-        /** @var _Token $result */
-        return $this->createToken($result);
+        return $result ? $this->createToken($result) : null;
     }
 
     /**
