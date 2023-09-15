@@ -85,6 +85,8 @@ When(
     }).type('{selectall}{backspace}oidc');
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
     cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
+
+    cy.logout();
   }
 );
 
