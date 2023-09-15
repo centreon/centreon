@@ -16068,3 +16068,12 @@ msgstr ""
 
 # msgid "Includes {{count}} hosts"
 # msgstr ""
+
+#  msgid "Error while deleting a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens linked to user ID %d"
+#  msgstr ""

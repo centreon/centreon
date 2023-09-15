@@ -29,6 +29,20 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\Token;
 
+/**
+ * @phpstan-type TokenResultSet array{
+ *      user_id: int,
+ *      creator_id: null|int,
+ *      creator_name: string,
+ *      token_name: string,
+ *      token_type: string,
+ *      is_revoked: bool,
+ *      pt_id: int,
+ *      provider_token: string,
+ *      provider_token_creation_date: int,
+ *      provider_token_expiration_date: int
+ * }
+ */
 class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRepositoryInterface
 {
     use LoggerTrait;
@@ -68,35 +82,47 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         ));
         $statement->bindValue(':token', $tokenString, \PDO::PARAM_STR);
         $statement->execute();
-        /** @var false|array{
-         *      user_id: int,
-         *      creator_id: null|int,
-         *      creator_name: string,
-         *      token_name: string,
-         *      token_type: string,
-         *      is_revoked: bool,
-         *      pt_id: int,
-         *      provider_token: string,
-         *      provider_token_creation_date: int,
-         *      provider_token_expiration_date: int
-         * } $result
-         */
+
+        /** @var false|TokenResultSet */
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        if (! $result) {
-            return null;
-        }
+        return $result ? $this->createTokenFromArray($result) : null;
+    }
 
-        return new Token(
-            tokenId: $result['pt_id'],
-            creationDate: (new \DateTimeImmutable())->setTimestamp((int) $result['provider_token_creation_date']),
-            expirationDate: (new \DateTimeImmutable())->setTimestamp((int) $result['provider_token_expiration_date']),
-            userId: $result['user_id'],
-            name: $result['token_name'],
-            creatorId: $result['creator_id'] !== null ? (int) $result['creator_id'] : null,
-            creatorName: $result['creator_name'],
-            isRevoked: (bool) $result['is_revoked']
-        );
+    /**
+     * @inheritDoc
+     */
+    public function findByNameAndUserId(string $tokenName, int $userId): ?Token
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    sat.user_id,
+                    sat.creator_id,
+                    sat.creator_name,
+                    sat.token,
+                    sat.token_name,
+                    sat.token_type,
+                    sat.is_revoked,
+                    provider_token.id AS pt_id,
+                    provider_token.creation_date AS provider_token_creation_date,
+                    provider_token.expiration_date AS provider_token_expiration_date
+                FROM `:db`.security_authentication_tokens sat
+                INNER JOIN `:db`.security_token provider_token
+                    ON provider_token.id = sat.provider_token_id
+                WHERE sat.token_name = :tokenName
+                    AND sat.user_id = :userId
+                    AND sat.token_type = 'manual'
+                SQL
+        ));
+        $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        /** @var false|TokenResultSet */
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $result ? $this->createTokenFromArray($result) : null;
     }
 
     /**
@@ -118,5 +144,26 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @param TokenResultSet $result
+     *
+     * @throws \Throwable
+     *
+     * @return Token
+     */
+    private function createTokenFromArray(array $result): Token
+    {
+        return new Token(
+            tokenId: $result['pt_id'],
+            creationDate: (new \DateTimeImmutable())->setTimestamp((int) $result['provider_token_creation_date']),
+            expirationDate: (new \DateTimeImmutable())->setTimestamp((int) $result['provider_token_expiration_date']),
+            userId: $result['user_id'],
+            name: $result['token_name'],
+            creatorId: $result['creator_id'] !== null ? (int) $result['creator_id'] : null,
+            creatorName: $result['creator_name'],
+            isRevoked: (bool) $result['is_revoked']
+        );
     }
 }

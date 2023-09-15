@@ -44,6 +44,26 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
     /**
      * @inheritDoc
      */
+    public function deleteByNameAndUserId(string $tokenName, int $userId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE token
+                FROM `:db`.`security_token` token
+                JOIN `:db`.`security_authentication_tokens` sat
+                    ON sat.provider_token_id = token.id
+                WHERE sat.token_name = :tokenName
+                    AND sat.user_id = :userId
+                SQL
+        ));
+        $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function add(NewToken $newToken): void
     {
         $isAlreadyInTransaction = $this->db->inTransaction();

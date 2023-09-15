@@ -79,12 +79,19 @@ Then(
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+    }).as('getUserInformation');
+
     cy.loginByTypeOfUser({
       jsonName: 'user-non-admin-for-SAML-authentication'
     })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
+
+    cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
 
     cy.logout();
   }
