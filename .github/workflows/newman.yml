@@ -72,7 +72,7 @@ jobs:
         uses: matt-ball/newman-action@master
         with:
             collection: centreon/tests/rest_api/collections
-            environment: centreon/tests/rest_api/collections\Environment-for-Refactored-API-Test-Collection.json
+            environment: centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json
 
       - name: Continue to Next Collection
         if: ${{ always() }}
