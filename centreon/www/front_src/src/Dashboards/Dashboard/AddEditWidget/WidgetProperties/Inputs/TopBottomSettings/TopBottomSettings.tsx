@@ -9,9 +9,11 @@ import {
 
 import {
   labelBottom,
-  labelNumberOfValues,
+  labelDisplay,
+  labelHosts,
+  labelTop,
   labelShowValueLabels,
-  labelTop
+  labelNumberOfValues
 } from '../../../../translatedLabels';
 import { editProperties } from '../../../../useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
@@ -34,15 +36,21 @@ const TopBottomSettings = ({
   return (
     <div>
       <div className={classes.values}>
-        <Typography>{t(labelNumberOfValues)}</Typography>
+        <Typography>{t(labelDisplay)}</Typography>
         <TextField
           className={classes.input}
           disabled={!canEditField}
+          inputProps={{
+            'aria-label': t(labelNumberOfValues) as string,
+            max: 50,
+            min: 3
+          }}
           size="compact"
           type="number"
           value={value.numberOfValues}
           onChange={changeNumberOfValues}
         />
+        <Typography>{t(labelHosts)}</Typography>
         <ToggleButtonGroup
           exclusive
           className={classes.toggleButtonGroup}

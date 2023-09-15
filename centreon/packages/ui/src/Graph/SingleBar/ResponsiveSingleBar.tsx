@@ -14,11 +14,10 @@ import {
 } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
 import { getColorFromDataAndTresholds } from '../common/utils';
-import { margins } from '../common/margins';
 
 import { SingleBarProps } from './models';
 import Thresholds, { groupMargin } from './Thresholds';
-import { barHeights, margin } from './ThresholdLine';
+import { barHeights } from './ThresholdLine';
 
 interface Props extends SingleBarProps {
   height: number;
@@ -37,7 +36,8 @@ const ResponsiveSingleBar = ({
   height,
   displayAsRaw,
   baseColor,
-  size = 'medium'
+  size = 'medium',
+  showLabels = true
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -55,9 +55,6 @@ const ResponsiveSingleBar = ({
     Math.max(...thresholdValues) * 1.1,
     head(metric.data) as number
   );
-
-  const innerHeight = height;
-  const centerY = innerHeight / 4;
 
   const {
     showTooltip,
@@ -88,7 +85,7 @@ const ResponsiveSingleBar = ({
       }
     : theme.typography.h3;
 
-  const text = (
+  const text = showLabels && (
     <text
       dominantBaseline="middle"
       style={{
@@ -97,7 +94,7 @@ const ResponsiveSingleBar = ({
       }}
       textAnchor="middle"
       x="50%"
-      y={isSmall ? 51 : 25}
+      y={isSmall ? 10 : 25}
     >
       {formatMetricValueWithUnit({
         base: 1000,
@@ -131,7 +128,7 @@ const ResponsiveSingleBar = ({
   return (
     <Box sx={{ position: 'relative' }}>
       <svg height={height} ref={svgRef} width={width}>
-        <Group.Group top={centerY - margins.bottom}>
+        <Group.Group>
           {text}
           <animated.rect
             data-testid={`${latestMetricData}-bar-${barColor}`}
@@ -140,7 +137,7 @@ const ResponsiveSingleBar = ({
             rx={4}
             style={springStyle}
             x={0}
-            y={groupMargin + margin}
+            y={groupMargin}
           />
           <Bar
             fill="transparent"
@@ -150,7 +147,7 @@ const ResponsiveSingleBar = ({
             stroke={alpha(theme.palette.text.primary, 0.3)}
             width={maxBarWidth}
             x={0}
-            y={groupMargin + margin}
+            y={groupMargin}
           />
           {thresholds.enabled && (
             <Thresholds
@@ -170,7 +167,8 @@ const ResponsiveSingleBar = ({
             ...baseStyles,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
-            transform: 'translate(-50%, -20px)'
+            transform: `translate(-50%, ${isSmall ? -60 : -20}px)`,
+            zIndex: theme.zIndex.tooltip
           }}
           top={tooltipTop}
         >

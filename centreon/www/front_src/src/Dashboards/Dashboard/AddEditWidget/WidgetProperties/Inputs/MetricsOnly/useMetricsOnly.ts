@@ -12,6 +12,7 @@ import {
   pluck,
   uniqBy
 } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   ListingModel,
@@ -30,6 +31,7 @@ import {
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { getDataProperty } from '../utils';
+import { labelIncludesXHost } from '../../../../translatedLabels';
 
 const resourceTypeQueryParameter = {
   [WidgetResourceType.host]: 'host.id',
@@ -41,6 +43,7 @@ const resourceTypeQueryParameter = {
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
   getOptionLabel: (metric) => string;
+  getSelectedItemLabel: (metric) => string;
   hasNoResources: () => boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
@@ -51,6 +54,8 @@ interface UseMetricsOnlyState {
 }
 
 const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
+  const { t } = useTranslation();
+
   const { values, setFieldValue, setFieldTouched } = useFormikContext<Widget>();
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
@@ -88,7 +93,7 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
     }
   });
 
-  const hasTooManyMetrics = gt(servicesMetrics?.meta?.total || 0, 100);
+  const hasTooManyMetrics = gt(servicesMetrics?.meta?.total || 0, 1000);
 
   const metricCount = servicesMetrics?.meta?.total;
 
@@ -116,8 +121,19 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
       return '';
     }
 
-    return `${metric.name} (${metric.unit})`;
+    return `${metric.name} (${metric.unit}) / ${t(labelIncludesXHost, {
+      count: getNumberOfResourcesRelatedToTheMetric(metric.name)
+    })}`;
   };
+
+  const getNumberOfResourcesRelatedToTheMetric = (metricName: string): number =>
+    (servicesMetrics?.result || []).reduce(
+      (acc, service) =>
+        acc +
+        service.metrics.filter((metric) => equals(metric.name, metricName))
+          .length,
+      0
+    );
 
   return {
     changeMetric,

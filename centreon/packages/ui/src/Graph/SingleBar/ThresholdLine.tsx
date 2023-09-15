@@ -44,8 +44,6 @@ export const ThresholdLine = ({
 
   const isSmall = equals(size, 'small');
 
-  const lineMarginFromSize = isSmall ? 20 : 0;
-
   const bottom = barHeights[size] + margin * 2;
 
   const onMouseEnter = (left) => (): void =>
@@ -64,16 +62,15 @@ export const ThresholdLine = ({
       <line
         data-testid={`${thresholdType}-line-${value}`}
         stroke={lineColor}
-        strokeDasharray="11, 4"
+        strokeDasharray="6, 6"
         strokeWidth={2}
         x1={scaledValue}
         x2={scaledValue}
-        y1={groupMargin + 3 * lineMargin + lineMarginFromSize}
+        y1={isSmall ? groupMargin - lineMargin : groupMargin + 3 * lineMargin}
         y2={
-          thresholdLineHeight +
-          groupMargin +
-          3 * lineMargin +
-          lineMarginFromSize
+          isSmall
+            ? thresholdLineHeight + groupMargin - lineMargin
+            : groupMargin + 3 * lineMargin
         }
       />
       <line
@@ -82,12 +79,11 @@ export const ThresholdLine = ({
         strokeWidth={5}
         x1={scaledValue}
         x2={scaledValue}
-        y1={groupMargin + 3 * lineMargin + lineMarginFromSize}
+        y1={isSmall ? groupMargin - lineMargin : groupMargin + 3 * lineMargin}
         y2={
-          thresholdLineHeight +
-          groupMargin +
-          3 * lineMargin +
-          lineMarginFromSize
+          isSmall
+            ? thresholdLineHeight + groupMargin - lineMargin
+            : groupMargin + 3 * lineMargin
         }
         onMouseEnter={onMouseEnter(scaledValue)}
         onMouseLeave={hideTooltip}

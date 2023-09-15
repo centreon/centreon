@@ -2,7 +2,9 @@ import { createStore } from 'jotai';
 
 import { Module } from '@centreon/ui';
 
-import { FormThreshold, Data, ValueFormat, TopBottomSettings } from './models';
+import { FormThreshold } from '../../models';
+
+import { Data, ValueFormat, TopBottomSettings } from './models';
 import TopBottom from './TopBottom';
 
 interface Props {
@@ -11,7 +13,6 @@ interface Props {
   panelOptions: {
     refreshInterval: 'default' | 'custom';
     refreshIntervalCustom?: number;
-    singleMetricGraphType: 'text' | 'gauge' | 'bar';
     threshold: FormThreshold;
     topBottomSettings: TopBottomSettings;
     valueFormat: ValueFormat;
@@ -33,7 +34,9 @@ const Widget = ({
         refreshInterval={panelOptions.refreshInterval}
         refreshIntervalCustom={panelOptions.refreshIntervalCustom}
         resources={panelData.resources}
+        threshold={panelOptions.threshold}
         topBottomSettings={panelOptions.topBottomSettings}
+        valueFormat={panelOptions.valueFormat}
       />
     </Module>
   );

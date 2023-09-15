@@ -2,7 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useTopBottomSettingsStyles = makeStyles()((theme) => ({
   input: {
-    width: theme.spacing(10)
+    width: theme.spacing(6)
   },
   toggleButtonGroup: {
     '& button': {

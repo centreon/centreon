@@ -44,7 +44,7 @@
       "defaultValue": null
     }
   },
-  "singleMetricSelection": true,
+  "singleMetricSelection": false,
   "customBaseColor": false,
   "moduleName": "centreon-widget-topbottom"
 }

@@ -9,10 +9,12 @@ import {
 import { metricsTopEndpoint } from './api/endpoint';
 import {
   Metric,
+  MetricsTop,
   TopBottomSettings,
   WidgetDataResource,
   WidgetResourceType
 } from './models';
+import { metricsTopDecoder } from './api/decoder';
 
 interface UseTopBottomProps {
   globalRefreshInterval?: number;
@@ -21,6 +23,11 @@ interface UseTopBottomProps {
   refreshIntervalCustom?: number;
   resources: Array<WidgetDataResource>;
   topBottomSettings: TopBottomSettings;
+}
+
+interface UseTopBottomState {
+  isLoading: boolean;
+  metricsTop?: MetricsTop;
 }
 
 const resourceTypeQueryParameter = {
@@ -45,18 +52,18 @@ const useTopBottom = ({
   metric,
   topBottomSettings,
   resources
-}: UseTopBottomProps): void => {
+}: UseTopBottomProps): UseTopBottomState => {
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval,
     refreshIntervalCustom
   });
 
-  const { data: metricsTop, isFetching } = useFetchQuery({
+  const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
+    decoder: metricsTopDecoder,
     getEndpoint: () =>
-      buildListingEndpoint({
+      `${buildListingEndpoint({
         baseEndpoint: metricsTopEndpoint,
-        customQueryParameters: [{ name: 'metric_name', value: metric.name }],
         parameters: {
           limit: topBottomSettings.numberOfValues,
           search: {
@@ -73,7 +80,7 @@ const useTopBottom = ({
               : 'ASC'
           }
         }
-      }),
+      })}&metric_name=${metric?.name}`,
     getQueryKey: () => [
       'topbottom',
       metric?.name,
@@ -88,7 +95,10 @@ const useTopBottom = ({
     }
   });
 
-  console.log(metricsTop);
+  return {
+    isLoading: isFetching && !metricsTop,
+    metricsTop
+  };
 };
 
 export default useTopBottom;
