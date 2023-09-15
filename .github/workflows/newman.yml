@@ -69,10 +69,10 @@ jobs:
         working-directory: centreon/tests/rest_api  
         
       - name: Upload HTML Reports
-        uses: matt-ball/newman-action@master
+        uses: matt-ball/newman-action@v1.0.4
         with:
-          collection: "collections/10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection.postman_collection.json"
-          environment: "collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection: "centreon/tests/rest_api/collections/10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection.postman_collection.json"
+          environment: "centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json"
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
