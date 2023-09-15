@@ -51,7 +51,7 @@ jobs:
       run: |
         collections=""
         environments=""  
-        for file in centreon/tests/rest_api/collections/*.postman_collection.json; do
+        for file in collections/*.postman_collection.json; do
           collections="$collections,$file"
           environment="${file%.postman_collection.json}-Environment.json"
           environments="$environments,$environment"
@@ -70,7 +70,7 @@ jobs:
         COLLECTIONS: ${{ env.COLLECTIONS }}
         ENVIRONMENTS: ${{ env.ENVIRONMENTS }}
       shell: bash
-      
+
     - name: Upload HTML Reports
       uses: matt-ball/newman-action@v1.0.4
       with:
