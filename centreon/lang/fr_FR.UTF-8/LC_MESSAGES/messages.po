@@ -18210,3 +18210,6 @@ msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
 
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "hosts"
+msgstr "hôtes"
