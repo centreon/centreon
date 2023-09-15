@@ -1,4 +1,4 @@
-import { cond, equals, keys } from 'ramda';
+import { cond, equals, isNil, keys } from 'ramda';
 
 import { Box } from '@mui/material';
 
@@ -12,7 +12,8 @@ export const getStatus = cond([
   [equals('up'), () => ({ label: 'U', severity: SeverityCode.OK })],
   [equals('warning'), () => ({ label: 'W', severity: SeverityCode.Medium })],
   [equals('critical'), () => ({ label: 'C', severity: SeverityCode.High })],
-  [equals('unknown'), () => ({ label: 'U', severity: SeverityCode.Low })]
+  [equals('unknown'), () => ({ label: 'U', severity: SeverityCode.Low })],
+  [equals('pending'), () => ({ label: 'P', severity: SeverityCode.Pending })]
 ]);
 
 const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
@@ -31,15 +32,17 @@ const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
         </>
       )}
       {keys(statusCount)?.map((item) => {
-        return (
-          <Box className={classes.status} key={item as string}>
-            <StatusChip
-              content={getStatus(item as string).label}
-              severityCode={getStatus(item as string).severity}
-            />
-            <p>({statusCount?.[item]})</p>
-          </Box>
-        );
+        if (statusCount?.[item]) {
+          return (
+            <Box className={classes.status} key={item as string}>
+              <StatusChip
+                content={getStatus(item as string).label}
+                severityCode={getStatus(item as string).severity}
+              />
+              <p>({statusCount?.[item]})</p>
+            </Box>
+          );
+        }
       })}
     </Box>
   );

@@ -3,8 +3,6 @@ import type { ListingParameters } from '@centreon/ui';
 
 import { resourcesEndpoint } from '../../api/endpoint';
 
-// const resourcesEndpoint = 'http://localhost:3000/api/latest/resources/hosts';
-
 export type ListResourcesProps = {
   endpoint?: string;
   hostCategories: Array<string>;
