@@ -9,6 +9,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: centreon/tests/rest_api
 
     env:
       CONTAINER_NAME: my_centreon_container
@@ -49,8 +50,8 @@ jobs:
       id: generate-list
       run: |
         collections=""
-        environments="centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json"  
-        for file in centreon/tests/rest_api/collections/*.postman_collection.json; do
+        environments="collections/Environment-for-Refactored-API-Test-Collection.json"  
+        for file in collections/*.postman_collection.json; do
           collections="$collections,$file"
         done
         collections="${collections:1}"  
@@ -67,14 +68,18 @@ jobs:
         COLLECTIONS: ${{ env.COLLECTIONS }}
         ENVIRONMENTS: ${{ env.ENVIRONMENTS }}
       shell: bash
-
+      working-directory: centreon/tests/rest_api
+      
     - name: Upload HTML Reports
-      uses: matt-ball/newman-action@v1.0.4
-      with:
+      run: |
+        cd centreon/tests/rest_api
+        sh -c "npx newman run $COLLECTIONS -e $ENVIRONMENTS --reporters newman-html-extra"
+      env:
         collection: ${{ env.COLLECTIONS }}
         environment: ${{ env.ENVIRONMENTS }}
         reporters: '["newman-html-extra"]'
       continue-on-error: true
+    
       
     - name: Continue to Next Collection
       if: ${{ always() }}
