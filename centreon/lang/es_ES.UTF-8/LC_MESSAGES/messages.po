@@ -16390,3 +16390,15 @@ msgstr ""
 
 #  msgid "You are not allowed to add tokens linked to user ID %d"
 #  msgstr ""
+
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} hosts"
+# msgstr ""

@@ -18189,3 +18189,15 @@ msgstr "L'utilisateur avec l'ID %d n'existe pas"
 
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "Show value labels"
+msgstr "Afficher les étiquettes de valeur"
+
+msgid "Top"
+msgstr "Top"
+
+msgid "Bottom"
+msgstr "Bottom"
+
+msgid "Includes {{count}} hosts"
+msgstr "Inclut {{count}} hôtes"
