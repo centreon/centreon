@@ -1,4 +1,4 @@
-import { cond, equals, isNil, keys } from 'ramda';
+import { cond, equals, keys } from 'ramda';
 
 import { Box } from '@mui/material';
 
@@ -43,6 +43,8 @@ const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
             </Box>
           );
         }
+
+        return <Box key={item as string} />;
       })}
     </Box>
   );
