@@ -3,7 +3,7 @@ get:
     - Authentication token
   summary: "Find all API authentication tokens"
   description: |
-    Return all API authentication token.
+    Return all API authentication tokens.
 
     The available parameters to **search** / **sort_by** are:
 

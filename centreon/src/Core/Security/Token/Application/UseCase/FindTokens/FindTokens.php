@@ -69,10 +69,9 @@ final class FindTokens
             }
 
             $this->info('Find authentication tokens', ['parameters' => $this->requestParameters->getSearch()]);
-            $tokens = [];
             if ($this->canDisplayAllTokens()) {
                 $tokens = $this->readTokenRepository->findByRequestParameters($this->requestParameters);
-            } elseif ($this->canOnlyDisplayMyOwnTokens()) {
+            } else {
                 $tokens = $this->readTokenRepository->findByIdAndRequestParameters(
                     $this->user->getId(),
                     $this->requestParameters
@@ -123,10 +122,5 @@ final class FindTokens
     {
         return $this->canDisplayTokens()
             && ($this->user->isAdmin() || $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS));
-    }
-
-    private function canOnlyDisplayMyOwnTokens(): bool
-    {
-        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW);
     }
 }

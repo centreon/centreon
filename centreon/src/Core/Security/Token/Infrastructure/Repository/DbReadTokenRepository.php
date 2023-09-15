@@ -49,6 +49,7 @@ use Core\Security\Token\Domain\Model\Token;
 class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRepositoryInterface
 {
     use LoggerTrait;
+    private const TYPE_MANUAL = 'manual';
 
     /**
      * @param DatabaseConnection $db
@@ -77,7 +78,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     public function find(string $tokenString): ?Token
     {
         $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
+            sprintf(<<<'SQL'
                 SELECT
                     sat.token_name,
                     sat.user_id,
@@ -93,8 +94,8 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                 INNER JOIN `:db`.contact
                     ON contact.contact_id = sat.user_id
                 WHERE sat.token = :token
-                    AND sat.token_type = 'manual'
-                SQL
+                    AND sat.token_type = '%s'
+                SQL, self::TYPE_MANUAL)
         ));
         $statement->bindValue(':token', $tokenString, \PDO::PARAM_STR);
         $statement->execute();
@@ -150,13 +151,13 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     public function existsByNameAndUserId(string $tokenName, int $userId): bool
     {
         $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
+            sprintf(<<<'SQL'
                 SELECT 1
                 FROM `:db`.security_authentication_tokens sat
                 WHERE sat.token_name = :tokenName
                     AND sat.user_id = :userId
-                    AND sat.token_type = 'manual'
-                SQL
+                    AND sat.token_type = '%s'
+                SQL,self::TYPE_MANUAL)
         ));
         $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
@@ -207,7 +208,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         // Search
         $search = $sqlRequestTranslator->translateSearchParameterToSql();
         $search .= $search === null ? ' WHERE ' : ' AND ';
-        $search .= 'sat.token_type = \'manual\'';
+        $search .= sprintf("sat.token_type = '%s'", self::TYPE_MANUAL);
         $request .= $search;
         if ($userId !== null) {
             $request .= ' AND sat.user_id = :user_id';
