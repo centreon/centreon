@@ -511,7 +511,12 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  legacy-e2e-test:
+  newman-tests:
+    needs: []
+    uses: ./.github/workflows/newman.yml
+   
+   
+legacy-e2e-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
