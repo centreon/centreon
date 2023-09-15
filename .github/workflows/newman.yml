@@ -59,6 +59,7 @@ jobs:
           for collection_file in "$collection_path"/*.postman_collection.json; do
             collection_name=$(basename "$collection_file" .postman_collection.json)
             
+          
             echo "Running collection: $collection_name"
             echo "::set-env name=NEWMAN_COLLECTION::$collection_file"
             {
