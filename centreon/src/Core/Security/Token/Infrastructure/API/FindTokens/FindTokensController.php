@@ -19,25 +19,27 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Common\Domain;
+namespace Core\Security\Token\Infrastructure\API\FindTokens;
 
-/**
- * This object is *by purpose* a very simple ValueObject.
- * It forces the carried string to be explicitly trimmed.
- */
-final class TrimmedString implements \Stringable
+use Centreon\Application\Controller\AbstractController;
+use Core\Security\Token\Application\UseCase\FindTokens\FindTokens;
+use Symfony\Component\HttpFoundation\Response;
+
+final class FindTokensController extends AbstractController
 {
-    public readonly string $value;
-
-    public function __construct(string|\Stringable $value)
+    /**
+     * @param FindTokens $useCase
+     * @param FindTokensPresenter $presenter
+     *
+     * @return Response
+     */
+    public function __invoke(FindTokens $useCase, FindTokensPresenter $presenter): Response
     {
-        $this->value = trim((string) $value);
-    }
+        $this->denyAccessUnlessGrantedForApiConfiguration();
+        $useCase($presenter);
 
-    public function __toString(): string
-    {
-        return $this->value;
+        return $presenter->show();
     }
 }

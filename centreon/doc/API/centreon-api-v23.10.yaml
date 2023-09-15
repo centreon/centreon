@@ -11,7 +11,7 @@ info:
     + Added host template endpoints (POST, DELETE, PATCH)
     + Added service endpoints (POST, DELETE)
     + Added host endpoints (POST, DELETE)
-    + Added token endpoints (POST, DELETE)
+    + Added token endpoints (GET, POST, DELETE)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -4587,7 +4587,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /administration/tokens:
-    $ref: "./v23.10/Administration/Token/Tokens.yaml"
+    $ref: "./v23.10/Administration/Token/AddTokenAndFindTokens.yaml"
   /administration/tokens/{token_name}:
     $ref: "./v23.10/Administration/Token/DeleteToken.yaml"
   /administration/tokens/{token_name}/users/{user_id}:

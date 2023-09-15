@@ -25,19 +25,20 @@ namespace Tests\Core\Security\Token\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Domain\Model\Token;
 
 beforeEach(function (): void {
     $this->createToken = static function (array $fields = []): Token {
         return new Token(
             ...[
-                'tokenId' => 1,
+                'name' => new TrimmedString('token-name'),
+                'userId' => 23,
+                'userName' => new TrimmedString('John Doe'),
+                'creatorId' => 12,
+                'creatorName' => new TrimmedString('John Doe'),
                 'creationDate' => new \DateTimeImmutable(),
                 'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
-                'userId' => 23,
-                'name' => 'token-name',
-                'creatorId' => 12,
-                'creatorName' => 'John Doe',
                 'isRevoked' => false,
                 ...$fields,
             ]
@@ -63,20 +64,12 @@ foreach (
 ) {
     it(
         "should throw an exception when token {$field} is an empty string",
-        fn() => ($this->createToken)([$field => '    '])
+        fn() => ($this->createToken)([$field => new TrimmedString('    ')])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::notEmptyString("Token::{$field}")->getMessage()
     );
 }
-
-it("should throw an exception when token name is set to an empty string", function(): void {
-        $token = ($this->createToken)();
-        $token->setName('');
-})->throws(
-    InvalidArgumentException::class,
-    AssertionException::notEmptyString("Token::name")->getMessage()
-);
 
 foreach (
     [
@@ -85,30 +78,24 @@ foreach (
     ] as $field
 ) {
     it("should return a trimmed field {$field}",  function () use ($field): void {
-        $token = ($this->createToken)([$field => "  some-text   "]);
+        $token = ($this->createToken)([$field => new TrimmedString('  some-text   ')]);
         $valueFromGetter = $token->{'get' . $field}();
 
         expect($valueFromGetter)->toBe('some-text');
     });
 }
 
-it("should return a trimmed field name when set", function (): void {
-    $token = ($this->createToken)();
-    $token->setName('   some-text   ');
-    expect($token->getName())->toBe('some-text');
-});
-
 // too long fields
 foreach (
     [
         'name' => Token::MAX_TOKEN_NAME_LENGTH,
-        'creatorName' => Token::MAX_CREATOR_NAME_LENGTH,
+        'creatorName' => Token::MAX_USER_NAME_LENGTH,
     ] as $field => $length
 ) {
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when token {$field} is too long",
-        fn() => ($this->createToken)([$field => $tooLong])
+        fn() => ($this->createToken)([$field => new TrimmedString($tooLong)])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "Token::{$field}")->getMessage()
