@@ -16354,3 +16354,9 @@ msgstr ""
 
 #  msgid "You are not allowed to delete tokens linked to user ID %d"
 #  msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""

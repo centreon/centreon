@@ -30,7 +30,6 @@ use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenValidation;
 
 beforeEach(function (): void {
-
     $this->validation = new AddTokenValidation(
         $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class),
         $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
