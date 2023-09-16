@@ -153,12 +153,10 @@ Then(
   () => {
     const username = 'user-non-admin-for-OIDC-authentication';
 
-    cy.session(username, () => {
-      cy.visit('/');
-      cy.contains('Login with openid').should('be.visible').click();
-      cy.loginKeycloak(username);
-      cy.url().should('include', '/monitoring/resources');
-    });
+    cy.visit('/');
+    cy.contains('Login with openid').should('be.visible').click();
+    cy.loginKeycloak(username);
+    cy.url().should('include', '/monitoring/resources');
   }
 );
 

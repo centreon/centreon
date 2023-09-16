@@ -128,6 +128,8 @@ When(
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
     cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+
+    cy.logout();
   }
 );
 
@@ -136,25 +138,21 @@ Then(
   () => {
     const username = 'user-non-admin-for-SAML-authentication';
 
-    cy.session(username, () => {
-      cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
+    cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
 
-      cy.intercept({
-        method: 'GET',
-        url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
-      }).as('getUserInformation');
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+    }).as('getUserInformation');
 
-      cy.loginKeycloak(username);
+    cy.loginKeycloak(username);
 
-      cy.wait('@getUserInformation')
-        .its('response.statusCode')
-        .should('eq', 200);
-      cy.url().should('include', '/monitoring/resources');
+    cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
+    cy.url().should('include', '/monitoring/resources');
 
-      cy.logout();
+    cy.logout();
 
-      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
-    });
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
