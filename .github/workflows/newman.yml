@@ -94,8 +94,8 @@ jobs:
             echo "Tests Passed: $current_passed" >> newman_reports_summary.md
             echo "Tests Failed: $current_failed" >> newman_reports_summary.md
             echo "Tests Skipped: $current_skipped" >> newman_reports_summary.md
-          done
-
+          done 
+          
           # Set the Newman reports summary content as a GitHub environment variable
           echo "newman_reports_summary=$(cat newman_reports_summary.md)" >> $GITHUB_ENV
 
