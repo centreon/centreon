@@ -82,10 +82,12 @@ jobs:
               current_summary=$(cat "centreon/tests/rest_api/newman/json-summary/${collection_name}-summary.json")
         
               # Add the summary to the overall report
-              echo "### Collection: ${collection_name}.json" >> newman_reports_summary.md
+              echo "Collection: ${collection_name}.json" >> newman_reports_summary.md
+              echo "Metrics for Collection: ${collection_name}.json" >> newman_reports_summary.md
               echo "\`\`\`json" >> newman_reports_summary.md
               echo "$current_summary" >> newman_reports_summary.md
               echo "\`\`\`" >> newman_reports_summary.md
+              echo "" >> newman_reports_summary.md
         
               # Extract the relevant metrics from the summary
               tests_passed_current=$(echo "$current_summary" | jq -r '.stats.passes')
