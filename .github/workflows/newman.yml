@@ -73,7 +73,7 @@ jobs:
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
             # Run Newman with the current collection file and generate both HTML and JSON reports
-            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" --reporter-json-summary-export "$report_directory/${collection_name}-summary.json" || true
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" --reporter-json-summary-export "$report_directory/${collection_name}-summary.json" || true
 
             # Extract test results from the JSON summary
             current_summary=$(cat "$report_directory/${collection_name}-summary.json")
