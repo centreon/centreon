@@ -72,9 +72,16 @@ jobs:
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
+            # Afficher le chemin exact du répertoire JSON
+            echo "Chemin du répertoire JSON : $report_directory/${collection_name}.json"
+      
             # Run Newman with the current collection file and generate both HTML and JSON reports
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" --reporter-json-summary-export "$report_directory/${collection_name}-summary.json" || true
 
+            # Afficher le contenu du fichier JSON après sa création
+            echo "Contenu du fichier JSON après création :"
+            cat "$report_directory/${collection_name}.json"
+            
             # Extract test results from the JSON summary
             current_summary=$(cat "centreon/tests/rest_api/newman/${collection_name}-summary.json")
 
