@@ -72,9 +72,9 @@ jobs:
    
       - name: Debug Postman Summaries
         run: |
-          find ./postman_summaries -type d
-          find ./postman_summaries -type f
-          
+         find ./postman_summaries -type f -name "*.json"
+
+
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
@@ -82,7 +82,6 @@ jobs:
           path: centreon/tests/rest_api/newman/
         env:
           NODE_VERSION: 16
-
 
       - name: Extract and Store Summaries
         run: |
