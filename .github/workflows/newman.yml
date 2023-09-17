@@ -28,7 +28,7 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          registry: ${{ secrets.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       
@@ -54,7 +54,7 @@ jobs:
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
-          report_directory="centreon/tests/rest_api/newman"
+          report_directory="newman"
 
           # Create a directory to store HTML reports
           mkdir -p "$report_directory"
