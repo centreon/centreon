@@ -57,7 +57,7 @@ jobs:
 
           # Create a directory to store HTML reports and summaries
           mkdir -p newman
-          mkdir -p postman_summaries
+          mkdir centreon/tests/rest_api/postman_summaries
 
           # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
