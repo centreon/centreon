@@ -55,11 +55,11 @@ jobs:
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
 
-          # Create directories to store reports
-          mkdir -p newman
-          mkdir -p newman/json-summary
-          
+          mkdir -p centreon/tests/rest_api/newman
+          mkdir -p centreon/tests/rest_api/newman/json-summary
+      
           ls -lR centreon/tests/rest_api/newman/json-summary
+
 
           # Initialize variables to store test results
           tests_passed=0
@@ -77,7 +77,7 @@ jobs:
             # Run Newman with the current collection file and generate both HTML and JSON reports
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-json-export "newman/${collection_name}.json" --reporter-json-summary-export "newman/json-summary/${collection_name}-summary.json" || true
             
-            ls -lR centreon/tests/rest_api/newman/json-summary
+            ls -lR /newman/json-summary
             # Extract test results from the JSON summary
             current_summary=$(cat "newman/json-summary/${collection_name}-summary.json")
 
