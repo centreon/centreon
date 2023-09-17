@@ -10,7 +10,7 @@ jobs:
       run:
         shell: bash
         working-directory: centreon/tests/rest_api
-
+        
     env:
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost
@@ -31,7 +31,7 @@ jobs:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-
+      
       - name: Install pnpm
         run: npm install pnpm -g
 
@@ -45,53 +45,57 @@ jobs:
         run: |
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
-
+      
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
 
-      - name: Run Postman Tests and Generate HTML and JSON Reports
+      - name: Run Postman Tests and Generate HTML Report
         run: |
-            environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
-            collection_path="collections"
-        
-            mkdir -p centreon/tests/rest_api/newman
-            mkdir -p centreon/tests/rest_api/newman/json-summary
-              
-            ls -lR centreon/tests/rest_api/newman/json-summary
-        
-            # Initialize variables to store test results
-            tests_passed=0
-            tests_failed=0
-            tests_skipped=0
-        
-            # Create a summary file (Markdown ou HTML) containing the Newman reports content
-            echo "Robot Results" > newman_reports_summary.md
-        
-            # Iterate over each Postman collection file in the specified directory
-            for collection_file in "$collection_path"/*.postman_collection.json; do
-              # Extract the collection name from the file name
-              collection_name=$(basename "$collection_file" .postman_collection.json)
-        
-              # Run Newman with the current collection file and generate both HTML and JSON reports
-              pnpm newman run "$collection_file" -e "$environment_path" -r cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "centreon/tests/rest_api/newman/${collection_name}.html" --reporter-json-export "centreon/tests/rest_api/newman/${collection_name}.json" --reporter-summary-json-export "centreon/tests/rest_api/newman/json-summary/${collection_name}-summary.json" || true
-              ls -lR centreon/tests/rest_api/newman/json-summary
-              ls -lR centreon/tests/rest_api/newman
-            done     
+          environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="collections"
 
+          # Create a directory to store HTML reports and summaries
+          mkdir -p newman
+          mkdir -p postman_summaries
 
-      - name: Upload HTML and JSON ReportsS
+          # Iterate over each Postman collection file in the specified directory
+          for collection_file in "$collection_path"/*.postman_collection.json; do
+            # Extract the collection name from the file name
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+
+            # Run Newman with the current collection file and generate an HTML report and summary
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-json-summary-export "postman_summaries/${collection_name}-summary.json" || true
+          done
+        working-directory: centreon/tests/rest_api  
+
+      - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
-          name: postman-reports
-          path: |
-            centreon/tests/rest_api/newman/
+          name: postman-html-reports
+          path: centreon/tests/rest_api/newman/
         env:
           NODE_VERSION: 16
+
+      - name: Upload Postman Summaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: postman-summaries
+          path: postman_summaries/
+        env:
+          NODE_VERSION: 16
+
+      - name: Extract and Store Summaries
+        run: |
+          summaries=""
+          for summary_file in postman_summaries/*.json; do
+            collection_name=$(basename "$summary_file" -summary.json)
+            summary_content=$(cat "$summary_file")
+            summaries="$summaries\"$collection_name\": $summary_content,"
+          done
+          summaries="${summaries%,}" # Remove the trailing comma
+          echo "export GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
 
       - name: Continue to Next Collection
         if: ${{ always() }}
         run: echo "Continuing to the next collection..."
-
-      - name: Display Newman Reports Summary
-        run: echo "## Newman Reports Summary\n\n${{ env.newman_reports_summary }}" >> $GITHUB_ENV
