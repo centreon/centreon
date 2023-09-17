@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAtomValue, useAtom, useSetAtom } from 'jotai';
-import { cond, equals, isNil, or } from 'ramda';
+import { and, equals, isNil, or } from 'ramda';
 
 import { Visualization } from '../models';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
@@ -18,22 +18,29 @@ const useBackToVisualizationByAll = (): void => {
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
   const initialRender = useRef(true);
 
-  const match = search.match(/^type:[^ ]+/);
+  const isViewByHost = equals(visualization, Visualization.Host);
+  const isViewByService = equals(visualization, Visualization.Service);
+  const isViewByAll = or(isViewByHost, isViewByService);
 
-  const isSearchIncludesTypeHost = match?.[0].includes('host');
+  const searchType = search.match(/^type:[^ ]+/);
 
-  const isSearchIncludesTypesService = [
-    'service',
-    'metaservice',
-    'anomaly-detection'
-  ].some((type) => match?.[0].includes(type));
+  const isSearchIncludesTypeHost =
+    isViewByService && searchType?.[0].includes('host');
 
-  const mustBackToVisualizationByAll = or(
-    cond([
-      [equals(Visualization.Service), () => isSearchIncludesTypeHost],
-      [equals(Visualization.Host), () => isSearchIncludesTypesService]
-    ])(visualization),
-    isNil(match)
+  const isSearchIncludesTypesService =
+    isViewByHost &&
+    ['service', 'metaservice', 'anomaly-detection'].some((type) =>
+      searchType?.[0].includes(type)
+    );
+
+  const isSearchIncludesOtherTypes = or(
+    isSearchIncludesTypeHost,
+    isSearchIncludesTypesService
+  );
+
+  const mustBackToVisualizationByAll = and(
+    isViewByAll,
+    or(isSearchIncludesOtherTypes, isNil(searchType))
   );
 
   const selectVisualizationByAll = (): void => {
