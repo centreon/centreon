@@ -57,7 +57,8 @@ jobs:
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
-          report_directory="./newman"
+          report_directory="newman"
+
       
           # Initialize variables to store test results
           tests_passed=0
