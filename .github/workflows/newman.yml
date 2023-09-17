@@ -77,18 +77,10 @@ jobs:
         env:
           NODE_VERSION: 16
 
-      - name: Upload Postman Summaries
-        uses: actions/upload-artifact@v2
-        with:
-          name: postman-summaries
-          path: postman_summaries/
-        env:
-          NODE_VERSION: 16
-
       - name: Extract and Store Summaries
         run: |
            summaries=""
-           for summary_file in centreon/tests/rest_api/newman/json-summary/*.json; do
+           for summary_file in centreon/tests/rest_api/postman_summaries/*.json; do
             collection_name=$(basename "$summary_file" -summary.json)
             summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
             summaries="$summaries\"$collection_name\": $summary_content,"
