@@ -79,19 +79,21 @@ jobs:
           path: centreon/tests/rest_api/newman/
         env:
           NODE_VERSION: 16
+
       - name: Extract and Store Summaries
         run: |
-         declare -A json_info
+          declare -A json_info
           for summary_file in ./postman_summaries/*.json; do
             summary_content=$(cat "$summary_file" | jq -c '.Collection.Info.Name, .Run.Stats.Requests.total, .Run.Stats.Requests.pending, .Run.Stats.Requests.failed, .Run.Assertions.total, .Run.Assertions.pending, .Run.Assertions.failed')
             filename=$(basename "$summary_file" .json)
-            json_info["$filename"]=$summary_content
-         done
-    
+            # Nettoyez le nom du fichier pour le rendre compatible avec les variables d'environnement
+            clean_filename="${filename// /_}"
+            clean_filename="${clean_filename//-/_}"
+            json_info["$clean_filename"]=$summary_content
+          done
+
           for filename in "${!json_info[@]}"; do
-            echo "Summary Content for $filename:"
-            echo "${json_info["$filename"]}"
-            echo "----------------------------------------"
+          echo "export $filename='${json_info["$filename"]}'" >> $GITHUB_ENV
           done
       - name: Continue to Next Collection
         if: ${{ always() }}
