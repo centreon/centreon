@@ -81,6 +81,7 @@ jobs:
           NODE_VERSION: 16
       - name: Extract and Store Summaries
         run: |
+          cat ./postman_summaries/10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection-summary.json
           for summary_file in ./postman_summaries/*.json; do
             summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
             echo "Summary Content for $summary_file:"
