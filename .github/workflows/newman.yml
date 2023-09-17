@@ -81,7 +81,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: postman-html-reports
-          path: ./centreon/tests/rest_api/newman
+          path: centreon/tests/rest_api/newman
         env:
           NODE_VERSION: 16
 
