@@ -81,7 +81,7 @@ jobs:
             echo "Chemin complet du fichier JSON après création : $(realpath "$report_directory/${collection_name}.json")"
 
             # Extract test results from the JSON summary
-            current_summary=$(cat "centreon/tests/rest_api/newman/${collection_name}-summary.json")
+            current_summary=$(cat "centreon/tests/rest_api/newman/${collection_name}.json")
 
             # Add the summary to the overall report
             echo "Collection: $collection_name" >> newman_reports_summary.md
