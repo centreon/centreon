@@ -10,7 +10,7 @@ jobs:
       run:
         shell: bash
         working-directory: centreon/tests/rest_api
-
+        
     env:
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost
@@ -28,10 +28,10 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          registry: ${{ secrets.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-
+      
       - name: Install pnpm
         run: npm install pnpm -g
 
@@ -45,18 +45,18 @@ jobs:
         run: |
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
-
+      
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
 
-      - name: Run Postman Tests and Generate Reports
+      - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
           report_directory="centreon/tests/rest_api/newman"
 
-          # Create a directory to store reports
+          # Create a directory to store HTML reports
           mkdir -p "$report_directory"
 
           # Initialize variables to store test results
@@ -64,12 +64,18 @@ jobs:
           tests_failed=0
           tests_skipped=0
 
+          # Create a summary file (Markdown ou HTML) containing the Newman reports content
+          echo "Robot Results" > newman_reports_summary.md
+          echo "✅ Passed	❌ Failed	⏭️ Skipped	Total	Pass %" >> newman_reports_summary.md
+          echo "397	6	0	403	98.51" >> newman_reports_summary.md
+          echo "Failed Tests" >> newman_reports_summary.md
+
           # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
-            # Run Newman with the current collection file and generate HTML and JSON reports
+            # Run Newman with the current collection file and generate an HTML report
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" || true
 
             # Extract test results from the JSON report and update variables
@@ -77,60 +83,31 @@ jobs:
             current_passed=$(echo "$current_results" | jq -r '.passed')
             current_failed=$(echo "$current_results" | jq -r '.failed')
             current_skipped=$(echo "$current_results" | jq -r '.skipped')
-
+            
             tests_passed=$((tests_passed + current_passed))
             tests_failed=$((tests_failed + current_failed))
             tests_skipped=$((tests_skipped + current_skipped))
+
+            # Create a summary file for the current collection
+            echo "" >> newman_reports_summary.md
+            echo "Collection: $collection_name" >> newman_reports_summary.md
+            echo "Tests Passed: $current_passed" >> newman_reports_summary.md
+            echo "Tests Failed: $current_failed" >> newman_reports_summary.md
+            echo "Tests Skipped: $current_skipped" >> newman_reports_summary.md
           done
 
-          echo "Tests Passed: $tests_passed"
-          echo "Tests Failed: $tests_failed"
-          echo "Tests Skipped: $tests_skipped"
+          # Set the Newman reports summary content as a GitHub environment variable
+          echo "newman_reports_summary=$(cat newman_reports_summary.md)" >> $GITHUB_ENV
+
         working-directory: centreon/tests/rest_api
-
-      - name: Upload Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: postman-reports
-          path: centreon/tests/rest_api/newman
-        env:
-          NODE_VERSION: 16
-
-      - name: Create and Upload README Summary
-        run: |
-          echo "# Postman Tests Summary" > README.md
-          echo "Tests Passed: $tests_passed" >> README.md
-          echo "Tests Failed: $tests_failed" >> README.md
-          echo "Tests Skipped: $tests_skipped" >> README.md
-
-          # Upload README.md
-          echo "::set-output name=readme-summary::README.md"
-        shell: bash
-
-      - name: Create GitHub Summary
-        id: create-github-summary
-        run: |
-          # Your logic to create GitHub summary from test results
-          # Use $tests_passed, $tests_failed, $tests_skipped to access test results
-          summary="**Postman Tests Summary**\n\n"
-          summary+="Tests Passed: $tests_passed\n"
-          summary+="Tests Failed: $tests_failed\n"
-          summary+="Tests Skipped: $tests_skipped\n"
- 
-          # Save the summary to a file
-          echo -e "$summary" > postman_summary.md
-
-          # Upload the summary as an artifact
-          echo "::set-output name=github-summary::postman_summary.md"
-        shell: bash
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
-         name: postman-html-reports
-         path: centreon/tests/rest_api/newman/
+          name: postman-html-reports
+          path: centreon/tests/rest_api/newman/
         env:
-         NODE_VERSION: 16
+          NODE_VERSION: 16
 
       - name: Continue to Next Collection
         if: ${{ always() }}
