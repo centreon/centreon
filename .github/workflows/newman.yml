@@ -50,7 +50,7 @@ jobs:
         run: |
           ls -lR node_modules
 
-      - name: Run Postman Tests and Generate HTML Report
+      - name: Run Postman Tests and Generate HTML and JSON Reports
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
@@ -72,33 +72,24 @@ jobs:
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
-            # Run Newman with the current collection file and generate an HTML report
-            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" || true
+            # Run Newman with the current collection file and generate both HTML and JSON reports
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" --reporter-json-summary-export "$report_directory/${collection_name}-summary.json" || true
 
-            # Extract test results from the JSON report
-            current_results=$(jq -r '.run.stats.tests' "$report_directory/${collection_name}.json")
+            # Extract test results from the JSON summary
+            current_summary=$(cat "$report_directory/${collection_name}-summary.json")
 
-            # Extract the relevant metrics
-            iterations=$(echo "$current_results" | jq -r '.iterations')
-            requests=$(echo "$current_results" | jq -r '.requests')
-            test_scripts=$(echo "$current_results" | jq -r '.test-scripts')
-            prerequest_scripts=$(echo "$current_results" | jq -r '.prerequest-scripts')
-            assertions=$(echo "$current_results" | jq -r '.assertions')
-            total_run_duration=$(jq -r '.run.timings.duration' "$report_directory/${collection_name}.json")
-            total_data_received=$(jq -r '.run.transfers.responseTotal' "$report_directory/${collection_name}.json")
-            average_response_time=$(jq -r '.run.timings.responseAverage' "$report_directory/${collection_name}.json")
-
-            # Add these metrics to the summary
-            echo "" >> newman_reports_summary.md
+            # Add the summary to the overall report
             echo "Collection: $collection_name" >> newman_reports_summary.md
-            echo "Iterations: $iterations" >> newman_reports_summary.md
-            echo "Requests: $requests" >> newman_reports_summary.md
-            echo "Test Scripts: $test_scripts" >> newman_reports_summary.md
-            echo "Pre-request Scripts: $prerequest_scripts" >> newman_reports_summary.md
-            echo "Assertions: $assertions" >> newman_reports_summary.md
-            echo "Total Run Duration: $total_run_duration" >> newman_reports_summary.md
-            echo "Total Data Received: $total_data_received" >> newman_reports_summary.md
-            echo "Average Response Time: $average_response_time" >> newman_reports_summary.md
+            echo "$current_summary" >> newman_reports_summary.md
+
+            # Extract the relevant metrics from the summary
+            tests_passed_current=$(echo "$current_summary" | jq -r '.tests.passed')
+            tests_failed_current=$(echo "$current_summary" | jq -r '.tests.failed')
+            tests_skipped_current=$(echo "$current_summary" | jq -r '.tests.skipped')
+
+            tests_passed=$((tests_passed + tests_passed_current))
+            tests_failed=$((tests_failed + tests_failed_current))
+            tests_skipped=$((tests_skipped + tests_skipped_current))
           done
 
           # Set the Newman reports summary content as a GitHub environment variable
