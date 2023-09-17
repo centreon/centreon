@@ -58,6 +58,8 @@ jobs:
           # Create directories to store reports
           mkdir -p newman
           mkdir -p newman/json-summary
+          
+          ls -lR centreon/tests/rest_api/newman/json-summary
 
           # Initialize variables to store test results
           tests_passed=0
