@@ -80,7 +80,7 @@ jobs:
             ls -lR centreon/tests/rest_api/newman/json-summary
 
             # Extract test results from the JSON summary
-            current_summary=$(cat "newman/json-summary/${collection_name}-summary.json")
+            current_summary=$(cat "centreon/tests/rest_api/newman/json-summary/${collection_name}-summary.json")
 
             # Add the summary to the overall report
             echo "Collection: ${collection_name}.json" >> newman_reports_summary.md
