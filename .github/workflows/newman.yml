@@ -51,7 +51,7 @@ jobs:
           ls -lR node_modules
 
       - name: Create Newman Directory
-        run: mkdir -p centreon/tests/rest_api/newman
+        run: mkdir -p newman
 
       - name: Run Postman Tests and Generate HTML and JSON Reports
         run: |
