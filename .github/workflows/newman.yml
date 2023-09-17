@@ -85,7 +85,7 @@ jobs:
       - name: Extract and Store Summaries
         run: |
          summaries=""
-           for summary_file in centreon/tests/rest_api/newman/postman_summaries/*.json; do # Mettez à jour le chemin ici
+           for summary_file in ./postman_summaries/*.json; do # Mettez à jour le chemin ici
             collection_name=$(basename "$summary_file" -summary.json)
             summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
 
@@ -93,6 +93,7 @@ jobs:
           done
           summaries="${summaries%,}" # Remove the trailing comma
           echo "GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 
       - name: Continue to Next Collection
         if: ${{ always() }}
