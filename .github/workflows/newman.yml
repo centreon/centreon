@@ -83,7 +83,7 @@ jobs:
             current_summary=$(cat "centreon/tests/rest_api/newman/json-summary/${collection_name}-summary.json")
 
             # Add the summary to the overall report
-            echo "Collection: ${collection_name}.json" >> newman_reports_summary.md
+            echo "### Collection: ${collection_name}.json" >> newman_reports_summary.md
             echo "$current_summary" >> newman_reports_summary.md
 
             # Extract the relevant metrics from the summary
