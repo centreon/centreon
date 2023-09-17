@@ -76,16 +76,17 @@ jobs:
             echo "Chemin du répertoire JSON : $report_directory/${collection_name}.json"
       
             # Run Newman with the current collection file and generate both HTML and JSON reports
-            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "${report_directory}/${collection_name}.html" --reporter-json-export "${collection_name}.json" --reporter-json-summary-export "${report_directory}/${collection_name}-summary.json" || true
-      
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "${report_directory}/${collection_name}.html" --reporter-json-export "${report_directory}/${collection_name}.json" --reporter-json-summary-export "${report_directory}/${collection_name}-summary.json" || true
+
+
             echo "Chemin complet du fichier JSON après création : $(realpath "${collection_name}.json")"
       
             # Extract test results from the JSON summary
-            current_summary=$(cat "${collection_name}.json")
+            current_summary=$(cat "${collection_name}-summary.json")
       
             # Add the summary to the overall report
             echo "Collection: ${collection_name}.json" >> newman_reports_summary.md
-            current_summary=$(cat "${collection_name}-summary.json")
+            echo "$current_summary" >> newman_reports_summary.md
       
             # Extract the relevant metrics from the summary
             tests_passed_current=$(echo "$current_summary" | jq -r '.tests.passed')
