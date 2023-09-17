@@ -68,11 +68,9 @@ jobs:
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
           done
 
-   
       - name: Debug Postman Summaries
         run: |
-         find ./postman_summaries -type f -name "*.json"
-
+          find ./postman_summaries -type f -name "*.json"
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
@@ -84,11 +82,10 @@ jobs:
 
       - name: Extract and Store Summaries
         run: |
-         summaries=""
-           for summary_file in ./postman_summaries/*.json; do # Mettez à jour le chemin ici
+          summaries=""
+          for summary_file in ./postman_summaries/*.json; do
             collection_name=$(basename "$summary_file" -summary.json)
             summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
-
             summaries="$summaries\"$collection_name\": $summary_content,"
           done
           summaries="${summaries%,}" # Remove the trailing comma
