@@ -85,7 +85,7 @@ jobs:
         with:
           name: postman-reports
           path: |
-            centreon/tests/rest_api/newman
+            centreon/tests/rest_api/newman/
         env:
           NODE_VERSION: 16
 
