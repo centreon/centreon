@@ -61,7 +61,7 @@ jobs:
           tests_skipped=0
         
           # Create a summary file (Markdown ou HTML) containing the Newman reports content
-          echo "Robot Results" > centreon/tests/rest_api/newman_reports_summary.md
+          echo "Robot Results" > centreon/tests/rest_api/newman/newman_reports_summary.md
         
           # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
