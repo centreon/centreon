@@ -545,11 +545,13 @@ importers:
     specifiers:
       newman: ^5.3.2
       newman-reporter-htmlextra: ^1.22.11
+      newman-reporter-json-summary: ^1.0.14
       newman-reporter-text: ^0.0.31
       wait-on: ^7.0.1
     devDependencies:
       newman: 5.3.2
       newman-reporter-htmlextra: 1.22.11_newman@5.3.2
+      newman-reporter-json-summary: 1.0.14
       newman-reporter-text: 0.0.31
       wait-on: 7.0.1
 
@@ -17264,6 +17266,13 @@ packages:
       pretty-ms: 7.0.1
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /newman-reporter-json-summary/1.0.14:
+    resolution: {integrity: sha512-Xd7YWIrtLhhioSvHrwAxakdWJR8suNAtFqtEzHAqqenWc7wCF9q2+MYREE0orENK4GszbBDa1vh5kbGAZVCNaQ==}
+    dependencies:
+      lodash: 4.17.21
+      newman: 5.3.2
     dev: true
 
   /newman-reporter-text/0.0.31:
