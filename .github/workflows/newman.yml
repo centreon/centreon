@@ -67,7 +67,7 @@ jobs:
         
               # Run Newman with the current collection file and generate both HTML and JSON reports
               pnpm newman run "$collection_file" -e "$environment_path" -r cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "centreon/tests/rest_api/newman/${collection_name}.html" --reporter-json-export "centreon/tests/rest_api/newman/${collection_name}.json" --reporter-summary-json-export "centreon/tests/rest_api/newman/json-summary/${collection_name}-summary.json" || true
-                  
+            done     
               ls -lR centreon/tests/rest_api/newman/json-summary
 
       - name: Upload HTML and JSON Reports
@@ -79,7 +79,7 @@ jobs:
             centreon/tests/rest_api/newman/json-summary/
         env:
           NODE_VERSION: 16
-          
+
       - name: Extract and Store Summaries
         run: |
             summaries=""
@@ -90,6 +90,7 @@ jobs:
             done
             summaries="${summaries%,}" # Remove the trailing comma
             echo "export GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
+
       - name: Continue to Next Collection
         if: ${{ always() }}
         run: echo "Continuing to the next collection..."
