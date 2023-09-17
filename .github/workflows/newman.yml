@@ -90,7 +90,6 @@ jobs:
           done
           summaries="${summaries%,}" # Remove the trailing comma
           echo "GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
-        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 
       - name: Continue to Next Collection
         if: ${{ always() }}
