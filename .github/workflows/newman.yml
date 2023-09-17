@@ -50,14 +50,14 @@ jobs:
         run: |
           ls -lR node_modules
 
+      - name: Create Newman Directory
+        run: mkdir -p centreon/tests/rest_api/newman
+
       - name: Run Postman Tests and Generate HTML and JSON Reports
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
-          report_directory="newman"
-
-          # Create a directory to store HTML reports
-          mkdir -p "$report_directory"
+          report_directory="centreon/tests/rest_api/newman"
 
           # Initialize variables to store test results
           tests_passed=0
