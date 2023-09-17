@@ -70,6 +70,12 @@ jobs:
             ls -lR centreon/tests/rest_api/newman/json-summary
           done
 
+      - name: Debug Files
+        run: |
+            find . -name "newman" -type d
+            find . -name "json-summary" -type d
+            find . -name "*.json" -type f
+                
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
