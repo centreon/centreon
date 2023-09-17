@@ -80,14 +80,15 @@ jobs:
 
       - name: Extract and Store Summaries
         run: |
-          summaries=""
-          for summary_file in postman_summaries/*.json; do
+         summaries=""
+           for summary_file in /postman_summaries/*.json; do # Mettez à jour le chemin ici
             collection_name=$(basename "$summary_file" -summary.json)
-            summary_content=$(cat "$summary_file")
+            summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
             summaries="$summaries\"$collection_name\": $summary_content,"
           done
           summaries="${summaries%,}" # Remove the trailing comma
-          echo "export GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
+          echo "GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
+        working-directory: centreon/tests/rest_api
 
       - name: Continue to Next Collection
         if: ${{ always() }}
