@@ -91,10 +91,6 @@ jobs:
             clean_filename="${clean_filename//-/_}"
             json_info["$clean_filename"]=$summary_content
           done
-
-          for filename in "${!json_info[@]}"; do
-          echo "export $filename='${json_info["$filename"]}'" >> $GITHUB_ENV
-          done
       - name: Continue to Next Collection
         if: ${{ always() }}
         run: echo "Continuing to the next collection..."
