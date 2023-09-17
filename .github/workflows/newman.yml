@@ -52,23 +52,27 @@ jobs:
 
       - name: Run Postman Tests and Generate HTML and JSON Reports
         run: |
-            environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
-            collection_path="collections"
-        
-            mkdir -p centreon/tests/rest_api/newman
-            mkdir -p centreon/tests/rest_api/newman/json-summary
-              
-            ls -lR centreon/tests/rest_api/newman/json-summary
-      
-            # Iterate over each Postman collection file in the specified directory
-            for collection_file in "$collection_path"/*.postman_collection.json; do
-              # Extract the collection name from the file name
-              collection_name=$(basename "$collection_file" .postman_collection.json)
-        
-              # Run Newman with the current collection file and generate both HTML and JSON reports
-              pnpm newman run "$collection_file" -e "$environment_path" -r cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "centreon/tests/rest_api/newman/${collection_name}.html" --reporter-json-export "centreon/tests/rest_api/newman/${collection_name}.json" --reporter-summary-json-export "centreon/tests/rest_api/newman/json-summary/${collection_name}-summary.json" || true
-            done     
-              ls -lR centreon/tests/rest_api/newman/json-summary
+          environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="collections"
+
+          # Create necessary directories
+          mkdir -p centreon/tests/rest_api/newman
+          mkdir -p centreon/tests/rest_api/newman/json-summary
+          
+          # List files in JSON summary directory
+          ls -lR centreon/tests/rest_api/newman/json-summary
+
+          # Iterate over each Postman collection file in the specified directory
+          for collection_file in "$collection_path"/*.postman_collection.json; do
+            # Extract the collection name from the file name
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+
+            # Run Newman with the current collection file and generate HTML and JSON reports
+            pnpm newman run "$collection_file" -e "$environment_path" -r cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "centreon/tests/rest_api/newman/${collection_name}.html" --reporter-json-export "centreon/tests/rest_api/newman/${collection_name}.json" --reporter-summary-json-export "centreon/tests/rest_api/newman/json-summary/${collection_name}-summary.json" || true
+          done     
+
+          # List files in JSON summary directory again
+          ls -lR centreon/tests/rest_api/newman/json-summary
 
       - name: Upload HTML and JSON Reports
         uses: actions/upload-artifact@v2
@@ -76,20 +80,19 @@ jobs:
           name: postman-reports
           path: |
             centreon/tests/rest_api/newman/
-            centreon/tests/rest_api/newman/json-summary/
         env:
           NODE_VERSION: 16
 
       - name: Extract and Store Summaries
         run: |
-         summaries=""
-         for summary_file in centreon/tests/rest_api/newman/json-summary/*.json; do
-           collection_name=$(basename "$summary_file" -summary.json)
-          summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
-          summaries="$summaries\"$collection_name\": $summary_content,"
-         done
-         summaries="${summaries%,}" # Remove the trailing comma
-         echo "GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
+          summaries=""
+          for summary_file in centreon/tests/rest_api/newman/json-summary/*.json; do
+            collection_name=$(basename "$summary_file" -summary.json)
+            summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
+            summaries="$summaries\"$collection_name\": $summary_content,"
+          done
+          summaries="${summaries%,}" # Remove the trailing comma
+          echo "GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
 
       - name: Continue to Next Collection
         if: ${{ always() }}
