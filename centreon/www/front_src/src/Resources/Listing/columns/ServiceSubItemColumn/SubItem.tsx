@@ -23,13 +23,13 @@ const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
   return (
     <Box className={classes.statusCount}>
       {row?.resource_name && (
-        <>
+        <Box className={classes.status}>
           <StatusChip
             content={getStatus(row?.status.name.toLowerCase())?.label}
             severityCode={getStatus(row?.status.name.toLowerCase())?.severity}
           />
           <p>{row?.resource_name}</p>
-        </>
+        </Box>
       )}
       {keys(statusCount)?.map((item) => {
         if (statusCount?.[item]) {
