@@ -50,8 +50,8 @@ jobs:
         run: |
           ls -lR node_modules
 
-          - name: Run Postman Tests and Generate HTML and JSON Reports
-          run: |
+      - name: Run Postman Tests and Generate HTML and JSON Reports
+        run: |
             environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
             collection_path="collections"
         
