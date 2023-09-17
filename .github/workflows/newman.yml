@@ -58,48 +58,48 @@ jobs:
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
           report_directory="centreon/tests/rest_api/newman"
-
+      
           # Initialize variables to store test results
           tests_passed=0
           tests_failed=0
           tests_skipped=0
-
+      
           # Create a summary file (Markdown ou HTML) containing the Newman reports content
           echo "Robot Results" > newman_reports_summary.md
-
+      
           # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
-
+      
             # Afficher le chemin exact du répertoire JSON
             echo "Chemin du répertoire JSON : $report_directory/${collection_name}.json"
-      
+        
             # Run Newman with the current collection file and generate both HTML and JSON reports
-            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" --reporter-json-summary-export "$report_directory/${collection_name}-summary.json" || true
-
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json,json-summary --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "$report_directory/${collection_name}.html" --reporter-json-export "$report_directory/${collection_name}.json" --reporter-json-summary-export "$report_directory/${collection_name}.json" || true
+      
             echo "Chemin complet du fichier JSON après création : $(realpath "$report_directory/${collection_name}.json")"
-
+      
             # Extract test results from the JSON summary
             current_summary=$(cat "centreon/tests/rest_api/newman/${collection_name}.json")
-
+      
             # Add the summary to the overall report
             echo "Collection: $collection_name" >> newman_reports_summary.md
             echo "$current_summary" >> newman_reports_summary.md
-
+      
             # Extract the relevant metrics from the summary
             tests_passed_current=$(echo "$current_summary" | jq -r '.tests.passed')
             tests_failed_current=$(echo "$current_summary" | jq -r '.tests.failed')
             tests_skipped_current=$(echo "$current_summary" | jq -r '.tests.skipped')
-
+      
             tests_passed=$((tests_passed + tests_passed_current))
             tests_failed=$((tests_failed + tests_failed_current))
             tests_skipped=$((tests_skipped + tests_skipped_current))
           done
-
+      
           # Set the Newman reports summary content as a GitHub environment variable
           echo "newman_reports_summary=$(cat newman_reports_summary.md)" >> $GITHUB_ENV
-
+      
         working-directory: centreon/tests/rest_api
 
       - name: Upload HTML Reports
