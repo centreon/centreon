@@ -95,7 +95,6 @@ jobs:
 
           # Set the Newman reports summary content as a GitHub environment variable
           echo "newman_reports_summary=$(cat newman_reports_summary.md)" >> $GITHUB_ENV
-        working-directory: centreon/tests/rest_api
 
       - name: Upload HTML and JSON Reports
         uses: actions/upload-artifact@v2
