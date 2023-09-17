@@ -79,17 +79,22 @@ jobs:
           path: centreon/tests/rest_api/newman/
         env:
           NODE_VERSION: 16
-
       - name: Extract and Store Summaries
+        env:
+            CONTAINER_NAME: my_centreon_container
+            CENTREON_URL: http://localhost
+            CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
         run: |
-          summaries=""
-          for summary_file in ./postman_summaries/*.json; do
-            collection_name=$(basename "$summary_file" -summary.json)
-            summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
-            summaries="$summaries\"$collection_name\": $summary_content,"
-          done
-          summaries="${summaries%,}" # Remove the trailing comma
-          echo "GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
+            summaries=""
+            for summary_file in ./postman_summaries/*.json; do
+              collection_name=$(basename "$summary_file" -summary.json)
+              summary_content=$(cat "$summary_file" | jq -c '.["collection"]["info"]["name"], .["run"]["stats"]["requests"]["total"], .["run"]["stats"]["requests"]["pending"], .["run"]["stats"]["requests"]["failed"], .["run"]["stats"]["assertions"]["total"], .["run"]["stats"]["assertions"]["pending"], .["run"]["stats"]["assertions"]["failed"]')
+              summaries="$summaries\"$collection_name\": $summary_content,"
+            done
+            summaries="${summaries%,}" # Remove the trailing comma
+            echo "GITHUB_STEP_SUMMARIES={$summaries}" >> $GITHUB_ENV
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+        
 
       - name: Continue to Next Collection
         if: ${{ always() }}
