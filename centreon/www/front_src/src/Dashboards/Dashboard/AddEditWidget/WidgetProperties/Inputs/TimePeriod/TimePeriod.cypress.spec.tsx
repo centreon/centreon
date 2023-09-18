@@ -6,11 +6,16 @@ import {
   labelStart,
   labelTimePeriod
 } from '../../../../translatedLabels';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
 
 const initializeComponent = (): void => {
+  cy.stub(editProperties, 'useCanEditProperties').returns({
+    canEdit: true,
+    canEditField: true
+  });
   cy.clock(new Date(2023, 5, 5, 8, 0, 0).getTime());
   cy.mount({
     Component: (
@@ -41,7 +46,7 @@ describe('Time Period', () => {
     cy.contains(labelTimePeriod).should('be.visible');
     cy.findByTestId(labelTimePeriod).should('have.value', '1');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   options.slice(1).forEach(({ id, name }) => {
@@ -52,7 +57,7 @@ describe('Time Period', () => {
 
       cy.findByTestId(labelTimePeriod).should('have.value', `${id}`);
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 

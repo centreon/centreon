@@ -31,10 +31,6 @@ beforeEach(() => {
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('updateSAMLProvider');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('postLocalAuthentification');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -68,17 +64,22 @@ Then(
   () => {
     const username = 'user-non-admin-for-SAML-authentication';
 
-    cy.session(`wrong_${username}`, () => {
-      cy.visit('/');
+    cy.visit('/');
 
-      cy.loginKeycloak('admin');
-      cy.get('#input-error')
-        .should('be.visible')
-        .and('include.text', 'Invalid username or password.');
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+    }).as('getUserInformation');
 
-      cy.loginKeycloak(username);
-      cy.url().should('include', '/monitoring/resources');
-    });
+    cy.loginKeycloak('admin');
+    cy.get('#input-error')
+      .should('be.visible')
+      .and('include.text', 'Invalid username or password.');
+
+    cy.loginKeycloak(username);
+
+    cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
+    cy.url().should('include', '/monitoring/resources');
   }
 );
 

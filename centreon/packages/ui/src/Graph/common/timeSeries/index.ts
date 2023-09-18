@@ -28,7 +28,10 @@ import {
   lt,
   identity,
   head,
-  last
+  last,
+  cond,
+  always,
+  T
 } from 'ramda';
 
 import { margin } from '../../LineChart/common';
@@ -440,6 +443,37 @@ const getRightScale = ({
   });
 };
 
+const formatTime = (value: number): string => {
+  if (value < 1000) {
+    return `${numeral(value).format('0.[00]a')} ms`;
+  }
+
+  const t = numeral(value / 1000).format('0.[00]a');
+
+  return `${t} seconds`;
+};
+
+const registerMsUnitToNumeral = (): null => {
+  try {
+    numeral.register('format', 'milliseconds', {
+      format: (value) => {
+        return formatTime(value);
+      },
+      regexps: {
+        format: /(ms)/,
+        unformat: /(ms)/
+      },
+      unformat: () => ''
+    });
+
+    return null;
+  } catch (_) {
+    return null;
+  }
+};
+
+registerMsUnitToNumeral();
+
 const formatMetricValue = ({
   value,
   unit,
@@ -463,15 +497,43 @@ const formatMetricValue = ({
 
   const base1024 = base2Units.includes(unit) || Number(base) === 1024;
 
-  const formatSuffix = base1024 ? ' ib' : 'a';
+  const formatSuffix = cond([
+    [equals('ms'), always(' ms')],
+    [T, always(base1024 ? ' ib' : 'a')]
+  ])(unit);
 
   const formattedMetricValue = numeral(Math.abs(value))
     .format(`0.[00]${formatSuffix}`)
-    .replace(/\s|i|B/g, '');
+    .replace(/iB/g, unit);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
   }
+
+  return formattedMetricValue;
+};
+
+const formatMetricValueWithUnit = ({
+  value,
+  unit,
+  base = 1000,
+  isRaw = false
+}: FormatMetricValueProps & { isRaw?: boolean }): string | null => {
+  if (isNil(value)) {
+    return null;
+  }
+
+  if (isRaw) {
+    const unitText = equals('%', unit) ? unit : ` ${unit}`;
+
+    return `${value}${unitText}`;
+  }
+
+  if (equals('%', unit)) {
+    return `${numeral(Math.abs(value)).format('0.[00]')}%`;
+  }
+
+  const formattedMetricValue = formatMetricValue({ base, unit, value });
 
   return formattedMetricValue;
 };
@@ -557,5 +619,6 @@ export {
   getStackedYScale,
   getTimeValue,
   bisectDate,
-  getMetricWithLatestData
+  getMetricWithLatestData,
+  formatMetricValueWithUnit
 };

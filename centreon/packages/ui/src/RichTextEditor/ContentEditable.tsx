@@ -160,7 +160,6 @@ const ContentEditable = ({
         className,
         isFocused && classes.inputFocused
       )}
-      id={namespace}
     >
       {editable && isTextEmpty && (
         <Typography className={classes.placeholder}>

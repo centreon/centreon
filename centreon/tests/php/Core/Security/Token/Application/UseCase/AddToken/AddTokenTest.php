@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Domain\TrimmedString;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
@@ -44,7 +45,6 @@ use Core\Security\Token\Application\UseCase\AddToken\AddTokenValidation;
 use Core\Security\Token\Domain\Model\Token;
 use Tests\Core\Security\Token\Infrastructure\API\AddToken\AddTokenPresenterStub;
 
-
 beforeEach(function (): void {
     $this->presenter = new AddTokenPresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -53,7 +53,6 @@ beforeEach(function (): void {
     $this->useCase = new AddToken(
         $this->writeTokenRepository = $this->createMock(WriteTokenRepositoryInterface::class),
         $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class),
-        $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
         $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class),
         $this->validation = $this->createMock(AddTokenValidation::class),
         $this->user = $this->createMock(ContactInterface::class),
@@ -74,16 +73,15 @@ beforeEach(function (): void {
     $this->request->expirationDate = $this->expirationDate;
 
     $this->token = new Token(
-        tokenId: 34,
+        name: new TrimmedString($this->request->name),
+        userId: $this->linkedUser['id'],
+        userName: new TrimmedString($this->linkedUser['name']),
+        creatorId: $this->creator['id'],
+        creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate,
         expirationDate: $this->expirationDate,
-        userId: $this->linkedUser['id'],
-        name: $this->request->name,
-        creatorName: $this->creator['name'],
-        creatorId: $this->creator['id'],
         isRevoked: false
     );
-
 });
 
 it('should present an ErrorResponse when a generic exception is thrown', function (): void {
@@ -319,16 +317,6 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('find')
         ->willReturn($this->token);
-
-    $this->readContactRepository
-        ->expects($this->once())
-        ->method('findNamesByIds')
-        ->willReturn([
-            $this->linkedUser['id'] => [
-                'id' => $this->linkedUser['id'],
-                'name' => $this->linkedUser['name']
-            ]
-        ]);
 
     ($this->useCase)($this->request, $this->presenter);
 

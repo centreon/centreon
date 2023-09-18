@@ -11,9 +11,15 @@ import { Dashboard, DashboardPanel, resource } from '../api/models';
 import { dashboardDecoder } from '../api/decoders';
 import { FederatedModule } from '../../federatedModules/models';
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
+import { useDashboardUserPermissions } from '../components/DashboardUserPermissions/useDashboardUserPermissions';
 
 import { Panel, PanelConfiguration } from './models';
-import { dashboardAtom, panelsLengthAtom } from './atoms';
+import {
+  dashboardAtom,
+  hasEditPermissionAtom,
+  isEditingAtom,
+  panelsLengthAtom
+} from './atoms';
 
 interface UseDashboardDetailsState {
   dashboard?: Dashboard;
@@ -69,12 +75,16 @@ const useDashboardDetails = ({
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const setDashboard = useSetAtom(dashboardAtom);
   const setPanelsLength = useSetAtom(panelsLengthAtom);
+  const setHasEditPermission = useSetAtom(hasEditPermissionAtom);
+  const setIsEditing = useSetAtom(isEditingAtom);
 
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
     getQueryKey: () => [resource.dashboard, dashboardId]
   });
+
+  const { hasEditPermission } = useDashboardUserPermissions();
 
   const panels = getPanels(dashboard);
 
@@ -85,6 +95,21 @@ const useDashboardDetails = ({
     });
     setPanelsLength(panels.length);
   }, useDeepCompare([panels, federatedWidgets]));
+
+  useEffect(() => {
+    if (!dashboard) {
+      return;
+    }
+
+    setHasEditPermission(hasEditPermission(dashboard));
+  }, [dashboard]);
+
+  useEffect(() => {
+    return () => {
+      setHasEditPermission(false);
+      setIsEditing(false);
+    };
+  }, []);
 
   return {
     dashboard,

@@ -118,16 +118,22 @@ When(
 Then(
   'the users from the 3rd party authentication service are affected to contact groups',
   () => {
-    cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit('/');
-      cy.contains('Login with openid').should('be.visible').click();
+    cy.visit('/');
 
-      cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
-      cy.url().should('include', '/monitoring/resources');
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+    }).as('getUserInformation');
 
-      cy.logout();
-      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
-    });
+    cy.contains('Login with openid').should('be.visible').click();
+
+    cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
+
+    cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
+    cy.url().should('include', '/monitoring/resources');
+
+    cy.logout();
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')

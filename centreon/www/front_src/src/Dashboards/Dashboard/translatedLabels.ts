@@ -1,9 +1,9 @@
 export const labelSave = 'Save';
 export const labelEditDashboard = 'Edit dashboard';
-export const labelAddWidget = 'Add widget';
+export const labelAddWidget = 'Add a widget';
 export const labelEditWidget = 'Edit widget';
 export const labelAddAWidget = 'Add a widget';
-export const labelExit = 'Exit';
+export const labelCancel = 'Cancel';
 export const labelExitDashboard = 'Exit {{dashboardName}}';
 export const labelExitEditionMode = 'Exit edition mode';
 export const labelLeaveEditionModeChangesNotSaved =
@@ -14,14 +14,14 @@ export const labelYourDashboardHasBeenSaved = 'Your dashboard has been saved';
 export const labelSelectAWidgetType = 'Select a widget type';
 export const labelSearch = 'Search';
 export const labelNoWidgetFound = 'No widget found';
-export const labelDeleteAWidget = 'Delete a widget';
+export const labelDeleteAWidget = 'Delete widget';
 export const labelDoYouWantToDeleteThisWidget =
   'Do you want to delete this widget?';
-export const labelWidgetLibrary = 'Widget library';
+export const labelWidgetType = 'Widget type';
 export const labelPleaseChooseAWidgetToActivatePreview =
-  'Select a widget type to activate the preview';
+  'Select a widget type to activate the preview.';
 export const labelDeleteWidget = 'Delete widget';
-export const labelName = 'Name';
+export const labelTitle = 'Title';
 export const labelDescription = 'Description';
 export const labelWidgetProperties = 'Widget properties';
 export const labelCommonProperties = 'Common properties';
@@ -49,8 +49,8 @@ export const labelShowDescription = 'Show description';
 export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
   'By turning off this option, all links included in the widget will be opened in the same tab.';
-export const labelAddResource = 'Add resource';
-export const labelAddMetric = 'Add metric';
+export const labelAddResource = 'Add a resource';
+export const labelAddMetric = 'Add a metric';
 export const labelAvailable = 'available';
 export const labelYourWidgetHasBeenModified =
   'Your widget has been modified successfully!';
@@ -58,8 +58,7 @@ export const labelYourWidgetHasBeenCreated =
   'Your widget has been created successfully!';
 export const labelValueSettings = 'Value settings';
 export const labelRefreshInterval = 'Refresh interval';
-export const labelDashboardGlobalInterval =
-  'Dashboard global interval (by default)';
+export const labelDashboardGlobalInterval = 'Dashboard global interval';
 export const labelCustomRefreshInterval = 'Custom refresh interval';
 export const labelSecond = 'second';
 export const labelManualRefresh = 'Manual refresh';
@@ -71,8 +70,24 @@ export const labelCriticalThreshold = 'Critical threshold';
 export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
-  'Thresholds are automatically hidden if you select 2 metric units';
-export const labelGraphType = 'Graph type';
+  'Thresholds are automatically hidden if you select 2 metric units.';
+export const labelDisplayType = 'Display type';
+export const labelText = 'Text';
+export const labelGauge = 'Gauge';
+export const labelBar = 'Bar chart';
+export const labelDefaultValueIsDefinedByFirstMetricUsed =
+  'The default value is the value defined for the first metric used.';
+export const labelNone = 'none';
+export const labelValueFormat = 'Value format';
+export const labelRawValue = 'Raw value';
+export const labelHumanReadable = 'Human readable';
+export const labelYouCanChooseOnResourcePerResourceType =
+  'You can choose only one resource for each resource type.';
+export const labelViewProperties = 'View properties';
+export const labelYourRightsOnlyAllowToView =
+  'Your rights only allow you to view the properties of a widget.';
+export const labelPleaseContactYourAdministrator =
+  'Please contact your administrator for more information.';
 export const labelLastHour = 'Last hour';
 export const labelLast24Hours = 'Last 24 hours';
 export const labelLast7Days = 'Last 7 days';
@@ -86,3 +101,4 @@ export const labelTo = 'to';
 export const labelFrom = 'From';
 export const labelStart = 'Start';
 export const labelEnd = 'End';
+export const labelBaseColor = 'Base color';

@@ -1,6 +1,6 @@
 get:
   tags:
-    - dashboard
+    - Dashboard
   summary: "List the Top/Bottom resources for given metric"
   description: "List the Top/Bottom resources for given metric"
   parameters:

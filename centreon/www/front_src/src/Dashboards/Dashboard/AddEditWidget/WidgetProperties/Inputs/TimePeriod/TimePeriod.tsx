@@ -19,6 +19,7 @@ import {
   labelTo
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import useTimePeriod from './useTimePeriod';
 import { useTimePeriodStyles } from './TimePeriod.styles';
@@ -38,6 +39,8 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { Adapter } = useDateTimePickerAdapter();
   const { locale, timezone } = useAtomValue(userAtom);
 
+  const { canEditField } = editProperties.useCanEditProperties();
+
   return (
     <div className={classes.container}>
       <Typography>
@@ -45,6 +48,7 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       </Typography>
       <SelectField
         dataTestId={labelTimePeriod}
+        disabled={!canEditField}
         options={options}
         selectedOptionId={value.timePeriodType || ''}
         onChange={setTimePeriod}
@@ -57,6 +61,7 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           >
             {t(labelFrom)}
             <DesktopDateTimePicker
+              disabled={!canEditField}
               label=""
               maxDate={dayjs(value.end).tz(timezone)}
               slotProps={{
@@ -74,6 +79,7 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             />
             {t(labelTo)}
             <DesktopDateTimePicker
+              disabled={!canEditField}
               label=""
               minDate={dayjs(value.start).tz(timezone)}
               slotProps={{
