@@ -1,0 +1,9 @@
+in: query
+name: servicegroup_names
+required: false
+description: "Filter the resources by service group names"
+schema:
+  type: string
+  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+  description: should be in form ["<str1>","<str2>"]
+  example: '["Memory-Services", "Ping-Services"]'

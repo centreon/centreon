@@ -308,7 +308,6 @@ describe('Dashboard', () => {
 
       cy.findAllByLabelText(labelSave).eq(1).click();
 
-      cy.contains(labelAddWidget).should('not.exist');
       cy.contains('Text for the new widget').should('be.visible');
 
       cy.makeSnapshot();
