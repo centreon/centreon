@@ -49,29 +49,23 @@ jobs:
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
-
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="collections"
-
           # Create a directory to store HTML reports and summaries
           mkdir -p newman
           mkdir -p postman_summaries
-
           # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
-
             # Run Newman with the current collection file and generate an HTML report and summary
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
           done
-
       - name: Debug Postman Summaries
         run: |
           find ./postman_summaries -type f -name "*.json"
-
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
@@ -86,43 +80,35 @@ jobs:
              for summary_file in ./postman_summaries/*.json; do
               summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
               filename=$(basename "$summary_file" .json)
-              # Nettoyez le nom du fichier pour le rendre compatible avec les variables d'environnement
               clean_filename="${filename// /_}"
               clean_filename="${clean_filename//-/_}"
-          
               json_info["$clean_filename"]=$summary_content
             done
-
           for key in "${!json_info[@]}"; do
            echo "Summary info for $key:"
            echo "${json_info[$key]}"
           done
-
       - name: Generate and Display Summaries
         run: |
-          # Déclaration d'une variable pour stocker les informations formatées
-          formatted_info=""
+         # Créez une variable pour stocker les résumés
+         summaries=""
         
-           formatted_info+="\n| Name | Total Requests | Pending Requests | Failed Requests | Total Assertions | Pending Assertions | Failed Assertions |"
-           formatted_info+="\n| --- | --- | --- | --- | --- | --- | --- |"
+         for summary_file in ./postman_summaries/*.json; do
+           # Utilisez jq pour extraire les champs "Name" et "Stats.Requests" du fichier JSON
+           collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+           total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
+           pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
+           failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
         
-           # Itération sur chaque élément du tableau associatif json_info
-           for key in "${!json_info[@]}"; do
-              collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
-              total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
-              pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
-              failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-              total_assertions=$(jq -r '.Run.Stats.Assertions.total' "$summary_file")
-              pending_assertions=$(jq -r '.Run.Stats.Assertions.pending' "$summary_file")
-              failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-          
-              # Ajoutez les données formatées dans la variable formatted_info
-              formatted_info+="\n| $collection_name | $total_requests | $pending_requests | $failed_requests | $total_assertions | $pending_assertions | $failed_assertions |"
-           done
+           # Ajoutez le résumé au format souhaité (tableau) dans la variable summaries
+           summaries+="\n| $collection_name | $total_requests | $pending_requests | $failed_requests |"
+         done
+         
+          echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
+          echo "| Collection Name | Total Requests | Pending Requests | Failed Requests |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         
-           echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
-           echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
-           echo -e "$formatted_info" >> $GITHUB_STEP_SUMMARY
             
       - name: Continue to Next Collection
         if: ${{ always() }}
