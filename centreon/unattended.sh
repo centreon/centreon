@@ -266,7 +266,7 @@ function get_os_information() {
 
 	case "${OS_NAME}" in
 		AlmaLinux*)
-			detected_os_release="almalinux-release-${VERSIONID}"
+			detected_os_release="almalinux-release-${OS_VERSIONID}"
 			;;
 		CentOS*)
 			detected_os_release="centos-release-${VERSIONID}"
