@@ -39,7 +39,7 @@ const Filter = (): JSX.Element => {
       debounced
       className={classes.search}
       dataTestId={t(labelSearch)}
-      placeholder={t(labelSearch)}
+      placeholder={t(labelSearch) as string}
       onChange={onChange}
     />
   );
