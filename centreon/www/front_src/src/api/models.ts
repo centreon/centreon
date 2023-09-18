@@ -20,7 +20,7 @@ export interface FeatureFlags {
   adExclusionPeriods?: boolean;
   dashboard?: boolean;
   notification?: boolean;
-  resourceStatusThreeView?: boolean;
+  resourceStatusTreeView?: boolean;
   vault?: boolean;
 }
 

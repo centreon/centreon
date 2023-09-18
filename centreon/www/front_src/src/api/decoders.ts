@@ -110,13 +110,13 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
     dashboard: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
-    resourceStatusThreeView: JsonDecoder.optional(JsonDecoder.boolean),
+    resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),
     vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {
     adExclusionPeriods: 'ad_exclusion_periods',
-    resourceStatusThreeView: 'resource_status_three_view'
+    resourceStatusTreeView: 'resource_status_tree_view'
   }
 );
 

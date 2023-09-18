@@ -45,7 +45,7 @@ const VisualizationActions = (): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <Box className={classes.container} data-testid="three views">
+    <Box className={classes.container} data-testid="tree view">
       <Typography className={classes.text}>{t(labelDisplayView)}</Typography>
       {actions.map(({ type, title, IconOnActive, IconOnInactive }) => {
         return (

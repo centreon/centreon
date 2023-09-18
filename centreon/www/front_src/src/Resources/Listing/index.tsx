@@ -224,7 +224,7 @@ const ResourceListing = (): JSX.Element => {
 
   const areColumnsSortable = equals(visualization, Visualization.All);
 
-  const visualizationActions = featureFlags?.resourceStatusThreeView ? (
+  const visualizationActions = featureFlags?.resourceStatusTreeView ? (
     <VisualizationActions />
   ) : undefined;
 

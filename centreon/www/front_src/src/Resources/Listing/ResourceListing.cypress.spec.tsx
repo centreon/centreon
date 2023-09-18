@@ -118,13 +118,13 @@ const retrievedListingWithCriticalResources = {
 };
 
 const getPlatformFeatures = ({
-  enableThreeView = true
+  enableTreeView = true
 }: {
-  enableThreeView?: boolean;
+  enableTreeView?: boolean;
 }): PlatformFeatures => {
   return {
     featureFlags: {
-      resourceStatusThreeView: enableThreeView
+      resourceStatusTreeView: enableTreeView
     },
     isCloudPlatform: false
   };
@@ -683,26 +683,26 @@ describe('Resource Listing: Visualization by all resources', () => {
   });
 });
 
-describe('Three views : Feature Flag', () => {
-  it('hides the three views icons if the feature is disabled', () => {
+describe('Tree view : Feature Flag', () => {
+  it('hides the tree view icons if the feature is disabled', () => {
     store.set(
       platformFeaturesAtom,
-      getPlatformFeatures({ enableThreeView: false })
+      getPlatformFeatures({ enableTreeView: false })
     );
     interceptRequestsAndMountBeforeEach();
 
-    cy.findByTestId('three views').should('not.exist');
+    cy.findByTestId('tree view').should('not.exist');
 
     cy.makeSnapshot();
   });
-  it('displays the three views icons if the feature is enabled', () => {
+  it('displays the tree view icons if the feature is enabled', () => {
     store.set(
       platformFeaturesAtom,
-      getPlatformFeatures({ enableThreeView: true })
+      getPlatformFeatures({ enableTreeView: true })
     );
     interceptRequestsAndMountBeforeEach();
 
-    cy.findByTestId('three views').should('be.visible');
+    cy.findByTestId('tree view').should('be.visible');
 
     cy.makeSnapshot();
   });
