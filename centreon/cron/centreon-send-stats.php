@@ -147,7 +147,7 @@ if ($isRemote === false) {
         );
 
         if ( isset($options["d"]) || isset($options["debug"]) ) {
-            print json_encode($data);
+            echo json_encode($data, JSON_PRETTY_PRINT) . "\n";
         } else {
             $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, array(), true);
             logger(
