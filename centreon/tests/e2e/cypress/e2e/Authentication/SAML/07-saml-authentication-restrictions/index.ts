@@ -77,6 +77,8 @@ When(
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
     cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+
+    cy.logout();
   }
 );
 
@@ -85,12 +87,8 @@ Then(
   () => {
     const username = 'user-non-admin-for-SAML-authentication';
 
-    cy.session(username, () => {
-      cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
-      cy.loginKeycloak(username)
-        .url()
-        .should('include', '/monitoring/resources');
-    });
+    cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
+    cy.loginKeycloak(username).url().should('include', '/monitoring/resources');
   }
 );
 
