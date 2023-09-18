@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { pick } from 'ramda';
 
@@ -39,7 +38,6 @@ const PollerWizardStepTwo = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [remoteServers, setRemoteServers] = useState<Array<PollerRemoteList>>(
     []
@@ -116,7 +114,7 @@ const PollerWizardStepTwo = ({
         if (pollerData?.linked_remote_master) {
           goToNextStep();
         } else {
-          navigate(routeMap.pollerList);
+          window.location.href = `/centreon${routeMap.pollerList}`;
         }
       })
       .catch(() => undefined);
