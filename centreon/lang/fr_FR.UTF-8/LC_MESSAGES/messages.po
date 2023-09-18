@@ -18130,11 +18130,11 @@ msgstr "Texte"
 msgid "Gauge"
 msgstr "Jauge"
 
-msgid "Bar"
-msgstr "Barre"
+msgid "Bar chart"
+msgstr "Diagramme à barres"
 
-msgid "The default value is the value defined for the first metric used"
-msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée"
+msgid "The default value is the value defined for the first metric used."
+msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée."
 
 msgid "Value format"
 msgstr "Format de valeur"
@@ -18145,8 +18145,8 @@ msgstr "Valeur brute"
 msgid "Human readable"
 msgstr "Lisible par l'humain"
 
-msgid "You can choose only one resource for each resource type"
-msgstr "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource"
+msgid "You can choose only one resource for each resource type."
+msgstr "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource."
 
 msgid "View properties"
 msgstr "Voir les propriétés"
@@ -18213,3 +18213,12 @@ msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utili
 
 msgid "hosts"
 msgstr "hôtes"
+
+msgid "none"
+msgstr "aucun"
+
+msgid "Error while searching for authentication tokens"
+msgstr "Erreur lors de la recherche de jetons d'authentification"
+
+msgid "You are not allowed to list authentication tokens"
+msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"

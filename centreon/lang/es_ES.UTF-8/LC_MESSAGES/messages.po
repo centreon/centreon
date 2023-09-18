@@ -16328,10 +16328,10 @@ msgstr ""
 # msgid "Gauge"
 # msgstr ""
 
-# msgid "Bar"
+# msgid "Bar chart"
 # msgstr ""
 
-# msgid "The default value is the value defined for the first metric used"
+# msgid "The default value is the value defined for the first metric used."
 # msgstr ""
 
 # msgid "None"
@@ -16346,7 +16346,7 @@ msgstr ""
 # msgid "Human readable"
 # msgstr ""
 
-# msgid "You can choose only one resource for each resource type"
+# msgid "You can choose only one resource for each resource type."
 # msgstr ""
 
 # msgid "View properties"
@@ -16414,3 +16414,12 @@ msgstr ""
 
 # msgid "hosts"
 # msgstr ""
+
+# msgid "none"
+# msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""

@@ -1,0 +1,9 @@
+in: query
+name: statuses
+required: false
+description: "Filter the resources by status"
+schema:
+  type: string
+  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+  description: should be in form ["<str1>","<str2>"] where strings can be one of "OK", "UP", "WARNING", "DOWN", "CRITICAL", "UNREACHABLE", "UNKNOWN", "PENDING"
+  example: '["OK", "UP", "PENDING"]'
