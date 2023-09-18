@@ -83,31 +83,38 @@ jobs:
       - name: Extract and Store Summaries
         run: |
           declare -A json_info
-          for summary_file in ./postman_summaries/*.json; do
-            summary_content=$(cat "$summary_file" | jq -c '.Collection.Info.Name, .Run.Stats.Requests.total, .Run.Stats.Requests.pending, .Run.Stats.Requests.failed, .Run.Assertions.total, .Run.Assertions.pending, .Run.Assertions.failed')
-            filename=$(basename "$summary_file" .json)
-            # Nettoyez le nom du fichier pour le rendre compatible avec les variables d'environnement
-            clean_filename="${filename// /_}"
-            clean_filename="${clean_filename//-/_}"
-            json_info["$clean_filename"]=$summary_content
-          done
+             for summary_file in ./postman_summaries/*.json; do
+              summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
+              filename=$(basename "$summary_file" .json)
+              clean_filename="${filename// /_}"
+              clean_filename="${clean_filename//-/_}"
+              json_info["$clean_filename"]=$summary_content
+            done
 
           for key in "${!json_info[@]}"; do
            echo "Summary info for $key:"
            echo "${json_info[$key]}"
           done
-      - name: Display Summaries
+
+      - name: Generate and Display Summaries
         run: |
+            # Créez une variable pour stocker les résumés
+            summaries=""
+        
+            for summary_file in ./postman_summaries/*.json; do
+              # Utilisez jq pour extraire les champs "Name" et "Stats" du fichier JSON
+              collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+              stats=$(jq -r '.Run.Stats' "$summary_file")
+        
+              # Ajoutez le résumé au format souhaité (tableau) dans la variable summaries
+              summaries+="\n- $collection_name\n$stats\n"
+            done
+        
+            # Affichez les résumés dans le fichier $GITHUB_STEP_SUMMARY
             echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
-        
-            summaries="$summaries" 
-            # Split the space-separated values into an array
-            IFS=' ' read -ra summary_values <<< "$summaries"
-        
-            for value in "${summary_values[@]}"; do
-              echo "- $value" >> $GITHUB_STEP_SUMMARY
-            done
+            echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+            
       - name: Continue to Next Collection
         if: ${{ always() }}
         run: echo "Continuing to the next collection..."
