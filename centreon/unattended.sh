@@ -269,7 +269,7 @@ function get_os_information() {
 			detected_os_release="almalinux-release-${OS_VERSIONID}"
 			;;
 		CentOS*)
-			detected_os_release="centos-release-${VERSIONID}"
+			detected_os_release="centos-release-${OS_VERSIONID}"
 			;;
 		Debian*)
 			detected_os_release="debian-release-${VERSIONID}"
