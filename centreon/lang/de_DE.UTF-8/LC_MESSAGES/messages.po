@@ -7451,7 +7451,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php:275
 #: centreon/www/include/Administration/configChangelog/viewLogs.php:145
 #: centreon/www/include/Administration/configChangelog/viewLogs.php:153
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Massenänderung"
 
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php:75
