@@ -28,14 +28,14 @@ jobs:
           json_collections="${json_collections%, }"
           
           echo "collections={$json_collections}" >> $GITHUB_OUTPUT
-        
+          echo "Contents of collections: $collections"
+
   postman_tests:
     needs: discover_collections
     strategy:
       matrix:
-        ${{fromJson(needs.discover_collections.outputs.collections)}}
-    runs-on: ubuntu-latest
-    defaults:
+         collections: ${{fromJson(needs.set_collections.outputs.collections)}}
+     defaults:
       run:
         shell: bash
         working-directory: centreon/tests/rest_api
