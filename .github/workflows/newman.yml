@@ -2,9 +2,28 @@ name: Postman Tests
 
 on:
   push:
+ 
 
 jobs:
+  discover_collections:
+    runs-on: ubuntu-latest
+    outputs:
+      collections: ${{ steps.set_collections.outputs.collections }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: List Postman Collections
+        id: set_collections
+        run: |
+          collections=$(find centreon/tests/rest_api/collections -type f -name "*.postman_collection.json" -exec echo {} \;)
+          echo "::set-output name=collections::$collections"
+    
   postman_tests:
+    needs: discover_collections
+    strategy:
+      matrix:
+        collection: ${{fromJson(needs.discover_collections.outputs.collections)}}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -52,17 +71,16 @@ jobs:
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
-          collection_path="collections"
+          collection_path="${{ matrix.collection }}"
           # Create a directory to store HTML reports and summaries
           mkdir -p newman
           mkdir -p postman_summaries
-          # Iterate over each Postman collection file in the specified directory
-          for collection_file in "$collection_path"/*.postman_collection.json; do
-            # Extract the collection name from the file name
-            collection_name=$(basename "$collection_file" .postman_collection.json)
-            # Run Newman with the current collection file and generate an HTML report and summary
-            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
-          done
+          # Extract the collection name from the matrix variable
+          collection_name=$(basename "$collection_path" .postman_collection.json)
+          # Run Newman with the current collection file and generate an HTML report and summary
+          pnpm newman run "$collection_path" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+
+
       - name: Debug Postman Summaries
         run: |
           find ./postman_summaries -type f -name "*.json"
