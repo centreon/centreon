@@ -34,8 +34,9 @@ jobs:
     needs: discover_collections
     strategy:
       matrix:
-         collections: ${{fromJson(needs.set_collections.outputs.collections)}}
-     defaults:
+        collection: ${{fromJson(needs.discover_collections.outputs.collections)}}
+    runs-on: ubuntu-latest
+    defaults:
       run:
         shell: bash
         working-directory: centreon/tests/rest_api
