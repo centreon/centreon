@@ -33,7 +33,7 @@ jobs:
     needs: discover_collections
     strategy:
       matrix:
-        collection: ${{fromJson(needs.discover_collections.outputs.collections)}}
+        ${{fromJson(needs.discover_collections.outputs.collections)}}
     runs-on: ubuntu-latest
     defaults:
       run:
