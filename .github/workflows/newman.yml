@@ -10,7 +10,7 @@ jobs:
       run:
         shell: bash
         working-directory: centreon/tests/rest_api
-
+        
     env:
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost
@@ -31,7 +31,7 @@ jobs:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-
+      
       - name: Install pnpm
         run: npm install pnpm -g
 
@@ -45,7 +45,7 @@ jobs:
         run: |
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
-
+      
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
@@ -83,43 +83,36 @@ jobs:
       - name: Extract and Store Summaries
         run: |
           declare -A json_info
-          for summary_file in ./postman_summaries/*.json; do
-            summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
-            filename=$(basename "$summary_file" .json)
-            clean_filename="${filename// /_}"
-            clean_filename="${clean_filename//-/_}"
-            json_info["$clean_filename"]=$summary_content
-          done
+             for summary_file in ./postman_summaries/*.json; do
+              summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
+              filename=$(basename "$summary_file" .json)
+              clean_filename="${filename// /_}"
+              clean_filename="${clean_filename//-/_}"
+          
+              json_info["$clean_filename"]=$summary_content
+            done
 
           for key in "${!json_info[@]}"; do
-            echo "Summary info for $key:"
-            echo "${json_info[$key]}"
+           echo "Summary info for $key:"
+           echo "${json_info[$key]}"
           done
 
       - name: Generate and Display Summaries
         run: |
-          # Déclaration d'une variable pour stocker les informations formatées
-          formatted_info=""
-
-          # Itération sur chaque fichier JSON
-          for summary_file in ./postman_summaries/*.json; do
-            # Utilisation de jq pour extraire les champs "Name" et "Stats" du fichier JSON
-            summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
-
-            # Ajoutez le résumé au format souhaité (tableau) dans la variable formatted_info
-            formatted_info+="\n- **${summary_content.Name}**"
-            formatted_info+="\n   - Total Requests: ${summary_content.Stats.Requests.total}"
-            formatted_info+="\n   - Pending Requests: ${summary_content.Stats.Requests.pending}"
-            formatted_info+="\n   - Failed Requests: ${summary_content.Stats.Requests.failed}"
-            formatted_info+="\n   - Total Assertions: ${summary_content.Stats.Assertions.total}"
-            formatted_info+="\n   - Pending Assertions: ${summary_content.Stats.Assertions.pending}"
-            formatted_info+="\n   - Failed Assertions: ${summary_content.Stats.Assertions.failed}\n"
-          done
-
-          # Affichez les résumés dans le fichier $GITHUB_STEP_SUMMARY
-          echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
-          echo -e "$formatted_info" >> $GITHUB_STEP_SUMMARY
+            # Déclaration d'une variable pour stocker les informations formatées
+            formatted_info=""
+        
+            formatted_info+="\n- Name | Total Requests | Pending Requests | Failed Requests | Total Assertions | Pending Assertions | Failed Assertions"
+            formatted_info+="\n--- | --- | --- | --- | --- | --- | ---"
+        
+            for summary_file in ./postman_summaries/*.json; do
+              summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
+              formatted_info+="\n${summary_content.Name} | ${summary_content.Stats.Requests.total} | ${summary_content.Stats.Requests.pending} | ${summary_content.Stats.Requests.failed} | ${summary_content.Stats.Assertions.total} | ${summary_content.Stats.Assertions.pending} | ${summary_content.Stats.Assertions.failed}"
+            done
+        
+            echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
+            echo -e "$formatted_info" >> $GITHUB_STEP_SUMMARY
 
       - name: Continue to Next Collection
         if: ${{ always() }}
