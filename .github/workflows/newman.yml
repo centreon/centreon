@@ -100,8 +100,7 @@ jobs:
         run: |
           formatted_info=""
           for summary_file in ./postman_summaries/*.json; do
-           summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
-    
+            summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
             formatted_info+="\n- **${summary_content.Name}**"
             formatted_info+="\n   - Total Requests: ${summary_content.Stats.Requests.total}"
             formatted_info+="\n   - Pending Requests: ${summary_content.Stats.Requests.pending}"
