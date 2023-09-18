@@ -1,5 +1,5 @@
 const reloadWebServer = (): Cypress.Chainable => {
-  if (!Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     return cy.execInContainer({
       command: 'systemctl reload httpd',
       name: Cypress.env('dockerName')
@@ -13,7 +13,7 @@ const reloadWebServer = (): Cypress.Chainable => {
 };
 
 const updateWebServerConfig = (): Cypress.Chainable => {
-  if (!Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     return cy.execInContainer({
       command:
         'bash -c "sed -i \'0,/centreon/s//monitor/\' /etc/httpd/conf.d/10-centreon.conf"',
