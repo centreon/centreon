@@ -17,7 +17,7 @@ jobs:
         id: set_collections
         run: |
           collections=$(find centreon/tests/rest_api/collections -type f -name "*.postman_collection.json" -exec echo {} \;)
-          echo "::set-output name=collections::$collections"
+          echo "collections=$collections" >> $GITHUB_OUTPUT
     
   postman_tests:
     needs: discover_collections
