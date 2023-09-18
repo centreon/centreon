@@ -258,7 +258,7 @@ function get_os_information() {
 	# Get OS name
 	OS_NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
 	# Get OS version
-	VERSIONID=$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+	OS_VERSIONID=$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
 
 	if [[ "$(echo "${NAME}" | wc -l)" -ne 1 || "$(echo "${VERSIONID}" | wc -l)" -ne 1 ]]; then
 		error_and_exit "Unable to determine your running OS or version."
