@@ -70,7 +70,7 @@ jobs:
 
       - name: Debug Postman Summaries
         run: |
-          find ./postman_summaries - type f -name "*.json"
+          find ./postman_summaries -type f -name "*.json"
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
@@ -83,19 +83,19 @@ jobs:
       - name: Extract and Store Summaries
         run: |
           declare -A json_info
-          for summary_file in ./postman_summaries/*.json; do
-            summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
-            filename=$(basename "$summary_file" .json)
-            # Nettoyez le nom du fichier pour le rendre compatible avec les variables d'environnement
-            clean_filename="${filename// /_}"
-            clean_filename="${clean_filename//-/_}"
+             for summary_file in ./postman_summaries/*.json; do
+              summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
+              filename=$(basename "$summary_file" .json)
+              # Nettoyez le nom du fichier pour le rendre compatible avec les variables d'environnement
+              clean_filename="${filename// /_}"
+              clean_filename="${clean_filename//-/_}"
           
-            json_info["$clean_filename"]=$summary_content
-          done
+              json_info["$clean_filename"]=$summary_content
+            done
 
           for key in "${!json_info[@]}"; do
-            echo "Summary info for $key:"
-            echo "${json_info[$key]}"
+           echo "Summary info for $key:"
+           echo "${json_info[$key]}"
           done
 
       - name: Generate and Display Summaries
@@ -103,28 +103,28 @@ jobs:
           # Déclaration d'une variable pour stocker les informations formatées
           formatted_info=""
         
-          formatted_info+="\n| Name | Total Requests | Pending Requests | Failed Requests | Total Assertions | Pending Assertions | Failed Assertions |"
-          formatted_info+="\n| --- | --- | --- | --- | --- | --- | --- |"
+           formatted_info+="\n| Name | Total Requests | Pending Requests | Failed Requests | Total Assertions | Pending Assertions | Failed Assertions |"
+           formatted_info+="\n| --- | --- | --- | --- | --- | --- | --- |"
         
-          # Itération sur chaque élément du tableau associatif json_info
-          for key in "${!json_info[@]}"; do
-            # Utilisation de jq pour extraire les champs "Name" et "Stats" du contenu JSON
-            summary_content="${json_info[$key]}"
-            name=$(echo "$summary_content" | jq -r '.Name')
-            total_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.total')
-            pending_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.pending')
-            failed_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.failed')
-            total_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.total')
-            pending_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.pending')
-            failed_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.failed')
+           # Itération sur chaque élément du tableau associatif json_info
+           for key in "${!json_info[@]}"; do
+              # Utilisation de jq pour extraire les champs "Name" et "Stats" du contenu JSON
+              summary_content="${json_info[$key]}"
+              name=$(echo "$summary_content" | jq -r '.Name')
+              total_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.total')
+              pending_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.pending')
+              failed_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.failed')
+              total_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.total')
+              pending_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.pending')
+              failed_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.failed')
           
-            # Ajoutez les données formatées dans la variable formatted_info
-            formatted_info+="\n| $name | $total_requests | $pending_requests | $failed_requests | $total_assertions | $pending_assertions | $failed_assertions |"
-          done
+              # Ajoutez les données formatées dans la variable formatted_info
+              formatted_info+="\n| $name | $total_requests | $pending_requests | $failed_requests | $total_assertions | $pending_assertions | $failed_assertions |"
+           done
         
-          echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
-          echo -e "$formatted_info" >> $GITHUB_STEP_SUMMARY
+           echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
+           echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
+           echo -e "$formatted_info" >> $GITHUB_STEP_SUMMARY
             
       - name: Continue to Next Collection
         if: ${{ always() }}
