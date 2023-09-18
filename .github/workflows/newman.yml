@@ -34,7 +34,7 @@ jobs:
     needs: discover_collections
     strategy:
       matrix:
-         -${{fromJson(needs.discover_collections.outputs.collections)}}
+         -${{fromJson(needs.set_collections.outputs.collections)}}
     runs-on: ubuntu-latest
     defaults:
       run:
