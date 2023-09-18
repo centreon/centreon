@@ -264,7 +264,7 @@ function get_os_information() {
 		error_and_exit "Unable to determine your running OS or version."
 	fi
 
-	case "${NAME}" in
+	case "${OS_NAME}" in
 		AlmaLinux*)
 			detected_os_release="almalinux-release-${VERSIONID}"
 			;;
