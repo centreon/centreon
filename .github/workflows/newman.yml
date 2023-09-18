@@ -72,8 +72,6 @@ jobs:
         with:
           name: postman-html-reports
           path: centreon/tests/rest_api/newman/
-        env:
-          NODE_VERSION: 16
 
       - name: Extract and Store Summaries
         run: |
