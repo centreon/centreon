@@ -691,6 +691,8 @@ describe('Tree view : Feature Flag', () => {
     );
     interceptRequestsAndMountBeforeEach();
 
+    cy.contains('E0').should('be.visible');
+
     cy.findByTestId('tree view').should('not.exist');
 
     cy.makeSnapshot();
@@ -701,6 +703,8 @@ describe('Tree view : Feature Flag', () => {
       getPlatformFeatures({ enableTreeView: true })
     );
     interceptRequestsAndMountBeforeEach();
+
+    cy.contains('E0').should('be.visible');
 
     cy.findByTestId('tree view').should('be.visible');
 
