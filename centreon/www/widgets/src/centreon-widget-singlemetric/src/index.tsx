@@ -5,7 +5,7 @@ import duration from 'dayjs/plugin/duration';
 import { Module } from '@centreon/ui';
 
 import Graph from './Graph';
-import { Data, FormThreshold } from './models';
+import { Data, FormThreshold, ValueFormat } from './models';
 
 extend(duration);
 
@@ -17,6 +17,7 @@ interface Props {
     refreshIntervalCustom?: number;
     singleMetricGraphType: 'text' | 'gauge' | 'bar';
     threshold: FormThreshold;
+    valueFormat: ValueFormat;
   };
   store: ReturnType<typeof createStore>;
 }

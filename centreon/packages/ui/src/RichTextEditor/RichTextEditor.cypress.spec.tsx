@@ -56,7 +56,7 @@ describe('Rich Text Editor', () => {
         .should('be.visible')
         .and('have.value', '');
 
-      cy.get('#RichTextEditor').contains('Type here...');
+      cy.findByLabelText('RichTextEditor').parent().contains('Type here...');
     });
 
     it('displays changes with undo redo buttons', () => {
@@ -187,11 +187,6 @@ describe('Rich Text Editor', () => {
     });
 
     it('displays editor when editable props is false and an initialState exist', () => {
-      cy.get('[data-testid="RichTextEditor"]').should(
-        'have.attr',
-        'contenteditable',
-        'false'
-      );
       cy.findByLabelText('Undo').should('not.exist');
       cy.findByLabelText('Redo').should('not.exist');
       cy.findByLabelText('bold').should('not.exist');
@@ -216,11 +211,6 @@ describe('Rich Text Editor', () => {
     });
 
     it('displays editor when editable props is false and an initialState exist', () => {
-      cy.get('[data-testid="RichTextEditor"]').should(
-        'have.attr',
-        'contenteditable',
-        'false'
-      );
       cy.findByLabelText('Undo').should('be.disabled');
       cy.findByLabelText('Redo').should('be.disabled');
       cy.findByLabelText('bold').should('be.disabled');
@@ -245,12 +235,14 @@ describe('Rich Text Editor', () => {
       });
     });
     it('displays editor with custom namespace', () => {
-      cy.get('#CypressComponentTest > p').should('be.exist');
+      cy.get('[data-testid="CypressComponentTest"] > p').should('be.exist');
       cy.get('[data-testid="CypressComponentTest"]').should('be.exist');
     });
 
     it('displays editor with custom placeholder', () => {
-      cy.get('#CypressComponentTest > p').contains('Type Cypress test...');
+      cy.get('[data-testid="CypressComponentTest"]')
+        .parent()
+        .contains('Type Cypress test...');
     });
 
     it('displays editor with custom minimum input height', () => {

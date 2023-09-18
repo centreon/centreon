@@ -26,11 +26,9 @@
         "min_height": 3
       },
       "widget_settings": {
-        "service": {
-          "id": 1,
-          "name": "Server"
-        },
-        "input": "This is an input"
+        "options": {
+          "name": "Widget text"
+        }
       }
     },
     {
@@ -46,7 +44,9 @@
         "min_height": 3
       },
       "widget_settings": {
-        "genericText": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Hello \",\"type\":\"text\",\"version\":1},{\"detail\":0,\"format\":1,\"mode\":\"normal\",\"style\":\"\",\"text\":\"world\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1},{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1},{\"children\":[{\"children\":[{\"detail\":0,\"format\":3,\"mode\":\"normal\",\"style\":\"\",\"text\":\"https://centreon.com\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"autolink\",\"version\":1,\"rel\":\"noreferrer\",\"target\":\"_blank\",\"url\":\"https://centreon.com\"}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}"
+        "options": {
+          "name": "Generic text"
+        }
       }
     }
   ],

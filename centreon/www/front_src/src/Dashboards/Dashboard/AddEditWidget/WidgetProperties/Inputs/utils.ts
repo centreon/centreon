@@ -1,4 +1,4 @@
-import { always, cond, equals, path, split } from 'ramda';
+import { always, cond, equals, isEmpty, path, split } from 'ramda';
 import * as Yup from 'yup';
 import { TFunction } from 'i18next';
 
@@ -8,6 +8,7 @@ import {
   labelPleaseSelectAResource,
   labelRequired
 } from '../../../translatedLabels';
+import { WidgetDataResource } from '../../models';
 
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['options', ...split('.', propertyName)], obj);
@@ -23,7 +24,7 @@ const namedEntitySchema = Yup.object().shape({
 const metricSchema = Yup.object().shape({
   id: Yup.number().required(),
   name: Yup.string().required(),
-  unit: Yup.string().required()
+  unit: Yup.string()
 });
 
 interface GetYupValidatorTypeProps {
@@ -54,6 +55,10 @@ const getYupValidatorType = ({
       equals<FederatedWidgetOptionType>(
         FederatedWidgetOptionType.singleMetricGraphType
       ),
+      always(Yup.string())
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.valueFormat),
       always(Yup.string())
     ],
     [
@@ -122,3 +127,19 @@ export const buildValidationSchema = ({
     ? yupValidator.required(t(labelRequired) as string)
     : yupValidator;
 };
+
+export const areResourcesFullfilled = (
+  value: Array<WidgetDataResource>
+): boolean =>
+  value?.every(
+    ({ resourceType, resources }) =>
+      !isEmpty(resourceType) && !isEmpty(resources)
+  );
+
+export const isAtLeastOneResourceFullfilled = (
+  value: Array<WidgetDataResource>
+): boolean =>
+  value?.some(
+    ({ resourceType, resources }) =>
+      !isEmpty(resourceType) && !isEmpty(resources)
+  );

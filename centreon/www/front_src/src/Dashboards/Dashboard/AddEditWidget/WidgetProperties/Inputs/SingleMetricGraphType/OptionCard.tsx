@@ -1,47 +1,66 @@
 import { ReactNode } from 'react';
 
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardActionArea } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+import { Tooltip } from '@centreon/ui/components';
+
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import { useGraphTypeStyles } from './SingleMetricGraphType.styles';
 
 interface Props {
   changeType: (type: string) => () => void;
   icon: ReactNode;
+  label: string;
   type: string;
   value: string;
 }
 
-const OptionCard = ({ changeType, type, icon, value }: Props): JSX.Element => {
+const OptionCard = ({
+  changeType,
+  type,
+  icon,
+  value,
+  label
+}: Props): JSX.Element => {
+  const { t } = useTranslation();
   const { classes } = useGraphTypeStyles();
 
   const isSelected = equals(value, type);
 
+  const { canEditField } = editProperties.useCanEditProperties();
+
   return (
-    <Card
-      className={classes.graphTypeOption}
-      data-selected={isSelected}
-      data-type={type}
-      key={type}
-    >
-      <CardActionArea
+    <Tooltip followCursor={false} label={t(label)} position="top">
+      <Card
         className={classes.graphTypeOption}
-        onClick={changeType(type)}
+        data-disabled={!canEditField}
+        data-selected={isSelected}
+        data-type={type}
+        key={type}
       >
-        <div className={classes.graphTypeIcon}>{icon}</div>
-        {isSelected && (
-          <div className={classes.graphTypeSelected}>
-            <CheckCircleIcon
-              className={classes.iconSelected}
-              color="success"
-              fontSize="large"
-            />
-          </div>
-        )}
-      </CardActionArea>
-    </Card>
+        <CardActionArea
+          className={classes.graphTypeOption}
+          disabled={!canEditField}
+          onClick={changeType(type)}
+        >
+          <div className={classes.graphTypeIcon}>{icon}</div>
+          {isSelected && (
+            <div className={classes.graphTypeSelected}>
+              <CheckCircleIcon
+                className={classes.iconSelected}
+                color="success"
+                fontSize="large"
+              />
+            </div>
+          )}
+        </CardActionArea>
+      </Card>
+    </Tooltip>
   );
 };
 
