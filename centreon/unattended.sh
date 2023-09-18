@@ -284,7 +284,7 @@ function get_os_information() {
 			detected_os_release="rocky-release-${OS_VERSIONID}"
 			;;
 		*)
-			log "ERROR" "Unsupported distribution ${NAME} detected"
+			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
 			error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 	esac
