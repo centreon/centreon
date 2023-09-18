@@ -152,7 +152,7 @@ Then(
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
     cy.get('button[type=button]').contains('Add a widget').should('exist');
-    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
 
@@ -212,7 +212,7 @@ Then(
       'contain.text',
       `created by ${adminUser.login}`
     );
-    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('admin admin').should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
@@ -339,7 +339,7 @@ Then(
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
     cy.get('button[type=button]').contains('Add a widget').should('exist');
-    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
 
@@ -405,7 +405,7 @@ Then(
       'contain.text',
       `created by ${dashboardAdministratorUser.login}`
     );
-    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains(`${dashboardAdministratorUser.login}`).should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
@@ -535,7 +535,7 @@ Then(
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
     cy.get('button[type=button]').contains('Add a widget').should('exist');
-    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
 
@@ -598,7 +598,7 @@ Then(
       'contain.text',
       `created by ${dashboardCreatorUser.login}`
     );
-    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains(`${dashboardCreatorUser.login}`).should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');

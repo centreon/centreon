@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Security\Token\Domain\Model\Token;
 
 interface ReadTokenRepositoryInterface
@@ -52,6 +54,29 @@ interface ReadTokenRepositoryInterface
 
     /**
      * Determine if a token exists by its name and user ID.
+     *
+     * @param int $userId
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RequestParametersTranslatorException
+     * @throws \Throwable
+     *
+     * @return list<Token>
+     */
+    public function findByIdAndRequestParameters(int $userId, RequestParametersInterface $requestParameters): array;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RequestParametersTranslatorException
+     * @throws \Throwable
+     *
+     * @return list<Token>
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Determine if a token exists by its name.
      *
      * @param string $tokenName
      * @param int $userId

@@ -16316,6 +16316,51 @@ msgstr ""
 #  msgid "'%s' service name already exists for host ID %d"
 #  msgstr ""
 
+# msgid "Widget type"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Text"
+# msgstr ""
+
+# msgid "Gauge"
+# msgstr ""
+
+# msgid "Bar chart"
+# msgstr ""
+
+# msgid "The default value is the value defined for the first metric used."
+# msgstr ""
+
+# msgid "None"
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Raw value"
+# msgstr ""
+
+# msgid "Human readable"
+# msgstr ""
+
+# msgid "You can choose only one resource for each resource type."
+# msgstr ""
+
+# msgid "View properties"
+# msgstr ""
+
+# msgid "Your rights only allow you to view the properties of a widget."
+# msgstr ""
+
+# msgid "Please contact your administrator for more information."
+# msgstr ""
+
+# msgid "Base color"
+# msgstr ""
+
 #  msgid "Display view:"
 #  msgstr ""
 
@@ -16353,4 +16398,13 @@ msgstr ""
 #  msgstr ""
 
 #  msgid "You are not allowed to delete tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "none"
+# msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
 #  msgstr ""

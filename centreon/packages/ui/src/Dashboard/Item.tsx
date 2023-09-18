@@ -15,6 +15,7 @@ import { useMemoComponent } from '../utils';
 import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
+  canMove?: boolean;
   children: ReactElement;
   className?: string;
   disablePadding?: boolean;
@@ -37,7 +38,8 @@ const Item = forwardRef(
       onMouseUp,
       onTouchEnd,
       id,
-      disablePadding = false
+      disablePadding = false,
+      canMove = false
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
@@ -66,6 +68,7 @@ const Item = forwardRef(
               <div
                 {...listeners}
                 className={classes.widgetHeader}
+                data-canMove={canMove}
                 data-testid={`${id}_move_panel`}
               >
                 {header}
