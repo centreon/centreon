@@ -98,22 +98,20 @@ jobs:
 
       - name: Generate and Display Summaries
         run: |
-            # Créez une variable pour stocker les résumés
-            summaries=""
-        
-            for summary_file in ./postman_summaries/*.json; do
-              # Utilisez jq pour extraire les champs "Name" et "Stats" du fichier JSON
-              collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
-              stats=$(jq -r '.Run.Stats' "$summary_file")
-        
-              # Ajoutez le résumé au format souhaité (tableau) dans la variable summaries
-              summaries+="\n- $collection_name\n$stats\n"
-            done
-        
-            # Affichez les résumés dans le fichier $GITHUB_STEP_SUMMARY
-            echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
-            echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+          formatted_info=""
+          for summary_file in ./postman_summaries/*.json; do
+           summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
+    
+            formatted_info+="\n- **${summary_content.Name}**"
+            formatted_info+="\n   - Total Requests: ${summary_content.Stats.Requests.total}"
+            formatted_info+="\n   - Pending Requests: ${summary_content.Stats.Requests.pending}"
+            formatted_info+="\n   - Failed Requests: ${summary_content.Stats.Requests.failed}"
+            formatted_info+="\n   - Total Assertions: ${summary_content.Stats.Assertions.total}"
+            formatted_info+="\n   - Pending Assertions: ${summary_content.Stats.Assertions.pending}"
+            formatted_info+="\n   - Failed Assertions: ${summary_content.Stats.Assertions.failed}\n"
+          done
+    
+          echo -e "$formatted_info" >> "$GITHUB_STEP_SUMMARY"
             
       - name: Continue to Next Collection
         if: ${{ always() }}
