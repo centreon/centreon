@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           node-version: 18
 
@@ -49,6 +49,7 @@ jobs:
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
+
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
@@ -63,10 +64,12 @@ jobs:
             # Run Newman with the current collection file and generate an HTML report and summary
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
           done
+
       - name: Debug Postman Summaries
         run: |
           find ./postman_summaries -type f -name "*.json"
           cat ./postman_summaries/21-Contact-management-Centreon-Web-Refactored-API-Test-Collection-summary.json
+
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
