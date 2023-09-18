@@ -272,7 +272,7 @@ function get_os_information() {
 			detected_os_release="centos-release-${OS_VERSIONID}"
 			;;
 		Debian*)
-			detected_os_release="debian-release-${VERSIONID}"
+			detected_os_release="debian-release-${OS_VERSIONID}"
 			;;
 		Oracle*)
 			detected_os_release="oraclelinux-release-${OS_VERSIONID}"
