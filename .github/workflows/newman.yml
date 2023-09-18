@@ -3,38 +3,8 @@ name: Postman Tests
 on:
   push:
  
-
 jobs:
-  discover_collections:
-    runs-on: ubuntu-latest
-    outputs:
-      collections: ${{ steps.set_collections.outputs.collections }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: List Postman Collections
-        id: set_collections
-        run: |
-          collections=$(find centreon/tests/rest_api/collections -type f -name "*.postman_collection.json" -exec basename {} \; | sed 's/ /_/g' | sed 's/[^A-Za-z0-9_.-]//g')
-
-          # Initialisez une chaîne JSON vide
-          json_collections="{}"
-          
-          for collection in $collections; do
-            json_collections+="\"$collection\": \"\", "
-          done
-          
-          json_collections="${json_collections%, }"
-          
-          echo "collections={$json_collections}" >> $GITHUB_OUTPUT
-          echo "Contents of collections: $collections"
-
   postman_tests:
-    needs: discover_collections
-    strategy:
-      matrix:
-         -${{fromJson(needs.set_collections.outputs.collections)}}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -82,16 +52,17 @@ jobs:
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
-          collection_path="${{ matrix.collection }}"
+          collection_path="collections"
           # Create a directory to store HTML reports and summaries
           mkdir -p newman
           mkdir -p postman_summaries
-          # Extract the collection name from the matrix variable
-          collection_name=$(basename "$collection_path" .postman_collection.json)
-          # Run Newman with the current collection file and generate an HTML report and summary
-          pnpm newman run "$collection_path" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
-
-
+          # Iterate over each Postman collection file in the specified directory
+          for collection_file in "$collection_path"/*.postman_collection.json; do
+            # Extract the collection name from the file name
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+            # Run Newman with the current collection file and generate an HTML report and summary
+            pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+          done
       - name: Debug Postman Summaries
         run: |
           find ./postman_summaries -type f -name "*.json"
@@ -118,20 +89,23 @@ jobs:
            echo "Summary info for $key:"
            echo "${json_info[$key]}"
           done
+     
       - name: Generate and Display Summaries
         run: |
-         summaries=""
-         summaries+="\n| Collection Name | Total Requests | Skipped requests | Failed Requests |"
-         summaries+="\n| --- | --- | --- | --- |"
-         for summary_file in ./postman_summaries/*.json; do
-           collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
-           total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
-           pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
-           failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-           summaries+="\n| $collection_name | $total_requests | $pending_requests | $failed_requests |"
-         done
-         echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
-         echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+          summaries=""
+          summaries+="<h1>Newman tests Summary</h1>"
+          summaries+="<table>"
+          summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th></tr>"
+          for summary_file in ./postman_summaries/*.json; do
+            collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+            total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
+            pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
+            failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
+            summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td></tr>"
+          done
+          summaries+="</table>"
+          echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+      
             
       - name: Continue to Next Collection
         if: ${{ always() }}
