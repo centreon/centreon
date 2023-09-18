@@ -90,7 +90,7 @@ Then(
 
     cy.get('header').parent().children().eq(1).contains('Up').should('exist');
 
-    cy.contains(host).click();
+    cy.contains(service).click();
 
     cy.wait('@getResourceDetails');
 
