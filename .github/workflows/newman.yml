@@ -91,6 +91,23 @@ jobs:
             clean_filename="${clean_filename//-/_}"
             json_info["$clean_filename"]=$summary_content
           done
+
+          for key in "${!json_info[@]}"; do
+           echo "Summary info for $key:"
+           echo "${json_info[$key]}"
+          done
+      - name: Display Summaries
+        run: |
+            echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
+        
+            summaries="$summaries" 
+            # Split the space-separated values into an array
+            IFS=' ' read -ra summary_values <<< "$summaries"
+        
+            for value in "${summary_values[@]}"; do
+              echo "- $value" >> $GITHUB_STEP_SUMMARY
+            done
       - name: Continue to Next Collection
         if: ${{ always() }}
         run: echo "Continuing to the next collection..."
