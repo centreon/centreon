@@ -108,19 +108,17 @@ jobs:
         
            # Itération sur chaque élément du tableau associatif json_info
            for key in "${!json_info[@]}"; do
-              # Utilisation de jq pour extraire les champs "Name" et "Stats" du contenu JSON
-              summary_content="${json_info[$key]}"
-              name=$(echo "$summary_content" | jq -r '.Name')
-              total_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.total')
-              pending_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.pending')
-              failed_requests=$(echo "$summary_content" | jq -r '.Stats.Requests.failed')
-              total_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.total')
-              pending_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.pending')
-              failed_assertions=$(echo "$summary_content" | jq -r '.Stats.Assertions.failed')
+              collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+              total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
+              pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
+              failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
+              total_assertions=$(jq -r '.Run.Stats.Assertions.total' "$summary_file")
+              pending_assertions=$(jq -r '.Run.Stats.Assertions.pending' "$summary_file")
+              failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
           
               # Ajoutez les données formatées dans la variable formatted_info
-              formatted_info+="\n| $name | $total_requests | $pending_requests | $failed_requests | $total_assertions | $pending_assertions | $failed_assertions |"
-           done
+              formatted_info+="\n| $collection_name | $total_requests | $pending_requests | $failed_requests | $total_assertions | $pending_assertions | $failed_assertions |"
+              done
         
            echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
            echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
