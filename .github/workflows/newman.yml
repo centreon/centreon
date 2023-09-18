@@ -90,25 +90,18 @@ jobs:
           done
       - name: Generate and Display Summaries
         run: |
-         # Créez une variable pour stocker les résumés
          summaries=""
-        
+         summaries+="\n| Collection Name | Total Requests | Pending Requests | Failed Requests |"
+         summaries+="\n| --- | --- | --- | --- |"
          for summary_file in ./postman_summaries/*.json; do
-           # Utilisez jq pour extraire les champs "Name" et "Stats.Requests" du fichier JSON
            collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
            total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
            pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
            failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-        
-           # Ajoutez le résumé au format souhaité (tableau) dans la variable summaries
            summaries+="\n| $collection_name | $total_requests | $pending_requests | $failed_requests |"
          done
-         
-          echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
-          echo "| Collection Name | Total Requests | Pending Requests | Failed Requests |" >> $GITHUB_STEP_SUMMARY
-          echo "| --- | --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
-          echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
-        
+         echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
+         echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
             
       - name: Continue to Next Collection
         if: ${{ always() }}
