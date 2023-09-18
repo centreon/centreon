@@ -35,6 +35,9 @@ export default ({
     defaultCommandTimeout: 6000,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
+      reporter: require.resolve(
+        '@badeball/cypress-cucumber-preprocessor/pretty-reporter'
+      ),
       setupNodeEvents: async (on, config) => {
         await esbuildPreprocessor(on, config);
         tasks(on);

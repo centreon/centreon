@@ -12,6 +12,8 @@ export default (
     const height = 1080;
 
     if ((browser as { name }).name === 'chrome') {
+      launchOptions.args.push('--headless=new');
+
       // flags description : https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
       launchOptions.args.push('--disable-gpu');
       launchOptions.args.push('--auto-open-devtools-for-tabs');
