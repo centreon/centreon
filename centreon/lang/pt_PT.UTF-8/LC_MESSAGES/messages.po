@@ -16883,3 +16883,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while searching for services"
 #  msgstr ""
+
+#  msgid "You are not allowed to list hosts"
+#  msgstr ""

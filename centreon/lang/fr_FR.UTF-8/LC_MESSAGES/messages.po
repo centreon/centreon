@@ -18228,3 +18228,6 @@ msgstr "Vous n'êtes pas autorisé à accéder aux services"
 
 msgid "Error while searching for services"
 msgstr "Erreur lors de la recherche de services"
+
+msgid "You are not allowed to list hosts"
+msgstr "Vous n'êtes pas autorisé à lister les hôtes"

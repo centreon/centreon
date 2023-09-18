@@ -16894,3 +16894,6 @@ msgstr ""
 
 #  msgid "Error while searching for services"
 #  msgstr ""
+
+#  msgid "You are not allowed to list hosts"
+#  msgstr ""

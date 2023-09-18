@@ -104,6 +104,14 @@ class HostException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function listingNotAllowed(): self
+    {
+        return new self(_('You are not allowed to list hosts'));
+    }
+
+    /**
      * @param string $formattedName
      * @param string $originalName
      *
@@ -152,5 +160,15 @@ class HostException extends \Exception
     public static function errorWhileDeleting(\Throwable $ex): self
     {
         return new self(_('Error while deleting the host'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileSearchingForHosts(\Throwable $ex): self
+    {
+        return new self(_('Error while searching for host templates'));
     }
 }

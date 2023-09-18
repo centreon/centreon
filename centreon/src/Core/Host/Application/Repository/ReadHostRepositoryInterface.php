@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Host\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
+use Core\Host\Domain\Model\LittleHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostRepositoryInterface
@@ -51,6 +53,26 @@ interface ReadHostRepositoryInterface
      * @return ?Host
      */
     public function findById(int $hostId): ?Host;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return LittleHost[]
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return LittleHost[]
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array;
 
     /**
      * Retrieve all parent template ids of a host.
