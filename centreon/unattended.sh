@@ -281,7 +281,7 @@ function get_os_information() {
 			detected_os_release="redhat-release-${OS_VERSIONID}"
 			;;
 		Rocky*)
-			detected_os_release="rocky-release-${VERSIONID}"
+			detected_os_release="rocky-release-${OS_VERSIONID}"
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${NAME} detected"
