@@ -256,7 +256,7 @@ function pause() {
 function get_os_information() {
 
 	# Get OS name
-	NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+	OS_NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
 	# Get OS version
 	VERSIONID=$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
 
