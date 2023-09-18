@@ -22,8 +22,6 @@ jobs:
         
       - name: Set up Node.js
         uses: actions/setup-node@v2
-        with:
-          node-version: 18
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -68,7 +66,7 @@ jobs:
 
       - name: Debug Postman Summaries
         run: |
-          find ./postman_summaries -type f -name "*.json"
+          find ./postman_summaries - type f - name "*.json"
           cat ./postman_summaries/21-Contact-management-Centreon-Web-Refactored-API-Test-Collection-summary.json
 
       - name: Upload HTML Reports
@@ -80,16 +78,16 @@ jobs:
       - name: Extract and Store Summaries
         run: |
           declare -A json_info
-             for summary_file in ./postman_summaries/*.json; do
-              summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
-              filename=$(basename "$summary_file" .json)
-              clean_filename="${filename// /_}"
-              clean_filename="${clean_filename//-/_}"
-              json_info["$clean_filename"]=$summary_content
-            done
+          for summary_file in ./postman_summaries/*.json; do
+            summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
+            filename=$(basename "$summary_file" .json)
+            clean_filename="${filename// /_}"
+            clean_filename="${clean_filename//-/_}"
+            json_info["$clean_filename"]=$summary_content
+          done
           for key in "${!json_info[@]}"; do
-           echo "Summary info for $key:"
-           echo "${json_info[$key]}"
+            echo "Summary info for $key:"
+            echo "${json_info[$key]}"
           done
      
       - name: Generate and Display Summaries
