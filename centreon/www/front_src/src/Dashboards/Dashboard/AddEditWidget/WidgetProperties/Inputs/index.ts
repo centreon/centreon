@@ -6,4 +6,5 @@ export { default as WidgetSwitch } from './Switch';
 export { default as WidgetRefreshInterval } from './RefreshInterval/RefreshInterval';
 export { default as WidgetThreshold } from './Threshold/Threshold';
 export { default as WidgetSingleMetricGraphType } from './SingleMetricGraphType/SingleMetricGraphType';
+export { default as WidgetValueFormat } from './ValueFormat/ValueFormat';
 export { default as WidgetTimePeriod } from './TimePeriod/TimePeriod';

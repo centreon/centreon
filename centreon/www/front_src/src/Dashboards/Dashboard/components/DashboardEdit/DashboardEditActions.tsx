@@ -15,7 +15,7 @@ import useSaveDashboard from '../../useSaveDashboard';
 import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import {
   labelEditDashboard,
-  labelExit,
+  labelCancel,
   labelSave
 } from '../../translatedLabels';
 import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
@@ -90,13 +90,13 @@ const DashboardEditActions = ({
   return (
     <>
       <Button
-        aria-label={t(labelExit) as string}
+        aria-label={t(labelCancel) as string}
         data-testid="cancel_dashboard"
         size="small"
         variant="ghost"
         onClick={stopEditing}
       >
-        {t(labelExit)}
+        {t(labelCancel)}
       </Button>
       <Button
         aria-label={t(labelSave) as string}

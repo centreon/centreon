@@ -4,9 +4,7 @@ export const useGraphTypeStyles = makeStyles()((theme) => ({
   graphTypeContainer: {
     display: 'flex',
     flexDirection: 'row',
-    gap: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(1)
+    gap: theme.spacing(2)
   },
   graphTypeIcon: {
     alignItems: 'center',
@@ -15,6 +13,9 @@ export const useGraphTypeStyles = makeStyles()((theme) => ({
     justifyContent: 'center'
   },
   graphTypeOption: {
+    '&[data-disabled="true"]': {
+      backgroundColor: theme.palette.action.disabledBackground
+    },
     backgroundColor: 'transparent',
     height: theme.spacing(10),
     width: theme.spacing(10)

@@ -30,6 +30,7 @@ interface Props {
   refreshIntervalCustom?: number;
   singleMetricGraphType: 'text' | 'gauge' | 'bar';
   threshold: FormThreshold;
+  valueFormat: ValueFormat;
 }
 
 const Graph = ({
@@ -38,7 +39,8 @@ const Graph = ({
   threshold,
   refreshInterval,
   refreshIntervalCustom,
-  globalRefreshInterval
+  globalRefreshInterval,
+  valueFormat
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { classes: graphClasses } = useGraphStyles();
@@ -57,8 +59,11 @@ const Graph = ({
     refreshInterval: refreshIntervalToUse
   });
 
+  const displayAsRaw = equals('raw')(valueFormat);
+
   const formattedThresholds = useThresholds({
     data: graphData,
+    displayAsRaw,
     metricName: metrics[0]?.metrics[0]?.name,
     thresholds: threshold
   });
@@ -80,14 +85,22 @@ const Graph = ({
         {cond([
           [
             equals('gauge'),
-            always(<Gauge data={graphData} thresholds={formattedThresholds} />)
+            always(
+              <Gauge
+                baseColor={threshold.baseColor}
+                data={graphData}
+                displayAsRaw={displayAsRaw}
+                thresholds={formattedThresholds}
+              />
+            )
           ],
           [
             equals('bar'),
             always(
               <SingleBar
+                baseColor={threshold.baseColor}
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
+                displayAsRaw={displayAsRaw}
                 thresholds={formattedThresholds}
               />
             )
@@ -96,7 +109,9 @@ const Graph = ({
             T,
             always(
               <GraphText
+                baseColor={threshold.baseColor}
                 data={graphData}
+                displayAsRaw={displayAsRaw}
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)

@@ -4,13 +4,11 @@ import { useTheme } from '@mui/material';
 
 import { groupMargin } from './Thresholds';
 
-const lineMargin = 10;
-
-const thresholdLineHeight = 60 + 2 * lineMargin;
-
+export const barHeight = 72;
 export const margin = 40;
 
-export const barHeight = 50;
+const lineMargin = 10;
+const thresholdLineHeight = barHeight + 2 * lineMargin;
 
 interface Props {
   hideTooltip: () => void;

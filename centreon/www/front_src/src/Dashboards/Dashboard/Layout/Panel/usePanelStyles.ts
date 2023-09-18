@@ -8,6 +8,11 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     marginRight: theme.spacing(1)
   },
   panelHeader: {
+    '& span': {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: theme.typography.fontWeightMedium,
+      lineHeight: 1
+    },
     padding: theme.spacing(0)
   }
 }));
