@@ -118,7 +118,7 @@ jobs:
           
               # Ajoutez les données formatées dans la variable formatted_info
               formatted_info+="\n| $collection_name | $total_requests | $pending_requests | $failed_requests | $total_assertions | $pending_assertions | $failed_assertions |"
-              done
+           done
         
            echo "This is the lead-in sentence for the list" >> $GITHUB_STEP_SUMMARY
            echo "" >> $GITHUB_STEP_SUMMARY # This is a blank line
