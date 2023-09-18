@@ -289,7 +289,7 @@ function get_os_information() {
 			;;
 	esac
 
-	detected_os_version=${VERSIONID}
+	detected_os_version=${OS_VERSIONID}
 
 	log "INFO" "Your running OS is $detected_os_release (version: ${detected_os_version})"
 
