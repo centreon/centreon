@@ -64,11 +64,6 @@ jobs:
           done
         continue-on-error: true
 
-      - name: Debug Postman Summaries
-        run: |
-          find ./postman_summaries - type f - name "*.json"
-          cat ./postman_summaries/21-Contact-management-Centreon-Web-Refactored-API-Test-Collection-summary.json
-
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
