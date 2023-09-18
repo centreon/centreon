@@ -1,36 +1,21 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <htcommand://www.gnu.org/licenses>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : command@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -45,18 +30,22 @@ use Psr\Log\LoggerInterface;
 
 class CentreonStatistics
 {
-    /**
-     * @var LoggerInterface $logger
-     */
-    private $logger;
+    private LoggerInterface $logger;
+
+    private CentreonDB $dbConfig;
+
+    private ?\Core\Common\Infrastructure\FeatureFlags $featureFlags;
 
     /**
      * CentreonStatistics constructor.
      */
     public function __construct(LoggerInterface $logger)
     {
-        $this->dbConfig = new centreonDB();
+        $this->dbConfig = new CentreonDB();
         $this->logger = $logger;
+
+        $kernel = \App\Kernel::createForWeb();
+        $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class);
     }
 
     /**
@@ -338,11 +327,11 @@ class CentreonStatistics
     {
         $centreonVersion = new CentreonVersion($this->dbConfig);
 
-        $data = array(
-            'extension' => array(
+        $data = [
+            'extension' => [
                 'widgets' => $centreonVersion->getWidgetsUsage()
-            ),
-        );
+            ],
+        ];
 
         $oModulesStats = new CentreonStatsModules($this->logger);
         $modulesData = $oModulesStats->getModulesStatistics();
@@ -350,38 +339,113 @@ class CentreonStatistics
             $data['extension'] = array_merge($data['extension'], $moduleData);
         }
 
+        if ($this->featureFlags?->isEnabled('notification')) {
+            $data['notification'] = $this->getAdditionalNotificationInformation();
+        }
+
         return $data;
     }
 
     /**
-     * @param string $providerType
-     * @return int
+     * @return array{
+     *     total: int,
+     *     avg_hg_notification?: float,
+     *     avg_sg_notification?: float,
+     *     avg_bv_notification?: float,
+     *     avg_contact_notification?: float,
+     *     avg_cg_notification?: float
+     * }
      */
-    private function getAclRelationsByProviderType(string $providerType): int
+    private function getAdditionalNotificationInformation(): array
     {
-        $query = "SELECT  COUNT(*) AS acl_relation
-        FROM security_provider_access_group_relation gr
-        INNER JOIN provider_configuration pc on pc.id = gr.provider_configuration_id
-        WHERE pc.type = '$providerType'";
+        $data = [];
 
-        $result = $this->dbConfig->query($query);
+        $avgGetValue = function (string $tableRelation): float|null {
+            $sqlAverage = <<<SQL
+                SELECT AVG(nb) FROM (
+                    SELECT COUNT(id) as nb, n.id
+                    FROM {$tableRelation} rel
+                    INNER JOIN notification n ON n.id=rel.notification_id AND n.is_activated=1
+                    GROUP BY n.id
+                ) tmp
+                SQL;
 
-        return (int) $result->fetchColumn();
+            $sqlTableExists = 'SHOW TABLES LIKE ' . $this->dbConfig->quote($tableRelation);
+            $tableExists = ($this->dbConfig->query($sqlTableExists) ?: null)?->rowCount() > 0;
+
+            return $tableExists ? round((float) $this->sqlFetchValue($sqlAverage), 1) : null;
+        };
+
+        $data['total'] = (int) $this->sqlFetchValue('SELECT COUNT(id) FROM notification WHERE is_activated=1');
+        $data['avg_hg_notification'] = $avgGetValue('notification_hg_relation');
+        $data['avg_sg_notification'] = $avgGetValue('notification_sg_relation');
+        $data['avg_bv_notification'] = $avgGetValue('mod_bam_notification_bv_relation');
+        $data['avg_contact_notification'] = $avgGetValue('notification_user_relation');
+        $data['avg_cg_notification'] = $avgGetValue('notification_contactgroup_relation');
+
+        return array_filter($data, static fn(mixed $value): bool => null !== $value);
     }
 
     /**
      * @param string $providerType
+     *
+     * @return int
+     */
+    private function getAclRelationsByProviderType(string $providerType): int
+    {
+        return (int) $this->sqlFetchValue(
+            <<<'SQL'
+                SELECT COUNT(*) AS acl_relation
+                FROM security_provider_access_group_relation gr
+                INNER JOIN provider_configuration pc on pc.id = gr.provider_configuration_id
+                WHERE pc.type = :providerType
+                SQL,
+            [':providerType', $providerType, \PDO::PARAM_STR]
+        );
+    }
+
+    /**
+     * @param string $providerType
+     *
      * @return int
      */
     private function getContactGroupRelationsByProviderType(string $providerType): int
     {
-        $query = "SELECT  COUNT(*) AS cg_relation
-        FROM security_provider_contact_group_relation cg
-        INNER JOIN provider_configuration pc on pc.id = cg.provider_configuration_id
-        WHERE pc.type = '$providerType'";
+        return (int) $this->sqlFetchValue(
+            <<<'SQL'
+                SELECT COUNT(*) AS cg_relation
+                FROM security_provider_contact_group_relation cg
+                INNER JOIN provider_configuration pc on pc.id = cg.provider_configuration_id
+                WHERE pc.type = :providerType
+                SQL,
+            [':providerType', $providerType, \PDO::PARAM_STR]
+        );
+    }
 
-        $result = $this->dbConfig->query($query);
+    /**
+     * Helper to retrieve the first value of a SQL query.
+     *
+     * @param string $sql
+     * @param array{string, mixed, int} ...$binds List of [':field', $value, \PDO::PARAM_STR]
+     *
+     * @return string|float|int|null
+     */
+    private function sqlFetchValue(string $sql, array ...$binds): string|float|int|null
+    {
+        try {
+            $statement = $this->dbConfig->prepare($sql) ?: null;
+            foreach ($binds as $args) {
+                $statement?->bindValue(...$args);
+            }
+            $statement?->execute();
+            $row = $statement?->fetch(\PDO::FETCH_NUM);
+            $value = is_array($row) && isset($row[0]) ? $row[0] : null;
 
-        return (int) $result->fetchColumn();
+            return is_string($value) || is_int($value) || is_float($value) ? $value : null;
+        } catch (PDOException $exception) {
+            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+
+            return null;
+        }
     }
 }
