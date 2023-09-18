@@ -16,9 +16,9 @@ jobs:
       - name: List Postman Collections
         id: set_collections
         run: |
-         collections=$(find centreon/tests/rest_api/collections -type f -name "*.postman_collection.json" -exec basename {} \;)
-         echo "collections=$collections" >> $GITHUB_OUTPUT
-    
+          collections=$(find centreon/tests/rest_api/collections -type f -name "*.postman_collection.json" -exec basename {} \; | sed 's/ /_/g' | sed 's/[^A-Za-z0-9_.-]//g')
+          echo "collections=$collections" >> $GITHUB_OUTPUT
+      
   postman_tests:
     needs: discover_collections
     strategy:
