@@ -96,7 +96,7 @@ jobs:
       - name: Generate and Display Summaries
         run: |
           summaries=""
-          summaries+="\n| Collection Name | Total Requests | Skipped requests | Failed Requests | Passed Tests |"
+          summaries+="\n| Collection Name | Total Requests | Skipped requests ⏭️ | Failed Requests  ❌| Passed Tests ✅|"
           summaries+="\n| --- | --- | --- | --- | --- |"
           
           for summary_file in ./postman_summaries/*.json; do
@@ -108,7 +108,7 @@ jobs:
             # Calculez le nombre de tests passés
             passed_tests=$((total_requests - failed_requests))
           
-            summaries+="\n| $collection_name | $total_requests | $pending_requests ⏭️| $failed_requests ❌ | $passed_tests ✅|"
+            summaries+="\n| $collection_name | $total_requests | $pending_requests | $failed_requests | $passed_tests |"
           done
           
           echo "Newman test results" >> $GITHUB_STEP_SUMMARY
