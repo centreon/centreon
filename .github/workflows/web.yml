@@ -513,7 +513,6 @@ jobs:
 
   newman-test:
     needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/newman.yml
     with:
         container_name: my_centreon_container
