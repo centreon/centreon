@@ -142,7 +142,7 @@ const TextField = forwardRef(
     }, [innerValue, debounced, defaultValue]);
 
     return (
-      <Box sx={{ width: autoSize ? 'auto' : 'enherit' }}>
+      <Box sx={{ width: autoSize ? 'auto' : '100%' }}>
         <Tooltip placement="top" title={tooltipTitle}>
           <MuiTextField
             data-testid={dataTestId}
