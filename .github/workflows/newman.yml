@@ -18,7 +18,7 @@ jobs:
         id: set_collections
         run: |
           collection_path="centreon/tests/rest_api/collections"
-          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%f\n")
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" --printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')")
           echo "collections=$collections" >> $GITHUB_OUTPUT
 
   postman_tests:
@@ -76,7 +76,7 @@ jobs:
           # Run Newman with the current collection file and generate an HTML report and summary
           pnpm newman run "$collection_file" -e "collections/Environment-for-Refactored-API-Test-Collection.json" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
         continue-on-error: true
-        
+
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v3
         with:
