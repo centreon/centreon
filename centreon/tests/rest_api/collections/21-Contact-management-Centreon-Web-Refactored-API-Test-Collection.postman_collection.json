@@ -565,7 +565,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -698,7 +698,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -959,7 +959,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1071,7 +1071,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1140,7 +1140,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1210,7 +1210,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1280,7 +1280,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1348,7 +1348,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1564,7 +1564,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1629,7 +1629,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1847,7 +1847,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -1944,7 +1944,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -2419,7 +2419,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -2637,7 +2637,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -2734,7 +2734,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -3172,7 +3172,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -3390,7 +3390,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -3807,7 +3807,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4024,7 +4024,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4098,7 +4098,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4169,7 +4169,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4245,7 +4245,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4312,7 +4312,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4387,7 +4387,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4456,7 +4456,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4524,7 +4524,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -4759,7 +4759,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -5075,7 +5075,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -5174,7 +5174,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
@@ -5583,7 +5583,7 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{baseUrl}}"
 							],
 							"path": [
 								"centreon",
