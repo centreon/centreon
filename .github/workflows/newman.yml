@@ -45,11 +45,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -104,7 +99,6 @@ jobs:
       - name: Generate and Display Summaries
         run: |
           summaries=""
-          summaries+="<h1>Newman tests Summary</h1>"
           summaries+="<table>"
           summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th></tr>"
           for summary_file in ./postman_summaries/*.json; do
