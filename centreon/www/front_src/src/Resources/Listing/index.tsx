@@ -273,7 +273,7 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       subItems={{
-        canCheckSubItems: false,
+        canCheckSubItems: true,
         enable: true,
         labelCollapse: 'Collapse',
         labelExpand: 'Expand',
