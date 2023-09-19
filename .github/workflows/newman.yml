@@ -1,8 +1,18 @@
-
-name: Postman Tests
-
 on:
-  push:
+  workflow_call:
+    inputs:
+      container_name:
+        required: true
+        type: string
+      centreon_url:
+        required: true
+        type: string
+      centreon_image:
+        required: true
+        type: string
+      collection_path:
+        required: true
+        type: string
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
@@ -17,7 +27,7 @@ jobs:
       - name: List Postman Collections
         id: set_collections
         run: |
-          collection_path="centreon/tests/rest_api/collections"
+          collection_path=${{ inputs.collection_path }}
           collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "collections=$collections" >> $GITHUB_OUTPUT
 
@@ -38,9 +48,9 @@ jobs:
         working-directory: centreon/tests/rest_api
 
     env:
-      CONTAINER_NAME: my_centreon_container
-      CENTREON_URL: http://localhost
-      CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
+      CONTAINER_NAME: ${{ inputs.container_name }}
+      CENTREON_URL: ${{ inputs.centreon_url }}
+      CENTREON_IMAGE: ${{ inputs.centreon_image }}
 
     steps:
       - name: Checkout Repository
