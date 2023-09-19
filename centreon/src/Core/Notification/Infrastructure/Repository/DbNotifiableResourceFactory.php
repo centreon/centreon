@@ -118,8 +118,8 @@ class DbNotifiableResourceFactory
                 continue;
             }
 
-            if ($record['host_events'] !== self::NO_HOST_EVENTS) {
-                $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $record['host_events']);
+            if ($currentRecords[$index - 1] !== self::NO_HOST_EVENTS) {
+                $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $currentRecords[$index - 1]);
             }
 
             $notificationHosts[] = self::createNotificationHostFromRecord(
@@ -134,11 +134,12 @@ class DbNotifiableResourceFactory
             $index = 1;
             $currentRecords[] = $record;
             $currentHostId = $record['host_id'];
+            $currentHostEvents = [];
         }
 
         if ($currentRecords[$index - 1]['host_events'] !== self::NO_HOST_EVENTS) {
             $currentHostEvents = NotificationHostEventConverter::fromBitFlags(
-                $currentRecords[$index - 1]['host_events']
+                (int) $currentRecords[$index - 1]['host_events']
             );
         }
 
@@ -208,6 +209,7 @@ class DbNotifiableResourceFactory
                 $currentServiceEvents
             );
         }
+        $notificationServices = \array_unique($notificationServices, SORT_REGULAR);
 
         return new NotifiableHost($hostId, $hostName, $hostAlias, $hostEvents, $notificationServices);
     }
