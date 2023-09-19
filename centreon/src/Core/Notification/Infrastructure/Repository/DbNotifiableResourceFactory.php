@@ -202,6 +202,11 @@ class DbNotifiableResourceFactory
                 continue;
             }
 
+            // Do not create a metaservice with generated virtual service name (i.e. 'meta_1')
+            if (\str_contains($record['service_name'], 'meta_')) {
+                continue;
+            }
+
             $notificationServices[] = new NotifiableService(
                 (int) $record['service_id'],
                 $record['service_name'],
