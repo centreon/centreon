@@ -43,7 +43,7 @@ import {
   labelStatus,
   labelForcedCheckCommandSent
 } from '../translatedLabels';
-import { FeatureFlagsAtom } from '../../Main/atoms/platformFeaturesAtom';
+import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import { defaultSelectedColumnIds, getColumns } from './columns';
 import {
@@ -87,7 +87,7 @@ const ResourceListing = (): JSX.Element => {
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
   const visualization = useAtomValue(selectedVisualizationAtom);
-  const featureFlags = useAtomValue(FeatureFlagsAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
   const setLimit = useSetAtom(limitAtom);
