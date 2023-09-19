@@ -306,6 +306,7 @@ importers:
       '@tsconfig/node16': ^16.1.1
       '@types/cypress-cucumber-preprocessor': ^4.0.2
       '@types/dockerode': ^3.3.19
+      cypress-multi-reporters: ^1.6.3
       dockerode: ^3.3.5
       esbuild: ^0.19.3
       eslint: ^8.17.0
@@ -333,6 +334,7 @@ importers:
       '@tsconfig/node16': 16.1.1
       '@types/cypress-cucumber-preprocessor': 4.0.2
       '@types/dockerode': 3.3.19
+      cypress-multi-reporters: 1.6.3
       dockerode: 3.3.5
       esbuild: 0.19.3
       eslint: 8.40.0
@@ -523,6 +525,7 @@ importers:
       '@types/cypress-cucumber-preprocessor': ^4.0.2
       '@types/node': ^20.6.2
       cypress: ^13.2.0
+      cypress-multi-reporters: ^1.6.3
       cypress-wait-until: ^2.0.1
       mochawesome: ^7.1.3
       path: ^0.12.7
@@ -533,6 +536,7 @@ importers:
       '@types/cypress-cucumber-preprocessor': 4.0.2
       '@types/node': 20.6.2
       cypress: 13.2.0
+      cypress-multi-reporters: 1.6.3
       cypress-wait-until: 2.0.1
       mochawesome: 7.1.3
       path: 0.12.7
@@ -2345,7 +2349,7 @@ packages:
       find-up: 6.3.0
       fs-extra: 9.1.0
       html-webpack-plugin-4: /html-webpack-plugin/4.5.2_webpack@5.82.1
-      html-webpack-plugin-5: /html-webpack-plugin/5.5.1_webpack@5.82.1
+      html-webpack-plugin-5: /html-webpack-plugin/5.5.3_webpack@5.82.1
       local-pkg: 0.4.1
       speed-measure-webpack-plugin: 1.4.2_webpack@5.82.1
       tslib: 2.5.0
@@ -2394,7 +2398,7 @@ packages:
       react: '>=16.8.0'
     dependencies:
       react: 18.2.0
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: false
 
   /@dnd-kit/core/6.0.8_biqbaboplfbrettd7655fr4n2y:
@@ -4157,7 +4161,7 @@ packages:
       is-glob: 4.0.3
       open: 9.1.0
       picocolors: 1.0.0
-      tslib: 2.6.1
+      tslib: 2.6.2
     dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.10_t43yxd2jt4hibodakqsfwkkkxu:
@@ -7097,7 +7101,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.61
+      '@types/node': 20.6.2
     optional: true
 
   /@typescript-eslint/eslint-plugin/5.59.6_d2tnq3me7fwqifnmdgcmmzd77u:
@@ -8276,7 +8280,7 @@ packages:
   /acorn-globals/7.0.1:
     resolution: {integrity: sha512-umOSDSDrfHbTNPuNpC2NSnnA3LUrqpevPb4T9jRx4MagXNS0rs+gwiTcAvqCRmsD6utzsrzNt+ebm00SNWiC3Q==}
     dependencies:
-      acorn: 8.8.2
+      acorn: 8.10.0
       acorn-walk: 8.2.0
     dev: true
 
@@ -8581,7 +8585,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
       get-intrinsic: 1.2.1
       is-string: 1.0.7
@@ -8609,7 +8613,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
       es-shim-unscopables: 1.0.0
     dev: true
@@ -8619,7 +8623,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
       es-shim-unscopables: 1.0.0
     dev: true
@@ -9188,7 +9192,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /camelcase/5.3.1:
@@ -9998,6 +10002,18 @@ packages:
       msw: 0.49.1_typescript@4.9.5
       node-match-path: 0.6.3
       prop-types: 15.8.1
+    dev: true
+
+  /cypress-multi-reporters/1.6.3:
+    resolution: {integrity: sha512-klb9pf6oAF4WCLHotu9gdB8ukYBdeTzbEMuESKB3KT54HhrZj65vQxubAgrULV5H2NWqxHdUhlntPbKZChNvEw==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      mocha: '>=3.1.2'
+    dependencies:
+      debug: 4.3.4
+      lodash: 4.17.21
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /cypress-plugin-tab/1.0.5:
@@ -10882,7 +10898,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /dot-prop/5.3.0:
@@ -11498,7 +11514,7 @@ packages:
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.40.0
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
       object.assign: 4.1.4
       object.entries: 1.1.6
       semver: 6.3.1
@@ -11516,7 +11532,7 @@ packages:
     dependencies:
       eslint: 8.40.0
       eslint-config-airbnb-base: 15.0.0_e43qr7ng6kygh3xxr4conxr2wi
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
       eslint-plugin-jsx-a11y: 6.7.1_eslint@8.40.0
       eslint-plugin-react: 7.31.10_eslint@8.40.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.40.0
@@ -11539,7 +11555,7 @@ packages:
     peerDependencies:
       eslint-plugin-import: '>=1.4.0'
     dependencies:
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
     dev: true
 
   /eslint-import-resolver-node/0.3.7:
@@ -13391,6 +13407,20 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
+    dev: true
+
+  /html-webpack-plugin/5.5.3_webpack@5.82.1:
+    resolution: {integrity: sha512-6YrDKTuqaP/TquFH7h4srYWsZx+x6k6+FbsTm0ziCwGHDP78Unr1r9F/H4+sGmMbX08GQcJ+K64x55b+7VM/jg==}
+    engines: {node: '>=10.13.0'}
+    peerDependencies:
+      webpack: ^5.20.0
+    dependencies:
+      '@types/html-minifier-terser': 6.1.0
+      html-minifier-terser: 6.1.0
+      lodash: 4.17.21
+      pretty-error: 4.0.0
+      tapable: 2.2.1
+      webpack: 5.82.1_ilv23h42sd7ioyiaw4anl5c75u
     dev: true
 
   /htmlparser2/3.10.1:
@@ -16792,7 +16822,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       has-symbols: 1.0.3
       object-keys: 1.1.1
     dev: true
@@ -16802,7 +16832,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
     dev: true
 
@@ -16811,7 +16841,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
     dev: true
 
@@ -16829,7 +16859,7 @@ packages:
   /object.hasown/1.1.2:
     resolution: {integrity: sha512-B5UIT3J1W+WuWIU55h0mjlwaqxiE5vYENJXIXZ4VFe05pNYrkKuK0U/6aFcb0pKywYJh7IhfoqUfKVmrJJHZHw==}
     dependencies:
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
     dev: true
 
@@ -16838,7 +16868,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
     dev: true
 
@@ -17084,7 +17114,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /parent-module/1.0.1:
@@ -17133,7 +17163,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /path-case/3.0.4:
@@ -18304,7 +18334,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       functions-have-names: 1.2.3
     dev: true
 
@@ -19426,7 +19456,7 @@ packages:
     resolution: {integrity: sha512-6zOCOcJ+RJAQshcTvXPHoxoQGONa3e/Lqx90wUA+wEzX78sg5Bo+1tQo4N0pohS0erG9qtCqJDjNCQBjeWVxyg==}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.2.0
+      define-properties: 1.2.1
       es-abstract: 1.22.1
       get-intrinsic: 1.2.1
       has-symbols: 1.0.3

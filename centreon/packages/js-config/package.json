@@ -23,6 +23,7 @@
     "@tsconfig/node16": "^16.1.1",
     "@types/cypress-cucumber-preprocessor": "^4.0.2",
     "@types/dockerode": "^3.3.19",
+    "cypress-multi-reporters": "^1.6.3",
     "dockerode": "^3.3.5",
     "esbuild": "^0.19.3",
     "eslint": "^8.17.0",
