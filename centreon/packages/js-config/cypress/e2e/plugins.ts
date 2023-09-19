@@ -12,7 +12,9 @@ export default (
     const height = 1080;
 
     if ((browser as { name }).name === 'chrome') {
-      launchOptions.args.push('--headless=new');
+      if (config.isTextTerminal) {
+        launchOptions.args.push('--headless=new');
+      }
 
       // flags description : https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
       launchOptions.args.push('--disable-gpu');
@@ -20,9 +22,9 @@ export default (
       launchOptions.args.push('--disable-extensions');
       launchOptions.args.push('--hide-scrollbars');
       launchOptions.args.push('--mute-audio');
-      launchOptions.args.push('--hide-scrollbars');
 
       launchOptions.args.push(`--window-size=${width},${height}`);
+
       // force screen to be non-retina and just use our given resolution
       launchOptions.args.push('--force-device-scale-factor=1');
     }
