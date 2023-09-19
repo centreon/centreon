@@ -1,5 +1,6 @@
 module.exports = {
   mochawesomeReporterOptions: {
+    consoleReporter: 'none',
     html: false,
     json: true,
     overwrite: true,
