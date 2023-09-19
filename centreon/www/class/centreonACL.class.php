@@ -1649,13 +1649,13 @@ class CentreonACL
             . "WHERE h.name = :host_name "
             . "AND s.service_id IS NOT NULL "
             . "ORDER BY h.name, s.description ";
-        $DBRESULT = $pearDBndo->prepare($query);
-        $DBRESULT->bindValue(':host_name', $host_name, PDO::PARAM_STR);
-        $DBRESULT->execute();
-        while ($row = $DBRESULT->fetch(PDO::FETCH_ASSOC)) {
+        $statment = $pearDBndo->prepare($query);
+        $statment->bindValue(':host_name', $host_name, PDO::PARAM_STR);
+        $statment->execute();
+        while ($row = $statment->fetch(PDO::FETCH_ASSOC)) {
             $tab[$row['service_id']] = $row['description'];
         }
-        $DBRESULT->closeCursor();
+        $statment->closeCursor();
 
         return $tab;
     }
