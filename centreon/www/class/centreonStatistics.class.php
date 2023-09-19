@@ -56,9 +56,9 @@ class CentreonStatistics
     public function getCentreonUUID()
     {
         $centreonUUID = new CentreonUUID($this->dbConfig);
-        return array(
+        return [
             'CentreonUUID' => $centreonUUID->getUUID()
-        );
+        ];
     }
 
     /**
@@ -68,23 +68,21 @@ class CentreonStatistics
      */
     public function getPlatformInfo()
     {
+        $query = <<<'SQL'
+            SELECT
+                COUNT(h.host_id) as nb_hosts,
+                ( SELECT COUNT(hg.hg_id) FROM hostgroup hg WHERE hg.hg_activate = '1' ) as nb_hg,
+                ( SELECT COUNT(s.service_id) FROM service s WHERE s.service_activate = '1' AND s.service_register = '1' ) as nb_services,
+                ( SELECT COUNT(sg.sg_id) FROM servicegroup sg WHERE sg.sg_activate = '1' ) as nb_sg,
+                @nb_remotes:=( SELECT COUNT(ns.id) FROM nagios_server ns, remote_servers rs
+                               WHERE ns.ns_activate = '1' AND rs.server_id = ns.id ) as nb_remotes,
+                ( ( SELECT COUNT(ns2.id) FROM nagios_server ns2 WHERE ns2.ns_activate = '1' )-@nb_remotes-1 ) as nb_pollers,
+                '1' as nb_central
+            FROM host h
+            WHERE h.host_activate = '1' AND h.host_register = '1'
+            SQL;
 
-        $query = "SELECT COUNT(h.host_id) as nb_hosts, " .
-            "(SELECT COUNT(hg.hg_id) FROM hostgroup hg " .
-            "WHERE hg.hg_activate = '1') as nb_hg, " .
-            "(SELECT COUNT(s.service_id) FROM service s " .
-            "WHERE s.service_activate = '1' AND s.service_register = '1') as nb_services, " .
-            "(SELECT COUNT(sg.sg_id) FROM servicegroup sg " .
-            "WHERE sg.sg_activate = '1') as nb_sg, " .
-            "@nb_remotes:=(SELECT COUNT(ns.id) FROM nagios_server ns, remote_servers rs WHERE ns.ns_activate = '1' " .
-            "AND rs.server_id = ns.id) as nb_remotes , " .
-            "((SELECT COUNT(ns2.id) FROM nagios_server ns2 WHERE ns2.ns_activate = '1')-@nb_remotes-1) as nb_pollers," .
-            " '1' as nb_central " .
-            "FROM host h WHERE h.host_activate = '1' AND h.host_register = '1'";
-        $dbResult = $this->dbConfig->query($query);
-        $data = $dbResult->fetch();
-
-        return $data;
+        return $this->dbConfig->query($query)->fetch();
     }
 
     /**
@@ -97,12 +95,12 @@ class CentreonStatistics
     {
         $dbStorage = new CentreonDB("centstorage");
         $centreonVersion = new CentreonVersion($this->dbConfig, $dbStorage);
-        return array(
+        return [
             'core' => $centreonVersion->getCore(),
             'modules' => $centreonVersion->getModules(),
             'widgets' => $centreonVersion->getWidgets(),
             'system' => $centreonVersion->getSystem(),
-        );
+        ];
     }
 
     /**
@@ -122,9 +120,9 @@ class CentreonStatistics
             $timezone = date_default_timezone_get();
         }
 
-        return array(
+        return [
             'timezone' => $timezone
-        );
+        ];
     }
 
     /**
@@ -137,11 +135,13 @@ class CentreonStatistics
         $data = [];
 
         # Get the number of LDAP directories configured by LDAP configuration
-        $query = "SELECT ar.ar_id, COUNT(arh.auth_ressource_id) AS configured_ad
-        FROM auth_ressource_host AS arh
-        INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
-        WHERE ar.ar_enable = '1'
-        GROUP BY ar_id";
+        $query = <<<'SQL'
+            SELECT ar.ar_id, COUNT(arh.auth_ressource_id) AS configured_ad
+            FROM auth_ressource_host AS arh
+            INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
+            WHERE ar.ar_enable = '1'
+            GROUP BY ar_id
+            SQL;
         $result = $this->dbConfig->query($query);
         while ($row = $result->fetch()) {
             $data[$row['ar_id']] = [
@@ -150,12 +150,14 @@ class CentreonStatistics
         }
 
         # Get configured options by LDAP configuration
-        $query = "SELECT ar.ar_id, ari.ari_name, ari.ari_value
-        FROM auth_ressource_host AS arh
-        INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
-        INNER JOIN auth_ressource_info AS ari ON (ari.ar_id = ar.ar_id)
-        WHERE ari.ari_name IN ('ldap_template', 'ldap_auto_sync', 'ldap_sync_interval', 'ldap_auto_import',
-            'ldap_search_limit', 'ldap_search_timeout', 'ldap_srv_dns', 'ldap_store_password', 'protocol_version')";
+        $query = <<<'SQL'
+            SELECT ar.ar_id, ari.ari_name, ari.ari_value
+            FROM auth_ressource_host AS arh
+            INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
+            INNER JOIN auth_ressource_info AS ari ON (ari.ar_id = ar.ar_id)
+            WHERE ari.ari_name IN ('ldap_template', 'ldap_auto_sync', 'ldap_sync_interval', 'ldap_auto_import',
+                'ldap_search_limit', 'ldap_search_timeout', 'ldap_srv_dns', 'ldap_store_password', 'protocol_version')
+            SQL;
         $result = $this->dbConfig->query($query);
         while ($row = $result->fetch()) {
             $data[$row['ar_id']][$row['ari_name']] = $row['ari_value'];
