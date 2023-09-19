@@ -214,6 +214,12 @@ const mockNotConnectedGetRequests = (): void => {
       response: { status: 403 }
     })
     .mockResolvedValueOnce({
+      data: {
+        feature_flags: {},
+        is_cloud_platform: false
+      }
+    })
+    .mockResolvedValueOnce({
       data: retrievedWeb
     })
     .mockResolvedValueOnce({
