@@ -43,6 +43,9 @@ jobs:
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
