@@ -18,9 +18,9 @@ jobs:
         id: set_collections
         run: |
           collection_path="centreon/tests/rest_api/collections"
-          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" --printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')")
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "collections=$collections" >> $GITHUB_OUTPUT
-
+          
   postman_tests:
     needs: discover_collections
     runs-on: ubuntu-latest
