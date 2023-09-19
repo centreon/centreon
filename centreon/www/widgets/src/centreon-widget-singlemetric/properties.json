@@ -2,10 +2,6 @@
   "title": "Single metric",
   "description": "Single metric description (TBD)",
   "options": {
-    "singleMetricGraphType": {
-      "type": "single-metric-graph-type",
-      "defaultValue": "text"
-    },
     "threshold": {
       "type": "threshold",
       "defaultValue": {
@@ -13,7 +9,8 @@
         "customCritical": null,
         "criticalType": "default",
         "customWarning": null,
-        "warningType": "default"
+        "warningType": "default",
+        "baseColor": null
       },
       "label": "threshold"
     },
@@ -21,6 +18,15 @@
       "type": "refresh-interval",
       "defaultValue": "default",
       "label": "Interval"
+    },
+    "valueFormat": {
+      "type": "value-format",
+      "defaultValue": "human",
+      "label": "Value format"
+    },
+    "singleMetricGraphType": {
+      "type": "single-metric-graph-type",
+      "defaultValue": "text"
     }
   },
   "data": {
@@ -34,5 +40,6 @@
     }
   },
   "singleMetricSelection": true,
+  "customBaseColor": true,
   "moduleName": "centreon-widget-singlemetric"
 }

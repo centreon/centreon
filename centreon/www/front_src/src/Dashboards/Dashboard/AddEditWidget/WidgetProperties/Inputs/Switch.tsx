@@ -3,9 +3,12 @@ import { ChangeEvent, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
 
-import { Box, FormControlLabel, Switch, Typography } from '@mui/material';
+import { Box, FormControlLabel, Typography } from '@mui/material';
+
+import { Switch } from '@centreon/ui/components';
 
 import { Widget, WidgetPropertyProps } from '../../models';
+import { editProperties } from '../../../useCanEditDashboard';
 
 import { getProperty } from './utils';
 import { useSwitchStyles } from './Inputs.styles';
@@ -19,6 +22,8 @@ const WidgetSwitch = ({
   const { classes } = useSwitchStyles();
 
   const { values, setFieldValue } = useFormikContext<Widget>();
+
+  const { canEditField } = editProperties.useCanEditProperties();
 
   const value = useMemo<boolean | undefined>(
     () => getProperty({ obj: values, propertyName }),
@@ -40,6 +45,7 @@ const WidgetSwitch = ({
           onChange={changeSwitchValue}
         />
       }
+      disabled={!canEditField}
       label={
         <Box className={classes.switch}>
           <Typography>{t(label)}</Typography>

@@ -15,7 +15,7 @@ import {
   federatedWidgetsAtom,
   federatedWidgetsPropertiesAtom
 } from '../../../../federatedModules/atoms';
-import { singleMetricSectionAtom } from '../atoms';
+import { customBaseColorAtom, singleMetricSectionAtom } from '../atoms';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -33,6 +33,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { setValues, values } = useFormikContext<Widget>();
 
@@ -99,6 +100,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     );
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
+    setCustomBaseColor(selectedWidgetProperties.customBaseColor);
 
     setValues((currentValues) => ({
       data,

@@ -17,6 +17,7 @@ import { Theme } from '@mui/material';
 import { Thresholds } from './models';
 
 interface GetColorFromDataAndThresholdsProps {
+  baseColor?: string;
   data: number;
   theme: Theme;
   thresholds: Thresholds;
@@ -25,10 +26,11 @@ interface GetColorFromDataAndThresholdsProps {
 export const getColorFromDataAndTresholds = ({
   data,
   thresholds,
-  theme
+  theme,
+  baseColor
 }: GetColorFromDataAndThresholdsProps): string => {
   if (!thresholds.enabled) {
-    return theme.palette.success.main;
+    return baseColor || theme.palette.primary.main;
   }
 
   const criticalValues = pluck('value', thresholds.critical).sort();
