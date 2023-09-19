@@ -1496,6 +1496,3 @@ VALUES ('centreon-widget-singlemetric', '23.10.0');
 
 INSERT INTO dashboard_widgets (`name`, `version`)
 VALUES ('centreon-widget-graph', '23.10.0');
-
-INSERT INTO dashboard_widgets (`name`, `version`)
-VALUES ('centreon-map4-web-client', '23.10.0');
