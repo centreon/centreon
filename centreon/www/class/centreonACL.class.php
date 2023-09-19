@@ -1656,7 +1656,6 @@ class CentreonACL
             $tab[$row['service_id']] = $row['description'];
         }
         $statement->closeCursor();
-
         return $tab;
     }
 
