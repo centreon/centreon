@@ -134,3 +134,13 @@ export const withRangeThresholds: Story = {
   },
   render: Template
 };
+
+export const RawValue: Story = {
+  args: {
+    data: dataLastWeek,
+    displayAsRaw: true,
+    thresholdTooltipLabels: ['Warning', 'Critical'],
+    thresholds: [0.5, 0.6]
+  },
+  render: Template
+};

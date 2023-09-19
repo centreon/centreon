@@ -42,7 +42,8 @@ import { getDataProperty } from '../utils';
 interface UseMetricsState {
   addButtonHidden?: boolean;
   addMetric: () => void;
-  changeMetric: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
+  changeMetric: (index) => (_, newMetrics: SelectEntry | null) => void;
+  changeMetrics: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
   error: string | null;
@@ -54,6 +55,7 @@ interface UseMetricsState {
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount: number | undefined;
+  resources: Array<WidgetDataResource>;
   serviceOptions: Array<SelectEntry>;
   value: Array<WidgetDataMetric>;
 }
@@ -150,7 +152,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       ...(value || []),
       {
         id: '',
-        metrics: []
+        metrics: [],
+        name: ''
       }
     ]);
   };
@@ -206,10 +209,20 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, []);
     };
 
-  const changeMetric =
+  const changeMetrics =
     (index) =>
     (_, newMetrics: Array<SelectEntry> | null): void => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
+      setFieldTouched(`data.${propertyName}`, true, false);
+    };
+
+  const changeMetric =
+    (index) =>
+    (_, newMetrics: SelectEntry | null): void => {
+      setFieldValue(
+        `data.${propertyName}.${index}.metrics`,
+        newMetrics ? [newMetrics] : []
+      );
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
@@ -241,7 +254,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
         return {
           id: service.id,
           metrics: service.metrics.map((metric) => {
-            const newMetric = newService.metrics.find(
+            const newMetric = newService?.metrics.find(
               (metricFromService) => metricFromService.id === metric.id
             );
 
@@ -266,7 +279,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
         ? [
             {
               id: '',
-              metrics: []
+              metrics: [],
+              name: ''
             }
           ]
         : newServiceMetrics
@@ -290,6 +304,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     addButtonHidden: singleMetricSection,
     addMetric,
     changeMetric,
+    changeMetrics,
     changeService,
     deleteMetric,
     error: errorToDisplay,
@@ -301,6 +316,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,
+    resources,
     serviceOptions,
     value: value || []
   };

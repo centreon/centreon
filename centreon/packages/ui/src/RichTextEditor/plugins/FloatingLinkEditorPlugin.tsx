@@ -11,7 +11,7 @@ import { mergeRegister } from '@lexical/utils';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useTranslation } from 'react-i18next';
-import { equals, isNil } from 'ramda';
+import { dec, equals, gt, isNil, replace } from 'ramda';
 
 import { Popper, IconButton, Paper, Link, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -56,6 +56,7 @@ const FloatingLinkEditor = ({
     x: 0,
     y: 0
   });
+  const [editedUrl, setEditedUrl] = useState('');
 
   const [editMode, setEditMode] = useAtom(editLinkModeAtom);
   const [linkUrl, setLinkUrl] = useAtom(linkValueAtom);
@@ -65,9 +66,10 @@ const FloatingLinkEditor = ({
   const acceptOrCancelNewLinkValue = useCallback(
     (event): void => {
       const { value } = event.target;
-      if (event.key === 'Enter') {
-        event.preventDefault();
 
+      event.preventDefault();
+
+      if (event.key === 'Enter') {
         if (value !== '') {
           editor.dispatchCommand(TOGGLE_LINK_COMMAND, {
             target: openLinkInNewTab ? '_blank' : undefined,
@@ -75,13 +77,35 @@ const FloatingLinkEditor = ({
           });
         }
         setEditMode(false);
-      } else if (event.key === 'Escape') {
-        event.preventDefault();
+      }
+
+      if (event.key === 'Escape') {
         setEditMode(false);
       }
     },
     [setEditMode, setLinkUrl]
   );
+
+  const enterInEditMode = useCallback(() => {
+    setEditedUrl(linkUrl);
+    setEditMode(true);
+  }, [linkUrl]);
+
+  const changeValue = useCallback((event): void => {
+    const { value } = event.target;
+
+    const matched = value.match(/https?:\/\//g);
+
+    if (gt(matched.length, 1)) {
+      setEditedUrl(
+        replace(matched.join(''), matched[dec(matched.length)], value)
+      );
+
+      return;
+    }
+
+    setEditedUrl(value);
+  }, []);
 
   useEffect(() => {
     const isPositioned =
@@ -126,9 +150,9 @@ const FloatingLinkEditor = ({
           <InputField
             autoFocus
             dataTestId="InputLinkField"
-            defaultValue={linkUrl}
             label={t(labelInputLink)}
             size="small"
+            value={editedUrl}
             onBlur={(event): void => {
               const { value } = event.target;
 
@@ -139,7 +163,8 @@ const FloatingLinkEditor = ({
               }
               setEditMode(false);
             }}
-            onKeyDown={acceptOrCancelNewLinkValue}
+            onChange={changeValue}
+            onKeyUp={acceptOrCancelNewLinkValue}
           />
         ) : (
           <Box component="span" sx={{ margin: '10px' }}>
@@ -156,7 +181,7 @@ const FloatingLinkEditor = ({
               aria-label={labelEditLink}
               size="small"
               sx={{ marginLeft: '5px' }}
-              onClick={(): void => setEditMode(true)}
+              onClick={enterInEditMode}
             >
               <EditIcon fontSize="small" />
             </IconButton>

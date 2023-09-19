@@ -1,7 +1,7 @@
 import { includes, map, prop, reject } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Chip } from '@mui/material';
+import { Chip, ChipProps } from '@mui/material';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import Autocomplete, { Props as AutocompleteProps } from '..';
@@ -18,7 +18,6 @@ const useStyles = makeStyles()((theme) => ({
     width: theme.spacing(1.5)
   },
   tag: {
-    backgroundColor: theme.palette.divider,
     fontSize: theme.typography.caption.fontSize
   }
 }));
@@ -33,6 +32,7 @@ export interface Props
       UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
       'multiple'
     > {
+  chipProps?: ChipProps;
   disableSortedOptions?: boolean;
   getTagLabel?: (option) => string;
   optionProperty?: string;
@@ -45,6 +45,7 @@ const MultiAutocompleteField = ({
   optionProperty = 'name',
   getOptionLabel = (option): string => option.name,
   getTagLabel = (option): string => option[optionProperty],
+  chipProps,
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
@@ -60,6 +61,7 @@ const MultiAutocompleteField = ({
         label={getTagLabel(option)}
         size="medium"
         {...getTagProps({ index })}
+        {...chipProps}
       />
     ));
 

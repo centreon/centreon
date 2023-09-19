@@ -10,6 +10,7 @@ import { dashboardAtom, isEditingAtom } from '../atoms';
 import { Panel } from '../models';
 import { AddEditWidgetModal, AddWidgetPanel } from '../AddEditWidget';
 import { DeleteWidgetModal } from '../DeleteWidget';
+import { editProperties } from '../useCanEditDashboard';
 
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
@@ -35,6 +36,8 @@ const emptyLayout: Array<Panel> = [
 const Layout = (): JSX.Element => {
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
   const isEditing = useAtomValue(isEditingAtom);
+
+  const { canEdit } = editProperties.useCanEditProperties();
 
   const changeLayout = (layout: Array<Layout>): void => {
     const isOneColumnDisplay = equals(getColumnsFromScreenSize(), 1);
@@ -80,9 +83,10 @@ const Layout = (): JSX.Element => {
         {panels.map(({ i, panelConfiguration }) => {
           return (
             <DashboardLayout.Item
+              canMove={canEdit && isEditing}
               disablePadding={panelConfiguration?.isAddWidgetPanel}
               header={
-                isEditing && !panelConfiguration?.isAddWidgetPanel ? (
+                !panelConfiguration?.isAddWidgetPanel ? (
                   <PanelHeader id={i} />
                 ) : undefined
               }

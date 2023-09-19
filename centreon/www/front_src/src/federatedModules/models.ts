@@ -33,7 +33,8 @@ export enum FederatedWidgetOptionType {
   singleMetricGraphType = 'single-metric-graph-type',
   textfield = 'textfield',
   threshold = 'threshold',
-  timePeriod = 'time-period'
+  timePeriod = 'time-period',
+  valueFormat = 'value-format'
 }
 
 export interface FederatedWidgetOption {
@@ -44,6 +45,7 @@ export interface FederatedWidgetOption {
 }
 
 export interface FederatedWidgetProperties {
+  customBaseColor?: boolean;
   data: {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };

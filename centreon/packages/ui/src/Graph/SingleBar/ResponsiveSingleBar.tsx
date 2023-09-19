@@ -9,7 +9,7 @@ import { useSpring, animated } from '@react-spring/web';
 import { alpha, Box, Fade, useTheme } from '@mui/material';
 
 import {
-  formatMetricValue,
+  formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
@@ -34,16 +34,21 @@ const ResponsiveSingleBar = ({
   data,
   thresholds,
   width,
-  height
+  height,
+  displayAsRaw,
+  baseColor
 }: Props): JSX.Element => {
   const theme = useTheme();
 
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
-  const thresholdValues = flatten([
-    pluck('value', thresholds.warning),
-    pluck('value', thresholds.critical)
-  ]);
+  const thresholdValues = thresholds.enabled
+    ? flatten([
+        pluck('value', thresholds.warning),
+        pluck('value', thresholds.critical)
+      ])
+    : [0];
+
   const adaptedMaxValue = Math.max(
     metric.maximum_value || 0,
     Math.max(...thresholdValues) * 1.1,
@@ -66,6 +71,7 @@ const ResponsiveSingleBar = ({
   const barColor = useMemo(
     () =>
       getColorFromDataAndTresholds({
+        baseColor,
         data: latestMetricData,
         theme,
         thresholds
@@ -81,12 +87,12 @@ const ResponsiveSingleBar = ({
       x="50%"
       y={25}
     >
-      {formatMetricValue({
+      {formatMetricValueWithUnit({
         base: 1000,
+        isRaw: displayAsRaw,
         unit: metric.unit,
         value: metric.data[0]
-      })}{' '}
-      {metric.unit}
+      })}
     </text>
   );
 

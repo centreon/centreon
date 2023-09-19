@@ -14,6 +14,8 @@ interface DsData {
 export interface Metric {
   average_value: number | null;
   crit: number | null;
+  critical_high_threshold: number | null;
+  critical_low_threshold: number | null;
   data: Array<number>;
   ds_data: DsData;
   legend: string;
@@ -21,7 +23,8 @@ export interface Metric {
   metric: string;
   minimum_value: number | null;
   unit: string;
-  warn: number | null;
+  warning_high_threshold: number | null;
+  warning_low_threshold: number | null;
 }
 
 type TimeSeries = { timeTick: string };

@@ -1,12 +1,17 @@
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
 import TitleIcon from '@mui/icons-material/Title';
 import SpeedIcon from '@mui/icons-material/Speed';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
-import { labelGraphType } from '../../../../translatedLabels';
+import {
+  labelBar,
+  labelDisplayType,
+  labelGauge,
+  labelText
+} from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import Subtitle from '../../../../components/Subtitle';
 
 import useSingleMetricGraphType from './useSingleMetricGraphType';
 import OptionCard from './OptionCard';
@@ -15,10 +20,12 @@ import { useGraphTypeStyles } from './SingleMetricGraphType.styles';
 export const options = [
   {
     icon: <TitleIcon color="disabled" sx={{ height: 60, width: 60 }} />,
+    label: labelText,
     type: 'text'
   },
   {
     icon: <SpeedIcon color="disabled" sx={{ height: 60, width: 60 }} />,
+    label: labelGauge,
     type: 'gauge'
   },
   {
@@ -28,6 +35,7 @@ export const options = [
         sx={{ height: 60, transform: 'rotate(90deg)', width: 60 }}
       />
     ),
+    label: labelBar,
     type: 'bar'
   }
 ];
@@ -41,15 +49,14 @@ const SingleMetricGraphType = (props: WidgetPropertyProps): JSX.Element => {
 
   return (
     <div>
-      <Typography>
-        <strong>{t(labelGraphType)}</strong>
-      </Typography>
+      <Subtitle>{t(labelDisplayType)}</Subtitle>
       <div className={classes.graphTypeContainer}>
-        {options.map(({ type, icon }) => (
+        {options.map(({ type, icon, label }) => (
           <OptionCard
             changeType={changeType}
             icon={icon}
             key={type}
+            label={label}
             type={type}
             value={value}
           />

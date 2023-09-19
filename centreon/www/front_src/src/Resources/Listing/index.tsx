@@ -43,6 +43,7 @@ import {
   labelStatus,
   labelForcedCheckCommandSent
 } from '../translatedLabels';
+import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import {
   defaultSelectedColumnIds,
@@ -90,6 +91,8 @@ const ResourceListing = (): JSX.Element => {
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
   const visualization = useAtomValue(selectedVisualizationAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
+
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
   const setLimit = useSetAtom(limitAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
@@ -231,6 +234,10 @@ const ResourceListing = (): JSX.Element => {
 
   const areColumnsSortable = equals(visualization, Visualization.All);
 
+  const visualizationActions = featureFlags?.resourceStatusTreeView ? (
+    <VisualizationActions />
+  ) : undefined;
+
   return (
     <Listing
       checkable
@@ -285,7 +292,7 @@ const ResourceListing = (): JSX.Element => {
         onClick: changeViewModeTableResources,
         title: user_interface_density
       }}
-      visualizationActions={<VisualizationActions />}
+      visualizationActions={visualizationActions}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}

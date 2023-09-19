@@ -17989,8 +17989,8 @@ msgstr "Format de métrique invalide"
 msgid "Refresh interval"
 msgstr "Intervalle de rafraîchissement"
 
-msgid "Dashboard global interval (by default)"
-msgstr "Intervalle global du tableau de bord (par défaut)"
+msgid "Dashboard global interval"
+msgstr "Intervalle global du tableau de bord"
 
 msgid "Custom refresh interval"
 msgstr "Intervalle de rafraîchissement personnalisé"
@@ -18118,6 +18118,48 @@ msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 msgid "Manage the organization's authentication tokens"
 msgstr "Gérer les jetons d'authentification de l'organisation"
 
+msgid "Widget type"
+msgstr "Type de widget"
+
+msgid "Display type"
+msgstr "Type d'affichage"
+
+msgid "Text"
+msgstr "Texte"
+
+msgid "Gauge"
+msgstr "Jauge"
+
+msgid "Bar chart"
+msgstr "Diagramme à barres"
+
+msgid "The default value is the value defined for the first metric used."
+msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée."
+
+msgid "Value format"
+msgstr "Format de valeur"
+
+msgid "Raw value"
+msgstr "Valeur brute"
+
+msgid "Human readable"
+msgstr "Lisible par l'humain"
+
+msgid "You can choose only one resource for each resource type."
+msgstr "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource."
+
+msgid "View properties"
+msgstr "Voir les propriétés"
+
+msgid "Your rights only allow you to view the properties of a widget."
+msgstr "Vos droits ne vous permettent que de voir les propriétés d'un widget."
+
+msgid "Please contact your administrator for more information."
+msgstr "Veuillez contacter votre administrateur pour plus d'informations."
+
+msgid "Base color"
+msgstr "Couleur de base"
+
 msgid "Display view:"
 msgstr "Afficher la vue :"
 
@@ -18156,6 +18198,9 @@ msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
 
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "none"
+msgstr "aucun"
 
 msgid "Error while searching for authentication tokens"
 msgstr "Erreur lors de la recherche de jetons d'authentification"
