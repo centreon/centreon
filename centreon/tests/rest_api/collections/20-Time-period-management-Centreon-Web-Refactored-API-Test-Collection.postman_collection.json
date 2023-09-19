@@ -117,7 +117,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -189,7 +189,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -278,7 +278,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -350,7 +350,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -426,7 +426,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -644,7 +644,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -716,7 +716,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAliasBis}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -795,7 +795,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -862,7 +862,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1076,7 +1076,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \";\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1155,7 +1155,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1220,7 +1220,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1440,7 +1440,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1542,7 +1542,7 @@
 							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"tp\",\n  \"values\": \"workhours;{{currentParameter}};{{currentValue}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1628,7 +1628,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1733,7 +1733,7 @@
 							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"tp\",\n  \"values\": \"workhours;{{currentParameter}};{{currentValue}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1816,7 +1816,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2030,7 +2030,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2142,7 +2142,7 @@
 							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"tp\",\n  \"values\": \"{{timePeriodName}};{{currentParameter}};{{currentValue}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2229,7 +2229,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2296,7 +2296,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2511,7 +2511,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2581,7 +2581,7 @@
 							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"tp\",\n  \"values\": \"{{timePeriodName}};monday;non-compliant-parameter\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2652,7 +2652,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2719,7 +2719,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2932,7 +2932,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3038,7 +3038,7 @@
 							"raw": "{\n  \"action\": \"setexception\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{currentExceptionDate}};{{currentExceptionTimerange}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3124,7 +3124,7 @@
 							"raw": "{\n  \"action\":\"getexception\",\n  \"object\":\"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3191,7 +3191,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3406,7 +3406,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3476,7 +3476,7 @@
 							"raw": "{\n  \"action\": \"setexception\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};13th Month Day 01;Dark Hour\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3542,7 +3542,7 @@
 							"raw": "{\n  \"action\":\"getexception\",\n  \"object\":\"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3609,7 +3609,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"

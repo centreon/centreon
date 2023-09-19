@@ -159,7 +159,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Supervisors\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -235,7 +235,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Guest\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -498,7 +498,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -568,7 +568,7 @@
 							"raw": "{\n  \"action\": \"addcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Guest;{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -649,7 +649,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Guest\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -718,7 +718,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -978,7 +978,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1097,7 +1097,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1169,7 +1169,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1428,7 +1428,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1520,7 +1520,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}};{{currentUser}};dummymail@centreon.com;Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1599,7 +1599,7 @@
 							"raw": "{\n  \"action\": \"setcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{listOfUsersToAddToContactGroup}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1680,7 +1680,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1751,7 +1751,7 @@
 							"raw": "{\n  \"action\": \"delcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userToRemoveFromTheContactGroup}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1832,7 +1832,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1915,7 +1915,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -1991,7 +1991,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2058,7 +2058,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2274,7 +2274,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2383,7 +2383,7 @@
 							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2492,7 +2492,7 @@
 							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2607,7 +2607,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2823,7 +2823,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2896,7 +2896,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -2966,7 +2966,7 @@
 							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3036,7 +3036,7 @@
 							"raw": "{\n  \"action\": \"setcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3097,7 +3097,7 @@
 							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3172,7 +3172,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3242,7 +3242,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3309,7 +3309,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3546,7 +3546,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}};{{currentUser}};dummymail@centreon.com;Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3617,7 +3617,7 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3687,7 +3687,7 @@
 							"raw": "{\n  \"action\": \"addcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userAdd}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3762,7 +3762,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3832,7 +3832,7 @@
 							"raw": "{\n  \"action\": \"setcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userSet}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3907,7 +3907,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -3977,7 +3977,7 @@
 							"raw": "{\n  \"action\": \"addcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userAdd}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -4053,7 +4053,7 @@
 							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -4120,7 +4120,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
@@ -4205,7 +4205,7 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{server}}"
