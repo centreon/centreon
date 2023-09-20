@@ -32,7 +32,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: centreon/tests/rest_api
+        working-directory: /tests/rest_api
         shell: bash
 
     env:
