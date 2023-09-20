@@ -10,6 +10,7 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
 
     steps:
+ 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -50,7 +51,8 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 7
-             
+          run_install: false
+          
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         working-directory: centreon/tests/rest_api
