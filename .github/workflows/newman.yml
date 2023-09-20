@@ -51,12 +51,13 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           dest: ~/setup-pnpm
           package_json_file: centreon/tests/rest_api/package.json
-          version: latest
+          version: 6.0.0
 
       - name: Install Dependencies
         run: pnpm install  --frozen-lockfile  
