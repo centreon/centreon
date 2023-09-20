@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: List All Files in Custom Directory
-        run:  find centreon -type f
+        run:  find centreon/ -type f
 
 
       - uses: pnpm/action-setup@v2
