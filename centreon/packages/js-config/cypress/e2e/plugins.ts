@@ -11,8 +11,8 @@ export default (
     const width = 1920;
     const height = 1080;
 
-    if ((browser as { name }).name === 'chrome') {
-      if (config.isTextTerminal) {
+    if (browser.name === 'chrome') {
+      if (browser.isHeadless) {
         launchOptions.args.push('--headless=new');
       }
 

@@ -26,11 +26,11 @@ module.exports = ({
         addMatchImageSnapshotPlugin(on, config);
 
         on('before:browser:launch', (browser, launchOptions) => {
-          if (browser.name === 'chrome') {
-            if (config.isTextTerminal) {
-              launchOptions.args.push('--headless=new');
-            }
+          if (browser.name === 'chrome' && browser.isHeadless) {
+            launchOptions.args.push('--headless=new');
           }
+
+          return launchOptions;
         });
       },
       specPattern,
