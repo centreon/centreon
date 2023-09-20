@@ -11,20 +11,8 @@ jobs:
 
     steps:
  
-
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
-      - name: List All Files in Custom Directory
-        run:  find centreon/ -type f
-        
-      - uses: pnpm/action-setup@v2
-        with:
-         version: 7
-
-      - name: Install Centreon dependencies
-        working-directory:  centreon
-        run: pnpm install  --frozen-lockfile 
 
       - name: List Postman Collections
         id: set_collections
@@ -53,10 +41,20 @@ jobs:
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
 
     steps:
-   
 
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: List All Files in Custom Directory
+        run:  find centreon/ -type f
+        
+      - uses: pnpm/action-setup@v2
+        with:
+         version: 7
+
+      - name: Install Centreon dependencies
+        working-directory:  centreon
+        run: pnpm install  --frozen-lockfile 
 
       - name: Login to registry
         uses: docker/login-action@v2
