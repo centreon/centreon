@@ -10,6 +10,10 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
 
     steps:
+      - name: List All Files in Workspace
+        run: find . -type f
+
+
       - uses: pnpm/action-setup@v2
         with:
          version: 7
