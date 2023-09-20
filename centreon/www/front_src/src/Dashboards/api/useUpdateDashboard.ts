@@ -3,6 +3,7 @@ import {
   UseMutationResult,
   useQueryClient
 } from '@tanstack/react-query';
+import { pick } from 'ramda';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
@@ -35,10 +36,14 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
   });
 
   const queryClient = useQueryClient();
-  const invalidateQueries = (): Promise<void> =>
+  const invalidateQueries = (): void => {
     queryClient.invalidateQueries({
       queryKey: [resource.dashboards]
     });
+    queryClient.invalidateQueries({
+      queryKey: [resource.dashboard]
+    });
+  };
 
   const mutate = async (
     variables: UpdateDashboardDto,
@@ -55,19 +60,8 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
       onSettled?.(data, error, vars, undefined);
     };
 
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const {
-      id,
-      createdAt,
-      updatedAt,
-      createdBy,
-      updatedBy,
-      ownRole,
-      ...apiAllowedVariables
-    } = variables as any;
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    const apiAllowedVariables = pick(['name', 'description'], variables);
+    const { id } = variables;
 
     return mutateAsync(
       {
