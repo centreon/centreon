@@ -46,7 +46,6 @@ jobs:
   
       - name: Install Centreon dependencies
         run: pnpm install
-        working-directory: centreon
 
       - name: Checkout Repository
         uses: actions/checkout@v4
