@@ -44,10 +44,9 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
          version: 7
-  
-      - name: Install Centreon dependencies
-        run: pnpm install
-
+         run_install: |
+           args: [--frozen-lockfile ]
+           
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -57,12 +56,6 @@ jobs:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-
-      - name: Install Dependencies
-        run: |
-            cd centreon/tests/rest_api
-            pnpm install --frozen-lockfile
-        working-directory: ${{ github.workspace }}
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
