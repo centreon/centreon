@@ -46,7 +46,6 @@ jobs:
          version: 7
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
-        working-directory: centreon/tests/rest_api
         env:
           PNPM_HOME: ../../
 
