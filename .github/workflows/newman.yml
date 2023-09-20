@@ -98,8 +98,7 @@ jobs:
       - name: Generate and Display Summaries
         run: |
           summaries=""
-          summaries+="<table>"
-          summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th></tr>"
+
           for summary_file in ./postman_summaries/*.json; do
               collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
               total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
@@ -108,13 +107,16 @@ jobs:
           
               # Ajoutez une condition pour n'afficher que les collections avec des requêtes échouées
               if [ "$failed_requests" -gt 0 ]; then
+                  # Affichez le tableau seulement si des requêtes ont échoué
+                  summaries+="<table>"
+                  summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th></tr>"
                   summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td></tr>"
+                  summaries+="</table>"
               fi
-          done
-          summaries+="</table>"
-          echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
-      
-            
+          done          
+          if [ -n "$summaries" ]; then
+              echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+          fi         
       - name: Continue to Next Collection
         if: ${{ always() }}
         run: echo "Continuing to the next collection..."
