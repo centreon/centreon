@@ -10,8 +10,8 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
 
     steps:
-      - name: List All Files in Workspace
-        run: find . -type f
+      - name: List All Files in Custom Directory
+        run:  find centreon -type f
 
 
       - uses: pnpm/action-setup@v2
