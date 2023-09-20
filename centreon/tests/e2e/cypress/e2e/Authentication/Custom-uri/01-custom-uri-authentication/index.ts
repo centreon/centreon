@@ -59,7 +59,17 @@ Then(
     });
 
     cy.wait('@getTimeZone').then(() => {
-      cy.getIframeBody().contains(host).find('.ico-18').should('be.visible');
+      cy.getIframeBody()
+        .contains(host)
+        .find('svg')
+        .invoke('width')
+        .should('be.gte', 21);
+
+      cy.getIframeBody()
+        .contains(host)
+        .find('svg')
+        .invoke('height')
+        .should('be.gte', 21);
     });
 
     cy.navigateTo({
@@ -71,9 +81,15 @@ Then(
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
         .contains(service)
-        .parent()
-        .find('.ico-14')
-        .should('be.visible');
+        .find('svg')
+        .invoke('width')
+        .should('be.gte', 18);
+
+      cy.getIframeBody()
+        .contains(service)
+        .find('svg')
+        .invoke('height')
+        .should('be.gte', 18);
     });
   }
 );
