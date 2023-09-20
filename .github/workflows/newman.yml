@@ -59,7 +59,7 @@ jobs:
           version: 6.0.0
 
       - name: Install Dependencies
-        run: pnpm install -f --frozen-lockfile ./centreon/tests/rest_api/package.json
+        run: pnpm install  --frozen-lockfile
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
