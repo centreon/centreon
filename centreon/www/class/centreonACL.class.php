@@ -1646,15 +1646,16 @@ class CentreonACL
             . "LEFT JOIN services s "
             . "ON h.host_id = s.host_id "
             . $joinAcl
-            . "WHERE h.name = '" . CentreonDB::escape($host_name) . "' "
+            . "WHERE h.name = :hostName "
             . "AND s.service_id IS NOT NULL "
             . "ORDER BY h.name, s.description ";
-        $DBRESULT = $pearDBndo->query($query);
-        while ($row = $DBRESULT->fetchRow()) {
+        $statement = $pearDBndo->prepare($query);
+        $statement->bindValue(':hostName', $host_name, \PDO::PARAM_STR);
+        $statement->execute();
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $tab[$row['service_id']] = $row['description'];
         }
-        $DBRESULT->closeCursor();
-
+        $statement->closeCursor();
         return $tab;
     }
 
