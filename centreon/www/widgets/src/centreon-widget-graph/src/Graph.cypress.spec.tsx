@@ -115,6 +115,7 @@ const initializeComponent = ({
             threshold,
             timeperiod: timePeriod
           }}
+          refreshCount={0}
           store={store}
         />
       </div>

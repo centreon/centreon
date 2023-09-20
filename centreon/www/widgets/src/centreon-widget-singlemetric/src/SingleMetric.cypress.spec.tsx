@@ -127,7 +127,12 @@ const initializeComponent = ({
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Widget panelData={data} panelOptions={options} store={store} />
+        <Widget
+          panelData={data}
+          panelOptions={options}
+          refreshCount={0}
+          store={store}
+        />
       </div>
     )
   });

@@ -35,7 +35,6 @@ import { labelDelete } from '../translatedLabels';
 
 import {
   labelAddAWidget,
-  labelAddWidget,
   labelDeleteAWidget,
   labelDeleteWidget,
   labelDoYouWantToDeleteThisWidget,
@@ -48,7 +47,8 @@ import {
   labelCancel,
   labelViewProperties,
   labelYourRightsOnlyAllowToView,
-  labelPleaseContactYourAdministrator
+  labelPleaseContactYourAdministrator,
+  labelRefresh
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
@@ -376,7 +376,9 @@ describe('Dashboard', () => {
 
       cy.contains(labelCancel).click();
 
-      cy.findAllByLabelText(labelViewProperties).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelViewProperties).click();
 
       cy.findByLabelText(labelWidgetType).should('be.disabled');
       cy.findByLabelText(labelCancel).should('not.exist');
@@ -392,13 +394,25 @@ describe('Dashboard', () => {
     it('displays the widget form in view mode when the user has viewer role', () => {
       initializeAndMount(viewerRoles);
 
-      cy.findAllByLabelText(labelViewProperties).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelViewProperties).click();
 
       cy.findByLabelText(labelWidgetType).should('be.disabled');
       cy.findByLabelText(labelCancel).should('not.exist');
       cy.findByLabelText(labelSave).should('not.exist');
       cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
       cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the refresh button when the more actions button is clicked', () => {
+      initializeAndMount(viewerRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelRefresh).click();
 
       cy.makeSnapshot();
     });
