@@ -24,6 +24,14 @@ module.exports = ({
       excludeSpecPattern,
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
+
+        on('before:browser:launch', (browser, launchOptions) => {
+          if (browser.name === 'chrome') {
+            if (config.isTextTerminal) {
+              launchOptions.args.push('--headless=new');
+            }
+          }
+        });
       },
       specPattern,
       supportFile: `${mainCypressFolder}/support/component.tsx`
