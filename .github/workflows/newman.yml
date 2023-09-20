@@ -77,9 +77,12 @@ jobs:
         run: |
           collection_file="collections/${{ matrix.feature }}"
           collection_name=$(basename "$collection_file" .postman_collection.json)
-          # Run Newman with the current collection file and generate an HTML report and summary
+          # Revenir au répertoire principal du projet
+          cd $GITHUB_WORKSPACE
+          # Exécuter la commande Newman avec le fichier de collection actuel
           pnpm newman run "$collection_file" -e "collections/Environment-for-Refactored-API-Test-Collection.json" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
         continue-on-error: true
+      
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v3
