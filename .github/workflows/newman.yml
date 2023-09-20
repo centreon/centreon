@@ -10,6 +10,15 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
 
     steps:
+
+      - uses: pnpm/action-setup@v2
+        with:
+         version: 7
+
+      - name: Install Centreon dependencies
+        run: pnpm install  --frozen-lockfile 
+        working-directory:  ../
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -40,14 +49,6 @@ jobs:
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
 
     steps:
-      - uses: pnpm/action-setup@v2
-        with:
-         version: 7
-  
-      - name: Install Centreon dependencies
-        run: pnpm install  --frozen-lockfile 
-        working-directory:  ../
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
