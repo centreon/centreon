@@ -1,9 +1,7 @@
-
 name: Postman Tests
 
 on:
   push:
-    
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
@@ -21,7 +19,6 @@ jobs:
           collection_path="centreon/tests/rest_api/collections"
           collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "collections=$collections" >> $GITHUB_OUTPUT
-
   postman_tests:
     needs: discover_collections
     runs-on: ubuntu-latest
@@ -55,10 +52,10 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Install pnpm
-        uses: pnpm/action-setup
- 
+        uses :  pnpm/action-setup@v2
+
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile -f ./centreon/tests/rest_api/package.json
+        run: pnpm install -f --frozen-lockfile ./centreon/tests/rest_api/package.json
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
