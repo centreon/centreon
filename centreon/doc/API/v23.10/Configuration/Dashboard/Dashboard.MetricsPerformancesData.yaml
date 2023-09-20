@@ -5,7 +5,7 @@ get:
   parameters:
     - $ref: 'QueryParameter/Start.yaml'
     - $ref: 'QueryParameter/End.yaml'
-    - $ref: 'QueryParameter/MetricIds.yaml'
+    - $ref: 'QueryParameter/MetricNames.yaml'
   description: |
     Get data for given metrics
   responses:

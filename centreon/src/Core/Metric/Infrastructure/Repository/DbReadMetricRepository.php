@@ -70,23 +70,23 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * @inheritDoc
      */
-    public function findServicesByMetricIds(array $metricIds): array
+    public function findServicesByMetricNames(array $metricNames): array
     {
-        if ([] === $metricIds) {
+        if ([] === $metricNames) {
             return [];
         }
 
         $bindValues = [];
-        foreach ($metricIds as $metricId) {
-            $bindValues[':metricid_' . $metricId] = $metricId;
+        foreach ($metricNames as $index => $metricName) {
+            $bindValues[':metric_name_' . $index] = $metricName;
         }
 
-        $metricIdQuery = implode(', ',array_keys($bindValues));
+        $metricNamesQuery = implode(', ',array_keys($bindValues));
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                     SELECT DISTINCT id.host_id, id.service_id FROM `:dbstg`.index_data AS id
                     INNER JOIN `:dbstg`.metrics AS m ON m.index_id = id.id
-                    WHERE m.metric_id IN ({$metricIdQuery})
+                    WHERE m.metric_name IN ({$metricNamesQuery})
                 SQL
         ));
 
@@ -109,18 +109,18 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * @inheritDoc
      */
-    public function findServicesByMetricIdsAndAccessGroups(array $metricIds, array $accessGroups): array
+    public function findServicesByMetricNamesAndAccessGroups(array $metricNames, array $accessGroups): array
     {
-        if ([] === $metricIds) {
+        if ([] === $metricNames) {
             return [];
         }
 
         $bindValues = [];
-        foreach ($metricIds as $metricId) {
-            $bindValues[':metricid_' . $metricId] = $metricId;
+        foreach ($metricNames as $index => $metricName) {
+            $bindValues[':metric_name_' . $index] = $metricName;
         }
 
-        $metricIdQuery = implode(', ',array_keys($bindValues));
+        $metricNamesQuery = implode(', ',array_keys($bindValues));
         $accessGroupIds = array_map(
             fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
@@ -134,7 +134,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                     INNER JOIN `:dbstg`.`centreon_acl` acl
                     ON acl.service_id = id.service_id
                     AND acl.group_id IN ({$accessGroupIdsQuery})
-                    WHERE m.metric_id IN ({$metricIdQuery})
+                    WHERE m.metric_name IN ({$metricNamesQuery})
                 SQL
         ));
 

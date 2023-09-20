@@ -37,7 +37,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
     use LoggerTrait;
     private const START_DATE_PARAMETER = 'start';
     private const END_DATE_PARAMETER = 'end';
-    private const METRIC_IDS_PARAMETER = 'metricIds';
+    private const METRIC_NAMES_PARAMETER = 'metric_names';
 
     public function __invoke(
         FindPerformanceMetricsData $useCase,
@@ -68,44 +68,44 @@ final class FindPerformanceMetricsDataController extends AbstractController
     {
         $startParameter = $request->query->get(self::START_DATE_PARAMETER);
         $endParameter = $request->query->get(self::END_DATE_PARAMETER);
-        /** @var string|null $metricIdsParameter */
-        $metricIdsParameter = $request->query->get(self::METRIC_IDS_PARAMETER);
-        if ($startParameter === null || $endParameter === null || $metricIdsParameter === null) {
+        /** @var string|null $metricNamesParameter */
+        $metricNamesParamenter = $request->query->get(self::METRIC_NAMES_PARAMETER);
+        if ($startParameter === null || $endParameter === null || $metricNamesParamenter === null) {
             throw new \InvalidArgumentException('Missing mandatory properties');
         }
 
         $validator = Validation::createValidator();
-        $integerConstraint = new TypeConstraint('int');
+        $integerConstraint = new TypeConstraint('string');
         $validationConstraints = [];
 
         try {
             $start = new \DateTime((string) $startParameter);
             $end = new \DateTime((string) $endParameter);
-            $metricIds = json_decode((string) $metricIdsParameter, true);
+            $metricNames = \explode(',', \trim($metricNamesParamenter, '[]'));
         } catch ( \Throwable $ex) {
             $this->error('Invalid parameters format', ['trace' => (string) $ex]);
 
             throw new \InvalidArgumentException('Invalid parameters format');
         }
 
-        if (! is_array($metricIds) || [] === $metricIds)  {
-            throw new \InvalidArgumentException('invalid metric ids provided');
+        if (! is_array($metricNames) || [] === $metricNames)  {
+            throw new \InvalidArgumentException('Invalid metric names provided');
         }
 
-        foreach ($metricIds as $metricId) {
-            $validationConstraints[] = $validator->validate($metricId, $integerConstraint);
+        foreach ($metricNames as $metricName) {
+            $validationConstraints[] = $validator->validate($metricName, $integerConstraint);
         }
 
         foreach ($validationConstraints as $validationConstraint) {
             if ($validationConstraint->count() > 0) {
-                throw new \InvalidArgumentException('Invalid metric ID format');
+                throw new \InvalidArgumentException('Invalid metric name format');
             }
         }
 
         return [
             'start' => $start,
             'end' => $end,
-            'metricIds' => $metricIds,
+            'metric_names' => $metricNames,
         ];
     }
 
@@ -124,7 +124,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
             $parameterFromRequest['end']
         );
 
-        $requestDto->metricIds = $parameterFromRequest['metricIds'];
+        $requestDto->metricNames = $parameterFromRequest['metric_names'];
 
         return $requestDto;
     }
