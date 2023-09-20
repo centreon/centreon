@@ -26,6 +26,7 @@ export interface Panel extends ReactGridLayout.Layout {
   name: string;
   options?: WidgetOptions;
   panelConfiguration: PanelConfiguration;
+  refreshCount?: number;
 }
 
 export interface Dashboard {

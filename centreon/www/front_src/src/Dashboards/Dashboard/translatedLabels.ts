@@ -102,3 +102,4 @@ export const labelFrom = 'From';
 export const labelStart = 'Start';
 export const labelEnd = 'End';
 export const labelBaseColor = 'Base color';
+export const labelRefresh = 'Refresh';

@@ -19,6 +19,7 @@ interface Props {
     threshold: FormThreshold;
     valueFormat: ValueFormat;
   };
+  refreshCount: number;
   store: ReturnType<typeof createStore>;
 }
 
@@ -26,13 +27,15 @@ const SingleMetric = ({
   store,
   panelData,
   panelOptions,
-  globalRefreshInterval
+  globalRefreshInterval,
+  refreshCount
 }: Props): JSX.Element => (
   <Module maxSnackbars={1} seedName="widget-singlemetric" store={store}>
     <Graph
       {...panelData}
       {...panelOptions}
       globalRefreshInterval={globalRefreshInterval}
+      refreshCount={refreshCount}
     />
   </Module>
 );

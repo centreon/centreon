@@ -13,9 +13,10 @@ import { isGenericText } from '../../utils';
 
 interface Props {
   id: string;
+  refreshCount?: number;
 }
 
-const Panel = ({ id }: Props): JSX.Element => {
+const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const getPanelOptionsAndData = useAtomValue(
     getPanelOptionsAndDataDerivedAtom
   );
@@ -34,7 +35,7 @@ const Panel = ({ id }: Props): JSX.Element => {
   };
 
   return useMemoComponent({
-    Component: isGenericText(panelConfigurations.path) ? (
+    Component: isGenericText(panelConfigurations?.path) ? (
       <RichTextEditor
         editable={false}
         editorState={
@@ -50,11 +51,12 @@ const Panel = ({ id }: Props): JSX.Element => {
         id={id}
         panelData={panelOptionsAndData?.data}
         panelOptions={panelOptionsAndData?.options}
-        path={panelConfigurations.path}
+        path={panelConfigurations?.path}
+        refreshCount={refreshCount}
         setPanelOptions={changePanelOptions}
       />
     ),
-    memoProps: [id, panelOptionsAndData]
+    memoProps: [id, panelOptionsAndData, refreshCount]
   });
 };
 

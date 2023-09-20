@@ -35,12 +35,12 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
   const { t } = useTranslation();
   const { classes } = useRefreshIntervalStyles();
 
-  const refreshIntervalCountProperty = `${propertyName}Count`;
+  const refreshIntervalCustomProperty = `${propertyName}Custom`;
 
   const { values, setFieldValue } = useFormikContext();
 
   const [customInterval, setCustomInterval] = useState(
-    getProperty({ obj: values, propertyName: refreshIntervalCountProperty }) ||
+    getProperty({ obj: values, propertyName: refreshIntervalCustomProperty }) ||
       0
   );
 
@@ -62,7 +62,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
       [equals<RadioOptions>(RadioOptions.manual), always(null)]
     ])(event.target.value as RadioOptions);
 
-    setFieldValue(`options.${refreshIntervalCountProperty}`, newInterval);
+    setFieldValue(`options.${refreshIntervalCustomProperty}`, newInterval);
   };
 
   const changeCustomRefreshInterval = (
@@ -71,7 +71,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     const newInterval = parseInt(event.target.value || '0', 10);
 
     setCustomInterval(newInterval);
-    setFieldValue(`options.${refreshIntervalCountProperty}`, newInterval);
+    setFieldValue(`options.${refreshIntervalCustomProperty}`, newInterval);
   };
 
   const options = [

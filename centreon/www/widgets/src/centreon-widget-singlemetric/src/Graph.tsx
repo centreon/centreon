@@ -13,7 +13,7 @@ import {
 
 import useThresholds from '../../useThresholds';
 
-import { FormThreshold, ServiceMetric } from './models';
+import { FormThreshold, ServiceMetric, ValueFormat } from './models';
 import {
   labelCritical,
   labelNoDataFound,
@@ -26,6 +26,7 @@ import { useGraphStyles } from './Graph.styles';
 interface Props {
   globalRefreshInterval?: number;
   metrics: Array<ServiceMetric>;
+  refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   singleMetricGraphType: 'text' | 'gauge' | 'bar';
@@ -40,7 +41,8 @@ const Graph = ({
   refreshInterval,
   refreshIntervalCustom,
   globalRefreshInterval,
-  valueFormat
+  valueFormat,
+  refreshCount
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { classes: graphClasses } = useGraphStyles();
@@ -56,6 +58,7 @@ const Graph = ({
   const { graphData, isGraphLoading, isMetricIdsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
     metrics,
+    refreshCount,
     refreshInterval: refreshIntervalToUse
   });
 

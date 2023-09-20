@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Layout } from 'react-grid-layout';
 import { useAtom, useAtomValue } from 'jotai';
@@ -34,6 +34,10 @@ const emptyLayout: Array<Panel> = [
 ];
 
 const Layout = (): JSX.Element => {
+  const [refreshCounts, setRefreshCounts] = useState<Record<string, number>>(
+    {}
+  );
+
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
   const isEditing = useAtomValue(isEditingAtom);
 
@@ -65,12 +69,27 @@ const Layout = (): JSX.Element => {
     });
   };
 
+  const setRefreshCount = (id: string): void => {
+    setRefreshCounts((prev) => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1
+    }));
+  };
+
   const showDefaultLayout = useMemo(
     () => isEmpty(dashboard.layout) && isEditing,
     [dashboard.layout, isEditing]
   );
 
-  const panels = showDefaultLayout ? emptyLayout : dashboard.layout;
+  const panels = showDefaultLayout
+    ? emptyLayout
+    : dashboard.layout.map(({ i, ...props }) => {
+        return {
+          i,
+          refreshCount: refreshCounts[i] || 0,
+          ...props
+        };
+      });
 
   return (
     <>
@@ -80,27 +99,25 @@ const Layout = (): JSX.Element => {
         isStatic={!isEditing}
         layout={panels}
       >
-        {panels.map(({ i, panelConfiguration }) => {
-          return (
-            <DashboardLayout.Item
-              canMove={canEdit && isEditing}
-              disablePadding={panelConfiguration?.isAddWidgetPanel}
-              header={
-                !panelConfiguration?.isAddWidgetPanel ? (
-                  <PanelHeader id={i} />
-                ) : undefined
-              }
-              id={i}
-              key={i}
-            >
-              {panelConfiguration?.isAddWidgetPanel ? (
-                <AddWidgetPanel />
-              ) : (
-                <DashboardPanel id={i} />
-              )}
-            </DashboardLayout.Item>
-          );
-        })}
+        {panels.map(({ i, panelConfiguration, refreshCount }) => (
+          <DashboardLayout.Item
+            canMove={canEdit && isEditing}
+            disablePadding={panelConfiguration?.isAddWidgetPanel}
+            header={
+              !panelConfiguration?.isAddWidgetPanel ? (
+                <PanelHeader id={i} setRefreshCount={setRefreshCount} />
+              ) : undefined
+            }
+            id={i}
+            key={i}
+          >
+            {panelConfiguration?.isAddWidgetPanel ? (
+              <AddWidgetPanel />
+            ) : (
+              <DashboardPanel id={i} refreshCount={refreshCount} />
+            )}
+          </DashboardLayout.Item>
+        ))}
       </DashboardLayout.Layout>
       <AddEditWidgetModal />
       <DeleteWidgetModal />

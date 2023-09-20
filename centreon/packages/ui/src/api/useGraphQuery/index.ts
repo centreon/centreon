@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { equals, flatten, has, isEmpty, join, pipe, pluck } from 'ramda';
 import dayjs from 'dayjs';
 
@@ -13,6 +15,7 @@ interface CustomTimePeriod {
 interface UseMetricsQueryProps {
   baseEndpoint: string;
   metrics: Array<ServiceMetric>;
+  refreshCount?: number;
   refreshInterval?: number | false;
   timePeriod?: {
     end?: string | null;
@@ -57,7 +60,8 @@ const useGraphQuery = ({
   timePeriod = {
     timePeriodType: 1
   },
-  refreshInterval = false
+  refreshInterval = false,
+  refreshCount
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const metricIds = pipe(
     pluck('metrics'),
@@ -91,7 +95,7 @@ const useGraphQuery = ({
 
       return `${baseEndpoint}?metricIds=[${metricIds}]&start=${start}&end=${end}`;
     },
-    getQueryKey: () => ['graph', metricIds, timePeriod],
+    getQueryKey: () => ['graph', metricIds, timePeriod, refreshCount || 0],
     queryOptions: {
       enabled: !isEmpty(metricIds),
       refetchInterval: refreshInterval,
@@ -99,14 +103,19 @@ const useGraphQuery = ({
     }
   });
 
-  const formattedGraphData = graphData
+  const data = useRef<PerformanceGraphData | undefined>(undefined);
+  if (graphData) {
+    data.current = graphData;
+  }
+
+  const formattedGraphData = data.current
     ? {
         global: {
-          base: graphData.base,
+          base: data.current.base,
           title: ''
         },
-        metrics: graphData.metrics,
-        times: graphData.times
+        metrics: data.current.metrics,
+        times: data.current.times
       }
     : undefined;
 

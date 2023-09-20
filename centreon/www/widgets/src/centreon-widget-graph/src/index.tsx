@@ -13,6 +13,7 @@ interface Props {
   globalRefreshInterval?: number;
   panelData: Data;
   panelOptions: PanelOptions;
+  refreshCount: number;
   store: ReturnType<typeof createStore>;
 }
 
@@ -20,7 +21,8 @@ const Input = ({
   store,
   panelData,
   panelOptions,
-  globalRefreshInterval
+  globalRefreshInterval,
+  refreshCount
 }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="widget-graph" store={store}>
@@ -28,6 +30,7 @@ const Input = ({
         globalRefreshInterval={globalRefreshInterval}
         panelData={panelData}
         panelOptions={panelOptions}
+        refreshCount={refreshCount}
       />
     </Module>
   );
