@@ -10,7 +10,6 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
 
     steps:
- 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -41,21 +40,16 @@ jobs:
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
 
     steps:
+      - uses: pnpm/action-setup@v2
+        with:
+         version: 7
+  
+      - name: Install Centreon dependencies
+        run: pnpm install
+        working-directory: centreon
 
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: List All Files in Custom Directory
-        run:  find centreon/ -type f
-        
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-          run_install: false
-          
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: centreon/tests/rest_api
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -63,7 +57,9 @@ jobs:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      
+
+      - name: Install Dependencies
+        run: pnpm install  --frozen-lockfile  
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
@@ -77,12 +73,9 @@ jobs:
         run: |
           collection_file="collections/${{ matrix.feature }}"
           collection_name=$(basename "$collection_file" .postman_collection.json)
-          # Revenir au répertoire principal du projet
-          cd $GITHUB_WORKSPACE
-          # Exécuter la commande Newman avec le fichier de collection actuel
+          # Run Newman with the current collection file and generate an HTML report and summary
           pnpm newman run "$collection_file" -e "collections/Environment-for-Refactored-API-Test-Collection.json" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
         continue-on-error: true
-      
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v3
