@@ -10,10 +10,14 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
 
     steps:
+ 
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
       - name: List All Files in Custom Directory
         run:  find centreon/ -type f
-
-
+        
       - uses: pnpm/action-setup@v2
         with:
          version: 7
@@ -21,9 +25,6 @@ jobs:
       - name: Install Centreon dependencies
         working-directory:  centreon
         run: pnpm install  --frozen-lockfile 
-
-      - name: Checkout Repository
-        uses: actions/checkout@v4
 
       - name: List Postman Collections
         id: set_collections
