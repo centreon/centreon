@@ -1,18 +1,9 @@
+
+name: Postman Tests
+
 on:
-  workflow_call:
-    inputs:
-      container_name:
-        required: true
-        type: string
-      centreon_url:
-        required: true
-        type: string
-      centreon_image:
-        required: true
-        type: string
-      collection_path:
-        required: true
-        type: string
+  push:
+    
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
@@ -27,7 +18,7 @@ jobs:
       - name: List Postman Collections
         id: set_collections
         run: |
-          collection_path=${{ inputs.collection_path }}
+          collection_path="centreon/tests/rest_api/collections"
           collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "collections=$collections" >> $GITHUB_OUTPUT
 
@@ -48,9 +39,9 @@ jobs:
         working-directory: centreon/tests/rest_api
 
     env:
-      CONTAINER_NAME: ${{ inputs.container_name }}
-      CENTREON_URL: ${{ inputs.centreon_url }}
-      CENTREON_IMAGE: ${{ inputs.centreon_image }}
+      CONTAINER_NAME: my_centreon_container
+      CENTREON_URL: http://localhost
+      CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
 
     steps:
       - name: Checkout Repository
@@ -64,10 +55,10 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Install pnpm
-        run: npm install pnpm -g
-
+        uses: pnpm/action-setup
+ 
       - name: Install Dependencies
-        run: pnpm install -f ./centreon/tests/rest_api/package.json
+        run: pnpm install --frozen-lockfile -f ./centreon/tests/rest_api/package.json
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
