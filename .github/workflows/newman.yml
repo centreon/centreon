@@ -45,8 +45,8 @@ jobs:
          version: 7
   
       - name: Install Centreon dependencies
-        working-directory: centreon
         run: pnpm install  --frozen-lockfile 
+        working-directory: ../../
 
       - name: Checkout Repository
         uses: actions/checkout@v4
