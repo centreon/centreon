@@ -53,7 +53,7 @@ jobs:
          version: 7
 
       - name: Install Centreon dependencies
-        working-directory:  centreon
+        working-directory:  centreon/tests/rest_api
         run: pnpm install  --frozen-lockfile 
 
       - name: Login to registry
