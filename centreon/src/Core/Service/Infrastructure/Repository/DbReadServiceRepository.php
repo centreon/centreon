@@ -325,7 +325,18 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             );
 
         if ([] !== $accessGroupIds) {
-            // TODO: will be handled later
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    JOIN `:dbstg`.centreon_acl acl
+                        ON s.service_id = acl.service_id
+                    SQL
+            );
+            $concatenator->appendWhere(
+                <<<'SQL'
+                    WHERE acl.group_id IN (:access_group_ids)
+                    SQL
+            );
+            $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
         }
 
         return $concatenator;
