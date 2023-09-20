@@ -22,6 +22,7 @@ import {
   filterByInstalledModulesWithParsedSearchDerivedAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
+import CriteriasNewInterface from '../criteriasNewInterface';
 
 import Criteria from './Criteria';
 import { CriteriaDisplayProps, Criteria as CriteriaModel } from './models';
@@ -64,18 +65,11 @@ const CriteriasContent = (): JSX.Element => {
   const getSelectableCriteriaByName = (name: string): CriteriaDisplayProps =>
     newSelectableCriterias[name];
 
-  console.log({
-    newCriteriaValueName,
-    newSelectableCriterias
-  });
-
   const isNonSelectableCriteria = (criteria: CriteriaModel): boolean =>
     pipe(({ name }) => name, getSelectableCriteriaByName, isNil)(criteria);
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
-
-  console.log({ getSelectableCriterias: getSelectableCriterias?.() });
 
   return (
     <PopoverMenu
@@ -93,13 +87,19 @@ const CriteriasContent = (): JSX.Element => {
           direction="column"
           spacing={1}
         >
-          {getSelectableCriterias().map(({ name, value }) => {
+          <CriteriasNewInterface
+            data={{
+              newSelectableCriterias,
+              selectableCriterias: getSelectableCriterias()
+            }}
+          />
+          {/* {getSelectableCriterias().map(({ name, value }) => {
             return (
               <Grid item key={name}>
                 <Criteria name={name} value={value as Array<SelectEntry>} />
               </Grid>
             );
-          })}
+          })} */}
           <Grid container item className={classes.searchButton} spacing={1}>
             <Grid item data-testid={labelClear}>
               <Button
@@ -120,6 +120,17 @@ const CriteriasContent = (): JSX.Element => {
                 onClick={applyCurrentFilter}
               >
                 {t(labelSearch)}
+              </Button>
+            </Grid>
+            <Grid item data-testid="save">
+              <Button
+                color="primary"
+                data-testid="save new Filter"
+                size="small"
+                variant="contained"
+                onClick={() => console.log('saaaave')}
+              >
+                Save
               </Button>
             </Grid>
           </Grid>

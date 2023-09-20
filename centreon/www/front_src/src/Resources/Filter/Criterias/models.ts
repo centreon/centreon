@@ -31,7 +31,8 @@ import {
   labelHostSeverity,
   labelHostSeverityLevel,
   labelServiceSeverityLevel,
-  labelAnomalyDetection
+  labelAnomalyDetection,
+  labelInformation
 } from '../../translatedLabels';
 import {
   buildHostGroupsEndpoint,
@@ -198,6 +199,7 @@ export enum CriteriaNames {
   hostGroups = 'host_groups',
   hostSeverities = 'host_severities',
   hostSeverityLevels = 'host_severity_levels',
+  // information = 'information',
   monitoringServers = 'monitoring_servers',
   resourceTypes = 'resource_types',
   serviceCategories = 'service_categories',
@@ -263,6 +265,10 @@ const selectableCriterias: CriteriaById = {
     buildAutocompleteEndpoint: buildServiceSeveritiesEndpoint,
     label: labelServiceSeverityLevel
   }
+  // [CriteriaNames.information]: {
+  //   // buildAutocompleteEndpoint: buildServiceSeveritiesEndpoint,
+  //   label: labelInformation
+  // }
 };
 
 const authorizedFilterByModules = {

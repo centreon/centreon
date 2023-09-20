@@ -130,6 +130,9 @@ const useLoadResources = (): LoadResources => {
 
   const load = (): void => {
     const searchCriteria = getCriteriaValue('search');
+
+    console.log('-------load', searchCriteria);
+    // console.log({ searchCriteria });
     const search = searchCriteria
       ? {
           regex: {

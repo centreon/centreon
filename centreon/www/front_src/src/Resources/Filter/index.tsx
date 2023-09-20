@@ -88,6 +88,7 @@ import {
 import useFilterByModule from './useFilterByModule';
 import SearchHelp from './SearchHelp';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
+import CriteriasNewInterface from './criteriasNewInterface';
 
 const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -104,11 +105,11 @@ const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
       >
         <CloseIcon color="action" fontSize="small" />
       </IconButton>
-      <Suspense
+      {/* <Suspense
         fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
       >
         <Criterias />
-      </Suspense>
+      </Suspense> */}
     </div>
   );
 };
@@ -579,6 +580,17 @@ const Filter = (): JSX.Element => {
                   onKeyDown={inputKey}
                 />
                 <SearchHelp />
+                <Suspense
+                  fallback={
+                    <LoadingSkeleton
+                      height={24}
+                      variant="circular"
+                      width={24}
+                    />
+                  }
+                >
+                  <Criterias />
+                </Suspense>
               </Box>
               <Popper
                 anchorEl={autocompleteAnchor}

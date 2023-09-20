@@ -148,6 +148,8 @@
     "i18next": "^22.0.4",
     "jotai": "2.0.4",
     "jotai-suspense": "^0.1.0",
+    "lodash": "^4.17.21",
+    "lodash.debounce": "^4.0.8",
     "notistack": "^2.0.8",
     "numeral": "^2.0.6",
     "pluralize": "^8.0.0",

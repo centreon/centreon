@@ -3,12 +3,14 @@ import type { SelectEntry } from '@centreon/ui';
 import { SortOrder } from '../../models';
 
 import { Criteria } from './models';
+import { searchableFields } from './searchQueryLanguage';
 
 interface DefaultCriteriaValues {
   hostCategories?: Array<SelectEntry>;
   hostGroups?: Array<SelectEntry>;
   hostSeverities?: Array<SelectEntry>;
   hostSeverityLevels?: Array<SelectEntry>;
+  information?: string;
   monitoringServers?: Array<SelectEntry>;
   resourceTypes?: Array<SelectEntry>;
   serviceCategories?: Array<SelectEntry>;
@@ -37,12 +39,14 @@ const getDefaultCriterias = (
     monitoringServers = [],
     statusTypes = [],
     hostCategories = [],
-    serviceCategories = []
+    serviceCategories = [],
+    information = ''
   }: DefaultCriteriaValues = {
     hostCategories: [],
     hostGroups: [],
     hostSeverities: [],
     hostSeverityLevels: [],
+    information: '',
     monitoringServers: [],
     resourceTypes: [],
     serviceCategories: [],
@@ -133,6 +137,12 @@ const getDefaultCriterias = (
       type: 'multi_select',
       value: serviceSeverityLevels
     },
+    // {
+    //   name: 'information',
+    //   object_type: null, // static type
+    //   type: 'text',
+    //   value: information
+    // },
     {
       name: 'search',
       object_type: null,
