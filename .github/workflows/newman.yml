@@ -60,7 +60,7 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install  --frozen-lockfile  
-        working-directory: ${{ github.workspace }}/centreon/tests/rest_api
+        working-directory: ${{ github.workspace }}/tests/rest_api
 
       
       - name: Start Centreon Web Container
