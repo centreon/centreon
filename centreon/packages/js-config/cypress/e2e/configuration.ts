@@ -4,6 +4,7 @@
 import { execSync } from 'child_process';
 
 import { defineConfig } from 'cypress';
+import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
 
 import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
@@ -35,7 +36,12 @@ export default ({
     defaultCommandTimeout: 6000,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
+      reporter: require.resolve('cypress-multi-reporters'),
+      reporterOptions: {
+        configFile: `${__dirname}/reporter-config.js`
+      },
       setupNodeEvents: async (on, config) => {
+        installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
 
@@ -51,14 +57,6 @@ export default ({
       dockerName: dockerName || 'centreon-dev'
     },
     execTimeout: 60000,
-    reporter: 'mochawesome',
-    reporterOptions: {
-      html: false,
-      json: true,
-      overwrite: true,
-      reportDir: `${resultsFolder}/reports`,
-      reportFilename: '[name]-report.json'
-    },
     requestTimeout: 10000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
