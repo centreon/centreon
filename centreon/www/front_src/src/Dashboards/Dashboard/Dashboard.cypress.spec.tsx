@@ -412,7 +412,7 @@ describe('Dashboard', () => {
 
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
 
-      cy.findByLabelText(labelRefresh).click();
+      cy.contains(labelRefresh).should('be.visible');
 
       cy.makeSnapshot();
     });
