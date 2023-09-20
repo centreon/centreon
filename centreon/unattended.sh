@@ -716,7 +716,7 @@ function enable_new_services() {
 			log "DEBUG" "On central..."
 			systemctl enable mariadb $OS_SPEC_SERVICES snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
 			systemctl restart mariadb $OS_SPEC_SERVICES snmpd snmptrapd
-			systemctl start centreontrapd snmptrapd
+			systemctl start centreontrapd
 			;;
 
 		poller)
