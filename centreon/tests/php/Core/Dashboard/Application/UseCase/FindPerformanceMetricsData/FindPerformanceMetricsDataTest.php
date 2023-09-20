@@ -52,7 +52,7 @@ beforeEach(function () {
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta"];
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->metricRepositoryLegacy,
@@ -77,7 +77,7 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
 it('should present an ErrorResponse when an error occurs', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta","pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->metricRepositoryLegacy,
@@ -93,7 +93,7 @@ it('should present an ErrorResponse when an error occurs', function () {
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIdsAndAccessGroups')
+        ->method('findServicesByMetricNamesAndAccessGroups')
         ->willThrowException(new \Exception());
 
     $useCase($presenter, $request);
@@ -106,7 +106,7 @@ it('should present an ErrorResponse when an error occurs', function () {
 it('should get the metrics with access group management when the user is not admin', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta","pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->metricRepositoryLegacy,
@@ -122,7 +122,7 @@ it('should get the metrics with access group management when the user is not adm
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIdsAndAccessGroups');
+        ->method('findServicesByMetricNamesAndAccessGroups');
 
     $useCase($presenter, $request);
 });
@@ -130,7 +130,7 @@ it('should get the metrics with access group management when the user is not adm
 it('should get the metrics without access group management when the user is admin', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta","pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->metricRepositoryLegacy,
@@ -146,7 +146,7 @@ it('should get the metrics without access group management when the user is admi
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIds');
+        ->method('findServicesByMetricNames');
 
     $useCase($presenter, $request);
 });
@@ -154,7 +154,7 @@ it('should get the metrics without access group management when the user is admi
 it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,3];
+    $request->metricNames = ["pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->metricRepositoryLegacy,
@@ -175,7 +175,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIds')
+        ->method('findServicesByMetricNames')
         ->willReturn([$service]);
 
     $this->metricRepositoryLegacy
