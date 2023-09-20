@@ -5,18 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
 import { CardHeader } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 
-import {
-  dashboardAtom,
-  duplicatePanelDerivedAtom,
-  isEditingAtom
-} from '../../atoms';
+import { dashboardAtom, duplicatePanelDerivedAtom } from '../../atoms';
 import { labelMoreActions } from '../../translatedLabels';
-import { editProperties } from '../../useCanEditDashboard';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
@@ -37,10 +31,7 @@ const PanelHeader = ({
   const { classes } = usePanelHeaderStyles();
 
   const dashboard = useAtomValue(dashboardAtom);
-  const isEditing = useAtomValue(isEditingAtom);
   const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
-
-  const { canEdit } = editProperties.useCanEditProperties();
 
   const duplicate = (event): void => {
     event.preventDefault();
@@ -56,17 +47,10 @@ const PanelHeader = ({
     useDeepCompare([dashboard.layout])
   );
 
-  const displayEditButtons = canEdit && isEditing;
-
   return (
     <CardHeader
       action={
         <div className={classes.panelActionsIcons}>
-          {displayEditButtons && (
-            <IconButton onClick={duplicate}>
-              <ContentCopyIcon fontSize="small" />
-            </IconButton>
-          )}
           <IconButton
             ariaLabel={t(labelMoreActions) as string}
             onClick={openMoreActions}
@@ -76,6 +60,7 @@ const PanelHeader = ({
           <MorePanelActions
             anchor={moreActionsOpen}
             close={closeMoreActions}
+            duplicate={duplicate}
             id={id}
             setRefreshCount={setRefreshCount}
           />

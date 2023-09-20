@@ -7,11 +7,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import { ActionsList } from '@centreon/ui';
 
 import {
   labelDeleteWidget,
+  labelDuplicate,
   labelEditWidget,
   labelRefresh,
   labelViewProperties
@@ -23,6 +25,7 @@ import { editProperties } from '../../useCanEditDashboard';
 interface Props {
   anchor: HTMLElement | null;
   close: () => void;
+  duplicate: (event) => void;
   id: string;
   setRefreshCount: (id) => void;
 }
@@ -31,7 +34,8 @@ const MorePanelActions = ({
   anchor,
   close,
   id,
-  setRefreshCount
+  setRefreshCount,
+  duplicate
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -60,42 +64,48 @@ const MorePanelActions = ({
 
   const displayEditButtons = canEdit && isEditing;
 
-  const actions = displayEditButtons
-    ? [
-        'divider' as const,
-        {
-          Icon: EditIcon,
-          label: t(labelEditWidget),
-          onClick: edit
-        },
-        'divider' as const,
-        {
-          Icon: DeleteIcon,
-          label: t(labelDeleteWidget),
-          onClick: remove
-        }
-      ]
-    : [
-        'divider' as const,
-        {
-          Icon: VisibilityOutlinedIcon,
-          label: t(labelViewProperties),
-          onClick: edit
-        }
-      ];
+  const editActions = [
+    {
+      Icon: EditIcon,
+      label: t(labelEditWidget),
+      onClick: edit
+    },
+    'divider' as const,
+    {
+      Icon: RefreshIcon,
+      label: t(labelRefresh),
+      onClick: refresh
+    },
+    {
+      Icon: ContentCopyIcon,
+      label: t(labelDuplicate),
+      onClick: duplicate
+    },
+    'divider' as const,
+    {
+      Icon: DeleteIcon,
+      label: t(labelDeleteWidget),
+      onClick: remove
+    }
+  ];
+
+  const viewActions = [
+    {
+      Icon: RefreshIcon,
+      label: t(labelRefresh),
+      onClick: refresh
+    },
+    'divider' as const,
+    {
+      Icon: VisibilityOutlinedIcon,
+      label: t(labelViewProperties),
+      onClick: edit
+    }
+  ];
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
-      <ActionsList
-        actions={[
-          {
-            Icon: RefreshIcon,
-            label: t(labelRefresh),
-            onClick: refresh
-          },
-          ...actions
-        ]}
-      />
+      <ActionsList actions={displayEditButtons ? editActions : viewActions} />
     </Menu>
   );
 };

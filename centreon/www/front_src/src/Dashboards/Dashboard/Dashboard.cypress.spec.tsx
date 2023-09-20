@@ -48,7 +48,8 @@ import {
   labelViewProperties,
   labelYourRightsOnlyAllowToView,
   labelPleaseContactYourAdministrator,
-  labelRefresh
+  labelRefresh,
+  labelDuplicate
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
@@ -320,7 +321,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
       cy.contains(labelEditWidget).click();
 
       cy.findByLabelText(labelWidgetType).click({ force: true });
@@ -356,7 +357,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
       cy.contains(labelDeleteWidget).click();
 
       cy.contains(labelDeleteAWidget).should('be.visible');
@@ -376,7 +377,7 @@ describe('Dashboard', () => {
 
       cy.contains(labelCancel).click();
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
 
       cy.findByLabelText(labelViewProperties).click();
 
@@ -394,7 +395,7 @@ describe('Dashboard', () => {
     it('displays the widget form in view mode when the user has viewer role', () => {
       initializeAndMount(viewerRoles);
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
 
       cy.findByLabelText(labelViewProperties).click();
 
@@ -410,9 +411,31 @@ describe('Dashboard', () => {
     it('displays the refresh button when the more actions button is clicked', () => {
       initializeAndMount(viewerRoles);
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
 
       cy.contains(labelRefresh).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Duplicate', () => {
+    it('duplicates the widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelEditDashboard).click();
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findByTestId('1_move_panel')
+        .contains('Widget text')
+        .should('be.visible');
+      cy.findByTestId('panel_/widgets/text_2_3_move_panel')
+        .contains('Widget text')
+        .should('be.visible');
 
       cy.makeSnapshot();
     });
