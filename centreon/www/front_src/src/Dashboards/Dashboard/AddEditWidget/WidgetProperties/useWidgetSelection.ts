@@ -38,7 +38,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const { setValues, values } = useFormikContext<Widget>();
 
   const filteredWidgets = filter(
-    ({ title }) => title.includes(search),
+    ({ title }) => title?.includes(search),
     federatedWidgetsProperties || []
   );
 
