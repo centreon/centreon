@@ -62,7 +62,8 @@ jobs:
         run: |
             cd centreon/tests/rest_api
             pnpm install --frozen-lockfile
-      
+        working-directory: ${{ github.workspace }}
+
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
 
