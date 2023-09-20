@@ -1,14 +1,15 @@
-import { ChangeEvent, ReactNode, useMemo, useState } from 'react';
+import { ChangeEvent, ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import pluralize from 'pluralize';
-import { always, cond, equals } from 'ramda';
+import { always, cond, equals, isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { Box, Typography } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
+import { refreshIntervalAtom as platformRefreshIntervalAtom } from '@centreon/ui-context';
 
 import { getProperty } from '../utils';
 import {
@@ -45,6 +46,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
   );
 
   const defaultInterval = useAtomValue(refreshIntervalAtom);
+  const platformRefreshInterval = useAtomValue(platformRefreshIntervalAtom);
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),
@@ -91,7 +93,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
               dataTestId={labelInterval}
               disabled={!equals(RadioOptions.custom, value)}
               inputProps={{
-                min: 0
+                min: 1
               }}
               size="compact"
               type="number"
@@ -109,6 +111,17 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
       value: RadioOptions.manual
     }
   ];
+
+  useEffect(() => {
+    if (!isNil(defaultInterval)) {
+      return;
+    }
+
+    setFieldValue(
+      `options.${refreshIntervalCountProperty}`,
+      platformRefreshInterval
+    );
+  }, []);
 
   return {
     changeRefreshIntervalOption,

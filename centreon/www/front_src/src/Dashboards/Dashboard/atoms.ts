@@ -28,7 +28,7 @@ import {
   WidgetOptions
 } from './models';
 
-export const refreshIntervalAtom = atom(30);
+export const refreshIntervalAtom = atom<number | null>(null);
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
