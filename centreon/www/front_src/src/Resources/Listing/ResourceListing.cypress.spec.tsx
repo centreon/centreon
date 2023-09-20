@@ -48,12 +48,13 @@ const fillEntities = ({
   const defaultSeverityName = enableCriticalResource ? 'CRITICAL' : 'PENDING';
 
   return new Array(entityCount).fill(0).map((_, index) => ({
-    acknowledged: index % 2 === 0,
     duration: '1m',
+    has_passive_checks_enabled: index % 8 === 0,
     id: index,
-    in_downtime: index % 3 === 0,
     information:
       index % 5 === 0 ? `Entity ${index}` : `Entity ${index}\n Line ${index}`,
+    is_acknowledged: index % 2 === 0,
+    is_in_downtime: index % 3 === 0,
     last_check: '1m',
     links: {
       endpoints: {
@@ -77,7 +78,6 @@ const fillEntities = ({
       }
     },
     name: `E${index}`,
-    passive_checks: index % 8 === 0,
     severity_level: index % 3 === 0 ? 1 : 2,
     short_type: index % 4 === 0 ? 's' : 'h',
     status: {
@@ -464,7 +464,9 @@ describe('Display additional columns', () => {
   it('displays downtime details when the downtime state chip is hovered', () => {
     cy.waitFiltersAndListingRequests();
 
-    const entityInDowntime = entities.find(({ in_downtime }) => in_downtime);
+    const entityInDowntime = entities.find(
+      ({ is_in_downtime }) => is_in_downtime
+    );
 
     const chipLabel = `${entityInDowntime?.name} ${labelInDowntime}`;
 
@@ -498,7 +500,7 @@ describe('Display additional columns', () => {
     cy.waitFiltersAndListingRequests();
 
     const acknowledgedEntity = entities.find(
-      ({ acknowledged }) => acknowledged
+      ({ is_acknowledged }) => is_acknowledged
     );
 
     cy.findByLabelText('Add columns').click();

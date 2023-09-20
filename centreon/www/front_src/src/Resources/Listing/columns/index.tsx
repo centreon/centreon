@@ -223,7 +223,7 @@ export const getColumns = ({
       getRenderComponentOnRowUpdateCondition: T,
       id: 'state',
       label: t(labelState),
-      rowMemoProps: ['in_downtime', 'acknowledged', 'name', 'links'],
+      rowMemoProps: ['is_in_downtime', 'is_acknowledged', 'name', 'links'],
       sortable: false,
       type: ColumnType.component,
       width: 'max-content'
@@ -269,7 +269,7 @@ export const getColumns = ({
       getRenderComponentOnRowUpdateCondition: T,
       id: 'notification',
       label: t(labelNotification),
-      rowMemoProps: ['notification_enabled'],
+      rowMemoProps: ['is_notification_enabled'],
       shortLabel: 'Notif',
       type: ColumnType.component
     },
@@ -278,7 +278,7 @@ export const getColumns = ({
       getRenderComponentOnRowUpdateCondition: T,
       id: 'checks',
       label: t(labelCheck),
-      rowMemoProps: ['passive_checks', 'active_checks'],
+      rowMemoProps: ['has_passive_checks_enabled', 'has_active_checks_enabled'],
       shortLabel: 'C',
       type: ColumnType.component
     }
