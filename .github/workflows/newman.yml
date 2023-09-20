@@ -45,8 +45,7 @@ jobs:
          version: 7
       - name: Install Dependencies
         run:  pnpm install --frozen-lockfile --lockfile ../pnpm-lock.yaml
-        working-directory: centreon/tests/rest_api
-   
+        working-directory: centreon
 
       - name: Checkout Repository
         uses: actions/checkout@v4
