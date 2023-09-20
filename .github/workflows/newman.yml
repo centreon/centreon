@@ -50,7 +50,7 @@ jobs:
          version: 7
          
       - name: Install Dependencies
-        run:  pnpm install --frozen-lockfile --lockfile ../pnpm-lock.yaml
+        run:  pnpm install --frozen-lockfile 
         working-directory: centreon
 
       - name: Login to registry
