@@ -16,16 +16,7 @@
     "url": "https://github.com/centreon/centreon-frontend/issues"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^18.0.6",
-    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@tsconfig/node16": "^16.1.1",
-    "@types/cypress-cucumber-preprocessor": "^4.0.2",
-    "@types/dockerode": "^3.3.19",
-    "cypress-multi-reporters": "^1.6.3",
-    "dockerode": "^3.3.5",
-    "esbuild": "^0.19.3",
     "eslint": "^8.17.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^8.5.0",
@@ -51,5 +42,18 @@
     "tsconfig",
     "webpack",
     "cypress"
-  ]
+  ],
+  "dependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^18.0.6",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@types/cypress-cucumber-preprocessor": "^4.0.2",
+    "@types/dockerode": "^3.3.19",
+    "cypress-multi-reporters": "^1.6.3",
+    "cypress-terminal-report": "^5.3.6",
+    "dockerode": "^3.3.5",
+    "esbuild": "^0.19.3",
+    "mochawesome": "^7.1.3"
+  }
 }
