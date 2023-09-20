@@ -33,7 +33,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: centreon/tests/rest_api
 
     env:
       CONTAINER_NAME: my_centreon_container
