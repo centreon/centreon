@@ -39,19 +39,19 @@ interface ReadMetricRepositoryInterface
     /**
      * Find Service by Metric Ids.
      *
-     * @param int[] $metricIds
+     * @param string[] $metricIds
      *
      * @return Service[]
      */
-    public function findServicesByMetricIds(array $metricIds): array;
+    public function findServicesByMetricNames(array $metricNames): array;
 
     /**
      * Find Service by Metric Ids.
      *
-     * @param int[] $metricIds
+     * @param string[] $metricIds
      * @param AccessGroup[] $accessGroups
      *
      * @return Service[]
      */
-    public function findServicesByMetricIdsAndAccessGroups(array $metricIds, array $accessGroups): array;
+    public function findServicesByMetricNamesAndAccessGroups(array $metricNames, array $accessGroups): array;
 }

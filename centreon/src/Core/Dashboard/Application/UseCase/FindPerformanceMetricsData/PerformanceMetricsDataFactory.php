@@ -85,11 +85,11 @@ class PerformanceMetricsDataFactory
 
     /**
      * @param array<_MetricData> $metricsData
-     * @param int[] $metricIds
+     * @param string[] $metricNames
      *
      * @return PerformanceMetricsData
      */
-    public function createFromRecords(array $metricsData, array $metricIds): PerformanceMetricsData
+    public function createFromRecords(array $metricsData, array $metricNames): PerformanceMetricsData
     {
         $metricBases = [];
         $metrics = [];
@@ -100,7 +100,7 @@ class PerformanceMetricsDataFactory
             $times[] = $metricData['times'];
         }
         $base = $this->getHighestBase($metricBases);
-        $metricsInfo = $this->createMetricInformations($metrics, $metricIds);
+        $metricsInfo = $this->createMetricInformations($metrics, $metricNames);
         $times = $this->getTimes($times);
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
@@ -122,16 +122,16 @@ class PerformanceMetricsDataFactory
      * Filter the metrics to keep only the needed metrics.
      *
      * @param array<array<_Metrics>> $metricsData
-     * @param int[] $metricIds
+     * @param string[] $metricNames
      *
      * @return array<_Metrics>
      */
-    private function filterMetricsByMetricId(array $metricsData, array $metricIds): array
+    private function filterMetricsByMetricId(array $metricsData, array $metricNames): array
     {
         $metrics = [];
         foreach ($metricsData as $metricData) {
             foreach ($metricData as $metric) {
-                if (in_array($metric['metric_id'], $metricIds, true)) {
+                if (in_array($metric['metric'], $metricNames, true)) {
                     $metrics[] = $metric;
                 }
             }

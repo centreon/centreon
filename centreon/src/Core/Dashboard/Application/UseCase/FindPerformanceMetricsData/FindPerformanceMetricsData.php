@@ -65,14 +65,14 @@ final class FindPerformanceMetricsData
             if ($this->user->IsAdmin()) {
                 $this->info('Retrieving metrics data for admin user', [
                     'user_id' => $this->user->getId(),
-                    'metric_ids' => implode(', ', $request->metricIds),
+                    'metric_names' => implode(', ', $request->metricNames),
                 ]);
 
                 $performanceMetricsData = $this->findPerformanceMetricsDataAsAdmin($request);
             } else {
                 $this->info('Retrieving metrics data for non admin user', [
                     'user_id' => $this->user->getId(),
-                    'metric_ids' => implode(', ', $request->metricIds),
+                    'metric_names' => implode(', ', $request->metricNames),
                 ]);
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
@@ -101,7 +101,7 @@ final class FindPerformanceMetricsData
     private function findPerformanceMetricsDataAsAdmin(
         FindPerformanceMetricsDataRequest $request
     ): PerformanceMetricsData {
-        $services = $this->metricRepository->findServicesByMetricIds($request->metricIds);
+        $services = $this->metricRepository->findServicesByMetricNames($request->metricNames);
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
@@ -119,7 +119,7 @@ final class FindPerformanceMetricsData
         }
         $factory = new PerformanceMetricsDataFactory();
 
-        return $factory->createFromRecords($metricsData, $request->metricIds);
+        return $factory->createFromRecords($metricsData, $request->metricNames);
     }
 
     /**
@@ -137,7 +137,10 @@ final class FindPerformanceMetricsData
         FindPerformanceMetricsDataRequest $request,
         array $accessGroups
     ): PerformanceMetricsData {
-        $services = $this->metricRepository->findServicesByMetricIdsAndAccessGroups($request->metricIds, $accessGroups);
+        $services = $this->metricRepository->findServicesByMetricNamesAndAccessGroups(
+            $request->metricNames,
+            $accessGroups
+        );
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
@@ -155,7 +158,7 @@ final class FindPerformanceMetricsData
         }
         $factory = new PerformanceMetricsDataFactory();
 
-        return $factory->createFromRecords($metricsData, $request->metricIds);
+        return $factory->createFromRecords($metricsData, $request->metricNames);
     }
 
     private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
