@@ -44,9 +44,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
          version: 7
-         run_install: |
-           args: [--frozen-lockfile ]
-           
+      
       - name: Checkout Repository
         uses: actions/checkout@v4
 
