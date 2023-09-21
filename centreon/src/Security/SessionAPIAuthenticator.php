@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Security;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
@@ -47,6 +48,8 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationExc
  */
 class SessionAPIAuthenticator extends AbstractAuthenticator
 {
+    use LoggerTrait;
+
     /**
      * @var AuthenticationServiceInterface
      */
@@ -121,7 +124,8 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
          * @var string|null $sessionId
          */
         $sessionId = $request->getSession()->getId();
-        if (null === $sessionId) {
+        $this->info('authenticate session id: ' . $sessionId);
+        if (empty($sessionId)) {
             // The token header was empty, authentication fails with HTTP Status
             // Code 401 "Unauthorized"
             throw new SessionUnavailableException('Session id not provided');
@@ -131,6 +135,7 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
             new UserBadge(
                 $sessionId,
                 function ($userIdentifier) {
+                    $this->info('getUserAndUpdateSession: ' . $userIdentifier);
                     return $this->getUserAndUpdateSession($userIdentifier);
                 }
             )
@@ -150,6 +155,7 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
     private function getUserAndUpdateSession(string $sessionId): UserInterface
     {
         $isValidToken = $this->authenticationService->isValidToken($sessionId);
+        $this->info('session id is valid ? ' . $isValidToken);
 
         $this->authenticationService->deleteExpiredSecurityTokens();
         $this->sessionRepository->deleteExpiredSession();
