@@ -1,134 +1,45 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import * as React from 'react';
-
 import * as Ramda from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue, Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import type { Column } from '@centreon/ui';
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { Resource, ResourceType, Visualization } from '../models';
+import { Visualization } from '../models';
 import {
   labelInDowntime,
   labelAcknowledged,
   labelViewByService,
-  labelAll
+  labelAll,
+  labelViewByHost
 } from '../translatedLabels';
 import { getListingEndpoint, defaultSecondSortCriteria } from '../testUtils';
 import useDetails from '../Details/useDetails';
-import {
-  resourcesToAcknowledgeAtom,
-  selectedVisualizationAtom
-} from '../Actions/actionsAtoms';
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
 import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
-import { PlatformFeatures } from '../../api/models';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
+} from './columns';
 import useLoadDetails from './useLoadResources/useLoadDetails';
+import {
+  columnToSort,
+  getPlatformFeatures,
+  fakeData,
+  retrievedListingWithCriticalResources,
+  retrievedListingByHosts,
+  retrievedListing,
+  entities,
+  columns
+} from './testUtils';
+import { selectedColumnIdsAtom } from './listingAtoms';
 
 import Listing from '.';
-
-const columns = getColumns({
-  actions: {
-    resourcesToAcknowledgeAtom
-  },
-  t: Ramda.identity
-}) as Array<Column>;
-
-const fillEntities = ({
-  entityCount = 31,
-  enableCriticalResource = false
-}): Array<Resource> => {
-  const defaultSeverityCode = enableCriticalResource ? 1 : 4;
-  const defaultSeverityName = enableCriticalResource ? 'CRITICAL' : 'PENDING';
-
-  return new Array(entityCount).fill(0).map((_, index) => ({
-    duration: '1m',
-    has_passive_checks_enabled: index % 8 === 0,
-    id: index,
-    information:
-      index % 5 === 0 ? `Entity ${index}` : `Entity ${index}\n Line ${index}`,
-    is_acknowledged: index % 2 === 0,
-    is_in_downtime: index % 3 === 0,
-    last_check: '1m',
-    links: {
-      endpoints: {
-        acknowledgement: `/monitoring/acknowledgement/${index}`,
-        details: 'endpoint',
-        downtime: `/monitoring/downtime/${index}`,
-        metrics: 'endpoint',
-        performance_graph: index % 6 === 0 ? 'endpoint' : undefined,
-        status_graph: index % 3 === 0 ? 'endpoint' : undefined,
-        timeline: 'endpoint'
-      },
-      externals: {
-        notes: {
-          url: 'https://centreon.com'
-        }
-      },
-      uris: {
-        configuration: index % 7 === 0 ? 'uri' : undefined,
-        logs: index % 4 === 0 ? 'uri' : undefined,
-        reporting: index % 3 === 0 ? 'uri' : undefined
-      }
-    },
-    name: `E${index}`,
-    severity_level: index % 3 === 0 ? 1 : 2,
-    short_type: index % 4 === 0 ? 's' : 'h',
-    status: {
-      name: index % 2 === 0 ? 'OK' : defaultSeverityName,
-      severity_code: index % 2 === 0 ? 5 : defaultSeverityCode
-    },
-    tries: '1',
-    type: index % 4 === 0 ? ResourceType.service : ResourceType.host,
-    uuid: `${index}`
-  }));
-};
-
-const entities = fillEntities({});
-const retrievedListing = {
-  meta: {
-    limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: entities.length
-  },
-  result: entities
-};
-
-const entitiesWithCriticalResources = fillEntities({
-  enableCriticalResource: true,
-  entityCount: 2
-});
-const retrievedListingWithCriticalResources = {
-  meta: {
-    limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: entitiesWithCriticalResources.length
-  },
-  result: entitiesWithCriticalResources
-};
-
-const getPlatformFeatures = ({
-  enableTreeView = true
-}: {
-  enableTreeView?: boolean;
-}): PlatformFeatures => {
-  return {
-    featureFlags: {
-      resourceStatusTreeView: enableTreeView
-    },
-    isCloudPlatform: false
-  };
-};
 
 const ListingTest = (): JSX.Element => {
   useLoadDetails();
@@ -150,14 +61,6 @@ const ListingTestWithJotai = (): JSX.Element => (
     </TestQueryProvider>
   </Provider>
 );
-const fakeData = {
-  meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
-  result: []
-};
-
-const columnToSort = columns
-  .filter(({ sortable }) => sortable !== false)
-  .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
 
 const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
@@ -626,6 +529,93 @@ describe('Resource Listing: Visualization by Service', () => {
     cy.findByText('Parent').should('not.exist');
     cy.findByText('Service').should('be.visible');
     cy.findByText('Host').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Resource Listing: Visualization by Hosts', () => {
+  after(() => {
+    store.set(selectedColumnIdsAtom, defaultSelectedColumnIds);
+    store.set(selectedVisualizationAtom, Visualization.All);
+  });
+  beforeEach(() => {
+    store.set(selectedColumnIdsAtom, defaultSelectedColumnIdsforViewByHost);
+    store.set(selectedVisualizationAtom, Visualization.Host);
+
+    interceptRequestsAndMountBeforeEach();
+
+    cy.interceptAPIRequest({
+      alias: 'listingByHosts',
+      method: Method.GET,
+      path: '**resources/hosts?**',
+      response: retrievedListingByHosts
+    });
+  });
+
+  it('sends a request to retrieve all sevices and there parents', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts').then(({ request }) => {
+      expect(JSON.parse(request?.url?.searchParams.get('types'))).to.deep.equal(
+        ['host']
+      );
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('sorts columnns by worst status and duration', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts').then(({ request }) => {
+      expect(
+        JSON.parse(request?.url?.searchParams.get('sort_by'))
+      ).to.deep.equal({
+        last_status_change: 'desc',
+        status_severity_code: 'desc'
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('disables columns drag and drop feature', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts');
+
+    columns.forEach(({ label }) => {
+      cy.findByLabelText(`${label} Drag handle`).should('not.exist');
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('updates column names', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts');
+
+    cy.findByText('Resource').should('not.exist');
+    cy.findByText('Parent').should('not.exist');
+    cy.findByText('State').should('be.visible');
+    cy.findByText('Services').should('be.visible');
+    cy.findByText('Host').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the services when the Expand button was clicked', () => {
+    cy.findByLabelText(labelViewByHost).click();
+    cy.waitForRequest('@listingByHosts');
+
+    cy.findAllByLabelText('Expand 14').click();
+
+    cy.findByText('Disk-/').should('be.visible');
+    cy.findByText('Load').should('be.visible');
+    cy.findByText('Memory').should('be.visible');
+    cy.findByText('Ping').should('be.visible');
 
     cy.makeSnapshot();
   });
