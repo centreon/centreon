@@ -61,7 +61,9 @@ echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
 
 su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 
+service mysql start
 mysql centreon -e "UPDATE options SET options.value='1' WHERE options.key='debug_auth'"
+service mysql stop
 
 EOF
 
