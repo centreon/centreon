@@ -23,6 +23,7 @@ const platformVersions = {
   widgets: {}
 };
 const platformFeatures = {
+  featureFlags: {},
   isCloudPlatform: false
 };
 
