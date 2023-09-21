@@ -105,14 +105,12 @@ jobs:
               failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
               failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
               
-              # Sorties de débogage
               echo "Collection Name: $collection_name"
               echo "Total Requests: $total_requests"
               echo "Pending Requests: $pending_requests"
               echo "Failed Requests: $failed_requests"
               echo "Failed Assertions: $failed_assertions"
           
-              # Ajoutez une condition pour n'afficher que les collections avec des requêtes échouées ou des assertions échouées
               if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
                   summaries+="<table>"
                   summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
