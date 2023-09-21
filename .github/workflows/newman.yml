@@ -103,7 +103,7 @@ jobs:
               total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
               pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
               failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-              failed_assertions=$(jq -r '.Stats.Assertions.failed' "$summary_file")  # Ajout pour récupérer les assertions échouées
+              failed_assertions=$(jq -r 'Run.Stats.Assertions.failed' "$summary_file") 
             
               if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
                   summaries+="<table>"
