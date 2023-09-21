@@ -93,7 +93,7 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
                     $expirationDate
                 );
             }
-            $this->info('tokens found in database : ' . $token . ', ' . $providerToken . ', ' . $providerRefreshToken);
+            $this->info('tokens found in database : ' . $token);
 
             return new AuthenticationTokens(
                 (int) $result['user_id'],
