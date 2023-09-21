@@ -10,7 +10,8 @@ import {
   postData,
   useRequest,
   MultiAutocompleteField,
-  SelectField
+  SelectField,
+  centreonBaseURL
 } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
@@ -114,7 +115,7 @@ const PollerWizardStepTwo = ({
         if (pollerData?.linked_remote_master) {
           goToNextStep();
         } else {
-          window.location.href = `/centreon${routeMap.pollerList}`;
+          window.location.href = `${centreonBaseURL}${routeMap.pollerList}`;
         }
       })
       .catch(() => undefined);

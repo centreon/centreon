@@ -10,7 +10,8 @@ import {
   getData,
   postData,
   useRequest,
-  MultiAutocompleteField
+  MultiAutocompleteField,
+  centreonBaseURL
 } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
@@ -98,7 +99,7 @@ const RemoteServerWizardStepTwo = ({
 
           goToNextStep();
         } else {
-          window.location.href = `/centreon${routeMap.pollerList}`;
+          window.location.href = `${centreonBaseURL}${routeMap.pollerList}`;
         }
       })
       .catch(() => undefined);
