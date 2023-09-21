@@ -56,6 +56,13 @@ sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
+rm -f /usr/share/centreon/.env.local.php
+echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
+
+su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+
+mysql centreon -e "UPDATE options SET options.value='1' WHERE options.key='debug_auth'"
+
 EOF
 
 EXPOSE 80 3306
