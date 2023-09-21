@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Model;
@@ -25,47 +26,32 @@ namespace Security\Domain\Authentication\Model;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 
-/**
- * @package Security\Authentication\Model
- */
 class ProviderConfiguration implements ProviderConfigurationInterface
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string Provider's type
-     */
+    /** @var string Provider's type */
     private $type;
 
-    /**
-     * @var string Provider configuration name
-     */
+    /** @var string Provider configuration name */
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $centreonBaseUri = '/centreon';
 
-    /**
-     * @var bool is the provider is enabled ?
-     */
+    /** @var bool is the provider is enabled ? */
     private $isActive;
 
-    /**
-     * @var bool is the provider forced ?
-     */
+    /** @var bool is the provider forced ? */
     private $isForced;
 
     /**
-     * @param integer|null $id
+     * @param int|null $id
      * @param string $type
      * @param string $name
-     * @param boolean $isActive
-     * @param boolean $isForced
+     * @param bool $isActive
+     * @param bool $isForced
      * @param string $centreonBaseUri
      */
     public function __construct(
@@ -97,11 +83,13 @@ class ProviderConfiguration implements ProviderConfigurationInterface
 
     /**
      * @param int $id
+     *
      * @return ProviderConfiguration
      */
     public function setId(int $id): ProviderConfiguration
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -122,7 +110,7 @@ class ProviderConfiguration implements ProviderConfigurationInterface
     }
 
     /**
-     * Get centreon base uri
+     * Get centreon base uri.
      *
      * @return string
      */
@@ -143,7 +131,7 @@ class ProviderConfiguration implements ProviderConfigurationInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isActive(): bool
     {
@@ -151,7 +139,7 @@ class ProviderConfiguration implements ProviderConfigurationInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isForced(): bool
     {
