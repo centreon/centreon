@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Repository;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
@@ -30,6 +31,8 @@ use Security\Domain\Authentication\Model\Session;
 
 class DbWriteSessionTokenRepository extends AbstractRepositoryDRB implements WriteSessionTokenRepositoryInterface
 {
+    use LoggerTrait;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -43,6 +46,7 @@ class DbWriteSessionTokenRepository extends AbstractRepositoryDRB implements Wri
      */
     public function deleteSession(string $token): void
     {
+        $this->info('deleting session in database with token : ' . $token);
         $deleteSessionStatement = $this->db->prepare(
             $this->translateDbName(
                 'DELETE FROM `:db`.session WHERE `session_id` = :token'
@@ -65,6 +69,7 @@ class DbWriteSessionTokenRepository extends AbstractRepositoryDRB implements Wri
      */
     public function createSession(Session $session): void
     {
+        $this->info('creating session in database with token : ' . $session->getToken());
         $insertSessionStatement = $this->db->prepare(
             $this->translateDbName(
                 'INSERT INTO `:db`.session (`session_id` , `user_id` , `last_reload`, `ip_address`) '

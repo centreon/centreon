@@ -435,7 +435,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $this->translateDbName($request)
         );
 
-        $this->error($request);
+        $this->error($this->translateDbName($request));
 
         foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
             /** @var int $data_type */
@@ -447,7 +447,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $collector->bind($statement);
         $statement->execute();
 
+        $this->error('executed');
+
         $result = $this->db->query('SELECT FOUND_ROWS()');
+        $this->error('found rows');
 
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);

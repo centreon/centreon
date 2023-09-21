@@ -51,6 +51,7 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
      */
     public function findAuthenticationTokensByToken(string $token): ?AuthenticationTokens
     {
+        $this->info('search token in database : ' . $token);
         $statement = $this->db->prepare($this->translateDbName('
             SELECT sat.user_id, sat.provider_configuration_id,
               provider_token.id as pt_id,
@@ -92,6 +93,7 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
                     $expirationDate
                 );
             }
+            $this->info('tokens found in database : ' . $token . ', ' . $providerToken . ', ' . $providerRefreshToken);
 
             return new AuthenticationTokens(
                 (int) $result['user_id'],
@@ -101,6 +103,7 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
                 $providerRefreshToken
             );
         }
+        $this->info('token not found in database : ' . $token);
 
         return null;
     }

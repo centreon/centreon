@@ -142,6 +142,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
      */
     public function updateProviderToken(ProviderToken $providerToken): void
     {
+        $this->info('deleting provider token : ' . $providerToken->getToken());
         $updateStatement = $this->db->prepare(
             $this->translateDbName(
                 'UPDATE `:db`.security_token SET expiration_date = :expiredAt WHERE token = :token'
@@ -154,10 +155,12 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $updateStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
         $updateStatement->execute();
+        $this->info('updated');
     }
 
     public function deleteSecurityToken(string $token): void
     {
+        $this->info('deleting security token : ' . $token);
         $deleteSecurityTokenStatement = $this->db->prepare(
             $this->translateDbName(
                 'DELETE FROM `:db`.security_token WHERE token = :token'
@@ -165,6 +168,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $deleteSecurityTokenStatement->bindValue(':token', $token, \PDO::PARAM_STR);
         $deleteSecurityTokenStatement->execute();
+        $this->info('deleted');
     }
 
     /**
@@ -186,6 +190,8 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
                 )'
             )
         );
+
+        $this->debug('deleted');
     }
 
     /**
@@ -208,6 +214,8 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
                 )'
             )
         );
+
+        $this->debug('deleted');
     }
 
     /**
@@ -252,6 +260,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
      */
     private function insertSecurityToken(NewProviderToken $providerToken): void
     {
+        $this->info('inserting security token : ' . $providerToken->getToken());
         $insertSecurityTokenStatement = $this->db->prepare(
             $this->translateDbName(
                 'INSERT INTO `:db`.security_token (`token`, `creation_date`, `expiration_date`) '
@@ -270,6 +279,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
             PDO::PARAM_INT
         );
         $insertSecurityTokenStatement->execute();
+        $this->info('inserted');
     }
 
     /**
@@ -288,6 +298,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         ?int $securityRefreshTokenId,
         int $providerConfigurationId
     ): void {
+        $this->info('inserting security authentication token : ' . $sessionId . ', ' .$securityTokenId);
         $insertSecurityAuthenticationStatement = $this->db->prepare(
             $this->translateDbName(
                 'INSERT INTO `:db`.security_authentication_tokens '
@@ -305,5 +316,6 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $insertSecurityAuthenticationStatement->bindValue(':userId', $contactId, PDO::PARAM_INT);
         $insertSecurityAuthenticationStatement->execute();
+        $this->info('inserted');
     }
 }
