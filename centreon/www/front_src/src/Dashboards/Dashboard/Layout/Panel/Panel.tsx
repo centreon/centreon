@@ -34,7 +34,7 @@ const Panel = ({ id }: Props): JSX.Element => {
   };
 
   return useMemoComponent({
-    Component: isGenericText(panelConfigurations.path) ? (
+    Component: isGenericText(panelConfigurations?.path) ? (
       <RichTextEditor
         editable={false}
         editorState={
@@ -50,7 +50,7 @@ const Panel = ({ id }: Props): JSX.Element => {
         id={id}
         panelData={panelOptionsAndData?.data}
         panelOptions={panelOptionsAndData?.options}
-        path={panelConfigurations.path}
+        path={panelConfigurations?.path}
         setPanelOptions={changePanelOptions}
       />
     ),

@@ -23,10 +23,20 @@ import {
   labelUpdate,
   labelUpdateDashboard
 } from '../../translatedLabels';
+import {
+  labelGlobalRefreshInterval,
+  labelManualRefreshOnly
+} from '../../Dashboard/translatedLabels';
 
 import { useDashboardConfig } from './useDashboardConfig';
 
-const DashboardConfigModal = (): ReactElement => {
+interface Props {
+  showRefreshIntervalFields?: boolean;
+}
+
+const DashboardConfigModal = ({
+  showRefreshIntervalFields = false
+}: Props): ReactElement => {
   const { isDialogOpen, closeDialog, dashboard, submit, variant, status } =
     useDashboardConfig();
 
@@ -63,6 +73,10 @@ const DashboardConfigModal = (): ReactElement => {
         },
         entity: {
           description: t(labelDescription),
+          globalRefreshInterval: {
+            global: t(labelGlobalRefreshInterval),
+            manual: t(labelManualRefreshOnly)
+          },
           name: t(labelName)
         }
       },
@@ -91,6 +105,7 @@ const DashboardConfigModal = (): ReactElement => {
         <DashboardForm
           labels={labels.form}
           resource={(dashboard as DashboardResource) ?? undefined}
+          showRefreshIntervalFields={showRefreshIntervalFields}
           variant={variant}
           onCancel={closeDialog}
           onSubmit={submit}

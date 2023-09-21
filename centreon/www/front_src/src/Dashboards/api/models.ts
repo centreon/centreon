@@ -46,6 +46,10 @@ export type Dashboard = NamedEntity & {
   updatedBy: NamedEntity;
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
+  globalRefreshInterval: {
+    type: 'global' | 'manual';
+    interval: number | null;
+  };
 };
 
 export type CreateDashboardDto = Omit<
