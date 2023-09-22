@@ -117,7 +117,7 @@ jobs:
                   summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
                   summaries+="</table>"
               fi
-              echo "Processing summary file: $summary_file"  # Sortie de débogage
+              echo "Processing summary file: $summary_file" 
           done
           
           if [ -n "$summaries" ]; then
