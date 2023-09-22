@@ -64,7 +64,6 @@ jobs:
               - '**/config/**'
               - '**/composer.*'
               - '**/tests/api/**'
-              - '**/tests/rest_api/**'
               - '**/tests/php/**'
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
@@ -515,13 +514,21 @@ jobs:
   newman-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+    
     uses: ./.github/workflows/newman.yml
     with:
-        collection_path: centreon/tests/rest_api/collections
-        container_name: my_centreon_container
-        centreon_url: http://localhost
-        centreon_image: docker.centreon.com/centreon/centreon-web-alma9:develop
-        
+          name: api
+          module_name: centreon 
+          image_name: centreon-web
+          os: ${{ matrix.os }}
+    secrets:
+       registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
