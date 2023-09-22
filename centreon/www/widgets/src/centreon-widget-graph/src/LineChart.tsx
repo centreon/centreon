@@ -6,6 +6,7 @@ import { Typography } from '@mui/material';
 import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
+import { GlobalRefreshInterval } from '../../models';
 
 import { Data, PanelOptions } from './models';
 import { labelNoDataFound } from './translatedLabels';
@@ -13,7 +14,7 @@ import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
 
 interface Props {
-  globalRefreshInterval?: number;
+  globalRefreshInterval: GlobalRefreshInterval;
   panelData: Data;
   panelOptions: PanelOptions;
 }

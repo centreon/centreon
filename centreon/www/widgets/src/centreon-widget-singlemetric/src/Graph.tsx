@@ -1,6 +1,5 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import { Box, Typography } from '@mui/material';
 
@@ -11,7 +10,6 @@ import {
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
-import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import useThresholds from '../../useThresholds';
 import { GlobalRefreshInterval } from '../../models';
@@ -50,11 +48,8 @@ const Graph = ({
 
   const { t } = useTranslation();
 
-  const platformInterval = useAtomValue(refreshIntervalAtom);
-
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
-    platformInterval,
     refreshInterval,
     refreshIntervalCustom
   });
