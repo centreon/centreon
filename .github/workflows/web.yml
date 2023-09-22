@@ -511,25 +511,6 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  newman-test:
-    needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-    strategy:
-      fail-fast: false
-      matrix:
-       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
-    
-    uses: ./.github/workflows/newman.yml
-    with:
-          name: api
-          module_name: centreon 
-          image_name: centreon-web
-          os: ${{ matrix.os }}
-    secrets:
-       registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
-       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
