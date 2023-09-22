@@ -72,7 +72,7 @@ class CentreonCeip extends CentreonWebService
                 'excludeAllText' => true,
                 'ceip' => true,
             ]
-            // Don't compute data is CEIP is disabled
+            // Don't compute data if CEIP is disabled
             : [
                 'ceip' => false,
             ];
