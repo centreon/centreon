@@ -373,7 +373,8 @@ class CentreonStatistics
                 SQL;
 
             $sqlTableExists = 'SHOW TABLES LIKE ' . $this->dbConfig->quote($tableRelation);
-            $tableExists = ($this->dbConfig->query($sqlTableExists) ?: null)?->rowCount() > 0;
+            $statement = $this->dbConfig->query($sqlTableExists);
+            $tableExists = $statement && $statement->rowCount() > 0;
 
             return $tableExists ? round((float) $this->sqlFetchValue($sqlAverage), 1) : null;
         };
