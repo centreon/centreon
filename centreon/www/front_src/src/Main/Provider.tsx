@@ -9,8 +9,6 @@ import { Module } from '@centreon/ui';
 import routeMap from '../reactRoutes/routeMap';
 import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
 
-import 'intl-pluralrules';
-
 const LoginPage = lazy(() => import('../Login'));
 const ResetPasswordPage = lazy(() => import('../ResetPassword'));
 const AppPage = lazy(() => import('./InitializationPage'));
