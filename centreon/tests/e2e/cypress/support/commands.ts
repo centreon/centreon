@@ -103,11 +103,15 @@ Cypress.Commands.add(
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
   cy.getByLabel({ label: 'Profile' }).should('exist').click();
 
+  cy.intercept({
+    method: 'GET',
+    times: 1,
+    url: '/centreon/api/latest/authentication/logout'
+  }).as('logout');
+
   cy.contains(/^Logout$/).click();
 
-  cy.get('header div[data-cy="clock"]').should('not.exist');
-
-  return cy.getCookie('PHPSESSID').should('not.exist');
+  return cy.wait('@logout').its('response.statusCode').should('eq', 302);
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
