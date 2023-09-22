@@ -1,7 +1,19 @@
-name: Postman Tests
-
 on:
-  push:
+  workflow_call:
+    inputs:
+      collection_path:
+        required: true
+        type: string
+      container_name:
+        required: true
+        type: string
+      centreon_url:
+        required: true
+        type: string
+      centreon_image:
+        required: true
+        type: string
+
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
@@ -16,7 +28,7 @@ jobs:
       - name: List Postman Collections
         id: set_collections
         run: |
-          collection_path="centreon/tests/rest_api/collections"
+          collection_path=${{ inputs.collection_path }}
           collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "collections=$collections" >> $GITHUB_OUTPUT
   postman_tests:
@@ -35,10 +47,9 @@ jobs:
         shell: bash
         working-directory: centreon/tests/rest_api
     env:
-      CONTAINER_NAME: my_centreon_container
-      CENTREON_URL: http://localhost
-      CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
-
+      CONTAINER_NAME: ${{ inputs.container_name }}
+      CENTREON_URL: ${{ inputs.centreon_url }}
+      CENTREON_IMAGE: ${{ inputs.centreon_image }} 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -103,30 +114,21 @@ jobs:
               total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
               pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
               failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-              failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
+              failed_assertions=$(jq -r '.Stats.Assertions.failed' "$summary_file") 
               
-              test_execution_data='{
-                "fields": {
-                    "project": {
-                        "key": "MON"
-                    },
-                    "summary": "'"$collection_name"'",
-                    "issuetype": {
-                        "name": "Test Execution"
-                    },
-                    "customfield_12345": "'"$total_requests"'",
-                    "customfield_67890": "'"$failed_requests"'",
-                    "description": "Summary: '"$collection_name"'\nTotal Requests: '"$total_requests"'\nFailed Requests: '"$failed_requests"'\nFailed Assertions: '"$failed_assertions"'"
-                }
-            }'
+              if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                  summaries+="<table>"
+                  summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
+                  summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
+                  summaries+="</table>"
+              fi
+              echo "Processing summary file: $summary_file"  # Sortie de débogage
+          done      
+            
+          if [ -n "$summaries" ]; then
+              echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+          fi  
 
-            curl -X POST \
-                -H "Content-Type: application/json" \
-                -H "Authorization: Basic $(echo -n ${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }} | base64 --wrap=0)" \
-                -d "$test_execution_data" \
-                https://centreon.atlassian.net/rest/api/2/issue
-          done
-     
                 
       - name: Continue to Next Collection
         if: ${{ always() }}
