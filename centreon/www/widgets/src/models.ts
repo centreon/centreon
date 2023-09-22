@@ -5,3 +5,8 @@ export interface FormThreshold {
   enabled: boolean;
   warningType: 'default' | 'custom';
 }
+
+export interface GlobalRefreshInterval {
+  interval: number | null;
+  type: 'global' | 'manual';
+}

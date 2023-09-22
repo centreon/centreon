@@ -3,9 +3,9 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import {
+  dashboardRefreshIntervalAtom,
   getPanelConfigurationsDerivedAtom,
   getPanelOptionsAndDataDerivedAtom,
-  refreshIntervalAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
@@ -23,7 +23,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const getPanelConfigurations = useAtomValue(
     getPanelConfigurationsDerivedAtom
   );
-  const refreshInterval = useAtomValue(refreshIntervalAtom);
+  const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
 
   const panelOptionsAndData = getPanelOptionsAndData(id);

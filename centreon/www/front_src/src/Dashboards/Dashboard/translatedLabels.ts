@@ -104,3 +104,6 @@ export const labelEnd = 'End';
 export const labelBaseColor = 'Base color';
 export const labelRefresh = 'Refresh';
 export const labelDuplicate = 'Duplicate';
+export const labelGlobalRefreshInterval = 'Global refresh interval';
+export const labelManualRefreshOnly = 'Manual refresh only';
+export const labelManual = 'manual';

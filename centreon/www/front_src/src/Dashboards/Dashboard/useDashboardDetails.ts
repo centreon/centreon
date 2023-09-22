@@ -16,6 +16,7 @@ import { useDashboardUserPermissions } from '../components/DashboardUserPermissi
 import { Panel, PanelConfiguration } from './models';
 import {
   dashboardAtom,
+  dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
   isEditingAtom,
   panelsLengthAtom
@@ -76,6 +77,7 @@ const useDashboardDetails = ({
   const setDashboard = useSetAtom(dashboardAtom);
   const setPanelsLength = useSetAtom(panelsLengthAtom);
   const setHasEditPermission = useSetAtom(hasEditPermissionAtom);
+  const setDashboardRefreshInterval = useSetAtom(dashboardRefreshIntervalAtom);
   const setIsEditing = useSetAtom(isEditingAtom);
 
   const { data: dashboard } = useFetchQuery({
@@ -102,12 +104,14 @@ const useDashboardDetails = ({
     }
 
     setHasEditPermission(hasEditPermission(dashboard));
+    setDashboardRefreshInterval(dashboard.globalRefreshInterval);
   }, [dashboard]);
 
   useEffect(() => {
     return () => {
       setHasEditPermission(false);
       setIsEditing(false);
+      setDashboardRefreshInterval(undefined);
     };
   }, []);
 

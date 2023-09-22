@@ -255,7 +255,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title', _("View a Host Template"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title', _("Massive Change"));
+    $form->addElement('header', 'title', _("Mass Change"));
 }
 
 ## Sort 1 - Host Template Configuration
@@ -700,7 +700,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title2', _("View relations"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'links', _("Relations"));
@@ -730,7 +730,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title3', _("View Data Processing"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'treatment', _("Data Processing"));
@@ -840,7 +840,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title5', _("View macros"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title5', _("Massive Change"));
+    $form->addElement('header', 'title5', _("Mass Change"));
 }
 
 $form->addElement('header', 'macro', _("Macros"));

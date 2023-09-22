@@ -16,11 +16,13 @@ import {
   labelRequired
 } from './translatedLabels';
 import { DashboardResource } from './Dashboard.resource';
+import GlobalRefreshFieldOption from './GlobalRefreshFieldOption';
 
 export type DashboardFormProps = {
   labels: DashboardFormLabels;
   onSubmit?: FormProps<DashboardResource>['submit'];
   resource?: DashboardResource;
+  showRefreshIntervalFields?: boolean;
   variant?: FormVariant;
 } & Pick<FormActionsProps, 'onCancel'>;
 
@@ -34,7 +36,8 @@ const DashboardForm = ({
   resource,
   labels,
   onSubmit,
-  onCancel
+  onCancel,
+  showRefreshIntervalFields
 }: DashboardFormProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -58,6 +61,26 @@ const DashboardForm = ({
             multilineRows: 3
           },
           type: InputType.Text
+        },
+        {
+          fieldName: 'globalRefreshInterval.type',
+          group: 'main',
+          hideInput: () => !showRefreshIntervalFields,
+          label: labels?.entity?.globalRefreshInterval?.title,
+          radio: {
+            options: [
+              {
+                label: <GlobalRefreshFieldOption />,
+                value: 'global'
+              },
+              {
+                label: labels?.entity?.globalRefreshInterval?.manual,
+                value: 'manual'
+              }
+            ],
+            row: false
+          },
+          type: InputType.Radio
         }
       ],
       submit: (values, bag) => onSubmit?.(values, bag),
@@ -70,6 +93,15 @@ const DashboardForm = ({
               `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
           )
           .nullable(),
+        globalRefreshInterval: Yup.object().shape({
+          interval: Yup.number().when('type', {
+            is: 'global',
+            otherwise: Yup.number().nullable(),
+            then: Yup.number()
+              .min(1, ({ min }) => t(labelMustBeAtLeast, { min }))
+              .required(t(labelRequired) as string)
+          })
+        }),
         name: Yup.string()
           .label(labels?.entity?.name)
           .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))

@@ -60,7 +60,10 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
       onSettled?.(data, error, vars, undefined);
     };
 
-    const apiAllowedVariables = pick(['name', 'description'], variables);
+    const apiAllowedVariables = pick(
+      ['name', 'description', 'globalRefreshInterval'],
+      variables
+    );
     const { id } = variables;
 
     return mutateAsync(
