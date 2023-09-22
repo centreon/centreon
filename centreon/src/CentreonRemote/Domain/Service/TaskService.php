@@ -71,14 +71,6 @@ class TaskService
     }
 
     /**
-     * @return KeyGeneratorInterface
-     */
-    public function getGen(): KeyGeneratorInterface
-    {
-        return $this->gen;
-    }
-
-    /**
      * @return CentreonDBManagerService
      */
     public function getDbManager(): CentreonDBManagerService
