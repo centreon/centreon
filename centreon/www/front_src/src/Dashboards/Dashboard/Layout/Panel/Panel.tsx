@@ -6,7 +6,6 @@ import {
   dashboardRefreshIntervalAtom,
   getPanelConfigurationsDerivedAtom,
   getPanelOptionsAndDataDerivedAtom,
-  refreshIntervalAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';

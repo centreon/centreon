@@ -14,13 +14,9 @@ import {
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import useThresholds from '../../useThresholds';
+import { GlobalRefreshInterval } from '../../models';
 
-import {
-  FormThreshold,
-  ServiceMetric,
-  ValueFormat,
-  GlobalRefreshInterval
-} from './models';
+import { FormThreshold, ServiceMetric, ValueFormat } from './models';
 import {
   labelCritical,
   labelNoDataFound,
