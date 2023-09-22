@@ -84,7 +84,7 @@ jobs:
           # Run Newman with the current collection file and generate an HTML report and summary
           pnpm newman run "$collection_file" -e "collections/Environment-Collection.json" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
         continue-on-error: true
-
+        
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v3
         with:
