@@ -201,6 +201,23 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
     {
         $this->debug('Deleting expired tokens which are not linked to a refresh token');
 
+        $result = $this->db->query(
+            $this->translateDbName(
+                'SELECT * FROM `:db`.security_token st
+                WHERE st.expiration_date < UNIX_TIMESTAMP(NOW())
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM `:db`.security_authentication_tokens sat
+                    WHERE sat.provider_token_id = st.id
+                    AND sat.provider_token_refresh_id IS NOT NULL
+                    LIMIT 1
+                )'
+            )
+        );
+        while ($row = $result->fetch(\PDO::FETCH_ASSOC)) {
+            $this->info('this token will be deleted : ' . var_export($row, true));
+        }
+
         $this->db->query(
             $this->translateDbName(
                 'DELETE st FROM `:db`.security_token st

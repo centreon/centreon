@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Security\Infrastructure\Repository;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Security\Domain\Authentication\Model\Session;
 use Centreon\Domain\Repository\AbstractRepositoryDRB;
@@ -29,6 +30,8 @@ use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
 
 class SessionRepository extends AbstractRepositoryDRB implements SessionRepositoryInterface
 {
+    use LoggerTrait;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -43,6 +46,7 @@ class SessionRepository extends AbstractRepositoryDRB implements SessionReposito
      */
     public function deleteSession(string $token): void
     {
+        $this->info('deleting session : ' . $token);
         $deleteSessionStatement = $this->db->prepare(
             $this->translateDbName(
                 "DELETE FROM `:db`.session WHERE session_id = :token"
@@ -81,6 +85,7 @@ class SessionRepository extends AbstractRepositoryDRB implements SessionReposito
      */
     public function addSession(Session $session): void
     {
+        $this->info('adding session : ' . $session->getToken());
         $insertSessionStatement = $this->db->prepare(
             $this->translateDbName(
                 "INSERT INTO `:db`.session (`session_id` , `user_id` , `last_reload`, `ip_address`) " .
