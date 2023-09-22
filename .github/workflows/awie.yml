@@ -21,8 +21,6 @@ on:
       - "centreon-awie/**"
       - "!centreon-awie/.veracode"
       - "!centreon-awie/.veracode-exclusions"
-    tags:
-      - centreon-awie-*
 
 env:
   module: awie
