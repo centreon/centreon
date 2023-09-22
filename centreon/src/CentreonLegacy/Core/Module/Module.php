@@ -55,7 +55,7 @@ class Module
     public function __construct(
         ContainerInterface $services,
         ?Information $informationObj = null,
-        $moduleName,
+        $moduleName = '',
         ?Utils $utils = null,
         $moduleId = null
     ) {
