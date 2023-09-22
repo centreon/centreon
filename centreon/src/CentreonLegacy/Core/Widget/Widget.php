@@ -53,7 +53,7 @@ class Widget
     public function __construct(
         ContainerInterface $services,
         ?Information $informationObj = null,
-        $widgetName,
+        $widgetName = '',
         ?Utils $utils = null
     ) {
         $this->services = $services;
