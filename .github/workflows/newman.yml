@@ -1,19 +1,22 @@
+# on:
+#   workflow_call:
+#     inputs:
+#       collection_path:
+#         required: true
+#         type: string
+#       container_name:
+#         required: true
+#         type: string
+#       centreon_url:
+#         required: true
+#         type: string
+#       centreon_image:
+#         required: true
+#         type: string
+name: Postman Tests
 on:
-  workflow_call:
-    inputs:
-      collection_path:
-        required: true
-        type: string
-      container_name:
-        required: true
-        type: string
-      centreon_url:
-        required: true
-        type: string
-      centreon_image:
-        required: true
-        type: string
-
+  push:
+ 
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
@@ -114,8 +117,14 @@ jobs:
               total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
               pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
               failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-              failed_assertions=$(jq -r '.Stats.Assertions.failed' "$summary_file") 
+              failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
               
+              echo "Collection Name: $collection_name"
+              echo "Total Requests: $total_requests"
+              echo "Pending Requests: $pending_requests"
+              echo "Failed Requests: $failed_requests"
+              echo "Failed Assertions: $failed_assertions"
+          
               if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
                   summaries+="<table>"
                   summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
@@ -123,11 +132,11 @@ jobs:
                   summaries+="</table>"
               fi
               echo "Processing summary file: $summary_file"  # Sortie de débogage
-          done      
-            
+          done
+          
           if [ -n "$summaries" ]; then
               echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
-          fi  
+          fi
 
                 
       - name: Continue to Next Collection
