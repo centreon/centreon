@@ -1,4 +1,4 @@
-name: awie
+name: ha
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "awie/**"
+      - "centreon-ha/**"
   push:
     branches:
       - develop
@@ -16,32 +16,18 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "awie/**"
+      - "centreon-ha/**"
     tags:
-      - centreon-awie-*
+      - centreon-ha-*
 
 env:
-  module: awie
+  module: ha
 
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: centreon-awie/www/modules/centreon-awie/conf.php
-
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: centreon-awie
-      module_name: centreon-awie
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+      version_file: centreon-ha/.env
 
   package:
     needs: [get-version]
@@ -51,19 +37,19 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-centos7
-            distrib: el7
-          - package_extension: rpm
             image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-centos7
+            distrib: el7
 
     uses: ./.github/workflows/package.yml
     with:
-      base_directory: centreon-awie
-      spec_file: centreon-awie/packaging/centreon-awie.spectemplate
+      base_directory: centreon-ha
+      spec_file: centreon-ha/packaging/centreon-ha.spectemplate
       package_extension: ${{ matrix.package_extension }}
       image_name: ${{ matrix.image }}
-      module_name: awie
+      module_name: ha
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
@@ -84,9 +70,9 @@ jobs:
       - name: Deliver sources
         uses: ./.github/actions/release-sources
         with:
-          bucket_directory: centreon-awie
-          module_directory: centreon-awie
-          module_name: centreon-awie
+          bucket_directory: centreon-ha
+          module_directory: centreon-ha
+          module_name: centreon-ha
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
@@ -99,11 +85,10 @@ jobs:
 
     strategy:
       matrix:
+        distrib: [el7, el8]
         include:
-          - module_name: awie
-            distrib: el7
-          - module_name: awie
-            distrib: el8
+          - module_name: ha
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3

@@ -1,0 +1,137 @@
+%define name centreon-ha
+%define debug_package %{nil}
+%define version %{PACKAGE_VERSION}
+%define release %{PACKAGE_RELEASE}%{?dist}
+%define thismajor 21.10.0
+%define nextmajor 21.11.0
+
+Name:       %{name}
+Version:    %{version}
+Release:    %{release}
+Source0:    %{name}-%{version}.tar.gz
+
+License:    Apache-2.0
+Group:      System Environment/Base
+Url:        https://github.com/centreon/centreon-ha
+Summary:    Centreon HA
+
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch:  noarch
+
+%description
+Centreon HA
+
+%prep
+%setup -q
+
+%install
+
+# bin
+%{__install} -d %buildroot%{_datadir}/centreon-ha
+%{__cp} -r centreon-ha/bin %buildroot%{_datadir}/centreon-ha/
+
+# etc
+%{__install} -d %buildroot%{_sysconfdir}
+%{__cp} -r centreon-ha/etc/* %buildroot%{_sysconfdir}/
+%{__rm} -rf %buildroot%{_sysconfdir}/centreon
+
+# lib
+%{__cp} -r centreon-ha/lib %buildroot%{_datadir}/centreon-ha/
+
+# log
+%{__install} -d %buildroot%{_localstatedir}/log/centreon-ha
+
+# ocf-scripts
+%{__install} -d %buildroot%{_prefix}/lib/ocf/resource.d/heartbeat
+%{__cp} -r centreon-ha/ocf-scripts/* %buildroot%{_prefix}/lib/ocf/resource.d/heartbeat/
+
+# systemd
+%{__install} -d %buildroot%{_unitdir}
+%{__cp} centreon-ha/systemd/* %buildroot%{_unitdir}/
+
+
+######################
+# centreon-ha-common #
+######################
+
+%package common
+Summary:    Centreon HA common files for database and central nodes
+License:    Apache-2.0
+
+%{?systemd_requires}
+BuildRequires:  systemd
+Requires:       perl-common-sense
+Requires:       perl-Linux-Inotify2
+Requires:       rsync
+
+%description common
+This package provides the scripts and config files necessary for database and central nodes in a Centreon-HA cluster
+
+%files common
+
+# bin
+%defattr(0755, root, root, -)
+%{_datadir}/centreon-ha/bin
+
+# etc
+%defattr(-, root, root, -)
+%{_sysconfdir}/centreon-ha
+%config(noreplace) %{_sysconfdir}/centreon-ha/mysql-resources.sh
+%{_sysconfdir}/logrotate.d/centreon-ha
+%{_sysconfdir}/sudoers.d/centreon-cluster-db
+
+# lib
+%defattr(-, root, root, -)
+%{_datadir}/centreon-ha/lib
+
+# log
+%defattr(-, centreon, centreon, 0755)
+%{_localstatedir}/log/centreon-ha
+
+# ocf-scripts
+%defattr(0755, root, root, -)
+%{_prefix}/lib/ocf/resource.d/heartbeat/mysql-centreon
+
+
+###################
+# centreon-ha-web #
+###################
+
+%package web
+Summary:        Scripts and config files for central servers
+License:    Apache-2.0
+
+%{?systemd_requires}
+BuildRequires:  systemd
+Requires:       centreon-gorgone-centreon-config >= %{thismajor}
+Requires:       centreon-gorgone-centreon-config < %{nextmajor}
+Requires:       centreon-common >= %{thismajor}
+Requires:       centreon-common < %{nextmajor}
+Requires:       centreon-ha-common = %{version}-%{release}
+Requires:       resource-agents
+
+%description web
+This add-on is built to manage a failover solution for Centreon.
+
+%files web
+
+# etc
+%defattr(-, root, root, -)
+%config(noreplace) %{_sysconfdir}/centreon-ha/centreon_central_sync.pm
+%config(noreplace) %{_sysconfdir}/sysconfig/centreon_central_sync
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/cron.d/10-centreon-ha.yaml
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/cron.d/20-centreon-ha-centreon-autodisco.yaml
+%config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/cron.d/30-centreon-ha-centreon-statistics.yaml
+%{_sysconfdir}/sudoers.d/centreon-cluster
+%config(noreplace) %{_sysconfdir}/sysconfig/cbd_sql
+%config(noreplace) %{_sysconfdir}/sysconfig/cbd_rrd
+
+# systemd
+%defattr(-, root, root, -)
+%{_unitdir}/cbd-sql.service
+%{_unitdir}/cbd-rrd.service
+%{_unitdir}/centreon-central-sync.service
+
+
+%clean
+rm -rf %buildroot

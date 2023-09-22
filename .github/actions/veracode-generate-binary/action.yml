@@ -4,9 +4,6 @@ inputs:
   module_directory:
     description: Path to the module
     required: true
-  module_name:
-    description: Module name
-    required: true
   cache_key:
     description: key used to identify the cache
     required: true
@@ -16,28 +13,31 @@ runs:
   steps:
     - name: Exclude development files
       run: |
-        ls -la
-        if [[ -f ".veracode" ]]; then
-          for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
-            if [[ -d '$LINE' ]]; then
-              rm -rf '$LINE'
-              echo "INFO - folder removed from analysis : $LINE"
-            elif [[ -f '$LINE' ]]; then
-              rm -f '$LINE'
-              echo "INFO - file removed from analysis : $LINE"
-            elif [[ -z '$LINE' ]]; then
-              echo "INFO - unconsistent exclusion directive. Skipping: $LINE"
+        cd ${{ inputs.module_directory }}
+        if [[ -f ".veracode-exclusions" ]]; then
+          for LINE in $( cat .veracode-exclusions | sed 's/[^a-zA-Z0-9_./-]//g' | sed -r 's/\.\./\./g' ); do
+            if [[ -d "$LINE" ]]; then
+              rm -rf "$LINE"
+              echo "[INFO] - folder removed from analysis : '$LINE'"
+            elif [[ -e "$LINE" ]]; then
+              rm -f "$LINE"
+              echo "[INFO] - file removed from analysis : '$LINE'"
+            elif [[ -z "$LINE" ]]; then
+              echo "[INFO] - empty directive. Skipping this line"
+            else
+              echo "[INFO] - target to exclude not found. Skipping: '$LINE'"
             fi
           done
         else
-          echo "INFO - No '.veracode' file found for this module. Skipping exclusion step"
+          echo "[INFO] - No '.veracode-exclusions' file found for this module. Skipping exclusion step"
         fi
       shell: bash
 
     - name: Create zip file
       run: |
-        if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" || -z "${{ inputs.module_name }}" ]]; then
-          echo "[DEBUG] - At least one mandatory argument is missing"
+        if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" ]]; then
+          echo "[DEBUG] - At least one mandatory argument is missing. killing process"
+          exit 1
         fi
         cd ${{ inputs.module_directory }}
         zip -rq "${{ inputs.cache_key }}.zip" *

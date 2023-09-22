@@ -1,5 +1,5 @@
-name: "rpm-package"
-description: "Package RPM Centreon"
+name: "rpm-delivery"
+description: "Deliver rpm packages"
 inputs:
   module_name:
     description: "The package module name"
@@ -118,8 +118,7 @@ runs:
         INVALIDATION_PATHS=""
         METADATAS=""
 
-        FILES="*.rpm";
-        echo "[DEBUG] - Rpm FILES: $FILES"
+        FILES="*.rpm"
 
         eval `ssh-agent`
         ssh-add - <<< "${{ inputs.yum_repo_key }}"
