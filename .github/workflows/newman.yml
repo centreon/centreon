@@ -108,7 +108,7 @@ jobs:
               test_execution_data='{
                 "fields": {
                     "project": {
-                        "key": "TEST"
+                        "key": "MON"
                     },
                     "summary": "'"$collection_name"'",
                     "issuetype": {
@@ -120,7 +120,6 @@ jobs:
                 }
             }'
 
-            # Envoyez les données de l'exécution de test à l'API REST de Jira/Xray (vous devrez remplacer l'URL avec l'URL correcte de votre instance Jira/Xray)
             curl -X POST \
                 -H "Content-Type: application/json" \
                 -H "Authorization: Basic $(echo -n ${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }} | base64 --wrap=0)" \
