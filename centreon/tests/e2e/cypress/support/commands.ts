@@ -105,7 +105,9 @@ Cypress.Commands.add('logout', (): Cypress.Chainable => {
 
   cy.contains(/^Logout$/).click();
 
-  return cy.get('header div[data-cy="clock"]').should('not.exist');
+  cy.get('header div[data-cy="clock"]').should('not.exist');
+
+  return cy.getCookie('PHPSESSID').should('not.exist');
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {

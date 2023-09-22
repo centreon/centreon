@@ -95,8 +95,11 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
         $this->session->set('centreon', $legacySession);
         $_SESSION['centreon'] = $legacySession;
 
+        $this->info('[AUTHENTICATE] Session created with id : ' . $this->session->getId());
+
         $isSessionStarted = $this->session->isStarted();
         if ($isSessionStarted === false) {
+            $this->info('[AUTHENTICATE] Invalidating session with id : ' . $this->session->getId());
             $this->invalidate();
         }
 
