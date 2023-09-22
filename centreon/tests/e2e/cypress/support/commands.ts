@@ -111,7 +111,12 @@ Cypress.Commands.add('logout', (): Cypress.Chainable => {
 
   cy.contains(/^Logout$/).click();
 
-  return cy.wait('@logout').its('response.statusCode').should('eq', 302);
+  cy.wait('@logout').its('response.statusCode').should('eq', 302);
+
+  // https://github.com/cypress-io/cypress/issues/25841
+  cy.clearAllCookies();
+
+  return cy.wrap(null);
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {

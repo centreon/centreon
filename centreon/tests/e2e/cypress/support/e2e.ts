@@ -2,6 +2,7 @@ import 'cypress-wait-until';
 import './commands';
 
 before(() => {
+  Cypress.Cookies.debug(true);
   Cypress.config('baseUrl', 'http://127.0.0.1:4000');
 
   cy.intercept('/waiting-page', {
