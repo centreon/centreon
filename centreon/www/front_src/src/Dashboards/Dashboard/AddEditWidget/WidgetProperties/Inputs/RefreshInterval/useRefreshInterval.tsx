@@ -1,3 +1,4 @@
+/* eslint-disable hooks/sort */
 import { ChangeEvent, ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
@@ -9,19 +10,20 @@ import { useAtomValue } from 'jotai';
 import { Box, Typography } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
-import { refreshIntervalAtom as platformRefreshIntervalAtom } from '@centreon/ui-context';
+import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { getProperty } from '../utils';
 import {
   labelCustomRefreshInterval,
   labelDashboardGlobalInterval,
   labelInterval,
+  labelManual,
   labelManualRefresh,
   labelSecond
 } from '../../../../translatedLabels';
-import { refreshIntervalAtom } from '../../../../atoms';
 import { useRefreshIntervalStyles } from '../Inputs.styles';
 import { RadioOptions } from '../../../models';
+import { dashboardRefreshIntervalAtom } from '../../../../atoms';
 
 interface UseRefreshIntervalState {
   changeRefreshIntervalOption: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -36,17 +38,20 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
   const { t } = useTranslation();
   const { classes } = useRefreshIntervalStyles();
 
-  const refreshIntervalCountProperty = `${propertyName}Count`;
+  const refreshIntervalCountProperty = `${propertyName}Custom`;
 
   const { values, setFieldValue } = useFormikContext();
 
+  const platformRefreshInterval = useAtomValue(refreshIntervalAtom);
+  const dashboardRefreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
+
+  const defaultInterval =
+    dashboardRefreshInterval?.interval || platformRefreshInterval;
+
   const [customInterval, setCustomInterval] = useState(
     getProperty({ obj: values, propertyName: refreshIntervalCountProperty }) ||
-      0
+      defaultInterval
   );
-
-  const defaultInterval = useAtomValue(refreshIntervalAtom);
-  const platformRefreshInterval = useAtomValue(platformRefreshIntervalAtom);
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),
@@ -76,11 +81,13 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     setFieldValue(`options.${refreshIntervalCountProperty}`, newInterval);
   };
 
+  const defaultLabel = equals(dashboardRefreshInterval?.type, 'manual')
+    ? t(labelManual)
+    : `${defaultInterval} ${pluralize(t(labelSecond), defaultInterval)}`;
+
   const options = [
     {
-      label: `${t(
-        labelDashboardGlobalInterval
-      )} (${defaultInterval} ${pluralize(t(labelSecond), defaultInterval)})`,
+      label: `${t(labelDashboardGlobalInterval)} (${defaultLabel})`,
       value: RadioOptions.default
     },
     {
@@ -116,11 +123,8 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     if (!isNil(defaultInterval)) {
       return;
     }
-
-    setFieldValue(
-      `options.${refreshIntervalCountProperty}`,
-      platformRefreshInterval
-    );
+    setFieldValue(`options.${refreshIntervalCountProperty}`, defaultInterval);
+    setCustomInterval(defaultInterval);
   }, []);
 
   return {

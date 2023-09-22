@@ -1,7 +1,11 @@
 import { always, cond, equals } from 'ramda';
 
 interface Props {
-  globalRefreshInterval?: number;
+  globalRefreshInterval: {
+    interval: number | null;
+    type: 'global' | 'manual';
+  };
+  platformInterval: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
 }
@@ -9,13 +13,21 @@ interface Props {
 export const useRefreshInterval = ({
   refreshInterval,
   refreshIntervalCustom,
-  globalRefreshInterval
+  globalRefreshInterval,
+  platformInterval
 }: Props): number | false => {
   const refreshIntervalToUse = cond([
-    [equals('default'), always(globalRefreshInterval)],
+    [
+      equals('default'),
+      always(
+        equals(globalRefreshInterval.type, 'manual')
+          ? false
+          : globalRefreshInterval.interval || platformInterval
+      )
+    ],
     [equals('custom'), always(refreshIntervalCustom)],
-    [equals('manual'), always(0)]
+    [equals('manual'), always(false)]
   ])(refreshInterval);
 
-  return refreshIntervalToUse ? refreshIntervalToUse * 1000 : false;
+  return refreshIntervalToUse ? (refreshIntervalToUse as number) * 1000 : false;
 };

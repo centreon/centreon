@@ -1,5 +1,6 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { Box, Typography } from '@mui/material';
 
@@ -10,10 +11,16 @@ import {
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
+import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import useThresholds from '../../useThresholds';
 
-import { FormThreshold, ServiceMetric } from './models';
+import {
+  FormThreshold,
+  ServiceMetric,
+  ValueFormat,
+  GlobalRefreshInterval
+} from './models';
 import {
   labelCritical,
   labelNoDataFound,
@@ -24,7 +31,7 @@ import { graphEndpoint } from './api/endpoints';
 import { useGraphStyles } from './Graph.styles';
 
 interface Props {
-  globalRefreshInterval?: number;
+  globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<ServiceMetric>;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
@@ -47,8 +54,11 @@ const Graph = ({
 
   const { t } = useTranslation();
 
+  const platformInterval = useAtomValue(refreshIntervalAtom);
+
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
+    platformInterval,
     refreshInterval,
     refreshIntervalCustom
   });

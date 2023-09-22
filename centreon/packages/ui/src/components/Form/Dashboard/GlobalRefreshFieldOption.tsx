@@ -2,6 +2,8 @@ import { ChangeEvent } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
+import { isEmpty } from 'ramda';
+import pluralize from 'pluralize';
 
 import { Typography } from '@mui/material';
 
@@ -25,7 +27,7 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
   const changeInput = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue(
       'globalRefreshInterval.interval',
-      event.target.value ? Number(event.target.value) : null
+      !isEmpty(event.target.value) ? Number(event.target.value) || 1 : null
     );
   };
 
@@ -36,15 +38,15 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
         autoSize
         dataTestId={labelInterval}
         inputProps={{
-          'aria-label': t(labelInterval),
+          'aria-label': t(labelInterval) as string,
           min: 1
         }}
         size="compact"
         type="number"
-        value={value || undefined}
+        value={value || ''}
         onChange={changeInput}
       />
-      <Typography>{t(labelSeconds, { count: value })}</Typography>
+      <Typography>{pluralize(t(labelSeconds), value)}</Typography>
     </div>
   );
 };

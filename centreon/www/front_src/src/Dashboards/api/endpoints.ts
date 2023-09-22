@@ -1,6 +1,6 @@
 import { NamedEntity } from './models';
 
-export const baseEndpoint = 'http://localhost:5005/centreon/api/latest'; // './api/latest';
+export const baseEndpoint = './api/latest';
 
 export const dashboardsEndpoint = `${baseEndpoint}/configuration/dashboards`;
 
