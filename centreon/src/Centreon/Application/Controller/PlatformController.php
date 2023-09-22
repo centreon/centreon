@@ -42,14 +42,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class PlatformController extends AbstractController
 {
     /**
-     * @var PlatformServiceInterface
+     * @param PlatformServiceInterface $informationService
      */
-    private $informationService;
-
-    public function __construct(
-        PlatformServiceInterface $informationService
-    ) {
-        $this->informationService = $informationService;
+    public function __construct(private PlatformServiceInterface $informationService)
+    {
     }
 
     /**

@@ -4,6 +4,8 @@ import './commands/configuration';
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
+const artifactIllegalCharactersMatcher = /[,\s/|<>*?:"]/g;
+
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
   return cy
     .exec(
@@ -249,9 +251,13 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${
-      Cypress.spec.name
-    }/${Cypress.currentTest.title.replace(/,|\s|\//g, '_')}`;
+    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+      artifactIllegalCharactersMatcher,
+      '_'
+    )}/${Cypress.currentTest.title.replace(
+      artifactIllegalCharactersMatcher,
+      '_'
+    )}`;
 
     return cy
       .visitEmptyPage()
@@ -263,6 +269,12 @@ Cypress.Commands.add(
       .copyFromContainer({
         destination: `${logDirectory}/engine`,
         source: '/var/log/centreon-engine'
+      })
+      .execInContainer({
+        command: `bash -e <<EOF
+        chmod 777 /var/log/centreon/centreon-web.log > /dev/null 2>&1 || :
+EOF`,
+        name
       })
       .copyFromContainer({
         destination: `${logDirectory}/centreon`,
@@ -281,10 +293,11 @@ Cypress.Commands.add(
   ({ name }: StopContainerProps): Cypress.Chainable => {
     cy.exec(`docker logs ${name}`).then(({ stdout }) => {
       cy.writeFile(
-        `cypress/results/logs/${
-          Cypress.spec.name
-        }/${Cypress.currentTest.title.replace(
-          /,|\s|\//g,
+        `cypress/results/logs/${Cypress.spec.name.replace(
+          artifactIllegalCharactersMatcher,
+          '_'
+        )}/${Cypress.currentTest.title.replace(
+          artifactIllegalCharactersMatcher,
           '_'
         )}/container-${name}.log`,
         stdout

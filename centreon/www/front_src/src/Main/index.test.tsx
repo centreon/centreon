@@ -75,6 +75,7 @@ const retrievedTranslations = {
 };
 
 const retrievedWeb = {
+  modules: {},
   web: {
     version: '21.10.1'
   }

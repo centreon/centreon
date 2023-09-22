@@ -21,8 +21,6 @@ on:
       - "centreon/**"
       - "!centreon/packages/**"
       - "!centreon/.veracode-exclusions"
-    tags:
-      - centreon-*
 
 env:
   base_directory: centreon
@@ -34,7 +32,7 @@ jobs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: dorny/paths-filter@v2
         id: filter
@@ -93,7 +91,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -108,7 +106,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/backend-dependencies
         with:
@@ -125,7 +123,7 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: |
           cd centreon
@@ -152,7 +150,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -165,7 +163,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
@@ -206,7 +204,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -300,7 +298,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -443,7 +441,7 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -491,7 +489,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -531,7 +529,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -563,7 +561,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -585,7 +583,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
