@@ -308,8 +308,8 @@ export const getColumns = ({
         : column;
 
     const columnsForVisualizationByService = pipe(
-      changeResourceLabel,
-      changeParentLabel
+      map(changeResourceLabel),
+      map(changeParentLabel)
     )(columns);
 
     return columnsForVisualizationByService;
