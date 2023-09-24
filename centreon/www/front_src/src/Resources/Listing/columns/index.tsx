@@ -1,4 +1,16 @@
-import { pipe, split, head, propOr, T, equals } from 'ramda';
+import {
+  pipe,
+  split,
+  head,
+  propOr,
+  T,
+  equals,
+  insert,
+  filter,
+  map,
+  propEq,
+  complement
+} from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { ColumnType } from '@centreon/ui';
@@ -285,17 +297,20 @@ export const getColumns = ({
   ];
 
   if (equals(visualization, Visualization.Service)) {
-    const columnsForVisualizationByService = columns
-      .map((column) =>
-        equals(column.label, t(labelResource))
-          ? { ...column, label: t(labelService) }
-          : column
-      )
-      .map((column) =>
-        equals(column.label, t(labelParent))
-          ? { ...column, label: t(labelHost) }
-          : column
-      );
+    const changeResourceLabel = (column: Column): Column =>
+      equals(column.label, labelResource)
+        ? { ...column, label: t(labelService) }
+        : column;
+
+    const changeParentLabel = (column: Column): Column =>
+      equals(column.label, labelParent)
+        ? { ...column, label: t(labelHost) }
+        : column;
+
+    const columnsForVisualizationByService = pipe(
+      changeResourceLabel,
+      changeParentLabel
+    )(columns);
 
     return columnsForVisualizationByService;
   }
@@ -310,19 +325,18 @@ export const getColumns = ({
       width: 'max-content'
     };
 
-    const columnsForVisualizationByHost = columns
-      .concat(subItemColumn)
-      .filter(
-        (item) =>
-          !equals(item.id, 'parent_resource') &&
-          !equals(item.id, 'status') &&
-          !equals(item.id, 'parent_alias')
-      )
-      .map((column) =>
-        equals(column.label, t(labelResource))
-          ? { ...column, label: t(labelHost) }
-          : column
-      );
+    const changeResourceLabel = (column: Column): Column =>
+      equals(column.label, labelResource)
+        ? { ...column, label: t(labelHost) }
+        : column;
+
+    const columnsForVisualizationByHost = pipe(
+      filter(complement(propEq('parent_resource', 'id'))),
+      filter(complement(propEq('status', 'id'))),
+      filter(complement(propEq('parent_alias', 'id'))),
+      insert(1, subItemColumn),
+      map(changeResourceLabel)
+    )(columns);
 
     return columnsForVisualizationByHost;
   }
