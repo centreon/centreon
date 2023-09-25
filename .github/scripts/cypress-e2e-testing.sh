@@ -8,4 +8,4 @@ cd $MODULE/tests/e2e
 
 npm ci --legacy-peer-deps
 
-$(npm bin)/cypress run --browser chrome --reporter mochawesome --reporter-options reportDir="cypress/results/reports",overwrite=false,html=false,json=true
+npx cypress run --browser chrome --reporter mochawesome --reporter-options reportDir="cypress/results/reports",overwrite=false,html=false,json=true
