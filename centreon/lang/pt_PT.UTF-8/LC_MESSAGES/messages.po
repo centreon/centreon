@@ -6987,7 +6987,7 @@ msgstr "Alterado"
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:979
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:1036
 #: centreon-web/www/include/configuration/configObject/host/listHost.php:455
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Alteração em massa"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:143

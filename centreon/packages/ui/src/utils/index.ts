@@ -19,3 +19,4 @@ export * from './docsURL';
 export * from './useInfiniteScrollListing';
 export * from './useLicenseExpirationWarning';
 export * from './useRefreshInterval';
+export * from './centreonBaseURL';
