@@ -59,8 +59,8 @@ jobs:
               environments+="[$folder] $environment_file\n"
             fi
           done
-          collection_folders=$(printf '%s\n' "${collections[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R . | jq -s .)
-          environment_folders=$(printf '%s\n' "${environments[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R . | jq -s .)
+          collection_folders=$(printf '%s\n' "${collections[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R -s 'split("\n")[:-1]')
+          environment_folders=$(printf '%s\n' "${environments[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R -s 'split("\n")[:-1]')
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
