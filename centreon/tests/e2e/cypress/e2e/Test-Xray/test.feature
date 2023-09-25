@@ -2,7 +2,7 @@
 @MON-21779
 Feature: Automated feature ( Test ) 
     As a Centreon Web user 
-	I want to login
+	I want to loginn
 	In order to access selected pages
 
     #this is a description for test 1

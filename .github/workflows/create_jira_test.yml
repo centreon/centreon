@@ -35,7 +35,7 @@ jobs:
         run: |
           git diff --name-only 5c23a5da99d9872a8dd7f7c60457b082e552fdd5 | grep '\.feature$' || echo "No .feature files found"
           git diff --name-only ${{ env.LATEST_COMMIT }} | grep '\.feature$' || echo "No .feature files found"
-          changed_files=$(git diff --name-only ${{ env.LATEST_COMMIT }} | grep '\.feature$') 
+          changed_files=$(git diff --name-only ${{ env.LATEST_COMMIT }} | grep '\.feature$' || echo "No .feature files found") 
           echo "CHANGED_FILES=$changed_files" >> $GITHUB_ENV
 
       - name: Run Script on Changed Feature Files
