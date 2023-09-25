@@ -82,7 +82,7 @@ jobs:
       CONTAINER_NAME: ${{ inputs.container_name }}
       CENTREON_URL: ${{ inputs.centreon_url }}
       CENTREON_IMAGE: ${{ inputs.centreon_image }}
-      POSTMAN_ENVIRONMENT: ${{ matrix.environment }} 
+      POSTMAN_ENVIRONMENT: ${{ format('{0}/{1}', inputs.collection_path, matrix.environment) }}
 
     steps:
       - name: Checkout Repository
