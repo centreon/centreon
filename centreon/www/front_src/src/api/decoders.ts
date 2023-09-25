@@ -9,6 +9,8 @@ import {
 } from '@centreon/ui-context';
 
 import {
+  FeatureFlags,
+  PlatformFeatures,
   PlatformInstallationStatus,
   PlatformVersions,
   Version
@@ -103,12 +105,29 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
   }
 );
 
-export const platformFeaturesDecoder = JsonDecoder.object<PlatformVersions>(
+export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
+    adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
+    dashboard: JsonDecoder.optional(JsonDecoder.boolean),
+    notification: JsonDecoder.optional(JsonDecoder.boolean),
+    resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),
+    vault: JsonDecoder.optional(JsonDecoder.boolean)
+  },
+  'Feature flags',
+  {
+    adExclusionPeriods: 'ad_exclusion_periods',
+    resourceStatusTreeView: 'resource_status_tree_view'
+  }
+);
+
+export const platformFeaturesDecoder = JsonDecoder.object<PlatformFeatures>(
+  {
+    featureFlags: featuresFlagDecoder,
     isCloudPlatform: JsonDecoder.boolean
   },
   'Platform features',
   {
+    featureFlags: 'feature_flags',
     isCloudPlatform: 'is_cloud_platform'
   }
 );
