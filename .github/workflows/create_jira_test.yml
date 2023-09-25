@@ -25,11 +25,17 @@ jobs:
       - name: Install Dependencies
         run: pip install requests
 
+      - name: Get the latest commit hash
+        run: |
+          latest_commit=$(git log -1 --format="%H")
+          echo "::set-output name=latest_commit::$latest_commit"
+
       - name: Find Changed Feature Files
         id: find_changed_files
         run: |
-          echo "changed_files=$(git diff --name-only HEAD^ HEAD | grep '\.feature$')" >> $GITHUB_ENV
-
+          changed_files=$(git diff --name-only ${{ steps.get_latest_commit.outputs.latest_commit }} | grep '\.feature$')
+          echo "Changed .feature files: $changed_files"
+          echo "::set-output name=changed_files::$changed_files"
 
       - name: Run Script on Changed Feature Files
         if: steps.find_changed_files.outputs.changed_files != ''
