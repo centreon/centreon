@@ -28,7 +28,8 @@ jobs:
       - name: Find Changed Feature Files
         id: find_changed_files
         run: |
-            echo "changed_files=$(git diff --name-only origin/main...${{ github.ref }} -- '**/*.feature')" >> $GITHUB_ENV
+          echo "changed_files=$(git diff --name-only HEAD^ HEAD | grep '\.feature$')" >> $GITHUB_ENV
+
 
       - name: Run Script on Changed Feature Files
         if: steps.find_changed_files.outputs.changed_files != ''
