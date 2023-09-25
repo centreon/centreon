@@ -235,7 +235,7 @@ describe('Login Page', () => {
       '/centreon/authentication/providers/configurations/openid'
     );
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it(`submits the credentials when they are valid and the "${labelConnect}" is clicked`, () => {
@@ -286,7 +286,7 @@ describe('Login Page', () => {
         expect(useNavigate).to.not.have.been.called;
       });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays errors when fields are cleared', () => {
@@ -312,7 +312,7 @@ describe('Login Page', () => {
 
     cy.findAllByText(labelRequired).should('have.length', 2);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the password when the corresponding action is clicked', () => {
@@ -336,7 +336,7 @@ describe('Login Page', () => {
 
     cy.findByLabelText(labelPassword).should('have.attr', 'type', 'password');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('redirects to the reset page when the submitted password is expired', () => {
@@ -381,7 +381,7 @@ describe('Login Page', () => {
 
     cy.findByLabelText(labelAlias).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -421,7 +421,7 @@ describe('Default custom login page', () => {
     cy.get('#Previewtop').should('not.exist');
     cy.get('#Previewbottom').should('not.exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -463,7 +463,7 @@ describe('Custom login page with data', () => {
     cy.get('#Previewtop').should('not.exist');
     cy.get('#Previewbottom').should('be.visible').contains('centreon');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -494,6 +494,6 @@ describe('Login page without module it edition extensions installed', () => {
     cy.get('#Previewtop').should('not.exist');
     cy.get('#Previewbottom').should('not.exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

@@ -187,7 +187,7 @@ describe('Filter storage', () => {
     cy.waitForRequest('@serviceGroupsRequest');
     cy.findByText(webAccessServiceGroup.name).should('exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('stores filter values in localStorage when updated', () => {
@@ -212,6 +212,6 @@ describe('Filter storage', () => {
       );
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
