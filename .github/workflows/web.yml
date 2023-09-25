@@ -231,6 +231,15 @@ jobs:
         uses: ./.github/actions/publish-report
         with:
           path: "centreon/junit.xml"
+  
+  newman-test:
+      needs: [get-version, changes]
+      uses: ./.github/workflows/newman.yml
+      with:
+         collection_path: centreon/tests/rest_api/collections
+         container_name: my_centreon_container
+         centreon_url: http://localhost
+         centreon_image: docker.centreon.com/centreon/centreon-web-alma9:develop
 
   frontend-component-test:
     needs: [changes]
@@ -512,15 +521,7 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  
-  newman-test:
-    needs: [get-version, changes, dockerize]
-    uses: ./.github/workflows/newman.yml
-    with:
-        collection_path: centreon/tests/rest_api/collections
-        container_name: my_centreon_container
-        centreon_url: http://localhost
-        centreon_image: docker.centreon.com/centreon/centreon-web-alma9:develop
+
 
 #   legacy-e2e-test:
 #     needs: [get-version, changes, dockerize]
