@@ -14,24 +14,19 @@ module.exports = (on): void => {
   on('before:browser:launch', (browser = {}, launchOptions) => {
     if ((browser as { name }).name === 'chrome') {
       launchOptions.args.push('--disable-gpu');
-      launchOptions.args = launchOptions.args.filter(
-        (element) => element !== '--disable-dev-shm-usage',
-      );
+
+      if (browser.isHeadless) {
+        launchOptions.args = launchOptions.args.map((arg) => {
+          if (arg === '--headless') {
+            return '--headless=new';
+          }
+
+          return arg;
+        });
+      }
     }
 
-    return launchOptions;
-  });
-
-  on('before:browser:launch', (browser, launchOptions) => {
-    if (browser.name === 'chrome' && browser.isHeadless) {
-      launchOptions.args = launchOptions.args.map((arg) => {
-        if (arg === '--headless') {
-          return '--headless=new';
-        }
-
-        return arg;
-      });
-    }
+    console.log(launchOptions.args);
 
     return launchOptions;
   });
