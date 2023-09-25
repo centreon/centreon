@@ -13,7 +13,12 @@ on:
       centreon_image:
         required: true
         type: string
-
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+    
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
