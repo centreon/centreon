@@ -7600,6 +7600,7 @@ components:
           example: 12
         service_id:
           type: integer
+          nullable: true
           format: int32
           description: "ID of the service behind the resource"
           example: 12
