@@ -23,19 +23,20 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Metric\Application\Exception\MetricException;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
-use Core\Metric\Application\Exception\MetricException;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindPerformanceMetricsData
 {
@@ -43,6 +44,7 @@ final class FindPerformanceMetricsData
 
     public function __construct(
         private readonly ContactInterface $user,
+        private readonly RequestParametersInterface $requestParameters,
         private readonly MetricRepositoryInterface $metricRepositoryLegacy,
         private readonly ReadMetricRepositoryInterface $metricRepository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
@@ -101,7 +103,10 @@ final class FindPerformanceMetricsData
     private function findPerformanceMetricsDataAsAdmin(
         FindPerformanceMetricsDataRequest $request
     ): PerformanceMetricsData {
-        $services = $this->metricRepository->findServicesByMetricNames($request->metricNames);
+        $services = $this->metricRepository->findServicesByMetricNamesAndRequestParameters(
+            $request->metricNames,
+            $this->requestParameters
+        );
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
@@ -137,9 +142,10 @@ final class FindPerformanceMetricsData
         FindPerformanceMetricsDataRequest $request,
         array $accessGroups
     ): PerformanceMetricsData {
-        $services = $this->metricRepository->findServicesByMetricNamesAndAccessGroups(
+        $services = $this->metricRepository->findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
             $request->metricNames,
-            $accessGroups
+            $accessGroups,
+            $this->requestParameters
         );
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);

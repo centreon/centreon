@@ -8,6 +8,15 @@ get:
     - $ref: 'QueryParameter/MetricNames.yaml'
   description: |
     Get data for given metrics
+
+    The available parameters to **search** / **sort_by** are:
+    AND
+    * hostgroup.id
+    * hostcategory.id
+    * host.id
+    * servicegroup.id
+    * servicecategory.id
+    * service.name
   responses:
     '200':
       description: "OK"
