@@ -59,8 +59,8 @@ jobs:
               environments+="[$folder] $environment_file\n"
             fi
           done
-          printf -v collections_str "[%s]" "${collections[@]}"
-          printf -v environments_str "[%s]" "${environments[@]}"
+          collections_json=$(jq -n --argjson collections "$collections" '$collections')
+          environments_json=$(jq -n --argjson environments "$environments" '$environments')
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
