@@ -15,6 +15,7 @@ module.exports = (on): void => {
     if ((browser as { name }).name === 'chrome') {
       launchOptions.args.push('--disable-gpu');
 
+      /*
       if (browser.isHeadless) {
         launchOptions.args = launchOptions.args.map((arg) => {
           if (arg === '--headless') {
@@ -24,6 +25,7 @@ module.exports = (on): void => {
           return arg;
         });
       }
+      */
     }
 
     console.log(launchOptions.args);
