@@ -8,7 +8,7 @@ on:
       - dev-22.10.x
       - dev-22.04.x
       - dev-21.10.x
-
+      - MON-20381-Integrate-E2E-tests-from-GHA-to-XRay
 jobs:
   run_script:
     runs-on: ubuntu-latest
