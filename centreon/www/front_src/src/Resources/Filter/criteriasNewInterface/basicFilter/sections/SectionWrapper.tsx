@@ -9,6 +9,7 @@ import Section from './Section';
 
 const SectionWrapper = ({ basicData, changeCriteria }): JSX.Element => {
   const sectionsType = Object.values(SectionType);
+  console.log({ basicData });
 
   return (
     <div>
@@ -32,7 +33,7 @@ const SectionWrapper = ({ basicData, changeCriteria }): JSX.Element => {
                 changeCriteria={changeCriteria}
                 data={sectionData}
                 filterName={BasicCriteria.resourceTypes}
-                sectionType={sectionType}
+                resourceType={sectionType}
               />
             )}
             renderStatus={({ sectionData }) => (

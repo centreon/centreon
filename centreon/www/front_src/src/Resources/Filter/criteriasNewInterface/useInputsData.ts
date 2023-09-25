@@ -2,24 +2,24 @@ import { useEffect, useState } from 'react';
 
 import { findData } from './utils';
 
-const useInputData = ({ data, filterName }) => {
-  const [options, setOptions] = useState();
-  const [values, setValues] = useState();
-  const [label, setLabel] = useState();
+const useInputData = ({ data, filterName, resourceType }) => {
   const [target, setTarget] = useState();
+  const [valueSearchData, setValueSearchData] = useState();
 
   useEffect(() => {
     if (!data) {
       return;
     }
     const item = findData({ data, target: filterName });
-    setOptions(item?.options);
-    setValues(item?.value);
-    setLabel(item?.label);
+
+    const currentValueSearchData = item?.searchData?.values?.find(
+      (item) => item?.id === resourceType
+    );
     setTarget(item);
+    setValueSearchData(currentValueSearchData);
   }, [data]);
 
-  return { label, options, target, values };
+  return { target, valueSearchData };
 };
 
 export default useInputData;

@@ -1,6 +1,6 @@
 const BasicFilter = ({ sections, poller, state }): JSX.Element => {
   return (
-    <div>
+    <div style={{ minWidth: 200 }}>
       {sections}
       {poller}
       {state}

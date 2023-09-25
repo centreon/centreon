@@ -1,11 +1,14 @@
-import { isNil, equals } from 'ramda';
+import { useState } from 'react';
+
+import { equals, isNil } from 'ramda';
 
 import { MultiConnectedAutocompleteField } from '@centreon/ui';
 
 import useInputData from '../useInputsData';
 
 const InputGroup = ({ data, filterName, changeCriteria, label }) => {
-  const { options, values, target } = useInputData({
+  const [currentValue, setCurrentValue] = useState();
+  const { target } = useInputData({
     data,
     filterName
   });
@@ -17,17 +20,41 @@ const InputGroup = ({ data, filterName, changeCriteria, label }) => {
       search
     });
 
+  const isOptionEqualToValue = (option, selectedValue): boolean => {
+    return isNil(option)
+      ? false
+      : equals(option.name.toString(), selectedValue.name.toString());
+  };
+
+  const currentLabel = (label ?? target?.label) || '';
+
+  const displayedColumn = currentLabel.includes('level') ? 'level' : '';
+
+  const getUniqueOptions = (options) => {
+    return [
+      ...new Map(options.map((option) => [option.name, option])).values()
+    ];
+  };
+
   return (
     <div>
       {target && (
         <MultiConnectedAutocompleteField
-          field="name"
+          // field="name"
+          filterOptions={(options) => getUniqueOptions(options)}
           getEndpoint={getEndpoint}
+          isOptionEqualToValue={isOptionEqualToValue}
           label={label ?? target?.label}
+          labelKey={displayedColumn}
           placeholder={label ?? target?.label}
           search={target?.autocompleteSearch}
+          value={currentValue || target?.value}
           onChange={(_, updatedValue): void => {
-            changeCriteria({ filterName, updatedValue });
+            setCurrentValue(updatedValue);
+            changeCriteria({
+              filterName,
+              updatedValue
+            });
           }}
         />
       )}

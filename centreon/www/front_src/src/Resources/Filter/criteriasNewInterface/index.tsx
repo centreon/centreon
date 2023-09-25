@@ -3,20 +3,18 @@ import { useState } from 'react';
 import { useSetAtom } from 'jotai';
 
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
 
 import { Criteria, CriteriaById } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 
-import Actions from './Actions';
 import BasicFilter from './basicFilter/BasicFilter';
+import { CheckBoxWrapper } from './basicFilter/CheckBox';
+import InputGroup from './basicFilter/InputGroupe';
 import SectionWrapper from './basicFilter/sections/SectionWrapper';
 import ExtendedFilter from './extendedFilter/ExtendedFilter';
 import { BasicCriteria, CategoryFilter, ExtendedCriteria } from './model';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
-import InputGroup from './basicFilter/InputGroupe';
-import { CheckBoxWrapper } from './basicFilter/CheckBox';
 
 export { CheckboxGroup } from '@centreon/ui';
 
@@ -29,8 +27,15 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
 
   const { newSelectableCriterias: buildCriterias, selectableCriterias } = data;
 
-  const changeCriteria = ({ updatedValue, filterName }): void => {
-    setCriteriaAndNewFilter({ name: filterName, value: updatedValue });
+  const changeCriteria = ({ updatedValue, filterName, searchData }): void => {
+    const parameters = {
+      name: filterName,
+      value: updatedValue
+    };
+
+    setCriteriaAndNewFilter(
+      searchData ? { ...parameters, searchData } : parameters
+    );
   };
 
   const controlFilterInterface = (event): void => setOpen(event.target.checked);
@@ -90,7 +95,7 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
   );
 
   return (
-    <Paper>
+    <>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <BasicFilter
           poller={
@@ -130,9 +135,7 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
         }
         label="Advanced mode"
       />
-
-      <Actions />
-    </Paper>
+    </>
   );
 };
 

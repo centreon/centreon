@@ -31,8 +31,7 @@ import {
   labelHostSeverity,
   labelHostSeverityLevel,
   labelServiceSeverityLevel,
-  labelAnomalyDetection,
-  labelInformation
+  labelAnomalyDetection
 } from '../../translatedLabels';
 import {
   buildHostGroupsEndpoint,
@@ -44,13 +43,22 @@ import {
   buildServiceSeveritiesEndpoint
 } from '../api/endpoint';
 
+import { SearchableFields } from './searchQueryLanguage/models';
+
 export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];
 
 export interface Criteria {
   name: string;
   object_type: string | null;
+  searchData?: SearchData;
   type: string;
   value?: CriteriaValue;
+}
+
+export enum SearchType {
+  conditions = 'conditions',
+  lists = 'lists',
+  regex = 'regex'
 }
 
 const criteriaValueNameById = {
@@ -190,6 +198,17 @@ export interface CriteriaDisplayProps {
   options?: Array<SelectEntry>;
 }
 
+export interface SearchedDataValue {
+  id: string;
+  value: string;
+}
+
+export interface SearchData {
+  field: SearchableFields;
+  id: string | null;
+  type: SearchType;
+  values: Array<SearchedDataValue> | null;
+}
 export interface CriteriaById {
   [criteria: string]: CriteriaDisplayProps;
 }
@@ -199,7 +218,6 @@ export enum CriteriaNames {
   hostGroups = 'host_groups',
   hostSeverities = 'host_severities',
   hostSeverityLevels = 'host_severity_levels',
-  // information = 'information',
   monitoringServers = 'monitoring_servers',
   resourceTypes = 'resource_types',
   serviceCategories = 'service_categories',
@@ -265,10 +283,6 @@ const selectableCriterias: CriteriaById = {
     buildAutocompleteEndpoint: buildServiceSeveritiesEndpoint,
     label: labelServiceSeverityLevel
   }
-  // [CriteriaNames.information]: {
-  //   // buildAutocompleteEndpoint: buildServiceSeveritiesEndpoint,
-  //   label: labelInformation
-  // }
 };
 
 const authorizedFilterByModules = {

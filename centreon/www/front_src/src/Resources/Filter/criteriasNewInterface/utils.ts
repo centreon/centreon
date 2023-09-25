@@ -75,3 +75,27 @@ export const mergeArraysByField = ({
 
 export const findData = ({ target, data }): any =>
   data?.find((item) => item?.name === target);
+
+export const findFieldInformationFromSearchInput = ({ search, field }) => {
+  const target = search.split(' ').find((item) => item.includes(field));
+  const fieldEntries = target?.split(':');
+  const content = fieldEntries?.filter((item) => item !== field).join() ?? '';
+
+  return { content, target };
+};
+
+export const replaceValueFromSearchInput = ({
+  search,
+  targetField,
+  newContent
+}) => {
+  const array = search.split(' ');
+
+  const targetByIndex = array.findIndex((item) => item === targetField);
+
+  const result = array.map((item, index) =>
+    index === targetByIndex ? newContent : item
+  );
+
+  return result.join(' ');
+};

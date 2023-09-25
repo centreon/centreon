@@ -10,6 +10,7 @@ import {
 import getDefaultCriterias from './Criterias/default';
 import {
   Criteria,
+  SearchData,
   criticalStatus,
   downStatus,
   hardStateType,
@@ -25,6 +26,7 @@ export interface Filter {
   criterias: Array<Criteria>;
   id: number | string;
   name: string;
+  searchData?: SearchData;
 }
 
 const allFilter = {

@@ -34,7 +34,7 @@ const ExtendedFilter = ({ data, changeCriteria }): JSX.Element => {
           data={data}
           filterName={ExtendedCriteria.resourceTypes}
           key={index}
-          sectionType={item.id}
+          resourceType={item.id}
         />
       ))}
 

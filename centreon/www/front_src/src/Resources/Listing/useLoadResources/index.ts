@@ -8,12 +8,18 @@ import {
   not,
   pathEq,
   pathOr,
-  prop
+  prop,
+  isEmpty
 } from 'ramda';
 import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { getData, useRequest, getUrlQueryParameters } from '@centreon/ui';
+import {
+  getData,
+  useRequest,
+  getUrlQueryParameters,
+  getFoundFields
+} from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
@@ -128,20 +134,34 @@ const useLoadResources = (): LoadResources => {
       });
   };
 
-  const load = (): void => {
+  const getSearch = () => {
     const searchCriteria = getCriteriaValue('search');
+    if (!searchCriteria) {
+      return undefined;
+    }
 
-    console.log('-------load', searchCriteria);
-    // console.log({ searchCriteria });
-    const search = searchCriteria
-      ? {
-          regex: {
-            fields: searchableFields,
-            value: searchCriteria
-          }
-        }
-      : undefined;
+    const fieldMatches = getFoundFields({
+      fields: searchableFields,
+      value: searchCriteria as string
+    });
 
+    if (!isEmpty(fieldMatches)) {
+      const matches = fieldMatches.map((item) => {
+        return { field: item.field, values: item.value?.split(',') };
+      });
+
+      return { lists: matches.filter((item) => item.values) };
+    }
+
+    return {
+      regex: {
+        fields: searchableFields,
+        value: searchCriteria
+      }
+    };
+  };
+
+  const load = (): void => {
     const getCriteriaIds = (
       name: string
     ): Array<string | number> | undefined => {
@@ -183,7 +203,7 @@ const useLoadResources = (): LoadResources => {
       monitoringServers: getCriteriaNames('monitoring_servers'),
       page,
       resourceTypes: getCriteriaIds('resource_types'),
-      search,
+      search: getSearch(),
       serviceCategories: getCriteriaNames('service_categories'),
       serviceGroups: getCriteriaNames('service_groups'),
       serviceSeverities: getCriteriaNames('service_severities'),

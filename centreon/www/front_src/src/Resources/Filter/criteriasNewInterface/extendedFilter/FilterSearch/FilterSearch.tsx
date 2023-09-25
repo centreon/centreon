@@ -6,6 +6,10 @@ import { TextField } from '@centreon/ui';
 
 import { SearchableFields } from '../../../Criterias/searchQueryLanguage/models';
 import { searchAtom } from '../../../filterAtoms';
+import {
+  findFieldInformationFromSearchInput,
+  replaceValueFromSearchInput
+} from '../../utils';
 
 import useDebounce from './useDebounce';
 
@@ -21,13 +25,19 @@ const FilterSearch = ({
 
   const debouncedRequest = useDebounce(() => {
     const isFieldExist = search.includes(field);
+
     if (!value) {
       setSearch(search.replace(fieldData.target, ''));
 
       return;
     }
     if (isFieldExist) {
-      setSearch(search.replace(fieldData.content, value));
+      const updatedValue = replaceValueFromSearchInput({
+        newContent: `${field}:${value}`,
+        search,
+        targetField: fieldData.target
+      });
+      setSearch(updatedValue);
 
       return;
     }
@@ -42,12 +52,8 @@ const FilterSearch = ({
     debouncedRequest();
   };
 
-  const fieldData = useMemo((): string => {
-    const target = search.split(' ').find((item) => item.includes(field));
-    const fieldEntries = target?.split(':');
-    const content = fieldEntries?.filter((item) => item !== field).join() ?? '';
-    const data = { content, target };
-
+  const fieldData = useMemo((): { content: string; target: string } => {
+    const data = findFieldInformationFromSearchInput({ field, search });
     if (!search) {
       setValue('');
 
@@ -58,14 +64,13 @@ const FilterSearch = ({
   }, [field, search]);
 
   return (
-    <div>
-      <TextField
-        dataTestId=""
-        placeholder={placeHolder}
-        value={!isDirty ? fieldData.content : value}
-        onChange={onChange}
-      />
-    </div>
+    <TextField
+      dataTestId=""
+      placeholder={placeHolder}
+      value={value}
+      value={!isDirty ? fieldData.content : value}
+      onChange={onChange}
+    />
   );
 };
 

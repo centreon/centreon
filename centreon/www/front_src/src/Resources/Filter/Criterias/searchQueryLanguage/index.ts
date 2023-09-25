@@ -78,12 +78,14 @@ const isFilledCriteria = pipe(endsWith(':'), not);
 
 interface ParametersParse {
   criteriaName?: Record<string, string>;
+  currentFilter?: Array<Criteria>;
   search: string;
 }
 
 const parse = ({
   search,
-  criteriaName = criteriaValueNameById
+  criteriaName = criteriaValueNameById,
+  currentFilter
 }: ParametersParse): Array<Criteria> => {
   const [criteriaParts, rawSearchParts] = partition(
     allPass([includes(':'), isCriteriaPart, isFilledCriteria]),
@@ -101,10 +103,14 @@ const parse = ({
     );
 
     const objectType = defaultCriteria?.object_type || null;
-
-    return {
+    const target = currentFilter?.find(
+      ({ name }) => name === defaultCriteria?.name
+    );
+    const searchData = target?.searchData;
+    const result = {
       name: pluralizedKey,
       object_type: objectType,
+      searchData,
       type: 'multi_select',
       value: values?.split(',').map((value) => {
         const isStaticCriteria = isNil(objectType);
@@ -124,6 +130,11 @@ const parse = ({
         };
       })
     };
+    if (!searchData) {
+      return result;
+    }
+
+    return { ...result, searchData };
   });
 
   const criteriasWithSearch = [
