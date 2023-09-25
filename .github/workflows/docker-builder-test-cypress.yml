@@ -16,7 +16,7 @@ on:
       - ".github/docker/Dockerfile.cypress"
 
 env:
-  version: "22.10.0"
+  version: "22.10"
 
 jobs:
   create-and-push-docker:

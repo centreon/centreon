@@ -32,8 +32,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: shivammathur/setup-php@v2
         if: ${{ endsWith(inputs.version_file, '.php') }}
