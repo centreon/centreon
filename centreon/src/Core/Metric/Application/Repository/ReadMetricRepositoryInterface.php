@@ -41,6 +41,7 @@ interface ReadMetricRepositoryInterface
      * Find Service by Metric Names.
      *
      * @param string[] $metricNames
+     * @param RequestParametersInterface $requestParameters
      *
      * @return Service[]
      */
@@ -54,6 +55,7 @@ interface ReadMetricRepositoryInterface
      *
      * @param string[] $metricNames
      * @param AccessGroup[] $accessGroups
+     * @param RequestParametersInterface $requestParameters
      *
      * @return Service[]
      */

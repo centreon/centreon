@@ -23,20 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Metric\Application\Exception\MetricException;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
-use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse};
+use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
+use Core\Metric\Application\Exception\MetricException;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindPerformanceMetricsData
 {

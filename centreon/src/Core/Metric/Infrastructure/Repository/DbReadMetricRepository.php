@@ -36,6 +36,12 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
 {
     /**
      * @param DatabaseConnection $db
+     * @param array<
+     *  string, array{
+     *    request: string,
+     *    bindValues: array<mixed>
+     *  }
+     * > $subRequestsInformation
      */
     public function __construct(DatabaseConnection $db, private array $subRequestsInformation = [])
     {
@@ -135,7 +141,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         array $accessGroups,
         array $metricNames
     ): string {
-        $request = <<<SQL
+        $request = <<<'SQL'
             SELECT DISTINCT id.`host_id`,
                 id.`service_id`
             FROM `:dbstg`.`index_data` AS id
