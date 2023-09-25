@@ -59,6 +59,8 @@ jobs:
               environments+="[$folder] $environment_file\n"
             fi
           done
+          printf -v collections_str "[%s]" "${collections[@]}"
+          printf -v environments_str "[%s]" "${environments[@]}"
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
