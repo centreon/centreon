@@ -56,7 +56,7 @@ jobs:
             fi
             
             if [ -n "$environment_file" ]; then
-              environments+="[$folder] $environment_file\n"
+              environments+="$environment_file\n"
             fi
           done
           collection_folders=$(printf '%s\n' "${collections[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R -s 'split("\n")[:-1]')
