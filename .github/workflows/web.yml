@@ -513,7 +513,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   
-newman-test:
+  newman-test:
     needs: [get-version, changes, dockerize]
     uses: ./.github/workflows/newman.yml
     with:
