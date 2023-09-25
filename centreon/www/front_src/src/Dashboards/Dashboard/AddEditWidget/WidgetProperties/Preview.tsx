@@ -58,6 +58,7 @@ const Preview = (): JSX.Element | null => {
         ) : (
           <FederatedComponent
             isFederatedWidget
+            isFromPreview
             id={values.id}
             panelData={values.data}
             panelOptions={values.options}
