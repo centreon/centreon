@@ -33,7 +33,6 @@ jobs:
       - name: Find Changed Feature Files
         id: find_changed_files
         run: |
-          echo git diff --name-only ${{ env.LATEST_COMMIT }} | grep '\.feature$'
           changed_files=$(git diff --name-only ${{ env.LATEST_COMMIT }} | grep '\.feature$') 
           echo "CHANGED_FILES=$changed_files" >> $GITHUB_ENV
 
