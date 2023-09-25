@@ -16,30 +16,29 @@ on:
       - ".github/docker/Dockerfile.cypress"
 
 env:
-  version: "22.10"
+  version: "22.10.0"
 
 jobs:
   create-and-push-docker:
     runs-on: ubuntu-22.04
 
-    strategy:
-      matrix:
-        include:
-          - project: cypress
-
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Login to Registry
+      - name: Login to registry
         uses: docker/login-action@v2
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f .github/docker/Dockerfile.${{ matrix.project }} -t ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}:${{ env.version }}
+      - uses: docker/setup-buildx-action@v2
 
-      - name: push docker ${{ matrix.project }}
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}:${{ env.version }}
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.cypress
+          context: .
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/cypress:${{ env.version }}
