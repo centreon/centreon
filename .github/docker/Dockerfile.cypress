@@ -1,6 +1,6 @@
 ARG REGISTRY_URL
 
-FROM ${REGISTRY_URL}/cypress/base:9.7.0
+FROM ${REGISTRY_URL}/cypress/base:16.18.1
 
 RUN <<EOF
 
