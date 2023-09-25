@@ -16295,7 +16295,7 @@ msgstr ""
 # msgid "Business Views events"
 # msgstr ""
 
-# msgid "By turning off this option, all links included in the widget will be opened in the same tab"
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 # msgstr ""
 
 #  msgid "You are not allowed to add a service"
