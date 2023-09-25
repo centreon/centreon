@@ -14,6 +14,9 @@ module.exports = (on): void => {
   on('before:browser:launch', (browser = {}, launchOptions) => {
     if ((browser as { name }).name === 'chrome') {
       launchOptions.args.push('--disable-gpu');
+      launchOptions.args = launchOptions.args.filter(
+        (element) => element !== '--disable-dev-shm-usage',
+      );
 
       /*
       if (browser.isHeadless) {
@@ -27,8 +30,6 @@ module.exports = (on): void => {
       }
       */
     }
-
-    console.log(launchOptions.args);
 
     return launchOptions;
   });
