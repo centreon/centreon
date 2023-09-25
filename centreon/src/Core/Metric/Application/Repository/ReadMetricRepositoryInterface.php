@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Metric\Application\Repository;
 
 use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -43,7 +44,10 @@ interface ReadMetricRepositoryInterface
      *
      * @return Service[]
      */
-    public function findServicesByMetricNames(array $metricNames): array;
+    public function findServicesByMetricNamesAndRequestParameters(
+        array $metricNames,
+        RequestParametersInterface $requestParameters
+    ): array;
 
     /**
      * Find Service by Metric Names and Access Groups.
@@ -53,5 +57,9 @@ interface ReadMetricRepositoryInterface
      *
      * @return Service[]
      */
-    public function findServicesByMetricNamesAndAccessGroups(array $metricNames, array $accessGroups): array;
+    public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
+        array $metricNames,
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array;
 }

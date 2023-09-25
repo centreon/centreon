@@ -25,6 +25,7 @@ namespace Core\Metric\Infrastructure\Repository;
 
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
@@ -36,7 +37,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db, private array $subRequestsInformation = [])
     {
         $this->db = $db;
     }
@@ -70,30 +71,17 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * @inheritDoc
      */
-    public function findServicesByMetricNames(array $metricNames): array
-    {
+    public function findServicesByMetricNamesAndRequestParameters(
+        array $metricNames,
+        RequestParametersInterface $requestParameters
+    ): array {
         if ([] === $metricNames) {
             return [];
         }
 
-        $bindValues = [];
-        foreach ($metricNames as $index => $metricName) {
-            $bindValues[':metric_name_' . $index] = $metricName;
-        }
-
-        $metricNamesQuery = implode(', ',array_keys($bindValues));
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                    SELECT DISTINCT id.host_id, id.service_id FROM `:dbstg`.index_data AS id
-                    INNER JOIN `:dbstg`.metrics AS m ON m.index_id = id.id
-                    WHERE m.metric_name IN ({$metricNamesQuery})
-                SQL
-        ));
-
-        foreach ($bindValues as $bindToken => $bindValue) {
-            $statement->bindValue($bindToken, $bindValue, \PDO::PARAM_INT);
-        }
-        $statement->execute();
+        $request = $this->buildQuery($requestParameters, [], $metricNames);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement = $this->excuteQuery($statement, $metricNames);
 
         $records = $statement->fetchAll();
         $services = [];
@@ -109,39 +97,18 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * @inheritDoc
      */
-    public function findServicesByMetricNamesAndAccessGroups(array $metricNames, array $accessGroups): array
-    {
+    public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
+        array $metricNames,
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array {
         if ([] === $metricNames) {
             return [];
         }
 
-        $bindValues = [];
-        foreach ($metricNames as $index => $metricName) {
-            $bindValues[':metric_name_' . $index] = $metricName;
-        }
-
-        $metricNamesQuery = implode(', ',array_keys($bindValues));
-        $accessGroupIds = array_map(
-            fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
-            $accessGroups
-        );
-        $accessGroupIdsQuery = implode(',', $accessGroupIds);
-
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                    SELECT DISTINCT id.host_id, id.service_id FROM `:dbstg`.index_data AS id
-                    INNER JOIN `:dbstg`.metrics AS m ON m.index_id = id.id
-                    INNER JOIN `:dbstg`.`centreon_acl` acl
-                    ON acl.service_id = id.service_id
-                    AND acl.group_id IN ({$accessGroupIdsQuery})
-                    WHERE m.metric_name IN ({$metricNamesQuery})
-                SQL
-        ));
-
-        foreach ($bindValues as $bindToken => $bindValue) {
-            $statement->bindValue($bindToken, $bindValue, \PDO::PARAM_INT);
-        }
-        $statement->execute();
+        $request = $this->buildQuery($requestParameters, $accessGroups, $metricNames);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement = $this->excuteQuery($statement, $metricNames);
 
         $records = $statement->fetchAll();
         $services = [];
@@ -152,5 +119,349 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         return $services;
+    }
+
+    /**
+     * Build the SQL Query.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param array $accessGroups
+     * @param string[] $metricNames
+     *
+     * @return string
+     */
+    private function buildQuery(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups,
+        array $metricNames
+    ): string {
+        $request = <<<SQL
+            SELECT DISTINCT id.`host_id`,
+                id.`service_id`
+            FROM `:dbstg`.`index_data` AS id
+                INNER JOIN `:dbstg`.`metrics` AS m ON m.`index_id` = id.`id`
+        SQL;
+
+        $accessGroupIds = \array_map(
+            fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ([] !== $accessGroupIds) {
+            $accessGroupIdsQuery = \implode(',', $accessGroupIds);
+            $request .= <<<SQL
+                    INNER JOIN `:dbstg`.`centreon_acl` acl ON acl.`service_id` = id.`service_id`
+                    AND acl.`group_id` IN ({$accessGroupIdsQuery})
+                SQL;
+        }
+
+        $search = $requestParameters->getSearch();
+        if ($search !== [] && \array_key_exists('$and', $search)) {
+            $this->subRequestsInformation = $this->getSubRequestsInformation($search);
+            $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
+        }
+
+        if ([] !== $this->subRequestsInformation) {
+            $request .= $this->subRequestsInformation['service']['request'] ?? '';
+            $request .= $this->subRequestsInformation['host']['request'] ?? '';
+        }
+
+        $bindValues = [];
+        foreach ($metricNames as $index => $metricName) {
+            $bindValues[':metric_name_' . $index] = $metricName;
+        }
+
+        $metricNamesQuery = implode(', ', \array_keys($bindValues));
+        $request .= <<<SQL
+                WHERE m.metric_name IN ({$metricNamesQuery})
+            SQL;
+
+        return $request;
+    }
+
+    /**
+     * Execute the SQL Query.
+     *
+     * @param \PDOStatement $statement
+     * @param string[] $metricNames
+     *
+     * @throws \Throwable
+     *
+     * @return \PDOStatement
+     */
+    private function excuteQuery(\PDOStatement $statement, array $metricNames): \PDOStatement
+    {
+        $bindValues = [];
+        foreach ($metricNames as $index => $metricName) {
+            $bindValues[':metric_name_' . $index] = $metricName;
+        }
+
+        foreach ($bindValues as $bindToken => $bindValue) {
+            $statement->bindValue($bindToken, $bindValue, \PDO::PARAM_STR);
+        }
+
+        $boundValues = [];
+        if ([] !== $this->subRequestsInformation) {
+            foreach ($this->subRequestsInformation as $subRequestInformation) {
+                $boundValues[] = $subRequestInformation['bindValues'];
+            }
+            $boundValues = \array_merge(...$boundValues);
+        }
+        foreach ($boundValues as $bindToken => $bindValueInformation){
+            foreach ($bindValueInformation as $bindValue => $paramType) {
+                $statement->bindValue($bindToken, $bindValue, $paramType);
+            }
+        }
+
+        $statement->execute();
+
+        return $statement;
+    }
+
+    /**
+     * Get request and bind values information for each search filter.
+     *
+     * @param array{
+     *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
+     * } $search
+     * @param array $search
+     *
+     * @return array<
+     *  string, array{
+     *    request: string,
+     *    bindValues: array<mixed>
+     *   }
+     * >
+     */
+    private function getSubRequestsInformation(array $search): array
+    {
+        $searchParameters = $search['$and'];
+        $subRequestsInformation = [];
+        foreach ($searchParameters as $searchParameter) {
+            if (
+                \array_key_exists('service.name', $searchParameter)
+                && \array_key_exists('$in', $searchParameter['service.name'])
+            ) {
+                $subRequestsInformation['service'] = $this->buildSubRequestForServiceFilter(
+                    $searchParameter['service.name']['$in']
+                );
+            }
+            if (
+                \array_key_exists('host.id', $searchParameter)
+                && \array_key_exists('$in', $searchParameter['host.id'])
+            ) {
+                $subRequestsInformation['host'] = $this->buildSubRequestForHostFilter(
+                    $searchParameter['host.id']['$in']
+                );
+            }
+            if (
+                \array_key_exists('hostgroup.id', $searchParameter)
+                && \array_key_exists('$in', $searchParameter['hostgroup.id'])
+            ) {
+                $subRequestsInformation['hostgroup'] = $this->buildSubRequestForHostGroupFilter(
+                    $searchParameter['hostgroup.id']['$in']
+                );
+            }
+            if (
+                \array_key_exists('servicegroup.id', $searchParameter)
+                && \array_key_exists('$in', $searchParameter['servicegroup.id'])
+            ) {
+                $subRequestsInformation['servicegroup'] = $this->buildSubRequestForServiceGroupFilter(
+                    $searchParameter['servicegroup.id']['$in']
+                );
+            }
+            if (
+                \array_key_exists('hostcategory.id', $searchParameter)
+                && \array_key_exists('$in', $searchParameter['hostcategory.id'])
+            ) {
+                $subRequestsInformation['hostcategory'] = $this->buildSubRequestForHostCategoryFilter(
+                    $searchParameter['hostcategory.id']['$in']
+                );
+            }
+            if (
+                \array_key_exists('servicecategory.id', $searchParameter)
+                && \array_key_exists('$in', $searchParameter['servicecategory.id'])
+            ) {
+                $subRequestsInformation['servicecategory'] = $this->buildSubRequestForServiceCategoryFilter(
+                    $searchParameter['servicecategory.id']['$in']
+                );
+            }
+        }
+
+        return $subRequestsInformation;
+    }
+
+    /**
+     * Build the sub request for service filter.
+     *
+     * @param non-empty-array<string> $serviceNames
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
+    private function buildSubRequestForServiceFilter(array $serviceNames): array
+    {
+        foreach ($serviceNames as $key => $serviceName) {
+            $bindServiceNames[':service_name' . $key] = [$serviceName => \PDO::PARAM_STR];
+        }
+
+        $bindTokens = implode(', ', array_keys($bindServiceNames));
+
+        return [
+            'request' => <<<SQL
+                    AND id.`service_description` IN ({$bindTokens})
+                SQL,
+            'bindValues' => $bindServiceNames,
+        ];
+    }
+
+    /**
+     * Build the sub request for host filter.
+     *
+     * @param non-empty-array<int> $hostIds
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
+    private function buildSubRequestForHostFilter(array $hostIds): array
+    {
+        foreach ($hostIds as $hostId) {
+            $bindHostIds[':host_' . $hostId] = [$hostId => \PDO::PARAM_INT];
+        }
+        $bindTokens = implode(', ', array_keys($bindHostIds));
+
+        return [
+            'request' => <<<SQL
+                    AND id.`host_id` IN ({$bindTokens})
+                SQL,
+            'bindValues' => $bindHostIds,
+        ];
+    }
+
+    /**
+     * Build the sub request for host group filter.
+     *
+     * @param non-empty-array<int> $hostGroupIds
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
+    private function buildSubRequestForHostGroupFilter(array $hostGroupIds): array
+    {
+        $bindValues = [];
+        foreach ($hostGroupIds as $hostGroupId) {
+            $bindValues[':hostgroup_' . $hostGroupId] = [$hostGroupId => \PDO::PARAM_INT];
+        }
+        $boundTokens = implode(', ', array_keys($bindValues));
+
+        return [
+            'request' => <<<SQL
+                    SELECT r.`resource_id`,
+                        r.`parent_id`
+                    FROM `:dbstg`.`resources` r
+                        LEFT JOIN `:dbstg`.`resources` pr ON pr.`id` = r.`parent_id`
+                        LEFT JOIN `:dbstg`.`resources_tags` rtags ON rtags.`resource_id` = pr.`resource_id`
+                        INNER JOIN `:dbstg`.tags ON tags.tag_id = rtags.tag_id
+                    WHERE tags.id IN ({$boundTokens})
+                        AND tags.type = 1
+                SQL,
+            'bindValues' => $bindValues,
+        ];
+    }
+
+    private function buildSubRequestForServiceGroupFilter(array $serviceGroupIds): array
+    {
+        $bindValues = [];
+        foreach ($serviceGroupIds as $serviceGroupId) {
+            $bindValues[':servicegroup_' . $serviceGroupId] = [$serviceGroupId => \PDO::PARAM_INT];
+        }
+        $boundTokens = implode(', ', array_keys($bindValues));
+
+        return [
+            'request' => <<<SQL
+                    SELECT rtags.`resource_id`,
+                        r.`parent_id`
+                    FROM `:dbstg`.`resources_tags` rtags
+                        INNER JOIN `:dbstg`.`tags` ON tags.`tag_id` = rtags.`tag_id`
+                        INNER JOIN `:dbstg`.`resources` r ON r.`resource_id` = rtags.`resource_id`
+                    WHERE tags.id IN ({$boundTokens})
+                    AND tags.type = 0
+                SQL,
+            'bindValues' => $bindValues,
+        ];
+    }
+
+    private function buildSubRequestForHostCategoryFilter(array $hostCategoryIds): array
+    {
+        $bindValues = [];
+        foreach ($hostCategoryIds as $hostCategoryId) {
+            $bindValues[':hostcategory_' . $hostCategoryId] = [$hostCategoryId => \PDO::PARAM_INT];
+        }
+        $boundTokens = implode(', ', array_keys($bindValues));
+
+        return [
+            'request' => <<<SQL
+                    SELECT r.`resource_id`,
+                        r.`parent_id`
+                    FROM `:dbstg`.`resources` r
+                        LEFT JOIN `:dbstg`.`resources` pr ON pr.`id` = r.`parent_id`
+                        LEFT JOIN `:dbstg`.`resources_tags` rtags ON rtags.`resource_id` = pr.`resource_id`
+                        INNER JOIN `:dbstg`.`tags` ON tags.`tag_id` = rtags.`tag_id`
+                    WHERE tags.id IN ({$boundTokens})
+                    AND tags.type = 3
+                SQL,
+            'bindValues' => $bindValues,
+        ];
+    }
+
+    private function buildSubRequestForServiceCategoryFilter(array $serviceCategoryIds): array
+    {
+        $bindValues = [];
+        foreach ($serviceCategoryIds as $serviceCategoryId) {
+            $bindValues[':servicecategory_' . $serviceCategoryId] = [$serviceCategoryId => \PDO::PARAM_INT];
+        }
+        $boundTokens = implode(', ', array_keys($bindValues));
+
+        return [
+            'request' => <<<SQL
+                    SELECT rtags.`resource_id`,
+                        r.`parent_id`
+                    FROM `:dbstg`.resources_tags AS rtags
+                        INNER JOIN `:dbstg`.tags ON tags.tag_id = rtags.tag_id
+                        INNER JOIN `:dbstg`.`resources` r ON r.`resource_id` = rtags.`resource_id`
+                    WHERE tags.id IN ({$boundTokens})
+                    AND tags.type = 2
+                SQL,
+            'bindValues' => $bindValues,
+        ];
+    }
+
+    private function buildSubRequestForTags(array $subRequestInformation): string
+    {
+        $request = '';
+        $subRequestForTags = \array_reduce(\array_keys($subRequestInformation), function ($acc, $item) use (
+            $subRequestInformation
+        ) {
+            if ($item !== 'host' && $item !== 'service' && $item !== 'metric') {
+                $acc[] = $subRequestInformation[$item];
+            }
+
+            return $acc;
+        }, []);
+
+        if (! empty($subRequestForTags)) {
+            $subRequests = array_map(fn ($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
+            $request .= ' INNER JOIN (';
+            $request .= implode(' INTERSECT ', $subRequests);
+            $request .= ') AS t ON t.`parent_id` = id.`host_id`';
+        }
+
+        return $request;
     }
 }
