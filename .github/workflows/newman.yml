@@ -48,7 +48,7 @@ jobs:
             collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
             
             # Recherchez le fichier d'environnement s'il existe dans le même dossier
-            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
+            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
             
             # Si une collection et un environnement sont trouvés, ajoutez-les aux variables de sortie
             if [ -n "$collection_files" ]; then
