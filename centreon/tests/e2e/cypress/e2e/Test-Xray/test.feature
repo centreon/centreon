@@ -1,4 +1,4 @@
-#targetVersions:OnPrem - 23.10,OnPrem - 21.10,Cloud,Connectors,OnPrem - 23.04,OnPrem - 22.04,OnPrem - 22.10,22.10 components:centreon-web testSet:MON-21774
+#components:centreon-web testSet:MON-21774
 @MON-21779
 Feature: Automated feature ( Test ) 
     As a Centreon Web user 
