@@ -35,7 +35,7 @@ jobs:
       - name: Find Changed Feature Files
         id: find_changed_files
         run: |
-          changed_files=$(git show --name-only $LATEST_COMMIT | grep '\.feature$' | sed -e 's/[^a-zA-Z0-9_]/_/g') 
+          changed_files=$(git show --name-only $LATEST_COMMIT | grep '\.feature$') 
           echo "CHANGED_FILES=$changed_files" >> $GITHUB_ENV
           echo "Changed .feature files: $changed_files"
 
