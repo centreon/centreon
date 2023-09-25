@@ -146,7 +146,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                 id.`service_id`
             FROM `:dbstg`.`index_data` AS id
                 INNER JOIN `:dbstg`.`metrics` AS m ON m.`index_id` = id.`id`
-        SQL;
+            SQL;
 
         $accessGroupIds = \array_map(
             fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
@@ -381,6 +381,16 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         ];
     }
 
+    /**
+     * Build the sub request for service group filter.
+     *
+     * @param non-empty-array<int> $serviceGroupIds
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
     private function buildSubRequestForServiceGroupFilter(array $serviceGroupIds): array
     {
         $bindValues = [];
@@ -403,6 +413,16 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         ];
     }
 
+    /**
+     * Build the sub request for host category filter.
+     *
+     * @param non-empty-array<int> $hostCategoryIds
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
     private function buildSubRequestForHostCategoryFilter(array $hostCategoryIds): array
     {
         $bindValues = [];
@@ -426,6 +446,16 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         ];
     }
 
+    /**
+     * Build the sub request for service category filter.
+     *
+     * @param non-empty-array<int> $serviceCategoryIds
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
     private function buildSubRequestForServiceCategoryFilter(array $serviceCategoryIds): array
     {
         $bindValues = [];
@@ -448,6 +478,18 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         ];
     }
 
+    /**
+     * Build the subrequest for tags filter.
+     *
+     * @param array<
+     *   string, array{
+     *     request: string,
+     *     bindValues: array<mixed>
+     *   }
+     * > $subRequestInformation
+     *
+     * @return string
+     */
     private function buildSubRequestForTags(array $subRequestInformation): string
     {
         $request = '';
