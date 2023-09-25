@@ -44,13 +44,10 @@ jobs:
           
           # Parcourez chaque dossier
           for folder in $folders; do
-            # À l'intérieur de chaque dossier, recherchez les collections Postman
             collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
             
-            # Recherchez le fichier d'environnement s'il existe dans le même dossier
             environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
             
-            # Si une collection et un environnement sont trouvés, ajoutez-les aux variables de sortie
             if [ -n "$collection_files" ]; then
               collections+="[$folder] $collection_files\n"
             fi
@@ -60,7 +57,7 @@ jobs:
             fi
           done
           collection_folders=$(printf '%s\n' "${collections[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R -s 'split("\n")[:-1]')
-          environment_folders=$(printf '%s\n' "${environments[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R -s 'split("\n")[:-1]')
+          environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort | jq -R -s -c)
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
@@ -74,7 +71,7 @@ jobs:
       fail-fast: false
       matrix:
         feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
-        environment: ${{ fromJson(needs.discover_collections.outputs.environments) }}  # Utilisez la sortie des environnements
+        environment: ${{ fromJson(needs.discover_collections.outputs.environments) }}  
 
     name: Postman Test - ${{ matrix.feature }}
 
@@ -86,7 +83,7 @@ jobs:
       CONTAINER_NAME: ${{ inputs.container_name }}
       CENTREON_URL: ${{ inputs.centreon_url }}
       CENTREON_IMAGE: ${{ inputs.centreon_image }}
-      POSTMAN_ENVIRONMENT: ${{ matrix.environment }}  # Utilisez l'environnement approprié
+      POSTMAN_ENVIRONMENT: ${{ matrix.environment }} 
 
     steps:
       - name: Checkout Repository
