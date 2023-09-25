@@ -59,7 +59,8 @@ jobs:
               environments+="[$folder] $environment_file\n"
             fi
           done
-          
+          echo "collections=$collections"
+          echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
           echo "environments=$environments" >> $GITHUB_OUTPUT
 
