@@ -18,24 +18,51 @@ on:
         required: true
       registry_password:
         required: true
-    
+
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
+      environments: ${{ steps.set_collections.outputs.environments }}  # Nouvelle sortie pour les environnements
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: List Postman Collections
+      - name: List Postman Collections and Environments
         id: set_collections
         run: |
           collection_path=${{ inputs.collection_path }}
-          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+          # Recherchez tous les dossiers dans le chemin spécifié
+          folders=$(find "$collection_path" -type d)
+          
+          # Variables de sortie pour les collections et les environnements
+          collections=""
+          environments=""
+          
+          # Parcourez chaque dossier
+          for folder in $folders; do
+            # À l'intérieur de chaque dossier, recherchez les collections Postman
+            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+            
+            # Recherchez le fichier d'environnement s'il existe dans le même dossier
+            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
+            
+            # Si une collection et un environnement sont trouvés, ajoutez-les aux variables de sortie
+            if [ -n "$collection_files" ]; then
+              collections+="[$folder] $collection_files\n"
+            fi
+            
+            if [ -n "$environment_file" ]; then
+              environments+="[$folder] $environment_file\n"
+            fi
+          done
+          
           echo "collections=$collections" >> $GITHUB_OUTPUT
+          echo "environments=$environments" >> $GITHUB_OUTPUT
+
   postman_tests:
     needs: discover_collections
     runs-on: ubuntu-latest
@@ -44,6 +71,7 @@ jobs:
       fail-fast: false
       matrix:
         feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
+        environment: ${{ fromJson(needs.discover_collections.outputs.environments) }}  # Utilisez la sortie des environnements
 
     name: Postman Test - ${{ matrix.feature }}
 
@@ -54,7 +82,9 @@ jobs:
     env:
       CONTAINER_NAME: ${{ inputs.container_name }}
       CENTREON_URL: ${{ inputs.centreon_url }}
-      CENTREON_IMAGE: ${{ inputs.centreon_image }} 
+      CENTREON_IMAGE: ${{ inputs.centreon_image }}
+      POSTMAN_ENVIRONMENT: ${{ matrix.environment }}  # Utilisez l'environnement approprié
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -86,8 +116,8 @@ jobs:
         run: |
           collection_file="collections/${{ matrix.feature }}"
           collection_name=$(basename "$collection_file" .postman_collection.json)
-          # Run Newman with the current collection file and generate an HTML report and summary
-          pnpm newman run "$collection_file" -e "collections/Environment-Collection.json" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+          # Exécutez Newman avec le fichier de collection actuel et l'environnement approprié
+          pnpm newman run "$collection_file" -e "environments/${{ matrix.environment }}" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
         continue-on-error: true
         
       - name: Upload HTML Reports
