@@ -56,8 +56,7 @@ jobs:
               environments+="$environment_file\n"
             fi
           done
-          collection_folders=$(printf '%s\n' "${collections[@]}" | grep -oE '\[[^\]]+\]' | sort -u | jq -R -s 'split("\n")[:-1]')
-          environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort | jq -R -s -c)
+      
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
