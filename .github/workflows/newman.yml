@@ -59,8 +59,8 @@ jobs:
               environments+="[$folder] $environment_file\n"
             fi
           done
-          collections_json=$(printf '%s\n' "${collections[@]}" | jq -R . | jq -s .)
-          environments_json=$(printf '%s\n' "${environments[@]}" | jq -R . | jq -s .)
+          collection_folders=$(printf '%s\n' "${collections[@]}" | awk -F'[][],' '{print $2}' | uniq | jq -R . | jq -s .)
+          environment_folders=$(printf '%s\n' "${environments[@]}" | awk -F'[][],' '{print $2}' | uniq | jq -R . | jq -s .)
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
