@@ -1,0 +1,13 @@
+[
+    {
+        "action": "ADD",
+        "object": "SG",
+        "values": "SG_test;SG_test"
+    },
+    {
+        "action": "addservicegroup",
+        "object": "SERVICE",
+        "values": "Centreon-Server;Ping;SG_test"
+    }
+
+]
