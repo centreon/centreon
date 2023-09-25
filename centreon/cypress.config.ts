@@ -15,6 +15,7 @@ module.exports = defineConfig({
     setupNodeEvents: (on, config) => {
       addMatchImageSnapshotPlugin(on, config);
 
+      /*
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'chrome' && browser.isHeadless) {
           launchOptions.args = launchOptions.args.map((arg) => {
@@ -28,6 +29,7 @@ module.exports = defineConfig({
 
         return launchOptions;
       });
+      */
     },
     specPattern: './www/front_src/src/**/*.cypress.spec.tsx',
     supportFile: './cypress/support/component.tsx',
