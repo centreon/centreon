@@ -39,6 +39,7 @@ jobs:
         with:
           file: .github/docker/Dockerfile.cypress
           context: .
+          build-args: "REGISTRY_URL=${{ vars.DOCKER_PROXY_REGISTRY_URL }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/cypress:${{ env.version }}

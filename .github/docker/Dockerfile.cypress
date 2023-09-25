@@ -1,4 +1,6 @@
-FROM cypress/base:20.6.1
+ARG REGISTRY_URL
+
+FROM ${REGISTRY_URL}/cypress/base:9.7.0
 
 RUN <<EOF
 
