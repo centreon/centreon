@@ -44,9 +44,9 @@ jobs:
           
           # Parcourez chaque dossier
           for folder in $folders; do
-            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort')
+          collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort)
             
-            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort ')
+          environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort)
             
             if [ -n "$collection_files" ]; then
               collections+="[$folder] $collection_files\n"
