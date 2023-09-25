@@ -79,7 +79,7 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-          npx wait-on http://localhost:4000/ --timeout 100000
+          pnpx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
 
       - name: Run Postman Tests and Generate HTML Report
@@ -120,12 +120,6 @@ jobs:
               pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
               failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
               failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-              
-              echo "Collection Name: $collection_name"
-              echo "Total Requests: $total_requests"
-              echo "Pending Requests: $pending_requests"
-              echo "Failed Requests: $failed_requests"
-              echo "Failed Assertions: $failed_assertions"
           
               if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
                   summaries+="<table>"
