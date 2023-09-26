@@ -69,7 +69,6 @@ jobs:
     CONTAINER_NAME: ${{ inputs.container_name }}
     CENTREON_URL: ${{ inputs.centreon_url }}
     CENTREON_IMAGE: ${{ inputs.centreon_image }}
-    POSTMAN_ENVIRONMENT: ${{ matrix.environment }}  # Utilisez la matrice de l'environnement
 
    steps:
     - name: Checkout Repository
@@ -100,27 +99,15 @@ jobs:
 
     - name: Run Postman Tests and Generate HTML Report
       run: |
-        for collection in "${collections[@]}"; do
-          collection_file="collections/$collection"
-          collection_name=$(basename "$collection_file" .postman_collection.json)
-          environment=""
-          
-          for env in "${environments[@]}"; do
-            env_folder=$(dirname "$env")
-            if [ "$env_folder" == "$collection_name" ]; then
-              environment="environments/$env"
-              break
-            fi
-          done
-          
-          if [ -n "$environment" ]; then
+        for collection in "${matrix.feature}"; do
+            collection_file="collections/$collection"
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+            environment="${matrix.environment}"
+            
             echo "Running collection: $collection_file with environment: $environment"
             pnpm newman run "$collection_file" -e "$environment" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
-          else
-            echo "Environment not found for collection: $collection_file"
-          fi
-        done
-      continue-on-error: true
+          done
+        continue-on-error: true
 
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
