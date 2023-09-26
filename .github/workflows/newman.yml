@@ -33,21 +33,34 @@ jobs:
       - name: List Postman Collections and Environments
         id: set_collections
         run: |
-          collection_path="${{ inputs.collection_path }}"
+          collection_path="centreon/tests/rest_api/collections"
           collections=()
           environments=()
           
-          while IFS= read -r -d $'\0' collection_file; do
-            collections+=("$collection_file")
-          done < <(find "$collection_path" -type f -name "*.postman_collection.json" -print0)
-          
-          while IFS= read -r -d $'\0' environment_file; do
-            environments+=("$environment_file")
-          done < <(find "$collection_path" -type f -name "Environment-Collection.json" -print0)
-          
-          echo "Collections found: ${collections[*]}"
-          echo "Environments found: ${environments[*]}"
+          while IFS= read -r -d $'\0' folder; do
+            echo "Processing folder: $folder"
+            
+            collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
+            
+            if [ -n "$collections_folder" ]; then
+              if [ -n "$collections" ]; then
+                collections="$collections,"
+              fi
+              collections+="$collections_folder"
+            fi
+            
+            if [ -n "$environment_file" ]; then
+              if [ -n "$environments" ]; then
+                environments="$environments,"
+              fi
+              environments+="$environment_file"
+            fi
+          done < <(find "$collection_path" -type d -print0)
+          echo "collections=$collections" >> $GITHUB_OUTPUT
+          echo "environments=$environments" >> $GITHUB_OUTPUT
 
+       
   postman_tests:
    needs: discover_collections
    runs-on: ubuntu-latest
