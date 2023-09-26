@@ -42,7 +42,7 @@ jobs:
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
-          for file in "${CHANGED_FILES[@]}"; do
+          for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref }}"
             python .github/scripts/create_jira_test.py "$file" "${{ github.ref }}"
           done
