@@ -160,7 +160,8 @@ def main():
     components, test_set_key = extract_data_from_feature_file(FEATURE_FILE_PATH)
 
     # Getting the components list
-    components_list = components.split(',')
+    if components : 
+        components_list = components.split(',')
 
     # Uploading the feature file to Xray succeed
     if response_data :
