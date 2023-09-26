@@ -38,9 +38,9 @@ jobs:
           # Recherchez tous les dossiers dans le chemin spécifié
           folders=$(find "$collection_path" -type d)
           
-          # Variables de sortie pour les collections et les environnements par dossier
-          collections=""
-          environments=""
+          # Tableaux JSON pour stocker les collections et les environnements
+          collections_array=()
+          environments_array=()
           
           # Parcourez chaque dossier
           for folder in $folders; do
@@ -55,24 +55,21 @@ jobs:
             echo "Collections à exécuter : $collection_files"
             echo "Environnement à utiliser : $environment_file"
           
-            # Réinitialisez les variables pour le prochain dossier
-            if [ -n "$collections" ]; then
-              collections+=","
-            fi
-            collections+="$collection_files"
-          
-            if [ -n "$environments" ]; then
-              environments+=","
-            fi
-            environments+="$environment_file"
+            # Ajoutez les collections et les environnements aux tableaux JSON
+            collections_array+=("$collection_files")
+            environments_array+=("$environment_file")
           done
           
-          echo "collections=$collections"
-          echo "environments=$environments"
-          echo "collections=$collections" >> $GITHUB_OUTPUT
-          echo "environments=$environments" >> $GITHUB_OUTPUT
-            
-  
+          # Convertissez les tableaux JSON en chaînes JSON
+          collections_json=$(jq -n --argjson collections "$collections_array" '$collections')
+          environments_json=$(jq -n --argjson environments "$environments_array" '$environments')
+          
+          echo "collections=$collections_json"
+          echo "environments=$environments_json"
+          echo "collections=$collections_json" >> $GITHUB_OUTPUT
+          echo "environments=$environments_json" >> $GITHUB_OUTPUT
+              
+    
 
   postman_tests:
     needs: discover_collections
