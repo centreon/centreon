@@ -34,50 +34,45 @@ jobs:
         id: set_collections
         run: |
           collection_path="${{ inputs.collection_path }}"
-          collections_json=()  # Tableau pour stocker les résultats
-      
-          # Fonction pour parcourir récursivement les dossiers
-          find_collections() {
-            local folder="$1"
-            collections=()
-            environments=()
-      
-            while IFS= read -r -d $'\0' collection_file; do
-              collections+=("${collection_file#$collection_path/}")  # Supprimer le préfixe
-            done < <(find "$folder" -type f -name "*.postman_collection.json" -print0)
-      
-            while IFS= read -r -d $'\0' environment_file; do
-              environments+=("${environment_file#$collection_path/}")  # Supprimer le préfixe
-            done < <(find "$folder" -type f -name "Environment-Collection.json" -print0)
-      
-            # Ajoutez la structure JSON au tableau collections_json uniquement si des collections sont trouvées
-            if [ "${#collections[@]}" -gt 0 ]; then
-              json_structure="{\"collections\": [\"${collections[*]}\"], \"environments\": [\"${environments[*]}\"]}"
-              collections_json+=("$json_structure")
-            fi
-      
-            for subfolder in "$folder"/*; do
-              if [ -d "$subfolder" ] && [ "${subfolder#$folder}" != "/refactor-collection" ]; then
-                find_collections "$subfolder"
+            collections_json=()  # Tableau pour stocker les résultats
+        
+            # Fonction pour parcourir récursivement les dossiers
+            find_collections() {
+              local folder="$1"
+              collections=()
+              environments=()
+        
+              while IFS= read -r -d $'\0' collection_file; do
+                collections+=("${collection_file#$collection_path/}")  # Supprimer le préfixe
+              done < <(find "$folder" -type f -name "*.postman_collection.json" -print0)
+        
+              while IFS= read -r -d $'\0' environment_file; do
+                environments+=("${environment_file#$collection_path/}")  # Supprimer le préfixe
+              done < <(find "$folder" -type f -name "Environment-Collection.json" -print0)
+        
+              # Ajoutez la structure JSON au tableau collections_json uniquement si des collections sont trouvées
+              if [ "${#collections[@]}" -gt 0 ]; then
+                json_structure="{\"collections\": [\"${collections[*]}\"], \"environments\": [\"${environments[*]}\"]}"
+                collections_json+=("$json_structure")
               fi
-            done
-          }
-      
-          find_collections "$collection_path"
-      
-          # Transformez le tableau collections_json en une chaîne JSON complète
-          json_result="[${collections_json[*]}]"
-          echo "collections=$json_result"
-          # Stockez le résultat JSON dans la variable GITHUB_OUTPUT
-          echo "collections=$json_result" >> $GITHUB_OUTPUT
-          echo "GITHUB_OUTPUT contents:"
-          cat $GITHUB_OUTPUT
-
-          collection_names=($(echo "$collections_json" | jq -r '.[] | .collections[] | split("/")[-1]'))
-
-           echo "Collection names: ${collection_names[@]}"
-
-           echo "collection_names='${collection_names[@]}'" >> $GITHUB_OUTPUT
+        
+              for subfolder in "$folder"/*; do
+                if [ -d "$subfolder" ] && [ "${subfolder#$folder}" != "/refactor-collection" ]; then
+                  find_collections "$subfolder"
+                fi
+              done
+            }
+        
+            find_collections "$collection_path"
+        
+            # Transformez le tableau collections_json en une chaîne JSON complète et formatez-la avec jq
+            json_result="[${collections_json[*]}]"
+            formatted_json=$(echo "$json_result" | jq -s '. | map({collections: .[].collections, environments: .[].environments})')
+            echo "collections=$formatted_json"
+            # Stockez le résultat JSON dans la variable GITHUB_OUTPUT
+            echo "collections=$formatted_json" >> $GITHUB_OUTPUT
+            echo "GITHUB_OUTPUT contents:" cat $GITHUB_OUTPUT
+            
 
   postman_tests:
    needs: discover_collections
