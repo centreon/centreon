@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-       collection_names: ${{ steps.set_collections.outputs.collection_names }}
+      collections: ${{ steps.set_collections.outputs.collections }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -33,35 +33,21 @@ jobs:
         id: set_collections
         run: |
           collection_path="${{ inputs.collection_path }}"
-          collections_json=()  # Tableau pour stocker les résultats
+          collections=()  # Tableau pour stocker les noms des collections
           
-          # Créez un tableau associatif pour stocker les collections et les environnements
-          declare -A collection_data
-          
-          # Fonction pour parcourir récursivement les dossiers
+          # Fonction pour parcourir les dossiers dans le répertoire "collections"
           find_collections() {
             local folder="$1"
-            collections=()
-            environments=()
           
             while IFS= read -r -d $'\0' collection_file; do
-              collections+=("${collection_file#$collection_path/}")
+              # Exclure "environment-collection.json"
+              if [[ "$collection_file" != *"Environment-Collection.json" ]]; then
+                collections+=("$collection_file")
+              fi
             done < <(find "$folder" -type f -name "*.postman_collection.json" -print0)
           
-            while IFS= read -r -d $'\0' environment_file; do
-              environments+=("${environment_file#$collection_path/}")  # Supprimer le préfixe
-            done < <(find "$folder" -type f -name "Environment-Collection.json" -print0)
-          
-            # Ajoutez les collections et environnements à l'associatif
-            for collection in "${collections[@]}"; do
-              collection_data["collections"]+="\"$collection\", "
-            done
-            for environment in "${environments[@]}"; do
-              collection_data["environments"]+="\"$environment\", "
-            done
-          
             for subfolder in "$folder"/*; do
-              if [ -d "$subfolder" ] && [ "${subfolder#$folder}" != "/refactor-collection" ]; then
+              if [ -d "$subfolder" ]; then
                 find_collections "$subfolder"
               fi
             done
@@ -69,28 +55,14 @@ jobs:
           
           find_collections "$collection_path"
           
-          # Construisez le tableau collections_json à partir des données de l'associatif
-          collections_json+=("{")
-          collections_json+=("\"collections\": [${collection_data["collections"]%, }], ")
-          collections_json+=("\"environments\": [${collection_data["environments"]%, }]")
-          collections_json+=("}")
+          # Transformez le tableau collections en une liste JSON
+          collections_json=$(printf "\"%s\"\n" "${collections[@]}" | jq -R -s -c 'split("\n")[:-1]')
           
-          # Transformez le tableau collections_json en une chaîne JSON complète
-          json_result="{\"collections\": [${collection_data["collections"]%, }], \"environments\": [${collection_data["environments"]%, }]}"
-          echo "collections=$json_result"
-            
-          # Utilisez jq pour extraire uniquement les noms de collections
-
-          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-
           # Stockez la liste JSON des noms de collections dans la variable GITHUB_OUTPUT
-          echo "{\"collection_names\": $collections}" >> $GITHUB_OUTPUT
-
- 
+          echo "{\"collections\": $collections_json}" >> $GITHUB_OUTPUT
           
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
-
 
   postman_tests:
    needs: discover_collections
@@ -99,7 +71,7 @@ jobs:
    strategy:
     fail-fast: false
     matrix:
-      feature: ${{ fromJson(needs.discover_collections.outputs.collection_names) }}
+      feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
 
    name: Postman Test - ${{ matrix.feature }}
 
