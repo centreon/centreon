@@ -36,13 +36,13 @@ jobs:
         id: find_changed_files
         run: |
           changed_files=$(git show --name-only $LATEST_COMMIT | grep '\.feature$') 
-          echo "CHANGED_FILES='$changed_files'" >> $GITHUB_ENV
-          echo "Changed .feature files: $changed_files"
+          echo "CHANGED_FILES=${changed_files[@]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${changed_files[@]}"
 
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
-          for file in $CHANGED_FILES; do
+          for file in "${CHANGED_FILES[@]}"; do
             echo "Running script for $file on branch ${{ github.ref }}"
             python .github/scripts/create_jira_test.py "$file" "${{ github.ref }}"
           done
