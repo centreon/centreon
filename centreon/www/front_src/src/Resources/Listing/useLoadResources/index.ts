@@ -5,6 +5,7 @@ import {
   equals,
   ifElse,
   isNil,
+  map,
   not,
   pathEq,
   pathOr,
@@ -201,20 +202,23 @@ const useLoadResources = (): LoadResources => {
       statusTypes: getCriteriaIds('status_types'),
       statuses: getCriteriaIds('statuses')
     }).then((response) => {
-      if (equals(visualization, Visualization.Host)) {
-        const result = response.result.map((item) => {
-          return {
-            ...item,
-            children: item?.children.resources,
-            childrenCount: item?.children.status_count
-          };
-        });
-
-        setListing({ ...response, result });
+      if (!equals(visualization, Visualization.Host)) {
+        setListing(response);
 
         return;
       }
-      setListing(response);
+
+      const result = map((item) => {
+        return {
+          ...item,
+          children: item?.children.resources,
+          childrenCount: item?.children.status_count
+        };
+      }, response.result);
+
+      const hostsResponse = { ...response, result };
+
+      setListing(hostsResponse);
     });
 
     if (isNil(details)) {

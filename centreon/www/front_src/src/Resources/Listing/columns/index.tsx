@@ -6,10 +6,9 @@ import {
   T,
   equals,
   insert,
-  filter,
   map,
   propEq,
-  complement
+  reject
 } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -331,12 +330,12 @@ export const getColumns = ({
         : column;
 
     const columnsForVisualizationByHost = pipe(
-      filter(complement(propEq('parent_resource', 'id'))),
-      filter(complement(propEq('status', 'id'))),
-      filter(complement(propEq('parent_alias', 'id'))),
+      reject(propEq('id', 'status')),
+      reject(propEq('id', 'parent_resource')),
+      reject(propEq('id', 'parent_alias')),
       insert(1, subItemColumn),
       map(changeResourceLabel)
-    )(columns);
+    )(columns) as Array<Column>;
 
     return columnsForVisualizationByHost;
   }
