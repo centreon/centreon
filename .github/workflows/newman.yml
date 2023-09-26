@@ -72,18 +72,12 @@ jobs:
           echo "collections=$json_result" >> $GITHUB_OUTPUT
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
-          
-          collection_names=()
-          for item in $(echo "$collections_json" | jq -c '.[]'); do
-            collections=$(echo "$item" | jq -r '.collections[]')
-            collection_names+=($collections)
-          done
-          
-          # Stockez les noms des collections dans une variable
-          echo "Collection names: ${collection_names[@]}"
-          
-          # Ajoutez les noms des collections à GITHUB_OUTPUT
-          echo "collection_names=${collection_names[@]}" >> $GITHUB_OUTPUT
+
+           collection_names=($(echo "$collections_json" | jq -r '.[].collections[]' | awk -F'/' '{print $NF}'))
+
+           echo "Collection names: ${collection_names[@]}"
+
+           echo "collection_names='${collection_names[@]}'" >> $GITHUB_OUTPUT
 
   postman_tests:
    needs: discover_collections
