@@ -81,12 +81,12 @@ jobs:
             
           # Utilisez jq pour extraire uniquement les noms de collections
 
-          collection_names=$(echo "$json_result" | jq -r '.collections[] | sub("^.*/"; "")')  
-          collection_names_json=$(echo "$collection_names" | sed 's/,$//')
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+
+          # Stockez la liste JSON des noms de collections dans la variable GITHUB_OUTPUT
+          echo "{\"collection_names\": $collections}" >> $GITHUB_OUTPUT
+
  
-  
-          # Stockez les noms de collections dans la variable GITHUB_OUTPUT
-          echo "collection_names=$collection_names_json" >> $GITHUB_OUTPUT
           
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
