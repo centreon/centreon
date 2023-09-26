@@ -34,19 +34,29 @@ jobs:
       - name: List Postman Collections and Environments
         id: set_collections
         run: |
-          collection_path=${{ inputs.collection_path }}
-          # Utilisez la commande find pour trouver tous les fichiers *.postman_collection.json
-          # et leurs fichiers d'environnement dans le chemin spécifié.
-          find "$collection_path" -type f -name "*.postman_collection.json" -exec sh -c '
-            collection_path="$1"
-            collection_file="$2"
-            folder=$(dirname "$collection_file")
-            environment_file="$folder/Environment-Collection.json"
-            echo "Collection: $collection_file"
-            echo "Environment: $environment_file"
-          ' _ {} \;
-              
-    
+          while IFS= read -r -d $'\0' folder; do
+            echo "Processing folder: $folder"
+            
+            collections=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
+            
+            if [ -n "$collections" ]; then
+              if [ -n "$environments" ]; then
+                collections="$collections,"
+              fi
+              collections+="$collections"
+              echo "Collections found: $collections"
+            fi
+            
+            if [ -n "$environments" ]; then
+              if [ -n "$environments" ]; then
+                environments="$environments,"
+              fi
+              environments+="$environment_file"
+              echo "Environments found: $environments"
+            fi
+          done < <(find "$collection_path" -type d -print0)
+               
 
   postman_tests:
     needs: discover_collections
