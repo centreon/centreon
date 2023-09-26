@@ -70,6 +70,8 @@ jobs:
           echo "collections=$json_result"
           # Stockez le résultat JSON dans la variable GITHUB_OUTPUT
           echo "collections=$json_result" >> $GITHUB_OUTPUT
+          echo "GITHUB_OUTPUT contents:"
+          cat $GITHUB_OUTPUT
 
   postman_tests:
    needs: discover_collections
