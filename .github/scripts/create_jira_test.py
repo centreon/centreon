@@ -16,13 +16,26 @@ GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql"
 
 branch_to_target = {
     'develop': 'Cloud',
-    'dev-23.04.x': 'OnPrem - 23.04',
-    'dev-22.10.x': 'OnPrem - 22.10',
-    'dev-22.04.x': 'OnPrem - 22.04',
-    'dev-21.10.x': 'OnPrem - 21.10',
     'MON-20381-Integrate-E2E-tests-from-GHA-to-XRay' : 'Cloud'
     # Add more mappings as needed
 }
+
+def get_target_version(branch_name):
+    # Use regular expression to extract the version number
+    match = re.match(r'dev-(\d+\.\d+)\.x', branch_name)
+    if match:
+        version_number = match.group(1)
+        target_version = f'OnPrem - {version_number}'
+        print(f"Target Versions: {target_version}")
+        return target_version
+    else:
+        target_version = branch_to_target.get(branch_name, '')
+        if target_version :
+            print(f"Target Versions: {target_version}")
+            return target_version
+        else: 
+            print('Branch name does not match any target version')
+            return None
 
 def get_modified_feature_files():
     try:
@@ -41,7 +54,6 @@ def extract_data_from_feature_file(file_path):
         if match:
             components = match.group(1).strip()
             test_set_key = match.group(2).strip()
-
             return components, test_set_key
 
     except Exception as e:
@@ -98,30 +110,28 @@ def upload_feature_file_to_xray(feature_file_path):
 def update_jira_issues(test_selfs, target_version, components_list):
     for api in test_selfs:
         try:
-            jira_response_get = requests.get(
-                api,
-                headers={
-                    "Accept": "application/json"
-                },
-                auth=(JIRA_USER, JIRA_TOKEN_TEST)
-            )
+            if not components_list :
+                print("No components mentioned")
 
-            issue_update_payload = {
-                "fields": {
-                    "customfield_10901": [{"value": target_version}],
-                    "components": [{"name": component} for component in components_list]
+            # Component or Target Version should be mentioned to update the issues
+            if components_list or target_version :
+                issue_update_payload = {
+                    "fields": {
+                        "customfield_10901": [{"value": target_version}],
+                        "components": [{"name": component} for component in components_list]
+                    }
                 }
-            }
+                jira_response = requests.put(api, headers={
+                    "Accept": "application/json"
+                }, json=issue_update_payload, auth=(JIRA_USER, JIRA_TOKEN_TEST))
 
-            jira_response = requests.put(api, headers={
-                "Accept": "application/json"
-            }, json=issue_update_payload, auth=(JIRA_USER, JIRA_TOKEN_TEST))
-
-            if jira_response.status_code == 204:
-                print(f"Issue {api} updated successfully in Jira.")
-            else:
-                print(f"Error updating issue {api} in Jira. Status code: {jira_response.status_code}")
-                print(jira_response.text)
+                if jira_response.status_code == 204:
+                    print(f"Issue {api} updated successfully in Jira.")
+                else:
+                    print(f"Error updating issue {api} in Jira. Status code: {jira_response.status_code}")
+                    print(jira_response.text)
+            else :
+                print("No need to update the issues")
 
         except Exception as e:
             print(f"Error updating Jira issue: {e}")
@@ -134,34 +144,36 @@ def main():
 
     FEATURE_FILE_PATH = sys.argv[1]
     branch_ref = sys.argv[2]
-      # Extract the branch name from the branch_ref
+
+    # Extract the branch name from the branch_ref
     branch_name = branch_ref.split('/')[-1]  # Get the last part of the ref
 
     print(f"Running script for {FEATURE_FILE_PATH} on branch {branch_name}")
 
+    # Upload the feature file to Xray
+    response_data = upload_feature_file_to_xray(FEATURE_FILE_PATH)
+    print("response data",response_data)
+
     # Set the target version based on the branch name
-    target_version = branch_to_target.get(branch_name, '')
-    print(f"Target Versions: {target_version}")
+    target_version = get_target_version(branch_name)
 
     components, test_set_key = extract_data_from_feature_file(FEATURE_FILE_PATH)
 
-    if  components:
-        components_list = components.split(',')
-        print(f"Components: {components_list}")
-        print(f"Test Set: {test_set_key}")
+    # Getting the components list
+    components_list = components.split(',')
 
-        response_data = upload_feature_file_to_xray(FEATURE_FILE_PATH)
+    # Uploading the feature file to Xray succeed
+    if response_data :
+        # Getting the API and the Ids of the created issues ( tests )
+        test_selfs = [test['self'] for test in response_data['updatedOrCreatedTests']]
+        test_ids = [test['id'] for test in response_data['updatedOrCreatedTests']]
+                
+        # Updating the Issues to match the target version and components
+        update_jira_issues(test_selfs, target_version, components_list)
 
-        print("response data",response_data)
-
-        test_set_id = get_jira_issue_id(test_set_key) 
-        if test_set_id:
-            if response_data:
-                test_selfs = [test['self'] for test in response_data['updatedOrCreatedTests']]
-                test_ids = [test['id'] for test in response_data['updatedOrCreatedTests']]
-
-                update_jira_issues(test_selfs, target_version, components_list)
-
+        if test_set_key : 
+            test_set_id = get_jira_issue_id(test_set_key)
+            if test_set_id:
                 variables = {
                     "test_set_id": test_set_id,
                     "test_ids": test_ids
@@ -194,7 +206,15 @@ def main():
                     print(f"Warning: {result}")
                 else:
                     print(f"GraphQL Request Failed with Status Code: {response.status_code}")
-                    print(response.text)
+                    print(response.text)                           
+
+            else:
+                print(f"No test set found having this key : {test_set_key}")
+        else:
+            print("No test set mentioned") 
+    # Uploading the feature file to Xray failed
+    else : 
+        print("Upload feature file to Xray Failed !")
 
 if __name__ == "__main__":
     main()
