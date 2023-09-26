@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "35528c85b20fc301d61cefdf710cad3a",
+    "content-hash": "bfb155336b20e2d1e9a60c7596052de3",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6566,16 +6566,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-docker-kill-22.10",
+            "version": "22.10.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "2060e36ddfc9b72f997f679adde2765054b897c2"
+                "reference": "d570456dd7266fb12d89b2a5aae98a0f78f131a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/2060e36ddfc9b72f997f679adde2765054b897c2",
-                "reference": "2060e36ddfc9b72f997f679adde2765054b897c2",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/d570456dd7266fb12d89b2a5aae98a0f78f131a5",
+                "reference": "d570456dd7266fb12d89b2a5aae98a0f78f131a5",
                 "shasum": ""
             },
             "require": {
@@ -6622,9 +6622,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/docker-kill-22.10"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/22.10.x"
             },
-            "time": "2023-09-26T15:05:03+00:00"
+            "time": "2023-09-26T15:29:33+00:00"
         },
         {
             "name": "composer/pcre",
