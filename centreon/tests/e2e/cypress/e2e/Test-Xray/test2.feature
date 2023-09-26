@@ -13,6 +13,6 @@ Feature: Automated feature ( Test ) 2
     #this is a description for test 2
     @id:2 @LABEL-TEST-2
     Scenario: Test : Logging out 2
-    Given I am logged in
+    Given I am logged in 
     When I click on the logout action
     Then I am logged out and redirected to the login page
