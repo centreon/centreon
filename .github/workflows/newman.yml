@@ -42,7 +42,7 @@ jobs:
             while IFS= read -r -d $'\0' collection_file; do
               # Exclure "environment-collection.json"
               if [[ "$collection_file" != *"Environment-Collection.json" ]]; then
-                # Extraire uniquement le nom du fichier sans le chemin
+                # Extraire uniquement le nom du fichier sans le chemin et l'extension
                 collection_name=$(basename "$collection_file" .postman_collection.json)
                 collections+=("$collection_name")
               fi
@@ -57,11 +57,11 @@ jobs:
           
           find_collections "$collection_path"
           
-          # Transformez le tableau collections en une liste JSON
+          # Créez une liste JSON des noms de collections sans les guillemets
           collections_json=$(printf "\"%s\",\n" "${collections[@]}" | sed '$s/,$//' | jq -c -R .)
           
           # Stockez la liste JSON des noms de collections dans la variable GITHUB_OUTPUT
-          echo "{\"collections\": [$collections_json]}" >> $GITHUB_OUTPUT
+          echo "$collections_json" >> $GITHUB_OUTPUT
           
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
