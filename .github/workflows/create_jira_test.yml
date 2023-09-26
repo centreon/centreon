@@ -35,18 +35,21 @@ jobs:
       - name: Find Changed Feature Files
         id: find_changed_files
         run: |
-          changed_files=$(git show --name-only $LATEST_COMMIT | grep '\.feature$') 
-          echo "CHANGED_FILES=${changed_files[@]}" >> $GITHUB_ENV
-          echo "Changed .feature files: ${changed_files[@]}"
+          changed_files=$(git show --name-only $LATEST_COMMIT | grep '\.feature$')
+          echo "CHANGED_FILES=$changed_files" >> $GITHUB_ENV
+          echo "Changed .feature files: $changed_files"
+        shell: bash 
 
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
+          CHANGED_FILES=($CHANGED_FILES)
           for file in "${CHANGED_FILES[@]}"; do
             echo "Running script for $file on branch ${{ github.ref }}"
             python .github/scripts/create_jira_test.py "$file" "${{ github.ref }}"
           done
         env:
+          CHANGED_FILES: ${{ steps.find_changed_files.outputs.CHANGED_FILES }}
           JIRA_USER: ${{ secrets.JIRA_USER }}
           JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
           XRAY_TOKEN: ${{ secrets.XRAY_TOKEN }}
