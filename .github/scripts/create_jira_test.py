@@ -110,28 +110,26 @@ def upload_feature_file_to_xray(feature_file_path):
 def update_jira_issues(test_selfs, target_version, components_list):
     for api in test_selfs:
         try:
-            if not components_list :
-                print("No components mentioned")
-
-            # Component or Target Version should be mentioned to update the issues
-            if components_list or target_version :
-                issue_update_payload = {
-                    "fields": {
-                        "customfield_10901": [{"value": target_version}],
-                        "components": [{"name": component} for component in components_list]
-                    }
+            issue_update_payload = {
+                "fields": {
+                    "customfield_10901": [{"value": target_version}]
                 }
-                jira_response = requests.put(api, headers={
-                    "Accept": "application/json"
-                }, json=issue_update_payload, auth=(JIRA_USER, JIRA_TOKEN_TEST))
+            }
 
-                if jira_response.status_code == 204:
-                    print(f"Issue {api} updated successfully in Jira.")
-                else:
-                    print(f"Error updating issue {api} in Jira. Status code: {jira_response.status_code}")
-                    print(jira_response.text)
-            else :
-                print("No need to update the issues")
+            if components_list:
+                issue_update_payload["fields"]["components"] = [{"name": component} for component in components_list]
+            else: 
+                print("No component mentioned")
+
+            jira_response = requests.put(api, headers={
+                "Accept": "application/json"
+            }, json=issue_update_payload, auth=(JIRA_USER, JIRA_TOKEN_TEST))
+
+            if jira_response.status_code == 204:
+                print(f"Issue {api} updated successfully in Jira.")
+            else:
+                print(f"Error updating issue {api} in Jira. Status code: {jira_response.status_code}")
+                print(jira_response.text)
 
         except Exception as e:
             print(f"Error updating Jira issue: {e}")
