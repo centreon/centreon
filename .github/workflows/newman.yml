@@ -43,16 +43,18 @@ jobs:
             environments=()
       
             while IFS= read -r -d $'\0' collection_file; do
-              collections+=("$folder/${collection_file#$collection_path/}")  # Chemin relatif
+              collections+=("${collection_file#$collection_path/}")  # Supprimer le préfixe
             done < <(find "$folder" -type f -name "*.postman_collection.json" -print0)
       
             while IFS= read -r -d $'\0' environment_file; do
-              environments+=("$folder/${environment_file#$collection_path/}")  # Chemin relatif
+              environments+=("${environment_file#$collection_path/}")  # Supprimer le préfixe
             done < <(find "$folder" -type f -name "Environment-Collection.json" -print0)
       
-            # Ajoutez la structure JSON au tableau collections_json
-            json_structure="{\"collections\": [\"${collections[*]}\"], \"environments\": [\"${environments[*]}\"]}"
-            collections_json+=("$json_structure")
+            # Ajoutez la structure JSON au tableau collections_json uniquement si des collections sont trouvées
+            if [ "${#collections[@]}" -gt 0 ]; then
+              json_structure="{\"collections\": [\"${collections[*]}\"], \"environments\": [\"${environments[*]}\"]}"
+              collections_json+=("$json_structure")
+            fi
       
             for subfolder in "$folder"/*; do
               if [ -d "$subfolder" ]; then
@@ -65,7 +67,7 @@ jobs:
       
           # Transformez le tableau collections_json en une chaîne JSON complète
           json_result="[${collections_json[*]}]"
-          echo "collections=$json_result" 
+          echo "collections=$json_result"
           # Stockez le résultat JSON dans la variable GITHUB_OUTPUT
           echo "collections=$json_result" >> $GITHUB_OUTPUT
 
