@@ -33,9 +33,9 @@ jobs:
       - name: List Postman Collections and Environments
         id: set_collections
         run: |
-          collection_path="${{ inputs.collection_path }}"
+          collection_path="centreon/tests/rest_api/collections"
           folder_data=()
-    
+          
           while IFS= read -r -d $'\0' folder; do
             echo "Processing folder: $folder"
       
@@ -61,7 +61,6 @@ jobs:
     fail-fast: false
     matrix:
       feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
-      environment: ${{ fromJson(needs.discover_collections.outputs.environments) }}
 
    name: Postman Test - ${{ matrix.feature }}
 
