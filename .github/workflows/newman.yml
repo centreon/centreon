@@ -24,8 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      collections: ${{ steps.set_collections.outputs.collections }}
-      collection_names: ${{ steps.set_collections.outputs.collection_names }}
+       collection_names: ${{ steps.set_collections.outputs.collection_names }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -77,13 +76,14 @@ jobs:
           collections_json+=("}")
           
           # Transformez le tableau collections_json en une chaîne JSON complète
-          json_result="[${collections_json[*]}]"
-           echo "collections=$json_result"
+          json_result="{\"collections\": [${collection_data["collections"]%, }], \"environments\": [${collection_data["environments"]%, }]}"
+          echo "collections=$json_result"
             
           # Utilisez jq pour extraire uniquement les noms de collections
 
-          collection_names=$(echo "$json_result" | jq -r '.[0].collections[] | sub("^.*/"; "")')  
+          collection_names=$(echo "$json_result" | jq -r '.collections[] | sub("^.*/"; "")')  
           collection_names_json=$(echo "$collection_names" | jq -R -s 'split("\n")[:-1]')
+ 
   
           # Stockez les noms de collections dans la variable GITHUB_OUTPUT
           echo "collection_names=$collection_names_json" >> $GITHUB_OUTPUT
