@@ -35,53 +35,18 @@ jobs:
         id: set_collections
         run: |
           collection_path=${{ inputs.collection_path }}
-          # Recherchez tous les dossiers dans le chemin spécifié
-          folders=$(find "$collection_path" -type d)
-          
-          # Variables pour stocker les collections et les environnements
-          collections=""
-          environments=""
-          
-          # Parcourez chaque dossier
-          for folder in $folders; do
-            # Stockez le chemin de l'environnement pour le dossier actuel
-            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
-          
-            # Stockez le chemin de la collection pour le dossier actuel
-            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-          
-            # Si nous trouvons un saut de ligne, cela signifie que nous devons exécuter les collections
-            if [[ "$folder" == *$'\n'* ]]; then
-              echo "Dossier : $folder"
-              echo "Collections à exécuter :"
-              echo "$collections"
-              echo "Environnement à utiliser :"
-              echo "$environments"
-              echo "Exécutez les collections avec les environnements correspondants ici."
-          
-              # Réinitialisez les variables pour le prochain dossier
-              collections=""
-              environments=""
-            fi
-          
-            # Ajoutez les collections et les environnements
-            if [ -n "$collections" ]; then
-              collections+=","
-            fi
-            collections+="$collection_files"
-          
-            if [ -n "$environments" ]; then
-              environments+=","
-            fi
-            environments+="$environment_file"
-          done
-          
-          echo "collections=$collections"
-          echo "environments=$environments"
-          echo "collections=$collections" >> $GITHUB_OUTPUT
-          echo "environments=$environments" >> $GITHUB_OUTPUT
-            
-  
+          # Utilisez la commande find pour trouver tous les fichiers *.postman_collection.json
+          # et leurs fichiers d'environnement dans le chemin spécifié.
+          find "$collection_path" -type f -name "*.postman_collection.json" -exec sh -c '
+            collection_path="$1"
+            collection_file="$2"
+            folder=$(dirname "$collection_file")
+            environment_file="$folder/Environment-Collection.json"
+            echo "Collection: $collection_file"
+            echo "Environment: $environment_file"
+          ' _ {} \;
+              
+    
 
   postman_tests:
     needs: discover_collections
