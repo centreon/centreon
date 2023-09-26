@@ -46,37 +46,30 @@ jobs:
           for folder in $folders; do
             # Stockez le chemin de l'environnement pour le dossier actuel
             environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
-            
-            # Si nous trouvons un saut de ligne, cela signifie que nous devons exécuter les collections
-            if [[ "$folder" == *$'\n'* ]]; then
-              echo "Dossier : $folder"
-              echo "Collections à exécuter : $collections"
-              echo "Environnement à utiliser : $environments"
-              echo "Exécutez les collections avec les environnements correspondants ici."
-              
-              # Réinitialisez les variables pour le prochain dossier
-              collections=""
-              environments=""
-            fi
-            
+          
             # Stockez le chemin de la collection pour le dossier actuel
-            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | tr '\n' ',')
-            
-            if [ -n "$collections" ]; then
-              collections+=","
-            fi
-            collections+="$collection_files"
-            
-            if [ -n "$environments" ]; then
-              environments+=","
-            fi
-            environments+="$environment_file"
+            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+          
+            # Affichez le dossier actuel, les collections et l'environnement
+            echo "Dossier : $folder"
+            echo "Collections à exécuter : $collection_files"
+            echo "Environnement à utiliser : $environment_file"
+          
+            # Réinitialisez les variables pour le prochain dossier
+            collections="$collections$collection_files\n"
+            environments="$environments$environment_file\n"
           done
-            
-            echo "collections=$collections"
-            echo "environments=$environments"
-            echo "collections=$collections" >> $GITHUB_OUTPUT
-            echo "environments=$environments" >> $GITHUB_OUTPUT
+          
+          # Supprimez le dernier saut de ligne
+          collections=${collections%\\n}
+          environments=${environments%\\n}
+          
+          echo "collections=$collections"
+          echo "environments=$environments"
+          echo "collections=$collections" >> $GITHUB_OUTPUT
+          echo "environments=$environments" >> $GITHUB_OUTPUT
+          
+  
 
   postman_tests:
     needs: discover_collections
