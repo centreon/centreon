@@ -58,10 +58,10 @@ jobs:
           find_collections "$collection_path"
           
           # Utilisez jq pour formater la liste des noms de collections
-          formatted_collections=$(printf "%s\n" "${collections[@]}" | jq -R -s -c 'split("\n")[:-1]')
+          collections_json=$(printf "%s\n" "${collections[@]}" | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
           
           # Stockez la liste des noms de collections dans la variable GITHUB_OUTPUT
-          echo "$formatted_collections" >> $GITHUB_OUTPUT
+          echo "$collections_json" >> $GITHUB_OUTPUT
           
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
