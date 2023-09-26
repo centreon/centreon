@@ -37,6 +37,7 @@ jobs:
           echo "collections=$collections" >> $GITHUB_OUTPUT
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
+
   postman_tests:
    needs: discover_collections
    runs-on: ubuntu-latest
@@ -88,8 +89,14 @@ jobs:
       run: |
         collection_file="collections/${{ matrix.feature }}"
         collection_name=$(basename "$collection_file" .postman_collection.json)
-        pnpm newman run "$collection_file" -e "collections/Environment-Collection.json" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
-
+        collection_directory="$(dirname "$collection_file")"
+        environment_file="$collection_directory/Environment-Collection.json"
+        if [ -f "$environment_file" ]; then
+          pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+        else
+          echo "Le fichier Environment-Collection.json n'a pas été trouvé dans le même répertoire que $collection_file"
+          exit 1
+        fi
 
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
