@@ -5,11 +5,14 @@ import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 import {
   getPanelConfigurationsDerivedAtom,
   getPanelOptionsAndDataDerivedAtom,
+  isEditingAtom,
   refreshIntervalAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
 import { isGenericText } from '../../utils';
+import { editProperties } from '../../useCanEditDashboard';
+import useSaveDashboard from '../../useSaveDashboard';
 
 interface Props {
   id: string;
@@ -23,7 +26,11 @@ const Panel = ({ id }: Props): JSX.Element => {
     getPanelConfigurationsDerivedAtom
   );
   const refreshInterval = useAtomValue(refreshIntervalAtom);
+  const isEditing = useAtomValue(isEditingAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
+
+  const { canEditField } = editProperties.useCanEditProperties();
+  const { saveDashboard } = useSaveDashboard();
 
   const panelOptionsAndData = getPanelOptionsAndData(id);
 
@@ -46,15 +53,24 @@ const Panel = ({ id }: Props): JSX.Element => {
     ) : (
       <FederatedComponent
         isFederatedWidget
+        canEdit={canEditField}
         globalRefreshInterval={refreshInterval}
         id={id}
+        isEditing={isEditing}
         panelData={panelOptionsAndData?.data}
         panelOptions={panelOptionsAndData?.options}
         path={panelConfigurations.path}
+        saveDashboard={saveDashboard}
         setPanelOptions={changePanelOptions}
       />
     ),
-    memoProps: [id, panelOptionsAndData]
+    memoProps: [
+      id,
+      panelOptionsAndData,
+      isEditing,
+      refreshInterval,
+      canEditField
+    ]
   });
 };
 
