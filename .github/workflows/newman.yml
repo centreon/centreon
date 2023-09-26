@@ -24,9 +24,8 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      collections: ${{ steps.set_collections.outputs.collections }}
-      environments: ${{ steps.set_collections.outputs.environments }} 
-
+      collections: ${{ toJson(steps.set_collections.outputs.collections) }}
+      environments: ${{ toJson(steps.set_collections.outputs.environments) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
