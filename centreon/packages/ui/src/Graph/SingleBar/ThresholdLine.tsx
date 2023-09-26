@@ -2,18 +2,26 @@ import { equals } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
+import { margins } from '../common/margins';
+
 import { groupMargin } from './Thresholds';
 
-export const barHeight = 72;
+export const barHeights = {
+  medium: 72,
+  small: 22
+};
 export const margin = 40;
 
-const lineMargin = 10;
-const thresholdLineHeight = barHeight + 2 * lineMargin;
+const lineMargins = {
+  medium: 10,
+  small: 5
+};
 
 interface Props {
   hideTooltip: () => void;
   label: string;
   showTooltip: (args) => void;
+  size: 'small' | 'medium';
   thresholdType: string;
   value: number;
   xScale: (value: number) => number;
@@ -25,13 +33,20 @@ export const ThresholdLine = ({
   xScale,
   thresholdType,
   showTooltip,
-  hideTooltip
+  hideTooltip,
+  size
 }: Props): JSX.Element => {
   const theme = useTheme();
 
   const scaledValue = xScale(value) || 0;
 
-  const bottom = barHeight + margin * 2;
+  const lineMargin = lineMargins[size];
+
+  const thresholdLineHeight = barHeights[size] + 2 * lineMargin;
+
+  const isSmall = equals(size, 'small');
+
+  const bottom = barHeights[size] + margin * 2;
 
   const onMouseEnter = (left) => (): void =>
     showTooltip({
@@ -49,12 +64,20 @@ export const ThresholdLine = ({
       <line
         data-testid={`${thresholdType}-line-${value}`}
         stroke={lineColor}
-        strokeDasharray={4}
+        strokeDasharray="6, 6"
         strokeWidth={2}
         x1={scaledValue}
         x2={scaledValue}
-        y1={groupMargin + 3 * lineMargin}
-        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
+        y1={
+          isSmall
+            ? groupMargin - lineMargin
+            : groupMargin + lineMargin + margins.top
+        }
+        y2={
+          isSmall
+            ? thresholdLineHeight + groupMargin - lineMargin
+            : thresholdLineHeight + groupMargin + lineMargin + margins.top
+        }
       />
       <line
         data-testid={`${thresholdType}-line-${value}-tooltip`}
@@ -62,8 +85,16 @@ export const ThresholdLine = ({
         strokeWidth={5}
         x1={scaledValue}
         x2={scaledValue}
-        y1={groupMargin + 3 * lineMargin}
-        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
+        y1={
+          isSmall
+            ? groupMargin - lineMargin
+            : groupMargin + lineMargin + margins.top
+        }
+        y2={
+          isSmall
+            ? thresholdLineHeight + groupMargin - lineMargin
+            : thresholdLineHeight + groupMargin + lineMargin + margins.top
+        }
         onMouseEnter={onMouseEnter(scaledValue)}
         onMouseLeave={hideTooltip}
       />

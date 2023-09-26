@@ -16,8 +16,8 @@ export interface Metric {
   crit: number | null;
   critical_high_threshold: number | null;
   critical_low_threshold: number | null;
-  data: Array<number>;
-  ds_data: DsData;
+  data: Array<number | null>;
+  ds_data?: DsData;
   legend: string;
   maximum_value: number | null;
   metric: string;
