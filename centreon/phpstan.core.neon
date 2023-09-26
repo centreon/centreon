@@ -47,3 +47,8 @@ parameters:
             paths:
                 - src/Core/Notification/Application/UseCase/AddNotification/AddNotification.php
                 - src/Core/Notification/Application/UseCase/UpdateNotification/UpdateNotification.php
+
+        - # [CENTREON-RULE]: The logging is already done in a parent try catch block.
+            message: '#Catch block must contain a Logger trait method call.#'
+            paths:
+                - src/Core/Security/Authentication/Application/UseCase/Login/Login.php

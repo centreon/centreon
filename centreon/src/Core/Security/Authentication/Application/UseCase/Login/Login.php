@@ -47,6 +47,7 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\Session;
+use Security\Encryption;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class Login
@@ -67,6 +68,7 @@ final class Login
      * @param AclUpdaterInterface $aclUpdater
      * @param MenuServiceInterface $menuService
      * @param string $defaultRedirectUri
+     * @param MobileLogin $mobileLogin
      */
     public function __construct(
         private ProviderAuthenticationFactoryInterface $providerFactory,
@@ -78,7 +80,8 @@ final class Login
         private WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
         private AclUpdaterInterface $aclUpdater,
         private MenuServiceInterface $menuService,
-        private string $defaultRedirectUri
+        private string $defaultRedirectUri,
+        private readonly MobileLogin $mobileLogin,
     ) {
     }
 
@@ -106,9 +109,20 @@ final class Login
 
             $this->updateACL($user);
 
-            // Start a new session
+            $token = null;
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
                 if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->session->getId()) === false) {
+                    if ($loginRequest->providerName === Provider::SAML && $this->mobileLogin->isActive()) {
+                        $this->mobileLogin->setToken($token = Encryption::generateRandomString());
+                        $this->createAuthenticationTokens(
+                            $token,
+                            $user,
+                            $this->provider->getProviderToken($this->session->getId()),
+                            $this->provider->getProviderRefreshToken(),
+                            $loginRequest->clientIp
+                        );
+                    }
+
                     $this->createAuthenticationTokens(
                         $this->session->getId(),
                         $user,
@@ -117,28 +131,31 @@ final class Login
                         $loginRequest->clientIp
                     );
                 }
+
             }
 
             $redirectionInfo = $this->getRedirectionInfo($user, $loginRequest->refererQueryParameters);
             $presenter->present(
-                new LoginResponse((string) $redirectionInfo['redirect_uri'], (bool) $redirectionInfo['is_react'])
+                new LoginResponse(
+                    (string) $redirectionInfo['redirect_uri'],
+                    (bool) $redirectionInfo['is_react'],
+                )
             );
-        } catch (PasswordExpiredException $e) {
-            $response = new PasswordExpiredResponse($e->getMessage());
-            $response->setBody([
-                'password_is_expired' => true,
-            ]);
+        } catch (PasswordExpiredException $exception) {
+            $this->info('The password expired', ['trace' => (string) $exception]);
+            $response = new PasswordExpiredResponse($exception->getMessage());
+            $response->setBody(['password_is_expired' => true]);
             $presenter->setResponseStatus($response);
 
             return;
-        } catch (AuthenticationException $e) {
-            $this->error('An error occurred during authentication', ['trace' => (string) $e]);
-            $presenter->setResponseStatus(new UnauthorizedResponse($e->getMessage()));
+        } catch (AuthenticationException $exception) {
+            $this->error('An error occurred during authentication', ['trace' => (string) $exception]);
+            $presenter->setResponseStatus(new UnauthorizedResponse($exception->getMessage()));
 
             return;
-        } catch (AclConditionsException $e) {
-            $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $e]);
-            $presenter->setResponseStatus(new ErrorAclConditionsResponse($e->getMessage()));
+        } catch (AclConditionsException $exception) {
+            $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $exception]);
+            $presenter->setResponseStatus(new ErrorAclConditionsResponse($exception->getMessage()));
         } catch (AuthenticationConditionsException $ex) {
             $this->error('An error occured while matching your authentication conditions', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($ex->getMessage()));
