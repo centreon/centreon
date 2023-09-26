@@ -57,15 +57,11 @@ jobs:
           
           find_collections "$collection_path"
           
-          # Créez une liste JSON des noms de collections sans les guillemets
-          collections_json=$(printf "\"%s\",\n" "${collections[@]}" | sed '$s/,$//' | jq -c -R .)
-          
-          # Stockez la liste JSON des noms de collections dans la variable GITHUB_OUTPUT
-          echo "$collections_json" >> $GITHUB_OUTPUT
+          # Stockez la liste des noms de collections dans la variable GITHUB_OUTPUT
+          echo "${collections[@]}" >> $GITHUB_OUTPUT
           
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
-
   postman_tests:
    needs: discover_collections
    runs-on: ubuntu-latest
