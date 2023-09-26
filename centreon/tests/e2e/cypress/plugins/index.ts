@@ -17,16 +17,6 @@ module.exports = (on): void => {
       launchOptions.args = launchOptions.args.filter(
         (element) => element !== '--disable-dev-shm-usage',
       );
-
-      if (browser.isHeadless) {
-        launchOptions.args = launchOptions.args.map((arg) => {
-          if (arg === '--headless') {
-            return '--headless=new';
-          }
-
-          return arg;
-        });
-      }
     }
 
     return launchOptions;
