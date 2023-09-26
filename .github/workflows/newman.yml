@@ -86,7 +86,7 @@ jobs:
           collection_names_json=$(echo "$collection_names" | jq -R -s 'split("\n")[:-1]')
   
           # Stockez les noms de collections dans la variable GITHUB_OUTPUT
-          echo "collection_names=$collection_names" >> $GITHUB_OUTPUT
+          echo "collection_names=$collection_names_json" >> $GITHUB_OUTPUT
           
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
