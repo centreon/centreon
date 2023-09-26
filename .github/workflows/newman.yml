@@ -41,8 +41,7 @@ jobs:
             echo "Processing folder: $folder"
             
             collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
-            
+            environment_files=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')            
             if [ -n "$collections_folder" ]; then
               if [ -n "$collections" ]; then
                 collections="$collections,"
@@ -54,8 +53,10 @@ jobs:
               if [ -n "$environments" ]; then
                 environments="$environments,"
               fi
-              environments+="$environment_file"
+              environments+="$environment_files"
             fi
+            echo "$collections"  
+            echo "$environments"  
           done < <(find "$collection_path" -type d -print0)
           echo "collections=$collections" >> $GITHUB_OUTPUT
           echo "environments=$environments" >> $GITHUB_OUTPUT
