@@ -35,29 +35,32 @@ jobs:
         id: set_collections
         run: |
           collection_path="${{ inputs.collection_path }}"
+          collections=""
+          environments=""
+          
           while IFS= read -r -d $'\0' folder; do
             echo "Processing folder: $folder"
             
-            collections=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+            collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
             environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
             
-            if [ -n "$collections" ]; then
-              if [ -n "$environments" ]; then
+            if [ -n "$collections_folder" ]; then
+              if [ -n "$collections" ]; then
                 collections="$collections,"
               fi
-              collections+="$collections"
-              echo "Collections found: $collections"
+              collections+="$collections_folder"
             fi
             
-            if [ -n "$environments" ]; then
+            if [ -n "$environment_file" ]; then
               if [ -n "$environments" ]; then
                 environments="$environments,"
               fi
               environments+="$environment_file"
-              echo "Environments found: $environments"
             fi
           done < <(find "$collection_path" -type d -print0)
-               
+          
+          echo "Collections found: $collections"
+          echo "Environments found: $environments"
 
   postman_tests:
     needs: discover_collections
