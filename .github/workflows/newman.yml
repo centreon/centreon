@@ -33,7 +33,7 @@ jobs:
       - name: List Postman Collections and Environments
         id: set_collections
         run: |
-          collection_path="${{ inputs.collection_path }}"
+            collection_path="${{ inputs.collection_path }}"
             collections_json=()  # Tableau pour stocker les résultats
         
             # Fonction pour parcourir récursivement les dossiers
