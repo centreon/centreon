@@ -34,25 +34,43 @@ jobs:
         id: set_collections
         run: |
           collection_path="${{ inputs.collection_path }}"
-          collections=()
-          environments=()
-          
+          folders=()
+
+          # Parcourez les dossiers du chemin spécifié
           while IFS= read -r -d $'\0' folder; do
             echo "Processing folder: $folder"
-      
-            collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort)
-            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
-      
-            # Ajoutez les chemins des collections et des environnements aux tableaux respectifs
-            collections+=("$collections_folder")
-            environments+=("$environment_file")
+            folders+=("$folder")
           done < <(find "$collection_path" -type d -print0)
           
-          # Créez un objet JSON contenant les tableaux de collections et d'environnements
-          collections_json="{\"collections\": [${collections[*]}], \"environments\": [${environments[*]}]}"
-          echo "collections=$collections_json" >> $GITHUB_OUTPUT
+          # Créez un tableau JSON pour stocker les données de chaque dossier
+          data=()
+          
+          for folder in "${folders[@]}"; do
+            collections=()
+            environments=()
       
+            # Parcourez les collections du dossier courant
+            while IFS= read -r -d $'\0' collection_file; do
+              collections+=("$collection_file")
+            done < <(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort)
+            
+            # Parcourez les environnements du dossier courant
+            while IFS= read -r -d $'\0' environment_file; do
+              environments+=("$environment_file")
+            done < <(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
+            
+            # Créez un objet JSON pour le dossier courant
+            folder_data="{\"collections\": [${collections[*]}], \"environments\": [${environments[*]}]}"
+            
+            # Ajoutez cet objet JSON au tableau de données
+            data+=("$folder_data")
+          done
+      
+          # Créez un tableau JSON final avec les données de chaque dossier
+          collections_json="[${data[*]}]"
+          
           # Ajoutez cet echo pour afficher le contenu de la variable collections
+          echo "collections=$collections_json" >> $GITHUB_OUTPUT
           echo "$collections_json"
 
   postman_tests:
