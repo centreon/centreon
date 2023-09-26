@@ -162,6 +162,8 @@ def main():
     # Getting the components list
     if components : 
         components_list = components.split(',')
+    else :
+        components_list = None
 
     # Uploading the feature file to Xray succeed
     if response_data :
