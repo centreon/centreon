@@ -38,25 +38,57 @@ jobs:
           # Recherchez tous les dossiers dans le chemin spécifié
           folders=$(find "$collection_path" -type d)
           
-          # Variables de sortie pour les collections et les environnements
+          # Variables de sortie pour les collections et les environnements par dossier
           collections=""
           environments=""
           
           # Parcourez chaque dossier
           for folder in $folders; do
-          collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | tr '\n' ',')
-          environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort | tr '\n' ',')
-          
-          if [ -n "$collection_files" ]; then
-            collections+="$folder: $collection_files\n"
-          fi
-          
-          if [ -n "$environment_file" ]; then
-            environments+="$folder: $environment_file\n"
-          fi
+            # Stockez le chemin de l'environnement pour le dossier actuel
+            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
+            
+            # Si nous trouvons un saut de ligne, cela signifie que nous devons exécuter les collections
+            if [[ "$folder" == *$'\n'* ]]; then
+              # Supprimez le dernier caractère (",") des chaînes
+              collections="${collections%,}"
+              environments="${environments%,}"
+              
+              IFS=$'\n' read -rd ',' -a collection_paths <<< "$collections"
+              IFS=$'\n' read -rd ',' -a environment_paths <<< "$environments"
+              
+              # Exécutez chaque collection avec l'environnement correspondant
+              for ((i = 0; i < ${#collection_paths[@]}; i++)); do
+                collection_path="${collection_paths[i]}"
+                environment_path="${environment_paths[i]}"
+                
+                # Exécutez la collection avec l'environnement
+                echo "Exécution de la collection : $collection_path avec l'environnement : $environment_path"
+                # Exécutez ici votre commande pour exécuter la collection avec l'environnement
+                
+                # Réinitialisez les variables pour le prochain dossier
+                collections=""
+                environments=""
+              done
+            fi
+            
+            # Stockez le chemin de la collection pour le dossier actuel
+            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | tr '\n' ',')
+            
+            if [ -n "$collections" ]; then
+              collections+=","
+            fi
+            collections+="$collection_files"
+            
+            if [ -n "$environments" ]; then
+              environments+=","
+            fi
+            environments+="$environment_file"
           done
-          collections=${collections%,*}
-          environments=${environments%,*}
+      
+          # Supprimez le dernier caractère (",") des chaînes
+          collections="${collections%,}"
+          environments="${environments%,}"
+          
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
