@@ -67,7 +67,7 @@ jobs:
       
           # Transformez le tableau collections_json en une chaîne JSON complète
           json_result="[${collections_json[*]}]"
-      
+          echo "collections=$json_result
           # Stockez le résultat JSON dans la variable GITHUB_OUTPUT
           echo "collections=$json_result" >> $GITHUB_OUTPUT
 
