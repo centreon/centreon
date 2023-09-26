@@ -33,15 +33,16 @@ jobs:
       - name: List Postman Collections and Environments
         id: set_collections
         run: |
-          collection_path="centreon/tests/rest_api/collections"
+          collection_path="${{ inputs.collection_path }}"
           collections=()
           environments=()
           
           while IFS= read -r -d $'\0' folder; do
-            echo "Processing folder: $folder"
-            
+           echo "Processing folder: $folder"
+          
             collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-            environment_files=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')            
+            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
+            
             if [ -n "$collections_folder" ]; then
               if [ -n "$collections" ]; then
                 collections="$collections,"
@@ -53,15 +54,12 @@ jobs:
               if [ -n "$environments" ]; then
                 environments="$environments,"
               fi
-              environments+="$environment_files"
+              environments+="$environment_file"
             fi
-            echo "$collections"  
-            echo "$environments"  
           done < <(find "$collection_path" -type d -print0)
           echo "collections=$collections" >> $GITHUB_OUTPUT
           echo "environments=$environments" >> $GITHUB_OUTPUT
-
-       
+          
   postman_tests:
    needs: discover_collections
    runs-on: ubuntu-latest
