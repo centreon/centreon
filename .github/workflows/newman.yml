@@ -81,7 +81,7 @@ jobs:
           echo "collections=$json_result"
           
           # Utilisez jq pour extraire uniquement les noms de collections
-          collection_names=$(echo "$json_result" | jq -r '.[0].collections[]')
+          collection_names=$(echo "$json_result" | jq -r '.collections[]')
           
           # Stockez les noms de collections dans la variable GITHUB_OUTPUT
           echo "collection_names=$collection_names" >> $GITHUB_OUTPUT
