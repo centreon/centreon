@@ -35,36 +35,47 @@ jobs:
         run: |
           collection_path="${{ inputs.collection_path }}"
           collections_json=()  # Tableau pour stocker les résultats
-      
+
+          # Créez un tableau associatif pour stocker les collections et les environnements
+          declare -A collection_data
+
           # Fonction pour parcourir récursivement les dossiers
           find_collections() {
             local folder="$1"
             collections=()
             environments=()
-      
+
             while IFS= read -r -d $'\0' collection_file; do
-              collections+=("${collection_file#$collection_path/}")  # Supprimer le préfixe
+              collections+=("${collection_file#$collection_path/}")
             done < <(find "$folder" -type f -name "*.postman_collection.json" -print0)
-      
+
             while IFS= read -r -d $'\0' environment_file; do
               environments+=("${environment_file#$collection_path/}")  # Supprimer le préfixe
             done < <(find "$folder" -type f -name "Environment-Collection.json" -print0)
-      
-            # Ajoutez la structure JSON au tableau collections_json uniquement si des collections sont trouvées
-            if [ "${#collections[@]}" -gt 0 ]; then
-              json_structure="{\"collections\": [\"${collections[*]}\"], \"environments\": [\"${environments[*]}\"]}"
-              collections_json+=("$json_structure")
-            fi
-      
+
+            # Ajoutez les collections et environnements à l'associatif
+            for collection in "${collections[@]}"; do
+              collection_data["collections"]+="\"$collection\", "
+            done
+            for environment in "${environments[@]}"; do
+              collection_data["environments"]+="\"$environment\", "
+            done
+
             for subfolder in "$folder"/*; do
               if [ -d "$subfolder" ] && [ "${subfolder#$folder}" != "/refactor-collection" ]; then
                 find_collections "$subfolder"
               fi
             done
           }
-      
+
           find_collections "$collection_path"
-      
+
+          # Construisez le tableau collections_json à partir des données de l'associatif
+          collections_json+=("{")
+          collections_json+=("\"collections\": [${collection_data["collections"]%, }], ")
+          collections_json+=("\"environments\": [${collection_data["environments"]%, }]")
+          collections_json+=("}")
+
           # Transformez le tableau collections_json en une chaîne JSON complète
           json_result="[${collections_json[*]}]"
           echo "collections=$json_result"
@@ -72,7 +83,6 @@ jobs:
           echo "collections=$json_result" >> $GITHUB_OUTPUT
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
- 
 
   postman_tests:
    needs: discover_collections
