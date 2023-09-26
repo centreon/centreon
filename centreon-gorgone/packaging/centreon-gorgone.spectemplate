@@ -1,3 +1,5 @@
+%define selinuxdevel %{_datadir}/selinux/devel
+
 Name:       centreon-gorgone
 Version:    23.10.0
 Release:    %{PACKAGE_RELEASE}%{?dist}
@@ -57,10 +59,24 @@ Requires:   centreon-gorgone
 %description centreon-config
 %{COMMIT_HASH}
 
+%package -n centreon-gorgoned-selinux
+Summary:    SELinux context for centreon-gorgoned
+Group:      Networking/Other
+License:    Apache-2.0
+Requires:   policycoreutils
+Requires:   centreon-common-selinux
+
+%description -n centreon-gorgoned-selinux
+%{COMMIT_HASH}
+SElinux context for centreon-gorgoned.
+
 %prep
 %setup -q -n %{name}-%{version}
 
 %build
+
+sed -i 's#@VERSION@#%{version}#' centreon-gorgone/selinux/*
+(cd centreon-gorgone/selinux && %{__make} -f %{selinuxdevel}/Makefile)
 
 %install
 rm -rf %{buildroot}
@@ -95,6 +111,9 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 
 %{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
 %{__cp} centreon-gorgone/packaging/sudoers.d/centreon-gorgone %buildroot%{_sysconfdir}/sudoers.d/centreon-gorgone
+
+%{__mkdir} -p %buildroot%{_datadir}/selinux/packages/centreon
+%{__install} -m 655 centreon-gorgone/selinux/centreon-gorgoned.pp %buildroot%{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp
 
 %{_fixperms} $RPM_BUILD_ROOT/*
 
@@ -159,5 +178,17 @@ fi
 
 %postun
 %systemd_postun_with_restart gorgoned.service || :
+
+%files -n centreon-gorgoned-selinux
+%defattr(-, root, root, -)
+%{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp
+
+%post -n centreon-gorgoned-selinux
+semodule -i %{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp > /dev/null 2>&1 || :
+
+%preun -n centreon-gorgoned-selinux
+if [ "$1" -lt "1" ]; then # Final removal
+  semodule -r centreon-gorgoned > /dev/null 2>&1 || :
+fi
 
 %changelog
