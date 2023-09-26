@@ -33,36 +33,8 @@ jobs:
         id: set_collections
         run: |
           collection_path="${{ inputs.collection_path }}"
-          collections=()  # Tableau pour stocker les noms des collections
-          
-          # Fonction pour parcourir les dossiers dans le répertoire "collections"
-          find_collections() {
-            local folder="$1"
-          
-            while IFS= read -r -d $'\0' collection_file; do
-              # Exclure "environment-collection.json"
-              if [[ "$collection_file" != *"Environment-Collection.json" ]]; then
-                # Extraire uniquement le nom du fichier sans le chemin et l'extension
-                collection_name=$(basename "$collection_file" .postman_collection.json)
-                collections+=("$collection_name")
-              fi
-            done < <(find "$folder" -type f -name "*.postman_collection.json" -print0)
-          
-            for subfolder in "$folder"/*; do
-              if [ -d "$subfolder" ]; then
-                find_collections "$subfolder"
-              fi
-            done
-          }
-          
-          find_collections "$collection_path"
-          
-          # Formatez la liste des noms de collections
-          collections_json=$(printf "%s\n" "${collections[@]}")
-          
-          # Stockez la liste des noms de collections dans la variable GITHUB_OUTPUT
-          echo "$collections_json" >> $GITHUB_OUTPUT
-          
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "collections=$collections" >> $GITHUB_OUTPUT
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
   postman_tests:
@@ -114,12 +86,9 @@ jobs:
 
     - name: Run Postman Tests and Generate HTML Report
       run: |
-        collection_name="${matrix.feature}"
-        collection_file="collections/$collection_name"
-        environment="${matrix.environment}"
-        
-        echo "Running collection: $collection_file with environment: $environment"
-        pnpm newman run "$collection_file" -e "$environment" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+        collection_file="collections/${{ matrix.feature }}"
+        collection_name=$(basename "$collection_file" .postman_collection.json)
+        pnpm newman run "$collection_file" -e "collections/Environment-Collection.json" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
 
 
     - name: Upload HTML Reports
