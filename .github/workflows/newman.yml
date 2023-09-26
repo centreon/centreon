@@ -38,27 +38,27 @@ jobs:
           collections=""
           environments=""
           
-          while IFS= read -r -d $'\0' folder; do
+           while IFS= read -r -d $'\0' folder; do
             echo "Processing folder: $folder"
             
-            collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
             environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
             
-            if [ -n "$collections_folder" ]; then
+            if [ -n "$collection_files" ]; then
               if [ -n "$collections" ]; then
                 collections="$collections,"
               fi
-              collections+="$collections_folder"
+              collections+="$folder/"
             fi
             
             if [ -n "$environment_file" ]; then
               if [ -n "$environments" ]; then
                 environments="$environments,"
               fi
-              environments+="$environment_file"
+              environments+="$folder/$environment_file"
             fi
-          done < <(find "$collection_path" -type d -print0)
-          
+           done < <(find "$collection_path" -type d -print0)
+        
           echo "Collections found: $collections"
           echo "Environments found: $environments"
 
