@@ -35,19 +35,21 @@ jobs:
         run: |
           collection_path="${{ inputs.collection_path }}"
           collections=()
+          environments=()
           
           while IFS= read -r -d $'\0' folder; do
             echo "Processing folder: $folder"
       
-            collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+            collections_folder=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort)
             environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
       
-            folder_name=$(basename "$folder")
-            folder_json="{\"collections\": $collections_folder, \"environment\": \"$environment_file\"}"
-            collections+=(" \"$folder_name\": $folder_json")
+            # Ajoutez les chemins des collections et des environnements aux tableaux respectifs
+            collections+=("$collections_folder")
+            environments+=("$environment_file")
           done < <(find "$collection_path" -type d -print0)
           
-          collections_json="{${collections[*]}}"
+          # Créez un objet JSON contenant les tableaux de collections et d'environnements
+          collections_json="{\"collections\": [${collections[*]}], \"environments\": [${environments[*]}]}"
           echo "collections=$collections_json" >> $GITHUB_OUTPUT
       
           # Ajoutez cet echo pour afficher le contenu de la variable collections
