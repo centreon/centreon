@@ -33,8 +33,8 @@ jobs:
       - name: List Postman Collections and Environments
         id: set_collections
         run: |
-          collection_path="centreon/tests/rest_api/collections"
-          folder_data=()
+          collection_path="${{ inputs.collection_path }}"
+          collections=()
           
           while IFS= read -r -d $'\0' folder; do
             echo "Processing folder: $folder"
@@ -43,11 +43,11 @@ jobs:
             environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
       
             folder_name=$(basename "$folder")
-            folder_json="{\"collections\": [$collections_folder], \"environment\": \"$environment_file\"}"
-            folder_data+=("{$folder_name: $folder_json}")
+            folder_json="{\"collections\": $collections_folder, \"environment\": \"$environment_file\"}"
+            collections+=(" \"$folder_name\": $folder_json")
           done < <(find "$collection_path" -type d -print0)
           
-          collections_json="[${folder_data[*]}]"
+          collections_json="{${collections[*]}}"
           echo "collections=$collections_json" >> $GITHUB_OUTPUT
       
           # Ajoutez cet echo pour afficher le contenu de la variable collections
