@@ -25,7 +25,7 @@ jobs:
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
-     
+      collection_names: ${{ steps.set_collections.outputs.collection_names }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -72,6 +72,12 @@ jobs:
           echo "collections=$json_result" >> $GITHUB_OUTPUT
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
+          # Assurez-vous que la variable $GITHUB_OUTPUT contient la chaîne JSON
+          collections_json=$(cat $GITHUB_OUTPUT)
+          collection_names=$(echo "$collections_json" | jq -r '.[].collections[]')
+          echo "Collection names: $collection_names"
+          echo "collection_names=$collection_names" >> $GITHUB_OUTPUT
+
 
   postman_tests:
    needs: discover_collections
@@ -80,7 +86,7 @@ jobs:
    strategy:
     fail-fast: false
     matrix:
-      feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
+      feature: ${{ fromJson(needs.discover_collections.outputs.collection_names) }}
 
    name: Postman Test - ${{ matrix.feature }}
 
