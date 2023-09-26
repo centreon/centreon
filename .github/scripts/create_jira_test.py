@@ -49,12 +49,11 @@ def get_modified_feature_files():
 def extract_data_from_feature_file(file_path):
     try:
         feature_file_content = open(file_path, "r").read()
-        match = re.search(r'#components:(.*?)\s+testSet:(.*?)$', feature_file_content, re.MULTILINE | re.DOTALL)
+        match = re.search(r'#testSet:(.*?)$', feature_file_content, re.MULTILINE | re.DOTALL)
 
         if match:
-            components = match.group(1).strip()
-            test_set_key = match.group(2).strip()
-            return components, test_set_key
+            test_set_key = match.group(1).strip()
+            return test_set_key
 
     except Exception as e:
         print(f"Error reading feature file: {e}")
@@ -155,13 +154,7 @@ def main():
     # Set the target version based on the branch name
     target_version = get_target_version(branch_name)
 
-    components, test_set_key = extract_data_from_feature_file(FEATURE_FILE_PATH)
-
-    # Getting the components list
-    if components : 
-        components_list = components.split(',')
-    else :
-        components_list = None
+    test_set_key = extract_data_from_feature_file(FEATURE_FILE_PATH)
 
     # Uploading the feature file to Xray succeed
     if response_data :
@@ -170,7 +163,8 @@ def main():
         test_ids = [test['id'] for test in response_data['updatedOrCreatedTests']]
                 
         # Updating the Issues to match the target version and components
-        update_jira_issues(test_selfs, target_version, components_list)
+        # For now we have only centreon-web
+        update_jira_issues(test_selfs, target_version, ["centreon-web"])
 
         if test_set_key : 
             test_set_id = get_jira_issue_id(test_set_key)

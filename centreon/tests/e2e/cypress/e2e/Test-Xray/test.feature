@@ -1,4 +1,4 @@
-#components:centreon-web testSet:MON-21774
+#testSet:MON-21774
 @MON-21779
 Feature: Automated feature ( Test ) 
     As a Centreon Web user 
