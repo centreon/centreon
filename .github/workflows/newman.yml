@@ -42,7 +42,9 @@ jobs:
             while IFS= read -r -d $'\0' collection_file; do
               # Exclure "environment-collection.json"
               if [[ "$collection_file" != *"Environment-Collection.json" ]]; then
-                collections+=("$collection_file")
+                # Extraire uniquement le nom du fichier sans le chemin
+                collection_name=$(basename "$collection_file")
+                collections+=("$collection_name")
               fi
             done < <(find "$folder" -type f -name "*.postman_collection.json" -print0)
           
