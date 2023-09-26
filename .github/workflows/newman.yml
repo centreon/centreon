@@ -56,19 +56,22 @@ jobs:
             echo "Environnement à utiliser : $environment_file"
           
             # Réinitialisez les variables pour le prochain dossier
-            collections="$collections$collection_files\n"
-            environments="$environments$environment_file\n"
-          done
+            if [ -n "$collections" ]; then
+              collections+=","
+            fi
+            collections+="$collection_files"
           
-          # Supprimez le dernier saut de ligne
-          collections=${collections%\\n}
-          environments=${environments%\\n}
+            if [ -n "$environments" ]; then
+              environments+=","
+            fi
+            environments+="$environment_file"
+          done
           
           echo "collections=$collections"
           echo "environments=$environments"
           echo "collections=$collections" >> $GITHUB_OUTPUT
           echo "environments=$environments" >> $GITHUB_OUTPUT
-          
+            
   
 
   postman_tests:
