@@ -202,7 +202,7 @@ describe('Filter', () => {
   it('executes a listing request with "Unhandled alerts" filter by default', () => {
     cy.waitForRequest('@defaultRequest');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   searchableFields.forEach((searchableField) => {
@@ -219,7 +219,7 @@ describe('Filter', () => {
 
       cy.waitForRequest(`@request/${searchableField}`);
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -248,7 +248,7 @@ describe('Filter', () => {
       ).to.be.true;
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -349,7 +349,7 @@ describe('Custom filters', () => {
 
       cy.waitForRequest(`@request/${criteria}`);
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 });
@@ -411,7 +411,7 @@ describe('Keyboard actions', () => {
 
     searchBar.should('have.value', 'state:unhandled status: type:service');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it(`accepts the selected autocomplete suggestion when the beginning of a dynamic criteria is input and the "enter" key is pressed`, () => {
@@ -435,6 +435,6 @@ describe('Keyboard actions', () => {
     searchBar.type('{Enter}');
     cy.waitForRequest('@hostgroupsRequest');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
