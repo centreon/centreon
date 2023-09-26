@@ -31,7 +31,7 @@ describe('Navigation menu', () => {
       cy.wrap($li).get('svg').should('be.visible');
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('expands the menu when the logo is clicked', () => {
@@ -48,21 +48,21 @@ describe('Navigation menu', () => {
       }
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the direct child items and highlights the item when hovered', () => {
     cy.get('li').eq(2).trigger('mouseover');
     cy.get('[data-cy=collapse]').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('highlights the menu item when double clicked', () => {
     cy.get('li').eq(0).as('element').trigger('mouseover');
     cy.get('@element').trigger('dblclick');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('highlights the parent item when the item is clicked', () => {
@@ -88,6 +88,6 @@ describe('Navigation menu', () => {
       .trigger('mouseover')
       .trigger('click');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
