@@ -122,15 +122,13 @@ jobs:
 
     - name: Run Postman Tests and Generate HTML Report
       run: |
-        for collection in "${matrix.feature}"; do
-            collection_file="collections/$collection"
-            collection_name=$(basename "$collection_file" .postman_collection.json)
-            environment="${matrix.environment}"
-            
-            echo "Running collection: $collection_file with environment: $environment"
-            pnpm newman run "$collection_file" -e "$environment" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
-          done
-        continue-on-error: true
+        collection_name="${matrix.feature}"
+        collection_file="collections/$collection_name"
+        environment="${matrix.environment}"
+        
+        echo "Running collection: $collection_file with environment: $environment"
+        pnpm newman run "$collection_file" -e "$environment" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+
 
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
