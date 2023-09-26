@@ -1646,15 +1646,16 @@ class CentreonACL
             . "LEFT JOIN services s "
             . "ON h.host_id = s.host_id "
             . $joinAcl
-            . "WHERE h.name = '" . CentreonDB::escape($host_name) . "' "
+            . "WHERE h.name = :hostName "
             . "AND s.service_id IS NOT NULL "
             . "ORDER BY h.name, s.description ";
-        $DBRESULT = $pearDBndo->query($query);
-        while ($row = $DBRESULT->fetchRow()) {
+        $statement = $pearDBndo->prepare($query);
+        $statement->bindValue(':hostName', $host_name, \PDO::PARAM_STR);
+        $statement->execute();
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $tab[$row['service_id']] = $row['description'];
         }
-        $DBRESULT->closeCursor();
-
+        $statement->closeCursor();
         return $tab;
     }
 
@@ -1714,32 +1715,67 @@ class CentreonACL
                             \CentreonDBInstance::getMonInstance()->query($request2);
                         }
                     } elseif ($data['action'] == 'DUP' && isset($data['duplicate_host'])) {
-                        // Get current configuration into Centreon_acl table
-                        $request = "SELECT group_id FROM centreon_acl " .
-                            "WHERE host_id = " . $data['duplicate_host'] . " AND service_id IS NULL";
-                        $DBRESULT = \CentreonDBInstance::getMonInstance()->query($request);
-                        $hostAclStatement = \CentreonDBInstance::getMonInstance()
-                            ->prepare("INSERT INTO centreon_acl (host_id, service_id, group_id) "
-                                . "VALUES (:data_id, NULL, :group_id)");
-                        $serviceAclStatement = \CentreonDBInstance::getMonInstance()
-                            ->prepare("INSERT INTO centreon_acl (host_id, service_id, group_id) "
-                                . "VALUES (:data_id, :service_id, :group_id) "
-                                . "ON DUPLICATE KEY UPDATE group_id = :group_id");
-                        while ($row = $DBRESULT->fetchRow()) {
+                        // Get current ACL configuration from centreon_storage.centreon_acl table
+                        $request = <<<SQL
+                            SELECT
+                                group_id
+                            FROM centreon_acl
+                            WHERE host_id = :duplicate_host_id 
+                                AND service_id IS NULL
+                        SQL;
+
+                        $aclStatement = \CentreonDBInstance::getMonInstance()->prepare($request);
+                        $aclStatement->bindValue(':duplicate_host_id', $data['duplicate_host'], \PDO::PARAM_INT);
+                        $aclStatement->execute();
+
+                        $hostInsertACLQuery = <<<'SQL'
+                            INSERT INTO centreon_acl (host_id, service_id, group_id)
+                            VALUES (:data_id, NULL, :group_id)
+                        SQL;
+
+                        $hostACLStatement = \CentreonDBInstance::getMonInstance()->prepare($hostInsertACLQuery);
+
+                        $serviceACLInsertQuery = <<<'SQL'
+                            INSERT INTO centreon_acl (host_id, service_id, group_id)
+                            VALUES (:data_id, :service_id, :group_id)
+                            ON DUPLICATE KEY UPDATE group_id = :group_id
+                        SQL;
+
+                        $serviceACLStatement = \CentreonDBInstance::getMonInstance()->prepare($serviceACLInsertQuery);
+
+                        while ($record = $aclStatement->fetchRow()) {
                             // Insert New Host
-                            $hostAclStatement->bindValue(':data_id', (int) $data["id"], \PDO::PARAM_INT);
-                            $hostAclStatement->bindValue(':group_id', (int) $row['group_id'], \PDO::PARAM_INT);
-                            $hostAclStatement->execute();
-                            // Insert services
-                            $request = "SELECT service_id, group_id FROM centreon_acl "
-                                . "WHERE host_id = " . $data['duplicate_host'] . " AND service_id IS NOT NULL";
-                            $DBRESULT2 = \CentreonDBInstance::getMonInstance()->query($request);
-                            while ($row2 = $DBRESULT2->fetch()) {
-                                $serviceAclStatement->bindValue(':data_id', (int) $data["id"], \PDO::PARAM_INT);
-                                $serviceAclStatement
-                                    ->bindValue(':service_id', (int) $row2["service_id"], \PDO::PARAM_INT);
-                                $serviceAclStatement->bindValue(':group_id', (int) $row2['group_id'], \PDO::PARAM_INT);
-                                $serviceAclStatement->execute();
+                            $hostACLStatement->bindValue(':data_id', (int) $data['id'], \PDO::PARAM_INT);
+                            $hostACLStatement->bindValue(':group_id', (int) $record['group_id'], \PDO::PARAM_INT);
+                            $hostACLStatement->execute();
+
+                            // Find service IDs linked to the new host (result of the duplication)
+                            $request = <<<SQL
+                                SELECT
+                                    service_service_id
+                                FROM
+                                    host_service_relation
+                                WHERE
+                                    host_host_id = :host_host_id 
+                            SQL;
+
+                            $servicesStatement = \CentreonDBInstance::getConfInstance()->prepare($request);
+                            $servicesStatement->bindValue(':host_host_id', $data['id'], \PDO::PARAM_INT);
+                            $servicesStatement->execute();
+
+                            while ($serviceIds = $servicesStatement->fetch(\PDO::FETCH_ASSOC)) {
+                                $serviceACLStatement->bindValue(':data_id', (int) $data['id'], \PDO::PARAM_INT);
+                                $serviceACLStatement->bindValue(
+                                    ':service_id',
+                                    (int) $serviceIds['service_service_id'],
+                                    \PDO::PARAM_INT
+                                );
+                                $serviceACLStatement->bindValue(
+                                    ':group_id',
+                                    (int) $record['group_id'],
+                                    \PDO::PARAM_INT
+                                );
+                                $serviceACLStatement->execute();
                             }
                         }
                     }
@@ -1766,10 +1802,10 @@ class CentreonACL
                             $statement = \CentreonDBInstance::getMonInstance()
                                 ->prepare("INSERT INTO centreon_acl (host_id, service_id, group_id) "
                                     . "VALUES (:host_id, :data_id, :group_id)");
-                            while ($row = $DBRESULT->fetchRow()) {
+                            while ($record = $DBRESULT->fetchRow()) {
                                 $statement->bindValue(':host_id', (int) $host_id, \PDO::PARAM_INT);
                                 $statement->bindValue(':data_id', (int) $data["id"], \PDO::PARAM_INT);
-                                $statement->bindValue(':group_id', (int) $row['group_id'], \PDO::PARAM_INT);
+                                $statement->bindValue(':group_id', (int) $record['group_id'], \PDO::PARAM_INT);
                                 $statement->execute();
                             }
                         }

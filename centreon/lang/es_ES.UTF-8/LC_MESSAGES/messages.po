@@ -5342,7 +5342,7 @@ msgstr "modificado"
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:662
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:690
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:793
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Cambio masivo"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:132
@@ -16391,6 +16391,18 @@ msgstr ""
 #  msgid "You are not allowed to add tokens linked to user ID %d"
 #  msgstr ""
 
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} hosts"
+# msgstr ""
+
 #  msgid "Error while deleting a token"
 #  msgstr ""
 
@@ -16399,6 +16411,9 @@ msgstr ""
 
 #  msgid "You are not allowed to delete tokens linked to user ID %d"
 #  msgstr ""
+
+# msgid "hosts"
+# msgstr ""
 
 # msgid "none"
 # msgstr ""

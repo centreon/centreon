@@ -9,7 +9,7 @@ Feature:
 
   Scenario: Resource listing by parent
     Given I am logged in
-    And a feature flag "resource_status_three_view" of bitmask 3
+    And a feature flag "resource_status_tree_view" of bitmask 3
     And the following CLAPI import data:
     """
     HOST;ADD;host_test;Test host;127.0.0.1;generic-host;central;

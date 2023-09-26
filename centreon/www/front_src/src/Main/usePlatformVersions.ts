@@ -45,7 +45,7 @@ const usePlatformVersions = (): UsePlatformVersionsState => {
     }
 
     return (keys(platformVersions?.widgets) as Array<string>).filter((widget) =>
-      includes('centreon-widget', widget)
+      includes('centreon-', widget)
     );
   }, [platformVersions]);
 
