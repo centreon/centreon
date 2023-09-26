@@ -25,7 +25,7 @@ jobs:
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
-      environments: ${{ steps.set_collections.outputs.environments }}  # Nouvelle sortie pour les environnements
+      environments: ${{ steps.set_collections.outputs.environments }} 
 
     steps:
       - name: Checkout Repository
@@ -34,6 +34,7 @@ jobs:
       - name: List Postman Collections and Environments
         id: set_collections
         run: |
+          collection_path="${{ inputs.collection_path }}"
           while IFS= read -r -d $'\0' folder; do
             echo "Processing folder: $folder"
             
