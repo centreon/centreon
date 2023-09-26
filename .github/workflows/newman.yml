@@ -35,32 +35,19 @@ jobs:
         id: set_collections
         run: |
           collection_path="${{ inputs.collection_path }}"
-          collections=""
-          environments=""
+          collections=()
+          environments=()
           
-           while IFS= read -r -d $'\0' folder; do
-            echo "Processing folder: $folder"
-            
-            collection_files=$(find "$folder" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-            environment_file=$(find "$folder" -type f -name "Environment-Collection.json" -printf "%P\n")
-            
-            if [ -n "$collection_files" ]; then
-              if [ -n "$collections" ]; then
-                collections="$collections,"
-              fi
-              collections+="$folder/"
-            fi
-            
-            if [ -n "$environment_file" ]; then
-              if [ -n "$environments" ]; then
-                environments="$environments,"
-              fi
-              environments+="$folder/$environment_file"
-            fi
-           done < <(find "$collection_path" -type d -print0)
-        
-          echo "Collections found: $collections"
-          echo "Environments found: $environments"
+          while IFS= read -r -d $'\0' collection_file; do
+            collections+=("$collection_file")
+          done < <(find "$collection_path" -type f -name "*.postman_collection.json" -print0)
+          
+          while IFS= read -r -d $'\0' environment_file; do
+            environments+=("$environment_file")
+          done < <(find "$collection_path" -type f -name "Environment-Collection.json" -print0)
+          
+          echo "Collections found: ${collections[*]}"
+          echo "Environments found: ${environments[*]}"
 
   postman_tests:
    needs: discover_collections
@@ -113,10 +100,26 @@ jobs:
 
     - name: Run Postman Tests and Generate HTML Report
       run: |
-        collection_file="collections/${{ matrix.feature }}"
-        collection_name=$(basename "$collection_file" .postman_collection.json)
-        # Exécutez Newman avec le fichier de collection actuel et l'environnement approprié
-        pnpm newman run "$collection_file" -e "environments/${{ matrix.environment }}" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+        for collection in "${collections[@]}"; do
+          collection_file="collections/$collection"
+          collection_name=$(basename "$collection_file" .postman_collection.json)
+          environment=""
+          
+          for env in "${environments[@]}"; do
+            env_folder=$(dirname "$env")
+            if [ "$env_folder" == "$collection_name" ]; then
+              environment="environments/$env"
+              break
+            fi
+          done
+          
+          if [ -n "$environment" ]; then
+            echo "Running collection: $collection_file with environment: $environment"
+            pnpm newman run "$collection_file" -e "$environment" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+          else
+            echo "Environment not found for collection: $collection_file"
+          fi
+        done
       continue-on-error: true
 
     - name: Upload HTML Reports
