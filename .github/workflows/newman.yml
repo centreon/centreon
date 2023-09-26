@@ -34,7 +34,7 @@ jobs:
         run: |
           collection_path="${{ inputs.collection_path }}"
           collections=()  # Tableau pour stocker les noms des collections
-          
+
           # Fonction pour parcourir les dossiers dans le répertoire "collections"
           find_collections() {
             local folder="$1"
@@ -58,7 +58,7 @@ jobs:
           find_collections "$collection_path"
           
           # Créez un tableau JSON des noms de collections sans les guillemets
-          collections_json="[\"$(printf '%s"\n' "${collections[@]}" | sed 's/"$//;s/^"//')" ]"
+          collections_json="[\"$(printf '%s\n' "${collections[@]}" | sed 's/"$//;s/^"//')" ]"
           
           # Stockez le tableau JSON des noms de collections dans la variable GITHUB_OUTPUT
           echo "{\"collections\": $collections_json}" >> $GITHUB_OUTPUT
