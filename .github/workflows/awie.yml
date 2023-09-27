@@ -185,7 +185,6 @@ jobs:
           # Set repo based on distrib
           case ${{ matrix.image }} in
             almalinux:8)
-              dnf install -y curl sudo
               dnf install -y epel-release
               dnf install -y dnf-plugins-core
               dnf config-manager --set-enabled powertools
@@ -194,6 +193,7 @@ jobs:
               dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
               dnf module reset -y php
               dnf module install -y php:remi-8.1
+              dnf install -y curl sudo
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
                 | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
@@ -201,7 +201,6 @@ jobs:
               dnf install centreon-${{ env.module }}
             ;;
             almalinux:9)
-              dnf install -y sudo
               dnf install -y dnf-plugins-core
               dnf install -y epel-release
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
@@ -210,6 +209,7 @@ jobs:
               dnf config-manager --set-enabled centreon-${VERSION}-testing*
               dnf module reset -y php
               dnf module install -y php:8.1
+              dnf install -y sudo curl
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
                 | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
