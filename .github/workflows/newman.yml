@@ -13,6 +13,9 @@ on:
       centreon_image:
         required: true
         type: string
+      dependencies_lock_file:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -66,7 +69,7 @@ jobs:
       with:
         node-version: 18
         cache: pnpm
-        cache-dependency-path: ../pnpm-lock.yaml
+        cache-dependency-path:  ${{ inputs.dependencies_lock_file }}
 
     - uses: pnpm/action-setup@v2
       with:
