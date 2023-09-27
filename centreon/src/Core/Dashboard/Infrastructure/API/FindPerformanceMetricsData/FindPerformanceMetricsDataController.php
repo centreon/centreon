@@ -92,8 +92,11 @@ final class FindPerformanceMetricsDataController extends AbstractController
             throw new \InvalidArgumentException('Invalid metric names provided');
         }
 
+        $sanitizedMetricNames = [];
         foreach ($metricNames as $metricName) {
+            $metricName = \trim($metricName, '"');
             $validationConstraints[] = $validator->validate($metricName, $integerConstraint);
+            $sanitizedMetricNames[] = $metricName;
         }
 
         foreach ($validationConstraints as $validationConstraint) {
@@ -105,7 +108,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
         return [
             'start' => $start,
             'end' => $end,
-            'metric_names' => $metricNames,
+            'metric_names' => $sanitizedMetricNames,
         ];
     }
 
