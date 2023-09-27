@@ -10,16 +10,20 @@ const serviceMetricDecoder = JsonDecoder.object<ServiceMetric>(
     metrics: JsonDecoder.array(
       JsonDecoder.object<Metric>(
         {
-          criticalThreshold: JsonDecoder.nullable(JsonDecoder.number),
+          criticalHighThreshold: JsonDecoder.nullable(JsonDecoder.number),
+          criticalLowThreshold: JsonDecoder.nullable(JsonDecoder.number),
           id: JsonDecoder.number,
           name: JsonDecoder.string,
           unit: JsonDecoder.string,
-          warningThreshold: JsonDecoder.nullable(JsonDecoder.number)
+          warningHighThreshold: JsonDecoder.nullable(JsonDecoder.number),
+          warningLowThreshold: JsonDecoder.nullable(JsonDecoder.number)
         },
         'Metric',
         {
-          criticalThreshold: 'critical_threshold',
-          warningThreshold: 'warning_threshold'
+          criticalHighThreshold: 'critical_high_threshold',
+          criticalLowThreshold: 'critical_low_threshold',
+          warningHighThreshold: 'warning_high_threshold',
+          warningLowThreshold: 'warning_low_threshold'
         }
       ),
       'Metrics'

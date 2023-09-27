@@ -34,11 +34,8 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_GREATER_OR_EQUAL = Assert::INVALID_GREATER_OR_EQUAL;
     public const INVALID_INSTANCE_OF = Assert::INVALID_INSTANCE_OF;
     public const INVALID_IP = Assert::INVALID_IP;
-    public const INVALID_IP_OR_DOMAIN = 1002;
-    public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
     public const INVALID_JSON_STRING = Assert::INVALID_JSON_STRING;
     public const INVALID_MAX = Assert::INVALID_MAX;
-    public const INVALID_MAX_DATE = 1001;
     public const INVALID_MAX_LENGTH = Assert::INVALID_MAX_LENGTH;
     public const INVALID_MIN = Assert::INVALID_MIN;
     public const INVALID_MIN_LENGTH = Assert::INVALID_MIN_LENGTH;
@@ -49,7 +46,12 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const VALUE_NULL = Assert::VALUE_NULL;
 
     // Error codes of Centreon assertion start from 1000
+
+    public const INVALID_MAX_DATE = 1001;
+    public const INVALID_IP_OR_DOMAIN = 1002;
     public const INVALID_CHARACTERS = 1003;
+    public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
+    public const INVALID_MIN_DATE = 1005;
 
     /**
      * The extended constructor is here only to enforce the types used
@@ -272,6 +274,35 @@ class AssertionException extends \Assert\InvalidArgumentException
                 $maxDate->format('c')
             ),
             self::INVALID_MAX_DATE,
+            $propertyPath,
+            $value
+        );
+    }
+
+    /**
+     * Exception when the value of the date is lower than the expected date.
+     *
+     * @param \DateTimeInterface $date Tested date
+     * @param \DateTimeInterface $minDate Minimum date
+     * @param string|null $propertyPath Property's path (ex: Host::maxCheckAttempts)
+     *
+     * @return self
+     */
+    public static function minDate(
+        \DateTimeInterface $date,
+        \DateTimeInterface $minDate,
+        ?string $propertyPath = null
+    ): self {
+        $value = $date->format('c');
+
+        return new self(
+            sprintf(
+                _('[%s] The date "%s" was expected to be at least %s'),
+                $propertyPath,
+                $value,
+                $minDate->format('c')
+            ),
+            self::INVALID_MIN_DATE,
             $propertyPath,
             $value
         );

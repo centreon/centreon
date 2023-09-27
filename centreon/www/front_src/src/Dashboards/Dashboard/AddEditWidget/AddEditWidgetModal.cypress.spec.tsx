@@ -34,8 +34,7 @@ import {
   labelWidgetLibrary,
   labelExit,
   labelEditWidget,
-  labelAddResource,
-  labelAddMetric
+  labelAddResource
 } from '../translatedLabels';
 import { dashboardAtom } from '../atoms';
 
@@ -281,11 +280,11 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains(/^Generic text$/).click();
 
-      cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
+      cy.findAllByLabelText('RichTextEditor').eq(0).type('Hello ');
       cy.findByLabelText('bold').click();
-      cy.findAllByLabelText('RichTextEditor').eq(1).type('World');
+      cy.findAllByLabelText('RichTextEditor').eq(0).type('World');
       cy.findByLabelText('bold').click();
-      cy.findAllByLabelText('RichTextEditor').eq(1).type(`
+      cy.findAllByLabelText('RichTextEditor').eq(0).type(`
       
       
       Hello!
@@ -392,7 +391,6 @@ describe('AddEditWidgetModal', () => {
         cy.contains(/^Host 0$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
-        cy.findByLabelText(labelAddMetric).click();
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
         cy.contains('Centreon-server_Ping').click();
 
@@ -425,7 +423,6 @@ describe('AddEditWidgetModal', () => {
         cy.contains(/^Host 0$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
-        cy.findByLabelText(labelAddMetric).click();
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
         cy.contains('Centreon-server_Ping').click();
 
@@ -435,7 +432,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
-        cy.findAllByLabelText(labelDelete).eq(1).click();
+        cy.findAllByLabelText(labelDelete).eq(1).click({ force: true });
 
         cy.findByLabelText(labelSave).should('be.disabled');
 
@@ -459,7 +456,6 @@ describe('AddEditWidgetModal', () => {
         cy.contains(/^Host 0$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
-        cy.findAllByLabelText(labelAddMetric).click();
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
         cy.contains('Centreon-server_Ping').click();
 

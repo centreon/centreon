@@ -10,7 +10,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
-import { LineChartData } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 
 import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -31,6 +31,8 @@ interface Props extends Partial<LineChartProps> {
   marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
+  thresholdUnit?: string;
+  thresholds?: Thresholds;
 }
 
 const WrapperLineChart = ({
@@ -50,18 +52,24 @@ const WrapperLineChart = ({
   legend,
   header,
   curve = Curve.curveLinear,
-  marginBottom = 0
+  marginBottom = 0,
+  thresholds,
+  thresholdUnit
 }: Props): JSX.Element | null => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 
-  if (loading || !adjustedData) {
+  if (loading && !adjustedData) {
     return (
       <LoadingSkeleton
         displayTitleSkeleton={header?.displayTitle ?? true}
         graphHeight={height || 200}
       />
     );
+  }
+
+  if (!adjustedData) {
+    return null;
   }
 
   return (
@@ -89,6 +97,8 @@ const WrapperLineChart = ({
               loading={loading}
               marginBottom={marginBottom}
               shapeLines={shapeLines}
+              thresholdUnit={thresholdUnit}
+              thresholds={thresholds}
               timeShiftZones={timeShiftZones}
               tooltip={tooltip}
               width={width ?? responsiveWidth}

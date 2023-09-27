@@ -3,25 +3,48 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { LineChart, useGraphQuery } from '@centreon/ui';
+import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
-import { Data } from './models';
+import useThresholds from '../../useThresholds';
+
+import { Data, PanelOptions } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
 
 interface Props {
+  globalRefreshInterval?: number;
   panelData: Data;
+  panelOptions: PanelOptions;
 }
 
-const WidgetLineChart = ({ panelData }: Props): JSX.Element => {
+const WidgetLineChart = ({
+  panelData,
+  panelOptions,
+  globalRefreshInterval
+}: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { t } = useTranslation();
+
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval,
+    refreshInterval: panelOptions.refreshInterval,
+    refreshIntervalCustom: panelOptions.refreshIntervalCustom
+  });
+
   const { graphData, start, end, isGraphLoading, isMetricIdsEmpty } =
     useGraphQuery({
       baseEndpoint: graphEndpoint,
-      metrics: panelData.metrics
+      metrics: panelData.metrics,
+      refreshInterval: refreshIntervalToUse,
+      timePeriod: panelOptions.timeperiod
     });
+
+  const formattedThresholds = useThresholds({
+    data: graphData,
+    metricName: panelData.metrics[0]?.metrics[0]?.name,
+    thresholds: panelOptions.threshold
+  });
 
   if (isNil(graphData) && (!isGraphLoading || isMetricIdsEmpty)) {
     return (
@@ -39,6 +62,8 @@ const WidgetLineChart = ({ panelData }: Props): JSX.Element => {
       legend={{ display: true }}
       loading={isGraphLoading}
       start={start}
+      thresholdUnit={panelData.metrics[0]?.metrics[0]?.unit}
+      thresholds={formattedThresholds}
       timeShiftZones={{
         enable: false
       }}

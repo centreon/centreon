@@ -44,6 +44,7 @@ export const changeMousePositionAndTimeValueDerivedAtom = atom(
 
       return;
     }
+
     set(mousePositionAtom, position);
 
     set(timeValueAtom, timeValue);

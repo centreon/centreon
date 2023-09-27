@@ -106,8 +106,7 @@ jobs:
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
         fi
-      continue-on-error: true
-
+      
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
       with:
@@ -132,7 +131,6 @@ jobs:
     - name: Generate and Display Summaries
       run: |
         summaries=""
-        has_failed=false
         for summary_file in ./postman_summaries/*.json; do
           collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
           total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
@@ -141,7 +139,6 @@ jobs:
           failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
 
           if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
-            has_failed=true
             summaries+="<table>"
             summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
             summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
@@ -153,7 +150,7 @@ jobs:
         if [ -n "$summaries" ]; then
           echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         fi
-        if [ "$has_failed" = true ]; then
+        if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
           exit 0
         fi
-          
+        

@@ -87,6 +87,7 @@ import {
 } from './filterAtoms';
 import useFilterByModule from './useFilterByModule';
 import SearchHelp from './SearchHelp';
+import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 
 const renderClearFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -168,6 +169,8 @@ const Filter = (): JSX.Element => {
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
+
+  useBackToVisualizationByAll();
 
   const open = Boolean(autocompleteAnchor);
 

@@ -54,6 +54,17 @@ interface UseThresholdState {
   warningType: string | undefined;
 }
 
+const getMetricThreshold = (
+  thresholdType: string
+): ((metrics: Array<ServiceMetric>) => unknown) =>
+  pipe(
+    pluck('metrics'),
+    flatten,
+    pluck(thresholdType),
+    filter((threshold) => !!threshold),
+    head
+  );
+
 const useThreshold = ({
   propertyName
 }: UseThresholdProps): UseThresholdState => {
@@ -100,21 +111,26 @@ const useThreshold = ({
     equals(2)
   )(metrics || []);
 
-  const firstWarningThreshold = pipe(
-    pluck('metrics'),
-    flatten,
-    pluck('warningThreshold'),
-    filter((threshold) => !!threshold),
-    head
-  )(metrics || []);
+  const firstWarningHighThreshold = getMetricThreshold('warningHighThreshold')(
+    metrics || []
+  );
+  const firstWarningLowThreshold = getMetricThreshold('warningLowThreshold')(
+    metrics || []
+  );
 
-  const firstCriticalThreshold = pipe(
-    pluck('metrics'),
-    flatten,
-    pluck('criticalThreshold'),
-    filter((threshold) => !!threshold),
-    head
+  const firstCriticalHighThreshold = getMetricThreshold(
+    'criticalHighThreshold'
   )(metrics || []);
+  const firstCriticalLowThreshold = getMetricThreshold('criticalLowThreshold')(
+    metrics || []
+  );
+
+  const warningDefaultThresholdLabel = firstWarningLowThreshold
+    ? `(${firstWarningLowThreshold} - ${firstWarningHighThreshold})`
+    : `(${firstWarningHighThreshold || ''})`;
+  const criticalDefaultThresholdLabel = firstCriticalLowThreshold
+    ? `(${firstCriticalLowThreshold} - ${firstCriticalHighThreshold})`
+    : `(${firstCriticalHighThreshold || ''})`;
 
   const isDefault = equals<RadioOptions | undefined>(RadioOptions.default);
 
@@ -123,7 +139,7 @@ const useThreshold = ({
       label: labelWarningThreshold,
       radioButtons: [
         {
-          content: `${t(labelDefault)} (${firstWarningThreshold || ''})`,
+          content: `${t(labelDefault)} ${warningDefaultThresholdLabel}`,
           value: RadioOptions.default
         },
         {
@@ -149,7 +165,7 @@ const useThreshold = ({
       label: labelCriticalThreshold,
       radioButtons: [
         {
-          content: `${t(labelDefault)} (${firstCriticalThreshold || ''})`,
+          content: `${t(labelDefault)} ${criticalDefaultThresholdLabel}`,
           value: RadioOptions.default
         },
         {

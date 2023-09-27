@@ -1,4 +1,4 @@
-Feature: Navigate through the list of dashboards
+Feature: Navigating through the list of dashboards
   As a Centreon user with appropriate rights
   I need to navigate through the list of available dashboards
   In order to locate the one I want to display or edit

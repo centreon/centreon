@@ -143,7 +143,7 @@ interface LoginByTypeOfUserProps {
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ jsonName, loginViaApi }): Cypress.Chainable => {
+  ({ jsonName = 'admin', loginViaApi = false }): Cypress.Chainable => {
     if (loginViaApi) {
       return cy
         .fixture(`users/${jsonName}.json`)
@@ -225,29 +225,7 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
-    return cy
-      .exec('docker image list --format "{{.Repository}}:{{.Tag}}"')
-      .then(({ stdout }) => {
-        if (
-          stdout.match(
-            new RegExp(
-              `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
-              'm'
-            )
-          )
-        ) {
-          cy.log(`Local docker image found : ${image}`);
-
-          return cy.wrap(image);
-        }
-
-        cy.log(`Pulling remote docker image : ${image}`);
-
-        return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
-      })
-      .then((imageName) =>
-        cy.task('startContainer', { image: imageName, name, portBindings })
-      );
+    return cy.task('startContainer', { image, name, portBindings });
   }
 );
 
@@ -277,12 +255,13 @@ Cypress.Commands.add(
         portBindings: [{ destination: 4000, source: 80 }]
       })
       .then(() => {
-        const baseUrl = 'http://0.0.0.0:4000';
+        const baseUrl = 'http://127.0.0.1:4000';
 
         Cypress.config('baseUrl', baseUrl);
 
-        return cy.exec(
-          `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
+        return cy.task(
+          'waitOn',
+          `${baseUrl}/centreon/api/latest/platform/installation/status`
         );
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
@@ -491,8 +470,8 @@ declare global {
       insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
-        jsonName = 'admin',
-        loginViaApi = false
+        jsonName,
+        loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({

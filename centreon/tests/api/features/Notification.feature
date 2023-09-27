@@ -361,7 +361,7 @@ Feature:
         "limit": 10,
         "search": {},
         "sort_by": {},
-        "total": 0
+        "total": 1
       }
     }
     """
@@ -457,7 +457,7 @@ Feature:
         "limit": 10,
         "search": {},
         "sort_by": {},
-        "total": 0
+        "total": 1
       }
     }
     """
