@@ -172,7 +172,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        image: [almalinux:8", "almalinux:9", "debian:bullseye"]
+        image: ["almalinux:8", "almalinux:9", "debian:bullseye"]
     container:
       image: ${{ matrix.image }}
 
