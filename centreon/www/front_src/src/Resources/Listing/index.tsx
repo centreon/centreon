@@ -150,7 +150,7 @@ const ResourceListing = (): JSX.Element => {
     name: 'detailsOpen'
   };
 
-  const onForcedCheck = (resource: Resource): void => {
+  const onForcedCheck = (): void => {
     checkResource({
       is_forced: true
     }).then(() => {
