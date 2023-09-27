@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      collections: ${{ steps.set_collections.outputs.collections }}
+      directories: ${{ steps.set_collections.outputs.directories }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -36,8 +36,15 @@ jobs:
         id: set_collections
         run: |
           collection_path="${{ inputs.collection_path }}"
-          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-          echo "collections=$collections" >> $GITHUB_OUTPUT
+          directories=$(find "$collection_path" -type d)
+          collections_info=()
+      
+          for directory in $directories; do
+            collections=$(find "$directory" -type f -name "*.postman_collection.json" -printf "%P\n" | sort)
+            collections_info+=("{\"directory\": \"$directory\", \"collections\": [$(echo "$collections" | jq -R -s -c 'split("\n")[:-1]')]}")
+          done
+      
+          echo "{\"directories\": [$collections_info]}" >> $GITHUB_OUTPUT
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
 
@@ -48,9 +55,11 @@ jobs:
    strategy:
     fail-fast: false
     matrix:
-      feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
+      feature: ${{ fromJson(needs.discover_collections.outputs.directories) }}
+
 
    name: ${{ matrix.feature }}
+
 
    defaults:
     run:
