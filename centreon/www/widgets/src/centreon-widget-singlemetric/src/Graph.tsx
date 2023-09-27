@@ -12,8 +12,9 @@ import {
 } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
+import { Resource } from '../../models';
 
-import { FormThreshold, ServiceMetric } from './models';
+import { FormThreshold, ServiceMetric, ValueFormat } from './models';
 import {
   labelCritical,
   labelNoDataFound,
@@ -28,6 +29,7 @@ interface Props {
   metrics: Array<ServiceMetric>;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
+  resources: Array<Resource>;
   singleMetricGraphType: 'text' | 'gauge' | 'bar';
   threshold: FormThreshold;
   valueFormat: ValueFormat;
@@ -40,7 +42,8 @@ const Graph = ({
   refreshInterval,
   refreshIntervalCustom,
   globalRefreshInterval,
-  valueFormat
+  valueFormat,
+  resources
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { classes: graphClasses } = useGraphStyles();
@@ -53,10 +56,14 @@ const Graph = ({
     refreshIntervalCustom
   });
 
-  const { graphData, isGraphLoading, isMetricIdsEmpty } = useGraphQuery({
+  const metricId = metrics[0]?.metrics[0]?.id;
+  const metricName = metrics[0]?.metrics[0]?.name;
+
+  const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
-    metrics,
-    refreshInterval: refreshIntervalToUse
+    metrics: [metricName],
+    refreshInterval: refreshIntervalToUse,
+    resources
   });
 
   const displayAsRaw = equals('raw')(valueFormat);
@@ -68,13 +75,29 @@ const Graph = ({
     thresholds: threshold
   });
 
-  if (isNil(graphData) && (!isGraphLoading || isMetricIdsEmpty)) {
+  if (isNil(graphData) && (!isGraphLoading || isMetricsEmpty)) {
     return (
       <Typography className={classes.noDataFound} variant="h5">
         {t(labelNoDataFound)}
       </Typography>
     );
   }
+
+  const filteredGraphData = graphData
+    ? {
+        ...graphData,
+        metrics: graphData.metrics.filter((metric) =>
+          equals(metricId, metric.metric_id)
+        )
+      }
+    : graphData;
+
+  const props = {
+    baseColor: threshold.baseColor,
+    data: filteredGraphData,
+    displayAsRaw,
+    thresholds: formattedThresholds
+  };
 
   return (
     <Box className={graphClasses.graphContainer}>
@@ -83,40 +106,17 @@ const Graph = ({
       </Typography>
       <Box className={graphClasses.content}>
         {cond([
-          [
-            equals('gauge'),
-            always(
-              <Gauge
-                baseColor={threshold.baseColor}
-                data={graphData}
-                displayAsRaw={displayAsRaw}
-                thresholds={formattedThresholds}
-              />
-            )
-          ],
-          [
-            equals('bar'),
-            always(
-              <SingleBar
-                baseColor={threshold.baseColor}
-                data={graphData}
-                displayAsRaw={displayAsRaw}
-                thresholds={formattedThresholds}
-              />
-            )
-          ],
+          [equals('gauge'), always(<Gauge {...props} />)],
+          [equals('bar'), always(<SingleBar {...props} />)],
           [
             T,
             always(
               <GraphText
-                baseColor={threshold.baseColor}
-                data={graphData}
-                displayAsRaw={displayAsRaw}
+                {...props}
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)
                 }}
-                thresholds={formattedThresholds}
               />
             )
           ]

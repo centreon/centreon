@@ -24,7 +24,7 @@ import {
 import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleMetricSelectionAtom } from '../../../atoms';
 import { isAtLeastOneResourceFullfilled } from '../utils';
 import { editProperties } from '../../../../useCanEditDashboard';
 
@@ -35,7 +35,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleMetricSection = useAtomValue(singleMetricSelectionAtom);
 
   const {
     hasNoResources,

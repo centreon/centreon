@@ -11,7 +11,7 @@ import { useTopBottomStyles } from './TopBottom.styles';
 
 interface TopBottomProps {
   globalRefreshInterval?: number;
-  metric: Metric;
+  metrics: Array<Metric>;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<WidgetDataResource>;
@@ -21,7 +21,7 @@ interface TopBottomProps {
 }
 
 const TopBottom = ({
-  metric,
+  metrics,
   refreshInterval,
   topBottomSettings,
   globalRefreshInterval,
@@ -34,7 +34,7 @@ const TopBottom = ({
 
   const { isLoading, metricsTop } = useTopBottom({
     globalRefreshInterval,
-    metric,
+    metrics,
     refreshInterval,
     refreshIntervalCustom,
     resources,

@@ -36,7 +36,7 @@ import {
 import { metricsEndpoint } from '../../../api/endpoints';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { labelPleaseSelectAMetric } from '../../../../translatedLabels';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleMetricSelectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseMetricsState {
@@ -71,7 +71,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleMetricSection = useAtomValue(singleMetricSelectionAtom);
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 

@@ -8,7 +8,11 @@ export const widgetFormInitialDataAtom = atom<Widget | null>(null);
 export const widgetPropertiesAtom =
   atom<Array<WidgetPropertiesRenderer> | null>(null);
 
-export const singleMetricSectionAtom = atom<boolean | undefined>(undefined);
+export const singleMetricSelectionAtom = atom<boolean | undefined>(undefined);
+
+export const singleResourceTypeSelectionAtom = atom<boolean | undefined>(
+  undefined
+);
 
 export const customBaseColorAtom = atom<boolean | undefined>(undefined);
 
