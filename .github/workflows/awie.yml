@@ -189,7 +189,7 @@ jobs:
               dnf install -y dnf-plugins-core
               dnf config-manager --set-enabled powertools
               dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
-              dnf config-manager --set-enabled 'centreon-${VERSION}-testing*'
+              dnf config-manager --set-enabled centreon-${VERSION}-testing*
               dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
               dnf module reset -y php
               dnf module install -y php:remi-8.1
@@ -205,7 +205,7 @@ jobs:
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
               dnf config-manager --set-enabled 'crb'
               dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
-              dnf config-manager --set-enabled 'centreon-${VERISON}-testing*'
+              dnf config-manager --set-enabled centreon-${VERISON}-testing*
               dnf module reset -y php
               dnf module install -y php:8.1
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
