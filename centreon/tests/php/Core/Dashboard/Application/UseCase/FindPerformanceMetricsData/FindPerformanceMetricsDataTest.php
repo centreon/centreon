@@ -172,7 +172,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
     $service = (new Service())
         ->setId(1)
         ->setHost(
-            (new Host())->setId(2)
+            (new Host())->setId(2)->setName('myHost')
         );
 
     $this->rights
@@ -197,7 +197,8 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
         ->willReturn(
             [
                 'global' => [
-                    'base' => 1000
+                    'base' => 1000,
+                    'title' => 'Ping graph on myHost'
                 ],
                 'metrics' => [
                     [

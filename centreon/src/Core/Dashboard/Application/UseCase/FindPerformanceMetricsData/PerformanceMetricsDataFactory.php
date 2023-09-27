@@ -96,7 +96,9 @@ class PerformanceMetricsDataFactory
         $times = [];
         foreach ($metricsData as $metricData) {
             $metricBases[] = $metricData['global']['base'];
-            $metrics[] = $metricData['metrics'];
+            \preg_match('/^[a-zA-Z]+ graph on ([[:ascii:]]+)$/', $metricData['global']['title'], $matches);
+            $hostName = $matches[1];
+            $metrics[$hostName] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
         $base = $this->getHighestBase($metricBases);
@@ -121,18 +123,18 @@ class PerformanceMetricsDataFactory
     /**
      * Filter the metrics to keep only the needed metrics.
      *
-     * @param array<array<_Metrics>> $metricsData
+     * @param array<string,array<_Metrics>> $metricsData
      * @param string[] $metricNames
      *
      * @return array<_Metrics>
      */
-    private function filterMetricsByMetricId(array $metricsData, array $metricNames): array
+    private function filterMetricsByMetricName(array $metricsData, array $metricNames): array
     {
         $metrics = [];
-        foreach ($metricsData as $metricData) {
+        foreach ($metricsData as $hostName => $metricData) {
             foreach ($metricData as $metric) {
                 if (in_array($metric['metric'], $metricNames, true)) {
-                    $metrics[] = $metric;
+                    $metrics[$hostName] = $metric;
                 }
             }
         }
@@ -155,27 +157,27 @@ class PerformanceMetricsDataFactory
     /**
      * Create Metric Information.
      *
-     * @param array<array<_Metrics>> $metricData
-     * @param int[] $metricIds
+     * @param array<string,array<_Metrics>> $metricData
+     * @param string[] $metricNames
      *
      * @throws MetricException
      *
      * @return MetricInformation[]
      */
-    private function createMetricInformations(array $metricData, array $metricIds): array
+    private function createMetricInformations(array $metricData, array $metricNames): array
     {
-        $metrics = $this->filterMetricsByMetricId($metricData, $metricIds);
+        $metrics = $this->filterMetricsByMetricName($metricData, $metricNames);
         $metricsInformation = [];
-        foreach ($metrics as $metric) {
+        foreach ($metrics as $hostName => $metric) {
             try {
                 $generalInformation = new GeneralInformation(
                     $metric['index_id'],
                     $metric['metric_id'],
-                    $metric['metric'],
-                    $metric['metric_legend'],
+                    $hostName . ': ' . $metric['metric'],
+                    $hostName . ': ' . $metric['metric_legend'],
                     $metric['unit'],
                     (bool) $metric['hidden'],
-                    $metric['legend'],
+                    $hostName . ': ' . $metric['legend'],
                     (bool) $metric['virtual'],
                     (bool) $metric['stack'],
                     $metric['ds_order']
