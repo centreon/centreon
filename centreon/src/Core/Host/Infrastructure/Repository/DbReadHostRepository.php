@@ -34,6 +34,7 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\SnmpVersion;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
 /**
@@ -147,7 +148,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         }
 
         $accessGroupIds = array_map(
-            fn ($accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 
