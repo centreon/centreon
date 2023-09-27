@@ -14,11 +14,12 @@ import {
 } from 'react-router-dom';
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
+import { useTranslation } from 'react-i18next';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { Theme } from '@mui/material';
+import { Chip, Theme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
@@ -97,6 +98,9 @@ const useStyles = makeStyles<{ isRoot?: boolean }>()((theme, { isRoot }) => ({
     color: theme.palette.text.primary,
     margin: theme.spacing(0)
   },
+  optionalLabel: {
+    cursor: 'pointer'
+  },
   rootLabel: {
     color: 'inherit',
     margin: theme.spacing(0)
@@ -117,6 +121,8 @@ const MenuItems = ({
   isDoubleClickedFromRoot
 }: Props): JSX.Element => {
   const { classes } = useStyles({ isRoot });
+  const { t } = useTranslation();
+
   const user = useAtomValue(userAtom);
   const hoveredNavigationItems = useAtomValue(hoveredNavigationItemsAtom);
   const selectedNavigationItems = useAtomValue(selectedNavigationItemsAtom);
@@ -139,6 +145,14 @@ const MenuItems = ({
 
     e.preventDefault();
   };
+
+  const optionalLabel = data.is_react && !!data.options && (
+    <Chip
+      className={classes.optionalLabel}
+      color="secondary"
+      label={(t(data.options) as string).toLocaleUpperCase()}
+    />
+  );
 
   return useMemoComponent({
     Component: (
@@ -169,6 +183,7 @@ const MenuItems = ({
                 )}
             </ListItemIcon>
             <ListItemText className={classes.rootLabel} primary={data.label} />
+            {optionalLabel}
           </>
         ) : (
           <>
@@ -178,6 +193,7 @@ const MenuItems = ({
               )}
             </ListItemIcon>
             <ListItemText className={classes.label} secondary={data.label} />
+            {optionalLabel}
           </>
         )}
       </ListItemButton>
