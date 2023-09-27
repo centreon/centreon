@@ -209,7 +209,7 @@ jobs:
               dnf config-manager --set-enabled centreon-${VERSION}-testing*
               dnf module reset -y php
               dnf module install -y php:8.1
-              dnf install -y sudo curl
+              dnf install -y --allowerasing sudo curl
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
                 | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
