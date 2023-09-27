@@ -94,7 +94,11 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         foreach ($records as $record) {
             $services[] = (new Service())
                 ->setId($record['service_id'])
-                ->setHost((new Host())->setId($record['host_id']));
+                ->setHost(
+                    (new Host())
+                        ->setId($record['host_id'])
+                        ->setName($record['host_name'])
+                );
         }
 
         return $services;
@@ -121,7 +125,11 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         foreach ($records as $record) {
             $services[] = (new Service())
                 ->setId($record['service_id'])
-                ->setHost((new Host())->setId($record['host_id']));
+                ->setHost(
+                    (new Host())
+                        ->setId($record['host_id'])
+                        ->setName($record['host_name'])
+                );
         }
 
         return $services;
@@ -143,6 +151,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     ): string {
         $request = <<<'SQL'
             SELECT DISTINCT id.`host_id`,
+                id.`host_name`,
                 id.`service_id`
             FROM `:dbstg`.`index_data` AS id
                 INNER JOIN `:dbstg`.`metrics` AS m ON m.`index_id` = id.`id`
