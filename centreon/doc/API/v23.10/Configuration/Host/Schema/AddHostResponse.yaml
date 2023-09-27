@@ -37,6 +37,7 @@ properties:
     type: string
     description: "Geographic coordinates of the host"
     example: "48.10,12.5"
+    nullable: true
   timezone_id:
     type: integer
     description: "Timezone ID"
