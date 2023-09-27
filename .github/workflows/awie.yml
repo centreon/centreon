@@ -169,7 +169,7 @@ jobs:
 
   check-stable-packages-availability:
     needs: [get-version]
-    runs-on: [self-hosted, common]
+    runs-on: [ubuntu-22.04]
     strategy:
       matrix:
         image: ["almalinux:8", "almalinux:9", "debian:bullseye"]
