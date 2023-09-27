@@ -228,4 +228,5 @@ jobs:
 
               apt install -y centreon-${{ env.module }}
             ;;
+          esac
         shell: bash
