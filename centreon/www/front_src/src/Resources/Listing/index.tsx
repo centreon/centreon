@@ -180,6 +180,7 @@ const ResourceListing = (): JSX.Element => {
         setResourcesToSetDowntime([resource]);
       }
     },
+    featureFlags,
     t,
     visualization
   });

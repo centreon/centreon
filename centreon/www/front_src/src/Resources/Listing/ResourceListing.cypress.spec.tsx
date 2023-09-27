@@ -476,6 +476,39 @@ describe('Display additional columns', () => {
   });
 });
 
+describe('Notification column', () => {
+  it('hides notification column if the cloud notification feature is enabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: true })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+  it('displays notification column if the cloud notification feature is disabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
 describe('Resource Listing: Visualization by Service', () => {
   beforeEach(() => {
     store.set(selectedVisualizationAtom, Visualization.All);

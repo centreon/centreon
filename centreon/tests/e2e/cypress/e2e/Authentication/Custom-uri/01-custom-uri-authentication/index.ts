@@ -1,5 +1,9 @@
 import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../../commons';
 import { reloadWebServer, updateWebServerConfig } from '../common';
 
 const service = 'Ping';
@@ -97,6 +101,20 @@ Then(
 Then(
   'the detailed information of the monitoring resources are displayed',
   () => {
+    checkHostsAreMonitored([
+      {
+        name: host,
+        status: 'up'
+      }
+    ]);
+
+    checkServicesAreMonitored([
+      {
+        name: service,
+        status: 'ok'
+      }
+    ]);
+
     cy.navigateTo({
       page: 'Resources Status',
       rootItemNumber: 1

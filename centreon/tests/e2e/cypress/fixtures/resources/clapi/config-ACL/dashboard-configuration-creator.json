@@ -17,7 +17,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-creator-ACLMENU;0;Home;Dashboard;Creator;"
+        "values": "name-creator-ACLMENU;0;Home;Dashboards;Creator;"
     },
     {
         "action": "ADD",
