@@ -89,6 +89,7 @@ import useFilterByModule from './useFilterByModule';
 import SearchHelp from './SearchHelp';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import CriteriasNewInterface from './criteriasNewInterface';
+import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
 
 const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -183,10 +184,18 @@ const Filter = (): JSX.Element => {
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
+  const setSelectedStatusByResourceType = useSetAtom(
+    selectedStatusByResourceTypeAtom
+  );
 
   useBackToVisualizationByAll();
 
   const open = Boolean(autocompleteAnchor);
+
+  const clearFilters = (): void => {
+    clearFilter();
+    setSelectedStatusByResourceType(null);
+  };
 
   const clearDebounceDynamicSuggestions = (): void => {
     if (dynamicSuggestionsDebounceRef.current) {
@@ -567,7 +576,7 @@ const Filter = (): JSX.Element => {
               <Box className={classes.searchbarContainer}>
                 <SearchField
                   fullWidth
-                  EndAdornment={renderEndAdornmentFilter(clearFilter)}
+                  EndAdornment={renderEndAdornmentFilter(clearFilters)}
                   inputRef={searchRef as RefObject<HTMLInputElement>}
                   placeholder={t(labelSearch) as string}
                   value={search}

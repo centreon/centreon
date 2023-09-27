@@ -1,6 +1,6 @@
 import { Divider } from '@mui/material';
 
-import { CheckBoxWrapper as StatusSection } from '../CheckBox';
+import { CheckBoxSection as StatusSection } from '../CheckBox';
 import { BasicCriteria, SectionType } from '../../model';
 import SelectInput from '../SelectInput';
 import InputGroup from '../InputGroupe';
@@ -41,6 +41,7 @@ const SectionWrapper = ({ basicData, changeCriteria }): JSX.Element => {
                 changeCriteria={changeCriteria}
                 data={sectionData}
                 filterName={BasicCriteria.statues}
+                resourceType={sectionType}
               />
             )}
             sectionType={sectionType}

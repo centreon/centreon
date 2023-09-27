@@ -27,6 +27,7 @@ import {
 import useFilterByModule from '../useFilterByModule';
 import CriteriasNewInterface from '../criteriasNewInterface';
 import CreateFilterDialog from '../Save/CreateFilterDialog';
+import { selectedStatusByResourceTypeAtom } from '../criteriasNewInterface/basicFilter/atoms';
 
 import Criteria from './Criteria';
 import { CriteriaDisplayProps, Criteria as CriteriaModel } from './models';
@@ -76,9 +77,17 @@ const CriteriasContent = (): JSX.Element => {
     pipe(({ name }) => name, getSelectableCriteriaByName, isNil)(criteria);
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const setSelectedStatusByResourceType = useSetAtom(
+    selectedStatusByResourceTypeAtom
+  );
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   const canSaveFilterAsNew = true;
+
+  const clearFilters = () => {
+    clearFilter();
+    setSelectedStatusByResourceType(null);
+  };
 
   return (
     <PopoverMenu
@@ -115,7 +124,7 @@ const CriteriasContent = (): JSX.Element => {
                 color="primary"
                 data-testid="Filter Clear"
                 size="small"
-                onClick={clearFilter}
+                onClick={clearFilters}
               >
                 {t(labelClear)}
               </Button>

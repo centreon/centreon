@@ -1,3 +1,5 @@
+import { equals } from 'ramda';
+
 import { ResourceType } from '../../models';
 import { CriteriaNames } from '../Criterias/models';
 
@@ -73,8 +75,8 @@ export const mergeArraysByField = ({
   });
 };
 
-export const findData = ({ target, data }): any =>
-  data?.find((item) => item?.name === target);
+export const findData = ({ target, data, findBy = 'name' }): any =>
+  data?.find((item) => item?.[findBy] === target);
 
 export const findFieldInformationFromSearchInput = ({ search, field }) => {
   const target = search.split(' ').find((item) => item.includes(field));
@@ -98,4 +100,22 @@ export const replaceValueFromSearchInput = ({
   );
 
   return result.join(' ');
+};
+
+export const removeDuplicateFromObjectArray = ({ array, byFields }) => {
+  return [
+    ...new Map(
+      array.map((item) => {
+        const key = byFields.reduce((accu, currentValue) => {
+          return `${item[accu]}${item[currentValue]}`;
+        });
+
+        if (byFields.length <= 1) {
+          return [item[key], item];
+        }
+
+        return [key, item];
+      })
+    ).values()
+  ];
 };

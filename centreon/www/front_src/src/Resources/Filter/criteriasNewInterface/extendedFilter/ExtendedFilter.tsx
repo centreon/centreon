@@ -1,5 +1,5 @@
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
-import { CheckBoxWrapper } from '../basicFilter/CheckBox';
+import { CheckBoxWrapper } from '../CheckBoxWrapper';
 import InputGroup from '../basicFilter/InputGroupe';
 import SelectInput from '../basicFilter/SelectInput';
 import { ExtendedCriteria } from '../model';

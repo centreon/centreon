@@ -79,7 +79,7 @@ const CreateFilterDialog = ({
     >
       <TextField
         autoFocus
-        ariaLabel={t(labelName)}
+        ariaLabel={t(labelName) as string}
         error={form.errors.name}
         label={t(labelName)}
         value={form.values.name}

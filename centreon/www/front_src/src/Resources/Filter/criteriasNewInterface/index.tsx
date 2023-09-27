@@ -9,12 +9,12 @@ import { Criteria, CriteriaById } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 
 import BasicFilter from './basicFilter/BasicFilter';
-import { CheckBoxWrapper } from './basicFilter/CheckBox';
 import InputGroup from './basicFilter/InputGroupe';
 import SectionWrapper from './basicFilter/sections/SectionWrapper';
 import ExtendedFilter from './extendedFilter/ExtendedFilter';
 import { BasicCriteria, CategoryFilter, ExtendedCriteria } from './model';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
+import { CheckBoxWrapper } from './CheckBoxWrapper';
 
 export { CheckboxGroup } from '@centreon/ui';
 
