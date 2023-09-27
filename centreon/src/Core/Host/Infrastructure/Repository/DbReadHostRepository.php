@@ -157,11 +157,8 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $concatenator->defineSelect(
             <<<'SQL'
                 SELECT 1
-                FROM `:db`.host h
-                JOIN `:dbstg`.centreon_acl acl
-                    ON h.host_id = acl.host_id
-                WHERE h.host_id = :host_id
-                    AND h.host_register = '1'
+                FROM `:dbstg`.centreon_acl acl
+                WHERE acl.host_id = :host_id
                     AND acl.group_id IN (:access_group_ids)
                     AND acl.service_id IS NULL
                 SQL
