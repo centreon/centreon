@@ -40,7 +40,7 @@ const InputGroup = ({ data, filterName, changeCriteria, label }) => {
     <div>
       {target && (
         <MultiConnectedAutocompleteField
-          // field="name"
+          field="name"
           filterOptions={(options) => getUniqueOptions(options)}
           getEndpoint={getEndpoint}
           isOptionEqualToValue={isOptionEqualToValue}

@@ -15,8 +15,8 @@ const useInputData = ({ data, filterName, resourceType }) => {
     const currentValueSearchData = item?.searchData?.values?.find(
       (item) => item?.id === resourceType
     );
-    setTarget(item);
     setValueSearchData(currentValueSearchData);
+    setTarget(item);
   }, [data]);
 
   return { target, valueSearchData };

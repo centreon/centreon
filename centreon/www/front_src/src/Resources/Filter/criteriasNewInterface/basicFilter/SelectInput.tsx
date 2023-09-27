@@ -1,19 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { isEmpty, isNil } from 'ramda';
+import { isEmpty } from 'ramda';
 
-import { getValue } from '@mui/system';
-
-import {
-  MultiAutocompleteField,
-  SingleConnectedAutocompleteField
-} from '@centreon/ui';
+import { SingleConnectedAutocompleteField } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
-import { BasicCriteria } from '../model';
+import getDefaultCriterias from '../../Criterias/default';
+import { searchAtom } from '../../filterAtoms';
 import useInputData from '../useInputsData';
-import { criteriaValueNameByIdAtom, searchAtom } from '../../filterAtoms';
 import {
   findFieldInformationFromSearchInput,
   replaceValueFromSearchInput
@@ -25,15 +20,14 @@ const SelectInput = ({
   resourceType,
   changeCriteria
 }): JSX.Element => {
-  const [search, setSearch] = useAtom(searchAtom);
-
   const { target, valueSearchData } = useInputData({
     data,
     filterName,
     resourceType
   });
 
-  const [value, setValue] = useState();
+  const [value, setValue] = useState([]);
+  const [search, setSearch] = useAtom(searchAtom);
 
   const field = 'name';
 
@@ -83,8 +77,7 @@ const SelectInput = ({
     setSearch(currentSearch);
   };
 
-  const handleChange = (updatedValue) => {
-    setValue({ id: updatedValue.id, name: updatedValue.name });
+  const handleChange = (_, updatedValue) => {
     const searchData = handleSearchData(updatedValue);
     const newValues = handleValues();
 
@@ -112,20 +105,48 @@ const SelectInput = ({
     });
   };
 
-  const currentValue =
-    !isEmpty(value) && !isNil(value)
-      ? value
-      : { id: valueSearchData?.valueId, name: valueSearchData?.value };
+  const onInputChange = (event, value) => {
+    const initializedData = getDefaultCriterias().find(
+      (item) => item.name === filterName
+    );
+
+    if (!event) {
+      return;
+    }
+    if (value) {
+      return;
+    }
+    setSearch('');
+    setValue([]);
+    changeCriteria({
+      filterName,
+      searchData: initializedData?.searchData,
+      updatedValue: initializedData?.value
+    });
+  };
+  useEffect(() => {
+    if (!valueSearchData) {
+      setValue([]);
+
+      return;
+    }
+    setValue({ id: valueSearchData.valueId, name: valueSearchData.value });
+  }, [valueSearchData]);
 
   return (
-    <SingleConnectedAutocompleteField
-      field={field}
-      getEndpoint={getEndpoint}
-      label={resourceType}
-      placeholder={target?.label}
-      value={currentValue}
-      onChange={(_, updatedValue): void => handleChange(updatedValue)}
-    />
+    <div>
+      {target && !isEmpty(target) ? (
+        <SingleConnectedAutocompleteField
+          field="name"
+          getEndpoint={getEndpoint}
+          label={resourceType}
+          placeholder={target?.label}
+          value={value}
+          onChange={(_, updatedValue): void => handleChange(_, updatedValue)}
+          onInputChange={(event, value) => onInputChange(event, value)}
+        />
+      ) : null}
+    </div>
   );
 };
 

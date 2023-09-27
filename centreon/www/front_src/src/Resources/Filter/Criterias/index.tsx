@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pipe, isNil, sortBy, reject } from 'ramda';
@@ -19,10 +21,12 @@ import {
   applyCurrentFilterDerivedAtom,
   clearFilterDerivedAtom,
   filterWithParsedSearchDerivedAtom,
-  filterByInstalledModulesWithParsedSearchDerivedAtom
+  filterByInstalledModulesWithParsedSearchDerivedAtom,
+  currentFilterAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
 import CriteriasNewInterface from '../criteriasNewInterface';
+import CreateFilterDialog from '../Save/CreateFilterDialog';
 
 import Criteria from './Criteria';
 import { CriteriaDisplayProps, Criteria as CriteriaModel } from './models';
@@ -40,6 +44,9 @@ const useStyles = makeStyles()((theme) => ({
 const CriteriasContent = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+  const [isCreateFilterDialogOpen, setIsCreateFilterDialogOpen] =
+    useState(false);
+  const currentFilter = useAtomValue(currentFilterAtom);
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
   const canOpenPopover = isNil(hoveredNavigationItem);
 
@@ -70,6 +77,8 @@ const CriteriasContent = (): JSX.Element => {
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
+
+  const canSaveFilterAsNew = true;
 
   return (
     <PopoverMenu
@@ -133,6 +142,16 @@ const CriteriasContent = (): JSX.Element => {
                 Save
               </Button>
             </Grid>
+            {/* {canSaveFilterAsNew && isCreateFilterDialogOpen && (
+              <CreateFilterDialog
+                filter={currentFilter}
+                open={isCreateFilterDialogOpen}
+                onCancel={() => {
+                  setIsCreateFilterDialogOpen(false);
+                }}
+                onCreate={confirmCreateFilter}
+              />
+            )} */}
           </Grid>
         </Grid>
       )}
