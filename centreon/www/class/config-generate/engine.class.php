@@ -333,9 +333,8 @@ class Engine extends AbstractObject
     {
         $kernel = \App\Kernel::createForWeb();
         $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
-        $flags = $featureFlags->getAll();
 
-        return ($flags['notification'] === true && $featureFlags->isCloudPlatform() === true);
+        return ($featureFlags->isEnabled('notification') === true && $featureFlags->isCloudPlatform() === true);
     }
 
     private function generate($poller_id)
