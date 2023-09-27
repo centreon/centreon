@@ -31,7 +31,7 @@ import { editProperties } from '../../../../useCanEditDashboard';
 import useMetrics from './useMetrics';
 
 const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
-  const { classes } = useResourceStyles();
+  const { classes, cx } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
@@ -55,7 +55,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     getOptionLabel,
     hasReachedTheLimitOfUnits,
     addButtonHidden,
-    resources
+    resources,
+    hasOnlyOneService
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -103,24 +104,29 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         >
           {value.map((service, index) => (
             <ItemComposition.Item
-              className={classes.resourceCompositionItem}
+              className={cx({
+                [classes.resourceCompositionItem]: !hasOnlyOneService
+              })}
               deleteButtonHidden={!canEditField || addButtonHidden}
               key={`${index}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteMetric(index)}
             >
-              <SelectField
-                ariaLabel={t(labelServiceName) as string}
-                className={classes.resourceType}
-                dataTestId={labelServiceName}
-                disabled={!canEditField || isLoadingMetrics}
-                label={t(labelServiceName) as string}
-                options={serviceOptions}
-                selectedOptionId={service.id}
-                onChange={changeService(index)}
-              />
+              {!hasOnlyOneService && (
+                <SelectField
+                  ariaLabel={t(labelServiceName) as string}
+                  className={classes.resourceType}
+                  dataTestId={labelServiceName}
+                  disabled={!canEditField || isLoadingMetrics}
+                  label={t(labelServiceName) as string}
+                  options={serviceOptions}
+                  selectedOptionId={service.id}
+                  onChange={changeService(index)}
+                />
+              )}
               {singleMetricSection ? (
                 <SingleAutocompleteField
+                  fullWidth
                   className={classes.resources}
                   disabled={
                     !canEditField ||

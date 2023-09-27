@@ -51,6 +51,7 @@ interface UseMetricsState {
   getMetricsFromService: (serviceId: number) => Array<SelectEntry>;
   getOptionLabel: (metric) => string;
   hasNoResources: () => boolean;
+  hasOnlyOneService: boolean;
   hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
@@ -138,6 +139,10 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   )(value || []);
 
   const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
+
+  const hasOnlyOneService = servicesMetrics
+    ? equals(length(servicesMetrics.result || []), 1)
+    : false;
 
   const hasNoResources = (): boolean => {
     if (!resources.length) {
@@ -237,6 +242,18 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       return;
     }
 
+    if (equals(servicesMetrics.result.length, 1)) {
+      setFieldValue(`data.${propertyName}`, [
+        {
+          id: servicesMetrics.result[0].id,
+          metrics: [],
+          name: servicesMetrics.result[0].name
+        }
+      ]);
+
+      return;
+    }
+
     const baseServiceIds = pluck('id', servicesMetrics?.result || []);
 
     const intersectionBetweenServicesIdsAndValues = innerJoin(
@@ -312,6 +329,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     getMetricsFromService,
     getOptionLabel,
     hasNoResources,
+    hasOnlyOneService,
     hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
