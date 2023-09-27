@@ -27,12 +27,14 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
+use Core\Host\Domain\Model\HostNamesById;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
@@ -277,6 +279,39 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNames(array $hostIds): HostNamesById
+    {
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT DISTINCT(h.host_id), h.host_name
+                FROM `:db`.host h
+                WHERE h.host_id IN (:hostIds)
+                    AND h.host_register = '1'
+                SQL
+        );
+        $concatenator->storeBindValueMultiple(':hostIds', $hostIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $groupNames = new HostNamesById();
+
+        while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var array{host_id:int,host_name:string} $result */
+            $groupNames->addName(
+                $result['host_id'],
+                new TrimmedString($result['host_name'])
+            );
+        }
+
+        return $groupNames;
     }
 
     /**
