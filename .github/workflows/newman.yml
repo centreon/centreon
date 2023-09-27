@@ -69,7 +69,7 @@ jobs:
       with:
         version: 7
         run_install: false
-        
+
     - uses: actions/setup-node@v3
       with:
           node-version: 18
@@ -78,6 +78,7 @@ jobs:
   
     - name: Install Dependencies for tests/rest_api
       run: pnpm install --frozen-lockfile 
+
     - name: Login to registry
       uses: docker/login-action@v2
       with:
@@ -150,5 +151,5 @@ jobs:
           echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         fi
         if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
-        exit 1  # Cette ligne indiquera que l'étape a échoué si des tests ont échoué.
+        exit 1  
         fi

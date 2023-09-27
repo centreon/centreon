@@ -231,20 +231,7 @@ jobs:
         uses: ./.github/actions/publish-report
         with:
           path: "centreon/junit.xml"
-  
-  newman-test:
-      needs: [get-version, changes]
-      uses: ./.github/workflows/newman.yml
-      with:
-         collection_path: centreon/tests/rest_api/collections
-         container_name: my_centreon_container
-         centreon_url: http://localhost
-         centreon_image: docker.centreon.com/centreon/centreon-web-alma9:develop
-         dependencies_lock_file: centreon/pnpm-lock.yaml
-      secrets:
-         registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
-         registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-         
+           
   frontend-component-test:
     needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
@@ -503,6 +490,19 @@ jobs:
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+
+  newman-test:
+     needs: [get-version, changes]
+     uses: ./.github/workflows/newman.yml
+     with:
+        collection_path: centreon/tests/rest_api/collections
+        container_name: my_centreon_container
+        centreon_url: http://localhost
+        centreon_image: docker.centreon.com/centreon/centreon-web-alma9:develop
+        dependencies_lock_file: centreon/pnpm-lock.yaml
+     secrets:
+        registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+        registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
   api-integration-test:
     needs: [get-version, changes, dockerize]
