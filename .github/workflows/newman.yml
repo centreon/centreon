@@ -106,7 +106,8 @@ jobs:
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
         fi
-
+      continue-on-error: true
+      
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
       with:
@@ -129,7 +130,6 @@ jobs:
         done
 
     - name: Generate and Display Summaries
-      continue-on-error: true 
       run: |
         summaries=""
         for summary_file in ./postman_summaries/*.json; do
