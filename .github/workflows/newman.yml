@@ -95,14 +95,14 @@ jobs:
         collection_name=$(basename "$collection_file" .postman_collection.json)
         collection_directory="$(dirname "$collection_file")"
         environment_file="$collection_directory/Environment-Collection.json"
-        test_result=$(pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" --bail)
-        if [[ $test_result == *"failed"* ]]; then
-          echo "Some tests have failed."
-          exit 1  
-          echo "All tests have passed."
+        if [ -f "$environment_file" ]; then
+          pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+        else
+          echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
+          exit 1
         fi
-      continue-on-error: true
-        
+
+
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
       with:
@@ -146,4 +146,7 @@ jobs:
 
         if [ -n "$summaries" ]; then
           echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+        fi
+        if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+        exit 1  # Cette ligne indiquera que l'étape a échoué si des tests ont échoué.
         fi
