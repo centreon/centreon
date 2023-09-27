@@ -4,8 +4,6 @@ import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
 
-import { Resource } from '../../models';
-
 import Graph from './Graph';
 import { Data, FormThreshold, ValueFormat } from './models';
 
@@ -17,7 +15,6 @@ interface Props {
   panelOptions: {
     refreshInterval: 'default' | 'custom';
     refreshIntervalCustom?: number;
-    resources: Array<Resource>;
     singleMetricGraphType: 'text' | 'gauge' | 'bar';
     threshold: FormThreshold;
     valueFormat: ValueFormat;

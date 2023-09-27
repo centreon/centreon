@@ -146,6 +146,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                 />
               ) : (
                 <MultiAutocompleteField
+                  fullWidth
                   chipProps={{
                     color: 'primary'
                   }}

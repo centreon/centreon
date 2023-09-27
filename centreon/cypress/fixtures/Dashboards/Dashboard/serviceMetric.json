@@ -23,34 +23,10 @@
               "critical_low_threshold": null
             }
         ]
-      },
-      {
-        "id": 2,
-        "name": "Centreon-server_Ping-copy",
-        "metrics": [
-            {
-              "id": 3,
-              "name": "rtmax",
-              "unit": "ms",
-              "warning_high_threshold": null,
-              "critical_high_threshold": 1000,
-              "warning_low_threshold": null,
-              "critical_low_threshold": null
-            },
-            {
-              "id": 4,
-              "name": "pl",
-              "unit": "%",
-              "warning_high_threshold": null,
-              "critical_high_threshold": 1000,
-              "warning_low_threshold": null,
-              "critical_low_threshold": null
-            }
-        ]
       }
     ],
   "meta": {
-    "total": 2,
+    "total": 1,
     "page": 1,
     "limit": 10
   }

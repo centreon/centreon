@@ -6,9 +6,10 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
+import { Metric } from '../../models';
+
 import { metricsTopEndpoint } from './api/endpoint';
 import {
-  Metric,
   MetricsTop,
   TopBottomSettings,
   WidgetDataResource,

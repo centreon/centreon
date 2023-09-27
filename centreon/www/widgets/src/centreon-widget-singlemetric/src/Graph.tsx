@@ -12,9 +12,9 @@ import {
 } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
-import { Resource } from '../../models';
+import { Resource, ServiceMetric } from '../../models';
 
-import { FormThreshold, ServiceMetric, ValueFormat } from './models';
+import { FormThreshold, ValueFormat } from './models';
 import {
   labelCritical,
   labelNoDataFound,

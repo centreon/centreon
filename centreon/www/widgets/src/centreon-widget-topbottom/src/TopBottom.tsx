@@ -2,9 +2,9 @@ import { equals } from 'ramda';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
-import { FormThreshold } from '../../models';
+import { FormThreshold, Metric } from '../../models';
 
-import { Metric, TopBottomSettings, WidgetDataResource } from './models';
+import { TopBottomSettings, WidgetDataResource } from './models';
 import useTopBottom from './useTopBottom';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';

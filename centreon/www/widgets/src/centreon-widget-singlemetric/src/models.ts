@@ -1,7 +1,8 @@
-import { ServiceMetric } from '../../models';
+import { Resource, ServiceMetric } from '../../models';
 
 export interface Data {
   metrics: Array<ServiceMetric>;
+  resources: Array<Resource>;
 }
 
 export interface FormThreshold {
