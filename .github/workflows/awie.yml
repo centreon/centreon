@@ -201,7 +201,7 @@ jobs:
               dnf install centreon-${{ env.module }}
             ;;
             almalinux:9)
-              dnf install -y curl sudo
+              dnf install -y sudo
               dnf install -y dnf-plugins-core
               dnf install -y epel-release
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
