@@ -244,6 +244,7 @@ class Engine extends AbstractObject
                 'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg'
             )
         );
+
         foreach ($this->cfg_file as &$value) {
             $value['cfg_file'][] = $value['path'] . '/hostTemplates.cfg';
             $value['cfg_file'][] = $value['path'] . '/hosts.cfg';
@@ -322,6 +323,21 @@ class Engine extends AbstractObject
         }
     }
 
+    /**
+     * This method indicates if engine notifications needs to be disabled.
+     * conditions: "notification" feature flag AND isCloudPlatform must be true
+     *
+     * @return bool
+     */
+    private function shouldEngineNotificationsBeDisabled(): bool
+    {
+        $kernel = \App\Kernel::createForWeb();
+        $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+        $flags = $featureFlags->getAll();
+
+        return ($flags['notification'] === true && $featureFlags->isCloudPlatform() === true);
+    }
+
     private function generate($poller_id)
     {
         if (is_null($this->stmt_engine)) {
@@ -334,7 +350,10 @@ class Engine extends AbstractObject
         $this->stmt_engine->execute();
 
         $result = $this->stmt_engine->fetchAll(PDO::FETCH_ASSOC);
+
         $this->engine = array_pop($result);
+        $this->engine['enable_notifications'] = $this->shouldEngineNotificationsBeDisabled() ? '0' : '1'; 
+
         if (is_null($this->engine)) {
             throw new Exception(
                 "Cannot get engine configuration for poller id (maybe not activate) '" . $poller_id . "'"
