@@ -198,7 +198,7 @@ jobs:
                 | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
 
-              dnf install centreon-${{ env.module }}
+              dnf install -y centreon-${{ env.module }}
             ;;
             almalinux:9)
               dnf install -y dnf-plugins-core
@@ -214,7 +214,7 @@ jobs:
                 | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
 
-              dnf install centreon-${{ env.module }}
+              dnf install -y centreon-${{ env.module }}
             ;;
             debian:bullseye)
               apt update && apt upgrade -y
