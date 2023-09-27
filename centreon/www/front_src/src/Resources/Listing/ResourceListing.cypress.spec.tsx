@@ -118,12 +118,15 @@ const retrievedListingWithCriticalResources = {
 };
 
 const getPlatformFeatures = ({
-  enableTreeView = true
+  enableTreeView = true,
+  notification = false
 }: {
   enableTreeView?: boolean;
+  notification?: boolean;
 }): PlatformFeatures => {
   return {
     featureFlags: {
+      notification,
       resourceStatusTreeView: enableTreeView
     },
     isCloudPlatform: false
@@ -568,6 +571,39 @@ describe('Display additional columns', () => {
 
       cy.makeSnapshot();
     });
+  });
+});
+
+describe('Notification column', () => {
+  it('hides notification column if the cloud notification feature is enabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: true })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+  it('displays notification column if the cloud notification feature is disabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
 
