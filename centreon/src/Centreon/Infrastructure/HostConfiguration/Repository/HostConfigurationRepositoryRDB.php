@@ -492,53 +492,79 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
          *       GROUP BY tpl.host_macro_name
          */
         $request = $this->translateDbName(
-            'SELECT
-                host.host_id, macro.host_macro_id AS id, macro.host_macro_name AS name,
-                macro.host_macro_value AS `value`, macro.macro_order AS `order`,
-                macro.is_password, macro.description, relation.templates
-             FROM `:db`.host
-                LEFT JOIN `:db`.on_demand_macro_host macro ON macro.host_host_id = host.host_id,
-                (SELECT GROUP_CONCAT(host_tpl_id) as templates
-                 FROM `:db`.host_template_relation htr
-                 WHERE htr.host_host_id = :host_id ORDER BY `order` ASC) as relation
-             WHERE host.host_id = :host_id'
+            <<<'SQL'
+                SELECT
+                    host.host_id,
+                    macro.host_macro_id AS id,
+                    macro.host_macro_name AS name,
+                    macro.host_macro_value AS `value`,
+                    macro.macro_order AS `order`,
+                    macro.is_password,
+                    macro.description,
+                    relation.templates
+                FROM `:db`.host
+                LEFT JOIN `:db`.on_demand_macro_host macro
+                    ON macro.host_host_id = host.host_id
+                JOIN (  SELECT GROUP_CONCAT(host_tpl_id ORDER BY `order` ASC) as templates
+                        FROM `:db`.host_template_relation htr
+                        WHERE htr.host_host_id = :host_id
+                    ) as relation
+                WHERE host.host_id = :host_id
+                SQL
         );
-        $statement = $this->db->prepare($request);
 
+        /** @var array<HostMacro> $hostMacros The returned array of {@see HostMacro} */
         $hostMacros = [];
-        $macrosAdded = [];
-        $loop = [];
-        $stack = [$hostId];
-        while (($hostTest = array_shift($stack))) {
-            if (isset($loop[$hostTest])) {
+        /** @var array<string, int> $alreadyAdded Used to avoid returning the same macro from different templates */
+        $alreadyAdded = [];
+        /** @var array<int, int> $done Used to avoid inheritance loop hell */
+        $done = [];
+        /** @var list<int> $stackOfHostIds The algo is using a FIFO stack for inheritance when needed */
+        $stackOfHostIds = [$hostId];
+
+        while ($currentHostId = array_shift($stackOfHostIds)) {
+            // We want to avoid redoing the same host/host templates (risky inheritance loops).
+            if (isset($done[$currentHostId])) {
                 continue;
             }
-            $loop[$hostTest] = 1;
+            $done[$currentHostId] = 1;
 
             $statement = $this->db->prepare($request);
-            $statement->bindValue(':host_id', $hostTest, \PDO::PARAM_INT);
+            $statement->bindValue(':host_id', $currentHostId, \PDO::PARAM_INT);
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute();
-            $hostTpl = null;
-            while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-                if (!is_null($record['templates']) && is_null($hostTpl)) {
-                    $hostTpl = explode(',', $record['templates']);
-                }
-                if (is_null($record['name']) || isset($macrosAdded[$record['name']])) {
+
+            $hostTemplateIds = null;
+            foreach ($statement as $record) {
+                /** @var array{
+                 *     host_id: int,
+                 *     id: ?int,
+                 *     name: ?string,
+                 *     value: ?string,
+                 *     order: ?int,
+                 *     is_password: ?int,
+                 *     description: ?string,
+                 *     templates: ?string
+                 * } $record
+                 */
+
+                // We need to populate the inherited template IDs only once (same value for all rows, cf. SQL query).
+                $hostTemplateIds ??= empty($record['templates']) ? null : explode(',', $record['templates']);
+
+                // Skip already added macro (check by their name).
+                if (null === $record['name'] || isset($alreadyAdded[$record['name']])) {
                     continue;
                 }
-                $macrosAdded[$record['name']] = 1;
-                $record['is_password'] = is_null($record['is_password']) ? 0 : $record['is_password'];
-                $hostMacros[] = EntityCreator::createEntityByArray(
-                    HostMacro::class,
-                    $record
-                );
-            }
-            if (!$isUsingInheritance) {
-                break;
+                $alreadyAdded[$record['name']] = 1;
+
+                // Create and append the object.
+                $record['is_password'] ??= 0;
+                $hostMacros[] = EntityCreator::createEntityByArray(HostMacro::class, $record);
             }
 
-            if (!is_null($hostTpl)) {
-                $stack = array_merge($hostTpl, $stack);
+            // Filling the stack is done only for inherited templates when we need it.
+            if ($isUsingInheritance && \is_array($hostTemplateIds)) {
+                $stackOfHostIds = array_merge($stackOfHostIds, $hostTemplateIds);
             }
         }
 

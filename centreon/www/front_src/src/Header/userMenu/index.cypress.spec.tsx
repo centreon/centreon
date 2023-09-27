@@ -41,14 +41,14 @@ describe('User Menu', () => {
     cy.get('@clock').contains('April 28,2022');
     cy.get('@clock').contains('4:20 PM');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('expect the clock to not be visible for a width less than 648px', () => {
     cy.viewport(640, 500);
     cy.get('[data-cy=clock]').as('clock').should('not.be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('expands the popper when the user icon is clicked', () => {
@@ -60,7 +60,7 @@ describe('User Menu', () => {
     cy.get('@popper').contains('Light');
     cy.get('@popper').contains('Logout');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('changes style when switch is clicked', () => {

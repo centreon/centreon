@@ -6,6 +6,6 @@ export HOME=$PWD/cache
 
 cd $MODULE/tests/e2e
 
-npm ci
+npm ci --legacy-peer-deps
 
-$(npm bin)/cypress run --quiet --browser chrome --reporter mochawesome --reporter-options reportDir="cypress/results/reports",overwrite=false,html=false,json=true
+npx cypress run --browser chrome --reporter mochawesome --reporter-options reportDir="cypress/results/reports",overwrite=false,html=false,json=true

@@ -22,7 +22,7 @@ on:
         value: ${{ jobs.get-version.outputs.environment }}
 jobs:
   get-version:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     outputs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}
@@ -31,9 +31,7 @@ jobs:
       environment: ${{ steps.get_version.outputs.env }}
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - uses: shivammathur/setup-php@v2
         if: ${{ endsWith(inputs.version_file, '.php') }}

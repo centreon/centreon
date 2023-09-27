@@ -7,3 +7,8 @@ addMatchImageSnapshotCommand({
   failureThreshold: 0.03,
   failureThresholdType: 'percent',
 });
+
+Cypress.Commands.add('makeSnapshot', () => {
+  cy.viewport(1270, 590);
+  cy.matchImageSnapshot();
+});
