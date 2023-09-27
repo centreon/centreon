@@ -5718,7 +5718,7 @@ msgstr "Modifié"
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:662
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:690
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:793
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Changement massif"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:132
@@ -18190,6 +18190,18 @@ msgstr "L'utilisateur avec l'ID %d n'existe pas"
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
 
+msgid "Show value labels"
+msgstr "Afficher les étiquettes de valeur"
+
+msgid "Top"
+msgstr "Top"
+
+msgid "Bottom"
+msgstr "Bottom"
+
+msgid "Includes {{count}} hosts"
+msgstr "Inclut {{count}} hôtes"
+
 msgid "Error while deleting a token"
 msgstr "Erreur lors de la suppression d'un token"
 
@@ -18198,6 +18210,9 @@ msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
 
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "hosts"
+msgstr "hôtes"
 
 msgid "none"
 msgstr "aucun"

@@ -6987,7 +6987,7 @@ msgstr "Alterado"
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:979
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:1036
 #: centreon-web/www/include/configuration/configObject/host/listHost.php:455
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Alteração em massa"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:143
@@ -16845,6 +16845,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "You are not allowed to add tokens linked to user ID %d"
 #  msgstr ""
 
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} hosts"
+# msgstr ""
+
 #  msgid "Error while deleting a token"
 #  msgstr ""
 
@@ -16853,6 +16865,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to delete tokens linked to user ID %d"
 #  msgstr ""
+
+# msgid "hosts"
+# msgstr ""
 
 # msgid "none"
 # msgstr ""
