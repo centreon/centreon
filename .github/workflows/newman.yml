@@ -62,13 +62,19 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: centreon/pnpm-lock.yaml
+
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
 
     - name: Install Dependencies for tests/rest_api
-      run: pnpm install --frozen-lockfile --filter centreon/tests/rest_api
-
+      run: pnpm install --frozen-lockfile 
     - name: Login to registry
       uses: docker/login-action@v2
       with:
