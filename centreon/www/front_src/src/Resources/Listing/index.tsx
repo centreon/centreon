@@ -152,8 +152,7 @@ const ResourceListing = (): JSX.Element => {
 
   const onForcedCheck = (resource: Resource): void => {
     checkResource({
-      check: { is_forced: true },
-      resources: adjustCheckedResources({ resources: [resource] })
+      is_forced: true
     }).then(() => {
       showSuccessMessage(t(labelForcedCheckCommandSent));
     });
