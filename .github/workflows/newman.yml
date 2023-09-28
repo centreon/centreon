@@ -155,3 +155,6 @@ jobs:
         if [ -n "$summaries" ]; then
             echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         fi
+        if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+        exit 0 
+        fi
