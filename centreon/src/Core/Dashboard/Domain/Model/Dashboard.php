@@ -47,6 +47,7 @@ class Dashboard
      * @param ?int $updatedBy
      * @param \DateTimeImmutable $createdAt
      * @param \DateTimeImmutable $updatedAt
+     * @param DashboardGlobalRefresh $globalRefresh
      *
      * @throws AssertionFailedException
      */

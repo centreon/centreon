@@ -28,5 +28,6 @@ use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
 final class GlobalRefreshResponseDto
 {
     public DashboardGlobalRefreshType $refreshType = DashboardGlobalRefreshType::Global;
+
     public ?int $refreshInterval = null;
 }

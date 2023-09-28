@@ -40,6 +40,7 @@ final class FindDashboardResponse
      * @param \DateTimeImmutable $updatedAt
      * @param array<PanelResponseDto> $panels
      * @param DashboardSharingRole $ownRole
+     * @param GlobalRefreshResponseDto $globalRefresh
      */
     public function __construct(
         public int $id = 0,
