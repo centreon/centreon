@@ -25,11 +25,11 @@ namespace Tests\Core\Host\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Common\Domain\YesNoDefault;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Domain\Model\HostEvent;
-use Core\Host\Domain\Model\SnmpVersion;
-use Core\Common\Domain\YesNoDefault;
 use Core\Host\Domain\Model\NewHost;
+use Core\Host\Domain\Model\SnmpVersion;
 
 beforeEach(function (): void {
     $this->createHost = static function (array $fields = []): NewHost {
@@ -80,8 +80,6 @@ beforeEach(function (): void {
             ]
         );
     };
-
-
 });
 
 it('should return properly set host instance (all properties)', function (): void {
@@ -182,23 +180,23 @@ it('should return properly set host instance (mandatory properties only)', funct
 
 // mandatory fields
 it(
-    "should throw an exception when host name is an empty string",
+    'should throw an exception when host name is an empty string',
     fn() => ($this->createHost)(['name' => '    '])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::notEmptyString("NewHost::name")->getMessage()
+    AssertionException::notEmptyString('NewHost::name')->getMessage()
 );
 
 it(
-    "should throw an exception when host address does not respect format",
+    'should throw an exception when host address does not respect format',
     fn() => ($this->createHost)(['address' => 'hello world'])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::ipOrDomain('hello world', "NewHost::address")->getMessage()
+    AssertionException::ipOrDomain('hello world', 'NewHost::address')->getMessage()
 );
 
 // name and conmmands args should be formated
-it("should return trimmed and formatted name field after construct", function (): void {
+it('should return trimmed and formatted name field after construct', function (): void {
     $host = ($this->createHost)(['name' => '    host name   ']);
 
     expect($host->getName())->toBe('host_name');
@@ -213,7 +211,7 @@ foreach (
     it(
         "should return a trimmed field {$field}",
         function () use ($field): void {
-            $host = ($this->createHost)([$field => ["  arg1  ", "  arg2  "]]);
+            $host = ($this->createHost)([$field => ['  arg1  ', '  arg2  ']]);
             $valueFromGetter = $host->{'get' . $field}();
 
             expect($valueFromGetter)->toBe(['arg1', 'arg2']);
