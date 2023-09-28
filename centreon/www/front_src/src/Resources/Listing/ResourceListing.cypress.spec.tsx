@@ -586,7 +586,7 @@ describe('Resource Listing: Visualization by Hosts', () => {
     });
   });
 
-  it('sends a request to retrieve all sevices and there parents', () => {
+  it('sends a request to retrieve all sevices and their parents', () => {
     cy.findByLabelText(labelViewByHost).click();
 
     cy.waitForRequest('@listingByHosts').then(({ request }) => {
@@ -639,7 +639,7 @@ describe('Resource Listing: Visualization by Hosts', () => {
     cy.makeSnapshot();
   });
 
-  it('displays the services when the Expand button was clicked', () => {
+  it('displays the services when the Expand button is clicked', () => {
     cy.findByLabelText(labelViewByHost).click();
     cy.waitForRequest('@listingByHosts');
 
