@@ -77,6 +77,10 @@ describe('Time Period', () => {
 
     cy.findByLabelText(labelFrom)
       .find('input')
+      .should('not.have.attr', 'readonly');
+
+    cy.findByLabelText(labelFrom)
+      .find('input')
       .click({ force: true })
       .type('{leftarrow}{leftarrow}10');
     cy.findByLabelText(labelTo)
