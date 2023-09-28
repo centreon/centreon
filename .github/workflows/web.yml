@@ -494,6 +494,7 @@ jobs:
   newman-test:
      needs: [get-version]
      uses: ./.github/workflows/newman.yml
+     if: failure()
      with:
         collection_path: centreon/tests/rest_api/collections
         container_name: my_centreon_container
@@ -503,7 +504,6 @@ jobs:
      secrets:
         registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
         registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-
   # api-integration-test:
   #   needs: [get-version, changes, dockerize]
   #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
