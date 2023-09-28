@@ -492,7 +492,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-     needs: [get-version, changes]
+     needs: [get-version]
      uses: ./.github/workflows/newman.yml
      with:
         collection_path: centreon/tests/rest_api/collections
