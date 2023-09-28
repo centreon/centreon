@@ -2,9 +2,9 @@ import { Formik } from 'formik';
 
 import {
   labelCustomize,
-  labelEnd,
-  labelStart,
-  labelTimePeriod
+  labelFrom,
+  labelTimePeriod,
+  labelTo
 } from '../../../../translatedLabels';
 import { editProperties } from '../../../../useCanEditDashboard';
 
@@ -75,16 +75,16 @@ describe('Time Period', () => {
 
     cy.contains(labelCustomize).click();
 
-    cy.findByLabelText(labelEnd)
+    cy.findByLabelText(labelFrom)
       .find('input')
       .click({ force: true })
-      .type('{leftarrow}{leftarrow}{backspace}10');
-    cy.findByLabelText(labelStart)
+      .type('{leftarrow}{leftarrow}10');
+    cy.findByLabelText(labelTo)
       .find('input')
       .click({ force: true })
-      .type('{leftarrow}{leftarrow}{backspace}05');
+      .type('{leftarrow}{leftarrow}05');
 
-    cy.get('input').eq(1).should('have.value', '06/05/2023 05:00 AM');
-    cy.get('input').eq(2).should('have.value', '06/05/2023 10:00 AM');
+    cy.get('input').eq(1).should('have.value', '06/05/2023 10:00 AM');
+    cy.get('input').eq(2).should('have.value', '06/05/2023 05:00 AM');
   });
 });
