@@ -198,7 +198,12 @@ jobs:
                 | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
 
-              dnf install -y centreon-${{ env.module }}
+              if [[ "${{ env.module }}" == "web" ]];then
+                dnf install -y ${{ env.module }}
+              else
+                dnf install -y centreon
+                dnf install -y centreon-${{ env.module }}
+              fi
             ;;
             almalinux:9)
               dnf install -y dnf-plugins-core
@@ -214,7 +219,12 @@ jobs:
                 | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
 
-              dnf install -y centreon-${{ env.module }}
+              if [[ "${{ env.module }}" == "web" ]];then
+                dnf install -y ${{ env.module }}
+              else
+                dnf install -y centreon
+                dnf install -y centreon-${{ env.module }}
+              fi
             ;;
             debian:bullseye)
               apt update && apt upgrade -y
@@ -228,7 +238,12 @@ jobs:
               wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
               apt update
 
-              apt install -y centreon-${{ env.module }}
+              if [[ "${{ env.module }}" == "web" ]];then
+                apt install -y ${{ env.module }}
+              else
+                apt install -y centreon
+                apt install -y centreon-${{ env.module }}
+              fi
             ;;
           esac
         shell: bash
