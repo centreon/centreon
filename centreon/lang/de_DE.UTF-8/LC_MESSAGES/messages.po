@@ -16098,3 +16098,6 @@ msgstr ""
 
 #  msgid "You are not allowed to list hosts"
 #  msgstr ""
+
+#  msgid "Error while searching for host configurations"
+#  msgstr ""

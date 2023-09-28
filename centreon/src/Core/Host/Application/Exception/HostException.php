@@ -169,6 +169,6 @@ class HostException extends \Exception
      */
     public static function errorWhileSearchingForHosts(\Throwable $ex): self
     {
-        return new self(_('Error while searching for host templates'));
+        return new self(_('Error while searching for host configurations'));
     }
 }

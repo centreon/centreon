@@ -27,6 +27,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
 use Core\Host\Domain\Model\LittleHost;
+use Core\Host\Domain\Model\TinyHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostRepositoryInterface
@@ -59,7 +60,7 @@ interface ReadHostRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return LittleHost[]
+     * @return TinyHost[]
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
 
@@ -67,7 +68,7 @@ interface ReadHostRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
      *
-     * @return LittleHost[]
+     * @return TinyHost[]
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,

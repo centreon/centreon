@@ -41,6 +41,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
 use Core\Host\Domain\Model\LittleHost;
+use Core\Host\Domain\Model\TinyHost;
 use Core\Host\Domain\Model\SimpleEntity;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -692,9 +693,9 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      *
      * @throws AssertionFailedException
      *
-     * @return LittleHost
+     * @return TinyHost
      */
-    private function createLittleHost(array $result): LittleHost
+    private function createLittleHost(array $result): TinyHost
     {
         $severity = $result['severity_id'] !== null && $result['severity_name'] !== null
             ? new SimpleEntity(
@@ -719,7 +720,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 'Host'
             ) : null;
 
-        $host = new LittleHost(
+        $host = new TinyHost(
             (int) $result['id'],
             new TrimmedString($result['name']),
             $result['alias'] !== null ? new TrimmedString($result['alias']) : null ,
