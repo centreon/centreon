@@ -41,7 +41,7 @@ my ($gorgone);
 
 use base qw(gorgone::class::script);
 
-my $VERSION = '22.04.0';
+my $VERSION = '23.04.0';
 my %handlers = (TERM => {}, HUP => {}, CHLD => {}, DIE => {});
 
 sub new {
@@ -74,7 +74,9 @@ sub new {
         'GET_/internal/information' => 'INFORMATION',
         'POST_/internal/logger' => 'BCASTLOGGER',
     };
-    $self->{config} = 
+
+    $self->{ievents} = [];
+    $self->{recursion_ievents} = 0;
 
     return $self;
 }
@@ -513,17 +515,11 @@ sub broadcast_core_key {
     );
 }
 
-sub read_internal_message {
+sub decrypt_internal_message {
     my ($self, %options) = @_;
 
-    my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
-        socket => $self->{internal_socket},
-        logger => $self->{logger}
-    );
-    return undef if (!defined($identity));
-
     if ($self->{internal_crypt}->{enabled} == 1) {
-        my $id = pack('H*', $identity);
+        my $id = pack('H*', $options{identity});
         my $keys;
         if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_identity_keys}->{$id})) {
             $keys = [ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_identity_keys}->{$id}->{key} ];
@@ -533,16 +529,16 @@ sub read_internal_message {
                 if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_oldkey}));
         }
         foreach my $key (@$keys) {
-            if ($frame->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
-                return ($identity, $frame);
+            if ($options{frame}->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
+                return 0;
             }
         }
 
-        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $frame->getLastError());
-        return undef;
+        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $options{frame}->getLastError());
+        return 1;
     }
 
-    return ($identity, $frame);
+    return 1;
 }
 
 sub send_internal_response {
@@ -640,7 +636,7 @@ sub message_run {
 
     if ($self->{logger}->is_debug()) {
         my $frame_ref = $options->{frame}->getFrame();
-        $self->{logger}->writeLogDebug('[core] Message received - ' . $$frame_ref);
+        $self->{logger}->writeLogDebug('[core] Message received ' . $options->{router_type} . ' - ' . $$frame_ref);
     }
     if ($options->{frame}->parse({ releaseFrame => 1 }) != 0) {
         return (undef, 1, { message => 'request not well formatted' });
@@ -761,28 +757,47 @@ sub message_run {
     return ($token, 0);
 }
 
+
 sub router_internal_event {
     my ($self, %options) = @_;
 
+    $self->{recursion_ievents}++;
+
     while ($self->{internal_socket}->has_pollin()) {
-        my ($identity, $frame) = $self->read_internal_message();
+        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
+            socket => $self->{internal_socket},
+            logger => $self->{logger}
+        );
         next if (!defined($identity));
+        push @{$self->{ievents}}, [$identity, $frame];
+    }
+
+
+    if ($self->{recursion_ievents} > 1) {
+        $self->{recursion_ievents}--;
+        return;
+    }
+
+    while (my $event = shift(@{$self->{ievents}})) {
+        next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
 
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
-                frame => $frame,
-                identity => $identity,
+                frame => $event->[1],
+                identity => $event->[0],
                 router_type => 'internal'
             }
         );
         $self->send_internal_response(
-            identity => $identity,
+            identity => $event->[0],
             response_type => $response_type,
             data => $response,
             code => $code,
             token => $token
         );
     }
+
+    $self->{recursion_ievents}--;
 }
 
 sub is_handshake_done {
@@ -1319,3 +1334,4 @@ sub run {
 1;
 
 __END__
+
