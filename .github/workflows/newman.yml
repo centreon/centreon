@@ -136,25 +136,28 @@ jobs:
     - name: Generate and Display Summaries
       run: |
         summaries=""
+        has_failures=false 
         for summary_file in ./postman_summaries/*.json; do
             collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
             total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
             pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-            
+    
             if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                has_failures=true  # Set has_failures to true if there are failures
                 summaries+="<table>"
                 summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
                 summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
                 summaries+="</table>"
             fi
-            echo "Processing summary file: $summary_file"  # Sortie de débogage
+            echo "Processing summary file: $summary_file"  # Debug output
         done
         
         if [ -n "$summaries" ]; then
             echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         fi
-        if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
-        exit 0 
+        
+        if [ "$has_failures" = true ]; then
+            exit 1  
         fi
