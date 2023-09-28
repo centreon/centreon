@@ -63,21 +63,31 @@ final class FindResourcesByParent
         ResourceFilter $filter
     ): void {
         try {
-            // Save the search provided to be restored later on
+            // Save the search and sort provided to be restored later on
             $searchProvided = $this->requestParameters->getSearchAsString();
+            $sortProvided = $this->requestParameters->getSort();
+
+            // create specific filter for parent search
             $parentFilter = (new ResourceFilter())->setTypes([ResourceFilter::TYPE_HOST]);
+
+            // Creating a new sort to search children as we want a specific order priority
+            $servicesSort = ['parent_id' => 'DESC', ...$sortProvided];
+
+            $this->requestParameters->setSort(json_encode($servicesSort));
 
             if ($this->contact->isAdmin()) {
                 $children = $this->findResourcesAsAdmin($filter);
                 $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
-                // unset search provided in order to find parents linked to the resources found
+                // unset search provided in order to find parents linked to the resources found and restore sort
                 $this->unsetInitialSearchParameter();
+                $this->requestParameters->setSort(json_encode($sortProvided));
                 $parents = $this->findResourcesAsAdmin($parentFilter);
             } else {
                 $children = $this->findResourcesAsUser($filter);
                 $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
-                // unset search provided in order to find parents linked to the resources found
+                // unset search provided in order to find parents linked to the resources found and restore sort
                 $this->unsetInitialSearchParameter();
+                $this->requestParameters->setSort(json_encode($sortProvided));
                 $parents = $this->findResourcesAsUser($parentFilter);
            }
 
