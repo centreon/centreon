@@ -160,4 +160,5 @@ jobs:
         
         if [ "$has_failures" = true ]; then
            echo "::error::Some collections failed."       
+           exit 1
         fi
