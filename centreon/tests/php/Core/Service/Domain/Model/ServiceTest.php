@@ -122,7 +122,6 @@ it('should return properly set service instance (all properties)', function (): 
         ->and($service->getFirstNotificationDelay())->toBe(5)
         ->and($service->getAcknowledgementTimeout())->toBe(20)
         ->and($service->getGeoCoords()->__toString())->toBe((new GeoCoords('12.25', '46.8'))->__toString());
-
 });
 
 it('should return properly set host instance (mandatory properties only)', function (): void {
@@ -171,11 +170,11 @@ it('should return properly set host instance (mandatory properties only)', funct
 
 // mandatory fields
 it(
-    "should throw an exception when service name is an empty string",
+    'should throw an exception when service name is an empty string',
     fn() => ($this->createService)(['name' => '    '])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::notEmptyString("Service::name")->getMessage()
+    AssertionException::notEmptyString('Service::name')->getMessage()
 );
 
 // foreign keys fields
@@ -202,7 +201,7 @@ foreach (
 }
 
 // name and commands args should be formated
-it("should return trimmed and formatted name field after construct", function (): void {
+it('should return trimmed and formatted name field after construct', function (): void {
     $service = ($this->createService)(['name' => '    service     name   ']);
 
     expect($service->getName())->toBe('service name');

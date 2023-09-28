@@ -89,17 +89,17 @@ it('should return properly set host instance (mandatory properties only)', funct
 
 // mandatory fields
 it(
-    "should throw an exception when service name is an empty string",
+    'should throw an exception when service name is an empty string',
     fn() => ($this->createService)(['name' => new TrimmedString('  ')])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::notEmptyString("ServiceLight::name")->getMessage()
+    AssertionException::notEmptyString('ServiceLight::name')->getMessage()
 );
 
 // too long field
 $tooLong = str_repeat('a', NewService::MAX_NAME_LENGTH + 1);
 it(
-    "should throw an exception when service name is too long",
+    'should throw an exception when service name is too long',
     fn() => ($this->createService)(['name' => new TrimmedString($tooLong)])
 )->throws(
     InvalidArgumentException::class,
@@ -107,6 +107,6 @@ it(
         $tooLong,
         NewService::MAX_NAME_LENGTH + 1,
         NewService::MAX_NAME_LENGTH,
-        "ServiceLight::name"
+        'ServiceLight::name'
     )->getMessage()
 );

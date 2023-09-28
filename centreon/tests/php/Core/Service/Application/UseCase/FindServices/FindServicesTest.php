@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,7 +46,7 @@ use Core\ServiceGroup\Domain\Model\ServiceGroupNamesById;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Tests\Core\Service\Infrastructure\API\FindServices\FindServicesPresenterStub;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->usecase = new FindServices(
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class),
@@ -55,7 +55,6 @@ beforeEach(function () {
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-
     );
     $this->presenter = new FindServicesPresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -66,7 +65,7 @@ beforeEach(function () {
         name: new TrimmedString('my-service-name'),
         hostIds: [1],
         categoryIds: [2],
-        groups: [ new ServiceGroupRelation(3, 1, 1) ],
+        groups: [new ServiceGroupRelation(3, 1, 1)],
         serviceTemplate: null,
         notificationTimePeriod: null,
         checkTimePeriod: null,
@@ -96,13 +95,13 @@ beforeEach(function () {
     $this->responseDto->notificationTimePeriod = null;
     $this->responseDto->severity = null;
     $this->responseDto->hosts = [
-        ['id' => 1, 'name' => 'host-name']
+        ['id' => 1, 'name' => 'host-name'],
     ];
     $this->responseDto->categories = [
-        ['id' => 2, 'name' => 'category-name']
+        ['id' => 2, 'name' => 'category-name'],
     ];
     $this->responseDto->groups = [
-        ['id' => 3, 'name' => 'group-name', 'hostId' => 1, 'hostName' => 'host-name']
+        ['id' => 3, 'name' => 'group-name', 'hostId' => 1, 'hostName' => 'host-name'],
     ];
 });
 
@@ -130,7 +129,6 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 });
 
 it('should present a ForbiddenResponse when user has insufficient rights', function (): void {
-
     $this->user
         ->expects($this->exactly(2))
         ->method('hasTopologyRole')
