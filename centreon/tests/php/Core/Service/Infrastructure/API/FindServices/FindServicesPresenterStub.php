@@ -31,6 +31,7 @@ use Core\Service\Application\UseCase\FindServices\FindServicesResponse;
 class FindServicesPresenterStub extends AbstractPresenter implements FindServicesPresenterInterface
 {
     public ResponseStatusInterface|FindServicesResponse $response;
+
     public function presentResponse(ResponseStatusInterface|FindServicesResponse $response): void
     {
         $this->response = $response;

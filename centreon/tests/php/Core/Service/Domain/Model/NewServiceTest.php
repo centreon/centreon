@@ -80,14 +80,14 @@ beforeEach(function (): void {
         $fields = array_merge($additionalProperties, $fields);
 
         foreach ($fields as $fieldName => $fieldValue) {
-            if (in_array($fieldName, ['commandArguments', 'eventHandlerArguments', 'notificationTypes'])) {
-                $setterMethod = 'add' . ucfirst(substr($fieldName, 0, strlen($fieldName) - 1 ));
+            if (in_array($fieldName, ['commandArguments', 'eventHandlerArguments', 'notificationTypes'], true)) {
+                $setterMethod = 'add' . ucfirst(mb_substr($fieldName, 0, mb_strlen($fieldName) - 1 ));
                 foreach ($fieldValue as $value) {
                     $service->{$setterMethod}($value);
                 }
             } else {
                 $setterMethod = 'set' . ucfirst(
-                    str_starts_with($fieldName, 'is') ? substr($fieldName, 2) : $fieldName
+                    str_starts_with($fieldName, 'is') ? mb_substr($fieldName, 2) : $fieldName
                 );
                 if (method_exists(NewService::class, $setterMethod)) {
                     $service->{$setterMethod}($fieldValue);
@@ -141,7 +141,6 @@ it('should return properly set service instance (all properties)', function (): 
         ->and($service->getFirstNotificationDelay())->toBe(5)
         ->and($service->getAcknowledgementTimeout())->toBe(20)
         ->and($service->getGeoCoords()->__toString())->toBe((new GeoCoords('12.25', '46.8'))->__toString());
-
 });
 
 it('should return properly set host instance (mandatory properties only)', function (): void {
@@ -190,11 +189,11 @@ it('should return properly set host instance (mandatory properties only)', funct
 
 // mandatory fields
 it(
-    "should throw an exception when service name is an empty string",
+    'should throw an exception when service name is an empty string',
     fn() => ($this->createService)(['name' => '    '])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::notEmptyString("NewService::name")->getMessage()
+    AssertionException::notEmptyString('NewService::name')->getMessage()
 );
 
 // foreign keys fields
@@ -221,7 +220,7 @@ foreach (
 }
 
 // name and commands args should be formated
-it("should return trimmed and formatted name field after construct", function (): void {
+it('should return trimmed and formatted name field after construct', function (): void {
     $service = ($this->createService)(['name' => '    service     name   ']);
 
     expect($service->getName())->toBe('service name');
