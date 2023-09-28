@@ -27,10 +27,22 @@ describe('breadcrumbSelector', () => {
 
     expect(breadcrumbs).toEqual({
       '/home/customViews': [
-        { label: 'Home', link: '/main.php?p=1' },
-        { label: 'Custom Views', link: '/home/customViews' }
+        {
+          is_react: false,
+          label: 'Home',
+          link: '/main.php?p=1',
+          options: null
+        },
+        {
+          is_react: true,
+          label: 'Custom Views',
+          link: '/home/customViews',
+          options: null
+        }
       ],
-      '/main.php?p=1': [{ label: 'Home', link: '/main.php?p=1' }]
+      '/main.php?p=1': [
+        { is_react: false, label: 'Home', link: '/main.php?p=1', options: null }
+      ]
     });
   });
 
@@ -94,16 +106,53 @@ describe('breadcrumbSelector', () => {
 
     expect(breadcrumbs).toEqual({
       '/configuration/hosts': [
-        { label: 'Configuration', link: '/main.php?p=2' },
-        { label: 'Hosts', link: '/configuration/hosts' },
-        { label: 'Hosts', link: '/configuration/hosts' }
+        {
+          is_react: false,
+          label: 'Configuration',
+          link: '/main.php?p=2',
+          options: null
+        },
+        {
+          is_react: false,
+          label: 'Hosts',
+          link: '/configuration/hosts',
+          options: null
+        },
+        {
+          is_react: true,
+          label: 'Hosts',
+          link: '/configuration/hosts',
+          options: null
+        }
       ],
       '/configuration/services': [
-        { label: 'Configuration', link: '/main.php?p=2' },
-        { label: 'Services', link: '/configuration/services' },
-        { label: 'Services', link: '/configuration/services' }
+        {
+          is_react: false,
+          label: 'Configuration',
+          link: '/main.php?p=2',
+          options: null
+        },
+        {
+          is_react: false,
+          label: 'Services',
+          link: '/configuration/services',
+          options: null
+        },
+        {
+          is_react: true,
+          label: 'Services',
+          link: '/configuration/services',
+          options: null
+        }
       ],
-      '/main.php?p=2': [{ label: 'Configuration', link: '/main.php?p=2' }]
+      '/main.php?p=2': [
+        {
+          is_react: false,
+          label: 'Configuration',
+          link: '/main.php?p=2',
+          options: null
+        }
+      ]
     });
   });
 });

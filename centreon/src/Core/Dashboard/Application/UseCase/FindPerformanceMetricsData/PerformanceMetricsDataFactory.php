@@ -134,7 +134,10 @@ class PerformanceMetricsDataFactory
         foreach ($metricsData as $hostName => $metricData) {
             foreach ($metricData as $metric) {
                 if (in_array($metric['metric'], $metricNames, true)) {
-                    $metrics[$hostName] = $metric;
+                    $metric['metric'] = $hostName . ': ' . $metric['metric'];
+                    $metric['metric_legend'] = $hostName . ': ' . $metric['metric_legend'];
+                    $metric['legend'] = $hostName . ': ' . $metric['legend'];
+                    $metrics[] = $metric;
                 }
             }
         }
