@@ -16877,3 +16877,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to list authentication tokens"
 #  msgstr ""
+
+#  msgid "You are not allowed to access services"
+#  msgstr ""
+
+#  msgid "Error while searching for services"
+#  msgstr ""

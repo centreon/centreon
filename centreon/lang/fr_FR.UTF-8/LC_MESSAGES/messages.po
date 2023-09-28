@@ -18222,3 +18222,9 @@ msgstr "Erreur lors de la recherche de jetons d'authentification"
 
 msgid "You are not allowed to list authentication tokens"
 msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
+
+msgid "You are not allowed to access services"
+msgstr "Vous n'êtes pas autorisé à accéder aux sevrices"
+
+msgid "Error while searching for services"
+msgstr "Erreur lors de la recherche de services"
