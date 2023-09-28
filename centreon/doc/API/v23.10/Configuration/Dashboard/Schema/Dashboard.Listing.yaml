@@ -54,11 +54,11 @@ properties:
   global_refresh:
     type: object
     properties:
-      type:
+      refresh_type:
         type: string
         enum: [ global, manual ]
         example: 'manual'
-      interval:
+      refresh_interval:
         type: integer
         nullable: true
         example: 10
