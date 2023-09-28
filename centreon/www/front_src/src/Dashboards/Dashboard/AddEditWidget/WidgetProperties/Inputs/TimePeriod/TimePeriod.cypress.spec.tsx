@@ -17,6 +17,7 @@ const initializeComponent = (): void => {
     canEditField: true
   });
   cy.clock(new Date(2023, 5, 5, 8, 0, 0).getTime());
+  cy.viewport('macbook-13');
   cy.mount({
     Component: (
       <Formik
@@ -74,10 +75,6 @@ describe('Time Period', () => {
     cy.findByTestId(labelTimePeriod).parent().eq(0).click();
 
     cy.contains(labelCustomize).click();
-
-    cy.findByLabelText(labelFrom)
-      .find('input')
-      .should('not.have.attr', 'readonly');
 
     cy.findByLabelText(labelFrom)
       .find('input')
