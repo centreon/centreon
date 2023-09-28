@@ -106,7 +106,7 @@ jobs:
         collection_directory="$(dirname "$collection_file")"
         environment_file="$collection_directory/Environment-Collection.json"
         if [ -f "$environment_file" ]; then
-          pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+          pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
          else
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
@@ -114,11 +114,13 @@ jobs:
 
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
+      continue-on-error: true 
       with:
         name: postman-html-reports
         path: centreon/tests/rest_api/newman/
         
     - name: Extract and Store Summaries
+      continue-on-error: true 
       run: |
         declare -A json_info
         for summary_file in ./postman_summaries/*.json; do
@@ -134,6 +136,7 @@ jobs:
         done
 
     - name: Generate and Display Summaries
+      continue-on-error: true 
       run: |
         summaries=""
         has_failures=false 
