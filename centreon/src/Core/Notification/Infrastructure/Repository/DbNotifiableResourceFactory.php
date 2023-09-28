@@ -32,7 +32,7 @@ class DbNotifiableResourceFactory
     public const NO_SERVICE_EVENTS = '0';
 
     /**
-     * @param array<int,array{
+     * @param iterable<int,array{
      *  notification_id: int,
      *  host_id: int,
      *  host_name: string,
@@ -47,7 +47,7 @@ class DbNotifiableResourceFactory
      *
      * @throws \Throwable
      *
-     * @return \Generator|null
+     * @return \Generator<NotifiableResource>
      */
     public static function createFromRecords(iterable $records): \Generator
     {
@@ -118,8 +118,8 @@ class DbNotifiableResourceFactory
                 continue;
             }
 
-            if ($record['host_events'] !== self::NO_HOST_EVENTS) {
-                $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $record['host_events']);
+            if ($currentRecords[$index - 1] !== self::NO_HOST_EVENTS) {
+                $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $currentRecords[$index - 1]);
             }
 
             $notificationHosts[] = self::createNotificationHostFromRecord(
@@ -134,11 +134,12 @@ class DbNotifiableResourceFactory
             $index = 1;
             $currentRecords[] = $record;
             $currentHostId = $record['host_id'];
+            $currentHostEvents = [];
         }
 
         if ($currentRecords[$index - 1]['host_events'] !== self::NO_HOST_EVENTS) {
             $currentHostEvents = NotificationHostEventConverter::fromBitFlags(
-                $currentRecords[$index - 1]['host_events']
+                (int) $currentRecords[$index - 1]['host_events']
             );
         }
 
@@ -201,6 +202,11 @@ class DbNotifiableResourceFactory
                 continue;
             }
 
+            // Do not create a metaservice with generated virtual service name (i.e. 'meta_1')
+            if (\str_contains($record['service_name'], 'meta_')) {
+                continue;
+            }
+
             $notificationServices[] = new NotifiableService(
                 (int) $record['service_id'],
                 $record['service_name'],
@@ -208,6 +214,7 @@ class DbNotifiableResourceFactory
                 $currentServiceEvents
             );
         }
+        $notificationServices = \array_unique($notificationServices, SORT_REGULAR);
 
         return new NotifiableHost($hostId, $hostName, $hostAlias, $hostEvents, $notificationServices);
     }

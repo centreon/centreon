@@ -340,7 +340,7 @@ if ($o == SERVICE_ADD) {
 } elseif ($o == SERVICE_WATCH) {
     $form->addElement('header', 'title', _("View a Service"));
 } elseif ($o == SERVICE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title', _("Massive Change"));
+    $form->addElement('header', 'title', _("Mass Change"));
 }
 
 #
@@ -773,7 +773,7 @@ if ($o == SERVICE_ADD) {
 } elseif ($o == SERVICE_WATCH) {
     $form->addElement('header', 'title2', _("View relations"));
 } elseif ($o == SERVICE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 if ($o == SERVICE_MASSIVE_CHANGE) {
@@ -860,7 +860,7 @@ if ($o == SERVICE_ADD) {
 } elseif ($o == SERVICE_WATCH) {
     $form->addElement('header', 'title3', _("View Data Processing"));
 } elseif ($o == SERVICE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'treatment', _("Data Processing"));
@@ -919,7 +919,7 @@ if ($o == SERVICE_ADD) {
 } elseif ($o == SERVICE_WATCH) {
     $form->addElement('header', 'title4', _("View an Extended Info"));
 } elseif ($o == SERVICE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title3', _("Massive Change"));
+    $form->addElement('header', 'title3', _("Mass Change"));
     $form->addElement('header', 'title4', _("Modify an Extended Info"));
 }
 
@@ -986,7 +986,7 @@ if ($o == SERVICE_ADD) {
 } elseif ($o == SERVICE_WATCH) {
     $form->addElement('header', 'title5', _("View macros"));
 } elseif ($o == SERVICE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title5', _("Massive Change"));
+    $form->addElement('header', 'title5', _("Mass Change"));
 }
 
 $form->addElement('header', 'macro', _("Macros"));

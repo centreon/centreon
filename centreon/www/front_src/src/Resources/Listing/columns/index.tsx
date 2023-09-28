@@ -41,6 +41,8 @@ import NotificationColumn from './Notification';
 import ChecksColumn from './Checks';
 import ParentAliasColumn from './ParentAlias';
 
+import { FeatureFlags } from 'www/front_src/src/api/models';
+
 interface StyleProps {
   isHovered: boolean;
 }
@@ -70,6 +72,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
 
 export interface ColumnProps {
   actions;
+  featureFlags?: FeatureFlags | null;
   t: (value: string) => string;
   visualization?: Visualization;
 }
@@ -88,6 +91,7 @@ export const defaultSelectedColumnIds = [
 export const getColumns = ({
   actions,
   visualization = Visualization.All,
+  featureFlags,
   t
 }: ColumnProps): Array<Column> => {
   const columns = [
@@ -251,15 +255,19 @@ export const getColumns = ({
       type: ColumnType.string,
       width: 'max-content'
     },
-    {
-      Component: NotificationColumn,
-      getRenderComponentOnRowUpdateCondition: T,
-      id: 'notification',
-      label: t(labelNotification),
-      rowMemoProps: ['notification_enabled'],
-      shortLabel: 'Notif',
-      type: ColumnType.component
-    },
+    ...(featureFlags?.notification
+      ? []
+      : [
+          {
+            Component: NotificationColumn,
+            getRenderComponentOnRowUpdateCondition: T,
+            id: 'notification',
+            label: t(labelNotification),
+            rowMemoProps: ['notification_enabled'],
+            shortLabel: 'Notif',
+            type: ColumnType.component
+          }
+        ]),
     {
       Component: ChecksColumn,
       getRenderComponentOnRowUpdateCondition: T,

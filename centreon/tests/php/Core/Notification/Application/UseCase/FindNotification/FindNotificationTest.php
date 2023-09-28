@@ -128,7 +128,7 @@ it('should get the resources with ACL calculation when the user is not admin', f
         'Message content',
         '<p>Message content</p>'
     );
-    $notificationUser = new ConfigurationUser(3, 'test-user');
+    $notificationUser = new ConfigurationUser(3, 'test-user', 'email-user');
 
     $this->notificationRepository
         ->expects($this->once())
@@ -181,7 +181,7 @@ it('should present a FindNotificationResponse when everything is OK', function (
         'Message content',
         '<p>Message content</p>'
     );
-    $notificationUser = new ConfigurationUser(3, 'test-user');
+    $notificationUser = new ConfigurationUser(3, 'test-user', 'email-user');
     $notificationResource = new NotificationResource(
         NotificationResource::HOSTGROUP_RESOURCE_TYPE,
         NotificationHostEvent::class,

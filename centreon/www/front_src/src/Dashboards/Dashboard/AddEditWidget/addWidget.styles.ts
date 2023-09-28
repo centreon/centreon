@@ -17,7 +17,13 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     color: theme.palette.common.white
   },
   widgetDataset: {
-    height: '20vh',
+    height: '37vh',
+    [theme.breakpoints.down('xl')]: {
+      height: '23vh'
+    },
+    [theme.breakpoints.down('lg')]: {
+      height: '20vh'
+    },
     overflow: 'auto'
   },
   widgetProperties: {
@@ -28,7 +34,7 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   widgetPropertiesContent: {
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
-    height: '66vh',
+    height: '68vh',
     overflow: 'auto',
     padding: theme.spacing(1)
   }

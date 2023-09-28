@@ -1,7 +1,6 @@
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
@@ -9,19 +8,22 @@ import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
 import {
   labelDescription,
   labelShowDescription,
-  labelName,
   labelOpenLinksInNewTab,
   labelOpenLinksInNewTabTooltip,
   labelWidgetProperties,
-  labelValueSettings
+  labelValueSettings,
+  labelTitle
 } from '../../translatedLabels';
-import { Widget } from '../models';
+import Subtitle from '../../components/Subtitle';
 
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetInputs } from './useWidgetInputs';
+import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const WidgetProperties = (): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useWidgetPropertiesStyles();
+
   const widgetProperties = useWidgetInputs('options');
 
   const isWidgetSelected = !isNil(widgetProperties);
@@ -32,53 +34,46 @@ const WidgetProperties = (): JSX.Element => {
     <>
       {isWidgetSelected && (
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
-          <>
-            <WidgetTextField label={labelName} propertyName="name" />
-            <Box
-              sx={{
-                alignItems: 'center',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Typography>
-                <strong>{t(labelDescription)}</strong>
-              </Typography>
+          <div className={classes.widgetProperties}>
+            <WidgetTextField label={labelTitle} propertyName="name" />
+            <div>
+              <Subtitle>{t(labelDescription)}</Subtitle>
               <WidgetSwitch
                 label={labelShowDescription}
                 propertyName="description.enabled"
               />
-            </Box>
-            <WidgetRichTextEditor
-              disabledCondition={(values: Widget) =>
-                !values.options.description?.enabled
-              }
-              label={labelDescription}
-              propertyName="description.content"
-            />
-            <WidgetSwitch
-              endAdornment={
-                <Tooltip
-                  followCursor={false}
-                  label={t(labelOpenLinksInNewTabTooltip)}
-                  position="top"
-                >
-                  <InfoOutlinedIcon color="primary" fontSize="small" />
-                </Tooltip>
-              }
-              label={labelOpenLinksInNewTab}
-              propertyName="openLinksInNewTab"
-            />
-          </>
+              <div className={classes.widgetDescription}>
+                <WidgetRichTextEditor
+                  label={labelDescription}
+                  propertyName="description.content"
+                />
+              </div>
+              <WidgetSwitch
+                endAdornment={
+                  <Tooltip
+                    followCursor={false}
+                    label={t(labelOpenLinksInNewTabTooltip)}
+                    position="right"
+                  >
+                    <InfoOutlinedIcon color="primary" fontSize="small" />
+                  </Tooltip>
+                }
+                label={labelOpenLinksInNewTab}
+                propertyName="openLinksInNewTab"
+              />
+            </div>
+          </div>
         </CollapsibleItem>
       )}
       {isWidgetSelected && hasProperties && (
         <CollapsibleItem defaultExpanded title={t(labelValueSettings)}>
-          <>
+          <div className={classes.widgetProperties}>
             {(widgetProperties || []).map(({ Component, key, props }) => (
-              <Component key={key} {...props} />
+              <div key={key}>
+                <Component {...props} />
+              </div>
             ))}
-          </>
+          </div>
         </CollapsibleItem>
       )}
     </>

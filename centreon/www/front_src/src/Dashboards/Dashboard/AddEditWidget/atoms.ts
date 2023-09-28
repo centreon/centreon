@@ -9,3 +9,7 @@ export const widgetPropertiesAtom =
   atom<Array<WidgetPropertiesRenderer> | null>(null);
 
 export const singleMetricSectionAtom = atom<boolean | undefined>(undefined);
+
+export const customBaseColorAtom = atom<boolean | undefined>(undefined);
+
+export const metricsOnlyAtom = atom<boolean | undefined>(undefined);

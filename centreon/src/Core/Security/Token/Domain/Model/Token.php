@@ -25,62 +25,51 @@ namespace Core\Security\Token\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\TrimmedString;
 
 class Token
 {
     public const MAX_TOKEN_NAME_LENGTH = 255;
-    public const MAX_CREATOR_NAME_LENGTH = 255;
-
-    private string $shortName = '';
+    public const MAX_USER_NAME_LENGTH = 255;
 
     /**
-     * @param int $tokenId
-     * @param \DateTimeImmutable $creationDate
-     * @param \DateTimeImmutable $expirationDate
+     * @param TrimmedString $name
      * @param int $userId
-     * @param string $name
-     * @param int $creatorId
-     * @param string $creatorName
+     * @param TrimmedString $userName
+     * @param int|null $creatorId
+     * @param TrimmedString $creatorName
+     * @param \DateTimeInterface $creationDate
+     * @param \DateTimeInterface $expirationDate
      * @param bool $isRevoked
      *
      * @throws AssertionFailedException
      */
     public function __construct(
-        private readonly int $tokenId,
-        private readonly \DateTimeImmutable $creationDate,
-        private readonly \DateTimeImmutable $expirationDate,
+        private readonly TrimmedString $name,
         private readonly int $userId,
-        private string $name,
-        private string $creatorName,
-        private readonly ?int $creatorId = null,
-        private bool $isRevoked = false,
-    )
-    {
-        $this->shortName = (new \ReflectionClass($this))->getShortName();
-
-        $this->name = trim($name);
-        $this->creatorName = trim($creatorName);
-
-        Assertion::positiveInt($this->tokenId, "{$this->shortName}::tokenId");
-        Assertion::minDate($this->expirationDate, $this->creationDate, "{$this->shortName}::expirationDate");
-        Assertion::positiveInt($this->userId, "{$this->shortName}::userId");
-        Assertion::notEmptyString($this->name, "{$this->shortName}::name");
-        Assertion::maxLength($this->name, self::MAX_TOKEN_NAME_LENGTH, "{$this->shortName}::name");
+        private readonly TrimmedString $userName,
+        private readonly ?int $creatorId,
+        private readonly TrimmedString $creatorName,
+        private readonly \DateTimeInterface $creationDate,
+        private readonly \DateTimeInterface $expirationDate,
+        private readonly bool $isRevoked = false,
+    ) {
+        Assertion::notEmptyString((string) $name, 'Token::name');
+        Assertion::maxLength((string) $name, self::MAX_TOKEN_NAME_LENGTH, 'Token::name');
+        Assertion::positiveInt($this->userId, 'Token::userId');
+        Assertion::notEmptyString((string) $userName, 'Token::userName');
+        Assertion::maxLength((string) $userName, self::MAX_USER_NAME_LENGTH, 'Token::userName');
         if ($this->creatorId !== null) {
-            Assertion::positiveInt($this->creatorId, "{$this->shortName}::creatorId");
+            Assertion::positiveInt($this->creatorId, 'Token::creatorId');
         }
-        Assertion::notEmptyString($this->creatorName, "{$this->shortName}::creatorName");
-        Assertion::maxLength($this->creatorName, self::MAX_CREATOR_NAME_LENGTH, "{$this->shortName}::creatorName");
+        Assertion::notEmptyString((string) $creatorName, 'Token::creatorName');
+        Assertion::maxLength((string) $creatorName, self::MAX_USER_NAME_LENGTH, 'Token::creatorName');
+        Assertion::maxDate($creationDate, $expirationDate, 'Token::creationDate');
     }
 
-    public function getCreationDate(): \DateTimeImmutable
+    public function getName(): string
     {
-        return $this->creationDate;
-    }
-
-    public function getExpirationDate(): \DateTimeImmutable
-    {
-        return $this->expirationDate;
+        return $this->name->value;
     }
 
     public function getUserId(): int
@@ -88,23 +77,9 @@ class Token
         return $this->userId;
     }
 
-    public function getName(): string
+    public function getUserName(): string
     {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @throws \Throwable
-     */
-    public function setName(string $name): void
-    {
-        $trimmedName = trim($name);
-        Assertion::notEmptyString($trimmedName, "{$this->shortName}::name");
-        Assertion::maxLength($trimmedName, self::MAX_TOKEN_NAME_LENGTH, "{$this->shortName}::name");
-
-        $this->name = $trimmedName;
+        return $this->userName->value;
     }
 
     public function getCreatorId(): ?int
@@ -114,16 +89,21 @@ class Token
 
     public function getCreatorName(): string
     {
-        return $this->creatorName;
+        return $this->creatorName->value;
+    }
+
+    public function getCreationDate(): \DateTimeInterface
+    {
+        return $this->creationDate;
+    }
+
+    public function getExpirationDate(): \DateTimeInterface
+    {
+        return $this->expirationDate;
     }
 
     public function isRevoked(): bool
     {
         return $this->isRevoked;
-    }
-
-    public function setRevoked(bool $isRevoked): void
-    {
-        $this->isRevoked = $isRevoked;
     }
 }

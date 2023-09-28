@@ -76,23 +76,29 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
 
   const options = [
     {
-      label: t(labelDashboardGlobalInterval),
+      label: `${t(
+        labelDashboardGlobalInterval
+      )} (${defaultInterval} ${pluralize(t(labelSecond), defaultInterval)})`,
       value: RadioOptions.default
     },
     {
       label: (
         <Box className={classes.customInterval}>
           <Typography>{t(labelCustomRefreshInterval)}</Typography>
-          <TextField
-            className={classes.customIntervalField}
-            dataTestId={labelInterval}
-            disabled={!equals(RadioOptions.custom, value)}
-            label={t(labelInterval)}
-            size="compact"
-            type="number"
-            value={`${customInterval}`}
-            onChange={changeCustomRefreshInterval}
-          />
+          <div>
+            <TextField
+              className={classes.customIntervalField}
+              dataTestId={labelInterval}
+              disabled={!equals(RadioOptions.custom, value)}
+              inputProps={{
+                min: 0
+              }}
+              size="compact"
+              type="number"
+              value={`${customInterval}`}
+              onChange={changeCustomRefreshInterval}
+            />
+          </div>
           <Typography>{pluralize(t(labelSecond), customInterval)}</Typography>
         </Box>
       ),

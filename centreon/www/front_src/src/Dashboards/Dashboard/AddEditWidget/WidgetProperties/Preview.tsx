@@ -5,19 +5,27 @@ import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { RichTextEditor } from '@centreon/ui';
 
 import FederatedComponent from '../../../../components/FederatedComponents';
 import { Widget } from '../models';
-import { labelPleaseChooseAWidgetToActivatePreview } from '../../translatedLabels';
+import {
+  labelPleaseChooseAWidgetToActivatePreview,
+  labelPleaseContactYourAdministrator,
+  labelYourRightsOnlyAllowToView
+} from '../../translatedLabels';
 import { isGenericText } from '../../utils';
+import { editProperties } from '../../useCanEditDashboard';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useWidgetPropertiesStyles();
+
+  const { canEdit } = editProperties.useCanEditProperties();
 
   const previewRef = useRef<HTMLDivElement | null>(null);
 
@@ -35,7 +43,10 @@ const Preview = (): JSX.Element | null => {
     <div className={classes.previewPanelContainer} ref={previewRef}>
       <div
         style={{
-          height: `${previewRef.current?.getBoundingClientRect().height || 0}px`
+          height: `${
+            (previewRef.current?.getBoundingClientRect().height || 0) - 16
+          }px`,
+          overflowY: 'auto'
         }}
       >
         {isGenericText(values.panelConfiguration?.path) ? (
@@ -50,6 +61,7 @@ const Preview = (): JSX.Element | null => {
         ) : (
           <FederatedComponent
             isFederatedWidget
+            isFromPreview
             id={values.id}
             panelData={values.data}
             panelOptions={values.options}
@@ -57,6 +69,21 @@ const Preview = (): JSX.Element | null => {
           />
         )}
       </div>
+      {!canEdit && (
+        <div className={classes.previewUserRightPanel}>
+          <div className={classes.previewUserRightPanelContent}>
+            <InfoOutlinedIcon sx={{ mt: 0.5 }} />
+            <div>
+              <Typography variant="subtitle1">
+                {t(labelYourRightsOnlyAllowToView)}
+              </Typography>
+              <Typography variant="subtitle1">
+                {t(labelPleaseContactYourAdministrator)}
+              </Typography>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

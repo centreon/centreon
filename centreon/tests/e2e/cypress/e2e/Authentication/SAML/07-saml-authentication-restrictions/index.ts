@@ -7,7 +7,7 @@ import {
 } from '../common';
 
 before(() => {
-  cy.startWebContainer({version: 'develop'})
+  cy.startWebContainer()
     .startOpenIdProviderContainer()
     .then(() => {
       initializeSAMLUser();
@@ -31,10 +31,6 @@ beforeEach(() => {
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('updateSAMLProvider');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('postLocalAuthentification');
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
@@ -81,6 +77,8 @@ When(
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
     cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+
+    cy.logout();
   }
 );
 
@@ -89,15 +87,14 @@ Then(
   () => {
     const username = 'user-non-admin-for-SAML-authentication';
 
-    cy.session(username, () => {
-      cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
-      cy.loginKeycloak(username)
-        .url()
-        .should('include', '/monitoring/resources')
-    });
+    cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
+    cy.loginKeycloak(username).url().should('include', '/monitoring/resources');
   }
 );
 
 after(() => {
+  // avoid random "Cannot read properties of null (reading 'postMessage')" when stopping containers
+  cy.on('uncaught:exception', () => false);
+
   cy.stopWebContainer().stopOpenIdProviderContainer();
 });

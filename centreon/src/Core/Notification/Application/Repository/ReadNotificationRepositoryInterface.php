@@ -82,9 +82,20 @@ interface ReadNotificationRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return ConfigurationUser[]
+     *  @return array<int, ConfigurationUser>
      */
     public function findUsersByNotificationId(int $notificationId): array;
+
+    /**
+     * Find notification users for a list of contact group Ids.
+     *
+     * @param int ...$contactGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, ConfigurationUser>
+     */
+    public function findUsersByContactGroupIds(int ...$contactGroupIds): array;
 
     /**
      * Find notification Contact Groups for a notification.

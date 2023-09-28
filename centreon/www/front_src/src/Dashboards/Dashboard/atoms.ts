@@ -36,6 +36,8 @@ export const dashboardAtom = atom<Dashboard>({
 
 export const isEditingAtom = atom(false);
 
+export const hasEditPermissionAtom = atom(false);
+
 export const setLayoutModeDerivedAtom = atom(
   null,
   (get, setAtom, isEditing: boolean) => {

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Core\Security\Token\Application\Exception;
 
@@ -38,9 +38,25 @@ class TokenException extends \Exception
     /**
      * @return self
      */
+    public static function deleteToken(): self
+    {
+        return new self(_('Error while deleting a token'));
+    }
+
+    /**
+     * @return self
+     */
     public static function addNotAllowed(): self
     {
         return new self(_('You are not allowed to add tokens'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete tokens'));
     }
 
     /**
@@ -60,17 +76,6 @@ class TokenException extends \Exception
     {
         return new self(
             sprintf(_("The token name '%s' already exists"), $name),
-            self::CODE_CONFLICT
-        );
-    }
-
-    /**
-     * @return self
-     */
-    public static function invalidExpirationDate(): self
-    {
-        return new self(
-            _('The expiration date must be greater than the creation date'),
             self::CODE_CONFLICT
         );
     }
@@ -100,5 +105,32 @@ class TokenException extends \Exception
             self::CODE_CONFLICT
         );
     }
-}
 
+    /**
+     * @param int $userId
+     *
+     * @return self
+     */
+    public static function notAllowedToDeleteTokenForUser(int $userId): self
+    {
+        return new self(
+            sprintf(_('You are not allowed to delete tokens linked to user ID %d'), $userId),
+            self::CODE_CONFLICT
+        );
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileSearching(\Throwable $ex): self
+    {
+        return new self(_('Error while searching for tokens'), 0, $ex);
+    }
+
+    public static function notAllowedToListTokens(): self
+    {
+        return new self(_('You are not allowed to list the tokens'));
+    }
+}
