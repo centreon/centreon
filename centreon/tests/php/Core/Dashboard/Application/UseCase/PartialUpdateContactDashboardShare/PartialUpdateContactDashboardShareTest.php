@@ -24,21 +24,23 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Common\Application\Type\NoValue;
+use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Common\Application\Type\NoValue;
+use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare\PartialUpdateContactDashboardShare;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare\PartialUpdateContactDashboardShareRequest;
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 beforeEach(closure: function (): void {
     $this->presenter = new PartialUpdateContactDashboardSharePresenterStub();
@@ -59,6 +61,10 @@ beforeEach(closure: function (): void {
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
+        new DashboardGlobalRefresh(
+            DashboardGlobalRefreshType::Global,
+            null,
+        )
     );
 
     $this->testedContact = $this->createMock(Contact::class);

@@ -24,18 +24,20 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\DeleteContactDashboardShare;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\DeleteContactDashboardShare\DeleteContactDashboardShare;
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardRights;
 
 beforeEach(closure: function (): void {
     $this->presenter = new DeleteContactDashboardSharePresenterStub();
@@ -56,6 +58,10 @@ beforeEach(closure: function (): void {
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
+        new DashboardGlobalRefresh(
+            DashboardGlobalRefreshType::Global,
+            null,
+        )
     );
 
     $this->testedContact = $this->createMock(Contact::class);

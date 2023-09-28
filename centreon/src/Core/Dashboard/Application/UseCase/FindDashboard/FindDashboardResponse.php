@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\GlobalRefreshResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
@@ -50,6 +51,7 @@ final class FindDashboardResponse
         public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
         public array $panels = [],
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
+        public GlobalRefreshResponseDto $globalRefresh = new GlobalRefreshResponseDto(),
     ) {
     }
 }

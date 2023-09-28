@@ -33,6 +33,8 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Core\Dashboard\Infrastructure\Model\DashboardGlobalRefreshTypeConverter;
 use Utility\SqlConcatenator;
 
 /**
@@ -87,7 +89,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 d.created_by,
                 d.updated_by,
                 d.created_at,
-                d.updated_at
+                d.updated_at,
+                d.global_refresh_type,
+                d.global_refresh_interval
             FROM
                 `:db`.`dashboard` d
             WHERE
@@ -305,6 +309,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      *
      * @throws \ValueError
      * @throws AssertionFailedException
+     * @throws \InvalidArgumentException
      *
      * @return Dashboard
      */
@@ -317,7 +322,11 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             createdBy: $result['created_by'],
             updatedBy: $result['updated_by'],
             createdAt: $this->timestampToDateTimeImmutable($result['created_at']),
-            updatedAt: $this->timestampToDateTimeImmutable($result['updated_at'])
+            updatedAt: $this->timestampToDateTimeImmutable($result['updated_at']),
+            globalRefresh: new DashboardGlobalRefresh(
+                DashboardGlobalRefreshTypeConverter::fromString((string) $result['global_refresh_type']),
+                $result['global_refresh_interval'],
+            )
         );
     }
 }

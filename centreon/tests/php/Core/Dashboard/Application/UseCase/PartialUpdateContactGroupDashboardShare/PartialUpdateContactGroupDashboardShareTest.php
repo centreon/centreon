@@ -23,22 +23,24 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\PartialUpdateContactGroupDashboardShare;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Common\Application\Type\NoValue;
+use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Contact\Domain\Model\ContactGroup;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Common\Application\Type\NoValue;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Contact\Domain\Model\ContactGroup;
+use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactGroupDashboardShare\PartialUpdateContactGroupDashboardShare;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactGroupDashboardShare\PartialUpdateContactGroupDashboardShareRequest;
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 beforeEach(closure: function (): void {
     $this->presenter = new PartialUpdateContactGroupDashboardSharePresenterStub();
@@ -59,6 +61,10 @@ beforeEach(closure: function (): void {
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
+        new DashboardGlobalRefresh(
+            DashboardGlobalRefreshType::Global,
+            null,
+        )
     );
 
     $this->testedContactGroup = $this->createMock(ContactGroup::class);

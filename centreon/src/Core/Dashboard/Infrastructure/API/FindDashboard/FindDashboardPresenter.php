@@ -26,8 +26,10 @@ namespace Core\Dashboard\Infrastructure\API\FindDashboard;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\GlobalRefreshResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
+use Core\Dashboard\Infrastructure\Model\DashboardGlobalRefreshTypeConverter;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -49,6 +51,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                 'panels' => array_map($this->panelToArray(...), $data->panels),
                 'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
+                'global_refresh' => $this->globalRefreshToArray($data->globalRefresh),
             ]);
         } else {
             $this->setResponseStatus($data);
@@ -89,6 +92,14 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
             'widget_type' => $panel->widgetType,
             // Enforce stdClass in order to be sure that any array will be a JSON object "{...}"
             'widget_settings' => (object) $panel->widgetSettings,
+        ];
+    }
+
+    private function globalRefreshToArray(GlobalRefreshResponseDto $globalRefresh): array
+    {
+        return [
+            'refresh_type' => DashboardGlobalRefreshTypeConverter::toString($globalRefresh->refreshType),
+            'refresh_interval' => $globalRefresh->refreshInterval,
         ];
     }
 }

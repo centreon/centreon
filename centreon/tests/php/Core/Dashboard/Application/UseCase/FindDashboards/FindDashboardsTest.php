@@ -34,7 +34,9 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboards;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardsPresenterStub();
@@ -55,6 +57,10 @@ beforeEach(function (): void {
         $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
+        $this->testedDashboardGlobalRefresh = new DashboardGlobalRefresh(
+            DashboardGlobalRefreshType::Global,
+            null,
+        )
     );
 });
 

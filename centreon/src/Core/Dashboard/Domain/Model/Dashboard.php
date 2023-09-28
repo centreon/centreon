@@ -58,6 +58,7 @@ class Dashboard
         protected readonly ?int $updatedBy,
         protected readonly \DateTimeImmutable $createdAt,
         protected readonly \DateTimeImmutable $updatedAt,
+        private readonly DashboardGlobalRefresh $globalRefresh,
     ) {
         $this->name = trim($name);
         $this->description = trim($description);
@@ -101,5 +102,10 @@ class Dashboard
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function getGlobalRefresh(): DashboardGlobalRefresh
+    {
+        return $this->globalRefresh;
     }
 }
