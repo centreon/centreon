@@ -335,10 +335,10 @@ describe('timeSeries', () => {
   describe(timeSeries.formatMetricValue, () => {
     const cases: Array<TestCase> = [
       [218857269, '', 1000, '218.86m'],
-      [218857269, '', 1024, '208.72M'],
+      [218857269, '', 1024, '208.72 M'],
       [0.12232323445, '', 1000, '0.12'],
-      [1024, 'B', 1000, '1K'],
-      [1024, 'B', 1024, '1K'],
+      [1024, 'B', 1000, '1 KB'],
+      [1024, 'B', 1024, '1 KB'],
       [null, 'B', 1024, null]
     ];
 
@@ -502,5 +502,108 @@ describe('timeSeries', () => {
         false
       );
     });
+  });
+});
+
+describe('Format value with unit', () => {
+  const units = [
+    'B',
+    'bytes',
+    'bytespersecond',
+    'B/s',
+    'B/sec',
+    'o',
+    'octets',
+    'b/s',
+    'b',
+    'ms',
+    '%',
+    ''
+  ];
+
+  const getExpectedResult = (unit): string => {
+    if (unit === '') {
+      return '324.23m';
+    }
+
+    return `309.21 M${unit}`;
+  };
+
+  const humanReadableTestCases = units.map((unit) => {
+    if (unit === '%') {
+      return {
+        expectedResult: '45.56%',
+        unit,
+        value: 45.55678
+      };
+    }
+
+    if (unit === 'ms') {
+      return {
+        expectedResult: '34.23 seconds',
+        unit,
+        value: 34232
+      };
+    }
+
+    return {
+      expectedResult: getExpectedResult(unit),
+      unit,
+      value: 324234232.34233
+    };
+  });
+
+  const rawTestCases = units.map((unit) => {
+    if (unit === '%') {
+      return {
+        expectedResult: '45.55678%',
+        unit,
+        value: 45.55678
+      };
+    }
+
+    if (unit === 'ms') {
+      return {
+        expectedResult: '34232 ms',
+        unit,
+        value: 34232
+      };
+    }
+
+    return {
+      expectedResult:
+        unit === '' ? '324234232.34233 ' : `324234232.34233 ${unit}`,
+      unit,
+      value: 324234232.34233
+    };
+  });
+
+  describe('Format the value as human readable', () => {
+    it.each(humanReadableTestCases)(
+      'formats the value with $unit',
+      ({ value, unit, expectedResult }) => {
+        expect(
+          timeSeries.formatMetricValueWithUnit({
+            unit,
+            value
+          })
+        ).toEqual(expectedResult);
+      }
+    );
+  });
+
+  describe('Format the value as raw', () => {
+    it.each(rawTestCases)(
+      'formats the value with $unit',
+      ({ value, unit, expectedResult }) => {
+        expect(
+          timeSeries.formatMetricValueWithUnit({
+            isRaw: true,
+            unit,
+            value
+          })
+        ).toEqual(expectedResult);
+      }
+    );
   });
 });

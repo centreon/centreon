@@ -42,7 +42,8 @@ import { getDataProperty } from '../utils';
 interface UseMetricsState {
   addButtonHidden?: boolean;
   addMetric: () => void;
-  changeMetric: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
+  changeMetric: (index) => (_, newMetrics: SelectEntry | null) => void;
+  changeMetrics: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
   error: string | null;
@@ -54,6 +55,7 @@ interface UseMetricsState {
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount: number | undefined;
+  resources: Array<WidgetDataResource>;
   serviceOptions: Array<SelectEntry>;
   value: Array<WidgetDataMetric>;
 }
@@ -81,6 +83,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       buildListingEndpoint({
         baseEndpoint: metricsEndpoint,
         parameters: {
+          limit: 100,
           search: {
             lists: resources.map((resource) => ({
               field: resourceTypeQueryParameter[resource.resourceType],
@@ -149,7 +152,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       ...(value || []),
       {
         id: '',
-        metrics: []
+        metrics: [],
+        name: ''
       }
     ]);
   };
@@ -205,15 +209,25 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, []);
     };
 
-  const changeMetric =
+  const changeMetrics =
     (index) =>
     (_, newMetrics: Array<SelectEntry> | null): void => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
+  const changeMetric =
+    (index) =>
+    (_, newMetrics: SelectEntry | null): void => {
+      setFieldValue(
+        `data.${propertyName}.${index}.metrics`,
+        newMetrics ? [newMetrics] : []
+      );
+      setFieldTouched(`data.${propertyName}`, true, false);
+    };
+
   useEffect(() => {
-    if (isNil(servicesMetrics) || singleMetricSection) {
+    if (isNil(servicesMetrics)) {
       return;
     }
 
@@ -231,9 +245,45 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       baseServiceIds
     );
 
+    const newServiceMetrics = intersectionBetweenServicesIdsAndValues.map(
+      (service) => {
+        const newService = servicesMetrics.result.find(
+          (serviceMetric) => serviceMetric.id === service.id
+        );
+
+        return {
+          id: service.id,
+          metrics: service.metrics.map((metric) => {
+            const newMetric = newService?.metrics.find(
+              (metricFromService) => metricFromService.id === metric.id
+            );
+
+            return {
+              criticalHighThreshold: newMetric?.criticalHighThreshold || null,
+              criticalLowThreshold: newMetric?.criticalLowThreshold || null,
+              id: metric.id,
+              name: metric.name,
+              unit: metric.unit,
+              warningHighThreshold: newMetric?.warningHighThreshold || null,
+              warningLowThreshold: newMetric?.warningLowThreshold || null
+            };
+          }),
+          name: service.name
+        };
+      }
+    );
+
     setFieldValue(
       `data.${propertyName}`,
-      intersectionBetweenServicesIdsAndValues
+      isEmpty(newServiceMetrics)
+        ? [
+            {
+              id: '',
+              metrics: [],
+              name: ''
+            }
+          ]
+        : newServiceMetrics
     );
   }, useDeepCompare([servicesMetrics, resources]));
 
@@ -254,6 +304,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     addButtonHidden: singleMetricSection,
     addMetric,
     changeMetric,
+    changeMetrics,
     changeService,
     deleteMetric,
     error: errorToDisplay,
@@ -265,6 +316,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,
+    resources,
     serviceOptions,
     value: value || []
   };

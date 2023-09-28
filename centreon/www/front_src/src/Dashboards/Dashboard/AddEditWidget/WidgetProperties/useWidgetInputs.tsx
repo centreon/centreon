@@ -6,7 +6,11 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
-import { singleMetricSectionAtom, widgetPropertiesAtom } from '../atoms';
+import {
+  customBaseColorAtom,
+  singleMetricSectionAtom,
+  widgetPropertiesAtom
+} from '../atoms';
 
 import {
   WidgetMetrics,
@@ -15,7 +19,11 @@ import {
   WidgetRichTextEditor,
   WidgetSingleMetricGraphType,
   WidgetTextField,
-  WidgetThreshold
+  WidgetThreshold,
+  WidgetValueFormat,
+  WidgetTimePeriod,
+  WidgetTopBottomSettings,
+  WidgetMetric
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -40,7 +48,12 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
-  [FederatedWidgetOptionType.singleMetricGraphType]: WidgetSingleMetricGraphType
+  [FederatedWidgetOptionType.singleMetricGraphType]:
+    WidgetSingleMetricGraphType,
+  [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
+  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
+  [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
+  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
@@ -55,6 +68,7 @@ export const useWidgetInputs = (
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const selectedWidget = find(
     propEq('moduleName', values.moduleName),
@@ -100,6 +114,7 @@ export const useWidgetInputs = (
     }
 
     setSingleMetricSection(selectedWidget.singleMetricSelection);
+    setCustomBaseColor(selectedWidget.customBaseColor);
   }, useDeepCompare([selectedWidget]));
 
   return inputs;

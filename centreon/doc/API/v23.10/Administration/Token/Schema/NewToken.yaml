@@ -1,0 +1,15 @@
+type: object
+properties:
+  name:
+    type: string
+    description: "Token name"
+    example: "my-api-token"
+  user_id:
+    type: integer
+    description: "User ID linked to the API authentication token"
+    example: 23
+  expiration_date:
+    type: string
+    description: "Expiration date of the API authentication token"
+    format: date-time
+    example: '2023-08-31T15:46:00+02:00'

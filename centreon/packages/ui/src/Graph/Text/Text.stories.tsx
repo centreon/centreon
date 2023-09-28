@@ -52,3 +52,16 @@ export const critical: Story = {
   },
   render: Template
 };
+
+export const rawValue: Story = {
+  args: {
+    data: dataLastWeek,
+    displayAsRaw: true,
+    labels: {
+      critical: 'Critical',
+      warning: 'Warning'
+    },
+    thresholds: [0.5, 1.5]
+  },
+  render: Template
+};

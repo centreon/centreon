@@ -79,7 +79,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -240,7 +240,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -400,7 +400,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -408,7 +408,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -457,7 +457,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -465,7 +465,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -473,7 +473,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -589,7 +589,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -686,7 +686,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -785,7 +785,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -793,7 +793,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -851,7 +851,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -859,7 +859,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -867,7 +867,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -956,7 +956,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -964,7 +964,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -972,7 +972,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -1075,7 +1075,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -1159,7 +1159,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -1245,7 +1245,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -1253,7 +1253,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -1311,7 +1311,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -1321,7 +1321,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -1331,7 +1331,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -1432,7 +1432,7 @@ Feature:
     CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-admin;reach_api;1
     ACLMENU;add;name-admin-ACLMENU;alias-admin-ACLMENU
-    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboard;Administrator;
+    ACLMENU;grantrw;name-admin-ACLMENU;0;Home;Dashboards;Administrator;
     ACLGROUP;add;name-admin-ACLGROUP;alias-admin-ACLGROUP
     ACLGROUP;addmenu;name-admin-ACLGROUP;name-admin-ACLMENU
     ACLGROUP;setcontact;name-admin-ACLGROUP;usr-admin;
@@ -1442,7 +1442,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -1452,7 +1452,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -1571,7 +1571,7 @@ Feature:
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
@@ -1678,7 +1678,7 @@ Feature:
     ACLRESOURCE;add;ACL Resource test;my alias
     ACLRESOURCE;grant_hostgroup;ACL Resource test;Linux-Servers
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
-    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboards;Viewer;
     ACLGROUP;add;ACL Group test;my alias
     ACLGROUP;addmenu;ACL Group test;name-viewer-ACLMENU
     ACLGROUP;addresource;ACL Group test;ACL Resource test
@@ -1718,29 +1718,37 @@ Feature:
               "id": 1,
               "name": "rta",
               "unit": "ms",
-              "warning_threshold": 200,
-              "critical_threshold": 400
+              "warning_high_threshold": 200,
+              "critical_high_threshold": 400,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 2,
               "name": "pl",
               "unit": "%",
-              "warning_threshold": 20,
-              "critical_threshold": 50
+              "warning_high_threshold": 20,
+              "critical_high_threshold": 50,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 3,
               "name": "rtmax",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             },
             {
               "id": 4,
               "name": "rtmin",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             }
           ]
         }
@@ -1782,16 +1790,16 @@ Feature:
     When I send a GET request to '/api/latest/monitoring/dashboard/metrics/top?metric_name=rta&search={"$and":[{"hostgroup.id":{"$in":[53]}},{"host.id":{"$in":[14]}},{"service.name":{"$in":["Ping"]}}]}&sort_by={"current_value":"ASC"}&limit=10'
     Then the response code should be "200"
     And the JSON nodes should be equal to:
-      | result.name                          | "rta"                    |
-      | result.unit                          | "ms"                     |
-      | result.resources[0].id                      | 26                       |
-      | result.resources[0].name                    | "Centreon-Server_Ping"   |
-      | result.resources[0].warning_threshold       | 200                      |
-      | result.resources[0].critical_threshold      | 400                      |
-      | result.resources[0].warning_low_threshold   | 0                        |
-      | result.resources[0].critical_low_threshold  | 0                        |
-      | result.resources[0].min                     | 0                        |
-      | result.resources[0].max                     | null                     |
+      | name                          | "rta"                    |
+      | unit                          | "ms"                     |
+      | resources[0].id                      | 26                       |
+      | resources[0].name                    | "Centreon-Server_Ping"   |
+      | resources[0].warning_high_threshold       | 200                      |
+      | resources[0].critical_high_threshold      | 400                      |
+      | resources[0].warning_low_threshold   | 0                        |
+      | resources[0].critical_low_threshold  | 0                        |
+      | resources[0].min                     | 0                        |
+      | resources[0].max                     | null                     |
 
     When I send a GET request to '/api/latest/monitoring/dashboard/metrics/top?metric_name=unexistingmetric&search={"$and":[{"hostgroup.id":{"$in":[53]}},{"host.id":{"$in":[14]}},{"service.name":{"$in":["Ping"]}}]}&sort_by={"current_value":"ASC"}&limit=10'
     Then the response code should be "404"
@@ -1811,29 +1819,37 @@ Feature:
               "id": 1,
               "name": "rta",
               "unit": "ms",
-              "warning_threshold": 200,
-              "critical_threshold": 400
+              "warning_high_threshold": 200,
+              "critical_high_threshold": 400,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 2,
               "name": "pl",
               "unit": "%",
-              "warning_threshold": 20,
-              "critical_threshold": 50
+              "warning_high_threshold": 20,
+              "critical_high_threshold": 50,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 3,
               "name": "rtmax",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             },
             {
               "id": 4,
               "name": "rtmin",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             }
           ]
         }

@@ -1,8 +1,9 @@
 -- MODIFY TOPOLOGY FOR DASHBOARD --
-INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`, `topology_feature_flag`) VALUES ('Dashboard', '/home/dashboards', '1', '1', 1, 104, 1, 2, 'dashboard');
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`, `topology_feature_flag`, `topology_url_opt`) VALUES ('Dashboards', '/home/dashboards', '1', '1', 1, 104, 1, 2, 'dashboard', 'Beta');
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Viewer', '/home/dashboards', '1', '0', 104, 10401, '0', 'dashboard');
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Creator', '/home/dashboards', '1', '0', 104, 10402, '0', 'dashboard');
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Administrator', '/home/dashboards', '1', '0', 104, 10403, '0', 'dashboard');
+INSERT INTO `topology` (`topology_name`, `topology_order`, `topology_group`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`) VALUES ('API Tokens', 16, 1, null, '1', '0', 5, 515, '0');
 
 -- CREATE TABLES FOR DASHBOARD CONFIGURATION --
 
@@ -92,6 +93,9 @@ VALUES ('centreon-widget-singlemetric', '23.10.0');
 
 INSERT INTO dashboard_widgets (`name`, `version`)
 VALUES ('centreon-widget-graph', '23.10.0');
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-topbottom', '23.10.0');
 
 -- CREATE TABLES FOR NOTIFICATIONS CONFIGURATION --
 

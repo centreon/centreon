@@ -14,20 +14,21 @@ import {
 import { userAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
+import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 import Actions from '../Actions';
+import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
+import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
-  selectedResourcesAtom
+  selectedResourcesAtom,
+  selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
-import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
-import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
-import { rowColorConditions } from '../colors';
 import {
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
-  selectedResourcesDetailsAtom,
-  selectedResourceUuidAtom
+  selectedResourceUuidAtom,
+  selectedResourcesDetailsAtom
 } from '../Details/detailsAtoms';
 import { graphTabId } from '../Details/tabs';
 import {
@@ -35,11 +36,12 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { Resource, SortOrder } from '../models';
+import { rowColorConditions } from '../colors';
+import { Resource, SortOrder, Visualization } from '../models';
 import {
+  labelForcedCheckCommandSent,
   labelSelectAtLeastOneColumn,
-  labelStatus,
-  labelForcedCheckCommandSent
+  labelStatus
 } from '../translatedLabels';
 
 import { defaultSelectedColumnIds, getColumns } from './columns';
@@ -83,6 +85,9 @@ const ResourceListing = (): JSX.Element => {
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
+  const visualization = useAtomValue(selectedVisualizationAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
+
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
   const setLimit = useSetAtom(limitAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
@@ -144,10 +149,9 @@ const ResourceListing = (): JSX.Element => {
     name: 'detailsOpen'
   };
 
-  const onForcedCheck = (resource: Resource): void => {
+  const onForcedCheck = (): void => {
     checkResource({
-      check: { is_forced: true },
-      resources: adjustCheckedResources({ resources: [resource] })
+      is_forced: true
     }).then(() => {
       showSuccessMessage(t(labelForcedCheckCommandSent));
     });
@@ -170,7 +174,9 @@ const ResourceListing = (): JSX.Element => {
         setResourcesToSetDowntime([resource]);
       }
     },
-    t
+    featureFlags,
+    t,
+    visualization
   });
 
   const loading = sending;
@@ -215,13 +221,19 @@ const ResourceListing = (): JSX.Element => {
     });
   };
 
+  const areColumnsSortable = equals(visualization, Visualization.All);
+
+  const visualizationActions = featureFlags?.resourceStatusTreeView ? (
+    <VisualizationActions />
+  ) : undefined;
+
   return (
     <Listing
       checkable
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       columnConfiguration={{
         selectedColumnIds,
-        sortable: true
+        sortable: areColumnsSortable
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
@@ -231,6 +243,7 @@ const ResourceListing = (): JSX.Element => {
       getId={getId}
       headerMemoProps={[search]}
       limit={listing?.meta.limit}
+      listingVariant={user_interface_density}
       loading={loading}
       memoProps={[
         listing,
@@ -242,7 +255,8 @@ const ResourceListing = (): JSX.Element => {
         sending,
         enabledAutoRefresh,
         selectedResourceDetails,
-        themeMode
+        themeMode,
+        columns
       ]}
       moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
@@ -255,12 +269,12 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
-      viewMode={user_interface_density}
       viewerModeConfiguration={{
         disabled: isPending,
         onClick: changeViewModeTableResources,
         title: user_interface_density
       }}
+      visualizationActions={visualizationActions}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}

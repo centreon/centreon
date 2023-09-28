@@ -14,14 +14,17 @@ interface DsData {
 export interface Metric {
   average_value: number | null;
   crit: number | null;
-  data: Array<number>;
-  ds_data: DsData;
+  critical_high_threshold: number | null;
+  critical_low_threshold: number | null;
+  data: Array<number | null>;
+  ds_data?: DsData;
   legend: string;
   maximum_value: number | null;
   metric: string;
   minimum_value: number | null;
   unit: string;
-  warn: number | null;
+  warning_high_threshold: number | null;
+  warning_low_threshold: number | null;
 }
 
 type TimeSeries = { timeTick: string };
@@ -65,6 +68,8 @@ export interface Xscale {
 export interface AxeScale {
   dataLines: Array<Line>;
   dataTimeSeries: Array<TimeValue>;
+  thresholdUnit?: string;
+  thresholds: Array<number>;
   valueGraphHeight: number;
 }
 
@@ -117,6 +122,6 @@ export interface YScales {
 export interface TimeValueProps {
   marginLeft?: number;
   timeSeries: Array<TimeValue>;
-  x: number;
+  x?: number;
   xScale: ScaleLinear<number, number>;
 }

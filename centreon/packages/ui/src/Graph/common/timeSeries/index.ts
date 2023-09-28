@@ -28,7 +28,10 @@ import {
   lt,
   identity,
   head,
-  last
+  last,
+  cond,
+  always,
+  T
 } from 'ramda';
 
 import { margin } from '../../LineChart/common';
@@ -326,10 +329,19 @@ const getYScale = ({
 const getScale = ({
   graphValues,
   height,
-  stackedValues
+  stackedValues,
+  thresholds
 }): ScaleLinear<number, number> => {
-  const minValue = min(getMin(graphValues), getMin(stackedValues));
-  const maxValue = max(getMax(graphValues), getMax(stackedValues));
+  const minValue = Math.min(
+    getMin(graphValues),
+    getMin(stackedValues),
+    Math.min(...thresholds)
+  );
+  const maxValue = Math.max(
+    getMax(graphValues),
+    getMax(stackedValues),
+    Math.max(...thresholds)
+  );
 
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
 
@@ -343,9 +355,16 @@ const getScale = ({
 const getLeftScale = ({
   dataLines,
   dataTimeSeries,
-  valueGraphHeight
+  valueGraphHeight,
+  thresholds,
+  thresholdUnit
 }: AxeScale): ScaleLinear<number, number> => {
   const [firstUnit, , thirdUnit] = getUnits(dataLines);
+
+  const shouldApplyThresholds =
+    equals(thresholdUnit, firstUnit) ||
+    equals(thresholdUnit, thirdUnit) ||
+    !thresholdUnit;
 
   const graphValues = isNil(thirdUnit)
     ? getMetricValuesForUnit({
@@ -370,7 +389,12 @@ const getLeftScale = ({
       })
     : [0];
 
-  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+  return getScale({
+    graphValues,
+    height: valueGraphHeight,
+    stackedValues,
+    thresholds: shouldApplyThresholds ? thresholds : []
+  });
 };
 
 const getXScale = ({
@@ -386,7 +410,9 @@ const getXScale = ({
 const getRightScale = ({
   dataLines,
   dataTimeSeries,
-  valueGraphHeight
+  valueGraphHeight,
+  thresholds,
+  thresholdUnit
 }: AxeScale): ScaleLinear<number, number> => {
   const [, secondUnit] = getUnits(dataLines);
 
@@ -395,6 +421,8 @@ const getRightScale = ({
     timeSeries: dataTimeSeries,
     unit: secondUnit
   });
+
+  const shouldApplyThresholds = equals(thresholdUnit, secondUnit);
 
   const secondUnitHasStackedLines = isNil(secondUnit)
     ? false
@@ -407,8 +435,44 @@ const getRightScale = ({
       })
     : [0];
 
-  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+  return getScale({
+    graphValues,
+    height: valueGraphHeight,
+    stackedValues,
+    thresholds: shouldApplyThresholds ? thresholds : []
+  });
 };
+
+const formatTime = (value: number): string => {
+  if (value < 1000) {
+    return `${numeral(value).format('0.[00]a')} ms`;
+  }
+
+  const t = numeral(value / 1000).format('0.[00]a');
+
+  return `${t} seconds`;
+};
+
+const registerMsUnitToNumeral = (): null => {
+  try {
+    numeral.register('format', 'milliseconds', {
+      format: (value) => {
+        return formatTime(value);
+      },
+      regexps: {
+        format: /(ms)/,
+        unformat: /(ms)/
+      },
+      unformat: () => ''
+    });
+
+    return null;
+  } catch (_) {
+    return null;
+  }
+};
+
+registerMsUnitToNumeral();
 
 const formatMetricValue = ({
   value,
@@ -433,15 +497,43 @@ const formatMetricValue = ({
 
   const base1024 = base2Units.includes(unit) || Number(base) === 1024;
 
-  const formatSuffix = base1024 ? ' ib' : 'a';
+  const formatSuffix = cond([
+    [equals('ms'), always(' ms')],
+    [T, always(base1024 ? ' ib' : 'a')]
+  ])(unit);
 
   const formattedMetricValue = numeral(Math.abs(value))
     .format(`0.[00]${formatSuffix}`)
-    .replace(/\s|i|B/g, '');
+    .replace(/iB/g, unit);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
   }
+
+  return formattedMetricValue;
+};
+
+const formatMetricValueWithUnit = ({
+  value,
+  unit,
+  base = 1000,
+  isRaw = false
+}: FormatMetricValueProps & { isRaw?: boolean }): string | null => {
+  if (isNil(value)) {
+    return null;
+  }
+
+  if (isRaw) {
+    const unitText = equals('%', unit) ? unit : ` ${unit}`;
+
+    return `${value}${unitText}`;
+  }
+
+  if (equals('%', unit)) {
+    return `${numeral(Math.abs(value)).format('0.[00]')}%`;
+  }
+
+  const formattedMetricValue = formatMetricValue({ base, unit, value });
 
   return formattedMetricValue;
 };
@@ -476,7 +568,10 @@ const getTimeValue = ({
   xScale,
   timeSeries,
   marginLeft = margin.left
-}: TimeValueProps): TimeValue => {
+}: TimeValueProps): TimeValue | null => {
+  if (isNil(x)) {
+    return null;
+  }
   const date = xScale.invert(x - marginLeft);
   const index = bisectDate(getDates(timeSeries), date);
 
@@ -524,5 +619,6 @@ export {
   getStackedYScale,
   getTimeValue,
   bisectDate,
-  getMetricWithLatestData
+  getMetricWithLatestData,
+  formatMetricValueWithUnit
 };

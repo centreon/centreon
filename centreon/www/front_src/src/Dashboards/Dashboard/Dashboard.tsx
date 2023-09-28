@@ -1,4 +1,4 @@
-import { ReactElement, useMemo } from 'react';
+import { ReactElement } from 'react';
 
 import { useAtomValue } from 'jotai';
 
@@ -15,13 +15,13 @@ import { useDashboardConfig } from '../components/DashboardConfig/useDashboardCo
 import { Dashboard as DashboardType } from '../api/models';
 import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/DashboardAccessRightsModal';
 import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
-import { useDashboardUserPermissions } from '../components/DashboardUserPermissions/useDashboardUserPermissions';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import { isEditingAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
+import { editProperties } from './useCanEditDashboard';
 
 const Dashboard = (): ReactElement => {
   const { dashboardId } = routerParams.useParams();
@@ -33,12 +33,7 @@ const Dashboard = (): ReactElement => {
 
   const isEditing = useAtomValue(isEditingAtom);
 
-  const { hasEditPermission } = useDashboardUserPermissions();
-
-  const canEdit = useMemo(
-    () => dashboard && hasEditPermission(dashboard),
-    [dashboard]
-  );
+  const { canEdit } = editProperties.useCanEditProperties();
 
   return (
     <PageLayout>
@@ -61,7 +56,7 @@ const Dashboard = (): ReactElement => {
       <PageLayout.Body>
         <PageLayout.Actions>
           <span>
-            {!isEditing && hasEditPermission(dashboard as DashboardType) && (
+            {!isEditing && canEdit && (
               <>
                 <IconButton
                   aria-label="edit"
@@ -82,9 +77,7 @@ const Dashboard = (): ReactElement => {
               </>
             )}
           </span>
-          <span>
-            <AddWidgetButton />
-          </span>
+          <span>{canEdit && <AddWidgetButton />}</span>
         </PageLayout.Actions>
 
         <Layout />

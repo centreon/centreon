@@ -1,0 +1,9 @@
+in: query
+name: types
+required: false
+description: "Filter the resources by type"
+schema:
+  type: string
+  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+  description: should be in form ["<str1>","<str2>"] where strings can be one of "service", "host", "metaservice"
+  example: '["host"]'

@@ -83,7 +83,7 @@ class ServerWizardIdentity
             return false;
         }
 
-        $data = json_decode($curl->response, true);
+        $data = json_decode($curl->response, true) ?: [];
 
         return array_key_exists('enabled', $data) && $data['enabled'];
     }

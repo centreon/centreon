@@ -2,9 +2,9 @@ import { isNil } from 'ramda';
 
 import { Typography, useTheme } from '@mui/material';
 
-import { LineChartData } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 import {
-  formatMetricValue,
+  formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
@@ -12,20 +12,22 @@ import { getColorFromDataAndTresholds } from '../common/utils';
 import { useTextStyles } from './Text.styles';
 
 interface Props {
+  baseColor?: string;
   data?: LineChartData;
-  disabledThresholds?: boolean;
+  displayAsRaw?: boolean;
   labels: {
     critical: string;
     warning: string;
   };
-  thresholds: Array<number>;
+  thresholds: Thresholds;
 }
 
 export const Text = ({
   thresholds,
   data,
+  displayAsRaw,
   labels,
-  disabledThresholds
+  baseColor
 }: Props): JSX.Element | null => {
   const theme = useTheme();
   const { classes } = useTextStyles();
@@ -39,39 +41,48 @@ export const Text = ({
   const metricUnit = metric?.unit ?? '';
 
   const color = getColorFromDataAndTresholds({
+    baseColor,
     data: metricValue,
     theme,
     thresholds
   });
 
+  const warningThresholdLabels = thresholds.warning.map(({ value }) =>
+    formatMetricValueWithUnit({
+      unit: metricUnit,
+      value
+    })
+  );
+
+  const criticalThresholdLabels = thresholds.critical.map(({ value }) =>
+    formatMetricValueWithUnit({
+      unit: metricUnit,
+      value
+    })
+  );
+
   return (
     <div className={classes.graphText}>
-      <Typography sx={{ color }} variant="h3">
-        {formatMetricValue({
-          unit: metricUnit,
-          value: metricValue
-        })}{' '}
-        {metricUnit}
+      <Typography sx={{ color }} variant="h2">
+        <strong>
+          {formatMetricValueWithUnit({
+            isRaw: displayAsRaw,
+            unit: metricUnit,
+            value: metricValue
+          })}
+        </strong>
       </Typography>
-      {!disabledThresholds && (
+      {thresholds.enabled && (
         <div className={classes.thresholds}>
           <Typography sx={{ color: 'warning.main' }} variant="h5">
             {labels.warning}
             {': '}
-            {formatMetricValue({
-              unit: metricUnit,
-              value: thresholds[0]
-            })}{' '}
-            {metricUnit}
+            {warningThresholdLabels.join(' - ')}
           </Typography>
           <Typography sx={{ color: 'error.main' }} variant="h5">
             {labels.critical}
             {': '}
-            {formatMetricValue({
-              unit: metricUnit,
-              value: thresholds[1]
-            })}{' '}
-            {metricUnit}
+            {criticalThresholdLabels.join(' - ')}
           </Typography>
         </div>
       )}

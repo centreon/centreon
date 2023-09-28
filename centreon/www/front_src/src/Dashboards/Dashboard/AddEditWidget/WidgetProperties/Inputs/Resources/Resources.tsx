@@ -1,5 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 
@@ -11,10 +12,14 @@ import {
   labelDelete,
   labelResourceType,
   labelResources,
-  labelSelectAResource
+  labelSelectAResource,
+  labelYouCanChooseOnResourcePerResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
+import { singleMetricSectionAtom } from '../../../atoms';
+import { areResourcesFullfilled } from '../utils';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -27,6 +32,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
+  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+
   const {
     value,
     resourceTypeOptions,
@@ -36,10 +43,10 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     changeResources,
     getResourceResourceBaseEndpoint,
     getSearchField,
-    error,
-    addButtonHidden,
-    getOptionDisabled
+    error
   } = useResources(propertyName);
+
+  const { canEditField } = editProperties.useCanEditProperties();
 
   return (
     <div className={classes.resourcesContainer}>
@@ -51,14 +58,15 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <ItemComposition
-        addButtonHidden={addButtonHidden}
+        addButtonHidden={!canEditField}
+        addbuttonDisabled={!areResourcesFullfilled(value)}
         labelAdd={t(labelAddResource)}
         onAddItem={addResource}
       >
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
-            deleteButtonHidden={addButtonHidden}
+            deleteButtonHidden={!canEditField}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -66,19 +74,22 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
             <SelectField
               className={classes.resourceType}
               dataTestId={labelResourceType}
+              disabled={!canEditField}
               label={t(labelResourceType) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}
             />
             <MultiConnectedAutocompleteField
+              chipProps={{
+                color: 'primary'
+              }}
               className={classes.resources}
-              disabled={!resource.resourceType}
+              disabled={!canEditField || !resource.resourceType}
               field={getSearchField(resource.resourceType)}
               getEndpoint={getResourceResourceBaseEndpoint(
                 resource.resourceType
               )}
-              getOptionDisabled={getOptionDisabled}
               label={t(labelSelectAResource)}
               limitTags={2}
               queryKey={`${resource.resourceType}-${index}`}
@@ -88,6 +99,11 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           </ItemComposition.Item>
         ))}
       </ItemComposition>
+      {singleMetricSection && (
+        <Typography sx={{ color: 'action.disabled' }}>
+          {t(labelYouCanChooseOnResourcePerResourceType)}
+        </Typography>
+      )}
       {error && <FormHelperText error>{t(error)}</FormHelperText>}
     </div>
   );

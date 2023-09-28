@@ -23,7 +23,6 @@
 
 namespace Core\Dashboard\Infrastructure\API\FindMetricsTop;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopPresenterInterface;
@@ -34,7 +33,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTopPresenterInterface
 {
-    public function __construct(private RequestParametersInterface $requestParameters, protected PresenterFormatterInterface $presenterFormatter)
+    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
     {
         parent::__construct($presenterFormatter);
     }
@@ -49,12 +48,9 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
         } else {
             $this->present(
                 [
-                    'result' => [
-                        'name' => $response->metricName,
-                        'unit' => $response->metricUnit,
-                        'resources' => self::formatResource($response->resourceMetrics),
-                    ],
-                    'meta' => $this->requestParameters->toArray(),
+                    'name' => $response->metricName,
+                    'unit' => $response->metricUnit,
+                    'resources' => self::formatResource($response->resourceMetrics),
                 ]
             );
         }
@@ -71,8 +67,8 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
                 'id' => $metricInformation->serviceId,
                 'name' => $metricInformation->resourceName,
                 'current_value' => $metricInformation->currentValue,
-                'warning_threshold' => $metricInformation->warningHighThreshold,
-                'critical_threshold' => $metricInformation->criticalHighThreshold,
+                'warning_high_threshold' => $metricInformation->warningHighThreshold,
+                'critical_high_threshold' => $metricInformation->criticalHighThreshold,
                 'warning_low_threshold' => $metricInformation->warningLowThreshold,
                 'critical_low_threshold' => $metricInformation->criticalLowThreshold,
                 'min' => $metricInformation->minimumValue,

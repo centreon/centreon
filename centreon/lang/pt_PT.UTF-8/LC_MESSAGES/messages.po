@@ -6987,7 +6987,7 @@ msgstr "Alterado"
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:979
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:1036
 #: centreon-web/www/include/configuration/configObject/host/listHost.php:455
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Alteração em massa"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:143
@@ -16674,7 +16674,67 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Graph type"
 # msgstr ""
 
-# msgid "Value defined by metric"
+# msgid "Value defined by the {{metric}} metric"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+# msgid "Custom value"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+# msgid "Custom value"
 # msgstr ""
 
 # msgid "Notifications will only be sent during this time period"
@@ -16692,7 +16752,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 # msgstr ""
 
-#  msgid "You are not allowed to add a service"
+#  msgid "You are not allowed to add a service."
 #  msgstr ""
 
 #  msgid "Error while adding the service"
@@ -16707,5 +16767,113 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "'%s' does not exist with ID(s) '%s'"
 #  msgstr ""
 
-#  msgid "'%s' service name already exists for host ID %d"
+#  msgid "'%s' service name already exists for host ID %d."
+#  msgstr ""
+
+# msgid "Widget type"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Text"
+# msgstr ""
+
+# msgid "Gauge"
+# msgstr ""
+
+# msgid "Bar chart"
+# msgstr ""
+
+# msgid "The default value is the value defined for the first metric used."
+# msgstr ""
+
+# msgid "None"
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Raw value"
+# msgstr ""
+
+# msgid "Human readable"
+# msgstr ""
+
+# msgid "You can choose only one resource for each resource type."
+# msgstr ""
+
+# msgid "View properties"
+# msgstr ""
+
+# msgid "Your rights only allow you to view the properties of a widget."
+# msgstr ""
+
+# msgid "Please contact your administrator for more information."
+# msgstr ""
+
+# msgid "Base color"
+# msgstr ""
+
+#  msgid "Display view:"
+#  msgstr ""
+
+#  msgid "View all resources"
+#  msgstr ""
+
+#  msgid "View by host"
+#  msgstr ""
+
+#  msgid "View by service"
+#  msgstr ""
+
+#  msgid "Error while adding a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens"
+#  msgstr ""
+
+#  msgid "Error while retrieving a token"
+#  msgstr ""
+
+#  msgid "The token name '%s' already exists"
+#  msgstr ""
+
+#  msgid "The user with ID %d' doesn't exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} hosts"
+# msgstr ""
+
+#  msgid "Error while deleting a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "hosts"
+# msgstr ""
+
+# msgid "none"
+# msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
 #  msgstr ""

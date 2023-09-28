@@ -3,7 +3,15 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
-import { Gauge, GraphText, SingleBar, useGraphQuery } from '@centreon/ui';
+import {
+  Gauge,
+  GraphText,
+  SingleBar,
+  useGraphQuery,
+  useRefreshInterval
+} from '@centreon/ui';
+
+import useThresholds from '../../useThresholds';
 
 import { FormThreshold, ServiceMetric } from './models';
 import {
@@ -13,7 +21,6 @@ import {
 } from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
-import useThresholds from './useThresholds';
 import { useGraphStyles } from './Graph.styles';
 
 interface Props {
@@ -23,6 +30,7 @@ interface Props {
   refreshIntervalCustom?: number;
   singleMetricGraphType: 'text' | 'gauge' | 'bar';
   threshold: FormThreshold;
+  valueFormat: ValueFormat;
 }
 
 const Graph = ({
@@ -31,28 +39,31 @@ const Graph = ({
   threshold,
   refreshInterval,
   refreshIntervalCustom,
-  globalRefreshInterval
+  globalRefreshInterval,
+  valueFormat
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { classes: graphClasses } = useGraphStyles();
 
   const { t } = useTranslation();
 
-  const refreshIntervalToUse =
-    cond([
-      [equals('default'), always(globalRefreshInterval)],
-      [equals('custom'), always(refreshIntervalCustom)],
-      [equals('manual'), always(0)]
-    ])(refreshInterval) || false;
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval,
+    refreshInterval,
+    refreshIntervalCustom
+  });
 
   const { graphData, isGraphLoading, isMetricIdsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
     metrics,
-    refreshInterval: refreshIntervalToUse ? refreshIntervalToUse * 1000 : false
+    refreshInterval: refreshIntervalToUse
   });
 
-  const { thresholdLabels, thresholdValues } = useThresholds({
+  const displayAsRaw = equals('raw')(valueFormat);
+
+  const formattedThresholds = useThresholds({
     data: graphData,
+    displayAsRaw,
     metricName: metrics[0]?.metrics[0]?.name,
     thresholds: threshold
   });
@@ -76,10 +87,10 @@ const Graph = ({
             equals('gauge'),
             always(
               <Gauge
+                baseColor={threshold.baseColor}
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
-                thresholdTooltipLabels={thresholdLabels}
-                thresholds={thresholdValues}
+                displayAsRaw={displayAsRaw}
+                thresholds={formattedThresholds}
               />
             )
           ],
@@ -87,10 +98,10 @@ const Graph = ({
             equals('bar'),
             always(
               <SingleBar
+                baseColor={threshold.baseColor}
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
-                thresholdTooltipLabels={thresholdLabels}
-                thresholds={thresholdValues}
+                displayAsRaw={displayAsRaw}
+                thresholds={formattedThresholds}
               />
             )
           ],
@@ -98,13 +109,14 @@ const Graph = ({
             T,
             always(
               <GraphText
+                baseColor={threshold.baseColor}
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
+                displayAsRaw={displayAsRaw}
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)
                 }}
-                thresholds={thresholdValues}
+                thresholds={formattedThresholds}
               />
             )
           ]

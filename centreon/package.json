@@ -3,9 +3,9 @@
   "version": "23.4.0",
   "description": "centreon web package",
   "scripts": {
-    "widgets:build": "(cd www/widgets && pnpm build)",
-    "widgets:build:dev": "(cd www/widgets && pnpm build:dev)",
-    "widgets:watch": "(cd www/widgets && pnpm watch)",
+    "widgets:build": "(cd www/widgets && pnpm build $WIDGETS)",
+    "widgets:build:dev": "(cd www/widgets && pnpm build:dev $WIDGETS)",
+    "widgets:watch": "(cd www/widgets && pnpm watch $WIDGETS)",
     "widgets:build:analyze": "(cd www/widgets && pnpm build:analyze)",
     "centreon:build": "webpack --mode production --config ./webpack.config.prod.js",
     "centreon:build:analyze": "webpack --mode production --config ./webpack.config.analyze.js",
@@ -24,7 +24,8 @@
     "cypress:cli:updateSnapshot": "./cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
     "cypress:ui": "cypress open --component --browser=chrome",
     "cypress:run": "cypress run --component --browser=chrome",
-    "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json"
+    "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
+    "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api-v23.10.yaml"
   },
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.2.3",
@@ -145,6 +146,7 @@
     "formik": "^2.2.9",
     "html-react-parser": "^3.0.4",
     "i18next": "^22.0.4",
+    "intl-pluralrules": "^2.0.1",
     "jotai": "2.0.4",
     "jotai-suspense": "^0.1.0",
     "notistack": "^2.0.8",

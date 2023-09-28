@@ -1,8 +1,10 @@
-import { LineChartData } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 
 export interface SingleBarProps {
+  baseColor?: string;
   data?: LineChartData;
-  disabledThresholds?: boolean;
-  thresholdTooltipLabels: Array<string>;
-  thresholds: Array<number>;
+  displayAsRaw?: boolean;
+  showLabels?: boolean;
+  size?: 'medium' | 'small';
+  thresholds: Thresholds;
 }

@@ -26,10 +26,6 @@ beforeEach(() => {
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
   cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('postLocalAuthentification');
-  cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
