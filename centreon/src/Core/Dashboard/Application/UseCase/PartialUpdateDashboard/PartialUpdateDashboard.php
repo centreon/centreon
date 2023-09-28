@@ -213,7 +213,8 @@ final class PartialUpdateDashboard
             createdBy: $dashboard->getCreatedBy(),
             updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
-            updatedAt: new \DateTimeImmutable()
+            updatedAt: new \DateTimeImmutable(),
+            globalRefresh: $dashboard->getGlobalRefresh(),
         );
     }
 }

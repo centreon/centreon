@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Domain\Model\Share;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
+use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
 beforeEach(function (): void {
@@ -39,7 +41,11 @@ beforeEach(function (): void {
                 null,
                 null,
                 new \DateTimeImmutable(),
-                new \DateTimeImmutable()
+                new \DateTimeImmutable(),
+                new DashboardGlobalRefresh(
+                    DashboardGlobalRefreshType::Global,
+                    null,
+                ),
             ),
             $fields['id'] ?? 1,
             $fields['name'] ?? 'contact-group-name',
