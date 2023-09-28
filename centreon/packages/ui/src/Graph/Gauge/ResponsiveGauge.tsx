@@ -85,7 +85,14 @@ const ResponsiveGauge = ({
   });
 
   return (
-    <Box sx={{ height: '100%', position: 'relative', width: '100%' }}>
+    <Box
+      sx={{
+        height: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        width: '100%'
+      }}
+    >
       <svg height={height} ref={svgRef} width={width}>
         <Group left={centerX + margins.left} top={centerY + height / 6}>
           <Thresholds
