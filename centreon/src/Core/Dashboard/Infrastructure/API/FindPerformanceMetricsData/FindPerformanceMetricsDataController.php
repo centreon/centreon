@@ -69,8 +69,8 @@ final class FindPerformanceMetricsDataController extends AbstractController
         $startParameter = $request->query->get(self::START_DATE_PARAMETER);
         $endParameter = $request->query->get(self::END_DATE_PARAMETER);
         /** @var string|null $metricNamesParameter */
-        $metricNamesParamenter = $request->query->get(self::METRIC_NAMES_PARAMETER);
-        if ($startParameter === null || $endParameter === null || $metricNamesParamenter === null) {
+        $metricNamesParameter = $request->query->get(self::METRIC_NAMES_PARAMETER);
+        if ($startParameter === null || $endParameter === null || $metricNamesParameter === null) {
             throw new \InvalidArgumentException('Missing mandatory properties');
         }
 
@@ -81,7 +81,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
         try {
             $start = new \DateTime((string) $startParameter);
             $end = new \DateTime((string) $endParameter);
-            $metricNames = \explode(',', \trim($metricNamesParamenter, '[]'));
+            $metricNames = \explode(',', \trim($metricNamesParameter, '[]'));
         } catch ( \Throwable $ex) {
             $this->error('Invalid parameters format', ['trace' => (string) $ex]);
 
