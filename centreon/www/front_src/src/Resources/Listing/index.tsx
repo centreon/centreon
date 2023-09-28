@@ -21,7 +21,6 @@ import {
   selectedResourcesAtom
 } from '../Actions/actionsAtoms';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
-import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
 import { rowColorConditions } from '../colors';
 import {
   openDetailsTabIdAtom,
