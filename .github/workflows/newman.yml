@@ -122,6 +122,8 @@ jobs:
       run: |
         declare -A json_info
         for summary_file in ./postman_summaries/*.json; do
+          echo "Summary file: $summary_file"
+          cat "$summary_file"
           summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
           filename=$(basename "$summary_file" .json)
           clean_filename="${filename// /_}"
@@ -159,6 +161,5 @@ jobs:
         fi
         
         if [ "$has_failures" = true ]; then
-           echo "::error::Some collections failed."       
            exit 1
         fi
