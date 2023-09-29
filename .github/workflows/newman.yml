@@ -136,7 +136,6 @@ jobs:
 
     - name: Generate and Display Summaries
       run: |
-        summaries=""
         has_failures=false
         for summary_file in ./postman_summaries/*.json; do
             collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
