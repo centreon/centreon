@@ -154,7 +154,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 d.created_by,
                 d.updated_by,
                 d.created_at,
-                d.updated_at
+                d.updated_at,
+                d.global_refresh_type,
+                d.global_refresh_interval
             FROM `:db`.`dashboard` d
             LEFT JOIN (
                 SELECT DISTINCT dcgr.`dashboard_id` as `id`
@@ -259,7 +261,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                         d.created_by,
                         d.updated_by,
                         d.created_at,
-                        d.updated_at
+                        d.updated_at,
+                        d.global_refresh_type,
+                        d.global_refresh_interval
                     SQL
             )
             ->defineFrom(
