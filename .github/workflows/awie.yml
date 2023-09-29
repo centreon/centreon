@@ -181,7 +181,8 @@ jobs:
         run: |
           set -x
           # Set version
-          VERSION=${{ needs.get-version.outputs.major_version }}
+          #VERSION=${{ needs.get-version.outputs.major_version }}
+          VERSION="23.04"
           # Set repo based on distrib
           case ${{ matrix.image }} in
             almalinux:8)
