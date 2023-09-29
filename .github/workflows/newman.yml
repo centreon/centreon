@@ -122,7 +122,7 @@ jobs:
       run: |
         declare -A json_info
         for summary_file in ./postman_summaries/*.json; do
-          summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats,Failures: .Run.Failures}')
+          summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
           filename=$(basename "$summary_file" .json)
           clean_filename="${filename// /_}"
           clean_filename="${clean_filename//-/_}"
@@ -137,35 +137,20 @@ jobs:
       run: |
         summaries=""
         has_failures=false 
-        
         for summary_file in ./postman_summaries/*.json; do
             collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
             total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
             pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-            failures=$(jq -r '.Run.Failures' "$summary_file")
-        
-            # Vérifier si la variable failures n'est pas vide
-            if [ -n "$failures" ] && ( [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ] ); then
-                has_failures=true   
+    
+            if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                has_failures=true  # Set has_failures to true if there are failures
                 summaries+="<table>"
                 summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
                 summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
-                summaries+="<tr><td colspan='5'><table>"
-        
-                while IFS= read -r failure; do
-                    parent_name=$(echo "$failure" | jq -r '.Parent.Name')
-                    source_name=$(echo "$failure" | jq -r '.Source.Name')
-                    error_message=$(echo "$failure" | jq -r '.Error.Message')
-        
-                    summaries+="<tr><td><strong>Parent Name:</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</td></tr>"
-                done <<< "$failures"
-        
-                summaries+="</table></td></tr>"
                 summaries+="</table>"
             fi
-        
             echo "Processing summary file: $summary_file"
         done
         
@@ -174,5 +159,6 @@ jobs:
         fi
         
         if [ "$has_failures" = true ]; then
+           echo "::error::Some collections failed."       
           exit 1
         fi

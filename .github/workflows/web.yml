@@ -492,7 +492,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-     needs: [get-version]
+     needs: [get-version,dockerize]
      uses: ./.github/workflows/newman.yml
      with:
         collection_path: centreon/tests/rest_api/collections
@@ -503,7 +503,7 @@ jobs:
      secrets:
         registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
         registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-        
+
   api-integration-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
