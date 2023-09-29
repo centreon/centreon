@@ -143,7 +143,7 @@ jobs:
             pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-            failures=$(jq -c '.Run.Failures' "$summary_file")
+            failures=$(jq -r '.Run.Failures' "$summary_file")
             echo "Failures for $summary_file:"
             echo "$failures"   
              if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
@@ -152,12 +152,12 @@ jobs:
                 summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
                 summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
                 summaries+="<tr><td colspan='5'>"
-                for failure in $(echo "$failures" | jq -c '.[]'); do
+                for failure in $(echo "$failures" | jq -r '.[]'); do
                   parent_name=$(echo "$failure" | jq -r '.Parent.Name')
                   source_name=$(echo "$failure" | jq -r '.Source.Name')
                   error_message=$(echo "$failure" | jq -r '.Error.Message')
-                  summaries+="<p><strong>Parent Name:</strong> '$parent_name'<br><strong>Source Name:</strong> '$source_name'<br><strong>Error Message:</strong> '$error_message'</p>"
-                done
+                  summaries+="<p><strong>Parent Name:</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</p>"
+                  done
                 summaries+="</td></tr>"
                 summaries+="</table>"
             fi
