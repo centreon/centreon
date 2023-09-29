@@ -25,7 +25,6 @@ on:
 jobs:
   discover_collections:
     runs-on: ubuntu-latest
-
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
     steps:
@@ -42,129 +41,122 @@ jobs:
           cat $GITHUB_OUTPUT
 
   postman_tests:
-   needs: discover_collections
-   runs-on: ubuntu-latest
+    needs: discover_collections
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
+    name: ${{ matrix.feature }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/rest_api
+    env:
+      CONTAINER_NAME: ${{ inputs.container_name }}
+      CENTREON_URL: ${{ inputs.centreon_url }}
+      CENTREON_IMAGE: ${{ inputs.centreon_image }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-   strategy:
-    fail-fast: false
-    matrix:
-      feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
 
-   name: ${{ matrix.feature }}
-
-   defaults:
-    run:
-      shell: bash
-      working-directory: centreon/tests/rest_api
-   env:
-    CONTAINER_NAME: ${{ inputs.container_name }}
-    CENTREON_URL: ${{ inputs.centreon_url }}
-    CENTREON_IMAGE: ${{ inputs.centreon_image }}
-
-   steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 7
-        run_install: false
-
-    - uses: actions/setup-node@v3
-      with:
+      - uses: actions/setup-node@v3
+        with:
           node-version: 18
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
-  
-    - name: Install Dependencies for tests/rest_api
-      run: pnpm install --frozen-lockfile 
-      shell: bash
-      env:
-        CYPRESS_INSTALL_BINARY: “0”
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: “1"
-        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: “true”
 
-    - name: Login to registry
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-        username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password}}
+      - name: Install Dependencies for tests/rest_api
+        run: pnpm install --frozen-lockfile 
+        shell: bash
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-    - name: Start Centreon Web Container
-      run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password}}
 
-    - name: Wait for Centreon Web Container to Start
-      run: |
-        pnpx wait-on http://localhost:4000/ --timeout 100000
-      timeout-minutes: 5
+      - name: Start Centreon Web Container
+        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
 
-    - name: Run Postman Tests and Generate HTML Report
-      run: |
-        collection_file="collections/${{ matrix.feature }}"
-        collection_name=$(basename "$collection_file" .postman_collection.json)
-        collection_directory="$(dirname "$collection_file")"
-        environment_file="$collection_directory/Environment-Collection.json"
-        if [ -f "$environment_file" ]; then
-          pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
-         else
-          echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
-          exit 1
-        fi
+      - name: Wait for Centreon Web Container to Start
+        run: |
+          pnpx wait-on http://localhost:4000/ --timeout 100000
+        timeout-minutes: 5
 
-    - name: Upload HTML Reports
-      uses: actions/upload-artifact@v3
-      with:
-        name: postman-html-reports
-        path: centreon/tests/rest_api/newman/
-        
-    - name: Extract and Store Summaries
-      run: |
-        for summary_file in ./postman_summaries/*.json; do
-          echo "Summary file: $summary_file"
-          cat "$summary_file" 
-          summary_content=$(jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}' "$summary_file")
-          filename=$(basename "$summary_file" .json)
-          clean_filename="${filename// /_}"
-          clean_filename="${clean_filename//-/_}"
-          json_info["$clean_filename"]=$summary_content
-        done
-        for key in "${!json_info[@]}"; do
-          echo "Summary info for $key:"
-          echo "${json_info[$key]}"
-        done
-
-    - name: Generate and Display Summaries
-      run: |
-       summaries=""
-       has_failures=false 
-       for summary_file in ./postman_summaries/*.json; do
-          collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
-          total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
-          pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
-          failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-          failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-          summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
-          if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
-            has_failures=true  # Set has_failures to true if there are failures
-            summaries+="<table>"
-            summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
-            summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
-                
-            for failure in $(jq -c '.Failures[]' <<< "$summary_content"); do
-              failure_message=$(jq -r '.Error.Message' <<< "$failure")
-              test_name=$(jq -r '.Test' <<< "$failure")
-              summaries+="<tr><td colspan='5'>$test_name: $failure_message</td></tr>"
-            done
-            summaries+="</table>"
+      - name: Run Postman Tests and Generate HTML Report
+        run: |
+          collection_file="collections/${{ matrix.feature }}"
+          collection_name=$(basename "$collection_file" .postman_collection.json)
+          collection_directory="$(dirname "$collection_file")"
+          environment_file="$collection_directory/Environment-Collection.json"
+          if [ -f "$environment_file" ]; then
+            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
+          else
+            echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
+            exit 1
           fi
-          echo "Processing summary file: $summary_file"
-        done
+
+      - name: Upload HTML Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: postman-html-reports
+          path: centreon/tests/rest_api/newman/
         
-        if [ -n "$summaries" ]; then
+      - name: Extract and Store Summaries
+        run: |
+          for summary_file in ./postman_summaries/*.json; do
+            echo "Summary file: $summary_file"
+            cat "$summary_file" 
+            summary_content=$(jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}' "$summary_file")
+            filename=$(basename "$summary_file" .json)
+            clean_filename="${filename// /_}"
+            clean_filename="${clean_filename//-/_}"
+            json_info["$clean_filename"]=$summary_content
+          done
+          for key in "${!json_info[@]}"; do
+            echo "Summary info for $key:"
+            echo "${json_info[$key]}"
+          done
+
+      - name: Generate and Display Summaries
+        run: |
+          summaries=""
+          has_failures=false 
+          for summary_file in ./postman_summaries/*.json; do
+            collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+            total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
+            pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
+            failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
+            failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
+            summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
+            if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+              has_failures=true  # Set has_failures to true if there are failures
+              summaries+="<table>"
+              summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
+              summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
+              for failure in $(jq -c '.Failures[]' <<< "$summary_content"); do
+                failure_message=$(jq -r '.Error.Message' <<< "$failure")
+                test_name=$(jq -r '.Test' <<< "$failure")
+                summaries+="<tr><td colspan='5'>$test_name: $failure_message</td></tr>"
+              done
+              summaries+="</table>"
+            fi
+            echo "Processing summary file: $summary_file"
+          done
+          if [ -n "$summaries" ]; then
             echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "$has_failures" = true ]; then
-           exit 1
-        fi
+          fi
+          if [ "$has_failures" = true ]; then
+            exit 1
+          fi
