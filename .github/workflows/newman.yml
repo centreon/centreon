@@ -151,6 +151,7 @@ jobs:
                 summaries+="<table>"
                 summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
                 summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
+                summaries+="<tr><td colspan='5'>"
                 while IFS= read -r failure; do
                   parent_name=$(echo "$failure" | jq -r '.Parent.Name')
                   source_name=$(echo "$failure" | jq -r '.Source.Name')
