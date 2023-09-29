@@ -81,6 +81,7 @@ jobs:
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
+          fail-on-cache-miss: true
 
       - name: Get baseline files
         run: |
@@ -223,6 +224,7 @@ jobs:
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
+          fail-on-cache-miss: true
 
       - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
