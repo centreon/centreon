@@ -1,0 +1,9 @@
+in: query
+name: metric_names
+required: true
+description: "List of metric names"
+schema:
+  type: string
+  pattern: '^\[\w+(,\w+)*\]$'
+  description: should be in form [<metricName1>,<metricName2>,<metricName3>]
+  example: "[rta,pl]"

@@ -1773,15 +1773,15 @@ Feature:
     }
     """
 
-    And I wait to get 3 metrics from '/api/latest/monitoring/dashboard/metrics/performances/data?metricIds=[1,2,3]&start=2023-09-08T04:40:16.344Z&end=2023-09-08T08:40:16.344Z'
-    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances/data?metricIds=[1,2,3]&start=2023-09-08T04:40:16.344Z&end=2023-09-08T08:40:16.344Z'
+    And I wait to get 3 metrics from '/api/latest/monitoring/dashboard/metrics/performances/data?metric_names=[pl,rta,rtmax]&start=2023-09-08T04:40:16.344Z&end=2023-09-08T08:40:16.344Z'
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances/data?metric_names=[pl,rta,rtmax]&start=2023-09-08T04:40:16.344Z&end=2023-09-08T08:40:16.344Z'
     Then the response code should be "200"
     And the JSON nodes should be equal to:
       | base                | 1000           |
-      | metrics[0].metric   | "pl"           |
-      | metrics[0].legend   | "Packet Loss"  |
-      | metrics[1].metric   | "rta"          |
-      | metrics[2].metric   | "rtmax"        |
+      | metrics[0].metric   | "Centreon-Server: pl"           |
+      | metrics[0].legend   | "Centreon-Server: Packet Loss"  |
+      | metrics[1].metric   | "Centreon-Server: rta"          |
+      | metrics[2].metric   | "Centreon-Server: rtmax"        |
     And the JSON node "metrics[0].data" should have at least 48 elements
     And the JSON node "metrics[1].data" should have at least 48 elements
     And the JSON node "metrics[2].data" should have at least 48 elements
