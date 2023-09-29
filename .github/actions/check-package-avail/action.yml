@@ -1,0 +1,83 @@
+name: "check-package-avail"
+description: "Check freshly promote packages availability"
+inputs:
+  module:
+    description: "The package module name"
+    required: true
+  image:
+    description: "The base OS docker image(s)."
+    required: true
+  version:
+    description: "The major version"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: check packages availability for ${{ inputs.image }}
+      run: |
+        set -x
+        # Set version
+        VERSION=${{ needs.get-version.outputs.major_version }}
+        # Set repo based on distrib
+        case ${{ matrix.image }} in
+          almalinux:8)
+            dnf install -y epel-release
+            dnf install -y dnf-plugins-core
+            dnf config-manager --set-enabled powertools
+            dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
+            dnf config-manager --set-enabled centreon-${VERSION}-testing*
+            dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+            dnf module reset -y php
+            dnf module install -y php:remi-8.1
+            dnf install -y curl sudo
+            curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+              | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
+            dnf install -y mariadb-server mariadb
+            if [[ "${{ env.module }}" == "web" ]];then
+              dnf install -y ${{ env.module }}
+            else
+              dnf install -y centreon
+              dnf install -y centreon-${{ env.module }}
+            fi
+          ;;
+          almalinux:9)
+            dnf install -y dnf-plugins-core
+            dnf install -y epel-release
+            dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+            dnf config-manager --set-enabled crb
+            dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
+            dnf config-manager --set-enabled centreon-${VERSION}-testing*
+            dnf module reset -y php
+            dnf module install -y php:8.1
+            dnf install -y --allowerasing sudo curl
+            curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+              | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
+            dnf install -y mariadb-server mariadb
+            if [[ "${{ env.module }}" == "web" ]];then
+              dnf install -y ${{ env.module }}
+            else
+              dnf install -y centreon
+              dnf install -y centreon-${{ env.module }}
+            fi
+          ;;
+          debian:bullseye)
+            apt update && apt upgrade -y
+            apt update && apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
+            echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+            wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+            apt update
+            curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
+            echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon.list
+            echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list
+            wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+            apt update
+            if [[ "${{ env.module }}" == "web" ]];then
+              apt install -y ${{ env.module }}
+            else
+              apt install -y centreon
+              apt install -y centreon-${{ env.module }}
+            fi
+          ;;
+        esac
+      shell: bash

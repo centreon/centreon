@@ -199,10 +199,10 @@ jobs:
               dnf install -y mariadb-server mariadb
 
               if [[ "${{ env.module }}" == "web" ]];then
-                dnf install -y ${{ env.module }}
+                dnf download --resolve -y ${{ env.module }}
               else
-                dnf install -y centreon
-                dnf install -y centreon-${{ env.module }}
+                dnf download --resolve -y centreon
+                dnf download --resolve -y centreon-${{ env.module }}
               fi
             ;;
             almalinux:9)
@@ -220,10 +220,10 @@ jobs:
               dnf install -y mariadb-server mariadb
 
               if [[ "${{ env.module }}" == "web" ]];then
-                dnf install -y ${{ env.module }}
+                dnf download --resolve -y ${{ env.module }}
               else
-                dnf install -y centreon
-                dnf install -y centreon-${{ env.module }}
+                dnf download --resolve -y centreon
+                dnf download --resolve -y centreon-${{ env.module }}
               fi
             ;;
             debian:bullseye)
@@ -239,10 +239,10 @@ jobs:
               apt update
 
               if [[ "${{ env.module }}" == "web" ]];then
-                apt install -y ${{ env.module }}
+                apt-get install --download-only -y ${{ env.module }}
               else
-                apt install -y centreon
-                apt install -y centreon-${{ env.module }}
+                apt-get install --download-only -y centreon
+                apt-get install --download-only -y centreon-${{ env.module }}
               fi
             ;;
           esac
