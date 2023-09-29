@@ -71,7 +71,7 @@ final class FindResourcesByParent
             $parentFilter = (new ResourceFilter())->setTypes([ResourceFilter::TYPE_HOST]);
 
             // Creating a new sort to search children as we want a specific order priority
-            $servicesSort = ['parent_id' => 'DESC', ...$sortProvided];
+            $servicesSort = ['parent_id' => 'ASC', ...$sortProvided];
 
             $this->requestParameters->setSort(json_encode($servicesSort));
 
