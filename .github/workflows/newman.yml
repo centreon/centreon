@@ -136,15 +136,15 @@ jobs:
 
     - name: Generate and Display Summaries
       run: |
-        summaries: ""
-        has_failures: false
+        summaries=""
+        has_failures=false
         for summary_file in ./postman_summaries/*.json; do
             collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
             total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
             pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-      
+        
             summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
         
             if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
