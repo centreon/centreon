@@ -158,9 +158,12 @@ jobs:
 
             echo "[DEBUG] FILENAME = $FILENAME"
             if [[ -s "$FILENAME" ]]; then
-              FILE_SIZE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f1 )
-              CREATION_DATE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f2 )
-              CREATION_TIME=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
+              FILE_DETAILS=$( stat -c '%s %y' "$FILENAME" )
+              DETAILS=(${FILE_DETAILS//\ / })
+
+              FILE_SIZE=${DETAILS[0]}
+              CREATION_DATE=${DETAILS[1]}
+              CREATION_TIME=$( echo "${DETAILS[2]}" | cut -d ':' -f1-2 | tr ':' 'h' )
               cp "$FILENAME" "/tmp/backup/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME. Skipping it"
