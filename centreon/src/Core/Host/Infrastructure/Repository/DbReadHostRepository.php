@@ -40,10 +40,9 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
-use Core\Host\Domain\Model\LittleHost;
-use Core\Host\Domain\Model\TinyHost;
 use Core\Host\Domain\Model\SimpleEntity;
 use Core\Host\Domain\Model\SnmpVersion;
+use Core\Host\Domain\Model\TinyHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
