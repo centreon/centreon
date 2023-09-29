@@ -135,7 +135,7 @@ it('should present an ErrorResponse when an exception occurs', function (): void
         ->toBe(HostException::errorWhileSearchingForHosts($exception)->getMessage());
 });
 
-it('should present a FindHostsResponse when no error occurs for a admin user', function (): void {
+it('should present a FindHostsResponse when no error occurs for an admin user', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
