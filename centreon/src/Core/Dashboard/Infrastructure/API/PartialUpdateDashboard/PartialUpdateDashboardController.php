@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\GlobalRefreshRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -130,6 +131,14 @@ final class PartialUpdateDashboardController extends AbstractController
 
                 $dto->panels[] = $dtoPanel;
             }
+        }
+
+        if (\array_key_exists('global_refresh', $dataSent)) {
+            $dtoGlobalRefresh = new GlobalRefreshRequestDto();
+            $dtoGlobalRefresh->refreshType = $dataSent['global_refresh']['refresh_type'];
+            $dtoGlobalRefresh->refreshInterval = $dataSent['global_refresh']['refresh_interval'];
+
+            $dto->globalRefresh = $dtoGlobalRefresh;
         }
 
         return $dto;

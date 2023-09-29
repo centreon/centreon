@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
 use Core\Common\Application\Type\NoValue;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\GlobalRefreshRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 
 final class PartialUpdateDashboardRequest
@@ -32,11 +33,13 @@ final class PartialUpdateDashboardRequest
      * @param NoValue|string $name
      * @param NoValue|string $description
      * @param NoValue|array<PanelRequestDto> $panels
+     * @param NoValue|GlobalRefreshRequestDto $globalRefresh
      */
     public function __construct(
         public NoValue|string $name = new NoValue(),
         public NoValue|string $description = new NoValue(),
         public NoValue|array $panels = new NoValue(),
+        public NoValue|GlobalRefreshRequestDto $globalRefresh = new NoValue(),
     ) {
     }
 }

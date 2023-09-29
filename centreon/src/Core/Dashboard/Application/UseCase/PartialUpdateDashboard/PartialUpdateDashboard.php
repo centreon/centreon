@@ -40,7 +40,10 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 
 final class PartialUpdateDashboard
 {
@@ -214,7 +217,28 @@ final class PartialUpdateDashboard
             updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
             updatedAt: new \DateTimeImmutable(),
-            globalRefresh: $dashboard->getGlobalRefresh(),
+            globalRefresh: new DashboardGlobalRefresh(
+                $this->stringToEnumConverter($request->globalRefresh->refreshType),
+                $request->globalRefresh->refreshInterval,
+            ),
         );
+    }
+
+    /**
+     * @param string $refreshType
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return DashboardGlobalRefreshType
+     */
+    private function stringToEnumConverter(string $refreshType): DashboardGlobalRefreshType
+    {
+        return match ($refreshType) {
+            'global' => DashboardGlobalRefreshType::Global,
+            'manual' => DashboardGlobalRefreshType::Manual,
+            default => throw new \InvalidArgumentException(
+                "\"{$refreshType}\" is not a valid string for enum DashboardGlobalRefreshType"
+            )
+        };
     }
 }

@@ -21,3 +21,15 @@ properties:
       allOf:
         - $ref: 'Panel/DashboardPanel.WithoutId.yaml'
         - $ref: 'Panel/DashboardPanel.IdOptional.yaml'
+
+  global_refresh:
+    type: object
+    properties:
+      refresh_type:
+        type: string
+        enum: [ global, manual ]
+        example: 'manual'
+      refresh_interval:
+        type: integer
+        nullable: true
+        example: 10
