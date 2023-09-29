@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useAtom } from 'jotai';
 
@@ -9,17 +9,25 @@ import { searchAtom } from '../../../filterAtoms';
 import useSearchInputDataByField from '../../useSearchInputDataByField';
 import { replaceValueFromSearchInput } from '../../utils';
 
+import useFilterSearchValue from './useFilterSearch';
+
 const FilterSearch = ({
   field,
-  placeHolder
+  placeholder
 }: {
   field: SearchableFields;
+  placeholder?: string;
 }): JSX.Element => {
-  const [value, setValue] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [search, setSearch] = useAtom(searchAtom);
 
   const { content, fieldInformation } = useSearchInputDataByField({ field });
+
+  const { value, setValue } = useFilterSearchValue({
+    content,
+    isDirty,
+    search
+  });
 
   const debouncedRequest = useDebounce({
     functionToDebounce: (): void => {
@@ -54,23 +62,10 @@ const FilterSearch = ({
     debouncedRequest();
   };
 
-  // a deplacer vers specific hoooooook
-  useEffect(() => {
-    if (!isDirty) {
-      setValue(content);
-
-      return;
-    }
-    if (search) {
-      return;
-    }
-    setValue('');
-  }, [search, isDirty]);
-
   return (
     <TextField
       dataTestId=""
-      placeholder={placeHolder}
+      placeholder={placeholder}
       value={value}
       onChange={onChange}
     />

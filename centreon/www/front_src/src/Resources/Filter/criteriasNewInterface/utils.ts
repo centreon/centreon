@@ -119,3 +119,25 @@ export const removeDuplicateFromObjectArray = ({ array, byFields }) => {
     ).values()
   ];
 };
+
+export const sort = ({ array, sortBy, isNumeric = false }) => {
+  const callbackSorting = (a, b, sortBy) => {
+    if (!isNumeric) {
+      const firsTarget = a[sortBy].toUpperCase();
+      const secondTarget = b[sortBy].toUpperCase();
+
+      if (firsTarget < secondTarget) {
+        return -1;
+      }
+      if (firsTarget > secondTarget) {
+        return 1;
+      }
+
+      return 0;
+    }
+
+    return a[sortBy] - b[sortBy];
+  };
+
+  return array.sort((a, b) => callbackSorting(a, b, sortBy));
+};

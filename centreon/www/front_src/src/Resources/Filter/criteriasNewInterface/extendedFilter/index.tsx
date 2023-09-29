@@ -5,46 +5,40 @@ import SelectInput from '../basicFilter/SelectInput';
 import { ExtendedCriteria } from '../model';
 
 import FilterSearch from './FilterSearch';
+import useExtendedFilter from './useExtendedFilter';
 
 const ExtendedFilter = ({ data, changeCriteria }): JSX.Element => {
-  const resourcesType = data?.find(
-    (item) => item.name === ExtendedCriteria.resourceTypes
-  );
-
-  const statusType = data?.filter(
-    (item) => item.name === ExtendedCriteria.statusTypes
-  );
+  const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
+    data
+  });
 
   return (
     <div style={{ minWidth: 400 }}>
-      {data.map((item) => {
-        return (
-          item?.buildAutocompleteEndpoint && (
-            <InputGroup
-              changeCriteria={changeCriteria}
-              data={data}
-              filterName={item.name}
-            />
-          )
-        );
-      })}
-      {resourcesType.options.map((item, index) => (
+      {inputGroupsData?.map((item) => (
+        <InputGroup
+          changeCriteria={changeCriteria}
+          data={data}
+          filterName={item.name}
+          key={item.name}
+        />
+      ))}
+      {resourceTypes?.map((item) => (
         <SelectInput
           changeCriteria={changeCriteria}
           data={data}
           filterName={ExtendedCriteria.resourceTypes}
-          key={index}
+          key={item.name}
           resourceType={item.id}
         />
       ))}
 
       <FilterSearch
         field={SearchableFields.information}
-        placeHolder="Information"
+        placeholder="Information"
       />
       <CheckBoxWrapper
         changeCriteria={changeCriteria}
-        data={statusType}
+        data={statusTypes}
         filterName={ExtendedCriteria.statusTypes}
         title="Status type"
       />
