@@ -155,7 +155,7 @@ jobs:
                   parent_name=$(echo "$failure" | jq -r '.Parent.Name')
                   source_name=$(echo "$failure" | jq -r '.Source.Name')
                   error_message=$(echo "$failure" | jq -r '.Error.Message')
-                  summaries+="<p><strong>Parent Name:</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</p>"
+                  summaries+="<p><strong>Parent Name:</strong> '$parent_name'<br><strong>Source Name:</strong> '$source_name'<br><strong>Error Message:</strong> '$error_message'</p>"
                 done
                 summaries+="</td></tr>"
                 summaries+="</table>"
