@@ -25,14 +25,19 @@ namespace Core\Host\Infrastructure\API\FindHosts;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Host\Application\UseCase\FindHosts\FindHosts;
-use Core\Host\Application\UseCase\FindHosts\FindHostsPresenterInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 final class FindHostsController extends AbstractController
 {
-    public function __invoke(FindHosts $useCase, FindHostsPresenterInterface $presenter): Response
-    {
+    public function __invoke(
+        FindHosts $useCase,
+        FindHostsOnPremPresenter $onPremPresenter,
+        FindHostsSaasPresenter $saasPresenter,
+        bool $isCloudPlatform
+    ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
+
+        $presenter = $isCloudPlatform ? $saasPresenter : $onPremPresenter;
 
         $useCase($presenter);
 

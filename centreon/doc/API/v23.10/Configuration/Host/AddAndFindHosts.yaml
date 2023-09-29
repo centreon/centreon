@@ -12,6 +12,12 @@ get:
     * address
     * poller.id
     * poller.name
+    * category.id 
+    * category.name
+    * severity.id 
+    * severity.name
+    * group.id 
+    * group.name
     * is_activated
 
   parameters:

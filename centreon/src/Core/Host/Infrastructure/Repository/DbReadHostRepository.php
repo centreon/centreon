@@ -355,6 +355,12 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             'poller.id' => 'ns.id',
             'poller.name' => 'ns.name',
             'is_activated' => 'h.host_activate',
+            'category.id' => 'hc.hc_id',
+            'category.name' => 'hc.hc_name',
+            'severity.id' => 'sev.hc_id',
+            'severity.name' => 'sev.hc_name',
+            'group.id' => 'hg.hg_id',
+            'group.name' => 'hg.hg_name',
         ]);
         $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
@@ -471,6 +477,8 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 AND hc.level IS NULL {$hostCategoriesAcl}
             LEFT JOIN `:db`.hostgroup_relation hgr
                 ON hgr.host_host_id = h.host_id {$hostGroupAcl}
+            INNER JOIN `:db`.hostgroup hg
+                ON hg.hg_id = hgr.hostgroup_hg_id
             LEFT JOIN `:db`.ns_host_relation nsr
                 ON nsr.host_host_id = h.host_id
             INNER JOIN `:db`.nagios_server ns

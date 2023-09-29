@@ -31,7 +31,7 @@ use Core\Host\Application\UseCase\FindHosts\FindHostsResponse;
 use Core\Host\Application\UseCase\FindHosts\SimpleDto;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
-final class FindHostsPresenter extends AbstractPresenter implements FindHostsPresenterInterface
+final class FindHostsOnPremPresenter extends AbstractPresenter implements FindHostsPresenterInterface
 {
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
