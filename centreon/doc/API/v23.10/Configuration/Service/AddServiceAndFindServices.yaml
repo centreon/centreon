@@ -36,13 +36,13 @@ get:
   description: |
     Return all service configurations.
 
-    The available parameters to **search** are:
+    The available parameters to **search** by are:
 
     * name
     * host
     * category
     * severity
-    * service_group
+    * group
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
     - $ref: '../../Common/QueryParameter/Page.yaml'

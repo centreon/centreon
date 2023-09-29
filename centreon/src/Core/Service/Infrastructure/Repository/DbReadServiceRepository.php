@@ -429,8 +429,8 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     service.service_retry_check_interval,
                     service.service_template_model_stm_id as service_template_id,
                     serviceTemplate.service_description as service_template_name,
-                    severity.sc_id as severity_id,
-                    severity.sc_name as severity_name,
+                    GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                    GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
                     GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
                     GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
                     GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as groups
@@ -500,7 +500,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             'host' => 'host.host_name',
             'category' => 'category.sc_name',
             'severity' => 'severity.sc_name',
-            'service_group' => 'servicegroup.sg_name',
+            'group' => 'servicegroup.sg_name',
         ]);
         $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator->translateForConcatenator($concatenator);
@@ -559,7 +559,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     : null,
                 severity: $result['severity_id'] !== null
                     ? new SimpleEntity(
-                        $result['severity_id'],
+                        (int) $result['severity_id'],
                         new TrimmedString($result['severity_name']),
                         'ServiceLight::severityId'
                     )
