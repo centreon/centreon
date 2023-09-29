@@ -298,6 +298,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false
-          fail-on-cvss: 9
           allow-dirty: true
           path: "./${{ inputs.module_directory }}"
+          recursive: true
