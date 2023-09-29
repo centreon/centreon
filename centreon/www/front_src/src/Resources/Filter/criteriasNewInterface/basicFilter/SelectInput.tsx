@@ -1,5 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
-
 import { useAtom } from 'jotai';
 import { isEmpty } from 'ramda';
 
@@ -8,11 +6,10 @@ import { SingleConnectedAutocompleteField } from '@centreon/ui';
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
 import getDefaultCriterias from '../../Criterias/default';
 import { searchAtom } from '../../filterAtoms';
+import useInputCurrentValues from '../useInputCurrentValues';
 import useInputData from '../useInputsData';
-import {
-  findFieldInformationFromSearchInput,
-  replaceValueFromSearchInput
-} from '../utils';
+import useSearchInputDataByField from '../useSearchInputDataByField';
+import { findData, replaceValueFromSearchInput } from '../utils';
 
 const SelectInput = ({
   data,
@@ -20,16 +17,21 @@ const SelectInput = ({
   resourceType,
   changeCriteria
 }): JSX.Element => {
+  const field = 'name';
+
+  const [search, setSearch] = useAtom(searchAtom);
   const { target, valueSearchData } = useInputData({
     data,
     filterName,
     resourceType
   });
 
-  const [value, setValue] = useState([]);
-  const [search, setSearch] = useAtom(searchAtom);
+  const { value, setValue } = useInputCurrentValues({
+    content: { id: valueSearchData?.valueId, name: valueSearchData?.value },
+    data: valueSearchData
+  });
 
-  const field = 'name';
+  const { content, fieldInformation } = useSearchInputDataByField({ field });
 
   const handleSearchData = (updatedValue) => {
     const { values } = target.searchData;
@@ -50,7 +52,11 @@ const SelectInput = ({
   const handleValues = () => {
     const value = {
       id: resourceType,
-      name: target.options?.find((item) => item.id === resourceType).name
+      name: findData({
+        data: target?.options,
+        findBy: 'id',
+        target: resourceType
+      })?.name
     };
     const result = target.value?.filter((item) => item?.id !== resourceType);
 
@@ -59,7 +65,7 @@ const SelectInput = ({
 
   const handleSearchDataInSearchInput = (data) => {
     const values = data.values.map((item) => item?.value);
-    if (!fieldData.target) {
+    if (!fieldInformation) {
       const currentSearch = search.concat(
         ' ',
         `${data.field}:${values.join()}`
@@ -72,7 +78,7 @@ const SelectInput = ({
     const currentSearch = replaceValueFromSearchInput({
       newContent: `${field}:${values.join()}`,
       search,
-      targetField: fieldData.target
+      targetField: fieldInformation
     });
     setSearch(currentSearch);
   };
@@ -89,22 +95,6 @@ const SelectInput = ({
     });
   };
 
-  const fieldData = useMemo((): { content: string; target: string } => {
-    return findFieldInformationFromSearchInput({
-      field: target?.searchData.field,
-      search
-    });
-  }, [search, target]);
-
-  const getEndpoint = ({ search, page }): string => {
-    return buildResourcesEndpoint({
-      limit: 10,
-      page,
-      resourceTypes: [resourceType],
-      search
-    });
-  };
-
   const onInputChange = (event, value) => {
     const initializedData = getDefaultCriterias().find(
       (item) => item.name === filterName
@@ -116,7 +106,13 @@ const SelectInput = ({
     if (value) {
       return;
     }
-    setSearch('');
+
+    const initializedTargetSearch = replaceValueFromSearchInput({
+      newContent: '',
+      search,
+      targetField: fieldInformation
+    });
+    setSearch(initializedTargetSearch);
     setValue([]);
     changeCriteria({
       filterName,
@@ -124,14 +120,15 @@ const SelectInput = ({
       updatedValue: initializedData?.value
     });
   };
-  useEffect(() => {
-    if (!valueSearchData) {
-      setValue([]);
 
-      return;
-    }
-    setValue({ id: valueSearchData.valueId, name: valueSearchData.value });
-  }, [valueSearchData]);
+  const getEndpoint = ({ search, page }): string => {
+    return buildResourcesEndpoint({
+      limit: 10,
+      page,
+      resourceTypes: [resourceType],
+      search
+    });
+  };
 
   return (
     <div>
@@ -143,7 +140,7 @@ const SelectInput = ({
           placeholder={target?.label}
           value={value}
           onChange={(_, updatedValue): void => handleChange(_, updatedValue)}
-          onInputChange={(event, value) => onInputChange(event, value)}
+          onInputChange={onInputChange}
         />
       ) : null}
     </div>

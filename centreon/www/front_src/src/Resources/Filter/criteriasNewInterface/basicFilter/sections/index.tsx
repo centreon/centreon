@@ -3,7 +3,7 @@ import { Divider } from '@mui/material';
 import { CheckBoxSection as StatusSection } from '../CheckBox';
 import { BasicCriteria, SectionType } from '../../model';
 import SelectInput from '../SelectInput';
-import InputGroup from '../InputGroupe';
+import InputGroup from '../InputGroup';
 
 import Section from './Section';
 

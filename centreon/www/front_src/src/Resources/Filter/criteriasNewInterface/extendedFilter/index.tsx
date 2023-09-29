@@ -1,10 +1,10 @@
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
 import { CheckBoxWrapper } from '../CheckBoxWrapper';
-import InputGroup from '../basicFilter/InputGroupe';
+import InputGroup from '../basicFilter/InputGroup';
 import SelectInput from '../basicFilter/SelectInput';
 import { ExtendedCriteria } from '../model';
 
-import FilterSearch from './FilterSearch/FilterSearch';
+import FilterSearch from './FilterSearch';
 
 const ExtendedFilter = ({ data, changeCriteria }): JSX.Element => {
   const resourcesType = data?.find(

@@ -1,5 +1,3 @@
-import { equals } from 'ramda';
-
 import { ResourceType } from '../../models';
 import { CriteriaNames } from '../Criterias/models';
 
@@ -79,11 +77,13 @@ export const findData = ({ target, data, findBy = 'name' }): any =>
   data?.find((item) => item?.[findBy] === target);
 
 export const findFieldInformationFromSearchInput = ({ search, field }) => {
-  const target = search.split(' ').find((item) => item.includes(field));
-  const fieldEntries = target?.split(':');
+  const fieldInformation = search
+    .split(' ')
+    .find((item) => item.includes(field));
+  const fieldEntries = fieldInformation?.split(':');
   const content = fieldEntries?.filter((item) => item !== field).join() ?? '';
 
-  return { content, target };
+  return { content, fieldInformation };
 };
 
 export const replaceValueFromSearchInput = ({

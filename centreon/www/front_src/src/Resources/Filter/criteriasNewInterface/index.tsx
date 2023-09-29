@@ -8,10 +8,10 @@ import Switch from '@mui/material/Switch';
 import { Criteria, CriteriaById } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 
-import BasicFilter from './basicFilter/BasicFilter';
-import InputGroup from './basicFilter/InputGroupe';
-import SectionWrapper from './basicFilter/sections/SectionWrapper';
-import ExtendedFilter from './extendedFilter/ExtendedFilter';
+import BasicFilter from './basicFilter';
+import InputGroup from './basicFilter/InputGroup';
+import SectionWrapper from './basicFilter/sections';
+import ExtendedFilter from './extendedFilter';
 import { BasicCriteria, CategoryFilter, ExtendedCriteria } from './model';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
 import { CheckBoxWrapper } from './CheckBoxWrapper';
