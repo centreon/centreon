@@ -171,16 +171,16 @@ class PerformanceMetricsDataFactory
     {
         $metrics = $this->filterMetricsByMetricName($metricData, $metricNames);
         $metricsInformation = [];
-        foreach ($metrics as $hostName => $metric) {
+        foreach ($metrics as $metric) {
             try {
                 $generalInformation = new GeneralInformation(
                     $metric['index_id'],
                     $metric['metric_id'],
-                    $hostName . ': ' . $metric['metric'],
-                    $hostName . ': ' . $metric['metric_legend'],
+                    $metric['metric'],
+                    $metric['metric_legend'],
                     $metric['unit'],
                     (bool) $metric['hidden'],
-                    $hostName . ': ' . $metric['legend'],
+                    $metric['legend'],
                     (bool) $metric['virtual'],
                     (bool) $metric['stack'],
                     $metric['ds_order']
