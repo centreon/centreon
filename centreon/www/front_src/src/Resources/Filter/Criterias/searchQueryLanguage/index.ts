@@ -107,6 +107,7 @@ const parse = ({
       ({ name }) => name === defaultCriteria?.name
     );
     const searchData = target?.searchData;
+
     const result = {
       name: pluralizedKey,
       object_type: objectType,
@@ -130,6 +131,7 @@ const parse = ({
         };
       })
     };
+
     if (!searchData) {
       return result;
     }

@@ -107,11 +107,11 @@ export const removeDuplicateFromObjectArray = ({ array, byFields }) => {
     ...new Map(
       array.map((item) => {
         const key = byFields.reduce((accu, currentValue) => {
-          return `${item[accu]}${item[currentValue]}`;
+          return `${item[accu].toString()}${item[currentValue].toString()}`;
         });
 
         if (byFields.length <= 1) {
-          return [item[key], item];
+          return [item[key].toString(), item];
         }
 
         return [key, item];
