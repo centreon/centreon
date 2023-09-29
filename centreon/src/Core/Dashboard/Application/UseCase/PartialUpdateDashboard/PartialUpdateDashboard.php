@@ -43,7 +43,6 @@ use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
-use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 
 final class PartialUpdateDashboard
 {
@@ -217,10 +216,15 @@ final class PartialUpdateDashboard
             updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
             updatedAt: new \DateTimeImmutable(),
-            globalRefresh: new DashboardGlobalRefresh(
-                $this->stringToEnumConverter($request->globalRefresh->refreshType),
-                $request->globalRefresh->refreshInterval,
-            ),
+            globalRefresh: ($request->globalRefresh instanceof NoValue)
+                ? new DashboardGlobalRefresh(
+                    $dashboard->getGlobalRefresh()->getRefreshType(),
+                    $dashboard->getGlobalRefresh()->getRefreshInterval()
+                )
+                : new DashboardGlobalRefresh(
+                    $this->stringToEnumConverter($request->globalRefresh->refreshType),
+                    $request->globalRefresh->refreshInterval
+                )
         );
     }
 

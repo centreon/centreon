@@ -26,7 +26,7 @@ namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
 final class GlobalRefreshRequestDto
 {
     public function __construct(
-        public string $refreshType = "",
+        public string $refreshType = '',
         public ?int $refreshInterval = null,
     ) {
     }
