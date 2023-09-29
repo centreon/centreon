@@ -173,7 +173,10 @@ jobs:
       matrix:
         image: ["almalinux:8", "almalinux:9", "debian:bullseye"]
 
-    uses: ./github/workflows/check-pkg-availablity.yml
+    uses: ./.github/workflows/check-pkg-availability.yml
     with:
-      - module: ${{ env.module }}
-  
+      image: ${{ matrix.image }}
+      module: awie
+      version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
+
+

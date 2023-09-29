@@ -18,20 +18,15 @@ jobs:
   check-pkg-availability:
     name: check-pkg-availability
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        image: ["almalinux:8", "almalinux:9", "debian:bullseye"]
-    container:
-      image: ${{ inputs.image }}
 
     steps:
       - run: |
           set -x
           # Set version
-          #VERSION=${{ needs.get-version.outputs.major_version }}
+          #VERSION=${{ inputs.version }}
           VERSION="23.04"
           # Set repo based on distrib
-          case ${{ matrix.image }} in
+          case ${{ inputs.image }} in
             almalinux:8)
               dnf install -y epel-release
               dnf install -y dnf-plugins-core
@@ -46,11 +41,11 @@ jobs:
                 | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
 
-              if [[ "${{ env.module }}" == "web" ]];then
-                dnf download --resolve -y ${{ env.module }}
+              if [[ "${{ inputs.module }}" == "web" ]];then
+                dnf download --resolve -y ${{ inputs.module }}
               else
                 dnf download --resolve -y centreon
-                dnf download --resolve -y centreon-${{ env.module }}
+                dnf download --resolve -y centreon-${{ inputs.module }}
               fi
             ;;
             almalinux:9)
@@ -67,11 +62,11 @@ jobs:
                 | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
               dnf install -y mariadb-server mariadb
 
-              if [[ "${{ env.module }}" == "web" ]];then
-                dnf download --resolve -y ${{ env.module }}
+              if [[ "${{ inputs.module }}" == "web" ]];then
+                dnf download --resolve -y ${{ inputs.module }}
               else
                 dnf download --resolve -y centreon
-                dnf download --resolve -y centreon-${{ env.module }}
+                dnf download --resolve -y centreon-${{ inputs.module }}
               fi
             ;;
             debian:bullseye)
@@ -86,11 +81,11 @@ jobs:
               wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
               apt update
 
-              if [[ "${{ env.module }}" == "web" ]];then
-                apt-get install --download-only -y ${{ env.module }}
+              if [[ "${{ inputs.module }}" == "web" ]];then
+                apt-get install --download-only -y ${{ inputs.module }}
               else
                 apt-get install --download-only -y centreon
-                apt-get install --download-only -y centreon-${{ env.module }}
+                apt-get install --download-only -y centreon-${{ inputs.module }}
               fi
             ;;
           esac
