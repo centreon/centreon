@@ -22,7 +22,8 @@ jobs:
   check-stable-packages:
     name: check-stable-packages-${{ inputs.distrib }}
     runs-on: ubuntu-22.04
-    container: ${{ inputs.image }}
+    container:
+      image: ${{ inputs.image }}
 
     steps:
       - run: |
