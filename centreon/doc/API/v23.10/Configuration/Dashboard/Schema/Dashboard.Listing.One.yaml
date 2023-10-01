@@ -50,3 +50,15 @@ properties:
     type: string
     enum: [ viewer, editor ]
     description: "The role current user owns on this dashboard."
+
+  global_refresh:
+    type: object
+    properties:
+      refresh_type:
+        type: string
+        enum: [ global, manual ]
+        example: 'manual'
+      refresh_interval:
+        type: integer
+        nullable: true
+        example: 10
