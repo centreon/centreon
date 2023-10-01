@@ -146,11 +146,11 @@ jobs:
             failures=$(jq -r '.Run.Failures' "$summary_file")
             echo "$failures"
             if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
-                for row in $(echo "$failures" | jq -c '.[]'); do
+                for row in $failures; do
                     parent_name=$(echo "$row" | jq -r '.Parent.Name')
                     source_name=$(echo "$row" | jq -r '.Source.Name')
                     error_message=$(echo "$row" | jq -r '.Error.Message')
-                    summaries+="<p><strong>Parent Name</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</p>"
+                    summaries+="<p><strong>Parent Name:</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</p>"
                 done
                 has_failures=true  # Set has_failures to true if there are failures
                 summaries+="<table>"
