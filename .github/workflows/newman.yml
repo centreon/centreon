@@ -152,13 +152,16 @@ jobs:
                 summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
                 summaries+="</table>"
                 summaries+="<p><strong>Parent Name:</strong> $parent_names<br><strong>Source Name:</strong> $source_names<br><strong>Error Message:</strong> $error_messages</p>"
+                 failure_lines=()
                 while IFS= read -r row; do
-                  parent_name=$(echo "$row" | jq -r '.Parent.Name')
-                  source_name=$(echo "$row" | jq -r '.Source.Name')
-                  error_message=$(echo "$row" | jq -r '.Error.Message')
-          
-                  summaries+="<p><strong>Parent Name:</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</p>"
+                    parent_name=$(echo "$row" | jq -r '.Parent.Name')
+                    source_name=$(echo "$row" | jq -r '.Source.Name')
+                    error_message=$(echo "$row" | jq -r '.Error.Message')
+                    if [ -n "$parent_name" ] && [ -n "$source_name" ] && [ -n "$error_message" ]; then
+                        failure_lines+=("<p><strong>Parent Name:</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</p>")
+                    fi
                 done <<< "$(echo "$failures" | jq -c '.[]')"
+                summaries+="${failure_lines[@]}"
             fi
             echo "Processing summary file: $summary_file"
         done
