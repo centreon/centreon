@@ -144,7 +144,7 @@ jobs:
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
             failures=$(jq -r '.Run.Failures' "$summary_file")
-
+            echo "$failures"
             if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
                 for row in $(echo "$failures" | jq -c '.[]'); do
                     parent_name=$(echo "$row" | jq -r '.Parent.Name')
