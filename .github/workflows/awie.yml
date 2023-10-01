@@ -172,17 +172,17 @@ jobs:
     strategy:
       matrix:
         include:
-        - image: ['almalinux:8']
+        - image: 'almalinux:8'
           distrib: el8
-        - image: ['almalinux:9']
+        - image: 'almalinux:9'
           distrib: el9
-        - image: ['debian:bullseye']
+        - image: 'debian:bullseye'
           distrib: bullseye
 
     uses: ./.github/workflows/check-pkg-availability.yml
     with:
-      distrib: ${{ matrix.distrib }}
       image: ${{ matrix.image }}
+      distrib: ${{ matrix.distrib }}
       module: awie
       version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
 

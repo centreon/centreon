@@ -20,7 +20,7 @@ on:
 
 jobs:
   check-stable-packages:
-    name: check-stable-packages-${{ inputs.distrib }}
+    name: check-stable-packages ${{ inputs.distrib }}
     runs-on: ubuntu-22.04
     container:
       image: ${{ inputs.image }}
