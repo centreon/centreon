@@ -172,7 +172,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - image: ["almalinux:8", "almalinux:9", "debian:bullseye"]
+        - image: ["almalinux:8"]
           distrib: el8
         - image: ["almalinux:9"]
           distrib: el9
