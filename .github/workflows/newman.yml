@@ -122,8 +122,8 @@ jobs:
       run: |
         declare -A json_info
         for summary_file in ./postman_summaries/*.json; do
-          summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats}')
-          filename=$(basename "$summary_file" .json)
+        summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
+        filename=$(basename "$summary_file" .json)
           clean_filename="${filename// /_}"
           clean_filename="${clean_filename//-/_}"
           json_info["$clean_filename"]=$summary_content
@@ -143,8 +143,15 @@ jobs:
             pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-    
+            failures=$(jq -r '.Run.Failures' "$summary_file")
+
             if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                for row in $(echo "$failures" | jq -c '.[]'); do
+                    parent_name=$(echo "$row" | jq -r '.Parent.Name')
+                    source_name=$(echo "$row" | jq -r '.Source.Name')
+                    error_message=$(echo "$row" | jq -r '.Error.Message')
+                    summaries+="<p><strong>Parent Name</strong> $parent_name<br><strong>Source Name:</strong> $source_name<br><strong>Error Message:</strong> $error_message</p>"
+                done
                 has_failures=true  # Set has_failures to true if there are failures
                 summaries+="<table>"
                 summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
@@ -160,5 +167,5 @@ jobs:
         
         if [ "$has_failures" = true ]; then
            echo "::error::Some collections failed."       
-          exit 1
+           exit 1
         fi
