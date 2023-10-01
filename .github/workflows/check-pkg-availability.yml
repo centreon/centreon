@@ -1,6 +1,10 @@
 on:
   workflow_call:
     inputs:
+      distrib:
+        type: string
+        description: The OS distribution
+        required: true
       image:
         type: string
         description: The image name
@@ -15,8 +19,8 @@ on:
         required: true
 
 jobs:
-  check-pkg-availability:
-    name: check-pkg-availability
+  check-stable-packages:
+    name: check-stable-packages-${{ inputs.distrib }}
     runs-on: ubuntu-22.04
     container: ${{ inputs.image }}
 
