@@ -14,7 +14,9 @@ import {
 import { userAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
+import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 import Actions from '../Actions';
+import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
@@ -22,14 +24,11 @@ import {
   selectedResourcesAtom,
   selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
-import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
-import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
-import { rowColorConditions } from '../colors';
 import {
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
-  selectedResourcesDetailsAtom,
-  selectedResourceUuidAtom
+  selectedResourceUuidAtom,
+  selectedResourcesDetailsAtom
 } from '../Details/detailsAtoms';
 import { graphTabId } from '../Details/tabs';
 import {
@@ -37,13 +36,13 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
+import { rowColorConditions } from '../colors';
 import { Resource, SortOrder, Visualization } from '../models';
 import {
+  labelForcedCheckCommandSent,
   labelSelectAtLeastOneColumn,
-  labelStatus,
-  labelForcedCheckCommandSent
+  labelStatus
 } from '../translatedLabels';
-import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import {
   defaultSelectedColumnIds,
@@ -154,10 +153,9 @@ const ResourceListing = (): JSX.Element => {
     name: 'detailsOpen'
   };
 
-  const onForcedCheck = (resource: Resource): void => {
+  const onForcedCheck = (): void => {
     checkResource({
-      check: { is_forced: true },
-      resources: adjustCheckedResources({ resources: [resource] })
+      is_forced: true
     }).then(() => {
       showSuccessMessage(t(labelForcedCheckCommandSent));
     });

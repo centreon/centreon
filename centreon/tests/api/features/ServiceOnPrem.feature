@@ -10,22 +10,49 @@ Feature:
   Scenario: Service delete
     Given the following CLAPI import data:
       """
-      CONTACT;ADD;test;test;test@localhost.com;Centreon@2022;0;1;en_US;local
-      CONTACT;setparam;test;reach_api;1
       HOST;add;Host-Test;Host-Test-alias;127.0.0.1;;central;
       SERVICE;add;Host-Test;Service-Test;Ping-LAN
       """
-    And I am logged in with "test"/"Centreon@2022"
+    And I am logged in
 
-    When I send a DELETE request to '/api/latest/configuration/services/27'
-    Then the response code should be "403"
-
-    Given I am logged in
     When I send a DELETE request to '/api/latest/configuration/services/99'
     Then the response code should be "404"
 
     Then I send a DELETE request to '/api/latest/configuration/services/27'
     Then the response code should be "204"
+
+    Given the following CLAPI import data:
+      """
+      CONTACT;ADD;test;test;test@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;test;reach_api;1
+      HOST;add;Host-Test;Host-Test-alias;127.0.0.1;;central;
+      SERVICE;add;Host-Test;Service-Test;Ping-LAN
+      HOST;add;Host-Test2;Host-Test-alias2;127.0.0.1;;central;
+      SERVICE;add;Host-Test2;Service-Test;Ping-LAN
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;Hosts;
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Services;
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Services;Services by host;
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;grant_host;ACL Resource test;Host-Test
+      ACLGROUP;add;ACL Group test;ACL Group test alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;setcontact;ACL Group test;test;
+      ACL;reload
+      """
+    And I am logged in with "test"/"Centreon@2022"
+
+    When I send a DELETE request to '/api/latest/configuration/services/28'
+    Then the response code should be "204"
+
+    Then I send a DELETE request to '/api/latest/configuration/services/29'
+    Then the response code should be "404"
+
+    When I send a DELETE request to '/api/latest/configuration/services/99'
+    Then the response code should be "404"
+
 
   Scenario: Service creation
     Given I am logged in
