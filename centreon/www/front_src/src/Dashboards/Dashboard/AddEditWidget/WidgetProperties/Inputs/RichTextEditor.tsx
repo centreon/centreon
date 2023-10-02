@@ -25,7 +25,7 @@ const WidgetRichTextEditor = ({
 
   const isGenericTextWidget = equals(
     values.moduleName,
-    'centreon-widget-graph'
+    'centreon-widget-generictext'
   );
 
   const value = useMemo<string | undefined>(
@@ -52,7 +52,7 @@ const WidgetRichTextEditor = ({
     <RichTextEditor
       editable
       disabled={!canEditField || disabledCondition?.(values)}
-      displayBlockButtons={!isGenericTextWidget}
+      displayBlockButtons={isGenericTextWidget}
       editorState={value || undefined}
       error={error}
       getEditorState={change}
