@@ -104,8 +104,8 @@ jobs:
         collection_file="collections/${{ matrix.feature }}"
         collection_name=$(basename "$collection_file" .postman_collection.json)
         collection_directory="$(dirname "$collection_file")"
-        environment_file="$collection_directory/Environment-Collection.json"
-        if [ -f "$environment_file" ]; then
+        environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
+         if [ -f "$environment_file" ]; then
           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
          else
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
@@ -168,6 +168,5 @@ jobs:
         fi
         
         if [ "$has_failures" = true ]; then
-           echo "::error::Some collections failed."       
            exit 1
         fi
