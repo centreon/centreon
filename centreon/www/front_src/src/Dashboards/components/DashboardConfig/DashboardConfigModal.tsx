@@ -26,7 +26,7 @@ import {
 import { useDashboardConfig } from './useDashboardConfig';
 
 const DashboardConfigModal = (): ReactElement => {
-  const { isDialogOpen, closeDialog, dashboard, submit, variant, status } =
+  const { isDialogOpen, closeDialog, dashboard, submit, variant } =
     useDashboardConfig();
 
   const { t } = useTranslation();
