@@ -22,7 +22,6 @@ export const standardMacros = [
   '{{ID}}',
   '{{NAME}}',
   '{{OUTPUT}}',
-  '{{STATE}}',
   '{{STATETYPE}}'
 ];
 
