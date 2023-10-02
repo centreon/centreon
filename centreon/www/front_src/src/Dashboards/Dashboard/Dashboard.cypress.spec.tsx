@@ -35,7 +35,6 @@ import { labelDelete } from '../translatedLabels';
 
 import {
   labelAddAWidget,
-  labelAddWidget,
   labelDeleteAWidget,
   labelDeleteWidget,
   labelDoYouWantToDeleteThisWidget,
@@ -402,5 +401,12 @@ describe('Dashboard', () => {
 
       cy.makeSnapshot();
     });
+  });
+
+  it('displays the title and the description in the panel', () => {
+    initializeAndMount(editorRoles);
+
+    cy.contains('Generic text').should('be.visible');
+    cy.contains('Description').should('be.visible');
   });
 });

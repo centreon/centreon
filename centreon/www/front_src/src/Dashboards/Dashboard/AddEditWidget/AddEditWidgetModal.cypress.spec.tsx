@@ -263,23 +263,32 @@ describe('AddEditWidgetModal', () => {
         cy.makeSnapshot();
       });
 
-      it('does not disabled the description field when the display description checkbox is not checked', () => {
+      it('does not disable the description field when the display description checkbox is not checked', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic input (example)').click();
 
-        cy.findByLabelText('RichTextEditor').should(
-          'have.attr',
-          'contenteditable',
-          'true'
-        );
+        cy.findAllByLabelText('RichTextEditor')
+          .eq(0)
+          .should('have.attr', 'contenteditable', 'true');
 
         cy.findByLabelText(labelShowDescription).uncheck();
 
-        cy.findByLabelText('RichTextEditor').should(
-          'have.attr',
-          'contenteditable',
-          'true'
-        );
+        cy.findAllByLabelText('RichTextEditor')
+          .eq(0)
+          .should('have.attr', 'contenteditable', 'true');
+      });
+
+      it('displays the title and the description in the preview when corresponding fields are edited', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic input (example)').click();
+
+        cy.findByLabelText(labelTitle).clear().type('Title');
+        cy.findAllByLabelText('RichTextEditor').eq(0).type('Hello');
+
+        cy.contains('Title').should('be.visible');
+        cy.contains('Hello').should('be.visible');
+
+        cy.makeSnapshot();
       });
     });
 
@@ -308,7 +317,9 @@ describe('AddEditWidgetModal', () => {
           'Generic text (example)'
         );
         cy.findByLabelText(labelTitle).should('have.value', 'Widget name');
-        cy.findByLabelText('RichTextEditor').contains('Description');
+        cy.findAllByLabelText('RichTextEditor').eq(0).contains('Description');
+        cy.contains('Widget name').should('be.visible');
+        cy.findAllByLabelText('RichTextEditor').eq(1).contains('Description');
         cy.findByLabelText(labelSave).should('be.disabled');
 
         cy.makeSnapshot();
@@ -430,11 +441,9 @@ describe('AddEditWidgetModal', () => {
     it('displays generic properties fields as disabled', () => {
       cy.findByLabelText(labelWidgetType).should('be.disabled');
       cy.findByLabelText(labelTitle).should('be.disabled');
-      cy.findByLabelText('RichTextEditor').should(
-        'have.attr',
-        'contenteditable',
-        'true'
-      );
+      cy.findAllByLabelText('RichTextEditor')
+        .eq(0)
+        .should('have.attr', 'contenteditable', 'false');
       cy.findByLabelText(labelShowDescription).should('be.disabled');
       cy.findByLabelText(labelOpenLinksInNewTab).should('be.disabled');
     });
