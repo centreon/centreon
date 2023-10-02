@@ -7,10 +7,13 @@ import {
   useNavigate
 } from 'react-router-dom';
 
+import { useSnackbar } from '@centreon/ui';
+
 import { Dashboard, isDashboard } from '../../api/models';
 import { useCreateDashboard } from '../../api/useCreateDashboard';
 import routeMap from '../../../reactRoutes/routeMap';
 import { useUpdateDashboard } from '../../api/useUpdateDashboard';
+import { labelDashboardUpdated } from '../../translatedLabels';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
@@ -50,6 +53,8 @@ const useDashboardConfig = (): UseDashboardConfig => {
     status: statusUpdateMutation
   } = useUpdateDashboard();
 
+  const { showSuccessMessage } = useSnackbar();
+
   const closeDialog = (): void =>
     setDialogState({ ...dialogState, isOpen: false });
 
@@ -79,7 +84,10 @@ const useDashboardConfig = (): UseDashboardConfig => {
     });
 
   const submit = async (dashboard: Dashboard): Promise<void> => {
-    setDialogState({ ...dialogState, isOpen: false });
+    setDialogState((currentDialogState) => ({
+      ...currentDialogState,
+      isOpen: false
+    }));
 
     const data =
       dialogState.variant === 'create'
@@ -90,8 +98,17 @@ const useDashboardConfig = (): UseDashboardConfig => {
       navigateToDashboard(data.id);
   };
 
+  const submitForm = (dashboard: Dashboard): void => {
+    submit(dashboard).then(() => {
+      showSuccessMessage(labelDashboardUpdated);
+    });
+  };
+
   useEffect(() => {
-    setDialogState({ ...dialogState, status: statusUpdateMutation });
+    setDialogState((currentDialogState) => ({
+      ...currentDialogState,
+      status: statusUpdateMutation
+    }));
 
     if (statusCreateMutation === 'success') resetCreateMutation();
     if (statusUpdateMutation === 'success') resetUpdateMutation();
@@ -104,7 +121,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
     editDashboard,
     isDialogOpen: dialogState.isOpen,
     status: dialogState.status,
-    submit,
+    submit: submitForm,
     variant: dialogState.variant
   };
 };
