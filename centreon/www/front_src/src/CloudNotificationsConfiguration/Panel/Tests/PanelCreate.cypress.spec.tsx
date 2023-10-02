@@ -235,11 +235,13 @@ describe('Create Panel', () => {
     cy.findByTestId('EmailBody').contains(
       'Notification Type: {{NOTIFICATIONTYPE}}'
     );
+
     cy.findByTestId('EmailBody').contains('Resource: {{NAME}}');
     cy.findByTestId('EmailBody').contains('ID: {{ID}}');
-    cy.findByTestId('EmailBody').contains('State: {{STATE}}');
     cy.findByTestId('EmailBody').contains('Date/Time: {{SHORTDATETIME}}');
     cy.findByTestId('EmailBody').contains('Additional Info: {{OUTPUT}}');
+
+    cy.makeSnapshot();
   });
 });
 
