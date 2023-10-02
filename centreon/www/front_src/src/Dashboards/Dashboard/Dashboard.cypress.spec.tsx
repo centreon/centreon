@@ -408,5 +408,7 @@ describe('Dashboard', () => {
 
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
