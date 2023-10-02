@@ -32,8 +32,8 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
-use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Utility\SqlConcatenator;
 

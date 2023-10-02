@@ -32,9 +32,9 @@ use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashb
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class PartialUpdateDashboardController extends AbstractController
 {

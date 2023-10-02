@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, UserResponseDto};
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, UserResponseDto};
 
 final class FindDashboardFactory
 {

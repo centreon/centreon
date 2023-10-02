@@ -43,7 +43,6 @@ use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh;
 
-
 final class PartialUpdateDashboard
 {
     use LoggerTrait;
