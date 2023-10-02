@@ -64,7 +64,7 @@ jobs:
               - '**/config/**'
               - '**/composer.*'
               - '**/tests/api/**'
-              - '**/tests/rest_api/collections**'
+              - '**/tests/rest_api/collections/**'
               - '**/tests/php/**'
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
