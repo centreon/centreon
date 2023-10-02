@@ -23,7 +23,7 @@ import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useWidgetPropertiesStyles();
+  const { classes, cx } = useWidgetPropertiesStyles();
 
   const { canEdit } = editProperties.useCanEditProperties();
 
@@ -51,13 +51,19 @@ const Preview = (): JSX.Element | null => {
           overflowY: 'auto'
         }}
       >
-        <Typography className={classes.previewTitle} variant="button">
+        <Typography
+          className={cx(classes.previewHeading, classes.previewTitle)}
+          variant="button"
+        >
           {values.options?.name}
         </Typography>
         {values.options?.description?.enabled && (
           <RichTextEditor
             disabled
-            contentClassName={classes.previewTitle}
+            contentClassName={cx(
+              classes.previewHeading,
+              classes.previewDescription
+            )}
             editable={false}
             editorState={
               values.options?.description?.enabled
@@ -72,8 +78,9 @@ const Preview = (): JSX.Element | null => {
               height: `${
                 (previewRef.current?.getBoundingClientRect().height || 0) -
                 16 -
-                38
-              }px`
+                46
+              }px`,
+              overflow: 'auto'
             }}
           >
             <FederatedComponent

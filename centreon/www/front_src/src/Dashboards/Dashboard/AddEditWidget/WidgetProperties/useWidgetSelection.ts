@@ -112,12 +112,13 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
-        description: shouldResetDescription
-          ? {
-              content: null,
-              enabled: true
-            }
-          : currentValues.options.description,
+        description:
+          shouldResetDescription || isNil(currentValues.options.description)
+            ? {
+                content: null,
+                enabled: true
+              }
+            : currentValues.options.description,
         name: currentValues.options.name,
         openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },
