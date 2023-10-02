@@ -127,7 +127,14 @@ const ResponsiveSingleBar = ({
   const springStyle = useSpring({ width: metricBarWidth });
 
   return (
-    <Box sx={{ height: '100%', position: 'relative', width: '100%' }}>
+    <Box
+      sx={{
+        height: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        width: '100%'
+      }}
+    >
       <svg height={height} ref={svgRef} width={width}>
         <Group.Group>
           {text}
