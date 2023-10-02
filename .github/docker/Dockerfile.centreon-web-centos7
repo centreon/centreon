@@ -28,7 +28,7 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/my.cnf.d/container.cnf
 
-curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.04/el7/stable/noarch/RPMS/centreon-release-22.04-3.el7.centos.noarch.rpm"
+curl -Lo centreon-release.rpm "https://yum.centreon.com/standard/22.04/el7/stable/noarch/RPMS/centreon-release-22.04-3.el7.centos.noarch.rpm"
 yum install -y centreon-release.rpm
 rm -f centreon-release.rpm
 yum-config-manager --enable 'centreon-testing*'

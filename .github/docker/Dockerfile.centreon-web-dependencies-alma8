@@ -12,7 +12,7 @@ dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-curl -o centreon-release.rpm https://yum.centreon.com/standard/22.04/el8/stable/noarch/RPMS/centreon-release-22.04-3.el8.noarch.rpm
+curl -Lo centreon-release.rpm https://yum.centreon.com/standard/22.04/el8/stable/noarch/RPMS/centreon-release-22.04-3.el8.noarch.rpm
 dnf install -y centreon-release.rpm
 rm -f centreon-release.rpm
 dnf config-manager --set-enabled 'centreon*'
