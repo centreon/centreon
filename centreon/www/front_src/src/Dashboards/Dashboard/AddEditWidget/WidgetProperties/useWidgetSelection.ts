@@ -16,6 +16,7 @@ import {
   federatedWidgetsPropertiesAtom
 } from '../../../../federatedModules/atoms';
 import { customBaseColorAtom, singleMetricSectionAtom } from '../atoms';
+import { isGenericText } from '../../utils';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -98,6 +99,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       }),
       {}
     );
+    const shouldResetDescription =
+      equals(values.moduleName, 'centreon-widget-generictext') &&
+      !isGenericText(selectedWidget.federatedComponentsConfiguration.path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
     setCustomBaseColor(selectedWidgetProperties.customBaseColor);
@@ -108,10 +112,12 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
-        description: currentValues.options.description || {
-          content: null,
-          enabled: true
-        },
+        description: shouldResetDescription
+          ? {
+              content: null,
+              enabled: true
+            }
+          : currentValues.options.description,
         name: currentValues.options.name,
         openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },

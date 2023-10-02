@@ -10,7 +10,6 @@ import {
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
-import { isGenericText } from '../../utils';
 import { editProperties } from '../../useCanEditDashboard';
 import useSaveDashboard from '../../useSaveDashboard';
 
@@ -41,29 +40,32 @@ const Panel = ({ id }: Props): JSX.Element => {
   };
 
   return useMemoComponent({
-    Component: isGenericText(panelConfigurations.path) ? (
-      <RichTextEditor
-        disabled
-        editable={false}
-        editorState={
-          panelOptionsAndData.options?.description?.enabled
-            ? panelOptionsAndData.options?.description?.content
-            : undefined
-        }
-      />
-    ) : (
-      <FederatedComponent
-        isFederatedWidget
-        canEdit={canEditField}
-        globalRefreshInterval={refreshInterval}
-        id={id}
-        isEditing={isEditing}
-        panelData={panelOptionsAndData?.data}
-        panelOptions={panelOptionsAndData?.options}
-        path={panelConfigurations.path}
-        saveDashboard={saveDashboard}
-        setPanelOptions={changePanelOptions}
-      />
+    Component: (
+      <>
+        {panelOptionsAndData.options?.description?.enabled && (
+          <RichTextEditor
+            disabled
+            editable={false}
+            editorState={
+              panelOptionsAndData.options?.description?.enabled
+                ? panelOptionsAndData.options?.description?.content
+                : undefined
+            }
+          />
+        )}
+        <FederatedComponent
+          isFederatedWidget
+          canEdit={canEditField}
+          globalRefreshInterval={refreshInterval}
+          id={id}
+          isEditing={isEditing}
+          panelData={panelOptionsAndData?.data}
+          panelOptions={panelOptionsAndData?.options}
+          path={panelConfigurations.path}
+          saveDashboard={saveDashboard}
+          setPanelOptions={changePanelOptions}
+        />
+      </>
     ),
     memoProps: [
       id,

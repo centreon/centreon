@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { RichTextEditor } from '@centreon/ui';
 
@@ -59,6 +59,7 @@ const WidgetRichTextEditor = ({
       initialEditorState={value || undefined}
       openLinkInNewTab={openLinksInNewTab}
       placeholder={t(label) as string}
+      resetEditorToInitialStateCondition={() => isNil(value)}
     />
   );
 };

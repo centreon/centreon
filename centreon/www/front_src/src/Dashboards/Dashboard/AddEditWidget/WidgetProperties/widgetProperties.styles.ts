@@ -9,6 +9,11 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     position: 'relative',
     width: '100%'
   },
+  previewTitle: {
+    display: 'block',
+    height: '19px',
+    lineHeight: 1
+  },
   previewUserRightPanel: {
     alignItems: 'center',
     backgroundColor: alpha(theme.palette.common.black, 0.6),
