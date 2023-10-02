@@ -66,26 +66,3 @@ runs:
           jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash
-
-    - name: Publish DEBS to Nexus
-      run: |
-        FILES="*.deb"
-
-        for FILE in $FILES
-        do
-          echo "[DEBUG] - File: $FILE"
-
-          VERSION=${{ inputs.version }}
-          DISTRIB=$(echo $FILE | cut -d '_' -f2 | cut -d '-' -f2)
-          ARCH=$(echo $FILE | cut -d '_' -f3 | cut -d '.' -f1)
-
-          echo "[DEBUG] - Version: $VERSION"
-
-          if [[ "${{ inputs.stability }}" == "stable" ]]; then
-            curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}/
-          else
-            curl --fail -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" https://apt.centreon.com/repository/${{ inputs.version }}-${{ inputs.stability }}/
-          fi
-
-        done
-      shell: bash
