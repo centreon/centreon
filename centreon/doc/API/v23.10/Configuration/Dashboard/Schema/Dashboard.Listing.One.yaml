@@ -51,7 +51,7 @@ properties:
     enum: [ viewer, editor ]
     description: "The role current user owns on this dashboard."
 
-  global_refresh:
+  refresh:
     type: object
     properties:
       refresh_type:

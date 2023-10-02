@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\Model;
 
-use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 
-class DashboardGlobalRefreshTypeConverter
+class RefreshTypeConverter
 {
     /**
-     * @param DashboardGlobalRefreshType $refreshType
+     * @param RefreshType $refreshType
      *
      * @return string
      */
-    public static function toString(DashboardGlobalRefreshType $refreshType): string
+    public static function toString(RefreshType $refreshType): string
     {
         return match ($refreshType) {
-            DashboardGlobalRefreshType::Global => 'global',
-            DashboardGlobalRefreshType::Manual => 'manual',
+            RefreshType::Global => 'global',
+            RefreshType::Manual => 'manual',
         };
     }
 
@@ -45,15 +45,15 @@ class DashboardGlobalRefreshTypeConverter
      *
      * @throws \InvalidArgumentException
      *
-     * @return DashboardGlobalRefreshType
+     * @return RefreshType
      */
-    public static function fromString(string $refreshType): DashboardGlobalRefreshType
+    public static function fromString(string $refreshType): RefreshType
     {
         return match ($refreshType) {
-            'global' => DashboardGlobalRefreshType::Global,
-            'manual' => DashboardGlobalRefreshType::Manual,
+            'global' => RefreshType::Global,
+            'manual' => RefreshType::Manual,
             default => throw new \InvalidArgumentException(
-                "\"{$refreshType}\" is not a valid string for enum DashboardGlobalRefreshType"
+                "\"{$refreshType}\" is not a valid string for enum RefreshType"
             )
         };
     }

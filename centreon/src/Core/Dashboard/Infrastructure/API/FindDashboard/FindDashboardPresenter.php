@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\API\FindDashboard;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInterface;
-use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\GlobalRefreshResponseDto;
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
-use Core\Dashboard\Infrastructure\Model\DashboardGlobalRefreshTypeConverter;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\RefreshResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInterface;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
@@ -51,7 +51,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                 'panels' => array_map($this->panelToArray(...), $data->panels),
                 'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
-                'global_refresh' => $this->globalRefreshToArray($data->globalRefresh),
+                'refresh' => $this->globalRefreshToArray($data->refresh),
             ]);
         } else {
             $this->setResponseStatus($data);
@@ -95,11 +95,16 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
         ];
     }
 
-    private function globalRefreshToArray(GlobalRefreshResponseDto $globalRefresh): array
+    /**
+     * @param RefreshResponseDto $refresh
+     *
+     * @return array
+     */
+    private function globalRefreshToArray(RefreshResponseDto $refresh): array
     {
         return [
-            'refresh_type' => DashboardGlobalRefreshTypeConverter::toString($globalRefresh->refreshType),
-            'refresh_interval' => $globalRefresh->refreshInterval,
+            'refresh_type' => RefreshTypeConverter::toString($refresh->refreshType),
+            'refresh_interval' => $refresh->refreshInterval,
         ];
     }
 }

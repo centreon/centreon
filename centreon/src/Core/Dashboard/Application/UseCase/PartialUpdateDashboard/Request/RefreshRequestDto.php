@@ -21,35 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Domain\Model;
+namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
 
-use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 
-class DashboardGlobalRefresh
+final class RefreshRequestDto
 {
-    /**
-     * @param DashboardGlobalRefreshType $refreshType
-     * @param int|null $refreshInterval
-     */
     public function __construct(
-        private readonly DashboardGlobalRefreshType $refreshType,
-        private readonly ?int $refreshInterval
+        public RefreshType $refreshType = RefreshType::Global,
+        public ?int $refreshInterval = null,
     ) {
-    }
-
-    /**
-     * @return DashboardGlobalRefreshType
-     */
-    public function getRefreshType(): DashboardGlobalRefreshType
-    {
-        return $this->refreshType;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getRefreshInterval(): ?int
-    {
-        return $this->refreshInterval;
     }
 }

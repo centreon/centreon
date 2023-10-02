@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Common\Infrastructure\Repository\RepositoryTrait;
-use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\NewDashboard;
-use Core\Dashboard\Infrastructure\Model\DashboardGlobalRefreshTypeConverter;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 
 class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteDashboardRepositoryInterface
 {
@@ -114,12 +114,12 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
         $statement->bindValue(':dashboard_id', $dashboard->getId(), \PDO::PARAM_INT);
         $statement->bindValue(
             ':global_refresh_type',
-            DashboardGlobalRefreshTypeConverter::toString($dashboard->getGlobalRefresh()->getRefreshType()),
+            RefreshTypeConverter::toString($dashboard->getRefresh()->getRefreshType()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':global_refresh_interval',
-            $dashboard->getGlobalRefresh()->getRefreshInterval(),
+            $dashboard->getRefresh()->getRefreshInterval(),
             \PDO::PARAM_INT
         );
         $this->bindValueOfDashboard($statement, $dashboard);

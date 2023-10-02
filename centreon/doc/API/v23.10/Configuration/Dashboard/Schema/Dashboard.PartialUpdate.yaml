@@ -22,7 +22,7 @@ properties:
         - $ref: 'Panel/DashboardPanel.WithoutId.yaml'
         - $ref: 'Panel/DashboardPanel.IdOptional.yaml'
 
-  global_refresh:
+  refresh:
     type: object
     properties:
       refresh_type:

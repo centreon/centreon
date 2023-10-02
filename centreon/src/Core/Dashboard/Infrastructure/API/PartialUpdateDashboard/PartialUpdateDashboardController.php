@@ -23,17 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\PartialUpdateDashboard;
 
-use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\GlobalRefreshRequestDto;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
 
 final class PartialUpdateDashboardController extends AbstractController
 {
@@ -134,11 +135,13 @@ final class PartialUpdateDashboardController extends AbstractController
         }
 
         if (\array_key_exists('global_refresh', $dataSent)) {
-            $dtoGlobalRefresh = new GlobalRefreshRequestDto();
-            $dtoGlobalRefresh->refreshType = $dataSent['global_refresh']['refresh_type'];
+            $dtoGlobalRefresh = new RefreshRequestDto();
+            $dtoGlobalRefresh->refreshType = RefreshTypeConverter::fromString(
+                $dataSent['global_refresh']['refresh_type']
+            );
             $dtoGlobalRefresh->refreshInterval = $dataSent['global_refresh']['refresh_interval'];
 
-            $dto->globalRefresh = $dtoGlobalRefresh;
+            $dto->refresh = $dtoGlobalRefresh;
         }
 
         return $dto;

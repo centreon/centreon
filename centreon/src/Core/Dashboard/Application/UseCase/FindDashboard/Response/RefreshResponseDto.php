@@ -21,10 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Domain\Model\Refresh;
+namespace Core\Dashboard\Application\UseCase\FindDashboard\Response;
 
-enum DashboardGlobalRefreshType
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+
+final class RefreshResponseDto
 {
-    case Global;
-    case Manual;
+    public RefreshType $refreshType = RefreshType::Global;
+
+    public ?int $refreshInterval = null;
 }

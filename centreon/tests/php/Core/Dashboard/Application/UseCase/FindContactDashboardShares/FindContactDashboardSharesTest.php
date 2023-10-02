@@ -34,9 +34,9 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindContactDashboardShares\FindContactDashboardShares;
 use Core\Dashboard\Application\UseCase\FindContactDashboardShares\FindContactDashboardSharesResponse;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
@@ -58,10 +58,7 @@ beforeEach(function (): void {
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
-        new DashboardGlobalRefresh(
-            DashboardGlobalRefreshType::Global,
-            null,
-        )
+        new Refresh(RefreshType::Global, null),
     );
 
     $this->testedContact = $this->createMock(Contact::class);

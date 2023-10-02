@@ -28,12 +28,12 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Core\Dashboard\Domain\Model\Refresh;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
@@ -67,10 +67,7 @@ beforeEach(function (): void {
         $this->testedDashboardUpdatedBy = random_int(1, 1_000_000),
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
-        $this->testedDashboardGlobalRefresh = new DashboardGlobalRefresh(
-            DashboardGlobalRefreshType::Global,
-            null,
-        )
+        $this->testedDashboardGlobalRefresh = new Refresh(RefreshType::Global, null)
     );
 });
 

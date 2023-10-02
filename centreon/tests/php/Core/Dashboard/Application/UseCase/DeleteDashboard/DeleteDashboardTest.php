@@ -29,10 +29,10 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Core\Dashboard\Domain\Model\Refresh;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
@@ -56,10 +56,7 @@ beforeEach(function (): void {
         $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
-        $this->testedDashboardGlobalRefresh = new DashboardGlobalRefresh(
-            DashboardGlobalRefreshType::Global,
-            null,
-        )
+        $this->testedDashboardGlobalRefresh = new Refresh(RefreshType::Global, null),
     );
 });
 

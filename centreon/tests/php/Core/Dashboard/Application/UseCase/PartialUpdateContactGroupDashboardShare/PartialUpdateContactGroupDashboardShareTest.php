@@ -30,11 +30,11 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Dashboard\Domain\Model\DashboardGlobalRefresh;
+use Core\Dashboard\Domain\Model\Refresh;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Domain\Model\Refresh\DashboardGlobalRefreshType;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -61,10 +61,7 @@ beforeEach(closure: function (): void {
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
-        new DashboardGlobalRefresh(
-            DashboardGlobalRefreshType::Global,
-            null,
-        )
+        new Refresh(RefreshType::Global, null),
     );
 
     $this->testedContactGroup = $this->createMock(ContactGroup::class);

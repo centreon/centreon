@@ -68,7 +68,7 @@
                 }
             }
         },
-        "global_refresh": {
+        "refresh": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
