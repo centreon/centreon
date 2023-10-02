@@ -13,7 +13,7 @@ import {
 
 import useThresholds from '../../useThresholds';
 
-import { FormThreshold, ServiceMetric } from './models';
+import { FormThreshold, ServiceMetric, ValueFormat } from './models';
 import {
   labelCritical,
   labelNoDataFound,
