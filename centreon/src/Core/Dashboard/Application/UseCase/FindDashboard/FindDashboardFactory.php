@@ -27,9 +27,7 @@ use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
-use Core\Dashboard\Application\UseCase\FindDashboard\Response\RefreshResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, UserResponseDto};
 
 final class FindDashboardFactory
 {

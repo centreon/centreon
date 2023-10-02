@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\NewDashboard;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 
 class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteDashboardRepositoryInterface
 {

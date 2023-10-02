@@ -40,9 +40,9 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Dashboard\Domain\Model\Refresh;
+
 
 final class PartialUpdateDashboard
 {

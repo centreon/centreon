@@ -23,19 +23,19 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\Repository;
 
-use Utility\SqlConcatenator;
 use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Utility\SqlConcatenator;
 
 /**
  * @phpstan-type DashboardResultSet array{

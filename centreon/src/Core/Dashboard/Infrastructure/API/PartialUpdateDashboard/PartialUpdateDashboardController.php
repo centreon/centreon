@@ -23,18 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\PartialUpdateDashboard;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
-use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 final class PartialUpdateDashboardController extends AbstractController
 {
