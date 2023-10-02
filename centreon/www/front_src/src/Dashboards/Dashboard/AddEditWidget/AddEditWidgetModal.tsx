@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
 import { isNil } from 'ramda';
@@ -6,8 +8,13 @@ import { Paper } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelAddWidget, labelEditWidget } from '../translatedLabels';
+import {
+  labelAddWidget,
+  labelEditWidget,
+  labelViewWidgetProperties
+} from '../translatedLabels';
 import Title from '../../components/Title';
+import { editProperties } from '../useCanEditDashboard';
 
 import useWidgetForm from './useWidgetModal';
 import { useAddWidgetStyles } from './addWidget.styles';
@@ -29,6 +36,8 @@ const AddWidgetModal = (): JSX.Element | null => {
 
   const { classes } = useAddWidgetStyles();
 
+  const { canEditField } = editProperties.useCanEditProperties();
+
   const {
     widgetFormInitialData,
     setAskingBeforeCloseModal,
@@ -40,6 +49,14 @@ const AddWidgetModal = (): JSX.Element | null => {
   } = useWidgetForm();
 
   const isAddingWidget = isNil(widgetFormInitialData?.id);
+
+  const getTitle = useCallback((): string => {
+    if (!isAddingWidget && !canEditField) {
+      return labelViewWidgetProperties;
+    }
+
+    return isAddingWidget ? labelAddWidget : labelEditWidget;
+  }, [canEditField, isAddingWidget]);
 
   if (!widgetFormInitialData) {
     return null;
@@ -64,9 +81,7 @@ const AddWidgetModal = (): JSX.Element | null => {
           onClose={() => askBeforeCloseModal(dirty)}
         >
           <Modal.Header>
-            <Title>
-              {t(isAddingWidget ? labelAddWidget : labelEditWidget)}
-            </Title>
+            <Title>{t(getTitle())}</Title>
           </Modal.Header>
           <>
             <Modal.Body>
