@@ -497,10 +497,14 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
             'name' => 'service.service_description',
-            'host' => 'host.host_name',
-            'category' => 'category.sc_name',
-            'severity' => 'severity.sc_name',
-            'group' => 'servicegroup.sg_name',
+            'host.id' => 'host.host_id',
+            'host.name' => 'host.host_name',
+            'category.id' => 'category.sc_id',
+            'category.name' => 'category.sc_name',
+            'severity.id' => 'severity.sc_id',
+            'severity.name' => 'severity.sc_name',
+            'group.id' => 'servicegroup.sg_id',
+            'group.name' => 'servicegroup.sg_name',
         ]);
         $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator->translateForConcatenator($concatenator);

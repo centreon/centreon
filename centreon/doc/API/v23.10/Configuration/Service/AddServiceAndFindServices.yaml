@@ -39,10 +39,14 @@ get:
     The available parameters to **search** by are:
 
     * name
-    * host
-    * category
-    * severity
-    * group
+    * host.id
+    * host.name
+    * category.id
+    * category.name
+    * severity.id
+    * severity.name
+    * group.id
+    * group.name
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
     - $ref: '../../Common/QueryParameter/Page.yaml'
