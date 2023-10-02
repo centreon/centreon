@@ -5,11 +5,5 @@ export const useGraphStyles = makeStyles()((theme) => ({
     height: '100%',
     paddingTop: theme.spacing(5)
   },
-  graphContainer: { height: '100%', position: 'relative' },
-  title: {
-    display: 'flex',
-    justifyContent: 'center',
-    position: 'absolute',
-    width: '100%'
-  }
+  graphContainer: { height: '100%', position: 'relative' }
 }));
