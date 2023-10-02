@@ -231,7 +231,6 @@ jobs:
         uses: ./.github/actions/publish-report
         with:
           path: "centreon/junit.xml"
-          
   frontend-component-test:
     needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
@@ -492,7 +491,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-     needs: [get-version, changes, dockerize]
+     needs: [get-version, dockerize]
      if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
      uses: ./.github/workflows/newman.yml
      with:
