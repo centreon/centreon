@@ -51,6 +51,7 @@ const Preview = (): JSX.Element | null => {
       >
         {isGenericText(values.panelConfiguration?.path) ? (
           <RichTextEditor
+            disabled
             editable={false}
             editorState={
               values.options?.description?.enabled

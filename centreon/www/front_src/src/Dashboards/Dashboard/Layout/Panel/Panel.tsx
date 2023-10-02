@@ -43,6 +43,7 @@ const Panel = ({ id }: Props): JSX.Element => {
   return useMemoComponent({
     Component: isGenericText(panelConfigurations.path) ? (
       <RichTextEditor
+        disabled
         editable={false}
         editorState={
           panelOptionsAndData.options?.description?.enabled
