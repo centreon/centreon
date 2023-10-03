@@ -226,23 +226,6 @@ it('should return trimmed and formatted name field after construct', function ()
     expect($service->getName())->toBe('service name');
 });
 
-// foreach (
-//     [
-//         'commandArguments',
-//         'eventHandlerArguments',
-//     ] as $field
-// ) {
-//     it(
-//         "should return a trimmed field {$field}",
-//         function () use ($field): void {
-//             $service = ($this->createService)([$field => ["  arg1  ", "  arg2  "]]);
-//             $valueFromGetter = $service->{'get' . $field}();
-
-//             expect($valueFromGetter)->toBe(['arg1', 'arg2']);
-//         }
-//     );
-// }
-
 foreach (
     [
         'name',
