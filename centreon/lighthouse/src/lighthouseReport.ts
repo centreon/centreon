@@ -10,6 +10,7 @@ import { generateReportForAuthenticationPage } from './pages/authentication';
 import { baseConfig } from './defaults';
 import type { NavigateProps } from './models';
 import { generateReportForDashboardsPage } from './pages/dashboards';
+import { generateReportForNotificationsPage } from './pages/notifications';
 
 const createReportFile = async (report): Promise<void> => {
   const lighthouseFolderExists = fs.existsSync('report');
@@ -75,6 +76,14 @@ const captureReport = async (): Promise<void> => {
   });
 
   await generateReportForDashboardsPage({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan,
+  });
+
+  await generateReportForNotificationsPage({
     endTimespan,
     navigate,
     page,
