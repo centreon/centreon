@@ -90,8 +90,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 d.updated_by,
                 d.created_at,
                 d.updated_at,
-                d.global_refresh_type,
-                d.global_refresh_interval
+                d.refresh_type,
+                d.refresh_interval
             FROM
                 `:db`.`dashboard` d
             WHERE
@@ -155,8 +155,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 d.updated_by,
                 d.created_at,
                 d.updated_at,
-                d.global_refresh_type,
-                d.global_refresh_interval
+                d.refresh_type,
+                d.refresh_interval
             FROM `:db`.`dashboard` d
             LEFT JOIN (
                 SELECT DISTINCT dcgr.`dashboard_id` as `id`
@@ -262,8 +262,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                         d.updated_by,
                         d.created_at,
                         d.updated_at,
-                        d.global_refresh_type,
-                        d.global_refresh_interval
+                        d.refresh_type,
+                        d.refresh_interval
                     SQL
             )
             ->defineFrom(
@@ -328,8 +328,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             createdAt: $this->timestampToDateTimeImmutable($result['created_at']),
             updatedAt: $this->timestampToDateTimeImmutable($result['updated_at']),
             refresh: new Refresh(
-                RefreshTypeConverter::fromString((string) $result['global_refresh_type']),
-                $result['global_refresh_interval'],
+                RefreshTypeConverter::fromString((string) $result['refresh_type']),
+                $result['refresh_interval'],
             )
         );
     }
