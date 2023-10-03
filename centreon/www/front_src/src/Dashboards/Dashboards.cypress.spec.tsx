@@ -12,11 +12,17 @@ import { Method } from '@centreon/js-config/cypress/component/commands';
 import { DashboardRole } from './api/models';
 import { DashboardsPage } from './DashboardsPage';
 import { dashboardsEndpoint } from './api/endpoints';
+import {
+  labelCreate,
+  labelName,
+  labelWelcomeToDashboardInterface
+} from './translatedLabels';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
   canCreateDashboard?: boolean;
   canViewDashboard?: boolean;
+  emptyList?: boolean;
   globalRole?: DashboardGlobalRole;
   ownRole?: DashboardRole;
 }
@@ -25,7 +31,8 @@ const initializeAndMount = ({
   globalRole = DashboardGlobalRole.administrator,
   canCreateDashboard = true,
   canViewDashboard = true,
-  canAdministrateDashboard = true
+  canAdministrateDashboard = true,
+  emptyList
 }: InitializeAndMountProps): ReturnType<typeof createStore> => {
   const store = createStore();
 
@@ -47,13 +54,38 @@ const initializeAndMount = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
+  cy.fixture(
+    `Dashboards/${emptyList ? 'emptyDashboards' : 'dashboards'}.json`
+  ).then((dashboards) => {
     cy.interceptAPIRequest({
       alias: 'getDashboards',
       method: Method.GET,
       path: `${dashboardsEndpoint}?**`,
       response: dashboards
     });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postDashboards',
+    method: Method.POST,
+    path: dashboardsEndpoint,
+    response: {
+      created_at: '',
+      created_by: {
+        id: 1,
+        name: 'User 1'
+      },
+      description: null,
+      id: 1,
+      name: 'My Dashboard',
+      own_role: 'editor',
+      updated_at: '',
+      updated_by: {
+        id: 1,
+        name: 'User 1'
+      }
+    },
+    statusCode: 201
   });
 
   cy.mount({
@@ -160,5 +192,39 @@ describe('Dashboards', () => {
 
       cy.makeSnapshot();
     });
+  });
+
+  it('displays a welcome label when the dashboard library is empty', () => {
+    initializeAndMount({
+      ...administratorRole,
+      emptyList: true
+    });
+
+    cy.contains(labelWelcomeToDashboardInterface).should('be.visible');
+    cy.findByLabelText('create').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it.only('creates a dashboard when the corresponding button is clicked and the title is filled', () => {
+    initializeAndMount({
+      ...administratorRole,
+      emptyList: true
+    });
+
+    cy.findByLabelText('create').click();
+
+    cy.findByLabelText(labelName).type('My Dashboard');
+
+    cy.makeSnapshot();
+
+    cy.viewport('macbook-13');
+
+    cy.findByLabelText(labelCreate).click();
+    cy.waitForRequest('@postDashboards');
+    cy.url().should(
+      'equal',
+      'http://localhost:9092/home/dashboards/1?edit=true'
+    );
   });
 });
