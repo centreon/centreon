@@ -1,5 +1,7 @@
 import { SelectEntry } from '@centreon/ui';
 
+import { Metric } from '../../models';
+
 export interface Resource {
   criticalHighThreshold: number | null;
   criticalLowThreshold: number | null;
@@ -18,15 +20,6 @@ export interface MetricsTop {
   unit: string;
 }
 
-export interface NamedEntity {
-  id: number;
-  name: string;
-}
-
-export interface Metric extends NamedEntity {
-  unit: string;
-}
-
 export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
@@ -40,7 +33,7 @@ export interface WidgetDataResource {
 }
 
 export interface Data {
-  metric: Metric;
+  metrics: Array<Metric>;
   resources: Array<WidgetDataResource>;
 }
 

@@ -2,16 +2,16 @@ import { equals } from 'ramda';
 
 import { LoadingSkeleton } from '@centreon/ui';
 
-import { FormThreshold } from '../../models';
+import { FormThreshold, Metric } from '../../models';
 
-import { Metric, TopBottomSettings, WidgetDataResource } from './models';
+import { TopBottomSettings, WidgetDataResource } from './models';
 import useTopBottom from './useTopBottom';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';
 
 interface TopBottomProps {
   globalRefreshInterval?: number;
-  metric: Metric;
+  metrics: Array<Metric>;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<WidgetDataResource>;
@@ -21,7 +21,7 @@ interface TopBottomProps {
 }
 
 const TopBottom = ({
-  metric,
+  metrics,
   refreshInterval,
   topBottomSettings,
   globalRefreshInterval,
@@ -34,7 +34,7 @@ const TopBottom = ({
 
   const { isLoading, metricsTop } = useTopBottom({
     globalRefreshInterval,
-    metric,
+    metrics,
     refreshInterval,
     refreshIntervalCustom,
     resources,

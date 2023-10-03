@@ -1,12 +1,13 @@
-interface NamedEntity {
-  id: number;
-  name: string;
+import { SelectEntry } from '../..';
+
+export interface Resource {
+  resourceType: string;
+  resources: Array<SelectEntry>;
 }
 
-interface Metric extends NamedEntity {
-  unit: string;
-}
-
-export interface ServiceMetric extends NamedEntity {
-  metrics: Array<Metric>;
+export enum WidgetResourceType {
+  host = 'host',
+  hostCategory = 'host-category',
+  hostGroup = 'host-group',
+  service = 'service'
 }

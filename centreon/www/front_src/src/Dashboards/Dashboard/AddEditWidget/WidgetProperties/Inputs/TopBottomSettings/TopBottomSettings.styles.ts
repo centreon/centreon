@@ -7,6 +7,7 @@ export const useTopBottomSettingsStyles = makeStyles()((theme) => ({
   toggleButtonGroup: {
     '& button': {
       border: 'none',
+      borderRadius: '2px',
       color: theme.palette.primary.main
     },
     '& button[aria-pressed="true"]': {

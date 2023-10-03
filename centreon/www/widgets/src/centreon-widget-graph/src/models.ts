@@ -1,18 +1,8 @@
-export interface NamedEntity {
-  id: number;
-  name: string;
-}
-
-export interface Metric extends NamedEntity {
-  unit: string;
-}
-
-export interface ServiceMetric extends NamedEntity {
-  metrics: Array<Metric>;
-}
+import { Metric, Resource } from '../../models';
 
 export interface Data {
-  metrics: Array<ServiceMetric>;
+  metrics: Array<Metric>;
+  resources: Array<Resource>;
 }
 
 export interface FormTimePeriod {
