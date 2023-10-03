@@ -206,7 +206,7 @@ describe('Dashboards', () => {
     cy.makeSnapshot();
   });
 
-  it.only('creates a dashboard when the corresponding button is clicked and the title is filled', () => {
+  it('creates a dashboard when the corresponding button is clicked and the title is filled', () => {
     initializeAndMount({
       ...administratorRole,
       emptyList: true
