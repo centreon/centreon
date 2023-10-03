@@ -76,6 +76,8 @@ class Conditions implements SecurityAccessInterface
         $this->loginLogger->info($scope, 'Configured attribute path found', $authenticationAttributePath);
         $this->loginLogger->info($scope, 'Configured authorized values', $localConditions);
 
+        $userMatchConditions = false;
+
         foreach ($authenticationAttributePath as $attribute) {
             $providerAuthenticationConditions = [];
             if (array_key_exists($attribute, $identityProviderData)) {
@@ -109,9 +111,12 @@ class Conditions implements SecurityAccessInterface
         }
 
         $conditionMatches = array_intersect($providerAuthenticationConditions, $localConditions);
-        if (empty($conditionMatches)) {
+        if (count($conditionMatches) === count($localConditions)) {
+            $this->info('All conditions matched', ['conditions' => $conditionMatches]);
+            $this->loginLogger->info($scope, 'All conditions matched', $conditionMatches);
+        } else {
             $this->error(
-                'Configured attribute value not found in conditions endpoint',
+                'Not all conditions matched',
                 [
                     'configured_authorized_values' => $authenticationConditions->getAuthorizedValues(),
                 ]
@@ -119,7 +124,7 @@ class Conditions implements SecurityAccessInterface
 
             $this->loginLogger->exception(
                 $scope,
-                'Configured attribute value not found in conditions endpoint: %s, message: %s',
+                'Not all conditions matched',
                 AuthenticationConditionsException::conditionsNotFound()
             );
 
