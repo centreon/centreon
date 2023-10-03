@@ -104,20 +104,22 @@ jobs:
         collection_name=$(basename "$collection_file" .postman_collection.json)
         collection_directory="$(dirname "$collection_file")"
         environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
-         if [ -f "$environment_file" ]; then
-          pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" || true
-         else
-          echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
-          exit 1
-        fi
+          if [ -f "$environment_file" ]; then
+            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+          else
+            echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
+            exit 1
+          fi
 
     - name: Upload HTML Reports
+      if: failure()
       uses: actions/upload-artifact@v3
       with:
         name: postman-html-reports
         path: centreon/tests/rest_api/newman/
 
     - name: Extract and Store Summaries
+      if: failure()
       run: |
         declare -A json_info
         for summary_file in ./postman_summaries/*.json; do
@@ -133,6 +135,7 @@ jobs:
         done
 
     - name: Generate and Display Summaries
+      if: failure()
       run: |
         summaries=""
         has_failures=false
@@ -164,8 +167,4 @@ jobs:
 
         if [ -n "$summaries" ]; then
             echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
-        fi
-
-        if [ "$has_failures" = true ]; then
-           exit 1
         fi
