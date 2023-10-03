@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
@@ -45,7 +45,8 @@ const AddWidgetModal = (): JSX.Element | null => {
     editWidget,
     askBeforeCloseModal,
     askingBeforeCloseModal,
-    discardChanges
+    discardChanges,
+    closeModal
   } = useWidgetForm();
 
   const isAddingWidget = isNil(widgetFormInitialData?.id);
@@ -57,6 +58,12 @@ const AddWidgetModal = (): JSX.Element | null => {
 
     return isAddingWidget ? labelAddWidget : labelEditWidget;
   }, [canEditField, isAddingWidget]);
+
+  useEffect(() => {
+    return () => {
+      closeModal();
+    };
+  }, []);
 
   if (!widgetFormInitialData) {
     return null;

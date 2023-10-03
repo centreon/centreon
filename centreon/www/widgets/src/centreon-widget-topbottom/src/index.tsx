@@ -30,7 +30,7 @@ const Widget = ({
     <Module maxSnackbars={1} seedName="topbottom" store={store}>
       <TopBottom
         globalRefreshInterval={globalRefreshInterval}
-        metric={panelData.metric}
+        metrics={panelData.metrics}
         refreshInterval={panelOptions.refreshInterval}
         refreshIntervalCustom={panelOptions.refreshIntervalCustom}
         resources={panelData.resources}
