@@ -51,7 +51,6 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 export interface SubMenuProps {
-  closeSubMenu?: () => void;
   items: Array<{
     countTestId?: string;
     onClick: (e: React.MouseEvent) => void;
@@ -60,9 +59,10 @@ export interface SubMenuProps {
     submenuTitle: string;
     to: string;
   }>;
+  onClose?: () => void;
 }
 
-const SubMenu = ({ items, closeSubMenu }: SubMenuProps): JSX.Element => {
+const SubMenu = ({ items, onClose }: SubMenuProps): JSX.Element => {
   const { classes, theme } = useStyles();
 
   return (
@@ -81,7 +81,7 @@ const SubMenu = ({ items, closeSubMenu }: SubMenuProps): JSX.Element => {
             className={classes.submenuItem}
             key={to}
             role="none"
-            onClick={closeSubMenu}
+            onClick={onClose}
           >
             <Link
               className={classes.link}

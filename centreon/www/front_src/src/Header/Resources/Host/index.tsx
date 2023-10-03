@@ -41,10 +41,7 @@ const HostStatusCounter = (): JSX.Element | null => {
         <TopCounterResourceCounters counters={data.counters} />
       )}
       renderSubMenu={({ closeSubMenu }): JSX.Element => (
-        <TopCounterResourceSubMenu
-          closeSubMenu={closeSubMenu}
-          items={data.items}
-        />
+        <TopCounterResourceSubMenu items={data.items} onClose={closeSubMenu} />
       )}
       showPendingBadge={data.hasPending}
       title={data.buttonLabel}
