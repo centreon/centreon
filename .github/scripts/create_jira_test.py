@@ -4,12 +4,35 @@ import json
 import requests
 import os
 import sys
+def get_xray_token(client_id, client_secret):
+    # Define the curl command
+    curl_command = [
+        "curl",
+        "-H", "Content-Type: application/json",
+        "-X", "POST",
+        "--data", f'{{ "client_id": "{client_id}", "client_secret": "{client_secret}" }}',
+        "https://xray.cloud.getxray.app/api/v1/authenticate"
+    ]
+
+    try:
+        result = subprocess.check_output(curl_command, stderr=subprocess.STDOUT, text=True)
+        print("Authentication successful")
+        # Split the response to extract the Xray token
+        xray_token = result.strip().split('"')[1]  # Extract the token part
+        return xray_token
+    except subprocess.CalledProcessError as e:
+        print("Authentication failed")
+        print(e.output)
+        return None
 
 
 # Constants
 JIRA_USER = os.environ.get('JIRA_USER')
 JIRA_TOKEN_TEST = os.environ.get('JIRA_TOKEN_TEST')
-XRAY_TOKEN = os.environ.get('XRAY_TOKEN')
+CLIENT_ID = "DB1C58D167BC4BE798DCFB8CA1C712B9"
+CLIENT_SECRET = "296443a35f9c668c86c362f57d3b87ef9327d75825d3aa7f22426bcaf9e874cf"
+
+XRAY_TOKEN = get_xray_token(CLIENT_ID,CLIENT_SECRET)
 
 XRAY_API_URL = "https://xray.cloud.getxray.app/api/v2/import/feature?projectKey=MON"
 GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql"
@@ -19,6 +42,7 @@ branch_to_target = {
     'MON-20381-Integrate-E2E-tests-from-GHA-to-XRay' : 'Cloud'
     # Add more mappings as needed
 }
+
 
 def get_target_version(branch_name):
     # Use regular expression to extract the version number
@@ -109,11 +133,33 @@ def upload_feature_file_to_xray(feature_file_path):
 def update_jira_issues(test_selfs, target_version, components_list):
     for api in test_selfs:
         try:
-            issue_update_payload = {
-                "fields": {
-                    "customfield_10901": [{"value": target_version}]
+              # Get the existing issue data
+            jira_response = requests.get(api, headers={
+                "Accept": "application/json"
+            }, auth=(JIRA_USER, JIRA_TOKEN_TEST))
+
+            if jira_response.status_code == 200:
+                existing_issue_data = jira_response.json()
+                existing_customfield_10901 = existing_issue_data['fields'].get('customfield_10901', [])
+
+                 # Extract the existing values or initialize as an empty list if null
+                existing_values = [item['value'] for item in existing_customfield_10901] if existing_customfield_10901 else []
+
+                print("Existing values of version : ",existing_values)
+
+                # Add the target_version if it doesn't exist
+                if target_version not in existing_values:
+                    existing_values.append(target_version)
+
+                print("the new target version is : ",existing_values)
+
+                issue_update_payload = {
+                    "fields": {
+                        "customfield_10901": [{"value": value} for value in existing_values]
+                    }
                 }
-            }
+
+                print("the issue update is : ",issue_update_payload)
 
             if components_list:
                 issue_update_payload["fields"]["components"] = [{"name": component} for component in components_list]
