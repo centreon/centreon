@@ -90,10 +90,10 @@ const useStyles = makeStyles<StylesProps>()(
       })
     },
     caretLess: {
-      transform: 'rotate3d(0,0,1,180deg)'
+      transform: 'rotate3d(0,0,1,0deg)'
     },
     caretMore: {
-      transform: 'rotate3d(0,0,1,0deg)'
+      transform: 'rotate3d(0,0,1,180deg)'
     },
     fakeCaret: {
       marginLeft: theme.spacing(3)

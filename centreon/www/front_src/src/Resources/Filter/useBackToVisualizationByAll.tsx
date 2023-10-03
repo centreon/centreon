@@ -1,35 +1,53 @@
 import { useEffect, useRef } from 'react';
 
-import { useAtomValue, useAtom } from 'jotai';
-import { cond, equals, isNil, or } from 'ramda';
+import { useAtomValue, useAtom, useSetAtom } from 'jotai';
+import { and, equals, isNil, or } from 'ramda';
 
 import { Visualization } from '../models';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
+import { defaultSelectedColumnIds } from '../Listing/columns';
 
-import { searchAtom } from './filterAtoms';
+import { applyCurrentFilterDerivedAtom, searchAtom } from './filterAtoms';
 
 const useBackToVisualizationByAll = (): void => {
   const [visualization, setVisualization] = useAtom(selectedVisualizationAtom);
   const search = useAtomValue(searchAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
 
-  const match = search.match(/^type:[^ ]+/);
+  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
+  const initialRender = useRef(true);
 
-  const isSearchIncludesTypeHost = match?.[0].includes('host');
+  const isViewByHost = equals(visualization, Visualization.Host);
+  const isViewByService = equals(visualization, Visualization.Service);
+  const isViewByAll = or(isViewByHost, isViewByService);
 
-  const isSearchIncludesTypesService = [
-    'service',
-    'metaservice',
-    'anomaly-detection'
-  ].some((type) => match?.[0]?.includes(type));
-  const mustBackToVisualizationByAll = or(
-    cond([
-      [equals(Visualization.Service), () => isSearchIncludesTypeHost],
-      [equals(Visualization.Host), () => isSearchIncludesTypesService]
-    ])(visualization),
-    isNil(match)
+  const searchType = search.match(/^type:[^ ]+/);
+
+  const isSearchIncludesTypeHost =
+    isViewByService && searchType?.[0].includes('host');
+
+  const isSearchIncludesTypesService =
+    isViewByHost &&
+    ['service', 'metaservice', 'anomaly-detection'].some((type) =>
+      searchType?.[0].includes(type)
+    );
+
+  const isSearchIncludesOtherTypes = or(
+    isSearchIncludesTypeHost,
+    isSearchIncludesTypesService
   );
 
-  const initialRender = useRef(true);
+  const mustBackToVisualizationByAll = and(
+    isViewByAll,
+    or(isSearchIncludesOtherTypes, isNil(searchType))
+  );
+
+  const selectVisualizationByAll = (): void => {
+    applyCurrentFilter();
+    setSelectedColumnIds(defaultSelectedColumnIds);
+    setVisualization(Visualization.All);
+  };
 
   useEffect(() => {
     if (initialRender.current) {
@@ -41,7 +59,8 @@ const useBackToVisualizationByAll = (): void => {
     if (!mustBackToVisualizationByAll) {
       return;
     }
-    setVisualization(Visualization.All);
+
+    selectVisualizationByAll();
   }, [search]);
 };
 
