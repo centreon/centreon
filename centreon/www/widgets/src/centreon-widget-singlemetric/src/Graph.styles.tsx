@@ -1,9 +1,8 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useGraphStyles = makeStyles()((theme) => ({
+export const useGraphStyles = makeStyles()({
   content: {
-    height: '100%',
-    paddingTop: theme.spacing(5)
+    height: '100%'
   },
   graphContainer: { height: '100%', position: 'relative' }
-}));
+});
