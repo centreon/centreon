@@ -400,6 +400,36 @@ export default (): void =>
           cy.makeSnapshot();
         });
 
+        it('closes the submenu when clicking on the poller button', () => {
+          initialize({
+            navigationList: {
+              result: [
+                {
+                  children: [
+                    {
+                      groups: [],
+                      is_react: false,
+                      label: 'Resources Status',
+                      options: null,
+                      page: pollerConfigurationPageNumber,
+                      show: true,
+                      url: '/config/'
+                    }
+                  ]
+                }
+              ]
+            }
+          });
+
+          openSubMenu('Pollers');
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).click();
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).should(
+            'not.be.visible'
+          );
+        });
+
         it('displays the export configuration button if user is allowed', () => {
           userData.result.current.isExportButtonEnabled = true;
           initialize();

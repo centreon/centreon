@@ -172,6 +172,19 @@ export default (): void =>
         submenuShouldBeClosed(labelHosts);
       });
 
+      it('closes the submenu when clicking on an item', () => {
+        initialize();
+        openSubMenu(labelHosts);
+
+        cy.findAllByRole('menuitem').as('items');
+
+        cy.get('@items').each((item: string) => {
+          cy.get(item).click();
+          submenuShouldBeClosed(labelHosts);
+          openSubMenu(labelHosts);
+        });
+      });
+
       it('links to the expected urls', () => {
         const hoststubs = {
           down: { total: '2', unhandled: '1' },

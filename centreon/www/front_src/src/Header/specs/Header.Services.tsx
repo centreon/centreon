@@ -189,6 +189,19 @@ export default (): void =>
         submenuShouldBeClosed(labelServices);
       });
 
+      it('closes the submenu when clicking on an item', () => {
+        initialize();
+        openSubMenu(labelServices);
+
+        cy.findAllByRole('menuitem').as('items');
+
+        cy.get('@items').each((item: string) => {
+          cy.get(item).click();
+          submenuShouldBeClosed(labelServices);
+          openSubMenu(labelServices);
+        });
+      });
+
       it('displays the items in the right order, with the right texts and urls', () => {
         const serviceStubs = {
           critical: { total: '2', unhandled: '1' },
