@@ -6,6 +6,7 @@ import {
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
+import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
@@ -22,8 +23,11 @@ import { isEditingAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
 import { editProperties } from './useCanEditDashboard';
+import { useDashboardStyles } from './Dashboard.styles';
 
 const Dashboard = (): ReactElement => {
+  const { classes } = useDashboardStyles();
+
   const { dashboardId } = routerParams.useParams();
   const { dashboard, panels } = useDashboardDetails({
     dashboardId: dashboardId as string
@@ -48,36 +52,43 @@ const Dashboard = (): ReactElement => {
               title={dashboard?.name || ''}
             />
           </PageHeader.Main>
-          <PageHeader.Actions>
-            {canEdit && <DashboardEditActions panels={panels} />}
-          </PageHeader.Actions>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <PageLayout.Actions>
-          <span>
-            {!isEditing && canEdit && (
-              <>
-                <IconButton
-                  aria-label="edit"
-                  data-testid="edit"
-                  icon={<SettingsIcon />}
-                  size="small"
-                  variant="ghost"
-                  onClick={editDashboard(dashboard as DashboardType)}
+        <PageLayout.Actions rowReverse={isEditing}>
+          {!isEditing && canEdit && (
+            <span>
+              <IconButton
+                aria-label="edit"
+                data-testid="edit"
+                icon={<SettingsIcon />}
+                size="small"
+                variant="primary"
+                onClick={editDashboard(dashboard as DashboardType)}
+              />
+              <IconButton
+                aria-label="share"
+                data-testid="share"
+                icon={<ShareIcon />}
+                size="small"
+                variant="primary"
+                onClick={editAccessRights(dashboard as DashboardType)}
+              />
+            </span>
+          )}
+          {canEdit && (
+            <div className={classes.editActions}>
+              <AddWidgetButton />
+              {isEditing && (
+                <Divider
+                  className={classes.divider}
+                  orientation="vertical"
+                  variant="middle"
                 />
-                <IconButton
-                  aria-label="share"
-                  data-testid="share"
-                  icon={<ShareIcon />}
-                  size="small"
-                  variant="ghost"
-                  onClick={editAccessRights(dashboard as DashboardType)}
-                />
-              </>
-            )}
-          </span>
-          <span>{canEdit && <AddWidgetButton />}</span>
+              )}
+              <DashboardEditActions panels={panels} />
+            </div>
+          )}
         </PageLayout.Actions>
 
         <Layout />
