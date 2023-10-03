@@ -8,9 +8,16 @@ on:
       - dev-22.10.x
       - dev-22.04.x
       - dev-21.10.x
-      - MON-20381-Integrate-E2E-tests-from-GHA-to-XRay
+      - MON-20381-Integrate-E2E-tests-from-GHA-to-
+        
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   run_script:
+    needs: [get-version]
     runs-on: ubuntu-latest
 
     steps:
@@ -39,19 +46,13 @@ jobs:
           echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
           echo "Changed .feature files: ${CHANGED_FILES[@]}"
 
-      - name: Get Target Version
-        id: get_version
-        uses: ./.github/workflows/get-version.yml
-        with:
-          version_file: centreon/www/install/insertBaseConf.sql
-
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
-          echo "The target version for this script is : ${{ steps.get_version.outputs.major_version }}"
+          echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            python .github/scripts/create_jira_test.py "$file" "${{ github.ref_name }}" "${{ steps.get_version.outputs.major_version }}"
+            python .github/scripts/create_jira_test.py "$file" "${{ github.ref_name }}" "${{ needs.get-version.outputs.major_version }}"
           done
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
