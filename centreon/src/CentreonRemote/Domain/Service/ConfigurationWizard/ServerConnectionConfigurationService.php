@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,11 +22,11 @@
 namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
 use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
-use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
-use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
-use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosLogger;
-use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosBrokerModule;
 use CentreonRemote\Domain\Resources\RemoteConfig\BamBrokerCfgInfo;
+use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
+use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosBrokerModule;
+use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosLogger;
+use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
 
 abstract class ServerConnectionConfigurationService
 {
@@ -65,40 +65,48 @@ abstract class ServerConnectionConfigurationService
         $this->dbAdapter = $dbAdapter;
     }
 
-    abstract protected function insertConfigCentreonBroker(int $serverID): void;
-
-    /** @param string|null $ip */
+    /**
+     * @param string|null $ip
+     */
     public function setServerIp($ip): void
     {
         $this->serverIp = $ip;
     }
 
-    /** @param string|null $name */
+    /**
+     * @param string|null $name
+     */
     public function setName($name): void
     {
         $this->name = $name;
     }
 
-    /** @param string|null $ip */
+    /**
+     * @param string|null $ip
+     */
     public function setCentralIp($ip): void
     {
         $this->centralIp = $ip;
     }
 
-    /** @param string|null $user */
+    /**
+     * @param string|null $user
+     */
     public function setDbUser($user): void
     {
         $this->dbUser = $user;
     }
 
-    /** @param string|null $password */
+    /**
+     * @param string|null $password
+     */
     public function setDbPassword($password): void
     {
         $this->dbPassword = $password;
     }
 
     /**
-     * Set one peer retention mode
+     * Set one peer retention mode.
      *
      * @param bool $onePeerRetention if one peer retention mode is enabled
      */
@@ -107,13 +115,9 @@ abstract class ServerConnectionConfigurationService
         $this->onePeerRetention = $onePeerRetention;
     }
 
-    protected function getDbAdapter(): CentreonDBAdapter
-    {
-        return $this->dbAdapter;
-    }
-
     /**
      * @throws \Exception
+     *
      * @return int
      */
     public function insert(): int
@@ -122,7 +126,7 @@ abstract class ServerConnectionConfigurationService
 
         $serverID = $this->insertNagiosServer();
 
-        if (!$serverID) {
+        if (! $serverID) {
             throw new \Exception('Error inserting nagios server.');
         }
 
@@ -141,6 +145,23 @@ abstract class ServerConnectionConfigurationService
         return $serverID;
     }
 
+    public function shouldInsertBamBrokers(): void
+    {
+        $this->shouldInsertBamBrokers = true;
+    }
+
+    public function isLinkedToCentralServer(): void
+    {
+        $this->isLinkedToCentralServer = true;
+    }
+
+    abstract protected function insertConfigCentreonBroker(int $serverID): void;
+
+    protected function getDbAdapter(): CentreonDBAdapter
+    {
+        return $this->dbAdapter;
+    }
+
     protected function insertNagiosServer(): int
     {
         return $this->insertWithAdapter('nagios_server', NagiosServer::getConfiguration($this->name, $this->serverIp));
@@ -148,6 +169,7 @@ abstract class ServerConnectionConfigurationService
 
     /**
      * @param int $serverID
+     *
      * @return int
      */
     protected function insertConfigNagios($serverID): int
@@ -165,8 +187,9 @@ abstract class ServerConnectionConfigurationService
     }
 
     /**
-     * @throws \Exception
      * @param int $serverID
+     *
+     * @throws \Exception
      */
     protected function insertConfigResources($serverID): void
     {
@@ -194,7 +217,7 @@ abstract class ServerConnectionConfigurationService
     }
 
     /**
-     * insert broker log information
+     * insert broker log information.
      *
      * @param \Generator<array<string,string|int>> $brokerLogs
      */
@@ -212,7 +235,7 @@ abstract class ServerConnectionConfigurationService
     {
         global $conf_centreon;
 
-        if (!$this->brokerID) {
+        if (! $this->brokerID) {
             throw new \Exception('Broker ID was not inserted in order to add BAM broker configs to it.');
         }
 
@@ -232,7 +255,9 @@ abstract class ServerConnectionConfigurationService
     /**
      * @param string $table
      * @param array<string,mixed> $data
+     *
      * @throws \Exception
+     *
      * @return int
      */
     protected function insertWithAdapter($table, array $data): int
@@ -241,20 +266,11 @@ abstract class ServerConnectionConfigurationService
             $result = $this->getDbAdapter()->insert($table, $data);
         } catch (\Exception $e) {
             $this->getDbAdapter()->rollBack();
+
             throw new \Exception("Error inserting remote configuration. Rolling back. Table name: {$table}.");
         }
 
         return $result;
-    }
-
-    public function shouldInsertBamBrokers(): void
-    {
-        $this->shouldInsertBamBrokers = true;
-    }
-
-    public function isLinkedToCentralServer(): void
-    {
-        $this->isLinkedToCentralServer = true;
     }
 
     protected function isRemote(): bool

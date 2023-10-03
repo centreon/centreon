@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,6 @@ namespace CentreonLegacy\Core\Module;
 class Installer extends Module
 {
     /**
-     *
      * @return int
      */
     public function install()
@@ -33,27 +32,65 @@ class Installer extends Module
         $this->installPhpFiles(true);
         $this->installSqlFiles();
         $this->installPhpFiles(false);
+
         return $id;
     }
 
     /**
+     * @return bool
+     */
+    public function installSqlFiles()
+    {
+        $installed = false;
+
+        $sqlFile = $this->getModulePath($this->moduleName) . '/sql/install.sql';
+        if ($this->services->get('filesystem')->exists($sqlFile)) {
+            $this->utils->executeSqlFile($sqlFile);
+            $installed = true;
+        }
+
+        return $installed;
+    }
+
+    /**
+     * @var bool Indicates whether or not it is a pre-installation
+     *
+     * @param bool $isPreInstallation
+     *
+     * @return bool
+     */
+    public function installPhpFiles(bool $isPreInstallation)
+    {
+        $installed = false;
+
+        $phpFile = $this->getModulePath($this->moduleName)
+	    . '/php/install' . ($isPreInstallation ? '.pre' : '') . '.php';
+        if ($this->services->get('filesystem')->exists($phpFile)) {
+            $this->utils->executePhpFile($phpFile);
+            $installed = true;
+        }
+
+        return $installed;
+    }
+
+    /**
+     * @throws \Exception
      *
      * @return int
-     * @throws \Exception
      */
     protected function installModuleConfiguration()
     {
         $configurationFile = $this->getModulePath($this->moduleName) . '/conf.php';
 
-        if (!$this->services->get('filesystem')->exists($configurationFile)) {
+        if (! $this->services->get('filesystem')->exists($configurationFile)) {
             throw new \Exception('Module configuration file not found.');
         }
 
-        $query = 'INSERT INTO modules_informations ' .
-            '(`name` , `rname` , `mod_release` , `is_removeable` , `infos` , `author` , ' .
-            '`svc_tools`, `host_tools`)' .
-            'VALUES ( :name , :rname , :mod_release , :is_removeable , :infos , :author , ' .
-            ':svc_tools , :host_tools )';
+        $query = 'INSERT INTO modules_informations '
+            . '(`name` , `rname` , `mod_release` , `is_removeable` , `infos` , `author` , '
+            . '`svc_tools`, `host_tools`)'
+            . 'VALUES ( :name , :rname , :mod_release , :is_removeable , :infos , :author , '
+            . ':svc_tools , :host_tools )';
         $sth = $this->services->get('configuration_db')->prepare($query);
 
         $sth->bindParam(':name', $this->moduleConfiguration['name'], \PDO::PARAM_STR);
@@ -75,40 +112,5 @@ class Installer extends Module
         }
 
         return $lastId;
-    }
-
-    /**
-     *
-     * @return boolean
-     */
-    public function installSqlFiles()
-    {
-        $installed = false;
-
-        $sqlFile = $this->getModulePath($this->moduleName) . '/sql/install.sql';
-        if ($this->services->get('filesystem')->exists($sqlFile)) {
-            $this->utils->executeSqlFile($sqlFile);
-            $installed = true;
-        }
-
-        return $installed;
-    }
-
-    /**
-     * @var bool $isPreInstallation Indicates whether or not it is a pre-installation
-     * @return boolean
-     */
-    public function installPhpFiles(bool $isPreInstallation)
-    {
-        $installed = false;
-
-        $phpFile = $this->getModulePath($this->moduleName)
-	    . '/php/install' . ($isPreInstallation ? '.pre' : '') . '.php';
-        if ($this->services->get('filesystem')->exists($phpFile)) {
-            $this->utils->executePhpFile($phpFile);
-            $installed = true;
-        }
-
-        return $installed;
     }
 }
