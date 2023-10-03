@@ -24,7 +24,7 @@ namespace Tests\Core\Security\Authentication\Application\UseCase\LoginSession;
 
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Centreon\Domain\Menu\Model\Page;
-use Core\Security\Authentication\Application\UseCase\Login\MobileLogin;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Symfony\Component\HttpFoundation\Request;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -80,7 +80,7 @@ beforeEach(function () {
     $this->writeSessionRepository = $this->createMock(WriteSessionRepositoryInterface::class);
     $this->aclUpdater = $this->createMock(AclUpdaterInterface::class);
     $this->defaultRedirectUri = '/monitoring/resources';
-    $this->mobileLogin = new MobileLogin($this->createMock(UrlGeneratorInterface::class));
+    $this->thirdPartyLoginForm = new ThirdPartyLoginForm($this->createMock(UrlGeneratorInterface::class));
     $this->useCase = new Login(
         $this->providerFactory,
         $this->session,
@@ -92,7 +92,7 @@ beforeEach(function () {
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
 
     $this->authenticationRequest = LoginRequest::createForLocal("admin", "password", '127.0.0.1');
@@ -114,7 +114,7 @@ it('should present an error response when the provider configuration is not foun
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
 
     $this->providerFactory
@@ -140,7 +140,7 @@ it('should present an UnauthorizedResponse when the authentication fails', funct
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
 
     $this->provider
@@ -170,7 +170,7 @@ it('should present a PasswordExpiredResponse when the user password is expired',
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
 
     $this->provider
@@ -200,7 +200,7 @@ it('should present an UnauthorizedResponse when user is not authorized to log in
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
     $useCase($this->authenticationRequest, $this->presenter);
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
@@ -219,7 +219,7 @@ it("should present an UnauthorizedResponse when user doesn't exist", function ()
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
     $this->provider
         ->expects($this->once())
@@ -252,7 +252,7 @@ it('should create a user when auto import is enabled', function () {
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
     $this->contact
         ->expects($this->once())
@@ -294,7 +294,7 @@ it('should create authentication tokens when user is correctly authenticated', f
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
 
     $this->contact
@@ -354,7 +354,7 @@ it('should present the default page when user is correctly authenticated', funct
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
 
     $this->contact
@@ -400,7 +400,7 @@ it('should present the custom redirection page when user is authenticated', func
         $this->aclUpdater,
         $this->menuService,
         $this->defaultRedirectUri,
-        $this->mobileLogin,
+        $this->thirdPartyLoginForm,
     );
 
     $page = new Page(1, '/my_custom_page', 60101, true);

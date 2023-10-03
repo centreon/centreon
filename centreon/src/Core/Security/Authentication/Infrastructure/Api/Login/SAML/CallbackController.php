@@ -26,7 +26,7 @@ namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\{ErrorAuthenticationConditionsResponse, ErrorResponse, UnauthorizedResponse};
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Security\Authentication\Application\UseCase\Login\{ErrorAclConditionsResponse, Login, LoginRequest, LoginResponse, MobileLogin, PasswordExpiredResponse};
+use Core\Security\Authentication\Application\UseCase\Login\{ErrorAclConditionsResponse, Login, LoginRequest, LoginResponse, PasswordExpiredResponse, ThirdPartyLoginForm};
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -40,7 +40,7 @@ final class CallbackController extends AbstractController
      * @param Login $useCase
      * @param CallbackPresenter $presenter
      * @param SessionInterface $session
-     * @param MobileLogin $mobileLogin
+     * @param ThirdPartyLoginForm $thirdPartyLoginForm
      *
      * @return View|null
      */
@@ -49,7 +49,7 @@ final class CallbackController extends AbstractController
         Login $useCase,
         CallbackPresenter $presenter,
         SessionInterface $session,
-        MobileLogin $mobileLogin,
+        ThirdPartyLoginForm $thirdPartyLoginForm,
     ): null|View {
         $samlLoginRequest = LoginRequest::createForSAML((string) $request->getClientIp());
 
@@ -74,8 +74,8 @@ final class CallbackController extends AbstractController
                 );
 
             case $response instanceof LoginResponse:
-                if ($redirectMobileUri = $mobileLogin->getReturnUrlAfterAuth()) {
-                    return View::createRedirect($redirectMobileUri);
+                if ($redirectToThirdPartyLoginForm = $thirdPartyLoginForm->getReturnUrlAfterAuth()) {
+                    return View::createRedirect($redirectToThirdPartyLoginForm);
                 }
 
                 if ($response->redirectIsReact()) {

@@ -25,7 +25,7 @@ namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Security\Authentication\Application\UseCase\Login\MobileLogin;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Core\Security\Authentication\Infrastructure\Provider\ProviderAuthenticationFactory;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
@@ -37,11 +37,11 @@ final class LoginController extends AbstractController
 
     /**
      * @param ProviderAuthenticationFactory $providerAuthenticationFactory
-     * @param MobileLogin $mobileLogin
+     * @param ThirdPartyLoginForm $thirdPartyLoginForm
      */
     public function __construct(
         private readonly ProviderAuthenticationFactory $providerAuthenticationFactory,
-        private readonly MobileLogin $mobileLogin,
+        private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
     ) {
     }
 
@@ -49,6 +49,6 @@ final class LoginController extends AbstractController
     {
         /** @var SAML $provider */
         $provider = $this->providerAuthenticationFactory->create(Provider::SAML);
-        $provider->login($this->mobileLogin->getReturnUrlBeforeAuth($request));
+        $provider->login($this->thirdPartyLoginForm->getReturnUrlBeforeAuth($request));
     }
 }

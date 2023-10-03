@@ -27,9 +27,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * This class exists to centralize the return to mobile behaviour.
+ * This class aims to centralize the return login behaviour when initiated by a third party login form.
+ *
+ * It concerns :
+ * - {@see https://mobile.centreon.com} progressive web app (PWA).
+ *
+ * This class is not 100% compliant about the Infrastructure and Application separation
+ * but its nature is by definition a bit hacky.
+ *
+ * At the moment of its creation, we don't have a better idea to respond the need while
+ * keeping track of the calls regarding this behaviour.
  */
-final class MobileLogin
+final class ThirdPartyLoginForm
 {
     private string $token = '';
 
@@ -42,7 +51,7 @@ final class MobileLogin
 
     /**
      * Store the token used for building the final redirect Uri.
-     * We need to forward the token to the mobile page.
+     * We need to forward the token to the original login page.
      *
      * @param string $token
      */
@@ -59,6 +68,7 @@ final class MobileLogin
      */
     public function getReturnUrlBeforeAuth(Request $request): string
     {
+        // Initiated by https://mobile.centreon.com
         if ('1' === $request->query->get('mobile')) {
             return (string) $request->headers->get('referer');
         }
@@ -80,7 +90,7 @@ final class MobileLogin
     }
 
     /**
-     * Tells whether the mobile authentication is a thing in the current context.
+     * Tells whether the authentication was initiated by a third party login form in our context.
      */
     public function isActive(): bool
     {
@@ -92,11 +102,9 @@ final class MobileLogin
             return $this->isActive = false;
         }
 
-        $ourACS = $this->urlGenerator->generate(
-            'centreon_application_authentication_login_saml',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        // We want to avoid possible loop redirects because the use of the RelayState in the SAML case is a bit hacky.
+        $ourACS = $this->urlGenerator
+            ->generate('centreon_application_authentication_login_saml', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return $this->isActive = $returnTo !== $ourACS;
     }

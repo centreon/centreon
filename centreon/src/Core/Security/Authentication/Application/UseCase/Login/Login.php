@@ -68,7 +68,7 @@ final class Login
      * @param AclUpdaterInterface $aclUpdater
      * @param MenuServiceInterface $menuService
      * @param string $defaultRedirectUri
-     * @param MobileLogin $mobileLogin
+     * @param ThirdPartyLoginForm $thirdPartyLoginForm
      */
     public function __construct(
         private ProviderAuthenticationFactoryInterface $providerFactory,
@@ -81,7 +81,7 @@ final class Login
         private AclUpdaterInterface $aclUpdater,
         private MenuServiceInterface $menuService,
         private string $defaultRedirectUri,
-        private readonly MobileLogin $mobileLogin,
+        private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
     ) {
     }
 
@@ -112,17 +112,20 @@ final class Login
             $token = null;
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
                 if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->session->getId()) === false) {
-                    if ($loginRequest->providerName === Provider::SAML && $this->mobileLogin->isActive()) {
-                        $this->mobileLogin->setToken($token = Encryption::generateRandomString());
+                    if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
+                        // We create an API token in addition of the session token.
                         $this->createAuthenticationTokens(
-                            $token,
+                            $token = Encryption::generateRandomString(),
                             $user,
                             $this->provider->getProviderToken($this->session->getId()),
                             $this->provider->getProviderRefreshToken(),
                             $loginRequest->clientIp
                         );
+                        // We pass the token to let the third party login form propagate to the form.
+                        $this->thirdPartyLoginForm->setToken($token);
                     }
 
+                    // Session token To keep the stateful authentication active anyway.
                     $this->createAuthenticationTokens(
                         $this->session->getId(),
                         $user,
