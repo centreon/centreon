@@ -1,3 +1,5 @@
+import { pipe } from 'ramda';
+
 import HostIcon from '@mui/icons-material/Dns';
 
 import {
@@ -40,8 +42,11 @@ const HostStatusCounter = (): JSX.Element | null => {
       renderIndicators={(): JSX.Element => (
         <TopCounterResourceCounters counters={data.counters} />
       )}
-      renderSubMenu={(): JSX.Element => (
-        <TopCounterResourceSubMenu items={data.items} />
+      renderSubMenu={({ closeSubMenu }): JSX.Element => (
+        <TopCounterResourceSubMenu
+          closeSubMenu={closeSubMenu}
+          items={data.items}
+        />
       )}
       showPendingBadge={data.hasPending}
       title={data.buttonLabel}
