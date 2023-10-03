@@ -1,18 +1,13 @@
 import { GenerateReportForPageProps } from '../models';
 import { baseUrl } from '../defaults';
-import { execSync } from 'child_process';
 import fetch from 'node-fetch';
 import panels from '../../fixtures/dashboardPanels.json'
 
 export const generateReportForDashboardsPage = async ({
   navigate,
   snapshot,
-  startTimespan,
-  endTimespan,
   page,
 }: GenerateReportForPageProps): Promise<void> => {
-  execSync(`docker cp ./features.json centreon-dev:/usr/share/centreon/config/features.json`);
-
   const cookies = await page.cookies();
 
   await fetch(`${baseUrl}api/latest/configuration/dashboards`, {

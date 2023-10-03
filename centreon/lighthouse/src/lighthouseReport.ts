@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { execSync } from 'child_process';
 
 import puppeteer from 'puppeteer';
 import { startFlow } from 'lighthouse';
@@ -30,6 +31,8 @@ const captureReport = async (): Promise<void> => {
   const flow = await startFlow(page, {
     name: 'Centreon Web pages',
   });
+
+  execSync(`docker cp ./features.json centreon-dev:/usr/share/centreon/config/features.json`);
 
   const navigate = async ({ url, name }: NavigateProps): Promise<void> => {
     await flow.navigate(url, { formFactor: 'desktop', name, ...baseConfig });
