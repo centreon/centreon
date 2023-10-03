@@ -32,7 +32,7 @@ const captureReport = async (): Promise<void> => {
     name: 'Centreon Web pages',
   });
 
-  execSync(`docker cp ./features.json centreon-dev:/usr/share/centreon/config/features.json`);
+  execSync(`docker cp ./features.json ${process.env.DOCKER_NAME || 'centreon-dev'}:/usr/share/centreon/config/features.json`);
 
   const navigate = async ({ url, name }: NavigateProps): Promise<void> => {
     await flow.navigate(url, { formFactor: 'desktop', name, ...baseConfig });
