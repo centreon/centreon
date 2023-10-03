@@ -47,7 +47,7 @@ final class FindResourcesByParentFactory
             $found = self::findChildrenAmongResponse($parent->id, $children);
             $resources[] = new ResourcesByParentResponseDto(
                 $parent,
-                $found,
+                array_values($found),
                 count($found),
                 self::countInStatus(self::STATUS_CODE_OK, $found),
                 self::countInStatus(self::STATUS_CODE_WARNING, $found),

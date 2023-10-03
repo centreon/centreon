@@ -44,7 +44,11 @@ import {
   labelStatus
 } from '../translatedLabels';
 
-import { defaultSelectedColumnIds, getColumns } from './columns';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost,
+  getColumns
+} from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
@@ -189,6 +193,12 @@ const ResourceListing = (): JSX.Element => {
   const getId = ({ uuid }: Resource): string => uuid;
 
   const resetColumns = (): void => {
+    if (equals(visualization, Visualization.Host)) {
+      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
+
+      return;
+    }
+
     setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
@@ -268,6 +278,13 @@ const ResourceListing = (): JSX.Element => {
       selectedRows={selectedResources}
       sortField={sortField}
       sortOrder={sortOrder}
+      subItems={{
+        canCheckSubItems: true,
+        enable: true,
+        labelCollapse: 'Collapse',
+        labelExpand: 'Expand',
+        rowProperty: 'children'
+      }}
       totalRows={listing?.meta.total}
       viewerModeConfiguration={{
         disabled: isPending,
