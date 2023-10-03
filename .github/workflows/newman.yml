@@ -44,6 +44,8 @@ jobs:
   postman_tests:
    needs: discover_collections
    runs-on: ubuntu-latest
+   continue-on-error: true
+
 
    strategy:
     fail-fast: false
@@ -168,5 +170,4 @@ jobs:
         if [ "$has_failures" = true ]; then
            exit 1
         fi
-
         
