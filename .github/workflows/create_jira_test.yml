@@ -41,17 +41,17 @@ jobs:
 
       - name: Get Target Version
         id: get_version
-        uses: .github/workflows/get-version.yml
+        uses: ./.github/workflows/get-version.yml
         with:
           version_file: centreon/www/install/insertBaseConf.sql
 
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
+          echo "The target version for this script is : ${{ steps.get_version.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            echo "The target version for this script is : ${{ steps.get_version.outputs.target_version }}"
-            python .github/scripts/create_jira_test.py "$file" "${{ github.ref_name }}" "${{ steps.get_version.outputs.target_version }}"
+            python .github/scripts/create_jira_test.py "$file" "${{ github.ref_name }}" "${{ steps.get_version.outputs.major_version }}"
           done
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
