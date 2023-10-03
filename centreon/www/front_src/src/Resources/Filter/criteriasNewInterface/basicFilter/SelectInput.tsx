@@ -1,15 +1,11 @@
-import { useAtom } from 'jotai';
-import { isEmpty } from 'ramda';
-
 import { SingleConnectedAutocompleteField } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
-import getDefaultCriterias from '../../Criterias/default';
-import { searchAtom } from '../../filterAtoms';
 import useInputCurrentValues from '../useInputCurrentValues';
 import useInputData from '../useInputsData';
-import useSearchInputDataByField from '../useSearchInputDataByField';
-import { findData, replaceValueFromSearchInput } from '../utils';
+import { findData, removeDuplicateFromObjectArray } from '../utils';
+
+import useSectionsData from './sections/useSections';
 
 const SelectInput = ({
   data,
@@ -17,11 +13,9 @@ const SelectInput = ({
   resourceType,
   changeCriteria
 }): JSX.Element => {
-  const field = 'name';
-
-  const [search, setSearch] = useAtom(searchAtom);
+  const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { target, valueSearchData } = useInputData({
-    data,
+    data: sectionData,
     filterName,
     resourceType
   });
@@ -31,26 +25,24 @@ const SelectInput = ({
     data: valueSearchData
   });
 
-  const { content, fieldInformation } = useSearchInputDataByField({ field });
-
   const handleSearchData = (updatedValue) => {
-    const { values } = target.searchData;
+    const { values } = target?.searchData;
     const currentValue = {
       id: resourceType,
       value: updatedValue.name,
       valueId: updatedValue.id
     };
 
-    const result = values?.filter((item) => item.id !== currentValue.id);
-    if (values?.length <= 0) {
-      return { ...target.searchData, values: [currentValue] };
-    }
+    const searchedValues = removeDuplicateFromObjectArray({
+      array: [...values, currentValue],
+      byFields: ['id']
+    });
 
-    return { ...target.searchData, values: [...result, currentValue] };
+    return { ...target.searchData, values: searchedValues };
   };
 
   const handleValues = () => {
-    const value = {
+    const selectedValue = {
       id: resourceType,
       name: findData({
         data: target?.options,
@@ -58,48 +50,41 @@ const SelectInput = ({
         target: resourceType
       })?.name
     };
-    const result = target.value?.filter((item) => item?.id !== resourceType);
 
-    return [...result, value];
-  };
-
-  const handleSearchDataInSearchInput = (data) => {
-    const values = data.values.map((item) => item?.value);
-    if (!fieldInformation) {
-      const currentSearch = search.concat(
-        ' ',
-        `${data.field}:${values.join()}`
-      );
-      setSearch(currentSearch);
-
-      return;
-    }
-
-    const currentSearch = replaceValueFromSearchInput({
-      newContent: `${field}:${values.join()}`,
-      search,
-      targetField: fieldInformation
+    return removeDuplicateFromObjectArray({
+      array: [...target.value, selectedValue],
+      byFields: ['id']
     });
-    setSearch(currentSearch);
   };
 
-  const handleChange = (_, updatedValue) => {
+  const handleChange = (updatedValue) => {
     const searchData = handleSearchData(updatedValue);
-    const newValues = handleValues();
-
-    handleSearchDataInSearchInput(searchData);
+    const selectedValues = handleValues();
     changeCriteria({
       filterName,
       searchData,
-      updatedValue: newValues
+      updatedValue: selectedValues
+    });
+  };
+
+  const initializeInput = () => {
+    const initializedSearchedData = target?.searchData?.values.filter(
+      (item) => item?.id !== resourceType
+    );
+
+    const updatedValue = target?.value?.filter(
+      (item) => item?.id !== resourceType
+    );
+
+    setValue([]);
+    changeCriteria({
+      filterName,
+      searchData: { ...target?.searchData, values: initializedSearchedData },
+      updatedValue
     });
   };
 
   const onInputChange = (event, value) => {
-    const initializedData = getDefaultCriterias().find(
-      (item) => item.name === filterName
-    );
-
     if (!event) {
       return;
     }
@@ -107,18 +92,7 @@ const SelectInput = ({
       return;
     }
 
-    const initializedTargetSearch = replaceValueFromSearchInput({
-      newContent: '',
-      search,
-      targetField: fieldInformation
-    });
-    setSearch(initializedTargetSearch);
-    setValue([]);
-    changeCriteria({
-      filterName,
-      searchData: initializedData?.searchData,
-      updatedValue: initializedData?.value
-    });
+    initializeInput();
   };
 
   const getEndpoint = ({ search, page }): string => {
@@ -131,19 +105,15 @@ const SelectInput = ({
   };
 
   return (
-    <div>
-      {target && !isEmpty(target) ? (
-        <SingleConnectedAutocompleteField
-          field="name"
-          getEndpoint={getEndpoint}
-          label={resourceType}
-          placeholder={target?.label}
-          value={value}
-          onChange={(_, updatedValue): void => handleChange(_, updatedValue)}
-          onInputChange={onInputChange}
-        />
-      ) : null}
-    </div>
+    <SingleConnectedAutocompleteField
+      field="name"
+      getEndpoint={getEndpoint}
+      label={resourceType}
+      placeholder={target?.label}
+      value={value}
+      onChange={(_, updatedValue): void => handleChange(updatedValue)}
+      onInputChange={onInputChange}
+    />
   );
 };
 

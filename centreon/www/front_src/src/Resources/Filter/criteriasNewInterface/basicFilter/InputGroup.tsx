@@ -6,9 +6,21 @@ import useInputCurrentValues from '../useInputCurrentValues';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 
-const InputGroup = ({ data, filterName, changeCriteria, label }) => {
+import useSectionsData from './sections/useSections';
+
+const InputGroup = ({
+  data,
+  filterName,
+  changeCriteria,
+  label,
+  resourceType
+}) => {
+  console.log('render Input groupppppppppppppppp');
+
+  const { sectionData } = useSectionsData({ data, sectionType: resourceType });
+
   const { target } = useInputData({
-    data,
+    data: sectionData,
     filterName
   });
 
@@ -17,9 +29,9 @@ const InputGroup = ({ data, filterName, changeCriteria, label }) => {
     data: target?.value
   });
 
-  if (!target) {
-    return null;
-  }
+  const currentLabel = label || target?.label || '';
+
+  const displayedColumn = currentLabel.includes('level') ? 'level' : '';
 
   const getEndpoint = ({ search, page }): string =>
     target?.buildAutocompleteEndpoint({
@@ -39,10 +51,6 @@ const InputGroup = ({ data, filterName, changeCriteria, label }) => {
       array: options,
       byFields: ['name']
     });
-
-  const currentLabel = label || target?.label;
-
-  const displayedColumn = currentLabel.includes('level') ? 'level' : '';
 
   return (
     <MultiConnectedAutocompleteField

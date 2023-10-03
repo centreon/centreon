@@ -95,9 +95,9 @@ export const replaceValueFromSearchInput = ({
 
   const targetByIndex = array.findIndex((item) => item === targetField);
 
-  const result = array.map((item, index) =>
-    index === targetByIndex ? newContent : item
-  );
+  const result = array.map((item, index) => {
+    return index === targetByIndex ? newContent : item;
+  });
 
   return result.join(' ');
 };

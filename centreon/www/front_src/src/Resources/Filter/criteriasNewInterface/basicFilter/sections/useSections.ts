@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 
 import { handleDataByCategoryFilter } from '../../utils';
 
 const useSectionsData = ({ data, sectionType }) => {
-  const [sectionData, setSectionData] = useState();
-
-  useEffect(() => {
+  const sectionData = useMemo(() => {
     if (!data) {
-      return;
+      return [];
     }
-    const filteredDataBySectionType = handleDataByCategoryFilter({
+    if (!sectionType) {
+      return data;
+    }
+
+    return handleDataByCategoryFilter({
       data,
       fieldToUpdate: 'options',
       filter: sectionType
     });
-
-    setSectionData(filteredDataBySectionType);
-  }, [data]);
+  }, [data, sectionType]);
 
   return { sectionData };
 };

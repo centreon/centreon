@@ -1,23 +1,9 @@
-import { useSetAtom } from 'jotai';
-
-import { setCriteriaAndNewFilterDerivedAtom } from '../../../filterAtoms';
-
-import useSectionsData from './useSections';
-
-const Section = ({
-  renderSelectInput,
-  renderStatus,
-  renderInputGroup,
-  data,
-  sectionType
-}) => {
-  const { sectionData } = useSectionsData({ data, sectionType });
-
+const Section = ({ status, inputGroup, selectInput }) => {
   return (
     <>
-      {renderSelectInput?.({ sectionData })}
-      {renderStatus?.({ sectionData })}
-      {renderInputGroup?.({ sectionData })}
+      {selectInput}
+      {status}
+      {inputGroup}
     </>
   );
 };

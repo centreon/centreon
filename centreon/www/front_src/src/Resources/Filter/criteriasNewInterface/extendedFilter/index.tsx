@@ -1,8 +1,11 @@
+import { useMemoComponent } from '@centreon/ui';
+
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
 import { CheckBoxWrapper } from '../CheckBoxWrapper';
 import InputGroup from '../basicFilter/InputGroup';
 import SelectInput from '../basicFilter/SelectInput';
 import { ExtendedCriteria } from '../model';
+import { findData } from '../utils';
 
 import FilterSearch from './FilterSearch';
 import useExtendedFilter from './useExtendedFilter';
@@ -15,7 +18,7 @@ const ExtendedFilter = ({ data, changeCriteria }): JSX.Element => {
   return (
     <div style={{ minWidth: 400 }}>
       {inputGroupsData?.map((item) => (
-        <InputGroup
+        <MemoizedInputGroup
           changeCriteria={changeCriteria}
           data={data}
           filterName={item.name}
@@ -23,7 +26,7 @@ const ExtendedFilter = ({ data, changeCriteria }): JSX.Element => {
         />
       ))}
       {resourceTypes?.map((item) => (
-        <SelectInput
+        <MemoizedSelectInput
           changeCriteria={changeCriteria}
           data={data}
           filterName={ExtendedCriteria.resourceTypes}
@@ -36,14 +39,74 @@ const ExtendedFilter = ({ data, changeCriteria }): JSX.Element => {
         field={SearchableFields.information}
         placeholder="Information"
       />
-      <CheckBoxWrapper
+      <MemoizedCheckBoxWrapper
         changeCriteria={changeCriteria}
         data={statusTypes}
-        filterName={ExtendedCriteria.statusTypes}
-        title="Status type"
       />
     </div>
   );
+};
+
+export const MemoizedCheckBoxWrapper = ({
+  changeCriteria,
+  data
+}): JSX.Element => {
+  return useMemoComponent({
+    Component: (
+      <CheckBoxWrapper
+        changeCriteria={changeCriteria}
+        data={data}
+        filterName={ExtendedCriteria.statusTypes}
+        title="Status type"
+      />
+    ),
+
+    memoProps: [
+      findData({
+        data,
+        target: ExtendedCriteria.statusTypes
+      })?.value
+    ]
+  });
+};
+
+const MemoizedSelectInput = ({
+  basicData,
+  changeCriteria,
+  filterName,
+  resourceType
+}): JSX.Element => {
+  return useMemoComponent({
+    Component: (
+      <SelectInput
+        changeCriteria={changeCriteria}
+        data={basicData}
+        filterName={filterName}
+        resourceType={resourceType}
+      />
+    ),
+    memoProps: [
+      findData({ data: basicData, target: filterName })?.value,
+      findData({ data: basicData, target: filterName })?.searchData?.values
+    ]
+  });
+};
+
+const MemoizedInputGroup = ({
+  data,
+  changeCriteria,
+  filterName
+}): JSX.Element => {
+  return useMemoComponent({
+    Component: (
+      <InputGroup
+        changeCriteria={changeCriteria}
+        data={data}
+        filterName={filterName}
+      />
+    ),
+    memoProps: [findData({ data, target: filterName })?.value]
+  });
 };
 
 export default ExtendedFilter;

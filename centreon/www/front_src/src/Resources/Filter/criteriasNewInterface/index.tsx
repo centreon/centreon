@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useSetAtom } from 'jotai';
 
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+
+import { useMemoComponent } from '@centreon/ui';
 
 import { Criteria, CriteriaById } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
@@ -13,12 +15,17 @@ import InputGroup from './basicFilter/InputGroup';
 import SectionWrapper from './basicFilter/sections';
 import ExtendedFilter from './extendedFilter';
 import { BasicCriteria, CategoryFilter, ExtendedCriteria } from './model';
-import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
+import {
+  findData,
+  handleDataByCategoryFilter,
+  mergeArraysByField
+} from './utils';
 import { CheckBoxWrapper } from './CheckBoxWrapper';
 
 export { CheckboxGroup } from '@centreon/ui';
 
 const CriteriasNewInterface = ({ data }): JSX.Element => {
+  console.log('Criterias new Interface ');
   const [open, setOpen] = useState(false);
 
   const setCriteriaAndNewFilter = useSetAtom(
@@ -82,28 +89,44 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
     });
   };
 
-  const basicData = getData(
-    CategoryFilter.BasicFilter,
-    selectableCriterias,
-    buildCriterias
-  );
+  const basicData = useMemo(() => {
+    return getData(
+      CategoryFilter.BasicFilter,
+      selectableCriterias,
+      buildCriterias
+    );
+  }, [selectableCriterias, buildCriterias]);
 
-  const extendedData = getData(
-    CategoryFilter.ExtendedFilter,
-    selectableCriterias,
-    buildCriterias
-  );
+  const extendedData = useMemo(() => {
+    return getData(
+      CategoryFilter.ExtendedFilter,
+      selectableCriterias,
+      buildCriterias
+    );
+  }, [selectableCriterias, buildCriterias]);
+
+  const checkBoxState = useMemoComponent({
+    Component: (
+      <CheckBoxWrapper
+        changeCriteria={changeCriteria}
+        data={basicData}
+        filterName={BasicCriteria.states}
+        title="State"
+      />
+    ),
+    memoProps: [
+      findData({ data: basicData, target: BasicCriteria.states })?.value
+    ]
+  });
 
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <BasicFilter
           poller={
-            <InputGroup
+            <MemoizedPoller
+              basicData={basicData}
               changeCriteria={changeCriteria}
-              data={basicData}
-              filterName={BasicCriteria.monitoringServers}
-              label="Poller"
             />
           }
           sections={
@@ -112,14 +135,7 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
               changeCriteria={changeCriteria}
             />
           }
-          state={
-            <CheckBoxWrapper
-              changeCriteria={changeCriteria}
-              data={basicData}
-              filterName={BasicCriteria.states}
-              title="State"
-            />
-          }
+          state={checkBoxState}
         />
         {open && (
           <ExtendedFilter changeCriteria={changeCriteria} data={extendedData} />
@@ -137,6 +153,23 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
       />
     </>
   );
+};
+
+const MemoizedPoller = ({ basicData, changeCriteria }): JSX.Element => {
+  return useMemoComponent({
+    Component: (
+      <InputGroup
+        changeCriteria={changeCriteria}
+        data={basicData}
+        filterName={BasicCriteria.monitoringServers}
+        label="Poller"
+      />
+    ),
+    memoProps: [
+      findData({ data: basicData, target: BasicCriteria.monitoringServers })
+        ?.value
+    ]
+  });
 };
 
 export default CriteriasNewInterface;

@@ -11,12 +11,14 @@ const useInputData = ({ data, filterName, resourceType }) => {
       return;
     }
     const item = findData({ data, target: filterName });
-
-    const currentValueSearchData = item?.searchData?.values?.find(
-      (item) => item?.id === resourceType
-    );
-    setValueSearchData(currentValueSearchData);
     setTarget(item);
+
+    const currentValueSearchData = findData({
+      data: item?.searchData?.values,
+      findBy: 'id',
+      target: resourceType
+    });
+    setValueSearchData(currentValueSearchData);
   }, [data]);
 
   return { target, valueSearchData };

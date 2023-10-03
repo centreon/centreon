@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { useAtom } from 'jotai';
 
@@ -8,25 +8,28 @@ import useInputData from '../useInputsData';
 import { findData, removeDuplicateFromObjectArray } from '../utils';
 
 import { selectedStatusByResourceTypeAtom } from './atoms';
+import useSectionsData from './sections/useSections';
 
 interface Props {
   changeCriteria;
   data;
   filterName;
-  title?: ReactNode;
+  resourceType;
 }
 
-export const CheckBoxSection = ({
+const CheckBoxSection = ({
   data,
   filterName,
   changeCriteria,
   resourceType
 }: Props): JSX.Element => {
   const [values, setValues] = useState();
+
   const [selectedStatusByResourceType, setSelectedStatusByResourceType] =
     useAtom(selectedStatusByResourceTypeAtom);
+  const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { target } = useInputData({
-    data,
+    data: sectionData,
     filterName
   });
 
@@ -41,37 +44,26 @@ export const CheckBoxSection = ({
     });
 
     if (event.target.checked) {
-      const value = { ...item, checked: true, resourceType };
-
-      const res = removeDuplicateFromObjectArray({
+      const currentValue = { ...item, checked: true, resourceType };
+      const result = removeDuplicateFromObjectArray({
         array: selectedStatusByResourceType
-          ? [...selectedStatusByResourceType, value]
-          : [value],
+          ? [...selectedStatusByResourceType, currentValue]
+          : [currentValue],
         byFields: ['id', 'resourceType']
       });
-      setSelectedStatusByResourceType(res);
-
-      changeCriteria({
-        filterName,
-        updatedValue: res.filter((item) => item.checked)
-      });
+      setSelectedStatusByResourceType(result);
 
       return;
     }
 
-    const res = removeDuplicateFromObjectArray({
+    const result = removeDuplicateFromObjectArray({
       array: [
         ...selectedStatusByResourceType,
         { ...item, checked: false, resourceType }
       ],
       byFields: ['id', 'resourceType']
     });
-
-    setSelectedStatusByResourceType(res);
-    changeCriteria({
-      filterName,
-      updatedValue: res.filter((item) => item.checked)
-    });
+    setSelectedStatusByResourceType(result);
   };
 
   useEffect(() => {
@@ -80,6 +72,13 @@ export const CheckBoxSection = ({
 
       return;
     }
+    changeCriteria({
+      filterName,
+      updatedValue: selectedStatusByResourceType?.filter(
+        (item) => item?.checked
+      )
+    });
+
     const checkedValues = selectedStatusByResourceType?.filter(
       (item) => item.checked && item.resourceType === resourceType
     );
@@ -87,15 +86,13 @@ export const CheckBoxSection = ({
   }, [selectedStatusByResourceType]);
 
   return (
-    <div>
-      {target?.options && (
-        <CheckboxGroup
-          direction="horizontal"
-          options={transformData(target?.options)}
-          values={transformData(values) ?? []}
-          onChange={(event) => handleChangeStatus(event)}
-        />
-      )}
-    </div>
+    <CheckboxGroup
+      direction="horizontal"
+      options={transformData(target?.options) ?? []}
+      values={transformData(values) ?? []}
+      onChange={(event) => handleChangeStatus(event)}
+    />
   );
 };
+
+export default CheckBoxSection;

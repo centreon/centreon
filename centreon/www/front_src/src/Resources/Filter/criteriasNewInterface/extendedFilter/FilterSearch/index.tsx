@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useAtom } from 'jotai';
 
-import { TextField, useDebounce } from '@centreon/ui';
+import { TextField, useDebounce, useMemoComponent } from '@centreon/ui';
 
 import { SearchableFields } from '../../../Criterias/searchQueryLanguage/models';
 import { searchAtom } from '../../../filterAtoms';
@@ -62,14 +62,17 @@ const FilterSearch = ({
     debouncedRequest();
   };
 
-  return (
-    <TextField
-      dataTestId=""
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-    />
-  );
+  return useMemoComponent({
+    Component: (
+      <TextField
+        dataTestId=""
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+      />
+    ),
+    memoProps: [search, value]
+  });
 };
 
 export default FilterSearch;
