@@ -1,5 +1,3 @@
-import { pipe } from 'ramda';
-
 import HostIcon from '@mui/icons-material/Dns';
 
 import {
