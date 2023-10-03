@@ -40,6 +40,7 @@ const MetricTop = ({
         legend: metricTop.name,
         maximum_value: metricTop.max,
         metric: metricTop.name,
+        metric_id: metricTop.id,
         minimum_value: metricTop.min,
         unit,
         warning_high_threshold: metricTop.warningHighThreshold,

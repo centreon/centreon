@@ -1,11 +1,12 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, head } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { CircularProgress, Typography } from '@mui/material';
 
 import { Avatar } from '@centreon/ui/components';
-import { SingleAutocompleteField } from '@centreon/ui';
+import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
 
 import {
   labelAvailable,
@@ -17,6 +18,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { isAtLeastOneResourceFullfilled } from '../utils';
 import { editProperties } from '../../../../useCanEditDashboard';
+import { singleMetricSelectionAtom } from '../../../atoms';
 
 import useMetricsOnly from './useMetricsOnly';
 
@@ -32,11 +34,15 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     isLoadingMetrics,
     metricCount,
     resources,
-    selectedMetric,
-    getOptionLabel
+    selectedMetrics,
+    getOptionLabel,
+    changeMetrics,
+    getMetricOptionDisabled,
+    getMultipleOptionLabel
   } = useMetricsOnly(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
+  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
 
   const canDisplayMetricsSelection =
     isAtLeastOneResourceFullfilled(resources) && !hasTooManyMetrics;
@@ -59,7 +65,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       {header}
-      {canDisplayMetricsSelection && (
+      {canDisplayMetricsSelection && singleMetricSelection && (
         <SingleAutocompleteField
           className={classes.resources}
           disabled={!canEditField || isLoadingMetrics}
@@ -70,8 +76,25 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           }
           label={t(labelMetrics)}
           options={metrics}
-          value={selectedMetric || undefined}
+          value={head(selectedMetrics || []) || undefined}
           onChange={changeMetric}
+        />
+      )}
+      {canDisplayMetricsSelection && !singleMetricSelection && (
+        <MultiAutocompleteField
+          chipProps={{
+            color: 'primary'
+          }}
+          className={classes.resources}
+          disabled={!canEditField || isLoadingMetrics}
+          getOptionDisabled={getMetricOptionDisabled}
+          getOptionLabel={getOptionLabel}
+          getOptionTooltipLabel={getOptionLabel}
+          getTagLabel={getMultipleOptionLabel}
+          label={t(labelMetrics)}
+          options={metrics}
+          value={selectedMetrics || []}
+          onChange={changeMetrics}
         />
       )}
       {hasTooManyMetrics && (
