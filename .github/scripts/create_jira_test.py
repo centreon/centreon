@@ -29,8 +29,8 @@ def get_xray_token(client_id, client_secret):
 # Constants
 JIRA_USER = os.environ.get('JIRA_USER')
 JIRA_TOKEN_TEST = os.environ.get('JIRA_TOKEN_TEST')
-CLIENT_ID = "DB1C58D167BC4BE798DCFB8CA1C712B9"
-CLIENT_SECRET = "296443a35f9c668c86c362f57d3b87ef9327d75825d3aa7f22426bcaf9e874cf"
+CLIENT_ID = os.environ.get('CLIENT_ID')
+CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 
 XRAY_TOKEN = get_xray_token(CLIENT_ID,CLIENT_SECRET)
 
