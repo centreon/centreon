@@ -16089,3 +16089,12 @@ msgstr ""
 
 #  msgid "You are not allowed to list authentication tokens"
 #  msgstr ""
+
+# msgid "View widget properties"
+# msgstr ""
+
+# msgid "Dashboard library"
+# msgstr ""
+
+# msgid "Welcome to the dashboard interface!"
+# msgstr ""

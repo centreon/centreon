@@ -18222,3 +18222,12 @@ msgstr "Erreur lors de la recherche de jetons d'authentification"
 
 msgid "You are not allowed to list authentication tokens"
 msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
+
+msgid "View widget properties"
+msgstr "voir les propriétés du widget"
+
+msgid "Dashboard library"
+msgstr "Bibliothèque de tableaux de bord"
+
+msgid "Welcome to the dashboard interface!"
+msgstr "Bienvenue dans l'interface des tableaux de bord !"
