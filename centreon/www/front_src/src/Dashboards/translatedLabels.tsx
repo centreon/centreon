@@ -1,4 +1,4 @@
-export const labelDashboards = 'Dashboards';
+export const labelDashboardLibrary = 'Dashboard library';
 export const labelDashboard = 'Dashboard';
 export const labelCreateADashboard = 'Create a dashboard';
 export const labelNoDashboardsFound = 'No dashboards available';
