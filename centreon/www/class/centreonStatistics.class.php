@@ -345,6 +345,8 @@ class CentreonStatistics
             $data['notification'] = $this->getAdditionalNotificationInformation();
         }
 
+        $data['user_filter'] = $this->getAdditionalUserFiltersInformation();
+
         return $data;
     }
 
@@ -387,6 +389,37 @@ class CentreonStatistics
         $data['avg_cg_notification'] = $avgGetValue('notification_contactgroup_relation');
 
         return array_filter($data, static fn(mixed $value): bool => null !== $value);
+    }
+
+    /**
+     * @return array{
+     *     nb_users: int,
+     *     avg_filters_per_user: float,
+     *     max_filters_user: int
+     * }
+     */
+    private function getAdditionalUserFiltersInformation(): array
+    {
+        $data = [];
+
+        $filtersPerUserRequest = <<<SQL
+            SELECT COUNT(id) as count FROM user_filter GROUP BY user_id;
+        SQL;
+
+        $statement = $this->dbConfig->query($filtersPerUserRequest);
+
+        $filtersPerUser = [];
+
+        while (false !== ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            $filtersPerUser[] = $record['count'];
+        }
+
+        $data['nb_users'] = (int) $this->sqlFetchValue('SELECT COUNT(DISTINCT user_id) FROM user_filter');
+        $filters = (int) $this->sqlFetchValue('SELECT COUNT(id) FROM user_filter');
+        $data['avg_filters_per_user'] = (float) ($filters / $data['nb_users']);
+        $data['max_filters_user'] = (int) max(array_values($filtersPerUser));
+
+        return $data;
     }
 
     /**
