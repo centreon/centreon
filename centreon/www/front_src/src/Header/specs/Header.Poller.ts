@@ -48,7 +48,7 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@pollerButton').within(() => {
           cy.findByText('Pollers').should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DeviceHubIcon').should('be.visible');
         });
       });
