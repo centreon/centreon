@@ -12,26 +12,32 @@ import Widget from '.';
 const serviceMetrics: Data = {
   metrics: [
     {
+      id: 1,
+      name: 'cpu',
+      unit: '%'
+    },
+    {
       id: 2,
-      metrics: [
+      name: 'cpu AVG',
+      unit: '%'
+    }
+  ],
+  resources: [
+    {
+      resourceType: 'host-group',
+      resources: [
         {
-          id: 2,
-          name: 'cpu',
-          unit: '%'
-        },
-        {
-          id: 3,
-          name: 'cpu AVG',
-          unit: '%'
+          id: 1,
+          name: 'HG1'
         }
-      ],
-      name: 'Cpu'
+      ]
     }
   ]
 };
 
 const emptyServiceMetrics: Data = {
-  metrics: []
+  metrics: [],
+  resources: []
 };
 
 const disabledThreshold: FormThreshold = {
@@ -134,7 +140,10 @@ describe('Graph Widget', () => {
     initializeComponent({});
 
     cy.waitForRequest('@getLineChart').then(({ request }) => {
-      expect(request.url.search).to.include('metricIds=[2,3]');
+      expect(request.url.search).to.include('metric_names=[cpu,cpu%20AVG]');
+      expect(request.url.search).to.include(
+        'search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D'
+      );
 
       const start = dayjs(request.url.searchParams.get('start'));
       const end = dayjs(request.url.searchParams.get('end'));

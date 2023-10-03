@@ -61,7 +61,7 @@ interface TimePeriod {
 }
 
 interface UseTimePeriodState {
-  changeCustomDate: (property: string) => (newDate) => void;
+  changeCustomDate: (property: string) => (newDate: Date) => void;
   isCustomizeTimePeriod: boolean;
   options: Array<SelectEntry>;
   setTimePeriod: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -95,10 +95,10 @@ const useTimePeriod = (propertyName: string): UseTimePeriodState => {
     });
   };
 
-  const changeCustomDate = (property: string) => (newDate) => {
+  const changeCustomDate = (property: string) => (newDate: Date) => {
     setFieldValue(`options.${propertyName}`, {
       ...value,
-      [property]: newDate
+      [property]: newDate.toISOString()
     });
   };
 

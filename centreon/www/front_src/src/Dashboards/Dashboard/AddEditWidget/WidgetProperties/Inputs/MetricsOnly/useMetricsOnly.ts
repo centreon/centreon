@@ -6,10 +6,13 @@ import {
   equals,
   flatten,
   gt,
+  includes,
   isEmpty,
   isNil,
+  length,
   pipe,
   pluck,
+  uniq,
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -42,15 +45,17 @@ const resourceTypeQueryParameter = {
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
+  changeMetrics: (_, newMetrics: Array<SelectEntry> | null) => void;
+  getMetricOptionDisabled: (metricOption) => boolean;
+  getMultipleOptionLabel: (metric) => string;
   getOptionLabel: (metric) => string;
-  getSelectedItemLabel: (metric) => string;
   hasNoResources: () => boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount?: number;
   metrics: Array<Metric>;
   resources: Array<WidgetDataResource>;
-  selectedMetric?: Metric;
+  selectedMetrics?: Array<Metric>;
 }
 
 const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
@@ -60,7 +65,7 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
-  const value = useMemo<Metric | undefined>(
+  const value = useMemo<Array<Metric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
     [getDataProperty({ obj: values, propertyName })]
   );
@@ -73,6 +78,7 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
       buildListingEndpoint({
         baseEndpoint: metricsEndpoint,
         parameters: {
+          limit: 1000,
           search: {
             lists: resources.map((resource) => ({
               field: resourceTypeQueryParameter[resource.resourceType],
@@ -97,6 +103,14 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
 
   const metricCount = servicesMetrics?.meta?.total;
 
+  const unitsFromSelectedMetrics = pipe(
+    flatten,
+    pluck('unit'),
+    uniq
+  )([value] || []);
+
+  const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
+
   const metrics = pipe(
     pluck('metrics'),
     flatten,
@@ -104,8 +118,21 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
   )(servicesMetrics?.result || []);
 
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
-    setFieldValue(`data.${propertyName}`, newMetric);
+    setFieldValue(`data.${propertyName}`, [newMetric]);
     setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
+  const changeMetrics = (_, newMetrics: Array<SelectEntry> | null): void => {
+    setFieldValue(`data.${propertyName}`, newMetrics || []);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
+  const getMetricOptionDisabled = (metricOption): boolean => {
+    if (!hasReachedTheLimitOfUnits) {
+      return false;
+    }
+
+    return !includes(metricOption.unit, unitsFromSelectedMetrics);
   };
 
   const hasNoResources = (): boolean => {
@@ -135,8 +162,21 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
       0
     );
 
+  const getMultipleOptionLabel = (metric): string => {
+    if (isNil(metric)) {
+      return '';
+    }
+
+    return `${metric.name} (${
+      metric.unit
+    }) / ${getNumberOfResourcesRelatedToTheMetric(metric.name)}`;
+  };
+
   return {
     changeMetric,
+    changeMetrics,
+    getMetricOptionDisabled,
+    getMultipleOptionLabel,
     getOptionLabel,
     hasNoResources,
     hasTooManyMetrics,
@@ -144,7 +184,7 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
     metricCount,
     metrics,
     resources,
-    selectedMetric: value
+    selectedMetrics: value
   };
 };
 
