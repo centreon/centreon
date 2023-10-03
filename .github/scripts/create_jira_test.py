@@ -4,6 +4,7 @@ import json
 import requests
 import os
 import sys
+
 def get_xray_token(client_id, client_secret):
     # Define the curl command
     curl_command = [
@@ -25,7 +26,6 @@ def get_xray_token(client_id, client_secret):
         print(e.output)
         return None
 
-
 # Constants
 JIRA_USER = os.environ.get('JIRA_USER')
 JIRA_TOKEN_TEST = os.environ.get('JIRA_TOKEN_TEST')
@@ -37,29 +37,10 @@ XRAY_TOKEN = get_xray_token(CLIENT_ID,CLIENT_SECRET)
 XRAY_API_URL = "https://xray.cloud.getxray.app/api/v2/import/feature?projectKey=MON"
 GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql"
 
-branch_to_target = {
-    'develop': 'Cloud',
-    'MON-20381-Integrate-E2E-tests-from-GHA-to-XRay' : 'Cloud'
-    # Add more mappings as needed
-}
-
-
-def get_target_version(branch_name):
-    # Use regular expression to extract the version number
-    match = re.match(r'dev-(\d+\.\d+)\.x', branch_name)
-    if match:
-        version_number = match.group(1)
-        target_version = f'OnPrem - {version_number}'
-        print(f"Target Versions: {target_version}")
-        return target_version
-    else:
-        target_version = branch_to_target.get(branch_name, '')
-        if target_version :
-            print(f"Target Versions: {target_version}")
-            return target_version
-        else: 
-            print('Branch name does not match any target version')
-            return None
+def get_target_version(version_number):
+    target_version = f'OnPrem - {version_number}'
+    print(f"Target Versions: {target_version}")
+    return [target_version]
 
 def get_modified_feature_files():
     try:
@@ -130,10 +111,10 @@ def upload_feature_file_to_xray(feature_file_path):
         print(f"Error uploading feature file to Xray: {e}")
         return None
 
-def update_jira_issues(test_selfs, target_version, components_list):
+def update_jira_issues(test_selfs, target_versions, components_list):
     for api in test_selfs:
         try:
-              # Get the existing issue data
+            # Get the existing issue data
             jira_response = requests.get(api, headers={
                 "Accept": "application/json"
             }, auth=(JIRA_USER, JIRA_TOKEN_TEST))
@@ -142,16 +123,17 @@ def update_jira_issues(test_selfs, target_version, components_list):
                 existing_issue_data = jira_response.json()
                 existing_customfield_10901 = existing_issue_data['fields'].get('customfield_10901', [])
 
-                 # Extract the existing values or initialize as an empty list if null
+                # Extract the existing values or initialize as an empty list if null
                 existing_values = [item['value'] for item in existing_customfield_10901] if existing_customfield_10901 else []
 
-                print("Existing values of version : ",existing_values)
+                print("Existing values of version: ", existing_values)
 
-                # Add the target_version if it doesn't exist
-                if target_version not in existing_values:
-                    existing_values.append(target_version)
+                # Add the target_versions if they don't exist
+                for target_version in target_versions:
+                    if target_version not in existing_values:
+                        existing_values.append(target_version)
 
-                print("the new target version is : ",existing_values)
+                print("the new target versions are: ", existing_values)
 
                 issue_update_payload = {
                     "fields": {
@@ -159,37 +141,35 @@ def update_jira_issues(test_selfs, target_version, components_list):
                     }
                 }
 
-                print("the issue update is : ",issue_update_payload)
+                print("the issue update is : ", issue_update_payload)
 
-            if components_list:
-                issue_update_payload["fields"]["components"] = [{"name": component} for component in components_list]
-            else: 
-                print("No component mentioned")
+                if components_list:
+                    issue_update_payload["fields"]["components"] = [{"name": component} for component in components_list]
+                else:
+                    print("No component mentioned")
 
-            jira_response = requests.put(api, headers={
-                "Accept": "application/json"
-            }, json=issue_update_payload, auth=(JIRA_USER, JIRA_TOKEN_TEST))
+                jira_response = requests.put(api, headers={
+                    "Accept": "application/json"
+                }, json=issue_update_payload, auth=(JIRA_USER, JIRA_TOKEN_TEST))
 
-            if jira_response.status_code == 204:
-                print(f"Issue {api} updated successfully in Jira.")
-            else:
-                print(f"Error updating issue {api} in Jira. Status code: {jira_response.status_code}")
-                print(jira_response.text)
+                if jira_response.status_code == 204:
+                    print(f"Issue {api} updated successfully in Jira.")
+                else:
+                    print(f"Error updating issue {api} in Jira. Status code: {jira_response.status_code}")
+                    print(jira_response.text)
 
         except Exception as e:
             print(f"Error updating Jira issue: {e}")
 
 def main():
     # Check for the correct number of command-line arguments
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print("Usage: python test_creation_xray.py <feature_file> <branch_ref>")
         sys.exit(1)
 
     FEATURE_FILE_PATH = sys.argv[1]
-    branch_ref = sys.argv[2]
-
-    # Extract the branch name from the branch_ref
-    branch_name = branch_ref.split('/')[-1]  # Get the last part of the ref
+    branch_name = sys.argv[2]
+    version_number = sys.argv[3]
 
     print(f"Running script for {FEATURE_FILE_PATH} on branch {branch_name}")
 
@@ -197,8 +177,12 @@ def main():
     response_data = upload_feature_file_to_xray(FEATURE_FILE_PATH)
     print("response data",response_data)
 
-    # Set the target version based on the branch name
-    target_version = get_target_version(branch_name)
+    # Set the target version based on the version_number
+    if(branch_name=='develop'):
+        target_versions = get_target_version(version_number).append('Cloud')
+    else:
+        target_versions = get_target_version(version_number)
+
 
     test_set_key = extract_data_from_feature_file(FEATURE_FILE_PATH)
 
@@ -210,7 +194,7 @@ def main():
                 
         # Updating the Issues to match the target version and components
         # For now we have only centreon-web
-        update_jira_issues(test_selfs, target_version, ["centreon-web"])
+        update_jira_issues(test_selfs, target_versions, ["centreon-web"])
 
         if test_set_key : 
             test_set_id = get_jira_issue_id(test_set_key)
