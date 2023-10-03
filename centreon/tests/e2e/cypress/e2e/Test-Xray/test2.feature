@@ -6,7 +6,7 @@ Feature: Automated feature ( Test ) 2
 
     #this is a description for test 1
     @id:1 @LABEL-TEST-1
-    Scenario: Test : Logging in 2
+    Scenario: Test : Logging in 2 
     When I enter my credentials on the login page
     Then I am redirected to the default page
 
