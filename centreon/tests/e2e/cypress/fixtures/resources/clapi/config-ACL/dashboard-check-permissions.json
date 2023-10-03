@@ -17,7 +17,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-administrator-ACLMENU;0;Home;Dashboard;Administrator;"
+        "values": "name-administrator-ACLMENU;0;Home;Dashboards;Administrator;"
     },
     {
         "action": "GRANTRW",
@@ -57,7 +57,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-creator-ACLMENU;0;Home;Dashboard;Creator;"
+        "values": "name-creator-ACLMENU;0;Home;Dashboards;Creator;"
     },
     {
         "action": "GRANTRW",
@@ -92,7 +92,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-viewer-ACLMENU;0;Home;Dashboard;Viewer;"
+        "values": "name-viewer-ACLMENU;0;Home;Dashboards;Viewer;"
     },
     {
         "action": "GRANTRW",

@@ -95,7 +95,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
@@ -132,7 +132,7 @@ Feature:
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
     ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
-    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboards;Creator;
     ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
     ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;

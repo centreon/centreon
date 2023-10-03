@@ -1,17 +1,11 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { head } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
-import {
-  MultiConnectedAutocompleteField,
-  SelectEntry,
-  SelectField,
-  SingleConnectedAutocompleteField
-} from '@centreon/ui';
+import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
   labelAddResource,
@@ -23,7 +17,7 @@ import {
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { areResourcesFullfilled } from '../utils';
 import { editProperties } from '../../../../useCanEditDashboard';
 
@@ -38,7 +32,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleResourceTypeSelection = useAtomValue(
+    singleResourceTypeSelectionAtom
+  );
 
   const {
     value,
@@ -50,7 +46,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    changeResource
+    getOptionDisabled
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -87,41 +83,29 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}
             />
-            {singleMetricSection ? (
-              <SingleConnectedAutocompleteField
-                className={classes.resources}
-                disabled={!canEditField || !resource.resourceType}
-                field={getSearchField(resource.resourceType)}
-                getEndpoint={getResourceResourceBaseEndpoint(
-                  resource.resourceType
-                )}
-                label={t(labelSelectAResource)}
-                queryKey={`${resource.resourceType}-${index}`}
-                value={head(resource.resources) as SelectEntry}
-                onChange={changeResource(index)}
-              />
-            ) : (
-              <MultiConnectedAutocompleteField
-                chipProps={{
-                  color: 'primary'
-                }}
-                className={classes.resources}
-                disabled={!canEditField || !resource.resourceType}
-                field={getSearchField(resource.resourceType)}
-                getEndpoint={getResourceResourceBaseEndpoint(
-                  resource.resourceType
-                )}
-                label={t(labelSelectAResource)}
-                limitTags={2}
-                queryKey={`${resource.resourceType}-${index}`}
-                value={resource.resources || []}
-                onChange={changeResources(index)}
-              />
-            )}
+            <MultiConnectedAutocompleteField
+              allowUniqOption
+              get
+              chipProps={{
+                color: 'primary'
+              }}
+              className={classes.resources}
+              disabled={!canEditField || !resource.resourceType}
+              field={getSearchField(resource.resourceType)}
+              getEndpoint={getResourceResourceBaseEndpoint(
+                resource.resourceType
+              )}
+              getOptionDisabled={getOptionDisabled(index)}
+              label={t(labelSelectAResource)}
+              limitTags={2}
+              queryKey={`${resource.resourceType}-${index}`}
+              value={resource.resources || []}
+              onChange={changeResources(index)}
+            />
           </ItemComposition.Item>
         ))}
       </ItemComposition>
-      {singleMetricSection && (
+      {singleResourceTypeSelection && (
         <Typography sx={{ color: 'action.disabled' }}>
           {t(labelYouCanChooseOnResourcePerResourceType)}
         </Typography>

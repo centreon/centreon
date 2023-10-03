@@ -19,7 +19,7 @@ import {
   labelService
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
@@ -88,7 +88,9 @@ const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleResourceTypeSelection = useAtomValue(
+    singleResourceTypeSelectionAtom
+  );
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -164,18 +166,18 @@ const useResources = (propertyName: string): UseResourcesState => {
     (option): boolean | undefined => {
       const resources = value?.[index].resources;
 
-      if (singleMetricSection && isEmpty(resources)) {
+      if (singleResourceTypeSelection && isEmpty(resources)) {
         return false;
       }
 
       return (
-        singleMetricSection &&
+        singleResourceTypeSelection &&
         !pluck('name', resources || []).includes(option.name)
       );
     };
 
   useEffect(() => {
-    if (!singleMetricSection || !isEmpty(value)) {
+    if (!singleResourceTypeSelection || !isEmpty(value)) {
       return;
     }
 
@@ -185,7 +187,7 @@ const useResources = (propertyName: string): UseResourcesState => {
         resources: []
       }
     ]);
-  }, [singleMetricSection]);
+  }, [singleResourceTypeSelection]);
 
   return {
     addResource,

@@ -16,7 +16,7 @@ interface Props {
   graphHeight: number;
   highlight?: boolean;
   lineColor: string;
-  metric: string;
+  metric_id: number;
   shapeAreaClosed?: Record<string, unknown>;
   shapeLinePath?: Record<string, unknown>;
   timeSeries: Array<TimeValue>;
@@ -30,7 +30,7 @@ const RegularLine = ({
   filled,
   timeSeries,
   highlight,
-  metric,
+  metric_id,
   lineColor,
   unit,
   yScale,
@@ -43,13 +43,13 @@ const RegularLine = ({
   const props = {
     curve,
     data: timeSeries,
-    defined: (value): boolean => !isNil(value[metric]),
+    defined: (value): boolean => !isNil(value[metric_id]),
     opacity: 1,
     stroke: lineColor,
     strokeWidth: !highlight ? 1 : 2,
     unit,
     x: (timeValue): number => xScale(getTime(timeValue)) as number,
-    y: (timeValue): number => yScale(prop(metric, timeValue)) ?? null
+    y: (timeValue): number => yScale(prop(metric_id, timeValue)) ?? null
   };
 
   if (filled) {
@@ -57,7 +57,7 @@ const RegularLine = ({
       <Shape.AreaClosed<TimeValue>
         fill={getFillColor({ areaColor, transparency })}
         fillRule="nonzero"
-        key={metric}
+        key={metric_id}
         y0={Math.min(yScale(0), graphHeight)}
         yScale={yScale}
         {...props}
@@ -73,22 +73,27 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     timeSeries: prevTimeSeries,
     graphHeight: prevGraphHeight,
     highlight: prevHighlight,
-    xScale: prevXScale
+    xScale: prevXScale,
+    yScale: prevYScale
   } = prevProps;
   const {
     timeSeries: nextTimeSeries,
     graphHeight: nextGraphHeight,
     highlight: nextHighlight,
-    xScale: nextXScale
+    xScale: nextXScale,
+    yScale: nextYScale
   } = nextProps;
 
   const prevXScaleRange = prevXScale.range();
   const nextXScaleRange = nextXScale.range();
+  const prevYScaleDomain = prevYScale.domain();
+  const nextYScaleDomain = nextYScale.domain();
 
   return (
     equals(prevTimeSeries, nextTimeSeries) &&
     equals(prevGraphHeight, nextGraphHeight) &&
     equals(prevHighlight, nextHighlight) &&
-    equals(prevXScaleRange, nextXScaleRange)
+    equals(prevXScaleRange, nextXScaleRange) &&
+    equals(prevYScaleDomain, nextYScaleDomain)
   );
 });

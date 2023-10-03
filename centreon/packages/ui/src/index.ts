@@ -147,3 +147,6 @@ export * from './Dashboard';
 export * from './Graph';
 export type { LineChartData } from './Graph/common/models';
 export * from './Graph/common/timeSeries';
+
+export { default as TimePeriods } from './TimePeriods';
+export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePeriod/SimpleCustomTimePeriod';

@@ -10,10 +10,12 @@ const useStyle = makeStyles()((theme) => ({
     alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.primary.main}`,
     display: 'flex',
+    gap: '10%',
     justifyContent: 'space-between'
   },
   title: {
-    borderBottom: 'none'
+    borderBottom: 'none',
+    flex: '100%'
   }
 }));
 

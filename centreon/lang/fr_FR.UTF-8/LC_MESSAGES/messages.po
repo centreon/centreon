@@ -4018,8 +4018,8 @@ msgstr "Page par défaut"
 #: centreon-web/www/include/monitoring/status/Hosts/host.php:189
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:838
 #: centreon-web/www/include/monitoring/objectDetails/hostDetails.php:719
-msgid "[Page deprecated] Please use the new page: "
-msgstr "[Page dépréciée] Utilisez la nouvelle page: "
+msgid "[Page deprecated] This page will be removed in the next major version. Please use the new page: "
+msgstr "[Page dépréciée] Cette page sera supprimée dans la prochaine version majeure. Veuillez utiliser la nouvelle page : "
 
 #: centreon-web/www/include/Administration/myAccount/formMyAccount.php:138
 msgid "Show Up status"
@@ -18190,6 +18190,18 @@ msgstr "L'utilisateur avec l'ID %d n'existe pas"
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
 
+msgid "Show value labels"
+msgstr "Afficher les étiquettes de valeur"
+
+msgid "Top"
+msgstr "Top"
+
+msgid "Bottom"
+msgstr "Bottom"
+
+msgid "Includes {{count}} hosts"
+msgstr "Inclut {{count}} hôtes"
+
 msgid "Error while deleting a token"
 msgstr "Erreur lors de la suppression d'un token"
 
@@ -18198,6 +18210,9 @@ msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
 
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "hosts"
+msgstr "hôtes"
 
 msgid "none"
 msgstr "aucun"
