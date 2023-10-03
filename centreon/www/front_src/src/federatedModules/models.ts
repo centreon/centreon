@@ -57,5 +57,6 @@ export interface FederatedWidgetProperties {
     [key: string]: FederatedWidgetOption;
   };
   singleMetricSelection?: boolean;
+  singleResourceTypeSelection?: boolean;
   title: string;
 }

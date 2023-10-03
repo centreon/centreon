@@ -2,13 +2,13 @@ import { createStore } from 'jotai';
 
 import { Method } from '@centreon/ui';
 
-import { Data, FormThreshold } from './models';
+import { Data, FormThreshold, ValueFormat } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { graphEndpoint } from './api/endpoints';
 
 import Widget from '.';
 
-const serviceMetrics: Data = {
+const panelData: Data = {
   metrics: [
     {
       id: 1,
@@ -37,10 +37,21 @@ const serviceMetrics: Data = {
       ],
       name: 'Cpu'
     }
+  ],
+  resources: [
+    {
+      resourceType: 'host-group',
+      resources: [
+        {
+          id: 1,
+          name: 'HG1'
+        }
+      ]
+    }
   ]
 };
 
-const diskUsedMetric: Data = {
+const diskUsedMetricData: Data = {
   metrics: [
     {
       id: 1,
@@ -52,6 +63,17 @@ const diskUsedMetric: Data = {
         }
       ],
       name: 'Disk'
+    }
+  ],
+  resources: [
+    {
+      resourceType: 'host-group',
+      resources: [
+        {
+          id: 1,
+          name: 'HG1'
+        }
+      ]
     }
   ]
 };
@@ -89,22 +111,26 @@ const warningThreshold: FormThreshold = {
 };
 
 const emptyServiceMetrics: Data = {
-  metrics: []
+  metrics: [],
+  resources: []
 };
 
 interface Props {
   data?: Data;
   fixture?: string;
   options?: {
+    refreshInterval: 'default' | 'custom';
+    refreshIntervalCustom?: number;
     singleMetricGraphType: 'text' | 'gauge' | 'bar';
     threshold: FormThreshold;
-    valueFormat: 'human' | 'raw';
+    valueFormat: ValueFormat;
   };
 }
 
 const initializeComponent = ({
-  data = serviceMetrics,
+  data = panelData,
   options = {
+    refreshInterval: 'default',
     singleMetricGraphType: 'text',
     threshold: defaultThreshold,
     valueFormat: 'human'
@@ -236,7 +262,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as human readable', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'text',
@@ -250,7 +276,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as raw', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'text',
@@ -339,6 +365,7 @@ describe('Single metric Widget', () => {
 
       cy.contains('34%').should('have.css', 'fill', 'rgb(255, 74, 74)');
       cy.findByTestId('34-bar-#FF4A4A').should('be.visible');
+      cy.findByTestId('34-bar-#FF4A4A').should('have.css', 'width', '1366px');
 
       cy.findByTestId('warning-line-10-tooltip').trigger('mouseover');
       cy.contains('Warning threshold: 10%. Custom value').should('be.visible');
@@ -351,7 +378,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as human readable', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'bar',
@@ -365,7 +392,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as raw', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'bar',
@@ -461,7 +488,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as human readable', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'gauge',
@@ -475,7 +502,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as raw', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'gauge',
