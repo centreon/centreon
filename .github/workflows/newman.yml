@@ -133,7 +133,6 @@ jobs:
         done
 
     - name: Generate and Display Summaries
-      continue-on-error: true
       run: |
         summaries=""
         has_failures=false
