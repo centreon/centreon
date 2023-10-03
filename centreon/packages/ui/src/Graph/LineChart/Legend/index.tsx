@@ -69,25 +69,25 @@ const MainLegend = ({
       value
     }) || 'N/A';
 
-  const selectMetric = ({ event, metric }): void => {
+  const selectMetric = ({ event, metric_id }): void => {
     if (!toggable) {
       return;
     }
 
     if (event.ctrlKey || event.metaKey) {
-      toggleMetricLine(metric);
+      toggleMetricLine(metric_id);
 
       return;
     }
 
-    selectMetricLine(metric);
+    selectMetricLine(metric_id);
   };
 
   return (
     <div className={classes.legend}>
       <div className={classes.items}>
         {displayedLines.map((line) => {
-          const { color, name, display, metric, highlight } = line;
+          const { color, display, highlight, metric_id } = line;
 
           const markerColor = display
             ? color
@@ -119,9 +119,9 @@ const MainLegend = ({
                 highlight ? classes.highlight : classes.normal,
                 toggable && classes.toggable
               )}
-              key={name}
-              onClick={(event): void => selectMetric({ event, metric })}
-              onMouseEnter={(): void => highlightLine(metric)}
+              key={metric_id}
+              onClick={(event): void => selectMetric({ event, metric_id })}
+              onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
             >
               <LegendMarker color={markerColor} disabled={!display} />
