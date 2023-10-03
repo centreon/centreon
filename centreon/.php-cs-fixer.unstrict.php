@@ -26,16 +26,26 @@ use PhpCsFixer\{Config, Finder};
 
 $finder = Finder::create()
     ->in([
-        __DIR__ . '/src/Core',
+        __DIR__ . '/src/App',
+        // __DIR__ . 'Centreon',
+        __DIR__ . '/src/CentreonCommand',
+        __DIR__ . '/src/CentreonLegacy',
+        __DIR__ . '/src/CentreonModule',
+        __DIR__ . '/src/CentreonNotification',
+        __DIR__ . '/src/CentreonRemote',
+        __DIR__ . '/src/CentreonUser',
+        __DIR__ . '/src/EventSubscriber',
+        __DIR__ . '/src/Security',
+        __DIR__ . '/src/Utility',
     ]);
 
 /**
  * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
  * 👉️ We use the other php-cs-fixer config file for this legacy code.
  *
- * @see .php-cs-fixer.unstrict.php
+ * @see .php-cs-fixer.dist.php
  */
 return (new Config())
     ->setFinder($finder)
-    ->setRiskyAllowed(true)
-    ->setRules(PhpCsFixerRuleSet::getRules());
+    ->setRiskyAllowed(false) // 👈 risky NOT allowed
+    ->setRules(PhpCsFixerRuleSet::getRulesSafe());
