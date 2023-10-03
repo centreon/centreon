@@ -168,11 +168,3 @@ jobs:
         if [ -n "$summaries" ]; then
             echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         fi
-
-  newman-test-report:
-    needs: [newman-test-run]
-    runs-on: ubuntu-22.04
-
-    steps:
-      - run: |
-          echo "ok"
