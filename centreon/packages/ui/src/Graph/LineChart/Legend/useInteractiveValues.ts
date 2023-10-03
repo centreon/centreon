@@ -43,34 +43,34 @@ const useInteractiveValues = ({
     equals(item.timeTick, timeValue?.timeTick)
   );
 
-  const getMetricsToDisplay = (): Array<string> => {
+  const getMetricsToDisplay = (): Array<number> => {
     if (isNil(graphTimeValue)) {
       return [];
     }
     const metricsData = getMetrics(graphTimeValue as TimeValue);
 
-    const metricsToDisplay = metricsData.filter((metric) => {
-      const line = getLineForMetric({ lines, metric });
+    const metricsToDisplay = metricsData.filter((metric_id) => {
+      const line = getLineForMetric({ lines, metric_id: Number(metric_id) });
 
-      return !isNil(graphTimeValue[metric]) && !isNil(line);
+      return !isNil(graphTimeValue[metric_id]) && !isNil(line);
     });
 
-    return metricsToDisplay;
+    return metricsToDisplay.map(Number);
   };
 
   const metrics = useMemo(() => getMetricsToDisplay(), [graphTimeValue]);
 
   const getFormattedMetricData = (
-    metric: string
+    metric_id: number
   ): FormattedMetricData | null => {
     if (isNil(graphTimeValue)) {
       return null;
     }
-    const value = graphTimeValue[metric] as number;
+    const value = graphTimeValue[metric_id] as number;
 
     const { color, name, unit } = getLineForMetric({
       lines,
-      metric
+      metric_id
     }) as Line;
 
     const formattedValue = formatMetricValue({
@@ -88,9 +88,9 @@ const useInteractiveValues = ({
   };
 
   const getFormattedValue = (line: Line): string | undefined | null => {
-    const metric = find(equals(line.metric), metrics);
+    const metric_id = find(equals(line.metric_id), metrics);
 
-    return metric && getFormattedMetricData(metric)?.formattedValue;
+    return metric_id ? getFormattedMetricData(metric_id)?.formattedValue : null;
   };
 
   return { getFormattedValue };

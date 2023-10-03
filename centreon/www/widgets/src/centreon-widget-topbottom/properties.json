@@ -39,12 +39,12 @@
       "type": "resources",
       "defaultValue": []
     },
-    "metric": {
+    "metrics": {
       "type": "metrics-only",
-      "defaultValue": null
+      "defaultValue": []
     }
   },
-  "singleMetricSelection": false,
+  "singleMetricSelection": true,
   "customBaseColor": false,
   "moduleName": "centreon-widget-topbottom"
 }

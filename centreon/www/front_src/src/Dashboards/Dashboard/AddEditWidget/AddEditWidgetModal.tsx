@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
 import { isNil } from 'ramda';
@@ -36,10 +38,17 @@ const AddWidgetModal = (): JSX.Element | null => {
     editWidget,
     askBeforeCloseModal,
     askingBeforeCloseModal,
-    discardChanges
+    discardChanges,
+    closeModal
   } = useWidgetForm();
 
   const isAddingWidget = isNil(widgetFormInitialData?.id);
+
+  useEffect(() => {
+    return () => {
+      closeModal();
+    };
+  }, []);
 
   if (!widgetFormInitialData) {
     return null;
