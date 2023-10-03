@@ -590,7 +590,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     private function hasMonitoringServerFilter(string $accessGroupIdsQuery, array $accessGroupsBindValues): bool
     {
         $monitoringServersQuery = <<<SQL
-            SELECT aclpoller.poller_id AS id
+            SELECT COUNT(*)
             FROM `:db`.acl_resources_poller_relations aclpoller
             INNER JOIN `:db`.acl_resources aclr_poller
                 ON aclr_poller.acl_res_id = aclpoller.acl_res_id

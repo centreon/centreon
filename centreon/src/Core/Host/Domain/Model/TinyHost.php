@@ -82,7 +82,7 @@ class TinyHost
             Assertion::positiveInt($normalCheckInterval, "{$shortName}::checkInterval");
         }
         if ($retryCheckInterval !== null) {
-            Assertion::positiveInt($retryCheckInterval, "{$shortName}::retryCheckInterval");
+            Assertion::min($retryCheckInterval, 1, "{$shortName}::retryCheckInterval");
         }
     }
 

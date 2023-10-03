@@ -56,6 +56,8 @@ interface ReadHostRepositoryInterface
     public function findById(int $hostId): ?Host;
 
     /**
+     * Find hosts based on query parameters.
+     *
      * @param RequestParametersInterface $requestParameters
      *
      * @throws \Throwable
@@ -65,8 +67,11 @@ interface ReadHostRepositoryInterface
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
 
     /**
+     * Find hosts based on query parameters and access groups.
+     * If the list of access groups is empty, no restrictions will be applied.
+     *
      * @param RequestParametersInterface $requestParameters
-     * @param AccessGroup[] $accessGroups
+     * @param AccessGroup[] $accessGroups If the list is empty, no restrictions will be applied
      *
      * @return TinyHost[]
      */
