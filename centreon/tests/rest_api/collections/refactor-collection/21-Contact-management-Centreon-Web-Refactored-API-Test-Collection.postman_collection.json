@@ -562,10 +562,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -695,10 +695,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -956,10 +956,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1068,10 +1068,10 @@
 							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1137,10 +1137,10 @@
 							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"contact\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1207,10 +1207,10 @@
 							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1277,10 +1277,10 @@
 							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"contact\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1345,10 +1345,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1561,10 +1561,10 @@
 							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"contact\",\n  \"values\": \"{{api_login}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1626,10 +1626,10 @@
 							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"contact\",\n  \"values\": \"{{api_login}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1844,10 +1844,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{testUserPassword}};0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -1941,10 +1941,10 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -2416,10 +2416,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -2634,10 +2634,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{testUserPassword}};1;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -2731,10 +2731,10 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -3169,10 +3169,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -3387,10 +3387,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{testUserPassword}};0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -3804,10 +3804,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4021,10 +4021,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4095,10 +4095,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4166,10 +4166,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4242,10 +4242,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4309,10 +4309,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4384,10 +4384,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4453,10 +4453,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4521,10 +4521,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -4756,10 +4756,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{currentIncorrectPassword}};0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -5072,10 +5072,10 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{currentCompliantPassword}};0;0;en_US;local\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -5171,10 +5171,10 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
@@ -5580,10 +5580,10 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}"
+								"{{server}}:{{port}}"
 							],
 							"path": [
 								"centreon",
