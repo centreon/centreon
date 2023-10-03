@@ -44,8 +44,6 @@ jobs:
   postman_tests:
    needs: discover_collections
    runs-on: ubuntu-latest
-   continue-on-error: true
-
 
    strategy:
     fail-fast: false
@@ -77,9 +75,9 @@ jobs:
           node-version: 18
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
-  
+
     - name: Install Dependencies for tests/rest_api
-      run: pnpm install --frozen-lockfile 
+      run: pnpm install --frozen-lockfile
       shell: bash
       env:
         CYPRESS_INSTALL_BINARY: “0”
@@ -117,7 +115,7 @@ jobs:
       with:
         name: postman-html-reports
         path: centreon/tests/rest_api/newman/
-        
+
     - name: Extract and Store Summaries
       run: |
         declare -A json_info
@@ -136,7 +134,7 @@ jobs:
     - name: Generate and Display Summaries
       run: |
         summaries=""
-        has_failures=false 
+        has_failures=false
         for summary_file in ./postman_summaries/*.json; do
             collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
             total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
@@ -156,18 +154,17 @@ jobs:
                     parent_name=$(echo "$row" | jq -r '.Parent.Name')
                     source_name=$(echo "$row" | jq -r '.Source.Name')
                     error_message=$(echo "$row" | jq -r '.Error.Message')
-                
+
                     summaries+="<p><strong>📁 Collection name:</strong> $parent_name<br><strong>📬 Request name:</strong> $source_name<br><strong>❌ Error message:</strong> $error_message</p>"
                 done <<< "$(echo "$filtered_failures")"
             fi
             echo "Processing summary file: $summary_file"
         done
-        
+
         if [ -n "$summaries" ]; then
             echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         if [ "$has_failures" = true ]; then
            exit 1
         fi
-        

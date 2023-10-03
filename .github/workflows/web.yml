@@ -493,6 +493,7 @@ jobs:
 
   newman-test:
      needs: [get-version, changes, dockerize]
+     continue-on-error: true
      if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
      uses: ./.github/workflows/newman.yml
      with:
