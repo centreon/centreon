@@ -42,14 +42,14 @@ jobs:
           cat $GITHUB_OUTPUT
 
   newman-test-run:
-   needs: [discover_collections]
+   needs: [newman-test-list]
    runs-on: ubuntu-22.04
    continue-on-error: true
 
    strategy:
     fail-fast: false
     matrix:
-      feature: ${{ fromJson(needs.discover_collections.outputs.collections) }}
+      feature: ${{ fromJson(needs.newman-test-list.outputs.collections) }}
 
    name: ${{ matrix.feature }}
 
@@ -170,7 +170,7 @@ jobs:
         fi
 
   newman-test-report:
-    needs: [behat-test-run]
+    needs: [newman-test-run]
     if: failure()
     runs-on: ubuntu-22.04
 
