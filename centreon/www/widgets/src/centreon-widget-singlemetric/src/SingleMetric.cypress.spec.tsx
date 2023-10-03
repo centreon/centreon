@@ -365,6 +365,7 @@ describe('Single metric Widget', () => {
 
       cy.contains('34%').should('have.css', 'fill', 'rgb(255, 74, 74)');
       cy.findByTestId('34-bar-#FF4A4A').should('be.visible');
+      cy.findByTestId('34-bar-#FF4A4A').should('have.css', 'width', '1366px');
 
       cy.findByTestId('warning-line-10-tooltip').trigger('mouseover');
       cy.contains('Warning threshold: 10%. Custom value').should('be.visible');
