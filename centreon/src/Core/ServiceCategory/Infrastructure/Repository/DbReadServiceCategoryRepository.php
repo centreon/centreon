@@ -248,11 +248,12 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
         $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
         $categoryNames = new ServiceCategoryNamesById();
 
-        while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        foreach ($statement as $result) {
             /** @var array{sc_id:int,sc_name:string} $result */
             $categoryNames->addName(
                 $result['sc_id'],

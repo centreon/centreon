@@ -105,14 +105,14 @@ final class FindServices
         $groupIds = [];
         $hostIds = [];
         foreach ($services as $service) {
-            $categoryIds = array_merge($categoryIds, $service->getCategoryIds());
-            $hostIds = array_merge(
-                $hostIds,
-                $service->getHostIds(),
-                ServiceGroupRelation::getHostIds($service->getGroups())
-            );
-            $groupIds = array_merge($groupIds, ServiceGroupRelation::getServiceGroupIds($service->getGroups()));
+            $categoryIds[] = $service->getCategoryIds();
+            $hostIds[] = $service->getHostIds();
+            $hostIds[] = ServiceGroupRelation::getHostIds($service->getGroups());
+            $groupIds[] = ServiceGroupRelation::getServiceGroupIds($service->getGroups());
         }
+        $categoryIds = array_merge(...$categoryIds);
+        $hostIds = array_merge(...$hostIds);
+        $groupIds = array_merge(...$groupIds);
 
         $categoryNames = $categoryIds ? $this->readServiceCategoryRepository->findNames($categoryIds) : null;
         $groupNames = $groupIds ? $this->readServiceGroupRepository->findNames($groupIds) : null;

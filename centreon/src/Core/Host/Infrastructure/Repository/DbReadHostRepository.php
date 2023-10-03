@@ -299,11 +299,12 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
         $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
         $groupNames = new HostNamesById();
 
-        while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        foreach ($statement as $result) {
             /** @var array{host_id:int,host_name:string} $result */
             $groupNames->addName(
                 $result['host_id'],

@@ -237,11 +237,12 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
         $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
         $groupNames = new ServiceGroupNamesById();
 
-        while (false !== ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        foreach ($statement as $result) {
             /** @var array{sg_id:int,sg_name:string} $result */
             $groupNames->addName(
                 $result['sg_id'],
