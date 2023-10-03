@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +8,6 @@ import {
   DashboardResource,
   Modal
 } from '@centreon/ui/components';
-import { useSnackbar } from '@centreon/ui';
 
 import {
   labelCancel,
@@ -27,22 +26,10 @@ import {
 import { useDashboardConfig } from './useDashboardConfig';
 
 const DashboardConfigModal = (): ReactElement => {
-  const { isDialogOpen, closeDialog, dashboard, submit, variant, status } =
+  const { isDialogOpen, closeDialog, dashboard, submit, variant } =
     useDashboardConfig();
 
   const { t } = useTranslation();
-
-  const { showSuccessMessage, showErrorMessage } = useSnackbar();
-
-  const onSuccess = (): void =>
-    showSuccessMessage(labels.status[variant].success);
-
-  const onError = (): void => showErrorMessage(labels.status[variant].error);
-
-  useEffect(() => {
-    if (status === 'success') onSuccess();
-    if (status === 'error') onError();
-  }, [status]);
 
   const labels = useMemo(
     (): {
