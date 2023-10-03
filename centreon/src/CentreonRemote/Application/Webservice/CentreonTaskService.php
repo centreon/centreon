@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,17 +22,14 @@
 namespace CentreonRemote\Application\Webservice;
 
 use Centreon\Domain\Entity\Task;
-use Centreon\Domain\Repository\InformationsRepository;
-use Exception;
 
 /**
  * @OA\Tag(name="centreon_task_service", description="")
  */
 class CentreonTaskService extends CentreonWebServiceAbstract
 {
-
     /**
-     * Name of web service object
+     * Name of web service object.
      *
      * @return string
      */
@@ -46,9 +43,11 @@ class CentreonTaskService extends CentreonWebServiceAbstract
      *   path="/internal.php?object=centreon_task_service&action=getTaskStatus",
      *   description="Get Status of task",
      *   tags={"centreon_task_service"},
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="object",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"centreon_task_service"},
@@ -57,9 +56,11 @@ class CentreonTaskService extends CentreonWebServiceAbstract
      *       description="the name of the API object class",
      *       required=true
      *   ),
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="action",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"getTaskStatus"},
@@ -68,12 +69,15 @@ class CentreonTaskService extends CentreonWebServiceAbstract
      *       description="the name of the action in the API class",
      *       required=true
      *   ),
+     *
      *   @OA\RequestBody(
      *       required=true,
+     *
      *       @OA\JsonContent(
      *          required={
      *              "task_id"
      *          },
+     *
      *          @OA\Property(
      *              property="task_id",
      *              type="string",
@@ -81,10 +85,13 @@ class CentreonTaskService extends CentreonWebServiceAbstract
      *          )
      *       )
      *   ),
+     *
      *   @OA\Response(
      *       response=200,
      *       description="JSON",
+     *
      *       @OA\JsonContent(
+     *
      *          @OA\Property(property="success", type="boolean"),
      *          @OA\Property(property="status", type="string")
      *       )
@@ -93,14 +100,15 @@ class CentreonTaskService extends CentreonWebServiceAbstract
      *
      * Get Status of task
      *
-     * @return array<string,bool|string>
      * @throws \RestBadRequestException
-     * @example ['success' => true, 'status' => 'status of the task']
      *
+     * @return array<string,bool|string>
+     *
+     * @example ['success' => true, 'status' => 'status of the task']
      */
     public function postGetTaskStatus(): array
     {
-        if (!isset($this->arguments['task_id'])) {
+        if (! isset($this->arguments['task_id'])) {
             throw new \RestBadRequestException('Missing argument task_id');
         }
 
@@ -110,16 +118,17 @@ class CentreonTaskService extends CentreonWebServiceAbstract
     }
 
     /**
-     * Find task status by parent id (used on remote server)
+     * Find task status by parent id (used on remote server).
+     *
+     * @throws \RestBadRequestException
      *
      * @return array<string,bool|string>
-     * @throws \RestBadRequestException
-     * @example ['success' => true, 'status' => 'status of the task']
      *
+     * @example ['success' => true, 'status' => 'status of the task']
      */
     public function postGetTaskStatusByParent(): array
     {
-        if (!isset($this->arguments['parent_id'])) {
+        if (! isset($this->arguments['parent_id'])) {
             throw new \RestBadRequestException('Missing argument parent_id');
         }
 
@@ -129,7 +138,7 @@ class CentreonTaskService extends CentreonWebServiceAbstract
     }
 
     /**
-     * Authorize to access to the action
+     * Authorize to access to the action.
      *
      * @param string $action The action name
      * @param \CentreonUser $user The current user
