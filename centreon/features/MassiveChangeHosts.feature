@@ -8,5 +8,5 @@ Feature: Massive Change on Hosts
         And several hosts have been created with mandatory properties
 
     Scenario: Configure by massive change several hosts with same properties
-        When I have applied Massive Change operation to several hosts
+        When I have applied Mass Change operation to several hosts
         Then all selected hosts are updated with the same values

@@ -103,7 +103,7 @@ export default (): void =>
         cy.get('@unreachableCounter').should('be.visible').contains('126');
         cy.get('@upCounter').should('be.visible').contains('12.1k');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('redirect to Resources Status with the correct filter when a counter is clicked', () => {
@@ -149,7 +149,7 @@ export default (): void =>
         cy.get('@serviceButton').should('be.visible');
         cy.get('@serviceButton').click();
         submenuShouldBeOpened(labelHosts);
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {

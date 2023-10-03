@@ -38,9 +38,17 @@ Cypress.Commands.add('waitFiltersAndListingRequests', () => {
   cy.waitForRequest('@dataToListingTable');
 });
 
+Cypress.Commands.add('makeSnapshot', (): void => {
+  cy.viewport(1270, 590);
+  cy.matchImageSnapshot();
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      clickOutside: () => void;
+      displayFilterMenu: () => void;
+      makeSnapshot: () => void;
       waitFiltersAndListingRequests: () => Cypress.Chainable;
     }
   }

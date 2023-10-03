@@ -114,7 +114,7 @@ export default (): void =>
         cy.get('@okCounter').should('be.visible').contains('12.1k');
         cy.get('@warningCounter').should('be.visible').contains('14.7m');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('redirects on click on the counter', () => {
@@ -166,7 +166,7 @@ export default (): void =>
         cy.get('@serviceButton').should('be.visible');
         cy.get('@serviceButton').click();
         submenuShouldBeOpened(labelServices);
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {

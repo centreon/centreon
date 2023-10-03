@@ -29,7 +29,7 @@ jobs:
     if: ${{ github.event.pull_request.merged == true }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/npm-publish-package-stable
         with:
@@ -44,7 +44,7 @@ jobs:
     needs: [get-version]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/publish-storybook
         with:
