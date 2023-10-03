@@ -233,11 +233,11 @@ Given('a user with a custom timezone set in his profile', function _() {
   Step(this, 'the user saves the form');
   Step(this, 'timezone information are updated on the banner');
 
-  cy.logout()
-    .loginByTypeOfUser({
-      jsonName: 'admin'
-    })
-    .wait('@getLastestUserFilters');
+  cy.logout();
+
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  }).wait('@getLastestUserFilters');
 });
 
 When('the user creates a downtime on a resource', () => {

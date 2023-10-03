@@ -11,7 +11,7 @@ import AnchorPoint from '.';
 
 interface Props {
   lineColor: string;
-  metric: string;
+  metric_id: number;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
@@ -21,18 +21,18 @@ const getYAnchorPoint = ({
   timeTick,
   timeSeries,
   yScale,
-  metric
+  metric_id
 }: GetYAnchorPoint): number => {
   const index = bisectDate(getDates(timeSeries), timeTick);
   const timeValue = timeSeries[index];
 
-  return yScale(prop(metric, timeValue) as number);
+  return yScale(prop(metric_id, timeValue) as number);
 };
 
 const RegularAnchorPoint = ({
   xScale,
   yScale,
-  metric,
+  metric_id,
   timeSeries,
   lineColor
 }: Props): JSX.Element | null => {
@@ -48,7 +48,7 @@ const RegularAnchorPoint = ({
   const xAnchorPoint = xScale(timeTick);
 
   const yAnchorPoint = getYAnchorPoint({
-    metric,
+    metric_id,
     timeSeries,
     timeTick,
     yScale

@@ -18,10 +18,10 @@ export interface MultiIconCheckBoxProps {
 export enum EventsType {
   Critical = 'Critical',
   Down = 'Down',
-  Ok = 'Ok',
+  Ok = 'Recovery',
   Unkown = 'Unkown',
   Unreachable = 'Unreachable',
-  Up = 'Up',
+  Up = 'Recovery',
   Warning = 'Warning'
 }
 

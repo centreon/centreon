@@ -6,7 +6,10 @@ import { Visualization } from '../../models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
 import { CriteriaNames } from '../../Filter/Criterias/models';
 import { selectedColumnIdsAtom } from '../../Listing/listingAtoms';
-import { defaultSelectedColumnIds } from '../../Listing/columns/index';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
+} from '../../Listing/columns/index';
 
 import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
@@ -62,6 +65,11 @@ const useVisualization = ({ type }: Props): State => {
   ])(type);
 
   const resetColumnsConfiguration = (): void => {
+    if (equals(type, Visualization.Host)) {
+      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
+
+      return;
+    }
     setSelectedColumnIds(defaultSelectedColumnIds);
   };
 

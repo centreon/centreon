@@ -129,14 +129,14 @@ const Lines = ({
       {displayAreaRegularLines
         ? regularLines.map(
             ({
-              metric,
               areaColor,
               transparency,
               lineColor,
               filled,
               unit,
               highlight,
-              invert
+              invert,
+              metric_id
             }) => {
               const [, secondUnit, thirdUnit] = getUnits(
                 regularLines as Array<Line>
@@ -151,12 +151,12 @@ const Lines = ({
               });
 
               return (
-                <g key={metric}>
+                <g key={metric_id}>
                   {displayGuidingLines && (
                     <RegularAnchorPoint
                       areaColor={areaColor}
                       lineColor={lineColor}
-                      metric={metric}
+                      metric_id={metric_id}
                       timeSeries={timeSeries}
                       transparency={transparency}
                       xScale={xScale}
@@ -170,7 +170,7 @@ const Lines = ({
                     graphHeight={height}
                     highlight={highlight}
                     lineColor={lineColor}
-                    metric={metric}
+                    metric_id={metric_id}
                     timeSeries={timeSeries}
                     transparency={transparency}
                     unit={unit}
