@@ -1,7 +1,7 @@
 import { GenerateReportForPageProps } from '../models';
 import { baseUrl } from '../defaults';
 import fetch from 'node-fetch';
-import panels from '../../fixtures/dashboardPanels.json'
+import panels from '../../fixtures/dashboardPanels.json' assert { type: "json" };
 
 export const generateReportForDashboardsPage = async ({
   navigate,
