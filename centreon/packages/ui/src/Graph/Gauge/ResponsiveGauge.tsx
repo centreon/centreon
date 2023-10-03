@@ -134,7 +134,7 @@ const ResponsiveGauge = ({
             ...baseStyles,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
-            transform: 'translate(-50%, 0)'
+            transform: 'translate(-50%, -24px)'
           }}
           top={(tooltipTop || 0) - svgTop + 20}
         >

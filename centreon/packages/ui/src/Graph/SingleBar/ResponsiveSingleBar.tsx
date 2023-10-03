@@ -182,7 +182,7 @@ const ResponsiveSingleBar = ({
             ...baseStyles,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
-            transform: `translate(-50%, ${isSmall ? -60 : -20}px)`,
+            transform: `translate(-50%, ${isSmall ? -100 : -120}px)`,
             zIndex: theme.zIndex.tooltip
           }}
           top={tooltipTop}
