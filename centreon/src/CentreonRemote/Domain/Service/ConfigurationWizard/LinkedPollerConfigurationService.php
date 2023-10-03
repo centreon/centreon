@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,42 +27,34 @@ require_once __DIR__ . '/../../../../../www/class/centreonBroker.class.php';
 require_once __DIR__ . '/../../../../../www/class/centreonConfigCentreonBroker.php';
 require_once __DIR__ . '/../../../../../www/include/configuration/configGenerate/DB-Func.php';
 
-use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
 use Centreon\Domain\Entity\Task;
-use CentreonRemote\Domain\Value\PollerServer;
-use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputForwardMaster;
-use CentreonRemote\Infrastructure\Service\PollerInteractionService;
 use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInterface;
 use Centreon\Domain\Service\BrokerConfigurationService;
-use CentreonRemote\Domain\Service\TaskService;
+use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
+use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputForwardMaster;
 use CentreonRemote\Domain\Resources\RemoteConfig\InputFlowOnePeerRetention;
+use CentreonRemote\Domain\Service\TaskService;
+use CentreonRemote\Domain\Value\PollerServer;
+use CentreonRemote\Infrastructure\Service\PollerInteractionService;
 
 class LinkedPollerConfigurationService
 {
-    /** @var \CentreonDB */
-    private $db;
-
     /** @var bool */
     protected $onePeerRetention = false;
 
-    /**
-     * @var CfgCentreonBrokerInterface
-     */
+    /** @var \CentreonDB */
+    private $db;
+
+    /** @var CfgCentreonBrokerInterface */
     private $brokerRepository;
 
-    /**
-     * @var BrokerConfigurationService
-     */
+    /** @var BrokerConfigurationService */
     private $brokerConfigurationService;
 
-    /**
-     * @var TaskService
-     */
+    /** @var TaskService */
     private $taskService;
 
-    /**
-     * @var PollerInteractionService
-     */
+    /** @var PollerInteractionService */
     private $pollerInteractionService;
 
     public function __construct(CentreonDBAdapter $dbAdapter)
@@ -71,7 +63,7 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Set broker repository to manage general broker configuration
+     * Set broker repository to manage general broker configuration.
      *
      * @param CfgCentreonBrokerInterface $cfgCentreonBroker the centreon broker configuration repository
      */
@@ -81,7 +73,7 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Set broker configuration service to broker info configuration
+     * Set broker configuration service to broker info configuration.
      *
      * @param BrokerConfigurationService $brokerConfigurationService the service to manage broker confiration
      */
@@ -91,7 +83,7 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Set poller interaction service
+     * Set poller interaction service.
      *
      * @param PollerInteractionService $pollerInteractionService the poller interaction service
      */
@@ -101,7 +93,7 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Set task service to add export task
+     * Set task service to add export task.
      *
      * @param TaskService $taskService the task service
      */
@@ -111,7 +103,7 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Set one peer retention mode
+     * Set one peer retention mode.
      *
      * @param bool $onePeerRetention if one peer retention mode is enabled
      */
@@ -121,10 +113,10 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Link a set of pollers to a parent poller by creating broker input/output
+     * Link a set of pollers to a parent poller by creating broker input/output.
      *
      * @param PollerServer[] $pollers
-     * @param PollerServer   $remote
+     * @param PollerServer $remote
      */
     public function linkPollersToParentPoller(array $pollers, PollerServer $remote): void
     {
@@ -151,9 +143,9 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Link a poller to additional Remote Servers
+     * Link a poller to additional Remote Servers.
      *
-     * @param PollerServer   $poller
+     * @param PollerServer $poller
      * @param PollerServer[] $remotes
      */
     public function linkPollerToAdditionalRemoteServers(PollerServer $poller, array $remotes): void
@@ -177,7 +169,7 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Add broker input configuration on remote server to get data from poller
+     * Add broker input configuration on remote server to get data from poller.
      *
      * @param int $remoteId
      * @param PollerServer $poller
@@ -193,9 +185,9 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Add relation between poller and Remote Servers
+     * Add relation between poller and Remote Servers.
      *
-     * @param PollerServer   $poller
+     * @param PollerServer $poller
      * @param PollerServer[] $remotes
      */
     private function insertAddtitionnalRemoteServersRelations(PollerServer $poller, array $remotes): void
@@ -218,26 +210,26 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Update host field of broker output on poller to link it the the remote server
+     * Update host field of broker output on poller to link it the the remote server.
      *
-     * @param int          $pollerId
+     * @param int $pollerId
      * @param PollerServer $remote
-     * @param Boolean      $additional
+     * @param bool $additional
      */
     private function setBrokerOutputOfPoller($pollerId, PollerServer $remote, $additional = false): void
     {
         if ($additional) { // insert new broker output relation
-            $statement = $this->db->prepare("SELECT `config_id`
+            $statement = $this->db->prepare('SELECT `config_id`
                 FROM `cfg_centreonbroker`
                 WHERE `ns_nagios_server` = :id
-                AND `daemon` = 0");
+                AND `daemon` = 0');
             $statement->bindParam(':id', $pollerId, \PDO::PARAM_INT);
             $statement->execute();
             $configId = $statement->fetchColumn();
 
-            $statement = $this->db->prepare("SELECT MAX(`config_group_id`) AS config_group_id
+            $statement = $this->db->prepare('SELECT MAX(`config_group_id`) AS config_group_id
                 FROM `cfg_centreonbroker_info`
-                WHERE `config_id` = :id");
+                WHERE `config_id` = :id');
             $statement->bindParam(':id', $configId, \PDO::PARAM_INT);
             $statement->execute();
             $configGRoupId = $statement->fetchColumn() + 1;
@@ -246,7 +238,7 @@ class LinkedPollerConfigurationService
             $defaultBrokerOutput[0]['config_value'] = 'forward-to-' . str_replace(' ', '-', $remote->getName());
 
             $this->db->beginTransaction();
-            $statement = $this->db->prepare("INSERT INTO `cfg_centreonbroker_info` (
+            $statement = $this->db->prepare('INSERT INTO `cfg_centreonbroker_info` (
                 config_id, config_key, config_value, config_group, config_group_id, grp_level
                 ) VALUES (
                 :config_id,
@@ -255,7 +247,7 @@ class LinkedPollerConfigurationService
                 :config_group,
                 :config_group_id,
                 :grp_level
-                )");
+                )');
             try {
                 foreach ($defaultBrokerOutput as $item) {
                     $statement->bindParam(':config_id', $configId, \PDO::PARAM_INT);
@@ -275,10 +267,10 @@ class LinkedPollerConfigurationService
             }
         } else { // update host field of poller module output to link it the remote server
             // find broker config id of poller module
-            $statement = $this->db->prepare("SELECT `config_id`
+            $statement = $this->db->prepare('SELECT `config_id`
                 FROM `cfg_centreonbroker`
                 WHERE `ns_nagios_server` = :id
-                AND `daemon` = 0");
+                AND `daemon` = 0');
             $statement->bindParam(':id', $pollerId, \PDO::PARAM_INT);
             $statement->execute();
             $configId = $statement->fetchColumn();
@@ -310,16 +302,16 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Link poller with remote server in database
+     * Link poller with remote server in database.
      *
      * @param int $pollerId
      * @param PollerServer $remote
      */
     private function setPollerRelationToRemote($pollerId, PollerServer $remote): void
     {
-        $query = "UPDATE `nagios_server` "
-            . "SET `remote_id` = :remote_id "
-            . "WHERE `id` = :id";
+        $query = 'UPDATE `nagios_server` '
+            . 'SET `remote_id` = :remote_id '
+            . 'WHERE `id` = :id';
         $statement = $this->db->prepare($query);
         $statement->bindValue(':remote_id', $remote->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':id', $pollerId, \PDO::PARAM_INT);
@@ -327,17 +319,16 @@ class LinkedPollerConfigurationService
     }
 
     /**
-     * Export to existing remote servers
+     * Export to existing remote servers.
      *
      * @param int[] $pollerIDs the poller ids to export
-     * @return void
      */
     private function triggerExportForOldRemotes(array $pollerIDs): void
     {
         // Get from the database only the pollers that are linked to a remote
         $idBindString = str_repeat('?,', count($pollerIDs));
         $idBindString = rtrim($idBindString, ',');
-        $queryPollers = "SELECT id, remote_id FROM nagios_server "
+        $queryPollers = 'SELECT id, remote_id FROM nagios_server '
             . "WHERE id IN({$idBindString}) AND remote_id IS NOT NULL";
         $remotesStatement = $this->db->query($queryPollers, $pollerIDs);
         $pollersWithRemote = $remotesStatement->fetchAll(\PDO::FETCH_ASSOC);
@@ -355,9 +346,9 @@ class LinkedPollerConfigurationService
 
             // Get all linked pollers of the remote
             $linkedStatement = $this->db->prepare(
-                "SELECT id
+                'SELECT id
                 FROM nagios_server
-                WHERE remote_id = :remote_id"
+                WHERE remote_id = :remote_id'
             );
             $linkedStatement->bindValue(':remote_id', $remoteID, \PDO::PARAM_INT);
             $linkedStatement->execute();
@@ -366,11 +357,11 @@ class LinkedPollerConfigurationService
 
             // Get information of remote
             $remoteDataStatement = $this->db->prepare(
-                "SELECT ns.ns_ip_address as ip, rs.centreon_path,
+                'SELECT ns.ns_ip_address as ip, rs.centreon_path,
                   rs.http_method, rs.http_port, rs.no_check_certificate, rs.no_proxy
                 FROM nagios_server as ns
                 JOIN remote_servers as rs ON rs.server_id = ns.id
-                WHERE ns.id = :server_id"
+                WHERE ns.id = :server_id'
             );
             $remoteDataStatement->bindValue(':server_id', $remoteID, \PDO::PARAM_INT);
             $remoteDataStatement->execute();
