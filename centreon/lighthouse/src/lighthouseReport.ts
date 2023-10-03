@@ -8,6 +8,7 @@ import { generateReportForResourceStatusPage } from './pages/resourceStatus';
 import { generateReportForAuthenticationPage } from './pages/authentication';
 import { baseConfig } from './defaults';
 import type { NavigateProps } from './models';
+import { generateReportForDashboardsPage } from './pages/dashboards';
 
 const createReportFile = async (report): Promise<void> => {
   const lighthouseFolderExists = fs.existsSync('report');
@@ -22,7 +23,7 @@ const createReportFile = async (report): Promise<void> => {
 const captureReport = async (): Promise<void> => {
   const browser = await puppeteer.launch({
     args: ['--lang=en-US,en', '--no-sandbox', '--disable-setuid-sandbox'],
-    headless: true,
+    headless: "new",
   });
   const page = await browser.newPage();
 
@@ -63,6 +64,14 @@ const captureReport = async (): Promise<void> => {
   });
 
   await generateReportForAuthenticationPage({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan,
+  });
+
+  await generateReportForDashboardsPage({
     endTimespan,
     navigate,
     page,

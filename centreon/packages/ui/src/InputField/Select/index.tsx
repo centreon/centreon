@@ -115,6 +115,7 @@ const SelectField = ({
 
             return (
               <MenuItem
+                aria-label={name}
                 data-testid={testId}
                 key={key}
                 style={{ backgroundColor: color }}
