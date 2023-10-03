@@ -39,14 +39,22 @@ jobs:
           echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
           echo "Changed .feature files: ${CHANGED_FILES[@]}"
 
+      - name: Get Target Version
+        id: get_version
+        uses: ./.github/workflows/get-version.yml
+        with:
+          version_file: centreon/www/install/insertBaseConf.sql
+
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
           for file in $CHANGED_FILES; do
-            echo "Running script for $file on branch ${{ github.ref }}"
-            python .github/scripts/create_jira_test.py "$file" "${{ github.ref }}"
+            echo "Running script for $file on branch ${{ github.ref_name }}"
+            echo "The target version for this script is : ${{ steps.get_version.outputs.target_version }}"
+            python .github/scripts/create_jira_test.py "$file" "${{ github.ref_name }}" "${{ steps.get_version.outputs.target_version }}"
           done
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
           JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
-          XRAY_TOKEN: ${{ secrets.XRAY_TOKEN }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET : ${{ secrets.CLIENT_SECRET }}
