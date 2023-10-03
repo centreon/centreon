@@ -38,6 +38,9 @@ const useStyles = makeStyles<StyleProps>()(
         ? `1px solid ${theme.palette.error.main}`
         : `1px solid ${theme.palette.primary.main}`
     },
+    notEditable: {
+      backgroundColor: 'transparent'
+    },
     placeholder: {
       color: theme.palette.grey[500],
       pointerEvents: 'none'
@@ -157,6 +160,7 @@ const ContentEditable = ({
     <div
       className={cx(
         classes.container,
+        !isEditable && !disabled && classes.notEditable,
         className,
         isFocused && classes.inputFocused
       )}

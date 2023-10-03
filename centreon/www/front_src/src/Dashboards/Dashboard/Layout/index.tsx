@@ -77,13 +77,15 @@ const Layout = (): JSX.Element => {
       <DashboardLayout.Layout
         changeLayout={changeLayout}
         displayGrid={isEditing}
-        isStatic={!isEditing}
+        isStatic={!isEditing || showDefaultLayout}
         layout={panels}
       >
         {panels.map(({ i, panelConfiguration }) => {
           return (
             <DashboardLayout.Item
-              canMove={canEdit && isEditing}
+              canMove={
+                canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
+              }
               disablePadding={panelConfiguration?.isAddWidgetPanel}
               header={
                 !panelConfiguration?.isAddWidgetPanel ? (

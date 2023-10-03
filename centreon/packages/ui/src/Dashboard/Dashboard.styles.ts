@@ -69,6 +69,9 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
 export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
   (theme, { hasHeader }) => ({
     widgetContainer: {
+      background: theme.palette.background.default,
+      border: 'none',
+      borderRadius: theme.spacing(1),
       height: '100%',
       width: '100%'
     },

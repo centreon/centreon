@@ -69,7 +69,7 @@ const Layout = <T extends Layout>({
         </Responsive.ParentSize>
       </ResponsiveHeight>
     ),
-    memoProps: [columns, layout, displayGrid]
+    memoProps: [columns, layout, displayGrid, isStatic]
   });
 };
 
