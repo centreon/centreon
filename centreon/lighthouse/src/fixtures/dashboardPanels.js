@@ -1,4 +1,4 @@
-{
+export default {
   "panels": [
     {
       "id": null,
