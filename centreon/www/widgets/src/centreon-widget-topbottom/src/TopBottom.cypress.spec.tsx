@@ -20,11 +20,13 @@ const defaultSettings = {
 } as const;
 
 const data: Data = {
-  metric: {
-    id: 2,
-    name: 'rta',
-    unit: 'B'
-  },
+  metrics: [
+    {
+      id: 2,
+      name: 'rta',
+      unit: 'B'
+    }
+  ],
   resources: [
     {
       resourceType: 'host-group',

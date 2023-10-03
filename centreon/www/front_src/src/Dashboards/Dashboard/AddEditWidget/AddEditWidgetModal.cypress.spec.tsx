@@ -523,7 +523,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelAddMetric).should('not.be.disabled');
 
-        cy.contains('Metrics (1 available)').should('be.visible');
+        cy.contains('Metrics (2 available)').should('be.visible');
         cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
 
         cy.findByLabelText(labelSave).should('be.enabled');
@@ -635,6 +635,67 @@ describe('AddEditWidgetModal', () => {
         cy.contains('pl (%)').click();
 
         cy.makeSnapshot();
+      });
+    });
+
+    describe('With one service metrics', () => {
+      beforeEach(() => {
+        cy.stub(editProperties, 'useCanEditProperties').returns({
+          canEdit: true,
+          canEditField: true
+        });
+        initializeWidgets(store);
+
+        store.set(widgetFormInitialDataAtom, initialFormDataAdd);
+
+        cy.viewport('macbook-13');
+
+        cy.interceptAPIRequest({
+          alias: 'getHosts',
+          method: Method.GET,
+          path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+          response: generateResources('Host')
+        });
+
+        cy.fixture('Dashboards/Dashboard/serviceMetric.json').then(
+          (serviceMetrics) => {
+            cy.interceptAPIRequest({
+              alias: 'getServiceMetrics',
+              method: Method.GET,
+              path: `${metricsEndpoint}**`,
+              response: serviceMetrics
+            });
+          }
+        );
+
+        cy.mount({
+          Component: (
+            <TestQueryProvider>
+              <Provider store={store}>
+                <AddEditWidgetModal />
+              </Provider>
+            </TestQueryProvider>
+          )
+        });
+      });
+
+      it('displays the metrics selection when the widget allows only one metric', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data for single metric (example)').click();
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+        cy.findByLabelText(labelAddResource).should('be.disabled');
+
+        cy.contains(/^Host 0$/).click();
+        cy.findByLabelText(labelAddResource).should('be.enabled');
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.findByTestId(labelMetrics).click();
+        cy.contains('pl (%)').click();
       });
     });
   });

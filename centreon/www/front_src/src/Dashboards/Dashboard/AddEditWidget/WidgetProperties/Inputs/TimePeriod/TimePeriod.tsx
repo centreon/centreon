@@ -3,21 +3,11 @@ import { useAtomValue } from 'jotai';
 import dayjs from 'dayjs';
 
 import { Typography } from '@mui/material';
-import {
-  DesktopDateTimePicker,
-  LocalizationProvider
-} from '@mui/x-date-pickers';
 
-import { SelectField, useDateTimePickerAdapter } from '@centreon/ui';
+import { SelectField, SimpleCustomTimePeriod } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import {
-  labelEnd,
-  labelFrom,
-  labelStart,
-  labelTimePeriod,
-  labelTo
-} from '../../../../translatedLabels';
+import { labelTimePeriod } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import { editProperties } from '../../../../useCanEditDashboard';
 
@@ -36,8 +26,7 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     changeCustomDate
   } = useTimePeriod(propertyName);
 
-  const { Adapter } = useDateTimePickerAdapter();
-  const { locale, timezone } = useAtomValue(userAtom);
+  const { timezone } = useAtomValue(userAtom);
 
   const { canEditField } = editProperties.useCanEditProperties();
 
@@ -55,47 +44,13 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       />
       {isCustomizeTimePeriod && (
         <div className={classes.customTimePeriod}>
-          <LocalizationProvider
-            adapterLocale={locale.substring(0, 2)}
-            dateAdapter={Adapter}
-          >
-            {t(labelFrom)}
-            <DesktopDateTimePicker
-              disabled={!canEditField}
-              label=""
-              maxDate={dayjs(value.end).tz(timezone)}
-              slotProps={{
-                textField: {
-                  'aria-label': labelStart
-                }
-              }}
-              value={dayjs(value.start).tz(timezone)}
-              viewRenderers={{
-                hours: null,
-                minutes: null,
-                seconds: null
-              }}
-              onChange={changeCustomDate('start')}
-            />
-            {t(labelTo)}
-            <DesktopDateTimePicker
-              disabled={!canEditField}
-              label=""
-              minDate={dayjs(value.start).tz(timezone)}
-              slotProps={{
-                textField: {
-                  'aria-label': labelEnd
-                }
-              }}
-              value={dayjs(value.end).tz(timezone)}
-              viewRenderers={{
-                hours: null,
-                minutes: null,
-                seconds: null
-              }}
-              onChange={changeCustomDate('end')}
-            />
-          </LocalizationProvider>
+          <SimpleCustomTimePeriod
+            changeDate={({ date, property }) =>
+              changeCustomDate(property)(date)
+            }
+            endDate={dayjs(value.end).tz(timezone).toDate()}
+            startDate={dayjs(value.start).tz(timezone).toDate()}
+          />
         </div>
       )}
     </div>

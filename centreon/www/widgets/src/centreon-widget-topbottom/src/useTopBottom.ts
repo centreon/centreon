@@ -6,9 +6,10 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
+import { Metric } from '../../models';
+
 import { metricsTopEndpoint } from './api/endpoint';
 import {
-  Metric,
   MetricsTop,
   TopBottomSettings,
   WidgetDataResource,
@@ -18,7 +19,7 @@ import { metricsTopDecoder } from './api/decoder';
 
 interface UseTopBottomProps {
   globalRefreshInterval?: number;
-  metric: Metric;
+  metrics: Array<Metric>;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<WidgetDataResource>;
@@ -49,7 +50,7 @@ const useTopBottom = ({
   globalRefreshInterval,
   refreshInterval,
   refreshIntervalCustom,
-  metric,
+  metrics,
   topBottomSettings,
   resources
 }: UseTopBottomProps): UseTopBottomState => {
@@ -58,6 +59,8 @@ const useTopBottom = ({
     refreshInterval,
     refreshIntervalCustom
   });
+
+  const metricName = metrics?.[0]?.name;
 
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
@@ -80,16 +83,16 @@ const useTopBottom = ({
               : 'ASC'
           }
         }
-      })}&metric_name=${metric?.name}`,
+      })}&metric_name=${metricName}`,
     getQueryKey: () => [
       'topbottom',
-      metric?.name,
+      metricName,
       JSON.stringify(resources),
       topBottomSettings.numberOfValues,
       topBottomSettings.order
     ],
     queryOptions: {
-      enabled: areResourcesFullfilled(resources) && !!metric?.name,
+      enabled: areResourcesFullfilled(resources) && !!metricName,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }

@@ -8,7 +8,8 @@ import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleMetricSectionAtom,
+  singleMetricSelectionAtom,
+  singleResourceTypeSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
 
@@ -67,7 +68,10 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
+  const setSingleResourceTypeSelection = useSetAtom(
+    singleResourceTypeSelectionAtom
+  );
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const selectedWidget = find(
@@ -114,6 +118,7 @@ export const useWidgetInputs = (
     }
 
     setSingleMetricSection(selectedWidget.singleMetricSelection);
+    setSingleResourceTypeSelection(selectedWidget.singleResourceTypeSelection);
     setCustomBaseColor(selectedWidget.customBaseColor);
   }, useDeepCompare([selectedWidget]));
 

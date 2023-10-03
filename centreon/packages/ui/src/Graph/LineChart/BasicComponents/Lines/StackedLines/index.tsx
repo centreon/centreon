@@ -32,11 +32,13 @@ const StackLines = ({
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
-          map(prop('metric')) as unknown as (displayedLines) => Array<string>,
-          all((metric) => pipe(path(['data', metric]), isNil, not)(d))
+          map(prop('metric_id')) as unknown as (
+            displayedLines
+          ) => Array<string>,
+          all((metric_id) => pipe(path(['data', metric_id]), isNil, not)(d))
         )(lines);
       }}
-      keys={map(prop('metric'), lines)}
+      keys={map(prop('metric_id'), lines)}
       x={(d): number => xScale(getTime(d.data)) ?? 0}
       y0={(d): number => yScale(d[0]) ?? 0}
       y1={(d): number => yScale(d[1]) ?? 0}

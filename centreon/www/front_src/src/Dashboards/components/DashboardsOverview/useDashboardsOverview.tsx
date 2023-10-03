@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { isEmpty } from 'ramda';
 
 import { useListDashboards } from '../../api/useListDashboards';
-import { Dashboard, isDashboardList } from '../../api/models';
+import { Dashboard } from '../../api/models';
+import { List } from '../../api/meta.models';
 
 type UseDashboardsOverview = {
   dashboards: Array<Dashboard>;
@@ -12,16 +13,10 @@ type UseDashboardsOverview = {
 const useDashboardsOverview = (): UseDashboardsOverview => {
   const { data, isLoading } = useListDashboards();
 
-  const dashboards = useRef<Array<Dashboard>>([]);
-  const [isEmptyList, setIsEmptyList] = useState<boolean>(true);
-
-  useEffect(() => {
-    dashboards.current = isDashboardList(data) ? data.result : [];
-    setIsEmptyList(dashboards.current.length === 0);
-  }, [data]);
+  const isEmptyList = isEmpty((data as List<Dashboard>)?.result || []);
 
   return {
-    dashboards: dashboards.current,
+    dashboards: (data as List<Dashboard>)?.result || [],
     isEmptyList,
     isLoading
   };

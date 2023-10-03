@@ -32,7 +32,7 @@ export interface GuidingLines {
 }
 
 export interface GetYAnchorPoint {
-  metric: string;
+  metric_id: number;
   timeSeries: Array<TimeValue>;
   timeTick: Date;
   yScale: ScaleLinear<number, number>;

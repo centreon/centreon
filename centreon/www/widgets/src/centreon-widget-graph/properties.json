@@ -33,7 +33,7 @@
       "defaultValue": []
     },
     "metrics": {
-      "type": "metrics",
+      "type": "metrics-only",
       "defaultValue": []
     }
   },
