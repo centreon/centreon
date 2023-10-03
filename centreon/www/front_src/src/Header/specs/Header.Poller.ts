@@ -48,7 +48,7 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@pollerButton').within(() => {
           cy.findByText('Pollers').should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DeviceHubIcon').should('be.visible');
         });
       });
@@ -402,6 +402,36 @@ export default (): void =>
             `main.php?p=${pollerConfigurationPageNumber}`
           );
           cy.matchImageSnapshot();
+        });
+
+        it('closes the submenu when clicking on the poller button', () => {
+          initialize({
+            navigationList: {
+              result: [
+                {
+                  children: [
+                    {
+                      groups: [],
+                      is_react: false,
+                      label: 'Resources Status',
+                      options: null,
+                      page: pollerConfigurationPageNumber,
+                      show: true,
+                      url: '/config/'
+                    }
+                  ]
+                }
+              ]
+            }
+          });
+
+          openSubMenu('Pollers');
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).click();
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).should(
+            'not.be.visible'
+          );
         });
 
         it('displays the export configuration button if user is allowed', () => {

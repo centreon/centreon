@@ -40,7 +40,7 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@serviceButton').within(() => {
           cy.findByText(labelHosts).should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DnsIcon').should('be.visible');
         });
       });
@@ -170,6 +170,19 @@ export default (): void =>
 
         cy.get('@serviceButton').click();
         submenuShouldBeClosed(labelHosts);
+      });
+
+      it.only('closes the submenu when clicking on an item', () => {
+        initialize();
+        openSubMenu(labelHosts);
+
+        cy.findAllByRole('menuitem').as('items');
+
+        cy.get('@items').each((item: string) => {
+          cy.get(item).click();
+          submenuShouldBeClosed(labelHosts);
+          openSubMenu(labelHosts);
+        });
       });
 
       it('links to the expected urls', () => {
