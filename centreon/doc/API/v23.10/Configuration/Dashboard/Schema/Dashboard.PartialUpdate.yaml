@@ -25,11 +25,11 @@ properties:
   refresh:
     type: object
     properties:
-      refresh_type:
+      type:
         type: string
         enum: [ global, manual ]
         example: 'manual'
-      refresh_interval:
+      interval:
         type: integer
         nullable: true
         example: 10

@@ -72,10 +72,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "refresh_type": {
+                "type": {
                     "type": "string"
                 },
-                "refresh_interval": {
+                "interval": {
                     "type": [
                         "integer",
                         "null"

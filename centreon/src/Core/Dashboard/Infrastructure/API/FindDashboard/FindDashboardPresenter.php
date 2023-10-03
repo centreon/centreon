@@ -103,8 +103,8 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
     private function globalRefreshToArray(RefreshResponseDto $refresh): array
     {
         return [
-            'refresh_type' => RefreshTypeConverter::toString($refresh->refreshType),
-            'refresh_interval' => $refresh->refreshInterval,
+            'type' => RefreshTypeConverter::toString($refresh->refreshType),
+            'interval' => $refresh->refreshInterval,
         ];
     }
 }

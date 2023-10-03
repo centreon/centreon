@@ -134,12 +134,12 @@ final class PartialUpdateDashboardController extends AbstractController
             }
         }
 
-        if (\array_key_exists('global_refresh', $dataSent)) {
+        if (\array_key_exists('refresh', $dataSent)) {
             $dtoGlobalRefresh = new RefreshRequestDto();
             $dtoGlobalRefresh->refreshType = RefreshTypeConverter::fromString(
-                $dataSent['global_refresh']['refresh_type']
+                $dataSent['refresh']['type']
             );
-            $dtoGlobalRefresh->refreshInterval = $dataSent['global_refresh']['refresh_interval'];
+            $dtoGlobalRefresh->refreshInterval = $dataSent['refresh']['interval'];
 
             $dto->refresh = $dtoGlobalRefresh;
         }
