@@ -231,6 +231,7 @@ jobs:
         uses: ./.github/actions/publish-report
         with:
           path: "centreon/junit.xml"
+
   frontend-component-test:
     needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
