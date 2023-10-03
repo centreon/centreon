@@ -23,7 +23,7 @@ on:
         required: true
 
 jobs:
-  discover_collections:
+  newman-test-list:
     runs-on: ubuntu-22.04
 
     outputs:
@@ -41,7 +41,7 @@ jobs:
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
 
-  postman_tests:
+  newman-test-run:
    needs: [discover_collections]
    runs-on: ubuntu-22.04
    continue-on-error: true
@@ -168,3 +168,12 @@ jobs:
         if [ -n "$summaries" ]; then
             echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
         fi
+
+  newman-test-report:
+    needs: [behat-test-run]
+    if: failure()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - run: |
+        echo "ok"
