@@ -1,33 +1,19 @@
 <?php
-/**
- * Copyright 2005-2019 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+
+/*
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -38,16 +24,15 @@ namespace CentreonLegacy\Core\Widget;
 class Installer extends Widget
 {
     /**
+     * @throws \Exception
      *
      * @return int
-     * @throws \Exception
      */
     public function install()
     {
         if ($this->informationObj->isInstalled($this->widgetName)) {
             throw new \Exception('Widget is already installed.');
         }
-
 
         $id = $this->installConfiguration();
         $this->installPreferences($id);
@@ -56,16 +41,15 @@ class Installer extends Widget
     }
 
     /**
-     *
      * @return int
      */
     protected function installConfiguration()
     {
-        $query = 'INSERT INTO widget_models ' .
-            '(title, description, url, version, directory, author, ' .
-            'email, website, keywords, thumbnail, autoRefresh) ' .
-            'VALUES (:title, :description, :url, :version, :directory, :author, ' .
-            ':email, :website, :keywords, :thumbnail, :autoRefresh) ';
+        $query = 'INSERT INTO widget_models '
+            . '(title, description, url, version, directory, author, '
+            . 'email, website, keywords, thumbnail, autoRefresh) '
+            . 'VALUES (:title, :description, :url, :version, :directory, :author, '
+            . ':email, :website, :keywords, :thumbnail, :autoRefresh) ';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 
@@ -87,36 +71,37 @@ class Installer extends Widget
     }
 
     /**
-     *
      * @param int $id
-     * @return type
+     *
      * @throws \Exception
+     *
+     * @return type
      */
     protected function installPreferences($id)
     {
-        if (!isset($this->widgetConfiguration['preferences'])) {
-            return null;
+        if (! isset($this->widgetConfiguration['preferences'])) {
+            return;
         }
 
         $types = $this->informationObj->getTypes();
 
         foreach ($this->widgetConfiguration['preferences'] as $preferences) {
-            if (!is_array($preferences)) {
+            if (! is_array($preferences)) {
                 continue;
             }
             $order = 1;
             if (isset($preferences['@attributes'])) {
-                $preferences = array($preferences['@attributes']);
+                $preferences = [$preferences['@attributes']];
             }
 
             foreach ($preferences as $preference) {
                 $attr = $preference['@attributes'];
-                if (!isset($types[$attr['type']])) {
+                if (! isset($types[$attr['type']])) {
                     throw new \Exception('Unknown type : ' . $attr['type'] . ' found in configuration file');
                 }
-                $attr['requirePermission'] = isset($attr['requirePermission']) ? $attr['requirePermission'] : 0;
-                $attr['defaultValue'] = isset($attr['defaultValue']) ? $attr['defaultValue'] : '';
-                $attr['header'] = (isset($attr['header']) && $attr['header'] != "") ? $attr['header'] : null;
+                $attr['requirePermission'] ??= 0;
+                $attr['defaultValue'] ??= '';
+                $attr['header'] = (isset($attr['header']) && $attr['header'] != '') ? $attr['header'] : null;
                 $attr['order'] = $order;
                 $attr['type'] = $types[$attr['type']];
 
@@ -127,19 +112,18 @@ class Installer extends Widget
     }
 
     /**
-     *
      * @param int $id
      * @param array $parameters
      * @param array $preference
      */
     protected function installParameters($id, $parameters, $preference)
     {
-        $query = 'INSERT INTO widget_parameters ' .
-            '(widget_model_id, field_type_id, parameter_name, parameter_code_name, ' .
-            'default_value, parameter_order, require_permission, header_title) ' .
-            'VALUES ' .
-            '(:widget_model_id, :field_type_id, :parameter_name, :parameter_code_name, ' .
-            ':default_value, :parameter_order, :require_permission, :header_title) ';
+        $query = 'INSERT INTO widget_parameters '
+            . '(widget_model_id, field_type_id, parameter_name, parameter_code_name, '
+            . 'default_value, parameter_order, require_permission, header_title) '
+            . 'VALUES '
+            . '(:widget_model_id, :field_type_id, :parameter_name, :parameter_code_name, '
+            . ':default_value, :parameter_order, :require_permission, :header_title) ';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 
@@ -157,31 +141,31 @@ class Installer extends Widget
         $lastId = $this->informationObj->getParameterIdByName($parameters['name'], $id);
 
         switch ($parameters['type']['name']) {
-            case "list":
-            case "sort":
+            case 'list':
+            case 'sort':
                 $this->installMultipleOption($lastId, $preference);
                 break;
-            case "range":
+            case 'range':
                 $this->installRangeOption($lastId, $parameters);
                 break;
         }
     }
 
     /**
-     *
      * @param int $paramId
      * @param array $preference
+     *
      * @return type
      */
     protected function installMultipleOption($paramId, $preference)
     {
-        if (!isset($preference['option'])) {
-            return null;
+        if (! isset($preference['option'])) {
+            return;
         }
 
-        $query = 'INSERT INTO widget_parameters_multiple_options ' .
-            '(parameter_id, option_name, option_value) VALUES ' .
-            '(:parameter_id, :option_name, :option_value) ';
+        $query = 'INSERT INTO widget_parameters_multiple_options '
+            . '(parameter_id, option_name, option_value) VALUES '
+            . '(:parameter_id, :option_name, :option_value) ';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 
@@ -201,14 +185,13 @@ class Installer extends Widget
     }
 
     /**
-     *
      * @param int $paramId
      * @param array $parameters
      */
     protected function installRangeOption($paramId, $parameters)
     {
-        $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) ' .
-            'VALUES (:parameter_id, :min_range, :max_range, :step) ';
+        $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) '
+            . 'VALUES (:parameter_id, :min_range, :max_range, :step) ';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 

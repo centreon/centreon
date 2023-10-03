@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,41 +22,43 @@
 namespace CentreonUser\Domain\Entity;
 
 use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
-use Symfony\Component\Serializer\Annotation as Serializer;
 use PDO;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 /**
- * Timeperiod entity
+ * Timeperiod entity.
  *
  * @codeCoverageIgnore
  */
 class Timeperiod implements Mapping\MetadataInterface
 {
     public const SERIALIZER_GROUP_LIST = 'timeperiod-list';
-
     public const TABLE = 'timeperiod';
     public const ENTITY_IDENTIFICATOR_COLUMN = 'tp_id';
 
     /**
      * @Serializer\Groups({Timeperiod::SERIALIZER_GROUP_LIST})
+     *
      * @var int an identification of entity
      */
     private $id;
 
     /**
      * @Serializer\Groups({Timeperiod::SERIALIZER_GROUP_LIST})
+     *
      * @var string
      */
     private $name;
 
     /**
      * @Serializer\Groups({Timeperiod::SERIALIZER_GROUP_LIST})
+     *
      * @var string
      */
     private $alias;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadMetadata(Mapping\ClassMetadata $metadata): void
     {
@@ -68,9 +70,8 @@ class Timeperiod implements Mapping\MetadataInterface
 
     /**
      * @param int $id
-     * @return void
      */
-    public function setId(int $id = null): void
+    public function setId(?int $id = null): void
     {
         $this->id = $id;
     }
@@ -85,9 +86,8 @@ class Timeperiod implements Mapping\MetadataInterface
 
     /**
      * @param string $name
-     * @return void
      */
-    public function setName(string $name = null): void
+    public function setName(?string $name = null): void
     {
         $this->name = $name;
     }
@@ -102,9 +102,8 @@ class Timeperiod implements Mapping\MetadataInterface
 
     /**
      * @param string $alias
-     * @return void
      */
-    public function setAlias(string $alias = null): void
+    public function setAlias(?string $alias = null): void
     {
         $this->alias = $alias;
     }
