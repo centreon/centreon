@@ -1,4 +1,4 @@
-@MON-21924
+@REQ_MON-22231
 Feature: Automated feature ( Test ) 2
     As a Centreon Web user 
 	I want to login
