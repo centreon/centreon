@@ -172,7 +172,7 @@ export default (): void =>
         submenuShouldBeClosed(labelHosts);
       });
 
-      it.only('closes the submenu when clicking on an item', () => {
+      it('closes the submenu when clicking on an item', () => {
         initialize();
         openSubMenu(labelHosts);
 
