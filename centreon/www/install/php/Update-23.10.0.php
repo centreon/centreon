@@ -342,8 +342,6 @@ $updateTopologyForApiTokens = function(CentreonDb $pearDB): void {
 };
 
 $populateDahsboardTables = function(CentreonDb $pearDB): void {
-
-
     if ($pearDB->isColumnExist('dashboard_widgets', 'name')) {
         $statement = $pearDB->query(
             <<<'SQL'
@@ -363,6 +361,15 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
             );
         }
     }
+};
+
+$renameLegacyDashboardInTopology = function (CentreonDB $pearDB) {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `topology` SET `topology_name` = 'Availability'
+            WHERE `topology_name` = 'Dashboard'
+            SQL
+    );
 };
 
 try {
@@ -407,6 +414,9 @@ try {
 
     $errorMessage = 'Unable to populate dashboard_widgets table';
     $populateDahsboardTables($pearDB);
+
+    $errorMessage = 'Unable to rename legacy Dashboard topology';
+    $renameLegacyDashboardInTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
