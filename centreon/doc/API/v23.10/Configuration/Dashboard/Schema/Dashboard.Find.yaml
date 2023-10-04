@@ -1,5 +1,5 @@
 allOf:
-  - $ref: 'Dashboard.Listing.yaml'
+  - $ref: 'Dashboard.Listing.One.yaml'
   - type: object
     required:
       - panels

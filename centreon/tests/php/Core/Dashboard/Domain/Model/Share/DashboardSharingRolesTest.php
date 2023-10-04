@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Domain\Model\Share;
 
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Refresh;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
@@ -38,7 +40,8 @@ beforeEach(function (): void {
         null,
         null,
         new \DateTimeImmutable(),
-        new \DateTimeImmutable()
+        new \DateTimeImmutable(),
+        new Refresh(RefreshType::Global, null)
     );
     $this->createContactShare = function (DashboardSharingRole $role) {
         return new DashboardContactShare(
