@@ -46,7 +46,7 @@ export type Dashboard = NamedEntity & {
   updatedBy: NamedEntity;
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
-  globalRefreshInterval: {
+  refresh: {
     type: 'global' | 'manual';
     interval: number | null;
   };

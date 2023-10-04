@@ -22,11 +22,11 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
 
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
-  const value = values.globalRefreshInterval.interval;
+  const value = values.refresh.interval;
 
   const changeInput = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue(
-      'globalRefreshInterval.interval',
+      'refresh.interval',
       !isEmpty(event.target.value) ? Number(event.target.value) || 1 : null
     );
   };

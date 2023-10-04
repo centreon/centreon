@@ -63,7 +63,7 @@ const DashboardForm = ({
           type: InputType.Text
         },
         {
-          fieldName: 'globalRefreshInterval.type',
+          fieldName: 'refresh.type',
           group: 'main',
           hideInput: () => !showRefreshIntervalFields,
           label: labels?.entity?.globalRefreshInterval?.title,
@@ -100,7 +100,8 @@ const DashboardForm = ({
             then: Yup.number()
               .min(1, ({ min }) => t(labelMustBeAtLeast, { min }))
               .required(t(labelRequired) as string)
-          })
+          }),
+          type: Yup.string()
         }),
         name: Yup.string()
           .label(labels?.entity?.name)
