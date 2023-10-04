@@ -48,7 +48,7 @@ jobs:
           echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            python .github/scripts/create_jira_test.py "$file" "${{ github.ref_name }}" "${{ needs.get-version.outputs.major_version }}"
+            python .github/scripts/synchronize_jira_xray.py "$file" "${{ github.ref_name }}" "${{ needs.get-version.outputs.major_version }}"
           done
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
