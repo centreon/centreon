@@ -158,22 +158,14 @@ describe('Graph Widget', () => {
     cy.findByTestId('critical-line-90').should('be.visible');
 
     cy.findByTestId('warning-line-65-tooltip').trigger('mouseover');
-    cy.contains(
-      'Warning threshold: 65%. Value defined by the {{metric}} metric'
-    );
+    cy.contains('Warning threshold: 65%. Value defined by {{metric}} metric');
     cy.findByTestId('warning-line-70-tooltip').trigger('mouseover');
-    cy.contains(
-      'Warning threshold: 70%. Value defined by the {{metric}} metric'
-    );
+    cy.contains('Warning threshold: 70%. Value defined by {{metric}} metric');
 
     cy.findByTestId('critical-line-85-tooltip').trigger('mouseover');
-    cy.contains(
-      'Critical threshold: 85%. Value defined by the {{metric}} metric'
-    );
+    cy.contains('Critical threshold: 85%. Value defined by {{metric}} metric');
     cy.findByTestId('critical-line-90-tooltip').trigger('mouseover');
-    cy.contains(
-      'Critical threshold: 90%. Value defined by the {{metric}} metric'
-    );
+    cy.contains('Critical threshold: 90%. Value defined by {{metric}} metric');
 
     cy.makeSnapshot();
   });
