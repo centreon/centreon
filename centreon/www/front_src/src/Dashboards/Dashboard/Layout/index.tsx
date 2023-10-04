@@ -6,7 +6,7 @@ import { equals, isEmpty, map, propEq } from 'ramda';
 
 import { DashboardLayout, getColumnsFromScreenSize } from '@centreon/ui';
 
-import { dashboardAtom, isEditingAtom } from '../atoms';
+import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
 import { AddEditWidgetModal, AddWidgetPanel } from '../AddEditWidget';
 import { DeleteWidgetModal } from '../DeleteWidget';
@@ -34,11 +34,9 @@ const emptyLayout: Array<Panel> = [
 ];
 
 const Layout = (): JSX.Element => {
-  const [refreshCounts, setRefreshCounts] = useState<Record<string, number>>(
-    {}
-  );
-
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
+  const [refreshCounts, setRefreshCounts] =
+    useAtom<Record<string, number>>(refreshCountsAtom);
   const isEditing = useAtomValue(isEditingAtom);
 
   const { canEdit } = editProperties.useCanEditProperties();

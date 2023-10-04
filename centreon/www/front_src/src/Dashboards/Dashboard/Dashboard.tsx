@@ -1,11 +1,13 @@
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, inc } from 'ramda';
 
 import {
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
@@ -18,7 +20,12 @@ import { useDashboardAccessRights } from '../components/DashboardAccessRights/us
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
-import { isEditingAtom } from './atoms';
+import {
+  dashboardAtom,
+  dashboardRefreshIntervalAtom,
+  isEditingAtom,
+  refreshCountsAtom
+} from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
 import { editProperties } from './useCanEditDashboard';
@@ -32,8 +39,30 @@ const Dashboard = (): ReactElement => {
   const { editAccessRights } = useDashboardAccessRights();
 
   const isEditing = useAtomValue(isEditingAtom);
+  const { layout } = useAtomValue(dashboardAtom);
+  const dashboardRefreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
+  const setRefreshCounts = useSetAtom(refreshCountsAtom);
 
   const { canEdit } = editProperties.useCanEditProperties();
+
+  const refreshAllWidgets = (): void => {
+    setRefreshCounts((prev) => {
+      return layout.reduce((acc, widget) => {
+        const prevRefreshCount = prev[widget.i];
+
+        return {
+          ...acc,
+          [widget.i]: inc(prevRefreshCount || 0)
+        };
+      }, {});
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      setRefreshCounts({});
+    };
+  }, []);
 
   return (
     <PageLayout>
@@ -73,6 +102,14 @@ const Dashboard = (): ReactElement => {
                   size="small"
                   variant="ghost"
                   onClick={editAccessRights(dashboard as DashboardType)}
+                />
+                <IconButton
+                  aria-label="refresh"
+                  data-testid="refresh"
+                  icon={<RefreshIcon />}
+                  size="small"
+                  variant="ghost"
+                  onClick={refreshAllWidgets}
                 />
               </>
             )}
