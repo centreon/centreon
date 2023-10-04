@@ -83,19 +83,19 @@ describe('MetricsOnly', () => {
     cy.waitForRequest('@getServiceMetrics');
 
     cy.findByTestId(labelSelectMetric).click();
-    cy.contains('rtmax (ms) / Includes 2 hosts');
-    cy.contains('pl (%) / Includes 2 hosts');
+    cy.contains('rtmax (ms) / Includes 2 resources');
+    cy.contains('pl (%) / Includes 2 resources');
 
     cy.makeSnapshot();
   });
 
   it('displays the selected metric when resources are fulfilled and a metric is selected', () => {
     cy.findByTestId(labelSelectMetric).click();
-    cy.contains('rtmax (ms) / Includes 2 hosts').click();
+    cy.contains('rtmax (ms) / Includes 2 resources').click();
 
     cy.contains('rtmax (ms) / 2').should('be.visible');
     cy.contains('rtmax (ms) / 2').trigger('mouseover');
-    cy.contains('rtmax (ms) / Includes 2 hosts').should('be.visible');
+    cy.contains('rtmax (ms) / Includes 2 resources').should('be.visible');
 
     cy.makeSnapshot();
   });
