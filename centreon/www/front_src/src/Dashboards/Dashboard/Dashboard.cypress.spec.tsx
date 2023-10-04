@@ -450,6 +450,10 @@ describe('Dashboard', () => {
     it('displays the dashboard global properties form when the corresponding button is clicked', () => {
       initializeAndMount(editorRoles);
 
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelCancel).click();
+
       cy.findByLabelText('edit').click();
 
       cy.contains(labelGlobalRefreshInterval).should('be.visible');
