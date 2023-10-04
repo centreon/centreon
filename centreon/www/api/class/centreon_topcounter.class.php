@@ -820,7 +820,7 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         /* Get status of pollers */
-        $query = 'SELECT instance_id, last_alive, running FROM instances
+        $query = 'SELECT 1 AS REALTIME, instance_id, last_alive, running FROM instances
             WHERE deleted = 0 AND instance_id IN (' . implode(', ', array_keys($listPoller)) . ')';
 
         try {
@@ -845,7 +845,7 @@ class CentreonTopCounter extends CentreonWebService
             }
         }
         /* Get latency */
-        $query = 'SELECT n.stat_value, i.instance_id
+        $query = 'SELECT 1 AS REALTIME, n.stat_value, i.instance_id
             FROM nagios_stats n, instances i
             WHERE n.stat_label = "Service Check Latency"
                 AND n.stat_key = "Average"
@@ -883,7 +883,7 @@ class CentreonTopCounter extends CentreonWebService
             return true;
         }
 
-        $query = "SELECT * FROM log_action WHERE action_log_date > $lastRestart " .
+        $query = "SELECT 1 AS REALTIME, log_action.* FROM log_action WHERE action_log_date > $lastRestart " .
             "AND ((object_type = 'host' AND ((action_type = 'd' AND object_id IN (SELECT host_id FROM hosts)) " .
             "OR object_id IN (SELECT host_host_id FROM `" .
             $conf_centreon['db'] . "`.ns_host_relation WHERE nagios_server_id = '$pollerId'))) " .
