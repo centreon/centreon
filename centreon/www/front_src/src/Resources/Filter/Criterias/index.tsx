@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -22,12 +22,15 @@ import {
   clearFilterDerivedAtom,
   filterWithParsedSearchDerivedAtom,
   filterByInstalledModulesWithParsedSearchDerivedAtom,
-  currentFilterAtom
+  currentFilterAtom,
+  searchAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
 import CriteriasNewInterface from '../criteriasNewInterface';
 import CreateFilterDialog from '../Save/CreateFilterDialog';
 import { selectedStatusByResourceTypeAtom } from '../criteriasNewInterface/basicFilter/atoms';
+import useSearchWihSearchDataCriteria from '../criteriasNewInterface/useSearchWithSearchDataCriteria';
+import Actions from '../criteriasNewInterface/actions';
 
 import Criteria from './Criteria';
 import { CriteriaDisplayProps, Criteria as CriteriaModel } from './models';
@@ -45,11 +48,10 @@ const useStyles = makeStyles()((theme) => ({
 const CriteriasContent = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const [isCreateFilterDialogOpen, setIsCreateFilterDialogOpen] =
-    useState(false);
+
+  const [canOpenPopover, setCanOpenPopover] = useState(true);
   const currentFilter = useAtomValue(currentFilterAtom);
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
-  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
 
@@ -82,12 +84,14 @@ const CriteriasContent = (): JSX.Element => {
   );
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
-  const canSaveFilterAsNew = true;
-
-  const clearFilters = () => {
+  const clearFilters = (): void => {
     clearFilter();
     setSelectedStatusByResourceType(null);
   };
+
+  useEffect(() => {
+    setCanOpenPopover(isNil(hoveredNavigationItem));
+  }, [hoveredNavigationItem]);
 
   return (
     <PopoverMenu
@@ -106,6 +110,9 @@ const CriteriasContent = (): JSX.Element => {
           spacing={1}
         >
           <CriteriasNewInterface
+            actions={
+              <Actions onClear={clearFilters} onSearch={applyCurrentFilter} />
+            }
             data={{
               newSelectableCriterias,
               selectableCriterias: getSelectableCriterias()
@@ -118,50 +125,6 @@ const CriteriasContent = (): JSX.Element => {
               </Grid>
             );
           })} */}
-          <Grid container item className={classes.searchButton} spacing={1}>
-            <Grid item data-testid={labelClear}>
-              <Button
-                color="primary"
-                data-testid="Filter Clear"
-                size="small"
-                onClick={clearFilters}
-              >
-                {t(labelClear)}
-              </Button>
-            </Grid>
-            <Grid item data-testid={labelSearch}>
-              <Button
-                color="primary"
-                data-testid="Filter Search"
-                size="small"
-                variant="contained"
-                onClick={applyCurrentFilter}
-              >
-                {t(labelSearch)}
-              </Button>
-            </Grid>
-            <Grid item data-testid="save">
-              <Button
-                color="primary"
-                data-testid="save new Filter"
-                size="small"
-                variant="contained"
-                onClick={() => console.log('saaaave')}
-              >
-                Save
-              </Button>
-            </Grid>
-            {/* {canSaveFilterAsNew && isCreateFilterDialogOpen && (
-              <CreateFilterDialog
-                filter={currentFilter}
-                open={isCreateFilterDialogOpen}
-                onCancel={() => {
-                  setIsCreateFilterDialogOpen(false);
-                }}
-                onCreate={confirmCreateFilter}
-              />
-            )} */}
-          </Grid>
         </Grid>
       )}
     </PopoverMenu>

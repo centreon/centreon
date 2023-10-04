@@ -22,10 +22,11 @@ import {
   handleDataByCategoryFilter,
   mergeArraysByField
 } from './utils';
+import Actions from './actions';
 
 export { CheckboxGroup } from '@centreon/ui';
 
-const CriteriasNewInterface = ({ data }): JSX.Element => {
+const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
   console.log('Criterias new Interface ');
   const [open, setOpen] = useState(false);
 
@@ -155,6 +156,7 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
         }
         label="Advanced mode"
       />
+      {actions}
     </>
   );
 };
