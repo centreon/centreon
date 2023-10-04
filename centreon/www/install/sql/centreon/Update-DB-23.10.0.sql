@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
   `updated_by` int(11) NULL,
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
+  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global',
+  `refresh_interval` int(11) NULL,
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `contact_created_by`
