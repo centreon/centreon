@@ -1,5 +1,4 @@
 import { createStore } from 'jotai';
-import dayjs from 'dayjs';
 
 import { Method } from '@centreon/ui';
 
@@ -74,10 +73,6 @@ const warningThreshold: FormThreshold = {
 
 const defaultTimePeriod: FormTimePeriod = {
   timePeriodType: 1
-};
-
-const last7DaysTimePeriod: FormTimePeriod = {
-  timePeriodType: 7 * 24
 };
 
 const customTimePeriod: FormTimePeriod = {
