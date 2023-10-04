@@ -116,7 +116,7 @@ class Conditions implements SecurityAccessInterface
             $this->loginLogger->info($scope, 'Conditions found', $conditionMatches);
         } else {
             $this->error(
-                'Not all conditions found',
+                'Configured attribute value not found in conditions endpoint',
                 [
                     'configured_authorized_values' => $authenticationConditions->getAuthorizedValues(),
                 ]
@@ -124,7 +124,7 @@ class Conditions implements SecurityAccessInterface
 
             $this->loginLogger->exception(
                 $scope,
-                'Not all conditions found',
+                'Configured attribute value not found in conditions endpoint: %s, message: %s',
                 AuthenticationConditionsException::conditionsNotFound()
             );
 
