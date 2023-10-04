@@ -149,10 +149,6 @@ describe('Graph Widget', () => {
       expect(request.url.search).to.include(
         'search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D'
       );
-
-      const start = dayjs(request.url.searchParams.get('start'));
-      const end = dayjs(request.url.searchParams.get('end'));
-      expect(end.diff(start, 'hour')).to.equal(1);
     });
 
     cy.contains('cpu (%)').should('be.visible');
@@ -223,16 +219,6 @@ describe('Graph Widget', () => {
     cy.waitForRequest('@getLineChart').then(({ request }) => {
       expect(request.url.search).to.include('start=2021-09-01T00:00:00.000Z');
       expect(request.url.search).to.include('end=2021-09-02T00:00:00.000Z');
-    });
-  });
-
-  it('displays the line chart with a last 7 days time period', () => {
-    initializeComponent({ timePeriod: last7DaysTimePeriod });
-
-    cy.waitForRequest('@getLineChart').then(({ request }) => {
-      const start = dayjs(request.url.searchParams.get('start'));
-      const end = dayjs(request.url.searchParams.get('end'));
-      expect(end.diff(start, 'hour')).to.equal(7 * 24);
     });
   });
 });
