@@ -459,7 +459,7 @@ describe('Dashboard', () => {
       cy.contains(labelGlobalRefreshInterval).should('be.visible');
       cy.contains(labelManualRefreshOnly).should('be.visible');
 
-      cy.findByLabelText(labelInterval).should('have.value', '');
+      cy.findByLabelText(labelInterval).should('have.value', '15');
     });
   });
 });
