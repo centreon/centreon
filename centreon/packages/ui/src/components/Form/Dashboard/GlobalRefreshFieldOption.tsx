@@ -4,8 +4,11 @@ import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { isEmpty } from 'ramda';
 import pluralize from 'pluralize';
+import { useAtomValue } from 'jotai';
 
 import { Typography } from '@mui/material';
+
+import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { TextField } from '../../..';
 
@@ -22,7 +25,9 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
 
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
-  const value = values.refresh.interval;
+  const platformRefreshInterval = useAtomValue(refreshIntervalAtom);
+
+  const value = values.refresh?.interval;
 
   const changeInput = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue(
@@ -43,7 +48,7 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
         }}
         size="compact"
         type="number"
-        value={value || ''}
+        value={value || platformRefreshInterval}
         onChange={changeInput}
       />
       <Typography>{pluralize(t(labelSeconds), value)}</Typography>

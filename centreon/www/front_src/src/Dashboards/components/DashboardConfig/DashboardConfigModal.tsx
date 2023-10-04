@@ -1,6 +1,7 @@
 import { ReactElement, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import {
   DashboardForm,
@@ -29,13 +30,7 @@ import {
 
 import { useDashboardConfig } from './useDashboardConfig';
 
-interface Props {
-  showRefreshIntervalFields?: boolean;
-}
-
-const DashboardConfigModal = ({
-  showRefreshIntervalFields = false
-}: Props): ReactElement => {
+const DashboardConfigModal = (): ReactElement => {
   const { isDialogOpen, closeDialog, dashboard, submit, variant } =
     useDashboardConfig();
 
@@ -92,7 +87,7 @@ const DashboardConfigModal = ({
         <DashboardForm
           labels={labels.form}
           resource={(dashboard as DashboardResource) ?? undefined}
-          showRefreshIntervalFields={showRefreshIntervalFields}
+          showRefreshIntervalFields={equals(variant, 'update')}
           variant={variant}
           onCancel={closeDialog}
           onSubmit={submit}
