@@ -9,7 +9,7 @@ info:
     + Added notification endpoints (POST, PATCH)
     + Added service templates endpoints (GET, POST, DELETE, PATCH)
     + Added host template endpoints (POST, DELETE, PATCH)
-    + Added service endpoints (POST, DELETE)
+    + Added service endpoints (POST, DELETE, GET)
     + Added host endpoints (POST, DELETE)
     + Added token endpoints (GET, POST, DELETE)
     + Added resources by parent endpoint (GET)
@@ -480,7 +480,7 @@ paths:
   /configuration/services/{service_id}:
     $ref: "v23.10/Configuration/Service/DeleteService.yaml"
   /configuration/services:
-    $ref: "v23.10/Configuration/Service/AddService.yaml"
+    $ref: "v23.10/Configuration/Service/AddServiceAndFindServices.yaml"
   /monitoring/services/categories:
     get:
       tags:

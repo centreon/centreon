@@ -27,6 +27,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategoryNamesById;
 
 interface ReadServiceCategoryRepositoryInterface
 {
@@ -140,4 +141,13 @@ interface ReadServiceCategoryRepositoryInterface
      * @return ServiceCategory|null
      */
     public function findById(int $serviceCategoryId): ?ServiceCategory;
+
+    /**
+     * Find service categoriy names by their IDs.
+     *
+     * @param int[] $serviceCategoryIds
+     *
+     * @return ServiceCategoryNamesById
+     */
+    public function findNames(array $serviceCategoryIds): ServiceCategoryNamesById;
 }

@@ -228,3 +228,64 @@ Feature:
       }
       """
     Then the response code should be 409
+
+  Scenario: Service listing
+    Given I am logged in
+    And the following CLAPI import data:
+      """
+      HOST;add;host-name;host-alias;127.0.0.1;;central;
+      SERVICE;add;host-name;service-name;Ping-LAN
+      SERVICE;setparam;host-name;service-name;check_period;24x7
+      SC;add;severity-name;severity-alias
+      SC;setseverity;severity-name;3;logos/logo-centreon-colors.png
+      SC;addservice;Ping;host-name,service-name
+      SC;addservice;severity-name;host-name,service-name
+      SG;add;group-name;group-alias
+      SG;addservice;group-name;host-name,service-name
+      """
+
+    When I send a GET request to '/api/latest/configuration/services'
+    And the json node "result" should have 9 elements
+    And the json node "result[8].hosts" should have 1 elements
+    And the json node "result[8].categories" should have 1 elements
+    And the json node "result[8].groups" should have 1 elements
+    And the JSON nodes should be equal to:
+      | result[8].id                    | 27              |
+      | result[8].name                  | "service-name"  |
+      | result[8].hosts[0].name         | "host-name"     |
+      | result[8].service_template.name | "Ping-LAN"      |
+      | result[8].check_timeperiod.name | "24x7"          |
+      | result[8].severity.name         | "severity-name" |
+      | result[8].categories[0].name    | "Ping"          |
+      | result[8].groups[0].name        | "group-name"    |
+      | result[8].groups[0].host_name   | "host-name"     |
+      | result[8].is_activated          | true            |
+
+    Given the following CLAPI import data:
+      """
+      CONTACT;ADD;test;test;test@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;test;reach_api;1
+      HOST;add;Host-Test;Host-Test-alias;127.0.0.1;;central;
+      SERVICE;add;Host-Test;Service-Test;Ping-LAN
+      HOST;add;Host-Test2;Host-Test-alias2;127.0.0.1;;central;
+      SERVICE;add;Host-Test2;Service-Test;Ping-LAN
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;Hosts;
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Services;
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Services;Services by host;
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;grant_host;ACL Resource test;Host-Test
+      ACLGROUP;add;ACL Group test;ACL Group test alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;setcontact;ACL Group test;test;
+      ACL;reload
+      """
+    And I am logged in with "test"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/configuration/services'
+    And the json node "result" should have 1 elements
+    And the json node "result[0].id" should be equal to the number 28
+
+
