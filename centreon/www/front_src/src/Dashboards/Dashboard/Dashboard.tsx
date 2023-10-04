@@ -1,7 +1,7 @@
 import { ReactElement, useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, inc } from 'ramda';
+import { inc } from 'ramda';
 
 import {
   Settings as SettingsIcon,
@@ -20,12 +20,7 @@ import { useDashboardAccessRights } from '../components/DashboardAccessRights/us
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
-import {
-  dashboardAtom,
-  dashboardRefreshIntervalAtom,
-  isEditingAtom,
-  refreshCountsAtom
-} from './atoms';
+import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
 import { editProperties } from './useCanEditDashboard';
@@ -40,7 +35,6 @@ const Dashboard = (): ReactElement => {
 
   const isEditing = useAtomValue(isEditingAtom);
   const { layout } = useAtomValue(dashboardAtom);
-  const dashboardRefreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
   const setRefreshCounts = useSetAtom(refreshCountsAtom);
 
   const { canEdit } = editProperties.useCanEditProperties();
