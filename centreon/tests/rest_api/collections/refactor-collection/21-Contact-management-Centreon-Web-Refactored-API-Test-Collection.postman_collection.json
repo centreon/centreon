@@ -4,7 +4,7 @@
 		"name": "21 - Contact management - Centreon Web Refactored API Test Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22770334",
-		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-58d18f50-5072-4117-9bed-3a2934729df6?action=share&creator=22770334&source=collection_link"
+		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-58d18f50-5072-4117-9bed-3a2934729df6?action=share&source=collection_link&creator=22770334"
 	},
 	"item": [
 		{
@@ -565,8 +565,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -698,8 +699,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -959,8 +961,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1071,8 +1074,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1140,8 +1144,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1210,8 +1215,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1280,8 +1286,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1348,8 +1355,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1371,287 +1379,6 @@
 				},
 				{
 					"name": "[2104-cleanup] Logout from admin user and clear collection variables",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserLogin\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"    pm.environment.unset(\"currentUserEmail\");\r",
-									"    pm.collectionVariables.clear();\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "2105 - Trying to disable the current admin user",
-			"item": [
-				{
-					"name": "[2105] Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2105-cleanup] Logout from admin user and clear collection variables\"\r",
-									"\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
-									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2105] Try to disable the current admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2105-DEBUG] Enable the admin user\"\r",
-									"\r",
-									"postman.setNextRequest(\"[2105-cleanup] Logout from admin user and clear collection variables\");\r",
-									"pm.test(\"The admin user cannot be disabled.\", function () {\r",
-									"    const expectedResponseCode = 500\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"contact\",\n  \"values\": \"{{api_login}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2105-DEBUG] Enable the admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"[DEBUG] The admin user, which could not have been disabled, has been enabled.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"contact\",\n  \"values\": \"{{api_login}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2105-cleanup] Logout from admin user and clear collection variables",
 					"event": [
 						{
 							"listen": "test",
@@ -1847,8 +1574,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1883,11 +1611,12 @@
 									"    values = [1, 0];\r",
 									"}\r",
 									"\r",
-									"let currentParameter = parameters.shift();\r",
-									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"if(!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    pm.collectionVariables.set(\"currentParameter\", parameters.shift());\r",
+									"    pm.collectionVariables.set(\"currentValue\", values.shift());\r",
+									"}\r",
+									"\r",
 									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
-									"let currentValue = values.shift();\r",
-									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
 									"pm.collectionVariables.set(\"listOfValues\", values);"
 								],
 								"type": "text/javascript"
@@ -1944,8 +1673,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2419,8 +2149,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2637,8 +2368,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2673,11 +2405,12 @@
 									"    values = [1, 1];\r",
 									"}\r",
 									"\r",
-									"let currentParameter = parameters.shift();\r",
-									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"if(!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    pm.collectionVariables.set(\"currentParameter\", parameters.shift());\r",
+									"    pm.collectionVariables.set(\"currentValue\", values.shift());\r",
+									"}\r",
+									"\r",
 									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
-									"let currentValue = values.shift();\r",
-									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
 									"pm.collectionVariables.set(\"listOfValues\", values);"
 								],
 								"type": "text/javascript"
@@ -2734,8 +2467,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -3172,8 +2906,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -3390,8 +3125,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -3595,10 +3331,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const nextRequestInCaseOfFailure = \"[2108] Login with admin user after non-admin user check\"\r",
+									"\r",
 									"pm.test(\"Since the non-admin user was not granted API access rights, it could not access the list of users.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"});\r",
-									""
+									"    const expectedResponseCode = 403\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -3807,8 +3546,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -3830,723 +3570,6 @@
 				},
 				{
 					"name": "[2108-cleanup] Logout from admin user and clear collection variables",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserLogin\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"    pm.environment.unset(\"currentUserEmail\");\r",
-									"    pm.collectionVariables.clear();\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "2109 - Adding a user with duplicate fields",
-			"item": [
-				{
-					"name": "[2109] Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2109-cleanup] Logout from admin user and clear collection variables\"\r",
-									"\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
-									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109] Add new non-admin user with defined fields",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2109-cleanup] Logout from admin user and clear collection variables\"\r",
-									"\r",
-									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2109\");\r",
-									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
-									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109] Add new non-admin user with an already taken email",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2109-cleanup] Delete the original non-admin user\"\r",
-									"\r",
-									"pm.test(\"Having two users with the same email is allowed by the application, therefore the host \" + pm.collectionVariables.get(\"testUserNameBis\") + \" with duplicate email \" + pm.collectionVariables.get(\"testUserEmailBis\") + \" was created.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    pm.collectionVariables.unset(\"testUserNameBis\");\r",
-									"    pm.collectionVariables.unset(\"testUserEmailBis\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"testUserNameBis\", pm.collectionVariables.get(\"testUserName\").concat(\"\", \"-bis\"));\r",
-									"pm.collectionVariables.set(\"testUserLoginBis\", pm.collectionVariables.get(\"testUserLogin\").concat(\"\", \"-bis\"));\r",
-									"pm.collectionVariables.set(\"testUserEmailBis\", pm.collectionVariables.get(\"testUserEmail\"));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109] Delete the non-admin user with duplicate email",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = null\r",
-									"\r",
-									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate email has been successfully deleted.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109] Add new non-admin user with an already taken login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2109-DEBUG] Delete the non-admin user with duplicate login\"\r",
-									"\r",
-									"pm.test(\"Since the login \" + pm.collectionVariables.get(\"testUserLogin\") + \" is already taken, the new user \" + pm.collectionVariables.get(\"testUserNameBis\") + \" with this login could not be created.\", function () {\r",
-									"    pm.collectionVariables.unset(\"testUserNameBis\");\r",
-									"    pm.collectionVariables.unset(\"testUserEmailBis\");\r",
-									"    const expectedResponseCode = 409\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    postman.setNextRequest(\"[2109] Add new non-admin user with an already taken name\");\r",
-									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"testUserNameBis\", pm.collectionVariables.get(\"testUserName\").concat(\"\", \"-bis\"));\r",
-									"pm.collectionVariables.set(\"testUserLoginBis\", pm.collectionVariables.get(\"testUserLogin\"));\r",
-									"pm.collectionVariables.set(\"testUserEmailBis\", pm.collectionVariables.get(\"testUserEmail\").concat(\"\", \"-bis\"));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109-DEBUG] Delete the non-admin user with duplicate login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"[DEBUG] The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate login has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
-									"    postman.setNextRequest(\"[2109-cleanup] Delete the original non-admin user\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109] Add new non-admin user with an already taken name",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2109-DEBUG] Delete the non-admin user with duplicate name\"\r",
-									"\r",
-									"pm.test(\"Since the name \" + pm.collectionVariables.get(\"testUserName\") + \" is already taken, a new user with name \" + pm.collectionVariables.get(\"testUserNameBis\") + \" could not be created.\", function () {\r",
-									"    pm.collectionVariables.unset(\"testUserNameBis\");\r",
-									"    pm.collectionVariables.unset(\"testUserEmailBis\");\r",
-									"    postman.setNextRequest(\"[2109-DEBUG] Delete the non-admin user with duplicate name\");\r",
-									"    pm.response.to.have.status(409);\r",
-									"    postman.setNextRequest(\"[2109-cleanup] Delete the original non-admin user\");\r",
-									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"testUserNameBis\", pm.collectionVariables.get(\"testUserName\"));\r",
-									"pm.collectionVariables.set(\"testUserLoginBis\", pm.collectionVariables.get(\"testUserLogin\").concat(\"\", \"-bis\"));\r",
-									"pm.collectionVariables.set(\"testUserEmailBis\", pm.collectionVariables.get(\"testUserEmail\").concat(\"\", \"-bis\"));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109-DEBUG] Delete the non-admin user with duplicate name",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"[DEBUG] The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate name has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
-									"    postman.setNextRequest(\"[2109-cleanup] Delete the original non-admin user\");\r",
-									"});\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109-cleanup] Delete the original non-admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"[Cleanup] The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate email has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
-									"    pm.collectionVariables.unset(\"testUserName\");\r",
-									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2109-cleanup] Logout from admin user and clear collection variables",
 					"event": [
 						{
 							"listen": "test",
@@ -4732,7 +3755,10 @@
 									"if (!incorrectPasswords || incorrectPasswords.length == 0){\r",
 									"    incorrectPasswords = [\"Centreon2021\", \"centreon!2021\", \"20210102030405\", \"\", \"CENTREON!2021\", \"CentreonTwoThousandTwentyOne\", \"centreon\", \"Cent!2\"];\r",
 									"}\r",
-									"pm.environment.set(\"currentIncorrectPassword\", incorrectPasswords.shift());\r",
+									"\r",
+									"if(!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    pm.environment.set(\"currentIncorrectPassword\", incorrectPasswords.shift());\r",
+									"}\r",
 									"pm.environment.set(\"incorrectPasswords\", incorrectPasswords);"
 								],
 								"type": "text/javascript"
@@ -4759,8 +3785,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -4961,11 +3988,13 @@
 									"    listOfCurrentSpecialParameterConfig = [true, true, true, true, false];\r",
 									"}\r",
 									"\r",
-									"pm.collectionVariables.set(\"currentMinimalPasswordLength\", listOfMinimalPasswordLengthConfig.shift());\r",
-									"pm.collectionVariables.set(\"currentUppercaseParameter\", listOfCurrentUppercaseConfig.shift());\r",
-									"pm.collectionVariables.set(\"currentLowercaseParameter\", listOfCurrentLowercaseConfig.shift());\r",
-									"pm.collectionVariables.set(\"currentNumberParameter\", listOfCurrentNumberConfig.shift());\r",
-									"pm.collectionVariables.set(\"currentSpecialCharacterParameter\", listOfCurrentSpecialParameterConfig.shift());\r",
+									"if(!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    pm.collectionVariables.set(\"currentMinimalPasswordLength\", listOfMinimalPasswordLengthConfig.shift());\r",
+									"    pm.collectionVariables.set(\"currentUppercaseParameter\", listOfCurrentUppercaseConfig.shift());\r",
+									"    pm.collectionVariables.set(\"currentLowercaseParameter\", listOfCurrentLowercaseConfig.shift());\r",
+									"    pm.collectionVariables.set(\"currentNumberParameter\", listOfCurrentNumberConfig.shift());\r",
+									"    pm.collectionVariables.set(\"currentSpecialCharacterParameter\", listOfCurrentSpecialParameterConfig.shift());\r",
+									"}\r",
 									"\r",
 									"pm.collectionVariables.set(\"listOfMinimalPasswordLengthConfig\", listOfMinimalPasswordLengthConfig);\r",
 									"pm.collectionVariables.set(\"listOfCurrentUppercaseConfig\", listOfCurrentUppercaseConfig);\r",
@@ -5075,8 +4104,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -5174,8 +4204,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -5583,8 +4614,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -5791,29 +4823,12 @@
 					"            postman.setNextRequest(nextRequestInCaseOfFailure);",
 					"        }",
 					"    } else {",
+					"        pm.collectionVariables.unset(\"requestTries\");",
 					"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
 					"    }",
 					"  }"
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "testUserName",
-			"value": ""
-		},
-		{
-			"key": "testUserLogin",
-			"value": ""
-		},
-		{
-			"key": "testUserEmail",
-			"value": ""
-		},
-		{
-			"key": "testUserLoginBis",
-			"value": ""
 		}
 	]
 }
