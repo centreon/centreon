@@ -15,7 +15,7 @@ import { Tooltip } from '@centreon/ui/components';
 import { WidgetPropertyProps } from '../../../models';
 import {
   labelShowThresholds,
-  labelThreshold,
+  labelThresholds,
   labelThresholdsAreAutomaticallyHidden
 } from '../../../../translatedLabels';
 import { WidgetSwitch } from '..';
@@ -40,7 +40,7 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   return (
     <Box>
-      <Subtitle>{t(labelThreshold)}</Subtitle>
+      <Subtitle>{t(labelThresholds)}</Subtitle>
       <div className={classes.showThreshold}>
         <WidgetSwitch
           endAdornment={

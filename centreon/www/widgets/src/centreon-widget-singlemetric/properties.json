@@ -1,6 +1,6 @@
 {
   "title": "Single metric",
-  "description": "Single metric description (TBD)",
+  "description": "Displays the value of a single metric as a text, a gauge or a bar chart.",
   "options": {
     "threshold": {
       "type": "threshold",
