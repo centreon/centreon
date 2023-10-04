@@ -112,11 +112,11 @@ class Conditions implements SecurityAccessInterface
 
         $conditionMatches = array_intersect($providerAuthenticationConditions, $localConditions);
         if (count($conditionMatches) === count($localConditions)) {
-            $this->info('All conditions matched', ['conditions' => $conditionMatches]);
+            $this->info('Conditions found', ['conditions' => $conditionMatches]);
             $this->loginLogger->info($scope, 'All conditions matched', $conditionMatches);
         } else {
             $this->error(
-                'Not all conditions matched',
+                'Not all conditions found',
                 [
                     'configured_authorized_values' => $authenticationConditions->getAuthorizedValues(),
                 ]
