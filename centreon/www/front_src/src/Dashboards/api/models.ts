@@ -57,11 +57,6 @@ export type CreateDashboardDto = Omit<
   'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'ownRole'
 >;
 
-export type UpdateDashboardDto = Omit<
-  Dashboard,
-  'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'ownRole'
->;
-
 export type DeleteDashboardDto = Pick<Dashboard, 'id'>;
 
 export const isDashboard = (value: unknown): value is Dashboard =>

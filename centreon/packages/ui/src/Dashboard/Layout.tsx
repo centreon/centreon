@@ -45,7 +45,7 @@ const Layout = <T extends Layout>({
 
   return useMemoComponent({
     Component: (
-      <ResponsiveHeight>
+      <ResponsiveHeight margin={40}>
         <Responsive.ParentSize>
           {({ width, height }): JSX.Element => (
             <div className={classes.container}>

@@ -10,7 +10,8 @@ import {
   pipe,
   not,
   has,
-  omit
+  omit,
+  uniqBy
 } from 'ramda';
 
 import { CircularProgress, useTheme } from '@mui/material';
@@ -30,6 +31,7 @@ import {
 import useFetchQuery from '../../../../api/useFetchQuery';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
+  allowUniqOption?: boolean;
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
@@ -57,6 +59,7 @@ const ConnectedAutocompleteField = (
     getRequestHeaders,
     displayOptionThumbnail,
     queryKey,
+    allowUniqOption,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -305,7 +308,9 @@ const ConnectedAutocompleteField = (
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
         open={optionsOpen}
-        options={options}
+        options={
+          allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
+        }
         renderOption={renderOptions}
         onChange={(_, value) => setAutocompleteChangedValue(value)}
         onClose={(): void => setOptionsOpen(false)}

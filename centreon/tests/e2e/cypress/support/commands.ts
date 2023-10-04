@@ -100,12 +100,21 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('logout', (): Cypress.Chainable => {
+Cypress.Commands.add('logout', (): void => {
   cy.getByLabel({ label: 'Profile' }).should('exist').click();
+
+  cy.intercept({
+    method: 'GET',
+    times: 1,
+    url: '/centreon/api/latest/authentication/logout'
+  }).as('logout');
 
   cy.contains(/^Logout$/).click();
 
-  return cy.get('header div[data-cy="clock"]').should('not.exist');
+  cy.wait('@logout').its('response.statusCode').should('eq', 302);
+
+  // https://github.com/cypress-io/cypress/issues/25841
+  cy.clearAllCookies();
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
@@ -199,7 +208,7 @@ declare global {
       getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
-      logout: () => Cypress.Chainable;
+      logout: () => void;
       logoutViaAPI: () => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;

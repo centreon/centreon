@@ -95,6 +95,7 @@ importers:
       html-webpack-plugin: ^5.5.0
       i18next: ^22.0.4
       identity-obj-proxy: ^3.0.0
+      intl-pluralrules: ^2.0.1
       jest: ^28.1.3
       jest-environment-jsdom: ^28.1.3
       jest-fetch-mock: ^3.0.3
@@ -183,6 +184,7 @@ importers:
       formik: 2.2.9_react@18.2.0
       html-react-parser: 3.0.16_react@18.2.0
       i18next: 22.4.15
+      intl-pluralrules: 2.0.1
       jotai: 2.0.4_react@18.2.0
       jotai-suspense: 0.1.0_jotai@2.0.4+react@18.2.0
       notistack: 2.0.8_5mh52ks2b4dfw2scu5s4t6m7wu
@@ -13558,6 +13560,10 @@ packages:
     dependencies:
       intl-messageformat-parser: 1.8.1
     dev: true
+
+  /intl-pluralrules/2.0.1:
+    resolution: {integrity: sha512-astxTLzIdXPeN0K9Rumi6LfMpm3rvNO0iJE+h/k8Kr/is+wPbRe4ikyDjlLr6VTh/mEfNv8RjN+gu3KwDiuhqg==}
+    dev: false
 
   /ip/2.0.0:
     resolution: {integrity: sha512-WKa+XuLG1A1R0UWhl2+1XQSi+fZWMsYKffMZTTYsiZaUD8k2yDAj5atimTUD2TZkyCkNEeYE5NhFZmupOGtjYQ==}

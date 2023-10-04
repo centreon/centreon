@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,50 +21,35 @@
 
 namespace CentreonModule\Infrastructure\Source;
 
-use Psr\Container\ContainerInterface;
 use CentreonLegacy\Core\Configuration\Configuration;
 use CentreonModule\Infrastructure\Entity\Module;
-use CentreonModule\Infrastructure\Source\SourceInterface;
+use Psr\Container\ContainerInterface;
 
 abstract class SourceAbstract implements SourceInterface
 {
-    /**
-     * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
-     */
+    /** @var \Centreon\Infrastructure\Service\CentreonDBManagerService */
     protected $db;
 
-    /**
-     * @var \Symfony\Component\Finder\Finder
-     */
+    /** @var \Symfony\Component\Finder\Finder */
     protected $finder;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $path;
 
-    /**
-     * @var \CentreonLegacy\Core\Widget\Upgrader|\CentreonLegacy\Core\Module\Upgrader
-     */
+    /** @var \CentreonLegacy\Core\Widget\Upgrader|\CentreonLegacy\Core\Module\Upgrader */
     protected $upgrader;
 
-    /**
-     * @var \CentreonLegacy\Core\Module\License
-     */
+    /** @var \CentreonLegacy\Core\Module\License */
     protected $license;
 
-    /**
-     * @var \CentreonLegacy\Core\Widget\Remover|\CentreonLegacy\Core\Module\Remover
-     */
+    /** @var \CentreonLegacy\Core\Widget\Remover|\CentreonLegacy\Core\Module\Remover */
     protected $remover;
 
-    /**
-     * @var \CentreonLegacy\Core\Widget\Installer|\CentreonLegacy\Core\Module\Installer
-     */
+    /** @var \CentreonLegacy\Core\Widget\Installer|\CentreonLegacy\Core\Module\Installer */
     protected $installer;
 
     /**
-     * Construct
+     * Construct.
      *
      * @param \Psr\Container\ContainerInterface $services
      */
@@ -73,14 +58,14 @@ abstract class SourceAbstract implements SourceInterface
         $this->db = $services->get(\Centreon\ServiceProvider::CENTREON_DB_MANAGER);
         $this->finder = $services->get('finder');
         $this->path = $services->get('configuration')
-            ->get(Configuration::CENTREON_PATH)
-        ;
+            ->get(Configuration::CENTREON_PATH);
     }
 
     /**
-     * Install module or widget
+     * Install module or widget.
      *
      * @param string $id
+     *
      * @return Module|null
      */
     public function install(string $id): ?Module
@@ -93,9 +78,10 @@ abstract class SourceAbstract implements SourceInterface
     }
 
     /**
-     * Update module or widget
+     * Update module or widget.
      *
      * @param string $id
+     *
      * @return Module|null
      */
     public function update(string $id): ?Module
@@ -108,7 +94,7 @@ abstract class SourceAbstract implements SourceInterface
     }
 
     /**
-     * Remove module or widget
+     * Remove module or widget.
      *
      * @param string $id
      */
@@ -119,25 +105,25 @@ abstract class SourceAbstract implements SourceInterface
 
     public function isEligible(
         Module $entity,
-        string $search = null,
-        bool $installed = null,
-        bool $updated = null
+        ?string $search = null,
+        ?bool $installed = null,
+        ?bool $updated = null
     ): bool {
         if ($search !== null && stripos($entity->getKeywords() . $entity->getName(), $search) === false) {
             return false;
-        } elseif ($installed !== null && $entity->isInstalled() !== $installed) {
-            return false;
-        } elseif ($updated !== null && ($entity->isInstalled() !== true || $entity->isUpdated() !== $updated)) {
+        }
+        if ($installed !== null && $entity->isInstalled() !== $installed) {
             return false;
         }
 
-        return true;
+        return ! ($updated !== null && ($entity->isInstalled() !== true || $entity->isUpdated() !== $updated));
     }
 
     /**
      * @param string $installedVersion
      * @param string $codeVersion
-     * @return boolean
+     *
+     * @return bool
      */
     public function isUpdated($installedVersion, $codeVersion): bool
     {
@@ -154,6 +140,7 @@ abstract class SourceAbstract implements SourceInterface
 
     /**
      * @codeCoverageIgnore
+     *
      * @return string
      */
     protected function getPath(): string

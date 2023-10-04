@@ -1,3 +1,5 @@
+import { isEmpty } from 'ramda';
+
 import { useListDashboards } from '../../api/useListDashboards';
 import { Dashboard } from '../../api/models';
 import { List } from '../../api/meta.models';
@@ -11,11 +13,11 @@ type UseDashboardsOverview = {
 const useDashboardsOverview = (): UseDashboardsOverview => {
   const { data, isLoading } = useListDashboards();
 
-  const dashboards = (data as List<Dashboard>)?.result || [];
+  const isEmptyList = isEmpty((data as List<Dashboard>)?.result || []);
 
   return {
-    dashboards,
-    isEmptyList: dashboards.length === 0,
+    dashboards: (data as List<Dashboard>)?.result || [],
+    isEmptyList,
     isLoading
   };
 };

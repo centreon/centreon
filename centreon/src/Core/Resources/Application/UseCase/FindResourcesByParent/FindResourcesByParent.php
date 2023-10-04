@@ -40,6 +40,12 @@ final class FindResourcesByParent
 {
     use LoggerTrait;
 
+    private int $pageProvided = 1;
+
+    private string $searchProvided = '';
+
+    private array $sortProvided = [];
+
     /**
      * @param ReadResourceRepositoryInterface $repository
      * @param ContactInterface $contact
@@ -63,27 +69,49 @@ final class FindResourcesByParent
         ResourceFilter $filter
     ): void {
         try {
-            // Save the search provided to be restored later on
-            $searchProvided = $this->requestParameters->getSearchAsString();
+            // Save the search and sort provided to be restored later on
+            $this->searchProvided = $this->requestParameters->getSearchAsString();
+            $this->sortProvided = $this->requestParameters->getSort();
+            $this->pageProvided = $this->requestParameters->getPage();
+
+            // create specific filter for parent search
             $parentFilter = (new ResourceFilter())->setTypes([ResourceFilter::TYPE_HOST]);
+
+            // Creating a new sort to search children as we want a specific order priority
+            $servicesSort = ['parent_id' => 'ASC', ...$this->sortProvided];
+
+            $this->requestParameters->setSort(json_encode($servicesSort));
 
             if ($this->contact->isAdmin()) {
                 $children = $this->findResourcesAsAdmin($filter);
+                // Save total children found
+                $totalChildrenFound = $this->requestParameters->getTotal();
+
+                // prepare special ResourceFilter for parent search
                 $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
-                // unset search provided in order to find parents linked to the resources found
-                $this->unsetInitialSearchParameter();
+
+                // unset search provided in order to find parents linked to the resources found and restore sort
+                $this->prepareRequestParametersForParentSearch();
                 $parents = $this->findResourcesAsAdmin($parentFilter);
             } else {
                 $children = $this->findResourcesAsUser($filter);
+
+                // Save total children found
+                $totalChildrenFound = $this->requestParameters->getTotal();
+
+                // prepare special ResourceFilter for parent search
                 $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
-                // unset search provided in order to find parents linked to the resources found
-                $this->unsetInitialSearchParameter();
+
+                // unset search provided in order to find parents linked to the resources found and restore sort
+                $this->prepareRequestParametersForParentSearch();
                 $parents = $this->findResourcesAsUser($parentFilter);
            }
 
-            // Restore search and total from initial request (for accurate meta in presenter).
-            $this->requestParameters->setSearch($searchProvided);
-            $this->requestParameters->setTotal((int) count($children->resources));
+            // Set total to the number of children found 
+            $this->requestParameters->setTotal($totalChildrenFound); 
+
+            // Restore search and sort from initial request (for accurate meta in presenter).
+            $this->restoreProvidedSearchParameters();
 
             $presenter->presentResponse(
                 FindResourcesByParentFactory::createResponse($parents->resources, $children->resources)
@@ -94,9 +122,17 @@ final class FindResourcesByParent
         }
     }
 
-    private function unsetInitialSearchParameter(): void
+    private function prepareRequestParametersForParentSearch(): void
     {
         $this->requestParameters->unsetSearch();
+        $this->requestParameters->setSort(json_encode($this->sortProvided));
+        $this->requestParameters->setPage(1);
+    }
+
+    private function restoreProvidedSearchParameters(): void
+    {
+        $this->requestParameters->setPage($this->pageProvided);
+        $this->requestParameters->setSearch($this->searchProvided);
     }
 
     /**
@@ -106,10 +142,12 @@ final class FindResourcesByParent
      */
     private function extractParentIdsFromResources(FindResourcesResponse $response): array
     {
-        return array_map(
+        $hostIds = array_map(
             static fn (ResourceResponseDto $resource) => (int) $resource->parent?->id,
             $response->resources
         );
+
+        return array_unique($hostIds);
     }
 
     /**

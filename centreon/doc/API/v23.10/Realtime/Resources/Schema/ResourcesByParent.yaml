@@ -51,4 +51,12 @@ allOf:
                       format: int32
                       description: "ID of the service behind the resource"
                       example: 12
+                    parent:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int32
+                          description: "ID of the parent"
+                          example: 12
 

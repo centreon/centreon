@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security\Interfaces;
@@ -30,8 +31,10 @@ interface EncryptionInterface
      * Can be use as salt with password.
      *
      * @param int $length Length of the generated string
-     * @return string
+     *
      * @throws \Exception
+     *
+     * @return string
      */
     public static function generateRandomString(int $length = 64): string;
 
@@ -39,8 +42,10 @@ interface EncryptionInterface
      * Crypt data according to first and second keys.
      *
      * @param string $data Data to be encrypted
-     * @return string Encrypted data
+     *
      * @throws \Exception
+     *
+     * @return string Encrypted data
      */
     public function crypt(string $data): string;
 
@@ -48,6 +53,7 @@ interface EncryptionInterface
      * Set the first secure key.
      *
      * @param string $firstKey
+     *
      * @return EncryptionInterface
      */
     public function setFirstKey(string $firstKey): EncryptionInterface;
@@ -56,6 +62,7 @@ interface EncryptionInterface
      * Set the second secure key.
      *
      * @param string $secondKey
+     *
      * @return EncryptionInterface
      */
     public function setSecondKey(string $secondKey): EncryptionInterface;
@@ -64,8 +71,10 @@ interface EncryptionInterface
      * Decrypt input according to first and second keys.
      *
      * @param string $input Data to be decrypted
-     * @return string|null Data decrypted if successful otherwise null
+     *
      * @throws \Exception
+     *
+     * @return string|null Data decrypted if successful otherwise null
      */
     public function decrypt(string $input): ?string;
 }

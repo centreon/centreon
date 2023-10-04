@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,16 +22,18 @@
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
 /**
- * Get broker configuration template
+ * Get broker configuration template.
  */
 class CfgNagiosBrokerModule
 {
     /**
-     * Get template configuration
+     * Get template configuration.
+     *
      * @todo move it as yml
      *
      * @param int $configID the broker config id
      * @param string $pollerName the poller name
+     *
      * @return array<int, array<string,string|int>> the configuration template
      */
     public static function getConfiguration(int $configID, string $pollerName): array

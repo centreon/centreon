@@ -2,7 +2,7 @@
   "metrics": [
     {
       "index_id": "5",
-      "metric_id": "30",
+      "metric_id": 1,
       "metric": "disk used",
       "metric_legend": "disk:avg",
       "unit": "B",
