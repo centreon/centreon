@@ -113,12 +113,12 @@ jobs:
           arch: ${{ matrix.arch }}
           commit_hash: ${{ github.sha }}
           cache_key: cache-${{ github.sha }}-${{ matrix.package_extension}}-perl-net-curl-${{ matrix.distrib }}-${{ matrix.arch }}-${{ github.head_ref || github.ref_name }}
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY_NEW }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
 
       # set condition to true if artifacts are needed
-      - if: ${{ false }}
+      - if: ${{ true }}
         name: Upload package artifacts
         uses: actions/upload-artifact@v3
         with:
