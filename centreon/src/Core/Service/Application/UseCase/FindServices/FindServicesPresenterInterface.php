@@ -21,19 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Service\Infrastructure\API\AddService;
+namespace Core\Service\Application\UseCase\FindServices;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Service\Application\UseCase\AddService\AddServicePresenterInterface;
-use Core\Service\Application\UseCase\AddService\AddServiceResponse;
 
-class AddServicePresenterStub extends AbstractPresenter implements AddServicePresenterInterface
+interface FindServicesPresenterInterface
 {
-    public ResponseStatusInterface|AddServiceResponse $response;
-
-    public function presentResponse(ResponseStatusInterface|AddServiceResponse $response): void
-    {
-        $this->response = $response;
-    }
+    public function presentResponse(FindServicesResponse|ResponseStatusInterface $response): void;
 }

@@ -135,3 +135,35 @@ Feature:
       }
       """
     Then the response code should be 409
+
+  Scenario: Service listing
+    Given I am logged in
+    And the following CLAPI import data:
+      """
+      HOST;add;host-name;host-alias;127.0.0.1;;central;
+      SERVICE;add;host-name;service-name;Ping-LAN
+      SERVICE;setparam;host-name;service-name;check_period;24x7
+      SC;add;severity-name;severity-alias
+      SC;setseverity;severity-name;3;logos/logo-centreon-colors.png
+      SC;addservice;Ping;host-name,service-name
+      SC;addservice;severity-name;host-name,service-name
+      SG;add;group-name;group-alias
+      SG;addservice;group-name;host-name,service-name
+      """
+
+    When I send a GET request to '/api/latest/configuration/services'
+    And the json node "result" should have 9 elements
+    And the json node "result[8].host" should have 1 elements
+    And the json node "result[8].categories" should have 1 elements
+    And the json node "result[8].groups" should have 1 elements
+    And the JSON nodes should be equal to:
+      | result[8].id                    | 27               |
+      | result[8].name                  | "service-name"   |
+      | result[8].host[0].name          | "host-name"      |
+      | result[8].service_template.name | "Ping-LAN"       |
+      | result[8].check_timeperiod.name | "24x7"           |
+      | result[8].severity.name         | "severity-name"  |
+      | result[8].categories[0].name    | "Ping"           |
+      | result[8].groups[0].name        | "group-name"     |
+      | result[8].groups[0].host_name   | "host-name"      |
+      | result[8].is_activated          | true             |

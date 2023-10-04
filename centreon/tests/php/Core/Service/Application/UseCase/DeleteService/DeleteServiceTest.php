@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Service\Application\UseCase\DeleteService;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;

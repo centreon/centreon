@@ -19,21 +19,36 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Tests\Core\Service\Infrastructure\API\AddService;
+namespace Core\ServiceGroup\Domain\Model;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Service\Application\UseCase\AddService\AddServicePresenterInterface;
-use Core\Service\Application\UseCase\AddService\AddServiceResponse;
+use Core\Common\Domain\TrimmedString;
 
-class AddServicePresenterStub extends AbstractPresenter implements AddServicePresenterInterface
+class ServiceGroupNamesById
 {
-    public ResponseStatusInterface|AddServiceResponse $response;
+    /** @var array<int,TrimmedString> */
+    private array $names = [];
 
-    public function presentResponse(ResponseStatusInterface|AddServiceResponse $response): void
+    public function __construct()
     {
-        $this->response = $response;
+    }
+
+    /**
+     * @param int $groupId
+     * @param TrimmedString $groupName
+     */
+    public function addName(int $groupId, TrimmedString $groupName): void
+    {
+        $this->names[$groupId] = $groupName;
+    }
+
+    /**
+     * @param int $groupId
+     *
+     * @return null|string
+     */
+    public function getName(int $groupId): ?string {
+        return isset($this->names[$groupId]) ? $this->names[$groupId]->value : null;
     }
 }

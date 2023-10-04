@@ -19,21 +19,36 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Tests\Core\Service\Infrastructure\API\AddService;
+namespace Core\Host\Domain\Model;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Service\Application\UseCase\AddService\AddServicePresenterInterface;
-use Core\Service\Application\UseCase\AddService\AddServiceResponse;
+use Core\Common\Domain\TrimmedString;
 
-class AddServicePresenterStub extends AbstractPresenter implements AddServicePresenterInterface
+class HostNamesById
 {
-    public ResponseStatusInterface|AddServiceResponse $response;
+    /** @var array<int,TrimmedString> */
+    private array $names = [];
 
-    public function presentResponse(ResponseStatusInterface|AddServiceResponse $response): void
+    public function __construct()
     {
-        $this->response = $response;
+    }
+
+    /**
+     * @param int $hostId
+     * @param TrimmedString $hostName
+     */
+    public function addName(int $hostId, TrimmedString $hostName): void
+    {
+        $this->names[$hostId] = $hostName;
+    }
+
+    /**
+     * @param int $hostId
+     *
+     * @return null|string
+     */
+    public function getName(int $hostId): ?string {
+        return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
     }
 }
