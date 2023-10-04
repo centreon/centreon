@@ -104,7 +104,7 @@ const useDashboardDetails = ({
     }
 
     setHasEditPermission(hasEditPermission(dashboard));
-    setDashboardRefreshInterval(dashboard.globalRefreshInterval);
+    setDashboardRefreshInterval(dashboard.refresh);
   }, [dashboard]);
 
   useEffect(() => {

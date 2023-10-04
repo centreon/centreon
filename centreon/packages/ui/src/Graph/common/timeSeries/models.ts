@@ -16,11 +16,12 @@ export interface Metric {
   crit: number | null;
   critical_high_threshold: number | null;
   critical_low_threshold: number | null;
-  data: Array<number>;
-  ds_data: DsData;
+  data: Array<number | null>;
+  ds_data?: DsData;
   legend: string;
   maximum_value: number | null;
   metric: string;
+  metric_id: number;
   minimum_value: number | null;
   unit: string;
   warning_high_threshold: number | null;
@@ -30,7 +31,7 @@ export interface Metric {
 type TimeSeries = { timeTick: string };
 
 export type TimeValue = TimeSeries & {
-  [field: string]: number;
+  [field: number]: number;
 };
 
 export interface Line {
@@ -45,6 +46,7 @@ export interface Line {
   lineColor: string;
   maximum_value: number | null;
   metric: string;
+  metric_id: number;
   minimum_value: number | null;
   name: string;
   stackOrder: number | null;

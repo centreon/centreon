@@ -1,41 +1,21 @@
-import {
-  MutateOptions,
-  UseMutationResult,
-  useQueryClient
-} from '@tanstack/react-query';
-import { pick } from 'ramda';
+import { UseMutationResult, useQueryClient } from '@tanstack/react-query';
+import { omit } from 'ramda';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
-import { Dashboard, resource, UpdateDashboardDto } from './models';
+import { Dashboard, resource } from './models';
 import { getDashboardEndpoint } from './endpoints';
 
-type UseUpdateDashboard<
-  TData extends Dashboard = Dashboard,
-  TVariables extends UpdateDashboardDto = UpdateDashboardDto,
-  TError = ResponseError
-> = {
-  mutate: (
-    variables: TVariables,
-    options?: MutateOptions<TData, TError, TVariables>
-  ) => Promise<TData | TError>;
-} & Omit<
-  UseMutationResult<TData | TError, TError, TVariables>,
-  'mutate' | 'mutateAsync'
+type UseUpdateDashboard = {
+  mutate: (variables: Dashboard) => Promise<Dashboard | ResponseError>;
+} & Pick<
+  UseMutationResult<Dashboard | ResponseError, ResponseError, Dashboard>,
+  'reset' | 'status'
 >;
 
 const useUpdateDashboard = (): UseUpdateDashboard => {
-  const {
-    mutateAsync,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mutate: omittedMutate,
-    ...mutationData
-  } = useMutationQuery<Dashboard>({
-    getEndpoint: ({ id }) => getDashboardEndpoint(id),
-    method: Method.PATCH
-  });
-
   const queryClient = useQueryClient();
+
   const invalidateQueries = (): void => {
     queryClient.invalidateQueries({
       queryKey: [resource.dashboards]
@@ -45,45 +25,30 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     });
   };
 
-  const mutate = async (
-    variables: UpdateDashboardDto,
-    options?: MutateOptions<Dashboard, unknown, UpdateDashboardDto>
-  ): Promise<Dashboard | ResponseError> => {
-    const { onSettled, ...restOptions } = options || {};
+  const { mutateAsync, ...mutationData } = useMutationQuery<
+    Dashboard,
+    Dashboard
+  >({
+    getEndpoint: ({ id }) => getDashboardEndpoint(id),
+    method: Method.PATCH,
+    onSuccess: invalidateQueries
+  });
 
-    const onSettledWithInvalidateQueries = (
-      data: Dashboard | undefined,
-      error: ResponseError | null,
-      vars: UpdateDashboardDto
-    ): void => {
-      invalidateQueries();
-      onSettled?.(data, error, vars, undefined);
-    };
-
-    const apiAllowedVariables = pick(
-      ['name', 'description', 'globalRefreshInterval'],
-      variables
-    );
-    const { id } = variables;
-
-    return mutateAsync(
-      {
-        ...apiAllowedVariables,
-        _meta: {
-          id
-        }
+  const mutate = (variables: Dashboard): Promise<Dashboard | ResponseError> =>
+    mutateAsync({
+      _meta: {
+        id: variables.id
       },
-      {
-        mutationKey: [resource.dashboards, 'update', id],
-        onSettled: onSettledWithInvalidateQueries,
-        ...restOptions
-      }
-    );
-  };
+      ...omit(
+        ['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'ownRole'],
+        variables
+      )
+    });
 
   return {
     mutate,
-    ...mutationData
+    reset: mutationData.reset,
+    status: mutationData.status
   };
 };
 

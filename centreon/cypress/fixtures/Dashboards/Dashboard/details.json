@@ -51,7 +51,7 @@
     }
   ],
   "own_role": "viewer",
-  "global_refresh_interval": {
+  "refresh": {
     "type": "global",
     "interval": null
   }

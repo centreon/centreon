@@ -1,4 +1,4 @@
-import { pick, isEmpty, isNil, equals, includes } from 'ramda';
+import { isEmpty, isNil, equals, includes } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
 
@@ -155,7 +155,10 @@ const getDetailCardLines = ({
     },
     {
       line: (
-        <ChecksIcon {...pick(['active_checks', 'passive_checks'], details)} />
+        <ChecksIcon
+          has_active_checks_enabled={details?.active_checks}
+          has_passive_checks_enabled={details?.passive_checks}
+        />
       ),
       shouldBeDisplayed: displayChecksIcon,
       title: labelCheck

@@ -16856,6 +16856,18 @@ msgstr ""
 #  msgid "You are not allowed to add tokens linked to user ID %d"
 #  msgstr ""
 
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} hosts"
+# msgstr ""
+
 #  msgid "Error while deleting a token"
 #  msgstr ""
 
@@ -16865,6 +16877,9 @@ msgstr ""
 #  msgid "You are not allowed to delete tokens linked to user ID %d"
 #  msgstr ""
 
+# msgid "hosts"
+# msgstr ""
+
 # msgid "none"
 # msgstr ""
 
@@ -16872,4 +16887,10 @@ msgstr ""
 #  msgstr ""
 
 #  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to access services"
+#  msgstr ""
+
+#  msgid "Error while searching for services"
 #  msgstr ""

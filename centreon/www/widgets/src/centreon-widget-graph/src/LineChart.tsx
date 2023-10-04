@@ -1,4 +1,4 @@
-import { isNil } from 'ramda';
+import { head, isNil, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
@@ -35,22 +35,25 @@ const WidgetLineChart = ({
     refreshIntervalCustom: panelOptions.refreshIntervalCustom
   });
 
-  const { graphData, start, end, isGraphLoading, isMetricIdsEmpty } =
+  const metricNames = pluck('name', panelData.metrics);
+
+  const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
       baseEndpoint: graphEndpoint,
-      metrics: panelData.metrics,
+      metrics: metricNames,
       refreshCount,
       refreshInterval: refreshIntervalToUse,
+      resources: panelData.resources,
       timePeriod: panelOptions.timeperiod
     });
 
   const formattedThresholds = useThresholds({
     data: graphData,
-    metricName: panelData.metrics[0]?.metrics[0]?.name,
+    metricName: head(metricNames),
     thresholds: panelOptions.threshold
   });
 
-  if (isNil(graphData) && (!isGraphLoading || isMetricIdsEmpty)) {
+  if (isNil(graphData) && (!isGraphLoading || isMetricsEmpty)) {
     return (
       <Typography className={classes.noDataFound} variant="h5">
         {t(labelNoDataFound)}
@@ -66,7 +69,7 @@ const WidgetLineChart = ({
       legend={{ display: true }}
       loading={isGraphLoading}
       start={start}
-      thresholdUnit={panelData.metrics[0]?.metrics[0]?.unit}
+      thresholdUnit={panelData.metrics[0]?.unit}
       thresholds={formattedThresholds}
       timeShiftZones={{
         enable: false

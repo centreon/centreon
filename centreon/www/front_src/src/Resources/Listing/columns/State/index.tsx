@@ -85,8 +85,8 @@ const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      {row.in_downtime && <DowntimeHoverChip resource={row} />}
-      {row.acknowledged && <AcknowledgeHoverChip resource={row} />}
+      {row.is_in_downtime && <DowntimeHoverChip resource={row} />}
+      {row.is_acknowledged && <AcknowledgeHoverChip resource={row} />}
     </div>
   );
 };

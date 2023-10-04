@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,34 +27,39 @@ use Curl\Curl;
 
 class NotifyMasterService
 {
+    /**
+     * fail constants.
+     */
+    public const CANT_RESOLVE_HOST = 'Could not resolve the host';
+    public const CANT_CONNECT = 'Could not connect';
+    public const TIMEOUT = 'Timeout';
+    public const UNKNOWN_ERROR = 'Unknown Error';
+    public const NO_APP_KEY = 'No Application Key found';
 
     /**
-     * fail constants
+     * statuses.
      */
-    const CANT_RESOLVE_HOST = 'Could not resolve the host';
-    const CANT_CONNECT = 'Could not connect';
-    const TIMEOUT = 'Timeout';
-    const UNKNOWN_ERROR = 'Unknown Error';
-    const NO_APP_KEY = 'No Application Key found';
+    public const SUCCESS = 'success';
+    public const FAIL = 'fail';
 
-    /**
-     * statuses
-     */
-    const SUCCESS = 'success';
-    const FAIL = 'fail';
-
-    /**
-     * @var CentreonDBManagerService
-     */
+    /** @var CentreonDBManagerService */
     private $dbManager;
 
-    /**
-     * @var Curl
-     */
+    /** @var Curl */
     private $curl;
 
     /**
-     * @return void
+     * NotifyMasterService constructor.
+     *
+     * @param CentreonDBManagerService $dbManager
+     */
+    public function __construct(CentreonDBManagerService $dbManager)
+    {
+        $this->dbManager = $dbManager;
+    }
+
+    /**
+     * @param Curl $curl
      */
     public function setCurl(Curl $curl): void
     {
@@ -70,23 +75,16 @@ class NotifyMasterService
     }
 
     /**
-     * NotifyMasterService constructor.
-     *
-     * @param CentreonDBManagerService $dbManager
-     */
-    public function __construct(CentreonDBManagerService $dbManager)
-    {
-        $this->dbManager = $dbManager;
-    }
-
-    /**
      * Ping the master IP requesting to be slave for it.
+     *
      * @param string $ip The IP address of the master
-     * @param boolean $noCheckCertificate To do not check SLL CA on master
-     * @param boolean $noProxy
+     * @param bool $noCheckCertificate To do not check SLL CA on master
+     * @param bool $noProxy
      * @param (string|null|false)[] $data The information for the master how to contact the remote
-     * @return string[]
+     *
      * @throws \ErrorException
+     *
+     * @return string[]
      */
     public function pingMaster($ip, $data, $noCheckCertificate = false, $noProxy = false)
     {
@@ -130,13 +128,13 @@ class NotifyMasterService
 
                 return [
                     'status' => 'fail',
-                    'details' => $details
+                    'details' => $details,
                 ];
             }
         } catch (\ErrorException $e) {
             return [
                 'status' => self::FAIL,
-                'details' => self::UNKNOWN_ERROR
+                'details' => self::UNKNOWN_ERROR,
             ];
         }
 

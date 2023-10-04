@@ -47,7 +47,10 @@ const Preview = (): JSX.Element | null => {
     <div className={classes.previewPanelContainer} ref={previewRef}>
       <div
         style={{
-          height: `${previewRef.current?.getBoundingClientRect().height || 0}px`
+          height: `${
+            (previewRef.current?.getBoundingClientRect().height || 0) - 16
+          }px`,
+          overflowY: 'auto'
         }}
       >
         {isGenericText(values.panelConfiguration?.path) ? (
@@ -62,6 +65,7 @@ const Preview = (): JSX.Element | null => {
         ) : (
           <FederatedComponent
             isFederatedWidget
+            isFromPreview
             globalRefreshInterval={refreshInterval}
             id={values.id}
             panelData={values.data}

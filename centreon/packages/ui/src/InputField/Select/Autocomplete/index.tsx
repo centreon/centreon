@@ -195,6 +195,7 @@ const AutocompleteField = ({
           </>
         ),
         style: {
+          background: 'transparent',
           paddingRight: theme.spacing(5)
         }
       }}

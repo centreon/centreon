@@ -453,7 +453,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.0',
+  `bbdo_version` varchar(50) DEFAULT '3.0.1',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2562,6 +2562,8 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
   `updated_by` int(11) NULL,
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
+  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global',
+  `refresh_interval` int(11) NULL,
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `contact_created_by`

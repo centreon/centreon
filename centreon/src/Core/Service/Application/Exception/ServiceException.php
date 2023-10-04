@@ -46,6 +46,14 @@ class ServiceException extends \Exception
     /**
      * @return self
      */
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access services'));
+    }
+
+    /**
+     * @return self
+     */
     public static function checkCommandCannotBeNull(): self
     {
         return new self(_('The check command cannot be null if the service template is null'));
@@ -77,6 +85,16 @@ class ServiceException extends \Exception
     public static function errorWhileRetrieving(): self
     {
         return new self(_('Error while retrieving a service'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileSearching(\Throwable $ex): self
+    {
+        return new self(_('Error while searching for services'), 0, $ex);
     }
 
     /**

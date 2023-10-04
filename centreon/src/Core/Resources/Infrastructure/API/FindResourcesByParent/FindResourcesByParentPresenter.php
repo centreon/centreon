@@ -213,8 +213,10 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
 
         if ($response->type === self::HOST_RESOURCE_TYPE) {
             $resource['name'] = $response->name;
+            $resource['parent'] = null;
         } else {
             $resource['resource_name'] = $response->name;
+            $resource['parent'] = ['id' => $response->hostId];
         }
 
         return $resource;

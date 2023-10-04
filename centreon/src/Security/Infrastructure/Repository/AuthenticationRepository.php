@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,22 +18,20 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security\Infrastructure\Repository;
 
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationTokenRepositoryInterface;
 
-/**
- * @package Security\Repository
- */
 class AuthenticationRepository extends AbstractRepositoryDRB implements
     AuthenticationRepositoryInterface,
     AuthenticationTokenRepositoryInterface
@@ -77,115 +75,19 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
             if ($isAlreadyInTransaction === false) {
                 $this->db->rollBack();
             }
+
             throw $e;
         }
     }
 
     /**
-     * Insert session, security and refresh tokens
-     *
-     * @param string $token
-     * @param integer $providerConfigurationId
-     * @param integer $contactId
-     * @param ProviderToken $providerToken
-     * @param ProviderToken|null $providerRefreshToken
-     * @return void
-     */
-    private function insertProviderTokens(
-        string $token,
-        int $providerConfigurationId,
-        int $contactId,
-        ProviderToken $providerToken,
-        ?ProviderToken $providerRefreshToken
-    ): void {
-
-        $this->insertSecurityToken($providerToken);
-        $securityTokenId = (int) $this->db->lastInsertId();
-
-        $securityRefreshTokenId = null;
-        if ($providerRefreshToken !== null) {
-            $this->insertSecurityToken($providerRefreshToken);
-            $securityRefreshTokenId = (int) $this->db->lastInsertId();
-        }
-
-        $this->insertSecurityAuthenticationToken(
-            $token,
-            $contactId,
-            $securityTokenId,
-            $securityRefreshTokenId,
-            $providerConfigurationId
-        );
-    }
-
-    /**
-     * Insert provider token into security_token table.
-     *
-     * @param ProviderToken $providerToken
-     */
-    private function insertSecurityToken(ProviderToken $providerToken): void
-    {
-        $insertSecurityTokenStatement = $this->db->prepare(
-            $this->translateDbName(
-                "INSERT INTO `:db`.security_token (`token`, `creation_date`, `expiration_date`) " .
-                "VALUES (:token, :createdAt, :expireAt)"
-            )
-        );
-        $insertSecurityTokenStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
-        $insertSecurityTokenStatement->bindValue(
-            ':createdAt',
-            $providerToken->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $insertSecurityTokenStatement->bindValue(
-            ':expireAt',
-            $providerToken->getExpirationDate() !== null ? $providerToken->getExpirationDate()->getTimestamp() : null,
-            \PDO::PARAM_INT
-        );
-        $insertSecurityTokenStatement->execute();
-    }
-
-    /**
-     * Insert tokens and configuration id in security_authentication_tokens table.
-     *
-     * @param string $sessionId
-     * @param integer $contactId
-     * @param integer $securityTokenId
-     * @param integer|null $securityRefreshTokenId
-     * @param integer $providerConfigurationId
-     */
-    private function insertSecurityAuthenticationToken(
-        string $sessionId,
-        int $contactId,
-        int $securityTokenId,
-        ?int $securityRefreshTokenId,
-        int $providerConfigurationId
-    ): void {
-        $insertSecurityAuthenticationStatement = $this->db->prepare(
-            $this->translateDbName(
-                "INSERT INTO `:db`.security_authentication_tokens " .
-                "(`token`, `provider_token_id`, `provider_token_refresh_id`, `provider_configuration_id`, `user_id`) " .
-                "VALUES (:sessionTokenId, :tokenId, :refreshTokenId, :configurationId, :userId)"
-            )
-        );
-        $insertSecurityAuthenticationStatement->bindValue(':sessionTokenId', $sessionId, \PDO::PARAM_STR);
-        $insertSecurityAuthenticationStatement->bindValue(':tokenId', $securityTokenId, \PDO::PARAM_INT);
-        $insertSecurityAuthenticationStatement->bindValue(':refreshTokenId', $securityRefreshTokenId, \PDO::PARAM_INT);
-        $insertSecurityAuthenticationStatement->bindValue(
-            ':configurationId',
-            $providerConfigurationId,
-            \PDO::PARAM_INT
-        );
-        $insertSecurityAuthenticationStatement->bindValue(':userId', $contactId, \PDO::PARAM_INT);
-        $insertSecurityAuthenticationStatement->execute();
-    }
-
-    /**
      * {@inheritDoc}
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function findAuthenticationTokensByToken(string $token): ?AuthenticationTokens
     {
-        $statement = $this->db->prepare($this->translateDbName("
+        $statement = $this->db->prepare($this->translateDbName('
             SELECT sat.user_id, sat.provider_configuration_id,
               provider_token.id as pt_id,
               provider_token.token AS provider_token,
@@ -199,7 +101,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
             INNER JOIN `:db`.security_token provider_token ON provider_token.id = sat.provider_token_id
             LEFT JOIN `:db`.security_token refresh_token ON refresh_token.id = sat.provider_token_refresh_id
             WHERE sat.token = :token
-        "));
+        '));
         $statement->bindValue(':token', $token, \PDO::PARAM_STR);
         $statement->execute();
 
@@ -239,13 +141,12 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
         return null;
     }
 
-
-     /**
+    /**
      * @inheritDoc
      */
     public function findAuthenticationTokensByContact(ContactInterface $contact): ?AuthenticationTokens
     {
-        $statement = $this->db->prepare($this->translateDbName("
+        $statement = $this->db->prepare($this->translateDbName('
             SELECT sat.user_id, sat.provider_configuration_id,
               provider_token.token AS provider_token,
               provider_token.creation_date as provider_token_creation_date,
@@ -257,7 +158,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
             INNER JOIN `:db`.security_token provider_token ON provider_token.id = sat.provider_token_id
             LEFT JOIN `:db`.security_token refresh_token ON refresh_token.id = sat.provider_token_refresh_id
             WHERE sat.user_id = :user_id
-        "));
+        '));
         $statement->bindValue(':user_id', $contact->getId(), \PDO::PARAM_INT);
         $statement->execute();
 
@@ -326,7 +227,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
         $updateTokenStatement->bindValue(':tokenId', $providerToken->getId(), \PDO::PARAM_INT);
         $updateTokenStatement->execute();
 
-        //Update Refresh Token
+        // Update Refresh Token
         $updateTokenStatement->bindValue(':token', $providerRefreshToken->getToken(), \PDO::PARAM_STR);
         $updateTokenStatement->bindValue(
             ':creationDate',
@@ -349,7 +250,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
     {
         $updateStatement = $this->db->prepare(
             $this->translateDbName(
-                "UPDATE `:db`.security_token SET expiration_date = :expiredAt WHERE token = :token"
+                'UPDATE `:db`.security_token SET expiration_date = :expiredAt WHERE token = :token'
             )
         );
         $updateStatement->bindValue(
@@ -365,10 +266,107 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
     {
         $deleteSecurityTokenStatement = $this->db->prepare(
             $this->translateDbName(
-                "DELETE FROM `:db`.security_token WHERE token = :token"
+                'DELETE FROM `:db`.security_token WHERE token = :token'
             )
         );
         $deleteSecurityTokenStatement->bindValue(':token', $token, \PDO::PARAM_STR);
         $deleteSecurityTokenStatement->execute();
+    }
+
+    /**
+     * Insert session, security and refresh tokens.
+     *
+     * @param string $token
+     * @param int $providerConfigurationId
+     * @param int $contactId
+     * @param ProviderToken $providerToken
+     * @param ProviderToken|null $providerRefreshToken
+     */
+    private function insertProviderTokens(
+        string $token,
+        int $providerConfigurationId,
+        int $contactId,
+        ProviderToken $providerToken,
+        ?ProviderToken $providerRefreshToken
+    ): void {
+
+        $this->insertSecurityToken($providerToken);
+        $securityTokenId = (int) $this->db->lastInsertId();
+
+        $securityRefreshTokenId = null;
+        if ($providerRefreshToken !== null) {
+            $this->insertSecurityToken($providerRefreshToken);
+            $securityRefreshTokenId = (int) $this->db->lastInsertId();
+        }
+
+        $this->insertSecurityAuthenticationToken(
+            $token,
+            $contactId,
+            $securityTokenId,
+            $securityRefreshTokenId,
+            $providerConfigurationId
+        );
+    }
+
+    /**
+     * Insert provider token into security_token table.
+     *
+     * @param ProviderToken $providerToken
+     */
+    private function insertSecurityToken(ProviderToken $providerToken): void
+    {
+        $insertSecurityTokenStatement = $this->db->prepare(
+            $this->translateDbName(
+                'INSERT INTO `:db`.security_token (`token`, `creation_date`, `expiration_date`) '
+                . 'VALUES (:token, :createdAt, :expireAt)'
+            )
+        );
+        $insertSecurityTokenStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
+        $insertSecurityTokenStatement->bindValue(
+            ':createdAt',
+            $providerToken->getCreationDate()->getTimestamp(),
+            \PDO::PARAM_INT
+        );
+        $insertSecurityTokenStatement->bindValue(
+            ':expireAt',
+            $providerToken->getExpirationDate() !== null ? $providerToken->getExpirationDate()->getTimestamp() : null,
+            \PDO::PARAM_INT
+        );
+        $insertSecurityTokenStatement->execute();
+    }
+
+    /**
+     * Insert tokens and configuration id in security_authentication_tokens table.
+     *
+     * @param string $sessionId
+     * @param int $contactId
+     * @param int $securityTokenId
+     * @param int|null $securityRefreshTokenId
+     * @param int $providerConfigurationId
+     */
+    private function insertSecurityAuthenticationToken(
+        string $sessionId,
+        int $contactId,
+        int $securityTokenId,
+        ?int $securityRefreshTokenId,
+        int $providerConfigurationId
+    ): void {
+        $insertSecurityAuthenticationStatement = $this->db->prepare(
+            $this->translateDbName(
+                'INSERT INTO `:db`.security_authentication_tokens '
+                . '(`token`, `provider_token_id`, `provider_token_refresh_id`, `provider_configuration_id`, `user_id`) '
+                . 'VALUES (:sessionTokenId, :tokenId, :refreshTokenId, :configurationId, :userId)'
+            )
+        );
+        $insertSecurityAuthenticationStatement->bindValue(':sessionTokenId', $sessionId, \PDO::PARAM_STR);
+        $insertSecurityAuthenticationStatement->bindValue(':tokenId', $securityTokenId, \PDO::PARAM_INT);
+        $insertSecurityAuthenticationStatement->bindValue(':refreshTokenId', $securityRefreshTokenId, \PDO::PARAM_INT);
+        $insertSecurityAuthenticationStatement->bindValue(
+            ':configurationId',
+            $providerConfigurationId,
+            \PDO::PARAM_INT
+        );
+        $insertSecurityAuthenticationStatement->bindValue(':userId', $contactId, \PDO::PARAM_INT);
+        $insertSecurityAuthenticationStatement->execute();
     }
 }
