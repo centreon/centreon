@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Host\Application\Repository;
 
 use Core\Host\Domain\Model\Host;
+use Core\Host\Domain\Model\HostNamesById;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostRepositoryInterface
@@ -80,4 +81,13 @@ interface ReadHostRepositoryInterface
      * @return bool
      */
     public function existsByAccessGroups(int $hostId, array $accessGroups): bool;
+
+    /**
+     * Find host names by their IDs.
+     *
+     * @param int[] $hostGroupIds
+     *
+     * @return HostNamesById
+     */
+    public function findNames(array $hostGroupIds): HostNamesById;
 }
