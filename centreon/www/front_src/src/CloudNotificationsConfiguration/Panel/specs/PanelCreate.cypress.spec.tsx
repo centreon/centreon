@@ -18,7 +18,9 @@ import {
   labelYourFormHasUnsavedChanges,
   labelNotificationName,
   labelSubject,
-  labelSearchBusinessViews
+  labelSearchBusinessViews,
+  labelSearchContactsGroups,
+  labelSearchContacts
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
 import { contactGroupsEndpoint } from '../../../Authentication/api/endpoints';
@@ -37,7 +39,9 @@ import {
   hostGroupsResponse,
   serviceGroupsResponse,
   contactGroupsResponse,
-  platformVersions
+  platformVersions,
+  formData,
+  emailBodyText
 } from './testUtils';
 
 const store = createStore();
@@ -100,6 +104,25 @@ const initialize = (): void => {
   });
 };
 
+const fillFormRequiredFields = (): void => {
+  cy.findByLabelText(labelNotificationName).type('notification#1');
+  cy.findByLabelText(labelSearchHostGroups).click();
+  cy.waitForRequest('@getHostsGroupsEndpoint');
+  cy.findByText('Firewall').click();
+
+  cy.findByLabelText(labelSearchServiceGroups).click();
+  cy.waitForRequest('@getServiceGroupsEndpoint');
+  cy.findByText('MySQL-Servers').click();
+
+  cy.findByLabelText(labelSearchContacts).click();
+  cy.waitForRequest('@getUsersEndpoint');
+  cy.findByText('Guest').click();
+
+  cy.findByLabelText(labelSearchContactsGroups).click();
+  cy.waitForRequest('@contactGroupsEndpoint');
+  cy.findByText('contact_group1').click();
+};
+
 describe('Create Panel', () => {
   beforeEach(initialize);
 
@@ -126,21 +149,7 @@ describe('Create Panel', () => {
   it('confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.findByLabelText(labelNotificationName).type('notification#1');
-    cy.findByLabelText(labelSearchHostGroups).click();
-    cy.waitForRequest('@getHostsGroupsEndpoint');
-    cy.findByText('Firewall').click();
-
-    cy.findByLabelText(labelSearchServiceGroups).click();
-    cy.waitForRequest('@getServiceGroupsEndpoint');
-    cy.findByText('MySQL-Servers').click();
-
-    cy.findByLabelText('Search contacts').click();
-    cy.waitForRequest('@getUsersEndpoint');
-    cy.findByText('Guest').click();
-
-    cy.findByTestId('EmailBody').type('Bonjour');
-    cy.findByLabelText(labelSubject).type('subject');
+    fillFormRequiredFields();
 
     cy.get('#panel-content').scrollTo('top');
 
@@ -150,21 +159,9 @@ describe('Create Panel', () => {
   });
 
   it('confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
-    cy.findByLabelText(labelSearchHostGroups).click();
-    cy.waitForRequest('@getHostsGroupsEndpoint');
-    cy.findByText('Firewall').click();
+    cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.findAllByLabelText(labelNotificationName).type('Notification1');
-    cy.findByLabelText(labelSearchServiceGroups).click();
-    cy.waitForRequest('@getServiceGroupsEndpoint');
-    cy.findByText('MySQL-Servers').click();
-
-    cy.findByLabelText('Search contacts').click();
-    cy.waitForRequest('@getUsersEndpoint');
-    cy.findByText('Guest').click();
-
-    cy.findByTestId('EmailBody').type('Bonjour');
-    cy.findByLabelText(labelSubject).type('subject');
+    fillFormRequiredFields();
 
     cy.get('#panel-content').scrollTo('top');
 
@@ -176,22 +173,10 @@ describe('Create Panel', () => {
     cy.makeSnapshot();
   });
 
-  it('tests that the form is sent when the confirm button is clicked', () => {
-    cy.findByLabelText(labelSearchHostGroups).click();
-    cy.waitForRequest('@getHostsGroupsEndpoint');
-    cy.findByText('Firewall').click();
+  it('sends a request to add a new notification with the form values When the Confirm button is clicked', () => {
+    cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.findAllByLabelText(labelNotificationName).type('Notification1');
-    cy.findByLabelText(labelSearchServiceGroups).click();
-    cy.waitForRequest('@getServiceGroupsEndpoint');
-    cy.findByText('MySQL-Servers').click();
-
-    cy.findByLabelText('Search contacts').click();
-    cy.waitForRequest('@getUsersEndpoint');
-    cy.findByText('Guest').click();
-
-    cy.findByTestId('EmailBody').type('Bonjour');
-    cy.findByLabelText(labelSubject).type('subject');
+    fillFormRequiredFields();
 
     cy.get('#panel-content').scrollTo('top');
 
@@ -199,7 +184,10 @@ describe('Create Panel', () => {
 
     cy.findByLabelText('Confirm').click();
 
-    cy.waitForRequest('@addNotificationRequest');
+    cy.waitForRequest('@addNotificationRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formData);
+    });
+
     cy.findByText(labelSuccessfulNotificationAdded).should('be.visible');
 
     cy.makeSnapshot();
@@ -231,15 +219,11 @@ describe('Create Panel', () => {
   it('displays the Email Body field with the default initial value', () => {
     cy.get('#panel-content').scrollTo('bottom');
 
-    cy.findByTestId('EmailBody').contains('Centreon notification');
-    cy.findByTestId('EmailBody').contains(
-      'Notification Type: {{NOTIFICATIONTYPE}}'
-    );
-    cy.findByTestId('EmailBody').contains('Resource: {{NAME}}');
-    cy.findByTestId('EmailBody').contains('ID: {{ID}}');
-    cy.findByTestId('EmailBody').contains('State: {{STATE}}');
-    cy.findByTestId('EmailBody').contains('Date/Time: {{SHORTDATETIME}}');
-    cy.findByTestId('EmailBody').contains('Additional Info: {{OUTPUT}}');
+    emailBodyText.forEach((text) => {
+      cy.findByTestId('EmailBody').contains(text);
+    });
+
+    cy.makeSnapshot();
   });
 });
 

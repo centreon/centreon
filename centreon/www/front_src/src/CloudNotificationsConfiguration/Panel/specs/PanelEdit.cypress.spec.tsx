@@ -273,10 +273,9 @@ describe('Edit Panel', () => {
     cy.findByTestId('include Services').click();
 
     cy.findByTestId('Extra events services').within(() => {
-      for (let i = 0; i < 4; i += 1) {
-        cy.findAllByRole('checkbox').eq(i).should('not.be.checked');
-        cy.findAllByRole('checkbox').eq(i).should('be.disabled');
-      }
+      cy.findAllByRole('checkbox').each(($checkbox) => {
+        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      });
     });
 
     cy.get('#panel-content').scrollTo('top');
@@ -297,11 +296,9 @@ describe('Edit Panel', () => {
       });
 
     cy.findByTestId('Host groups events').within(() => {
-      Array(3)
-        .fill(0)
-        .forEach((_, index) => {
-          cy.findAllByRole('checkbox').eq(index).should('not.be.checked');
-        });
+      cy.findAllByRole('checkbox').each(($checkbox) => {
+        cy.wrap($checkbox).should('not.be.checked');
+      });
     });
 
     cy.findByTestId('include Services').should('not.exist');
@@ -336,15 +333,16 @@ describe('Edit Panel', () => {
   it('ensures that when the Service Groups field is empty, all associated events are disabled and unchecked', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    for (let i = 0; i < 3; i += 1) {
-      cy.findAllByTestId('CancelIcon').eq(4).click();
-    }
+    Array(3)
+      .fill(0)
+      .forEach(() => {
+        cy.findAllByTestId('CancelIcon').eq(4).click();
+      });
 
     cy.findByTestId('Service groups events').within(() => {
-      for (let i = 0; i < 4; i += 1) {
-        cy.findAllByRole('checkbox').eq(i).should('not.be.checked');
-        cy.findAllByRole('checkbox').eq(i).should('be.disabled');
-      }
+      cy.findAllByRole('checkbox').each(($checkbox) => {
+        cy.wrap($checkbox).should('not.be.checked').and('be.disabled');
+      });
     });
 
     cy.get('#panel-content').scrollTo('top');
@@ -355,9 +353,11 @@ describe('Edit Panel', () => {
   it('validates that when both resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    for (let i = 0; i < 7; i += 1) {
-      cy.findAllByTestId('CancelIcon').eq(0).click();
-    }
+    Array(7)
+      .fill(0)
+      .forEach(() => {
+        cy.findAllByTestId('CancelIcon').eq(0).click();
+      });
 
     cy.findAllByText(labelChooseAtLeastOneResource).should('have.length', 2);
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -371,14 +371,14 @@ describe('Edit Panel', () => {
     cy.waitForRequest('@getNotificationRequest');
     cy.get('[data-testid="Search contacts"]').as('fieldContacts');
 
+    cy.get('#panel-content').scrollTo('bottom');
+
     cy.get('@fieldContacts')
       .parent()
       .within(() => {
         cy.findByText('centreon-gorgone').should('be.visible');
         cy.findByText('Guest').should('be.visible');
       });
-
-    cy.get('#panel-content').scrollTo('top');
 
     cy.makeSnapshot();
   });
@@ -387,6 +387,8 @@ describe('Edit Panel', () => {
     cy.waitForRequest('@getNotificationRequest');
     cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
 
+    cy.get('#panel-content').scrollTo('bottom');
+
     cy.get('@fieldContactsGroups')
       .parent()
       .within(() => {
@@ -394,17 +396,18 @@ describe('Edit Panel', () => {
         cy.findByText('contact-group2').should('be.visible');
       });
 
-    cy.get('#panel-content').scrollTo('top');
-
     cy.makeSnapshot();
   });
 
   it('validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    for (let i = 0; i < 4; i += 1) {
-      cy.findAllByTestId('CancelIcon').eq(7).click();
-    }
+    Array(4)
+      .fill(0)
+      .forEach(() => {
+        cy.findAllByTestId('CancelIcon').eq(7).click();
+      });
+
     cy.clickOutside();
 
     cy.findAllByText(labelChooseAtleastOneContactOrContactGroup).should(
@@ -413,7 +416,7 @@ describe('Edit Panel', () => {
     );
     cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('bottom');
 
     cy.makeSnapshot();
   });
@@ -421,10 +424,9 @@ describe('Edit Panel', () => {
   it('ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId(labelTimePeriod).should('exist');
+    cy.findByTestId(labelTimePeriod).should('be.visible');
     cy.findByTestId(labelTimePeriod).within(() => {
-      cy.findByRole('checkbox').should('be.checked');
-      cy.findByRole('checkbox').should('be.disabled');
+      cy.findByRole('checkbox').should('be.checked').and('be.disabled');
     });
 
     cy.get('#panel-content').scrollTo('top');
@@ -440,16 +442,14 @@ describe('Edit Panel', () => {
     });
 
     cy.findByTestId('SMS').within(() => {
-      cy.findByRole('checkbox').should('not.be.checked');
-      cy.findByRole('checkbox').should('be.disabled');
+      cy.findByRole('checkbox').should('not.be.checked').and('be.disabled');
     });
 
     cy.findByTestId('Slack').within(() => {
-      cy.findByRole('checkbox').should('not.be.checked');
-      cy.findByRole('checkbox').should('be.disabled');
+      cy.findByRole('checkbox').should('not.be.checked').and('be.disabled');
     });
 
-    cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('bottom');
 
     cy.makeSnapshot();
   });
@@ -459,7 +459,7 @@ describe('Edit Panel', () => {
 
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
 
-    cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('bottom');
 
     cy.makeSnapshot();
   });
@@ -473,7 +473,7 @@ describe('Edit Panel', () => {
     cy.findByText(labelRequired).should('be.visible');
     cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('bottom');
 
     cy.makeSnapshot();
   });
@@ -484,7 +484,7 @@ describe('Edit Panel', () => {
     cy.findByTestId('EmailBody').contains('Bonjour');
     cy.findByTestId('EmailBody').contains('Cordialement');
 
-    cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('bottom');
 
     cy.makeSnapshot();
   });
@@ -498,7 +498,7 @@ describe('Edit Panel', () => {
     cy.findByText(labelMessageFieldShouldNotBeEmpty).should('be.visible');
     cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('bottom');
 
     cy.makeSnapshot();
   });
@@ -746,15 +746,16 @@ describe('Edit Panel: Business Views', () => {
   it('ensures that when the BA field is empty, all associated events are disabled and unchecked', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    for (let i = 0; i < 3; i += 1) {
-      cy.findAllByTestId('CancelIcon').eq(7).click();
-    }
+    Array(3)
+      .fill(0)
+      .forEach(() => {
+        cy.findAllByTestId('CancelIcon').eq(7).click();
+      });
 
     cy.findByTestId(labelBusinessViewsEvents).within(() => {
-      for (let i = 0; i < 4; i += 1) {
-        cy.findAllByRole('checkbox').eq(i).should('not.be.checked');
-        cy.findAllByRole('checkbox').eq(i).should('be.disabled');
-      }
+      cy.findAllByRole('checkbox').each(($checkbox) => {
+        cy.wrap($checkbox).should('be.disabled').and('not.be.checked');
+      });
     });
 
     cy.get('#panel-content').scrollTo('top');
@@ -764,9 +765,11 @@ describe('Edit Panel: Business Views', () => {
   it('validates that when all resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    for (let i = 0; i < 9; i += 1) {
-      cy.findAllByTestId('CancelIcon').eq(0).click();
-    }
+    Array(9)
+      .fill(0)
+      .forEach(() => {
+        cy.findAllByTestId('CancelIcon').eq(0).click();
+      });
 
     cy.findAllByText(labelChooseAtLeastOneResource).should('have.length', 3);
     cy.findByLabelText(labelSave).should('be.disabled');
