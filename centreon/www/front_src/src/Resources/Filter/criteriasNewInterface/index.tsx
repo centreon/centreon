@@ -10,17 +10,18 @@ import { useMemoComponent } from '@centreon/ui';
 import { Criteria, CriteriaById } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 
+import { CheckBoxWrapper } from './CheckBoxWrapper';
 import BasicFilter from './basicFilter';
 import InputGroup from './basicFilter/InputGroup';
 import SectionWrapper from './basicFilter/sections';
 import ExtendedFilter from './extendedFilter';
 import { BasicCriteria, CategoryFilter, ExtendedCriteria } from './model';
+import useSearchWihSearchDataCriteria from './useSearchWithSearchDataCriteria';
 import {
   findData,
   handleDataByCategoryFilter,
   mergeArraysByField
 } from './utils';
-import { CheckBoxWrapper } from './CheckBoxWrapper';
 
 export { CheckboxGroup } from '@centreon/ui';
 
@@ -33,6 +34,9 @@ const CriteriasNewInterface = ({ data }): JSX.Element => {
   );
 
   const { newSelectableCriterias: buildCriterias, selectableCriterias } = data;
+  useSearchWihSearchDataCriteria({
+    selectableCriterias
+  });
 
   const changeCriteria = ({ updatedValue, filterName, searchData }): void => {
     const parameters = {

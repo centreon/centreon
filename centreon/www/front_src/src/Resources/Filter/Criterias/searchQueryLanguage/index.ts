@@ -1,5 +1,8 @@
+import pluralize from 'pluralize';
 import {
+  __,
   allPass,
+  compose,
   concat,
   endsWith,
   filter,
@@ -25,32 +28,29 @@ import {
   split,
   startsWith,
   trim,
-  without,
-  __,
-  compose
+  without
 } from 'ramda';
-import pluralize from 'pluralize';
 
-import type { SelectEntry } from '@centreon/ui';
+import { type SelectEntry } from '@centreon/ui';
 
+import getDefaultCriterias from '../default';
 import {
   Criteria,
   CriteriaDisplayProps,
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
-import getDefaultCriterias from '../default';
 
 import {
-  CriteriaId,
-  criteriaNameToQueryLanguageName,
-  criteriaNameSortOrder,
-  CriteriaValueSuggestionsProps,
-  searchableFields,
   AutocompleteSuggestionProps,
-  staticCriteriaNames,
+  CriteriaId,
+  criteriaNameSortOrder,
+  criteriaNameToQueryLanguageName,
+  CriteriaValueSuggestionsProps,
+  dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
-  dynamicCriteriaValuesByName
+  searchableFields,
+  staticCriteriaNames
 } from './models';
 
 const singular = pluralize.singular as (string) => string;
@@ -374,10 +374,10 @@ const getAutocompleteSuggestions = ({
 };
 
 export {
-  parse,
   build,
+  DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
-  searchableFields,
-  DynamicCriteriaParametersAndValues
+  parse,
+  searchableFields
 };
