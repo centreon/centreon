@@ -18149,8 +18149,8 @@ msgstr "Top"
 msgid "Bottom"
 msgstr "Bottom"
 
-msgid "Includes {{count}} hosts"
-msgstr "Inclut {{count}} hôtes"
+msgid "Includes {{count}} resources"
+msgstr "Inclut {{count}} ressources"
 
 msgid "Error while deleting a token"
 msgstr "Erreur lors de la suppression d'un token"

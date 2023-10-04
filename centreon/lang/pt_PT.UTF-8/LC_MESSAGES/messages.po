@@ -16854,7 +16854,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Bottom"
 # msgstr ""
 
-# msgid "Includes {{count}} hosts"
+# msgid "Includes {{count}} resources"
 # msgstr ""
 
 #  msgid "Error while deleting a token"

@@ -108,5 +108,5 @@ export const labelDisplay = 'Display';
 export const labelHosts = 'hosts';
 export const labelTop = 'Top';
 export const labelBottom = 'Bottom';
-export const labelIncludesXHost = 'Includes {{count}} hosts';
+export const labelIncludesXHost = 'Includes {{count}} resources';
 export const labelNumberOfValues = 'Number of values';
