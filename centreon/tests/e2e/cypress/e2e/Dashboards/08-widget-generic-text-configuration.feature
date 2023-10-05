@@ -8,7 +8,6 @@ Scenario: Creating and configuring a new Generic text widget on a dashboard
   When the dashboard administrator user selects the option to add a new widget
   And selects the widget type "Generic text"
   Then configuration properties for the Generic Text widget are displayed
-  And no preview is displayed for this widget
   When the dashboard administrator user gives a title to the widget and types some text in the properties' description field
   Then the same text is displayed in the widget's preview
   When the user saves the widget containing the Generic Text

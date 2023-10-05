@@ -8,11 +8,11 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
 before(() => {
-  cy.startWebContainer();
-  cy.execInContainer({
+  cy.startWebContainer({ version: 'develop' });
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
-  });
+  }); */
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
   );
@@ -230,7 +230,7 @@ Given('an admin user who has just created a dashboard', () => {
 
   cy.getByLabel({
     label: 'view',
-    tag: 'button'
+    tag: 'buttonedit
   })
     .contains(dashboards.fromCurrentUser.name)
     .should('exist');
