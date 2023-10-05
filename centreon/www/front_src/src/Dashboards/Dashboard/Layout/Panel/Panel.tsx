@@ -18,9 +18,10 @@ import { usePanelHeaderStyles } from './usePanelStyles';
 
 interface Props {
   id: string;
+  refreshCount?: number;
 }
 
-const Panel = ({ id }: Props): JSX.Element => {
+const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const { classes } = usePanelHeaderStyles();
 
   const getPanelOptionsAndData = useAtomValue(
@@ -58,7 +59,7 @@ const Panel = ({ id }: Props): JSX.Element => {
             editable={false}
             editorState={
               panelOptionsAndData.options?.description?.enabled
-                ? panelOptionsAndData.options?.description?.content
+                ? panelOptionsAndData.options?.description?.content || undefined
                 : undefined
             }
           />
@@ -84,6 +85,7 @@ const Panel = ({ id }: Props): JSX.Element => {
     memoProps: [
       id,
       panelOptionsAndData,
+      refreshCount,
       isEditing,
       refreshInterval,
       canEditField

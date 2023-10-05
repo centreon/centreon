@@ -164,6 +164,7 @@ const initializeComponent = ({
             refreshInterval: 'default',
             refreshIntervalCustom: 15
           }}
+          refreshCount={0}
           store={store}
         />
       </div>

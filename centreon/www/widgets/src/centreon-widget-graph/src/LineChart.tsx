@@ -17,12 +17,14 @@ interface Props {
   globalRefreshInterval: GlobalRefreshInterval;
   panelData: Data;
   panelOptions: PanelOptions;
+  refreshCount: number;
 }
 
 const WidgetLineChart = ({
   panelData,
   panelOptions,
-  globalRefreshInterval
+  globalRefreshInterval,
+  refreshCount
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { t } = useTranslation();
@@ -39,6 +41,7 @@ const WidgetLineChart = ({
     useGraphQuery({
       baseEndpoint: graphEndpoint,
       metrics: metricNames,
+      refreshCount,
       refreshInterval: refreshIntervalToUse,
       resources: panelData.resources,
       timePeriod: panelOptions.timeperiod

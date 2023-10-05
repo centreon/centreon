@@ -9,7 +9,7 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
   },
   panelContent: {
     height: `calc(100% - ${theme.spacing(3.5)})`,
-    overflowX: 'auto'
+    overflow: 'auto'
   },
   panelHeader: {
     '& span': {

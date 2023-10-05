@@ -71,7 +71,7 @@ const Preview = (): JSX.Element | null => {
             editable={false}
             editorState={
               values.options?.description?.enabled
-                ? values.options?.description?.content
+                ? values.options?.description?.content || undefined
                 : undefined
             }
           />

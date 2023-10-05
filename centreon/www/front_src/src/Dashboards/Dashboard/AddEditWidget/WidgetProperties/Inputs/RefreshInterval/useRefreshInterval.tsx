@@ -38,7 +38,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
   const { t } = useTranslation();
   const { classes } = useRefreshIntervalStyles();
 
-  const refreshIntervalCountProperty = `${propertyName}Custom`;
+  const refreshIntervalCustomProperty = `${propertyName}Custom`;
 
   const { values, setFieldValue } = useFormikContext();
 
@@ -49,7 +49,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     dashboardRefreshInterval?.interval || platformRefreshInterval;
 
   const [customInterval, setCustomInterval] = useState(
-    getProperty({ obj: values, propertyName: refreshIntervalCountProperty }) ||
+    getProperty({ obj: values, propertyName: refreshIntervalCustomProperty }) ||
       defaultInterval
   );
 
@@ -69,7 +69,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
       [equals<RadioOptions>(RadioOptions.manual), always(null)]
     ])(event.target.value as RadioOptions);
 
-    setFieldValue(`options.${refreshIntervalCountProperty}`, newInterval);
+    setFieldValue(`options.${refreshIntervalCustomProperty}`, newInterval);
   };
 
   const changeCustomRefreshInterval = (
@@ -78,7 +78,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     const newInterval = parseInt(event.target.value || '0', 10);
 
     setCustomInterval(newInterval);
-    setFieldValue(`options.${refreshIntervalCountProperty}`, newInterval);
+    setFieldValue(`options.${refreshIntervalCustomProperty}`, newInterval);
   };
 
   const defaultLabel = equals(dashboardRefreshInterval?.type, 'manual')
@@ -123,7 +123,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     if (!isNil(defaultInterval)) {
       return;
     }
-    setFieldValue(`options.${refreshIntervalCountProperty}`, defaultInterval);
+    setFieldValue(`options.${refreshIntervalCustomProperty}`, defaultInterval);
     setCustomInterval(defaultInterval);
   }, []);
 
