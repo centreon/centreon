@@ -12142,8 +12142,8 @@ msgid "Custom Views"
 msgstr "Visões Personalizadas"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Painel de Controle"
+# msgid "Dashboards"
+# msgstr ""
 
 #: centreon-web/www/install/menu_translation.php:74
 msgid "Databases"
@@ -16883,3 +16883,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while searching for services"
 #  msgstr ""
+
+# msgid "Availability"
+# msgstr ""

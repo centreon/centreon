@@ -3034,8 +3034,8 @@ msgid "Custom Views"
 msgstr "Vues personnalisées"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Tableau de bord"
+msgid "Dashboards"
+msgstr "Tableaux de bord"
 
 #: centreon-web/www/install/menu_translation.php:73
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:865
@@ -18228,3 +18228,6 @@ msgstr "Vous n'êtes pas autorisé à accéder aux services"
 
 msgid "Error while searching for services"
 msgstr "Erreur lors de la recherche de services"
+
+msgid "Availability"
+msgstr "Disponibilité"

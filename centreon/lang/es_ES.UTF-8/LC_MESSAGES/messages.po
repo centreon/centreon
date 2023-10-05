@@ -2782,8 +2782,8 @@ msgid "Custom Views"
 msgstr "Vistas personalizadas"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Salpicadero"
+# msgid "Dashboards"
+# msgstr ""
 
 #: centreon-web/www/install/menu_translation.php:73
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:865
@@ -16429,3 +16429,6 @@ msgstr ""
 
 #  msgid "Error while searching for services"
 #  msgstr ""
+
+# msgid "Availability"
+# msgstr ""
