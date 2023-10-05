@@ -10,15 +10,19 @@ import {
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
-import { isGenericText } from '../../utils';
 import { editProperties } from '../../useCanEditDashboard';
 import useSaveDashboard from '../../useSaveDashboard';
+import { isGenericText, isRichTextEditorEmpty } from '../../utils';
+
+import { usePanelHeaderStyles } from './usePanelStyles';
 
 interface Props {
   id: string;
 }
 
 const Panel = ({ id }: Props): JSX.Element => {
+  const { classes } = usePanelHeaderStyles();
+
   const getPanelOptionsAndData = useAtomValue(
     getPanelOptionsAndDataDerivedAtom
   );
@@ -40,29 +44,42 @@ const Panel = ({ id }: Props): JSX.Element => {
     setPanelOptions({ id, options: newPanelOptions });
   };
 
+  const displayDescription =
+    panelOptionsAndData.options?.description?.enabled &&
+    panelOptionsAndData.options?.description?.content &&
+    !isRichTextEditorEmpty(panelOptionsAndData.options?.description?.content);
+
   return useMemoComponent({
-    Component: isGenericText(panelConfigurations?.path) ? (
-      <RichTextEditor
-        editable={false}
-        editorState={
-          panelOptionsAndData.options?.description?.enabled
-            ? panelOptionsAndData.options?.description?.content
-            : undefined
-        }
-      />
-    ) : (
-      <FederatedComponent
-        isFederatedWidget
-        canEdit={canEditField}
-        globalRefreshInterval={refreshInterval}
-        id={id}
-        isEditing={isEditing}
-        panelData={panelOptionsAndData?.data}
-        panelOptions={panelOptionsAndData?.options}
-        path={panelConfigurations?.path}
-        saveDashboard={saveDashboard}
-        setPanelOptions={changePanelOptions}
-      />
+    Component: (
+      <>
+        {displayDescription && (
+          <RichTextEditor
+            disabled
+            editable={false}
+            editorState={
+              panelOptionsAndData.options?.description?.enabled
+                ? panelOptionsAndData.options?.description?.content
+                : undefined
+            }
+          />
+        )}
+        {!isGenericText(panelConfigurations.path) && (
+          <div className={classes.panelContent}>
+            <FederatedComponent
+              isFederatedWidget
+              canEdit={canEditField}
+              globalRefreshInterval={refreshInterval}
+              id={id}
+              isEditing={isEditing}
+              panelData={panelOptionsAndData?.data}
+              panelOptions={panelOptionsAndData?.options}
+              path={panelConfigurations.path}
+              saveDashboard={saveDashboard}
+              setPanelOptions={changePanelOptions}
+            />
+          </div>
+        )}
+      </>
     ),
     memoProps: [
       id,

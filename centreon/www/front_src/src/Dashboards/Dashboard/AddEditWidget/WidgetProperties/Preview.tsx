@@ -25,7 +25,7 @@ import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useWidgetPropertiesStyles();
+  const { classes, cx } = useWidgetPropertiesStyles();
 
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
 
@@ -43,6 +43,8 @@ const Preview = (): JSX.Element | null => {
     );
   }
 
+  const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
+
   return (
     <div className={classes.previewPanelContainer} ref={previewRef}>
       <div
@@ -53,8 +55,19 @@ const Preview = (): JSX.Element | null => {
           overflowY: 'auto'
         }}
       >
-        {isGenericText(values.panelConfiguration?.path) ? (
+        <Typography
+          className={cx(classes.previewHeading, classes.previewTitle)}
+          variant="button"
+        >
+          {values.options?.name}
+        </Typography>
+        {values.options?.description?.enabled && (
           <RichTextEditor
+            disabled
+            contentClassName={cx(
+              classes.previewHeading,
+              classes.previewDescription
+            )}
             editable={false}
             editorState={
               values.options?.description?.enabled
@@ -62,16 +75,28 @@ const Preview = (): JSX.Element | null => {
                 : undefined
             }
           />
-        ) : (
-          <FederatedComponent
-            isFederatedWidget
-            isFromPreview
-            globalRefreshInterval={refreshInterval}
-            id={values.id}
-            panelData={values.data}
-            panelOptions={values.options}
-            path={values.panelConfiguration?.path || ''}
-          />
+        )}
+        {!isGenericTextWidget && (
+          <div
+            style={{
+              height: `${
+                (previewRef.current?.getBoundingClientRect().height || 0) -
+                16 -
+                46
+              }px`,
+              overflow: 'auto'
+            }}
+          >
+            <FederatedComponent
+              isFederatedWidget
+              isFromPreview
+              globalRefreshInterval={refreshInterval}
+              id={values.id}
+              panelData={values.data}
+              panelOptions={values.options}
+              path={values.panelConfiguration?.path || ''}
+            />
+          </div>
         )}
       </div>
       {!canEdit && (
