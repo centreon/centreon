@@ -3,11 +3,22 @@ import { makeStyles } from 'tss-react/mui';
 import { alpha } from '@mui/system';
 
 export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
+  previewDescription: {
+    marginTop: theme.spacing(1)
+  },
+  previewHeading: {
+    display: 'block',
+    height: '19px',
+    lineHeight: 1
+  },
   previewPanelContainer: {
     height: '400px',
     padding: theme.spacing(1),
     position: 'relative',
     width: '100%'
+  },
+  previewTitle: {
+    marginBottom: theme.spacing(1)
   },
   previewUserRightPanel: {
     alignItems: 'center',

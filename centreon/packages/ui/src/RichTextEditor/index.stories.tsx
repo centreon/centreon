@@ -67,6 +67,13 @@ withEditableFalse.args = {
   initialEditorState: JSON.stringify(initialEditorState)
 };
 
+export const Disabled = Template.bind({});
+Disabled.args = {
+  disabled: true,
+  editable: false,
+  editorState: JSON.stringify(initialEditorState)
+};
+
 const StoryWithEditableFalseLikePreview = (): JSX.Element => {
   const [editorState, setEditorState] =
     useState<EditorState>(initialEditorState);
