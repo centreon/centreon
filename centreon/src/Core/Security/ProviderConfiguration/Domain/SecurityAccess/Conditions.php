@@ -76,7 +76,6 @@ class Conditions implements SecurityAccessInterface
         $this->loginLogger->info($scope, 'Configured attribute path found', $authenticationAttributePath);
         $this->loginLogger->info($scope, 'Configured authorized values', $localConditions);
 
-        $userMatchConditions = false;
 
         foreach ($authenticationAttributePath as $attribute) {
             $providerAuthenticationConditions = [];
