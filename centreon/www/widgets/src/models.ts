@@ -8,6 +8,11 @@ export interface FormThreshold {
   warningType: 'default' | 'custom';
 }
 
+export interface GlobalRefreshInterval {
+  interval: number | null;
+  type: 'global' | 'manual';
+}
+
 export interface Resource {
   resourceType: string;
   resources: Array<SelectEntry>;

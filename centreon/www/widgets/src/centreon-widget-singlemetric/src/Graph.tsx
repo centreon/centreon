@@ -12,7 +12,7 @@ import {
 } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
-import { Resource, ServiceMetric } from '../../models';
+import { Resource, ServiceMetric, GlobalRefreshInterval } from '../../models';
 
 import { FormThreshold, ValueFormat } from './models';
 import {
@@ -25,7 +25,7 @@ import { graphEndpoint } from './api/endpoints';
 import { useGraphStyles } from './Graph.styles';
 
 interface Props {
-  globalRefreshInterval?: number;
+  globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<ServiceMetric>;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
