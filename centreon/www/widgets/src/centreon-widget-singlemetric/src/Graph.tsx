@@ -27,6 +27,7 @@ import { useGraphStyles } from './Graph.styles';
 interface Props {
   globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<ServiceMetric>;
+  refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<Resource>;
@@ -43,6 +44,7 @@ const Graph = ({
   refreshIntervalCustom,
   globalRefreshInterval,
   valueFormat,
+  refreshCount,
   resources
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
@@ -62,6 +64,7 @@ const Graph = ({
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
     metrics: [metricName],
+    refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources
   });

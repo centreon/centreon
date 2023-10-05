@@ -49,6 +49,8 @@ import {
   labelViewProperties,
   labelYourRightsOnlyAllowToView,
   labelPleaseContactYourAdministrator,
+  labelRefresh,
+  labelDuplicate,
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
   labelInterval
@@ -324,7 +326,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
       cy.contains(labelEditWidget).click();
 
       cy.findByLabelText(labelWidgetType).click({ force: true });
@@ -360,7 +362,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
       cy.contains(labelDeleteWidget).click();
 
       cy.contains(labelDeleteAWidget).should('be.visible');
@@ -380,7 +382,9 @@ describe('Dashboard', () => {
 
       cy.contains(labelCancel).click();
 
-      cy.findAllByLabelText(labelViewProperties).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+
+      cy.findByLabelText(labelViewProperties).click();
 
       cy.findByLabelText(labelWidgetType).should('be.disabled');
       cy.findByLabelText(labelCancel).should('not.exist');
@@ -396,7 +400,9 @@ describe('Dashboard', () => {
     it('displays the widget form in view mode when the user has viewer role', () => {
       initializeAndMount(viewerRoles);
 
-      cy.findAllByLabelText(labelViewProperties).eq(0).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+
+      cy.findByLabelText(labelViewProperties).click();
 
       cy.findByLabelText(labelWidgetType).should('be.disabled');
       cy.findByLabelText(labelCancel).should('not.exist');
@@ -405,6 +411,55 @@ describe('Dashboard', () => {
       cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
 
       cy.makeSnapshot();
+    });
+
+    it('displays the refresh button when the more actions button is clicked', () => {
+      initializeAndMount(viewerRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+
+      cy.contains(labelRefresh).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Duplicate', () => {
+    it('duplicates the widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelEditDashboard).click();
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findByTestId('1_move_panel')
+        .contains('Widget text')
+        .should('be.visible');
+      cy.findByTestId('panel_/widgets/text_2_3_move_panel')
+        .contains('Widget text')
+        .should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Dashboard global properties', () => {
+    it('displays the dashboard global properties form when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelCancel).click();
+
+      cy.findByLabelText('edit').click();
+
+      cy.contains(labelGlobalRefreshInterval).should('be.visible');
+      cy.contains(labelManualRefreshOnly).should('be.visible');
+
+      cy.findByLabelText(labelInterval).should('have.value', '15');
     });
   });
 
@@ -417,7 +472,7 @@ describe('Dashboard', () => {
       cy.contains(labelGlobalRefreshInterval).should('be.visible');
       cy.contains(labelManualRefreshOnly).should('be.visible');
 
-      cy.findByLabelText(labelInterval).should('have.value', '');
+      cy.findByLabelText(labelInterval).should('have.value', '15');
     });
   });
 

@@ -28,6 +28,8 @@ import {
   WidgetOptions
 } from './models';
 
+export const refreshCountsAtom = atom<Record<string, number>>({});
+
 export const dashboardAtom = atom<Dashboard>({
   layout: []
 });
