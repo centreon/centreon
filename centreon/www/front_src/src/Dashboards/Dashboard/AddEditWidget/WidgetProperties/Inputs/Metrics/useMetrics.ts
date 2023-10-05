@@ -242,7 +242,11 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       return;
     }
 
-    if (equals(servicesMetrics.result.length, 1)) {
+    if (
+      equals(servicesMetrics.result.length, 1) &&
+      isEmpty(value?.[0].id) &&
+      isEmpty(value?.[0].metrics)
+    ) {
       setFieldValue(`data.${propertyName}`, [
         {
           id: servicesMetrics.result[0].id,
