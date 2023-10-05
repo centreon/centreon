@@ -78,7 +78,6 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-
 export {
   initializeSAMLUser,
   removeContact,
