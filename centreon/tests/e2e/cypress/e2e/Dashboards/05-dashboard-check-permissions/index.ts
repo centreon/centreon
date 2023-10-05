@@ -9,13 +9,13 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer({ version: 'develop' });
-    // cy.execInContainer({
-  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-  //   name: Cypress.env('dockerName')
-  // });
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  // );
+    cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-check-permissions.json'
+  );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
