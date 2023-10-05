@@ -10,7 +10,7 @@ import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()
-    .startOpenIdProviderContainer()
+    // .startOpenIdProviderContainer()
     .then(() => {
       configureProviderAcls();
       initializeSAMLUser();
