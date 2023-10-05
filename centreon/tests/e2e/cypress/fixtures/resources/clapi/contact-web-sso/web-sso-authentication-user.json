@@ -22,7 +22,7 @@
   {
     "action": "SETCONTACT",
     "object": "ACLGROUP",
-    "values": "ACL Group test;saml"
+    "values": "ACL Group test;oidc"
   },
   {
     "action": "ADDRESOURCE",
