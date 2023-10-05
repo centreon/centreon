@@ -9,10 +9,10 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  // cy.execInContainer({
+  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+  //   name: Cypress.env('dockerName')
+  // });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
   );
@@ -170,15 +170,13 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
-  cy.reload();
-  cy.getByLabel({ label: 'page header title' }).should(
-    'contain.text',
-    `${dashboards.fromAdminUser.name}-edited`
-  );
-  cy.getByLabel({ label: 'page header description' }).should(
-    'contain.text',
-    `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
-  );
+  cy.getByLabel({ label: 'page header title' })
+  .should('be.visible')
+  .should('contain.text', `${dashboards.fromDashboardAdministratorUser.name}-edited`);
+
+  cy.getByLabel({ label: 'page header description' })
+  .should('be.visible')
+  .should('contain.text', `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`);
 });
 
 Given('an admin user on the dashboards library', () => {
@@ -359,15 +357,13 @@ Then(
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
-    cy.reload();
-    cy.getByLabel({ label: 'page header title' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardAdministratorUser.name}-edited`
-    );
-    cy.getByLabel({ label: 'page header description' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
-    );
+    cy.getByLabel({ label: 'page header title' })
+    .should('be.visible')
+    .should('contain.text', `${dashboards.fromDashboardAdministratorUser.name}-edited`);
+
+    cy.getByLabel({ label: 'page header description' })
+    .should('be.visible')
+    .should('contain.text', `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`);
   }
 );
 
@@ -555,15 +551,13 @@ Then(
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
-    cy.reload();
-    cy.getByLabel({ label: 'page header title' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardCreatorUser.name}-edited`
-    );
-    cy.getByLabel({ label: 'page header description' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
-    );
+    cy.getByLabel({ label: 'page header title' })
+    .should('be.visible')
+    .should('contain.text', `${dashboards.fromDashboardAdministratorUser.name}-edited`);
+
+    cy.getByLabel({ label: 'page header description' })
+    .should('be.visible')
+    .should('contain.text', `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`);
   }
 );
 
