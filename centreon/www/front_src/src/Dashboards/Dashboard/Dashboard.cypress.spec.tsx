@@ -462,4 +462,24 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelInterval).should('have.value', '15');
     });
   });
+
+  describe('Dashboard global properties', () => {
+    it('displays the dashboard global properties form when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText('edit').click();
+
+      cy.contains(labelGlobalRefreshInterval).should('be.visible');
+      cy.contains(labelManualRefreshOnly).should('be.visible');
+
+      cy.findByLabelText(labelInterval).should('have.value', '');
+    });
+  });
+
+  it('displays the title and the description in the panel', () => {
+    initializeAndMount(editorRoles);
+
+    cy.contains('Generic text').should('be.visible');
+    cy.contains('Description').should('be.visible');
+  });
 });

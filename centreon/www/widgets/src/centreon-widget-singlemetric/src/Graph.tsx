@@ -104,9 +104,6 @@ const Graph = ({
 
   return (
     <Box className={graphClasses.graphContainer}>
-      <Typography className={graphClasses.title} variant="h6">
-        {metrics[0]?.name}: {metrics[0]?.metrics[0]?.name}
-      </Typography>
       <Box className={graphClasses.content}>
         {cond([
           [equals('gauge'), always(<Gauge {...props} />)],

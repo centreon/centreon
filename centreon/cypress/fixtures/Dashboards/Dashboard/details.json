@@ -27,7 +27,11 @@
       },
       "widget_settings": {
         "options": {
-          "name": "Widget text"
+          "name": "Widget text",
+          "description": {
+            "enabled": true,
+            "content": null
+          }
         }
       }
     },
@@ -45,7 +49,11 @@
       },
       "widget_settings": {
         "options": {
-          "name": "Generic text"
+          "name": "Generic text",
+          "description": {
+            "enabled": true,
+            "content": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Description\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}"
+          }
         }
       }
     }

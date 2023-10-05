@@ -15,7 +15,7 @@ export type Layout = Array<ReactGridLayout.Layout>;
 
 export type WidgetOptions = Record<string, unknown> & {
   description?: {
-    content?: string;
+    content?: string | null;
     enabled?: boolean;
   };
   name?: string;
