@@ -114,6 +114,10 @@ const initializeComponent = ({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
         <Widget
+          globalRefreshInterval={{
+            interval: null,
+            type: 'global' as const
+          }}
           panelData={data}
           panelOptions={{
             globalRefreshInterval: 30,

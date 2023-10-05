@@ -58,5 +58,9 @@
       }
     }
   ],
-  "own_role": "viewer"
+  "own_role": "viewer",
+  "refresh": {
+    "type": "global",
+    "interval": null
+  }
 }
