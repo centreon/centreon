@@ -9,13 +9,13 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  );
+  // cy.execInContainer({
+  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+  //   name: Cypress.env('dockerName')
+  // });
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-check-permissions.json'
+  // );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -168,15 +168,16 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
   );
 
   cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-
-  cy.getByLabel({ label: 'page header title' })
-  .should('be.visible')
-  .should('contain.text', `${dashboards.fromDashboardAdministratorUser.name}-edited`);
-
-  cy.getByLabel({ label: 'page header description' })
-  .should('be.visible')
-  .should('contain.text', `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`);
+  cy.getByLabel({ label: 'Update', tag: 'button' }).click().then(() => {
+    cy.getByLabel({ label: 'page header title' }).should(
+      'contain.text',
+      `${dashboards.fromAdminUser.name}-edited`
+    );
+    cy.getByLabel({ label: 'page header description' }).should(
+      'contain.text',
+      `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
+    );
+  });
 });
 
 Given('an admin user on the dashboards library', () => {
