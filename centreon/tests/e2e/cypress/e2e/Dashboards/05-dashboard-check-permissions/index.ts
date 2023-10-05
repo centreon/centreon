@@ -166,7 +166,6 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
     `{selectall}{backspace}${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
   );
-
   cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click().then(() => {
     cy.getByLabel({ label: 'page header title' }).should(
