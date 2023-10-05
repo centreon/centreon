@@ -115,7 +115,7 @@ if (substr($o, -6) === '_ack_1') {
     $s_search .= " AND s.state != 0 AND s.state != 4 AND s.acknowledged = 0 ";
 }
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT sg.servicegroup_id, h.host_id
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.servicegroup_id, h.host_id
     FROM servicegroups sg
     INNER JOIN services_servicegroups sgm ON sg.servicegroup_id = sgm.servicegroup_id
     INNER JOIN services s ON s.service_id = sgm.service_id
@@ -173,7 +173,7 @@ foreach ($queryValues as $bindId => $bindData) {
     }
 }
 $dbResult->execute();
-$numRows = $obj->DBC->query("SELECT FOUND_ROWS()")->fetchColumn();
+$numRows = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 
 /**
  * Create XML Flow
@@ -246,7 +246,9 @@ if ($numRows > 0) {
         ];
     }
 
-    $query2 = "SELECT SQL_CALC_FOUND_ROWS count(s.state) as count_state,
+    $query2 = "SELECT SQL_CALC_FOUND_ROWS
+        1 AS REALTIME,
+        count(s.state) as count_state,
         sg.name AS sg_name,
         h.name AS host_name,
         h.state AS host_state,
