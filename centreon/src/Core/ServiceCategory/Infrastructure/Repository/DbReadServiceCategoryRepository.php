@@ -32,6 +32,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategoryNamesById;
 use Utility\SqlConcatenator;
 
 /**
@@ -227,6 +228,40 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
 
         /** @var _ServiceCategory $result */
         return $this->createServiceCategoryFromArray($result);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNames(array $serviceCategoryIds): ServiceCategoryNamesById
+    {
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT DISTINCT(sc.sc_id), sc.sc_name
+                FROM `:db`.service_categories sc
+                WHERE sc.sc_id IN (:serviceCategoryIds)
+                    AND sc.level IS NULL
+                SQL
+        );
+        $concatenator->storeBindValueMultiple(':serviceCategoryIds', $serviceCategoryIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $categoryNames = new ServiceCategoryNamesById();
+
+        foreach ($statement as $result) {
+            /** @var array{sc_id:int,sc_name:string} $result */
+            $categoryNames->addName(
+                $result['sc_id'],
+                new TrimmedString($result['sc_name'])
+            );
+        }
+
+        return $categoryNames;
     }
 
     /**

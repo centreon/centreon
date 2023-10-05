@@ -12,7 +12,7 @@ import {
 } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
-import { Resource, ServiceMetric } from '../../models';
+import { Resource, ServiceMetric, GlobalRefreshInterval } from '../../models';
 
 import { FormThreshold, ValueFormat } from './models';
 import {
@@ -25,7 +25,7 @@ import { graphEndpoint } from './api/endpoints';
 import { useGraphStyles } from './Graph.styles';
 
 interface Props {
-  globalRefreshInterval?: number;
+  globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<ServiceMetric>;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
@@ -101,9 +101,6 @@ const Graph = ({
 
   return (
     <Box className={graphClasses.graphContainer}>
-      <Typography className={graphClasses.title} variant="h6">
-        {metrics[0]?.name}: {metrics[0]?.metrics[0]?.name}
-      </Typography>
       <Box className={graphClasses.content}>
         {cond([
           [equals('gauge'), always(<Gauge {...props} />)],

@@ -153,7 +153,19 @@ const initializeComponent = ({
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Widget panelData={data} panelOptions={options} store={store} />
+        <Widget
+          globalRefreshInterval={{
+            interval: null,
+            type: 'global'
+          }}
+          panelData={data}
+          panelOptions={{
+            ...options,
+            refreshInterval: 'default',
+            refreshIntervalCustom: 15
+          }}
+          store={store}
+        />
       </div>
     )
   });

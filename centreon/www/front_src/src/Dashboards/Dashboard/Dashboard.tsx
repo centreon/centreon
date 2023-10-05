@@ -93,7 +93,7 @@ const Dashboard = (): ReactElement => {
 
         <Layout />
       </PageLayout.Body>
-      <DashboardConfigModal />
+      <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
     </PageLayout>
   );

@@ -16098,3 +16098,9 @@ msgstr ""
 
 # msgid "Welcome to the dashboard interface!"
 # msgstr ""
+
+#  msgid "You are not allowed to access services"
+#  msgstr ""
+
+#  msgid "Error while searching for services"
+#  msgstr ""

@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
 import { isNil } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { Paper } from '@mui/material';
 
@@ -15,6 +16,7 @@ import {
 } from '../translatedLabels';
 import Title from '../../components/Title';
 import { editProperties } from '../useCanEditDashboard';
+import { isSidebarOpenAtom } from '../../../Navigation/navigationAtoms';
 
 import useWidgetForm from './useWidgetModal';
 import { useAddWidgetStyles } from './addWidget.styles';
@@ -37,6 +39,8 @@ const AddWidgetModal = (): JSX.Element | null => {
   const { classes } = useAddWidgetStyles();
 
   const { canEditField } = editProperties.useCanEditProperties();
+
+  const isSidebarOpen = useAtomValue(isSidebarOpenAtom);
 
   const {
     widgetFormInitialData,
@@ -81,7 +85,7 @@ const AddWidgetModal = (): JSX.Element | null => {
         <Modal
           open
           fullscreenMargins={{
-            left: 48,
+            left: isSidebarOpen ? 165 : 48,
             top: 90
           }}
           size="fullscreen"
