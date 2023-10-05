@@ -30,7 +30,13 @@ import {
 
 import { useDashboardConfig } from './useDashboardConfig';
 
-const DashboardConfigModal = (): ReactElement => {
+interface Props {
+  showRefreshIntervalFields?: boolean;
+}
+
+const DashboardConfigModal = ({
+  showRefreshIntervalFields
+}: Props): ReactElement => {
   const { isDialogOpen, closeDialog, dashboard, submit, variant } =
     useDashboardConfig();
 
@@ -87,7 +93,9 @@ const DashboardConfigModal = (): ReactElement => {
         <DashboardForm
           labels={labels.form}
           resource={(dashboard as DashboardResource) ?? undefined}
-          showRefreshIntervalFields={equals(variant, 'update')}
+          showRefreshIntervalFields={
+            showRefreshIntervalFields && equals(variant, 'update')
+          }
           variant={variant}
           onCancel={closeDialog}
           onSubmit={submit}
