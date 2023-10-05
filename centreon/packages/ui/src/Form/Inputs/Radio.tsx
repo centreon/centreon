@@ -1,5 +1,5 @@
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, includes, path, split } from 'ramda';
+import { equals, includes, path, split, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -73,12 +73,23 @@ const Radio = ({
                   disabled={disabled}
                   id={getNormalizedId(`${dataTestId}${optionLabel}`)}
                   inputProps={{
-                    'aria-label': t(optionLabel) || ''
+                    'aria-label':
+                      (equals(type(optionLabel), 'String') &&
+                        t(optionLabel as string)) ||
+                      ''
                   }}
                 />
               }
-              key={optionLabel}
-              label={t(optionLabel) as string}
+              key={
+                equals(type(optionLabel), 'String')
+                  ? (optionLabel as string)
+                  : `${optionValue}`
+              }
+              label={
+                equals(type(optionLabel), 'String')
+                  ? (t(optionLabel as string) as string)
+                  : optionLabel
+              }
               value={optionValue}
             />
           ))}

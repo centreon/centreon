@@ -20,6 +20,7 @@ import {
   singleMetricSelectionAtom,
   singleResourceTypeSelectionAtom
 } from '../atoms';
+import { isGenericText } from '../../utils';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -105,6 +106,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       }),
       {}
     );
+    const shouldResetDescription =
+      equals(values.moduleName, 'centreon-widget-generictext') &&
+      !isGenericText(selectedWidget.federatedComponentsConfiguration.path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
     setSingleResourceTypeSelection(
@@ -118,10 +122,13 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
-        description: currentValues.options.description || {
-          content: null,
-          enabled: true
-        },
+        description:
+          shouldResetDescription || isNil(currentValues.options.description)
+            ? {
+                content: null,
+                enabled: true
+              }
+            : currentValues.options.description,
         name: currentValues.options.name,
         openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },
