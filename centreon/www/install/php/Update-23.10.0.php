@@ -367,7 +367,7 @@ $renameLegacyDashboardInTopology = function (CentreonDB $pearDB) {
     $pearDB->query(
         <<<'SQL'
             UPDATE `topology` SET `topology_name` = 'Availability'
-            WHERE `topology_name` = 'Dashboard'
+            WHERE `topology_name` = 'Dashboard' AND `topology_parent` IN (3, 307)
             SQL
     );
 };
