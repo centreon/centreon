@@ -46,31 +46,34 @@ runs:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-    # - name: Install Cypress binary
-    #   uses: nick-fields/retry@v2
+    - name: Install Cypress binary
+      uses: nick-fields/retry@v2
+      with:
+        timeout_seconds: 120
+        max_attempts: 10
+        retry_wait_seconds: 30
+        retry_on: error
+        command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
+
+    # - name: Cypress end-to-end testing
+    #   uses: cypress-io/github-action@v6
+    #   env:
+    #     CYPRESS_VERIFY_TIMEOUT: "60000"
+    #     CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
+    #     CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
+    #     CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
     #   with:
-    #     timeout_seconds: 120
-    #     max_attempts: 10
-    #     retry_wait_seconds: 30
-    #     retry_on: error
-    #     command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
+    #     browser: chrome
+    #     install: false
+    #     working-directory: ${{ inputs.module }}/tests/e2e
+    #     spec: cypress/e2e/**/${{ inputs.feature_file_path }}
+    #     publish-summary: false
 
-    - name: Install cypress-tags and run tests
+    - name: Cypress end-to-end testing
       run: |
-        cd ${{ inputs.module }}/tests/e2e
-        pnpm add --save-dev cypress-tags
-
-        # Run Cypress tests with tag filtering (exclude tests with @not_executed tag)
-        npx cypress-tags run -e TAGS @not_executed
-
+        pnpm run cypress:run --spec cypress/e2e/**/${{ inputs.feature_file_path }}
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
-      with:
-        browser: chrome
-        install: false
-        working-directory: ${{ inputs.module }}/tests/e2e
-        spec: cypress/e2e/**/${{ inputs.feature_file_path }}
-        publish-summary: false
