@@ -1,10 +1,18 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { configureOpenIDConnect } from '../common';
-import { getUserContactId } from '../../../../commons';
+import {
+  configureACLGroups,
+  configureProviderAcls,
+  getUserContactId
+} from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer().startOpenIdProviderContainer();
+  cy.startWebContainer()
+    .startOpenIdProviderContainer()
+    .then(() => {
+      configureProviderAcls();
+    });
 });
 
 beforeEach(() => {
@@ -32,6 +40,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/contacts/templates?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
   }).as('getListContactTemplates');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/access-groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+  }).as('getListAccessGroup');
 });
 
 Given('an administrator is logged in the platform', () => {
@@ -56,16 +68,21 @@ When(
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
     }).check();
+
     cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
       .click({ force: true });
+
     configureOpenIDConnect();
+
     cy.getByLabel({ label: 'Auto import users' })
       .eq(0)
       .contains('Auto import users')
       .click({ force: true });
+
     cy.getByLabel({ label: 'Enable auto import', tag: 'input' }).check();
+
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
@@ -80,14 +97,19 @@ When(
       label: 'Contact template',
       tag: 'input'
     }).should('have.value', 'contact_template');
+
     cy.getByLabel({
       label: 'Email attribute path',
       tag: 'input'
     }).type('{selectall}{backspace}email');
+
     cy.getByLabel({
       label: 'Fullname attribute path',
       tag: 'input'
     }).type('{selectall}{backspace}name');
+
+    configureACLGroups();
+
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
     cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);

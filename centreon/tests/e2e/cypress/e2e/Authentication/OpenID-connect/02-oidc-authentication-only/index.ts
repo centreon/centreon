@@ -4,11 +4,13 @@ import {
   initializeOIDCUserAndGetLoginPage,
   configureOpenIDConnect
 } from '../common';
+import { configureACLGroups } from '../../SAML/common';
 
 before(() => {
   cy.startWebContainer()
     .startOpenIdProviderContainer()
     .then(() => {
+      configureACLGroups();
       initializeOIDCUserAndGetLoginPage();
     });
 });
