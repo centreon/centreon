@@ -1,3 +1,5 @@
+import { ActionClapi } from '../../../commons';
+
 /* eslint-disable cypress/unsafe-to-chain-command */
 const keycloakURL = `${Cypress.env('OPENID_IMAGE_URL')}/realms/Centreon_SSO`;
 
@@ -57,7 +59,11 @@ const navigateToSAMLConfigPage = (): Cypress.Chainable => {
 const initializeSAMLUser = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-SAML/SAML-authentication-user.json')
-    .then((contact) => cy.executeActionViaClapi({ bodyContent: contact }));
+    .then((fixture: Array<ActionClapi>) => {
+      fixture.forEach((action) =>
+        cy.executeActionViaClapi({ bodyContent: action })
+      );
+    });
 };
 
 const removeContact = (): Cypress.Chainable => {
