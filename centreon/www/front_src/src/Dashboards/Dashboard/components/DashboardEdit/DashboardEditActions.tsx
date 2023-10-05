@@ -64,11 +64,11 @@ const DashboardEditActions = ({
   useEffect(() => {
     if (searchParams.get('edit') === 'true') startEditing();
     if (searchParams.get('edit') === null) stopEditing();
-  }, [searchParams]);
+  }, []);
 
   const saveAndProceed = (): void => {
     saveDashboard();
-    switchPanelsEditionMode(false);
+    stopEditing();
   };
 
   if (!isEditing) {
