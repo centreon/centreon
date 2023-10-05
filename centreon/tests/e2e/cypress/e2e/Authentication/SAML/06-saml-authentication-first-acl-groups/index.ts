@@ -1,7 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  addSAMLAcl,
   configureSAML,
   initializeSAMLUser,
   navigateToSAMLConfigPage
@@ -13,7 +12,6 @@ before(() => {
     .startOpenIdProviderContainer()
     .then(() => {
       initializeSAMLUser();
-      addSAMLAcl();
     });
 });
 

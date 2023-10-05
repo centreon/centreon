@@ -78,22 +78,9 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-const addSAMLAcl = (): Cypress.Chainable => {
-  return cy.setUserTokenApiV1().then(() => {
-    cy.executeActionViaClapi({
-      bodyContent: {
-        action: 'ADD',
-        object: 'ACLGROUP',
-        values: 'ACL Group test;CYPRESS'
-      }
-    });
-  });
-};
-
 export {
   initializeSAMLUser,
   removeContact,
   configureSAML,
-  navigateToSAMLConfigPage,
-  addSAMLAcl
+  navigateToSAMLConfigPage
 };

@@ -88,7 +88,7 @@ When(
 
     cy.wait('@getListAccessGroup');
 
-    cy.get('div[role="presentation"] ul li').click();
+    cy.get('div[role="presentation"] ul li').contains('ALL').click();
 
     cy.getByLabel({
       label: 'ACL access group',

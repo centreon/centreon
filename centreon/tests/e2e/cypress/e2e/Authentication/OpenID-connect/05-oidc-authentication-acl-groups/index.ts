@@ -99,6 +99,7 @@ When(
 
     cy.wait('@getListAccessGroup')
       .get('div[role="presentation"] ul li')
+      .contains('ALL')
       .click();
 
     cy.getByLabel({
