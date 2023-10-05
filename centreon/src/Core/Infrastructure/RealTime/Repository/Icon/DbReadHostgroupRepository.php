@@ -21,12 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\RealTime\Repository\Hostgroup;
+namespace Core\Infrastructure\RealTime\Repository\Icon;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadHostgroupRepositoryInterface;
 use Core\Domain\RealTime\Model\Hostgroup;
+use Core\Infrastructure\RealTime\Repository\Hostgroup\DbHostgroupFactory;
 
 class DbReadHostgroupRepository extends AbstractRepositoryDRB implements ReadHostgroupRepositoryInterface
 {
@@ -74,6 +75,7 @@ class DbReadHostgroupRepository extends AbstractRepositoryDRB implements ReadHos
     private function findAll(int $hostId, ?string $aclRequest): array
     {
         $request = 'SELECT DISTINCT
+                1 AS REALTIME,
                 hg.hostgroup_id,
                 hg.name AS `hostgroup_name`
             FROM `:dbstg`.`hosts_hostgroups` AS hhg

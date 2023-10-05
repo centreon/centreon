@@ -256,7 +256,8 @@ class CentreonGraphStatus
      */
     public static function getIndexId($hostId, $serviceId, $dbc)
     {
-        $query = "SELECT id FROM index_data WHERE host_id = " . $hostId . " AND service_id = " . $serviceId;
+        $query = "SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = " . $hostId . " AND service_id = " .
+            $serviceId;
         $res = $dbc->query($query);
         $row = $res->fetch();
 

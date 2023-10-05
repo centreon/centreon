@@ -233,7 +233,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            'SELECT DISTINCT
               1 AS REALTIME,
               hg.hostgroup_id, h.*, i.name AS poller_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
@@ -296,7 +296,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            'SELECT DISTINCT
               1 AS REALTIME,
               ssg.servicegroup_id, h.*, i.name AS poller_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
