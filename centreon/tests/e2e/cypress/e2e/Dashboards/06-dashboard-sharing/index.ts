@@ -597,7 +597,9 @@ When(
 Then(
   'the user whose permissions have been overridden can perform write operations on the dashboard',
   () => {
-    cy.logout();
+    cy.wait('@addContactToDashboardShareList').then(() => {
+      cy.logout();
+    });
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
@@ -686,7 +688,9 @@ When('the admin user appoints one of the users as an editor', () => {
 Then(
   'the newly appointed editor user can appoint another user as an editor',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.wait('@addContactToDashboardShareList').then(() => {
+      cy.visit('/centreon/home/dashboards');
+    });
     cy.logout();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
