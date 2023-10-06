@@ -16884,7 +16884,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Dashboard library"
 # msgstr ""
 
-# msgid "Welcome to the dashboard interface!"
+# msgid "Welcome to the Dashboards interface!"
 # msgstr ""
 
 #  msgid "You are not allowed to access services"
