@@ -13,7 +13,6 @@ info:
     + Added host endpoints (POST, DELETE)
     + Added token endpoints (GET, POST, DELETE)
     + Added resources by parent endpoint (GET)
-    +
     # Updated features
     + Updated host template endpoint (GET)
     + Updated JSON API returned keys for /monitoring/resources endpoint (GET)
@@ -272,7 +271,7 @@ paths:
   /configuration/hosts/templates/{host_template_id}:
     $ref: './v23.10/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
   /configuration/hosts:
-    $ref: './v23.10/Configuration/Host/AddHost.yaml'
+    $ref: './v23.10/Configuration/Host/AddAndFindHosts.yaml'
   /configuration/hosts/categories:
     get:
       tags:

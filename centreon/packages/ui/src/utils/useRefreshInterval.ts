@@ -1,7 +1,13 @@
+import { useAtomValue } from 'jotai';
 import { always, cond, equals } from 'ramda';
 
+import { refreshIntervalAtom } from '@centreon/ui-context';
+
 interface Props {
-  globalRefreshInterval?: number;
+  globalRefreshInterval: {
+    interval: number | null;
+    type: 'global' | 'manual';
+  };
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
 }
@@ -11,11 +17,20 @@ export const useRefreshInterval = ({
   refreshIntervalCustom,
   globalRefreshInterval
 }: Props): number | false => {
+  const platformInterval = useAtomValue(refreshIntervalAtom);
+
   const refreshIntervalToUse = cond([
-    [equals('default'), always(globalRefreshInterval)],
+    [
+      equals('default'),
+      always(
+        equals(globalRefreshInterval.type, 'manual')
+          ? false
+          : globalRefreshInterval.interval || platformInterval
+      )
+    ],
     [equals('custom'), always(refreshIntervalCustom)],
-    [equals('manual'), always(0)]
+    [equals('manual'), always(false)]
   ])(refreshInterval);
 
-  return refreshIntervalToUse ? refreshIntervalToUse * 1000 : false;
+  return refreshIntervalToUse ? (refreshIntervalToUse as number) * 1000 : false;
 };

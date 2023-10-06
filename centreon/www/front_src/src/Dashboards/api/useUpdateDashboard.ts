@@ -1,5 +1,5 @@
 import { UseMutationResult, useQueryClient } from '@tanstack/react-query';
-import { omit } from 'ramda';
+import { pick } from 'ramda';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
@@ -39,10 +39,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
       _meta: {
         id: variables.id
       },
-      ...omit(
-        ['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'ownRole'],
-        variables
-      )
+      ...pick(['name', 'description', 'refresh'], variables)
     });
 
   return {

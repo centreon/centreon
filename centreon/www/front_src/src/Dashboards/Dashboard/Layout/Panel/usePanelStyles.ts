@@ -7,6 +7,10 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     flexDirection: 'row',
     marginRight: theme.spacing(1)
   },
+  panelContent: {
+    height: `calc(100% - ${theme.spacing(3.5)})`,
+    overflow: 'auto'
+  },
   panelHeader: {
     '& span': {
       fontSize: theme.typography.body1.fontSize,

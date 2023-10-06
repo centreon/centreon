@@ -58,7 +58,9 @@ const DataTableItem = forwardRef(
       >
         <ActionArea aria-label="view" onClick={() => onClick?.()}>
           <MuiCardContent>
-            <MuiTypography variant="h5">{title}</MuiTypography>
+            <MuiTypography fontWeight={500} variant="h5">
+              {title}
+            </MuiTypography>
             {description && <MuiTypography>{description}</MuiTypography>}
           </MuiCardContent>
         </ActionArea>

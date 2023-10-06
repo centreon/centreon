@@ -109,14 +109,13 @@ class Conditions implements SecurityAccessInterface
         }
 
         $conditionMatches = array_intersect($providerAuthenticationConditions, $localConditions);
-        if (empty($conditionMatches)) {
+        if (count($conditionMatches) !== count($localConditions)) {
             $this->error(
                 'Configured attribute value not found in conditions endpoint',
                 [
                     'configured_authorized_values' => $authenticationConditions->getAuthorizedValues(),
                 ]
             );
-
             $this->loginLogger->exception(
                 $scope,
                 'Configured attribute value not found in conditions endpoint: %s, message: %s',
