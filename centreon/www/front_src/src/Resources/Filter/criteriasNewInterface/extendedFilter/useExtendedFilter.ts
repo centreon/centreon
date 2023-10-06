@@ -23,7 +23,10 @@ const useExtendedFilter = ({ data }) => {
     const arrayInputGroup = data?.filter(
       (item) => item?.buildAutocompleteEndpoint
     );
-    const inputGroups = sort({ array: arrayInputGroup, sortBy: 'name' });
+    const inputGroups = sort({
+      array: arrayInputGroup,
+      sortBy: 'name'
+    })?.filter((item) => !item.name.includes('level'));
     setInputGroupsData(inputGroups);
   }, [data]);
 

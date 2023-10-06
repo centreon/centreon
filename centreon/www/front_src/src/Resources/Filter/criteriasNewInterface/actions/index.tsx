@@ -17,7 +17,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const Actions = ({ onSearch, onClear }) => {
+const Actions = ({ onSearch, onClear, save }) => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -34,8 +34,7 @@ const Actions = ({ onSearch, onClear }) => {
         </Button>
       </Grid>
       <Grid item style={{ display: 'flex' }}>
-        <Save />
-
+        {save}
         <Button
           color="primary"
           data-testid="Filter Search"

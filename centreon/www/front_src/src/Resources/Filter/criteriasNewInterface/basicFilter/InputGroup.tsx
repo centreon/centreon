@@ -15,8 +15,6 @@ const InputGroup = ({
   label,
   resourceType
 }) => {
-  console.log('render Input groupppppppppppppppp');
-
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
 
   const { target } = useInputData({
@@ -29,9 +27,7 @@ const InputGroup = ({
     data: target?.value
   });
 
-  const currentLabel = label || target?.label || '';
-
-  const displayedColumn = currentLabel.includes('level') ? 'level' : '';
+  const displayedColumn = label || target?.label || '';
 
   const getEndpoint = ({ search, page }): string =>
     target?.buildAutocompleteEndpoint({

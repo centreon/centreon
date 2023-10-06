@@ -16,8 +16,6 @@ import Section from './Section';
 const SectionWrapper = ({ basicData, changeCriteria }): JSX.Element => {
   const sectionsType = Object.values(SectionType);
 
-  console.log('renderSectionWrapper', { basicData });
-
   return (
     <div>
       {sectionsType?.map((sectionType) => (

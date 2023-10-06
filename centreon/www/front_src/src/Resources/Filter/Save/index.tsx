@@ -24,6 +24,7 @@ import {
   sendingFilterAtom
 } from '../filterAtoms';
 import { Filter } from '../models';
+import { createFilter } from '../api';
 
 import CreateFilterDialog from './CreateFilterDialog';
 import useActionFilter from './useActionFilter';
@@ -64,9 +65,7 @@ const SaveFilterMenu = (): JSX.Element => {
     sendingListCustomFiltersRequest,
     updateFilter,
     sendingUpdateFilterRequest
-  } = useActionFilter({
-    callbackSuccessUpdateFilter: closeSaveFilterMenu
-  });
+  } = useActionFilter();
   const openSaveFilterMenu = (event: MouseEvent<HTMLButtonElement>): void => {
     setMenuAnchor(event.currentTarget);
   };
@@ -82,10 +81,9 @@ const SaveFilterMenu = (): JSX.Element => {
 
   const confirmCreateFilter = (newFilter: Filter): void => {
     showSuccessMessage(t(labelFilterCreated));
+    closeCreateFilterDialog();
 
     loadFiltersAndUpdateCurrent(omit(['order'], newFilter));
-
-    closeCreateFilterDialog();
   };
 
   const openEditPanel = (): void => {
@@ -142,9 +140,10 @@ const SaveFilterMenu = (): JSX.Element => {
       {createFilterDialogOpen && (
         <CreateFilterDialog
           open
-          filter={currentFilter}
+          callbackSuccess={confirmCreateFilter}
+          payloadAction={{ criterias: currentFilter.criterias }}
+          request={createFilter}
           onCancel={closeCreateFilterDialog}
-          onCreate={confirmCreateFilter}
         />
       )}
     </>

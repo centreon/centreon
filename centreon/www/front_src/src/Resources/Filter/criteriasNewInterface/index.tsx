@@ -22,12 +22,10 @@ import {
   handleDataByCategoryFilter,
   mergeArraysByField
 } from './utils';
-import Actions from './actions';
 
 export { CheckboxGroup } from '@centreon/ui';
 
 const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
-  console.log('Criterias new Interface ');
   const [open, setOpen] = useState(false);
 
   const setCriteriaAndNewFilter = useSetAtom(
@@ -35,9 +33,8 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
   );
 
   const { newSelectableCriterias: buildCriterias, selectableCriterias } = data;
-  useSearchWihSearchDataCriteria({
-    selectableCriterias
-  });
+
+  useSearchWihSearchDataCriteria({ selectableCriterias });
 
   const changeCriteria = ({ updatedValue, filterName, searchData }): void => {
     const parameters = {
@@ -110,20 +107,6 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
     );
   }, [selectableCriterias, buildCriterias]);
 
-  const checkBoxState = useMemoComponent({
-    Component: (
-      <CheckBoxWrapper
-        changeCriteria={changeCriteria}
-        data={basicData}
-        filterName={BasicCriteria.states}
-        title="State"
-      />
-    ),
-    memoProps: [
-      findData({ data: basicData, target: BasicCriteria.states })?.value
-    ]
-  });
-
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -140,7 +123,12 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
               changeCriteria={changeCriteria}
             />
           }
-          state={checkBoxState}
+          state={
+            <MemoizedCheckBoxState
+              basicData={basicData}
+              changeCriteria={changeCriteria}
+            />
+          }
         />
         {open && (
           <ExtendedFilter changeCriteria={changeCriteria} data={extendedData} />
@@ -177,5 +165,20 @@ const MemoizedPoller = ({ basicData, changeCriteria }): JSX.Element => {
     ]
   });
 };
+
+const MemoizedCheckBoxState = ({ basicData, changeCriteria }): JSX.Element =>
+  useMemoComponent({
+    Component: (
+      <CheckBoxWrapper
+        changeCriteria={changeCriteria}
+        data={basicData}
+        filterName={BasicCriteria.states}
+        title="State"
+      />
+    ),
+    memoProps: [
+      findData({ data: basicData, target: BasicCriteria.states })?.value
+    ]
+  });
 
 export default CriteriasNewInterface;

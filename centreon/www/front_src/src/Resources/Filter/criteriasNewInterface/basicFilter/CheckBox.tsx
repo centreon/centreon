@@ -1,9 +1,12 @@
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
+import { isEmpty, isNil } from 'ramda';
 
 import { CheckboxGroup } from '@centreon/ui';
 
+import { ResourceType } from '../../../models';
+import { categoryHostStatus } from '../model';
 import useInputData from '../useInputsData';
 import { findData, removeDuplicateFromObjectArray } from '../utils';
 
@@ -85,11 +88,31 @@ const CheckBoxSection = ({
     setValues(checkedValues);
   }, [selectedStatusByResourceType]);
 
+  useEffect(() => {
+    const initialValue = data.find((item) => item.name === filterName);
+    if (isEmpty(initialValue?.value) || isNil(initialValue?.value)) {
+      return;
+    }
+
+    const result = initialValue?.value?.map((item) => {
+      const type = Object.keys(categoryHostStatus).includes(item.id)
+        ? ResourceType.host
+        : resourceType;
+
+      return { ...item, checked: true, resourceType: type };
+    });
+    setSelectedStatusByResourceType(result);
+
+    return (): void => {
+      setSelectedStatusByResourceType(null);
+    };
+  }, []);
+
   return (
     <CheckboxGroup
       direction="horizontal"
       options={transformData(target?.options) ?? []}
-      values={transformData(values) ?? []}
+      values={transformData(values) || []}
       onChange={(event) => handleChangeStatus(event)}
     />
   );

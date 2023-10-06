@@ -1,11 +1,8 @@
-import { useRef, useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -13,127 +10,108 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Paper from '@mui/material/Paper';
 
-import { useSnackbar } from '@centreon/ui';
+import { PopoverData } from '../../Criterias/models';
 
-import { labelFilterCreated } from '../../../translatedLabels';
-import CreateFilterDialog from '../../Save/CreateFilterDialog';
-import useActionFilter from '../../Save/useActionFilter';
-import { Filter } from '../../models';
-import { currentFilterAtom } from '../../filterAtoms';
+interface Save {
+  canSaveFilter;
+  getIsCreateFilter;
+  getIsUpdateFilter;
+  isNewFilter;
+  popoverData: PopoverData | undefined;
+}
 
-const Save = ({}): JSX.Element => {
+const Save = ({
+  isNewFilter,
+  canSaveFilter,
+  getIsCreateFilter,
+  getIsUpdateFilter,
+  popoverData
+}: Save): JSX.Element => {
   const { t } = useTranslation();
+  const { setAnchorEl = undefined } = popoverData;
   const [open, setOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState();
-  const [isCreateFilterDialogOpen, setIsCreateFilterDialogOpen] =
-    useState(false);
-  const currentFilter = useAtomValue(currentFilterAtom);
-
-  const { showSuccessMessage } = useSnackbar();
-
-  const {
-    canSaveFilter,
-    canSaveFilterAsNew,
-    loadFiltersAndUpdateCurrent,
-    sendingListCustomFiltersRequest,
-    updateFilter,
-    sendingUpdateFilterRequest
-  } = useActionFilter({
-    callbackSuccessUpdateFilter: () => alert('duplicate')
-  });
 
   const handleToggle = (): void => {
-    setOpen((prevOpen) => !prevOpen);
+    setOpen(!open);
   };
 
   const handleClose = (): void => {
     setOpen(false);
   };
-  const closeCreateFilterDialog = () => {
-    setIsCreateFilterDialogOpen(false);
+
+  const saveAsNew = (): void => {
+    getIsCreateFilter(true);
+    setAnchorEl?.(undefined);
   };
 
-  const confirmCreateFilter = (newFilter: Filter): void => {
-    showSuccessMessage(t(labelFilterCreated));
-
-    loadFiltersAndUpdateCurrent(omit(['order'], newFilter));
-
-    closeCreateFilterDialog();
+  const saveAs = (): void => {
+    getIsUpdateFilter(true);
+    setAnchorEl?.(undefined);
   };
 
-  const saveAsNew = (selectedOption): void => {
-    setIsCreateFilterDialogOpen(true);
-  };
-  const saveAs = (selectedOption): void => {};
   const options = [
     {
-      disabled: !canSaveFilterAsNew,
-      onClick: (data: string) => saveAsNew(data),
+      disabled: !isNewFilter,
+      onClick: saveAsNew,
       title: 'Save as new'
     },
     {
       disabled: !canSaveFilter,
-      onClick: (data: string) => saveAs(data),
+      onClick: saveAs,
       title: 'Save as'
     }
   ];
 
-  const currentOption = options.find(({ title }) => title === selectedOption);
+  const selectOption = (option): void => {
+    setSelectedOption(option);
+    handleToggle();
+  };
+  const defaultCurrentOption =
+    options.find(({ disabled }) => !disabled) ||
+    options.find(({ title }) => title === 'Save as new');
 
   return (
-    <>
-      <ClickAwayListener onClickAway={handleClose}>
-        <ButtonGroup
-          aria-label="split button"
-          style={{ backgroundColor: '#255891', maxHeight: 36 }}
-          variant="contained"
-        >
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div
-              style={{ display: 'flex', flexDirection: 'row', minWidth: 99 }}
+    <ClickAwayListener onClickAway={handleClose}>
+      <ButtonGroup
+        aria-label="split button"
+        style={{ backgroundColor: '#255891', maxHeight: 36 }}
+        variant="contained"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', minWidth: 99 }}>
+            <Button
+              disabled={
+                selectedOption?.disabled ?? defaultCurrentOption?.disabled
+              }
+              style={{ height: 35 }}
+              onClick={selectedOption?.onClick || defaultCurrentOption?.onClick}
             >
-              <Typography style={{ flex: 1 }}>
-                {currentOption?.title || 'test'}
-              </Typography>
-              <Button
-                aria-label="select merge strategy"
-                size="small"
-                onClick={handleToggle}
-              >
-                <ArrowDropDownIcon />
-              </Button>
-            </div>
-
-            {open && (
-              <Paper>
-                <MenuList autoFocusItem id="split-button-menu">
-                  {options.map(({ title, onClick, disabled }, index) => (
-                    <MenuItem
-                      disabled={disabled}
-                      key={title}
-                      onClick={(): void => onClick(title)}
-                    >
-                      {title}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Paper>
-            )}
+              {selectedOption?.title || defaultCurrentOption?.title}
+            </Button>
+            <Button size="small" onClick={handleToggle}>
+              <ArrowDropDownIcon />
+            </Button>
           </div>
-        </ButtonGroup>
-      </ClickAwayListener>
 
-      {/* {isCreateFilterDialogOpen && (
-        <CreateFilterDialog
-          filter={currentFilter}
-          open={isCreateFilterDialogOpen}
-          onCancel={() => {
-            setIsCreateFilterDialogOpen(false);
-          }}
-          onCreate={confirmCreateFilter}
-        />
-      )} */}
-    </>
+          {open && (
+            <Paper>
+              <MenuList autoFocusItem id="split-button-menu">
+                {options.map((option, index) => (
+                  <MenuItem
+                    disabled={option.disabled}
+                    key={option.title}
+                    onClick={() => selectOption(option)}
+                  >
+                    {option.title}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Paper>
+          )}
+        </div>
+      </ButtonGroup>
+    </ClickAwayListener>
   );
 };
 

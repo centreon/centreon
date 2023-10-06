@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useAtom } from 'jotai';
 import { isEmpty, isNil, not, pipe } from 'ramda';
@@ -11,6 +11,10 @@ const useSearchWihSearchDataCriteria = ({ selectableCriterias }) => {
   const [search, setSearch] = useAtom(searchAtom);
 
   const getBuiltCustomSearchedFields = useMemo(() => {
+    if (!selectableCriterias) {
+      return null;
+    }
+
     return selectableCriterias
       ?.filter(pipe(({ searchData }) => searchData, isNil, not))
       .map(({ searchData }) => {
@@ -25,49 +29,49 @@ const useSearchWihSearchDataCriteria = ({ selectableCriterias }) => {
       });
   }, [selectableCriterias]);
 
-  const updatedSearchInput = useMemo(
-    () =>
-      getBuiltCustomSearchedFields?.reduce(
-        (accumulator, currentValue) => {
-          const { content } = currentValue;
-          const { field } = currentValue;
-          const target = `${field}:${content?.join(',')}`;
+  const updatedSearchInput = useMemo(() => {
+    return getBuiltCustomSearchedFields?.reduce(
+      (accumulator, currentValue) => {
+        const { content } = currentValue;
+        const { field } = currentValue;
+        const target = `${field}:${content?.join(',')}`;
 
-          const fieldInSearchInput = `${field}:`;
-          const { updatedSearch } = accumulator;
+        const fieldInSearchInput = `${field}:`;
+        const { updatedSearch } = accumulator;
 
-          if (!isEmpty(content)) {
-            if (search?.includes(fieldInSearchInput)) {
-              const result = getFoundFields({ fields: [field], value: search });
-              const formattedResult = `${result[0].field}:${result[0].value}`;
+        if (!isEmpty(content)) {
+          if (search?.includes(fieldInSearchInput)) {
+            const result = getFoundFields({ fields: [field], value: search });
+            const formattedResult = `${result[0].field}:${result[0].value}`;
 
-              const newSearch = updatedSearch || search;
+            const newSearch = updatedSearch || search;
 
-              return {
-                ...accumulator,
-                updatedSearch: newSearch?.replace(formattedResult, target)
-              };
-            }
-
-            return !updatedSearch
-              ? { ...accumulator, updatedSearch: search.concat(' ', target) }
-              : { ...accumulator };
+            return {
+              ...accumulator,
+              updatedSearch: newSearch?.replace(formattedResult, target)
+            };
           }
 
-          return search;
-        },
-        { updatedSearch: '' }
-      ),
-    [search, getBuiltCustomSearchedFields]
-  );
+          return !updatedSearch
+            ? { ...accumulator, updatedSearch: search.concat(' ', target) }
+            : { ...accumulator };
+        }
 
-  const newSearch = isNil(updatedSearchInput?.updatedSearch)
-    ? search
-    : updatedSearchInput?.updatedSearch;
+        return search;
+      },
+      { updatedSearch: '' }
+    );
+  }, [search, getBuiltCustomSearchedFields]);
 
-  setSearch(newSearch);
+  useEffect(() => {
+    const newSearch =
+      isNil(updatedSearchInput?.updatedSearch) ||
+      isEmpty(updatedSearchInput?.updatedSearch)
+        ? search
+        : updatedSearchInput?.updatedSearch;
 
-  return { newSearch };
+    setSearch(newSearch);
+  }, [updatedSearchInput]);
 };
 
 export default useSearchWihSearchDataCriteria;

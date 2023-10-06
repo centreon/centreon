@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 import type { SelectEntry } from '@centreon/ui';
 
 import { SortOrder } from '../../models';
@@ -306,3 +308,13 @@ export {
   selectableStateTypes,
   hardStateType
 };
+
+export enum Action {
+  create = 'create',
+  update = 'update'
+}
+
+export interface PopoverData {
+  anchorEl: HTMLElement | undefined;
+  setAnchorEl: Dispatch<SetStateAction<HTMLElement | undefined>>;
+}

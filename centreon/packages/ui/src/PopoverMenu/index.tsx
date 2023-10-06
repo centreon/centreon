@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
@@ -19,11 +19,17 @@ const useStyles = makeStyles()(() => ({
   }
 }));
 
+interface PopoverData {
+  anchorEl: HTMLElement | undefined;
+  setAnchorEl: Dispatch<SetStateAction<HTMLElement | undefined>>;
+}
+
 interface Props {
   canOpen?: boolean;
   children: (props?) => JSX.Element;
   className?: string;
   dataTestId?: string;
+  getPopoverData: (data: PopoverData) => void;
   icon: JSX.Element;
   onClose?: () => void;
   onOpen?: () => void;
@@ -40,7 +46,8 @@ const PopoverMenu = ({
   onClose,
   canOpen = true,
   className,
-  dataTestId
+  dataTestId,
+  getPopoverData
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes, cx } = useStyles();
@@ -50,10 +57,10 @@ const PopoverMenu = ({
 
   const close = (reason?): void => {
     const isClosedByInputClick = reason?.type === 'mousedown';
-
     if (isClosedByInputClick) {
       return;
     }
+
     onClose?.();
     setAnchorEl(undefined);
   };
@@ -74,6 +81,10 @@ const PopoverMenu = ({
       close();
     }
   }, [canOpen]);
+
+  useEffect(() => {
+    getPopoverData?.({ anchorEl, setAnchorEl });
+  }, [anchorEl]);
 
   return (
     <>
