@@ -24,7 +24,6 @@ import {
   labelContacts,
   labelSearchContactsGroups,
   labelSearchContacts,
-  labelSelectContactsAndContactsGroups,
   labelSearchBusinessViews,
   labelBusinessViews,
   labelBusinessViewsEvents
@@ -79,13 +78,8 @@ const useFormInputs = ({
       titleAttributes
     },
     {
-      name: t(labelSelectContactsAndContactsGroups),
-      order: 2,
-      titleAttributes
-    },
-    {
       name: t(labelSelectTimePeriodAndChannels),
-      order: 3,
+      order: 2,
       titleAttributes
     }
   ];
@@ -237,6 +231,63 @@ const useFormInputs = ({
           }
         ]
       : []),
+
+    {
+      additionalLabel: <TimePeriodTitle />,
+      additionalLabelClassName: classes.additionalLabel,
+      dataTestId: t(labelTimePeriod),
+      fieldName: 'timeperiod',
+      getDisabled: () => true,
+      group: basicFormGroups[1].name,
+      inputClassName: classes.input,
+      label: t(labelTimePeriod),
+      type: InputType.Checkbox
+    },
+
+    {
+      additionalLabel: t(labelNotificationChannels),
+      additionalLabelClassName: classes.additionalLabel,
+      fieldName: '',
+      grid: {
+        className: classes.channels,
+        columns: [
+          {
+            checkbox: {
+              direction: 'horizontal'
+            },
+            dataTestId: 'Email',
+            fieldName: 'messages.channel',
+            label: 'Email',
+            type: InputType.Checkbox
+          },
+          {
+            checkbox: {
+              direction: 'horizontal'
+            },
+            dataTestId: 'SMS',
+            fieldName: 'sms.channel',
+            getDisabled: () => true,
+            label: 'SMS',
+            type: InputType.Checkbox
+          },
+          {
+            checkbox: {
+              direction: 'horizontal'
+            },
+            dataTestId: 'Slack',
+            fieldName: 'slack.channel',
+            getDisabled: () => true,
+            label: 'Slack',
+            type: InputType.Checkbox
+          }
+        ]
+      },
+      group: basicFormGroups[1].name,
+      inputClassName: classes.input,
+      label: t(labelNotificationChannels),
+      type: InputType.Grid
+    },
+
     {
       additionalLabel: t(labelContacts),
       additionalLabelClassName: classes.additionalLabel,
@@ -303,73 +354,12 @@ const useFormInputs = ({
       label: '',
       type: InputType.Grid
     },
+
     {
-      additionalLabel: <TimePeriodTitle />,
-      additionalLabelClassName: classes.additionalLabel,
-      dataTestId: t(labelTimePeriod),
-      fieldName: 'timeperiod',
-      getDisabled: () => true,
-      group: basicFormGroups[2].name,
-      inputClassName: classes.input,
-      label: t(labelTimePeriod),
-      type: InputType.Checkbox
-    },
-    {
-      additionalLabel: t(labelNotificationChannels),
-      additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
         className: classes.grid,
         columns: [
-          {
-            fieldName: '',
-            grid: {
-              className: classes.channels,
-              columns: [
-                {
-                  checkbox: {
-                    direction: 'horizontal'
-                  },
-                  dataTestId: 'Email',
-                  fieldName: 'messages.channel',
-                  label: 'Email',
-                  type: InputType.Checkbox
-                },
-                {
-                  checkbox: {
-                    direction: 'horizontal'
-                  },
-                  dataTestId: 'SMS',
-                  fieldName: 'sms.channel',
-                  getDisabled: () => true,
-                  label: 'SMS',
-                  type: InputType.Checkbox
-                },
-                {
-                  checkbox: {
-                    direction: 'horizontal'
-                  },
-                  dataTestId: 'Slack',
-                  fieldName: 'slack.channel',
-                  getDisabled: () => true,
-                  label: 'Slack',
-                  type: InputType.Checkbox
-                }
-              ]
-            },
-            group: basicFormGroups[2].name,
-            label: t(labelNotificationChannels),
-            type: InputType.Grid
-          },
-          {
-            custom: {
-              Component: () => <Box className={classes.divider} />
-            },
-            fieldName: '',
-            group: basicFormGroups[2].name,
-            label: '',
-            type: InputType.Custom
-          },
           {
             custom: {
               Component: () => (
@@ -379,13 +369,13 @@ const useFormInputs = ({
               )
             },
             fieldName: '',
-            group: basicFormGroups[2].name,
+            group: basicFormGroups[1].name,
             label: 'Email template',
             type: InputType.Custom
           },
           {
             fieldName: 'messages.subject',
-            group: basicFormGroups[2].name,
+            group: basicFormGroups[1].name,
             label: t(labelSubject),
             type: InputType.Text
           },
@@ -394,14 +384,14 @@ const useFormInputs = ({
               Component: EmailBody
             },
             fieldName: 'messages.message',
-            group: basicFormGroups[2].name,
+            group: basicFormGroups[1].name,
             label: 'Message',
             type: InputType.Custom
           }
         ],
         gridTemplateColumns: 'auto'
       },
-      group: basicFormGroups[2].name,
+      group: basicFormGroups[1].name,
       inputClassName: classes.input,
       label: t(labelNotificationChannels),
       type: InputType.Grid
