@@ -18224,7 +18224,7 @@ msgid "You are not allowed to list authentication tokens"
 msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 
 msgid "View widget properties"
-msgstr "voir les propriétés du widget"
+msgstr "Voir les propriétés du widget"
 
 msgid "Dashboard library"
 msgstr "Bibliothèque de tableaux de bord"
