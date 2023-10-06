@@ -7,7 +7,7 @@ import { Method, QueryProvider } from '@centreon/ui';
 
 import { metricsEndpoint } from '../../../api/endpoints';
 import { WidgetDataResource } from '../../../models';
-import { labelMetrics } from '../../../../translatedLabels';
+import { labelSelectMetric } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import MetricsOnly from './MetricsOnly';
@@ -82,20 +82,20 @@ describe('MetricsOnly', () => {
   it('displays metrics with included hosts when resources are fulfilled', () => {
     cy.waitForRequest('@getServiceMetrics');
 
-    cy.findByTestId(labelMetrics).click();
-    cy.contains('rtmax (ms) / Includes 2 hosts');
-    cy.contains('pl (%) / Includes 2 hosts');
+    cy.findByTestId(labelSelectMetric).click();
+    cy.contains('rtmax (ms) / Includes 2 resources');
+    cy.contains('pl (%) / Includes 2 resources');
 
     cy.makeSnapshot();
   });
 
   it('displays the selected metric when resources are fulfilled and a metric is selected', () => {
-    cy.findByTestId(labelMetrics).click();
-    cy.contains('rtmax (ms) / Includes 2 hosts').click();
+    cy.findByTestId(labelSelectMetric).click();
+    cy.contains('rtmax (ms) / Includes 2 resources').click();
 
     cy.contains('rtmax (ms) / 2').should('be.visible');
     cy.contains('rtmax (ms) / 2').trigger('mouseover');
-    cy.contains('rtmax (ms) / Includes 2 hosts').should('be.visible');
+    cy.contains('rtmax (ms) / Includes 2 resources').should('be.visible');
 
     cy.makeSnapshot();
   });
