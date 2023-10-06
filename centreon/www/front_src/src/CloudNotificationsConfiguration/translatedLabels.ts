@@ -77,8 +77,6 @@ export const labelContacts = 'Contacts';
 export const labelContactsGroups = 'Contact groups';
 export const labelSearchContacts = 'Search contacts';
 export const labelSearchContactsGroups = 'Search contact groups';
-export const labelSelectContactsAndContactsGroups =
-  'Select contacts and contact groups';
 export const labelTimePeriod24h7days = '24h/24h - 7/7 days';
 export const labelIncludeServicesForTheseHosts =
   'Include services for these hosts';
