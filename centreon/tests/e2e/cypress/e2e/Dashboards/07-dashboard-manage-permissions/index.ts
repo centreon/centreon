@@ -60,13 +60,15 @@ Given(
       .should('contain.text', 'editor');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
 When(
   'the dashboard administrator user promotes the viewer user to an editor',
   () => {
+    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(
+      'be.visible'
+    );
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByTestId({ testId: 'role-input' }).eq(2).contains('viewer').click();
     cy.get('[role="listbox"]').contains('editor').click();
@@ -200,8 +202,9 @@ Given(
       .should('contain.text', 'editor');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
-
+    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(
+      'be.visible'
+    );
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByTestId({ testId: 'remove_user' }).eq(1).click();
     cy.get('[data-state="removed"]').should('exist');

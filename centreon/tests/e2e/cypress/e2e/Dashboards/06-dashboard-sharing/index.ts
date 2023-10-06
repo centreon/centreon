@@ -142,12 +142,12 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@addContactToDashboardShareList');
-  cy.reload(); // TODO: Find a way to remove reloads
 });
 
 Then(
   "the viewer user is listed as a viewer in the dashboard's share list",
   () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -246,13 +246,13 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
 Then(
   "the second editor user is listed as an editor in the dashboard's share list",
   () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -346,13 +346,13 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
 Then(
   'any member of the contact group has access to the dashboard in the dashboards library but cannot share it or update its properties',
   () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -456,13 +456,13 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
 Then(
   'any member of the contact group has access to the dashboard in the dashboards library and can share it or update its properties',
   () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -563,13 +563,13 @@ Given(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
 When(
   'the editor user sets write permissions on the dashboard to a specific user of the contact group',
   () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCGMember3.login).click();
@@ -591,14 +591,15 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
 Then(
   'the user whose permissions have been overridden can perform write operations on the dashboard',
   () => {
-    cy.logout();
+    cy.wait('@addContactToDashboardShareList').then(() => {
+      cy.logout();
+    });
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({
@@ -681,14 +682,14 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.wait('@addContactToDashboardShareList');
-  cy.reload(); // TODO: Find a way to remove reloads
 });
 
 Then(
   'the newly appointed editor user can appoint another user as an editor',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.wait('@addContactToDashboardShareList').then(() => {
+      cy.visit('/centreon/home/dashboards');
+    });
     cy.logout();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
@@ -713,8 +714,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
-
+    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -740,8 +740,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
-
+    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
