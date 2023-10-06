@@ -9,7 +9,7 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer({ version: 'develop' });
-    cy.execInContainer({
+  cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
@@ -169,15 +169,17 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
 
   cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
 
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click().then(() => {
-    cy.getByLabel({ label: 'page header title' })
-      .should('contain.text', `${dashboards.fromAdminUser.name}-edited`)
-      .should('be.visible');
+  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.getByLabel({ label: 'page header title' })
+    .should('contain.text', `${dashboards.fromAdminUser.name}-edited`)
+    .should('be.visible');
 
-    cy.getByLabel({ label: 'page header description' })
-      .should('contain.text', `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`)
-      .should('be.visible');
-  });
+  cy.getByLabel({ label: 'page header description' })
+    .should(
+      'contain.text',
+      `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
+    )
+    .should('be.visible');
 });
 
 Given('an admin user on the dashboards library', () => {
@@ -356,19 +358,22 @@ Then(
     );
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click().then(() => {
-      cy.getByLabel({ label: 'page header title' })
-        .should('be.visible')
-        .should('contain.text', `${dashboards.fromDashboardAdministratorUser.name}-edited`);
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'page header title' })
+      .should('be.visible')
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardAdministratorUser.name}-edited`
+      );
 
-      cy.getByLabel({ label: 'page header description' })
-        .should('be.visible')
-        .should('contain.text', `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`);
-    });
-  });
-
-
-
+    cy.getByLabel({ label: 'page header description' })
+      .should('be.visible')
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
+      );
+  }
+);
 
 Given(
   'a non-admin user with the administrator role on the dashboard feature',
@@ -553,16 +558,22 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click().then(() => {
-      cy.getByLabel({ label: 'page header title' })
-        .should('contain.text', `${dashboards.fromDashboardCreatorUser.name}-edited`)
-        .should('be.visible');
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'page header title' })
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardCreatorUser.name}-edited`
+      )
+      .should('be.visible');
 
-      cy.getByLabel({ label: 'page header description' })
-        .should('contain.text', `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`)
-        .should('be.visible');
-    });
-  });
+    cy.getByLabel({ label: 'page header description' })
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
+      )
+      .should('be.visible');
+  }
+);
 
 Given('a non-admin user with the editor role on the dashboard feature', () => {
   cy.loginByTypeOfUser({
