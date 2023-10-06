@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { labelDashboards } from './translatedLabels';
+import { labelDashboardLibrary } from './translatedLabels';
 import { DashboardsOverviewSkeleton } from './components/DashboardsOverview/DashboardsOverviewSkeleton';
 import { DashboardConfigModal } from './components/DashboardConfig/DashboardConfigModal';
 import { DashboardAccessRightsModal } from './components/DashboardAccessRights/DashboardAccessRightsModal';
@@ -19,7 +19,7 @@ const DashboardsPage = (): ReactElement => {
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
-            <PageHeader.Title title={t(labelDashboards)} />
+            <PageHeader.Title title={t(labelDashboardLibrary)} />
           </PageHeader.Main>
         </PageHeader>
       </PageLayout.Header>

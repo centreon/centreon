@@ -114,3 +114,4 @@ export const labelTop = 'Top';
 export const labelBottom = 'Bottom';
 export const labelIncludesXHost = 'Includes {{count}} hosts';
 export const labelNumberOfValues = 'Number of values';
+export const labelViewWidgetProperties = 'View widget properties';
