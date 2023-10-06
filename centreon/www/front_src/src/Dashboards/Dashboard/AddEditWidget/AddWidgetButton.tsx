@@ -37,6 +37,7 @@ const AddWidgetButton = (): JSX.Element | null => {
       icon={<AddIcon />}
       iconVariant="start"
       size="small"
+      variant="secondary"
       onClick={() => openModal(null)}
     >
       {t(labelAddAWidget)}

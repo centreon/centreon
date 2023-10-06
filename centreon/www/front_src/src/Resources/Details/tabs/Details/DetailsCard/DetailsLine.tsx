@@ -1,7 +1,8 @@
-import { Responsive } from '@visx/visx';
 import { makeStyles } from 'tss-react/mui';
 
 import { Typography, Box } from '@mui/material';
+
+import { ParentSize } from '@centreon/ui';
 
 const useStyles = makeStyles()((theme) => ({
   lineText: {
@@ -20,7 +21,7 @@ const DetailsLine = ({ line }: Props): JSX.Element => {
   const { classes } = useStyles();
 
   return (
-    <Responsive.ParentSize parentSizeStyles={{ height: 'auto' }}>
+    <ParentSize parentSizeStyles={{ height: 'auto' }}>
       {({ width }): JSX.Element => (
         <Typography component="div">
           <Box
@@ -34,7 +35,7 @@ const DetailsLine = ({ line }: Props): JSX.Element => {
           </Box>
         </Typography>
       )}
-    </Responsive.ParentSize>
+    </ParentSize>
   );
 };
 

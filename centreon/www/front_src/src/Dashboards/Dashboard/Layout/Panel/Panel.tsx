@@ -75,6 +75,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
+              refreshCount={refreshCount}
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
             />

@@ -12,7 +12,7 @@ import { useDashboardDelete } from '../DashboardDelete/useDashboardDelete';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
   labelCreateADashboard,
-  labelNoDashboardsFound
+  labelWelcomeToDashboardInterface
 } from '../../translatedLabels';
 import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
@@ -43,7 +43,7 @@ const DashboardsOverview = (): ReactElement => {
         actions: {
           create: t(labelCreateADashboard)
         },
-        title: t(labelNoDashboardsFound)
+        title: t(labelWelcomeToDashboardInterface)
       }
     }),
     []

@@ -6,7 +6,6 @@ import {
   useState
 } from 'react';
 
-import { Responsive } from '@visx/visx';
 import { useAtomValue } from 'jotai';
 import {
   add,
@@ -35,7 +34,8 @@ import {
   getData,
   timeFormat,
   useLocaleDateTimeFormat,
-  useRequest
+  useRequest,
+  ParentSize
 } from '@centreon/ui';
 
 import { CommentParameters } from '../../Actions/api';
@@ -419,7 +419,7 @@ const PerformanceGraph = <T,>({
         )}
       </div>
       <div>
-        <Responsive.ParentSize>
+        <ParentSize>
           {({ width, height }): JSX.Element => (
             <Graph<T>
               applyZoom={adjustTimePeriod}
@@ -444,7 +444,7 @@ const PerformanceGraph = <T,>({
               onAddComment={onAddComment}
             />
           )}
-        </Responsive.ParentSize>
+        </ParentSize>
       </div>
 
       <Legend
