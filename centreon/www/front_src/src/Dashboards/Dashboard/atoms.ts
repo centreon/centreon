@@ -298,6 +298,6 @@ export const resetDashboardDerivedAtom = atom(null, (_, setAtom) => {
   setAtom(dashboardAtom, {
     layout: []
   });
-  setAtom(refreshIntervalAtom, 30);
+  setAtom(dashboardRefreshIntervalAtom, undefined);
   setAtom(panelsLengthAtom, 0);
 });
