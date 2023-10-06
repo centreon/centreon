@@ -18179,7 +18179,7 @@ msgstr "Voir les propriétés du widget"
 msgid "Dashboard library"
 msgstr "Bibliothèque de tableaux de bord"
 
-msgid "Welcome to the dashboard interface!"
+msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
 
 msgid "You are not allowed to access services"
