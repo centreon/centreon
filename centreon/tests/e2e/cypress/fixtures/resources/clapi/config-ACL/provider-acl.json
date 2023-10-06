@@ -25,6 +25,11 @@
       "values": "acl_menu_test;1;Monitoring"
     },
     {
+      "action": "GRANTRW",
+      "object": "ACLMENU",
+      "values": "acl_menu_test;1;Custom Views"
+    },
+    {
       "action": "RELOAD",
       "object": "ACL",
       "values": ""

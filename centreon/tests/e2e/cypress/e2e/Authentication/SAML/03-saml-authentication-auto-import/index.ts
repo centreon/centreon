@@ -10,7 +10,7 @@ import {
 
 before(() => {
   cy.startWebContainer()
-    // .startOpenIdProviderContainer()
+    .startOpenIdProviderContainer()
     .then(() => {
       configureProviderAcls();
     });
