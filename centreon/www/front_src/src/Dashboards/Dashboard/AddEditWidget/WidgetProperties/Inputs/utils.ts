@@ -8,7 +8,7 @@ import {
   labelPleaseSelectAResource,
   labelRequired
 } from '../../../translatedLabels';
-import { WidgetDataResource } from '../../models';
+import { WidgetDataResource, WidgetResourceType } from '../../models';
 
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['options', ...split('.', propertyName)], obj);
@@ -143,3 +143,12 @@ export const isAtLeastOneResourceFullfilled = (
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
   );
+
+export const resourceTypeQueryParameter = {
+  [WidgetResourceType.host]: 'host.id',
+  [WidgetResourceType.hostCategory]: 'hostcategory.id',
+  [WidgetResourceType.hostGroup]: 'hostgroup.id',
+  [WidgetResourceType.serviceCategory]: 'servicecategory.id',
+  [WidgetResourceType.serviceGroup]: 'servicegroup.id',
+  [WidgetResourceType.service]: 'service.name'
+};

@@ -16,7 +16,9 @@ import {
   labelHostCategory,
   labelHostGroup,
   labelPleaseSelectAResource,
-  labelService
+  labelService,
+  labelServiceCategory,
+  labelServiceGroup
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
 import { singleResourceTypeSelectionAtom } from '../../../atoms';
@@ -57,6 +59,14 @@ const resourceTypeOptions = [
     name: labelHost
   },
   {
+    id: WidgetResourceType.serviceGroup,
+    name: labelServiceGroup
+  },
+  {
+    id: WidgetResourceType.serviceCategory,
+    name: labelServiceCategory
+  },
+  {
     id: WidgetResourceType.service,
     name: labelService
   }
@@ -66,7 +76,9 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/hosts',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
-  [WidgetResourceType.service]: '/resources'
+  [WidgetResourceType.service]: '/resources',
+  [WidgetResourceType.serviceCategory]: '/services/categories',
+  [WidgetResourceType.serviceGroup]: '/servicegroups'
 };
 
 const resourceQueryParameters = [
@@ -151,7 +163,10 @@ const useResources = (propertyName: string): UseResourcesState => {
         customQueryParameters: equals(resourceType, WidgetResourceType.service)
           ? resourceQueryParameters
           : undefined,
-        parameters
+        parameters: {
+          ...parameters,
+          limit: 30
+        }
       });
     };
 
