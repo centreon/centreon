@@ -141,13 +141,15 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
 
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.wait('@addContactToDashboardShareList');
 });
 
 Then(
   "the viewer user is listed as a viewer in the dashboard's share list",
   () => {
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
+    cy.wait('@addContactToDashboardShareList').then(() => {
+      cy.getByLabel({ label: 'share', tag: 'button' }).should('be.visible');
+    });
+
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
