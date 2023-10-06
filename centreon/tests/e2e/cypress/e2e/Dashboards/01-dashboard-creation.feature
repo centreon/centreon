@@ -1,4 +1,4 @@
-@not_exectued
+@not_executed
 Feature: Creating a new dashboard
   As a Centreon User with dashboard edition rights,
   I need to start creating a dashboard starting from an empty page on which I will place widgets
