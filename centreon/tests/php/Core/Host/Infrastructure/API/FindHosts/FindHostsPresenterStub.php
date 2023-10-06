@@ -19,20 +19,20 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Tests\Core\Host\Infrastructure\API\AddHost;
+namespace Tests\Core\Host\Infrastructure\API\FindHosts;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostPresenterInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostResponse;
+use Core\Host\Application\UseCase\FindHosts\FindHostsPresenterInterface;
+use Core\Host\Application\UseCase\FindHosts\FindHostsResponse;
 
-class AddHostPresenterStub extends AbstractPresenter implements AddHostPresenterInterface
+class FindHostsPresenterStub extends AbstractPresenter implements FindHostsPresenterInterface
 {
-    public ResponseStatusInterface|AddHostResponse $response;
+    public FindHostsResponse|ResponseStatusInterface $response;
 
-    public function presentResponse(ResponseStatusInterface|AddHostResponse $response): void
+    public function presentResponse(FindHostsResponse|ResponseStatusInterface $response): void
     {
         $this->response = $response;
     }

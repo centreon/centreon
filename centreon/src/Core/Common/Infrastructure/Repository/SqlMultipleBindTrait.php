@@ -19,21 +19,25 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Tests\Core\Host\Infrastructure\API\AddHost;
+namespace Core\Common\Infrastructure\Repository;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostPresenterInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostResponse;
-
-class AddHostPresenterStub extends AbstractPresenter implements AddHostPresenterInterface
+trait SqlMultipleBindTrait
 {
-    public ResponseStatusInterface|AddHostResponse $response;
-
-    public function presentResponse(ResponseStatusInterface|AddHostResponse $response): void
+    /**
+     * @param array<int|string, int|string> $list
+     * @param string $prefix
+     *
+     * @return array{0: array<string, mixed>, 1: string}
+     */
+    protected function createMultipleBindQuery(array $list, string $prefix ): array
     {
-        $this->response = $response;
+        $bindValues = [];
+        foreach ($list as $index => $id) {
+            $bindValues[$prefix . $index] = $id;
+        }
+
+        return [$bindValues, implode(', ', array_keys($bindValues))];
     }
 }
