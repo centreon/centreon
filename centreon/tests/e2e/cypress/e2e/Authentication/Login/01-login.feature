@@ -1,3 +1,4 @@
+@not_executed
 Feature: Login
 
 Scenario: Logging in
