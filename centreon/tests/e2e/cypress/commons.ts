@@ -357,7 +357,7 @@ const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
 
 const configureProviderAcls = (): Cypress.Chainable => {
   return cy
-    .fixture('resources/clapi/config-acl/provider-acl.json')
+    .fixture('resources/clapi/config-ACL/provider-acl.json')
     .then((fixture: Array<ActionClapi>) => {
       fixture.forEach((action) =>
         cy.executeActionViaClapi({ bodyContent: action })
