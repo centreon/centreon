@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import {
   labelCriticalThreshold,
   labelShowThresholds,
-  labelThreshold,
+  labelThresholds,
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { ServiceMetric } from '../../../models';
@@ -94,14 +94,14 @@ describe('Threshold', () => {
   it('does not display any default threshold values when no metrics are passed', () => {
     initializeComponent({ metrics: emptyMetrics });
 
-    cy.contains(labelThreshold).should('be.visible');
+    cy.contains(labelThresholds).should('be.visible');
     cy.contains(labelWarningThreshold).should('be.visible');
     cy.contains(labelCriticalThreshold).should('be.visible');
     cy.findByLabelText(labelShowThresholds).should('not.be.checked');
     cy.findAllByTestId('default').eq(0).children().eq(0).should('be.checked');
     cy.findAllByTestId('default').eq(1).children().eq(0).should('be.checked');
     cy.contains('Default (none)').should('be.visible');
-    cy.findByTestId(labelThreshold).should('not.exist');
+    cy.findByTestId(labelThresholds).should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -121,10 +121,13 @@ describe('Threshold', () => {
     cy.findByLabelText(labelShowThresholds).click();
     cy.findAllByTestId('custom').eq(0).click();
 
-    cy.findAllByTestId(labelThreshold).find('input').eq(0).should('be.enabled');
-    cy.findAllByTestId(labelThreshold).find('input').eq(0).type('50');
+    cy.findAllByTestId(labelThresholds)
+      .find('input')
+      .eq(0)
+      .should('be.enabled');
+    cy.findAllByTestId(labelThresholds).find('input').eq(0).type('50');
     cy.contains('50 ms').should('be.visible');
-    cy.findAllByTestId(labelThreshold).find('input').eq(1).should('not.exist');
+    cy.findAllByTestId(labelThresholds).find('input').eq(1).should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -134,10 +137,10 @@ describe('Threshold', () => {
 
     cy.findByLabelText(labelShowThresholds).click();
     cy.findAllByTestId('custom').eq(0).click();
-    cy.findAllByTestId(labelThreshold).find('input').eq(0).type('50');
+    cy.findAllByTestId(labelThresholds).find('input').eq(0).type('50');
     cy.findByLabelText(labelShowThresholds).click();
 
-    cy.findAllByTestId(labelThreshold)
+    cy.findAllByTestId(labelThresholds)
       .find('input')
       .eq(0)
       .should('have.value', '50');
@@ -165,7 +168,7 @@ describe('Disabled threshold', () => {
     cy.findAllByTestId('default').eq(1).children().eq(0).should('be.disabled');
     cy.findAllByTestId('custom').eq(0).children().eq(0).should('be.disabled');
     cy.findAllByTestId('custom').eq(1).children().eq(0).should('be.disabled');
-    cy.findByTestId(labelThreshold).should('not.exist');
+    cy.findByTestId(labelThresholds).should('not.exist');
 
     cy.makeSnapshot();
   });

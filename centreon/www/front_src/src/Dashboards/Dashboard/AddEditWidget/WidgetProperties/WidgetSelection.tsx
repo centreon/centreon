@@ -33,7 +33,10 @@ const WidgetSelection = (): JSX.Element => {
 
     return (
       <li {...renderProps}>
-        <ListItemText primary={widget.title} secondary={widget.description} />
+        <ListItemText
+          primary={t(widget.title)}
+          secondary={t(widget.description)}
+        />
       </li>
     );
   };
