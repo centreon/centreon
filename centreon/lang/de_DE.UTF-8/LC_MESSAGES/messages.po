@@ -16066,7 +16066,7 @@ msgstr ""
 # msgid "Bottom"
 # msgstr ""
 
-# msgid "Includes {{count}} hosts"
+# msgid "Includes {{count}} resources"
 # msgstr ""
 
 #  msgid "Error while deleting a token"
@@ -16096,7 +16096,7 @@ msgstr ""
 # msgid "Dashboard library"
 # msgstr ""
 
-# msgid "Welcome to the dashboard interface!"
+# msgid "Welcome to the Dashboards interface!"
 # msgstr ""
 
 #  msgid "You are not allowed to access services"
@@ -16105,8 +16105,82 @@ msgstr ""
 #  msgid "Error while searching for services"
 #  msgstr ""
 
-
 # msgid "Availability"
+# msgstr ""
+
+# msgid "Generic text"
+# msgstr ""
+
+# msgid "Allows you to add free text to your dashboards (section titles, information, etc.)."
+# msgstr ""
+
+# msgid "Single metric"
+# msgstr ""
+
+# msgid "Displays the value of a single metric as a text, a gauge or a bar chart."
+# msgstr ""
+
+# msgid "Metrics graph"
+# msgstr ""
+
+# msgid "Displays metrics for a given time period."
+# msgstr ""
+
+# msgid "Top/bottom"
+# msgstr ""
+
+# msgid "Displays the top or bottom x hosts, for a selected metric."
+# msgstr ""
+
+# msgid "Thresholds"
+# msgstr ""
+
+# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Time period"
+# msgstr ""
+
+# msgid "Last hour (default)"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Customize"
+# msgstr ""
+
+# msgid "to"
+# msgstr ""
+
+# msgid "Add widget"
+# msgstr ""
+
+# msgid "Dataset selection"
+# msgstr ""
+
+# msgid "Select resource"
+# msgstr ""
+
+# msgid "Select metric"
+# msgstr ""
+
+# msgid "You can select a maximum of 2 metric units."
 # msgstr ""
 
 #  msgid "You are not allowed to list hosts"

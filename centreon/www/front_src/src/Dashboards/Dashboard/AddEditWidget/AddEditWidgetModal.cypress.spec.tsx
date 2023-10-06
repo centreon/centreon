@@ -21,7 +21,7 @@ import {
   labelSave,
   labelDelete,
   labelShowDescription,
-  labelMetrics,
+  labelSelectMetric,
   labelTitle,
   labelOpenLinksInNewTab,
   labelPleaseChooseAWidgetToActivatePreview,
@@ -517,7 +517,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
         cy.contains('Centreon-server_Ping').click();
 
-        cy.findByTestId(labelMetrics).click();
+        cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
         cy.contains('rtmax (ms)').click();
 
@@ -551,7 +551,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
         cy.contains('Centreon-server_Ping').click();
 
-        cy.findByTestId(labelMetrics).click();
+        cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
         cy.contains('rtmax (ms)').click();
 
@@ -584,7 +584,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
         cy.contains('Centreon-server_Ping').click();
 
-        cy.findByTestId(labelMetrics).click();
+        cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
         cy.contains('rtmax (ms)').click();
 
@@ -631,7 +631,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
         cy.contains('Centreon-server_Ping').click();
 
-        cy.findByTestId(labelMetrics).click();
+        cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
 
         cy.makeSnapshot();
@@ -694,7 +694,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelAddResource).should('be.enabled');
         cy.waitForRequest('@getServiceMetrics');
 
-        cy.findByTestId(labelMetrics).click();
+        cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
       });
     });
@@ -746,7 +746,7 @@ describe('AddEditWidgetModal', () => {
       cy.findByTestId(labelResourceType).should('be.disabled');
       cy.findByLabelText(labelSelectAResource).should('be.disabled');
       cy.findByTestId(labelServiceName).should('be.disabled');
-      cy.findByLabelText(labelMetrics).should('be.disabled');
+      cy.findByLabelText(labelSelectMetric).should('be.disabled');
       cy.contains(labelAddResource).should('not.exist');
       cy.contains(labelAddMetric).should('not.exist');
     });

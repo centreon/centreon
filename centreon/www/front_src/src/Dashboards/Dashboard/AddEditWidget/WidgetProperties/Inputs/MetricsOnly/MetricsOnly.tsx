@@ -11,6 +11,7 @@ import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
 import {
   labelAvailable,
   labelMetrics,
+  labelSelectMetric,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
@@ -74,7 +75,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           isOptionEqualToValue={(option, selectedValue) =>
             equals(option?.id, selectedValue?.id)
           }
-          label={t(labelMetrics)}
+          label={t(labelSelectMetric)}
           options={metrics}
           value={head(selectedMetrics || []) || undefined}
           onChange={changeMetric}
@@ -91,7 +92,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           getOptionLabel={getOptionLabel}
           getOptionTooltipLabel={getOptionLabel}
           getTagLabel={getMultipleOptionLabel}
-          label={t(labelMetrics)}
+          label={t(labelSelectMetric)}
           options={metrics}
           value={selectedMetrics || []}
           onChange={changeMetrics}

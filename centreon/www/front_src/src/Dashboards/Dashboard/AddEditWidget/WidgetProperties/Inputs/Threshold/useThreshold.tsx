@@ -27,7 +27,7 @@ import {
   labelDefault,
   labelDefaultValueIsDefinedByFirstMetricUsed,
   labelNone,
-  labelThreshold,
+  labelThresholds,
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { WidgetTextField } from '..';
@@ -205,7 +205,7 @@ const useThreshold = ({
               {!isDefault(warningType) && (
                 <>
                   <WidgetTextField
-                    label={t(labelThreshold)}
+                    label={t(labelThresholds)}
                     propertyName={`${propertyName}.customWarning`}
                     text={{
                       autoSize: true,
@@ -256,7 +256,7 @@ const useThreshold = ({
               {!isDefault(criticalType) && (
                 <>
                   <WidgetTextField
-                    label={t(labelThreshold)}
+                    label={t(labelThresholds)}
                     propertyName={`${propertyName}.customCritical`}
                     text={{
                       autoSize: true,
