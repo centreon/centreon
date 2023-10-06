@@ -1,7 +1,7 @@
-export const labelDashboards = 'Dashboards';
-export const labelDashboard = 'Dashboard';
+export const labelDashboardLibrary = 'Dashboard library';
 export const labelCreateADashboard = 'Create a dashboard';
-export const labelNoDashboardsFound = 'No dashboards available';
+export const labelWelcomeToDashboardInterface =
+  'Welcome to the dashboard interface!';
 export const labelCancel = 'Cancel';
 export const labelCreate = 'Create';
 export const labelUpdate = 'Update';

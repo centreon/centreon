@@ -11,7 +11,9 @@ export const useStyles = makeStyles()((theme) => ({
       display: 'flex',
       gap: theme.spacing(0.5)
     },
-
+    '&[data-row-reverse="true"]': {
+      flexDirection: 'row-reverse'
+    },
     display: 'flex',
     justifyContent: 'space-between',
     paddingBottom: theme.spacing(2.5)
@@ -23,7 +25,7 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateRows: 'min-content',
     overflow: 'hidden',
-    padding: theme.spacing(3, 3, 5)
+    padding: theme.spacing(2, 3, 5)
   },
   pageLayoutHeader: {
     '[data-variant="fixed-header"] &': {

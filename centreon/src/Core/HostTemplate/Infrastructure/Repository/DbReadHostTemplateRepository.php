@@ -38,6 +38,49 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Utility\SqlConcatenator;
 
+/**
+ * @phpstan-type _HostTemplate array{
+ *      host_id: int,
+ *      host_name: string,
+ *      host_alias: string,
+ *      host_snmp_version: string|null,
+ *      host_snmp_community: string|null,
+ *      host_location: int|null,
+ *      command_command_id: int|null,
+ *      command_command_id_arg1: string|null,
+ *      timeperiod_tp_id: int|null,
+ *      host_max_check_attempts: int|null,
+ *      host_check_interval: int|null,
+ *      host_retry_check_interval: int|null,
+ *      host_active_checks_enabled: string|null,
+ *      host_passive_checks_enabled: string|null,
+ *      host_notifications_enabled: string|null,
+ *      host_notification_options: string|null,
+ *      host_notification_interval: int|null,
+ *      timeperiod_tp_id2: int|null,
+ *      cg_additive_inheritance: int|null,
+ *      contact_additive_inheritance: int|null,
+ *      host_first_notification_delay: int|null,
+ *      host_recovery_notification_delay: int|null,
+ *      host_acknowledgement_timeout: int|null,
+ *      host_check_freshness: string|null,
+ *      host_freshness_threshold: int|null,
+ *      host_flap_detection_enabled: string|null,
+ *      host_low_flap_threshold: int|null,
+ *      host_high_flap_threshold: int|null,
+ *      host_event_handler_enabled: string|null,
+ *      command_command_id2: int|null,
+ *      command_command_id_arg2: string|null,
+ *      host_comment: string|null,
+ *      host_locked: int|null,
+ *      ehi_notes_url: string|null,
+ *      ehi_notes: string|null,
+ *      ehi_action_url: string|null,
+ *      ehi_icon_image: int|null,
+ *      ehi_icon_image_alt: string|null,
+ *      severity_id: int|null
+ *  }
+ */
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
 {
     use LoggerTrait;
@@ -138,47 +181,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
 
         $hostTemplates = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var array{
-             *     host_id: int,
-             *     host_name: string,
-             *     host_alias: string,
-             *     host_snmp_version: string|null,
-             *     host_snmp_community: string|null,
-             *     host_location: int|null,
-             *     command_command_id: int|null,
-             *     command_command_id_arg1: string|null,
-             *     timeperiod_tp_id: int|null,
-             *     host_max_check_attempts: int|null,
-             *     host_check_interval: int|null,
-             *     host_retry_check_interval: int|null,
-             *     host_active_checks_enabled: string|null,
-             *     host_passive_checks_enabled: string|null,
-             *     host_notifications_enabled: string|null,
-             *     host_notification_options: string|null,
-             *     host_notification_interval: int|null,
-             *     timeperiod_tp_id2: int|null,
-             *     cg_additive_inheritance: int|null,
-             *     contact_additive_inheritance: int|null,
-             *     host_first_notification_delay: int|null,
-             *     host_recovery_notification_delay: int|null,
-             *     host_acknowledgement_timeout: int|null,
-             *     host_check_freshness: string|null,
-             *     host_freshness_threshold: int|null,
-             *     host_flap_detection_enabled: string|null,
-             *     host_low_flap_threshold: int|null,
-             *     host_high_flap_threshold: int|null,
-             *     host_event_handler_enabled: string|null,
-             *     command_command_id2: int|null,
-             *     command_command_id_arg2: string|null,
-             *     host_comment: string|null,
-             *     host_locked: int|null,
-             *     ehi_notes_url: string|null,
-             *     ehi_notes: string|null,
-             *     ehi_action_url: string|null,
-             *     ehi_icon_image: int|null,
-             *     ehi_icon_image_alt: string|null,
-             *     severity_id: int|null
-             * } $result */
+            /** @var _HostTemplate $result */
             $hostTemplates[] = $this->createHostTemplateFromArray($result);
         }
 
@@ -256,48 +259,92 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             return null;
         }
 
-        /** @var array{
-         *     host_id: int,
-         *     host_name: string,
-         *     host_alias: string,
-         *     host_snmp_version: string|null,
-         *     host_snmp_community: string|null,
-         *     host_location: int|null,
-         *     command_command_id: int|null,
-         *     command_command_id_arg1: string|null,
-         *     timeperiod_tp_id: int|null,
-         *     host_max_check_attempts: int|null,
-         *     host_check_interval: int|null,
-         *     host_retry_check_interval: int|null,
-         *     host_active_checks_enabled: string|null,
-         *     host_passive_checks_enabled: string|null,
-         *     host_notifications_enabled: string|null,
-         *     host_notification_options: string|null,
-         *     host_notification_interval: int|null,
-         *     timeperiod_tp_id2: int|null,
-         *     cg_additive_inheritance: int|null,
-         *     contact_additive_inheritance: int|null,
-         *     host_first_notification_delay: int|null,
-         *     host_recovery_notification_delay: int|null,
-         *     host_acknowledgement_timeout: int|null,
-         *     host_check_freshness: string|null,
-         *     host_freshness_threshold: int|null,
-         *     host_flap_detection_enabled: string|null,
-         *     host_low_flap_threshold: int|null,
-         *     host_high_flap_threshold: int|null,
-         *     host_event_handler_enabled: string|null,
-         *     command_command_id2: int|null,
-         *     command_command_id_arg2: string|null,
-         *     host_comment: string|null,
-         *     host_locked: int|null,
-         *     ehi_notes_url: string|null,
-         *     ehi_notes: string|null,
-         *     ehi_action_url: string|null,
-         *     ehi_icon_image: int|null,
-         *     ehi_icon_image_alt: string|null,
-         *     severity_id: int|null
-         * } $result */
+        /** @var _HostTemplate $result */
         return $this->createHostTemplateFromArray($result);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIds(int ...$hostTemplateIds): array
+    {
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+        $bindValues = [];
+        foreach ($hostTemplateIds as $index => $templateId) {
+            $bindValues[':tpl_' . $index] = $templateId;
+        }
+
+        $hostTemplateIdsQuery = implode(', ',array_keys($bindValues));
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT
+                    h.host_id,
+                    h.host_name,
+                    h.host_alias,
+                    h.host_snmp_version,
+                    h.host_snmp_community,
+                    h.host_location,
+                    h.command_command_id,
+                    h.command_command_id_arg1,
+                    h.timeperiod_tp_id,
+                    h.host_max_check_attempts,
+                    h.host_check_interval,
+                    h.host_retry_check_interval,
+                    h.host_active_checks_enabled,
+                    h.host_passive_checks_enabled,
+                    h.host_notifications_enabled,
+                    h.host_notification_options,
+                    h.host_notification_interval,
+                    h.timeperiod_tp_id2,
+                    h.cg_additive_inheritance,
+                    h.contact_additive_inheritance,
+                    h.host_first_notification_delay,
+                    h.host_recovery_notification_delay,
+                    h.host_acknowledgement_timeout,
+                    h.host_check_freshness,
+                    h.host_freshness_threshold,
+                    h.host_flap_detection_enabled,
+                    h.host_low_flap_threshold,
+                    h.host_high_flap_threshold,
+                    h.host_event_handler_enabled,
+                    h.command_command_id2,
+                    h.command_command_id_arg2,
+                    h.host_comment,
+                    h.host_locked,
+                    ehi.ehi_notes_url,
+                    ehi.ehi_notes,
+                    ehi.ehi_action_url,
+                    ehi.ehi_icon_image,
+                    ehi.ehi_icon_image_alt,
+                    hcr.hostcategories_hc_id as severity_id
+                FROM `:db`.host h
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
+                WHERE h.host_register = '0'
+                    AND h.host_id IN ({$hostTemplateIdsQuery})
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $bindKey => $categoryId) {
+            $statement->bindValue($bindKey, $categoryId, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $hostTemplates = [];
+        foreach ($statement as $result) {
+            /** @var _HostTemplate $result */
+            $hostTemplates[] = $this->createHostTemplateFromArray($result);
+        }
+
+        return $hostTemplates;
     }
 
     /**
@@ -490,47 +537,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * @param array{
-     *     host_id: int,
-     *     host_name: string,
-     *     host_alias: string,
-     *     host_snmp_version: string|null,
-     *     host_snmp_community: string|null,
-     *     host_location: int|null,
-     *     command_command_id: int|null,
-     *     command_command_id_arg1: string|null,
-     *     timeperiod_tp_id: int|null,
-     *     host_max_check_attempts: int|null,
-     *     host_check_interval: int|null,
-     *     host_retry_check_interval: int|null,
-     *     host_active_checks_enabled: string|null,
-     *     host_passive_checks_enabled: string|null,
-     *     host_notifications_enabled: string|null,
-     *     host_notification_options: string|null,
-     *     host_notification_interval: int|null,
-     *     timeperiod_tp_id2: int|null,
-     *     cg_additive_inheritance: int|null,
-     *     contact_additive_inheritance: int|null,
-     *     host_first_notification_delay: int|null,
-     *     host_recovery_notification_delay: int|null,
-     *     host_acknowledgement_timeout: int|null,
-     *     host_check_freshness: string|null,
-     *     host_freshness_threshold: int|null,
-     *     host_flap_detection_enabled: string|null,
-     *     host_low_flap_threshold: int|null,
-     *     host_high_flap_threshold: int|null,
-     *     host_event_handler_enabled: string|null,
-     *     command_command_id2: int|null,
-     *     command_command_id_arg2: string|null,
-     *     host_comment: string|null,
-     *     host_locked: int|null,
-     *     ehi_notes_url: string|null,
-     *     ehi_notes: string|null,
-     *     ehi_action_url: string|null,
-     *     ehi_icon_image: int|null,
-     *     ehi_icon_image_alt: string|null,
-     *     severity_id: int|null
-     * } $result
+     * @param _HostTemplate $result
      *
      * @return HostTemplate
      */

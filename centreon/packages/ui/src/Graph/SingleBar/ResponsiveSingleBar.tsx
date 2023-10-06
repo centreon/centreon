@@ -127,47 +127,54 @@ const ResponsiveSingleBar = ({
   const springStyle = useSpring({ width: metricBarWidth });
 
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         height: '100%',
-        overflow: 'hidden',
-        position: 'relative',
-        width: '100%'
+        position: 'relative'
       }}
     >
-      <svg height={height} ref={svgRef} width={width}>
-        <Group.Group>
-          {text}
-          <animated.rect
-            data-testid={`${latestMetricData}-bar-${barColor}`}
-            fill={barColor}
-            height={barHeights[size]}
-            rx={4}
-            style={springStyle}
-            x={0}
-            y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
-          />
-          <Bar
-            fill="transparent"
-            height={barHeights[size]}
-            rx={4}
-            ry={4}
-            stroke={alpha(theme.palette.text.primary, 0.3)}
-            width={maxBarWidth}
-            x={0}
-            y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
-          />
-          {thresholds.enabled && (
-            <Thresholds
-              hideTooltip={hideTooltip}
-              showTooltip={showTooltip}
-              size={size}
-              thresholds={thresholds}
-              xScale={xScale}
+      <Box
+        sx={{
+          height: '100%',
+          overflow: 'hidden',
+          position: 'relative',
+          width: '100%'
+        }}
+      >
+        <svg height={height} ref={svgRef} width={width}>
+          <Group.Group>
+            {text}
+            <animated.rect
+              data-testid={`${latestMetricData}-bar-${barColor}`}
+              fill={barColor}
+              height={barHeights[size]}
+              rx={4}
+              style={springStyle}
+              x={0}
+              y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
             />
-          )}
-        </Group.Group>
-      </svg>
+            <Bar
+              fill="transparent"
+              height={barHeights[size]}
+              rx={4}
+              ry={4}
+              stroke={alpha(theme.palette.text.primary, 0.3)}
+              width={maxBarWidth}
+              x={0}
+              y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
+            />
+            {thresholds.enabled && (
+              <Thresholds
+                hideTooltip={hideTooltip}
+                showTooltip={showTooltip}
+                size={size}
+                thresholds={thresholds}
+                xScale={xScale}
+              />
+            )}
+          </Group.Group>
+        </svg>
+      </Box>
       <Fade in={tooltipOpen}>
         <Tooltip.Tooltip
           left={tooltipLeft}
@@ -175,7 +182,7 @@ const ResponsiveSingleBar = ({
             ...baseStyles,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
-            transform: `translate(-50%, ${isSmall ? -60 : -20}px)`,
+            transform: `translate(-50%, ${isSmall ? -100 : -120}px)`,
             zIndex: theme.zIndex.tooltip
           }}
           top={tooltipTop}
@@ -183,7 +190,7 @@ const ResponsiveSingleBar = ({
           {tooltipData}
         </Tooltip.Tooltip>
       </Fade>
-    </Box>
+    </div>
   );
 };
 

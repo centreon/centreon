@@ -106,7 +106,7 @@ beforeEach(function (): void {
     $this->request->iconAlternative = 'iconAlternative-value';
     $this->request->comment = 'comment-value';
     $this->request->checkCommandArgs = ['arg1', 'arg2'];
-    $this->request->eventHandlerCommandArgs = ["arg3", "  arg4"];
+    $this->request->eventHandlerCommandArgs = ['arg3', '  arg4'];
     $this->request->timezoneId = 1;
     $this->request->severityId = 1;
     $this->request->checkCommandId = 1;
@@ -207,7 +207,7 @@ beforeEach(function (): void {
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
-        $this->commandMacro->getName() => $this->commandMacro
+        $this->commandMacro->getName() => $this->commandMacro,
     ];
     $this->hostMacros = [
         $this->macroA->getName() => $this->macroA,
@@ -219,18 +219,17 @@ beforeEach(function (): void {
     ];
     $this->request->macros = [
         [
-            'name' =>   $this->macroA->getName(),
-            'value' =>  $this->macroA->getValue(),
-            'is_password' =>  $this->macroA->isPassword(),
-            'description' =>  $this->macroA->getDescription()
+            'name' => $this->macroA->getName(),
+            'value' => $this->macroA->getValue(),
+            'is_password' => $this->macroA->isPassword(),
+            'description' => $this->macroA->getDescription(),
         ],
         [
-            'name' =>   $this->macroB->getName(),
-            'value' =>  $this->macroB->getValue(),
-            'is_password' =>  $this->macroB->isPassword(),
-            'description' =>  $this->macroB->getDescription()
+            'name' => $this->macroB->getName(),
+            'value' => $this->macroB->getValue(),
+            'is_password' => $this->macroB->isPassword(),
+            'description' => $this->macroB->getDescription(),
         ],
-
     ];
 });
 
@@ -449,7 +448,7 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->method('findSelectedOptions')
         ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
 
-    $this->request->name = "";
+    $this->request->name = '';
 
     ($this->useCase)($this->request, $this->presenter);
 

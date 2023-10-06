@@ -30,7 +30,8 @@ const useStyles = makeStyles<{
       maxWidth: 'unset',
       position: 'absolute',
       right: props?.right ?? 0,
-      top: props?.top ?? 0
+      top: props?.top ?? 0,
+      transition: theme.transitions.create('left')
     },
     '&[data-size="large"] .MuiDialog-paper': {
       maxWidth: '640px',

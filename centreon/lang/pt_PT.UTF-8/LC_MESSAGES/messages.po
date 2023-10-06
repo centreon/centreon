@@ -16878,6 +16878,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "You are not allowed to list authentication tokens"
 #  msgstr ""
 
+# msgid "View widget properties"
+# msgstr ""
+
+# msgid "Dashboard library"
+# msgstr ""
+
+# msgid "Welcome to the dashboard interface!"
+# msgstr ""
+
 #  msgid "You are not allowed to access services"
 #  msgstr ""
 
@@ -16958,3 +16967,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "You can select a maximum of 2 metric units."
 # msgstr ""
+
+#  msgid "You are not allowed to list hosts"
+#  msgstr ""
+
+#  msgid "Error while searching for host configurations"
+#  msgstr ""

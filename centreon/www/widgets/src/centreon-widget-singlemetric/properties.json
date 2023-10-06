@@ -2,6 +2,10 @@
   "title": "Single metric",
   "description": "Displays the value of a single metric as a text, a gauge or a bar chart.",
   "options": {
+    "singleMetricGraphType": {
+      "type": "single-metric-graph-type",
+      "defaultValue": "text"
+    },
     "threshold": {
       "type": "threshold",
       "defaultValue": {
@@ -23,10 +27,6 @@
       "type": "value-format",
       "defaultValue": "human",
       "label": "Value format"
-    },
-    "singleMetricGraphType": {
-      "type": "single-metric-graph-type",
-      "defaultValue": "text"
     }
   },
   "data": {
