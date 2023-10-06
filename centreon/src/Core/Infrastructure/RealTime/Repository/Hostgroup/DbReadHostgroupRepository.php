@@ -21,13 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\RealTime\Repository\Icon;
+namespace Core\Infrastructure\RealTime\Repository\Hostgroup;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadHostgroupRepositoryInterface;
 use Core\Domain\RealTime\Model\Hostgroup;
-use Core\Infrastructure\RealTime\Repository\Hostgroup\DbHostgroupFactory;
 
 class DbReadHostgroupRepository extends AbstractRepositoryDRB implements ReadHostgroupRepositoryInterface
 {
