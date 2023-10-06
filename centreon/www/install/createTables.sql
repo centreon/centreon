@@ -118,6 +118,7 @@ CREATE TABLE `acl_resources_hc_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   KEY `hc_id` (`hc_id`),
   KEY `acl_res_id` (`acl_res_id`),
+  CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_ibfk_1` FOREIGN KEY (`hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1444,7 +1445,8 @@ CREATE TABLE `hostcategories` (
   `hc_activate` enum('0','1') NOT NULL DEFAULT '1',
   PRIMARY KEY (`hc_id`),
   KEY `name_index` (`hc_name`),
-  KEY `alias_index` (`hc_alias`)
+  KEY `alias_index` (`hc_alias`),
+  KEY `level_index` (`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

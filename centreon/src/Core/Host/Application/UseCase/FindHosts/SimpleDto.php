@@ -19,21 +19,13 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Tests\Core\Host\Infrastructure\API\AddHost;
+namespace Core\Host\Application\UseCase\FindHosts;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostPresenterInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostResponse;
-
-class AddHostPresenterStub extends AbstractPresenter implements AddHostPresenterInterface
+final class SimpleDto
 {
-    public ResponseStatusInterface|AddHostResponse $response;
-
-    public function presentResponse(ResponseStatusInterface|AddHostResponse $response): void
+    public function __construct(public int $id, public string $name)
     {
-        $this->response = $response;
     }
 }
