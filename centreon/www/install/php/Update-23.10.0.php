@@ -365,6 +365,22 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
     }
 };
 
+$createHostCategoriesIndex = function(CentreonDb $pearDB): void {
+    if (! $pearDB->isIndexExists('hostcategories', 'level_index')) {
+        $pearDB->query('CREATE INDEX `level_index` ON `hostcategories` (`level`)');
+    }
+};
+
+$createAclResourcesHcRelationsConstraint = function(CentreonDB $pearDB): void {
+    if (! $pearDB->isConstraintExists('acl_resources_hc_relations', 'acl_resources_hc_relations_pk')) {
+        $pearDB->query(<<<'SQL'
+            ALTER TABLE `acl_resources_hc_relations`
+                ADD CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`)
+            SQL
+        );
+    }
+};
+
 try {
 
     $errorMessage = "Couldn't create tables for Dashboards configuration";
@@ -384,6 +400,12 @@ try {
 
     $errorMessage = 'Unable to alter security_authentication_tokens table';
     $alterSecurityTokenTable($pearDB);
+
+    $errorMessage = 'Unable to create index on hostcategories table';
+    $createHostCategoriesIndex($pearDB);
+
+    $errorMessage = 'Unable to create constraints on acl_resources_hc_relations table';
+    $createAclResourcesHcRelationsConstraint($pearDB);
 
     $errorMessage = '';
     // Transactional queries
