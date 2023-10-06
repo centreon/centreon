@@ -370,7 +370,7 @@ $renameLegacyDashboardInTopology = function (CentreonDB $pearDB) {
             WHERE `topology_name` = 'Dashboard' AND `topology_parent` IN (3, 307)
             SQL
     );
-}
+};
 
 $createHostCategoriesIndex = function(CentreonDb $pearDB): void {
     if (! $pearDB->isIndexExists('hostcategories', 'level_index')) {
