@@ -1,5 +1,3 @@
-import { Responsive } from '@visx/visx';
-
 import { ParentSize } from '../..';
 
 import { SingleBarProps } from './models';
