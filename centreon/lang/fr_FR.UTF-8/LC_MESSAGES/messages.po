@@ -18223,6 +18223,15 @@ msgstr "Erreur lors de la recherche de jetons d'authentification"
 msgid "You are not allowed to list authentication tokens"
 msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 
+msgid "View widget properties"
+msgstr "Voir les propriétés du widget"
+
+msgid "Dashboard library"
+msgstr "Bibliothèque de tableaux de bord"
+
+msgid "Welcome to the dashboard interface!"
+msgstr "Bienvenue dans l'interface des tableaux de bord !"
+
 msgid "You are not allowed to access services"
 msgstr "Vous n'êtes pas autorisé à accéder aux services"
 
@@ -18231,3 +18240,10 @@ msgstr "Erreur lors de la recherche de services"
 
 msgid "Availability"
 msgstr "Disponibilité"
+
+msgid "You are not allowed to list hosts"
+msgstr "Vous n'êtes pas autorisé à lister les hôtes"
+
+msgid "Error while searching for host configurations"
+msgstr "Erreur lors de la recherche des configurations d'hôtes"
+

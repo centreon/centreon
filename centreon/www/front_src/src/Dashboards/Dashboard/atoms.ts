@@ -28,7 +28,7 @@ import {
   WidgetOptions
 } from './models';
 
-export const refreshIntervalAtom = atom(30);
+export const refreshCountsAtom = atom<Record<string, number>>({});
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
@@ -37,6 +37,13 @@ export const dashboardAtom = atom<Dashboard>({
 export const isEditingAtom = atom(false);
 
 export const hasEditPermissionAtom = atom(false);
+export const dashboardRefreshIntervalAtom = atom<
+  | {
+      interval: number | null;
+      type: 'global' | 'manual';
+    }
+  | undefined
+>(undefined);
 
 export const setLayoutModeDerivedAtom = atom(
   null,

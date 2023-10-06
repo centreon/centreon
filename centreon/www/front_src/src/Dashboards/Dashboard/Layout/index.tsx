@@ -6,7 +6,7 @@ import { equals, isEmpty, map, propEq } from 'ramda';
 
 import { DashboardLayout, getColumnsFromScreenSize } from '@centreon/ui';
 
-import { dashboardAtom, isEditingAtom } from '../atoms';
+import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
 import { AddEditWidgetModal, AddWidgetPanel } from '../AddEditWidget';
 import { DeleteWidgetModal } from '../DeleteWidget';
@@ -35,6 +35,7 @@ const emptyLayout: Array<Panel> = [
 
 const Layout = (): JSX.Element => {
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
+  const [refreshCounts, setRefreshCounts] = useAtom(refreshCountsAtom);
   const isEditing = useAtomValue(isEditingAtom);
 
   const { canEdit } = editProperties.useCanEditProperties();
@@ -65,42 +66,57 @@ const Layout = (): JSX.Element => {
     });
   };
 
+  const setRefreshCount = (id: string): void => {
+    setRefreshCounts((prev) => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1
+    }));
+  };
+
   const showDefaultLayout = useMemo(
     () => isEmpty(dashboard.layout) && isEditing,
     [dashboard.layout, isEditing]
   );
 
-  const panels = showDefaultLayout ? emptyLayout : dashboard.layout;
+  const panels = showDefaultLayout
+    ? emptyLayout
+    : dashboard.layout.map(({ i, ...props }) => {
+        return {
+          i,
+          refreshCount: refreshCounts[i] || 0,
+          ...props
+        };
+      });
 
   return (
     <>
       <DashboardLayout.Layout
         changeLayout={changeLayout}
         displayGrid={isEditing}
-        isStatic={!isEditing}
+        isStatic={!isEditing || showDefaultLayout}
         layout={panels}
       >
-        {panels.map(({ i, panelConfiguration }) => {
-          return (
-            <DashboardLayout.Item
-              canMove={canEdit && isEditing}
-              disablePadding={panelConfiguration?.isAddWidgetPanel}
-              header={
-                !panelConfiguration?.isAddWidgetPanel ? (
-                  <PanelHeader id={i} />
-                ) : undefined
-              }
-              id={i}
-              key={i}
-            >
-              {panelConfiguration?.isAddWidgetPanel ? (
-                <AddWidgetPanel />
-              ) : (
-                <DashboardPanel id={i} />
-              )}
-            </DashboardLayout.Item>
-          );
-        })}
+        {panels.map(({ i, panelConfiguration, refreshCount }) => (
+          <DashboardLayout.Item
+            canMove={
+              canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
+            }
+            disablePadding={panelConfiguration?.isAddWidgetPanel}
+            header={
+              !panelConfiguration?.isAddWidgetPanel ? (
+                <PanelHeader id={i} setRefreshCount={setRefreshCount} />
+              ) : undefined
+            }
+            id={i}
+            key={i}
+          >
+            {panelConfiguration?.isAddWidgetPanel ? (
+              <AddWidgetPanel />
+            ) : (
+              <DashboardPanel id={i} refreshCount={refreshCount} />
+            )}
+          </DashboardLayout.Item>
+        ))}
       </DashboardLayout.Layout>
       <AddEditWidgetModal />
       <DeleteWidgetModal />
