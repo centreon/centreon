@@ -70,8 +70,9 @@ runs:
     #     publish-summary: false
 
     - name: Cypress end-to-end testing
-      run: |
-        pnpm run cypress:run --spec cypress/e2e/**/${{ inputs.feature_file_path }}
+      uses: cypress-io/github-action@v6
+      with:
+        command: pnpm run cypress:run --spec cypress/e2e/**/${{ inputs.feature_file_path }} 
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
