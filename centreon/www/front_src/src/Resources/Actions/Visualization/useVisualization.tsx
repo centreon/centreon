@@ -2,7 +2,7 @@ import { useSetAtom, useAtomValue, useAtom } from 'jotai';
 import { cond, equals, has } from 'ramda';
 
 import { selectedVisualizationAtom } from '../actionsAtoms';
-import { Visualization } from '../../models';
+import { ResourceListing, Visualization } from '../../models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
 import { CriteriaNames } from '../../Filter/Criterias/models';
 import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
@@ -89,7 +89,7 @@ const useVisualization = ({ type }: Props): State => {
 
   const initializeListingRows = (): void => {
     const emptyListingData = { ...listingData, result: [] };
-    setListingData(emptyListingData);
+    setListingData(emptyListingData as ResourceListing);
   };
 
   const selectVisualization = (): void => {
