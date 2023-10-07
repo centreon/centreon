@@ -11,7 +11,13 @@ interface SearchInputDataByField {
   fieldInformation: string;
 }
 
-const useSearchInputDataByField = ({ field }): SearchInputDataByField => {
+interface Params {
+  field: string;
+}
+
+const useSearchInputDataByField = ({
+  field
+}: Params): SearchInputDataByField => {
   const search = useAtomValue(searchAtom);
 
   const searchInputDataByField = useMemo((): {

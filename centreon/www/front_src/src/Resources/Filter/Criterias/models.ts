@@ -203,6 +203,7 @@ export interface CriteriaDisplayProps {
 export interface SearchedDataValue {
   id: string;
   value: string;
+  valueId: number;
 }
 
 export interface SearchData {

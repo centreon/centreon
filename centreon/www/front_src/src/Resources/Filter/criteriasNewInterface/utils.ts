@@ -1,17 +1,23 @@
 import { ResourceType } from '../../models';
-import { CriteriaNames } from '../Criterias/models';
+import {
+  Criteria,
+  CriteriaDisplayProps,
+  CriteriaNames
+} from '../Criterias/models';
 
 import {
   BasicCriteriaResourceType,
   CategoryFilter,
   ExtendedCriteriaResourceType,
+  FindData,
   MergeArraysByField,
+  ParametersRemoveDuplicate,
   SectionType,
   categoryHostStatus,
   categoryServiceStatus
 } from './model';
 
-const statusBySectionType = (sectionType) => {
+const statusBySectionType = (sectionType: SectionType | ResourceType) => {
   return sectionType === ResourceType.service
     ? Object.keys(categoryServiceStatus)
     : Object.keys(categoryHostStatus);
@@ -27,7 +33,7 @@ const callBackCheck = ({ id, dataToCheck }) =>
   dataToCheck.some((status) => status === id);
 
 interface HandleData {
-  data: Array<unknown>;
+  data: Array<Criteria & CriteriaDisplayProps>;
   fieldToUpdate: string;
   filter: CategoryFilter | SectionType;
 }
@@ -35,7 +41,7 @@ export const handleDataByCategoryFilter = ({
   data,
   fieldToUpdate,
   filter
-}: HandleData): Array<unknown> => {
+}: HandleData): Array<Criteria & CriteriaDisplayProps> => {
   const target =
     filter in CategoryFilter
       ? CriteriaNames.resourceTypes
@@ -73,8 +79,12 @@ export const mergeArraysByField = ({
   });
 };
 
-export const findData = ({ target, data, findBy = 'name' }): any =>
-  data?.find((item) => item?.[findBy] === target);
+export const findData = ({
+  filterName,
+  data,
+  findBy = 'name'
+}: FindData): (Criteria & CriteriaDisplayProps) | undefined =>
+  data?.find((item) => item[findBy] === filterName);
 
 export const findFieldInformationFromSearchInput = ({ search, field }) => {
   const fieldInformation = search
@@ -90,7 +100,7 @@ export const replaceValueFromSearchInput = ({
   search,
   targetField,
   newContent
-}) => {
+}): string => {
   const array = search.split(' ');
 
   const targetByIndex = array.findIndex((item) => item === targetField);
@@ -102,16 +112,19 @@ export const replaceValueFromSearchInput = ({
   return result.join(' ');
 };
 
-export const removeDuplicateFromObjectArray = ({ array, byFields }) => {
+export const removeDuplicateFromObjectArray = ({
+  array,
+  byFields
+}: ParametersRemoveDuplicate): Array<unknown> => {
   return [
     ...new Map(
       array.map((item) => {
         const key = byFields.reduce((accu, currentValue) => {
-          return `${item[accu].toString()}${item[currentValue].toString()}`;
+          return `${item[accu]?.toString()}${item[currentValue]?.toString()}`;
         });
 
         if (byFields.length <= 1) {
-          return [item[key].toString(), item];
+          return [item[key]?.toString(), item];
         }
 
         return [key, item];
@@ -120,7 +133,7 @@ export const removeDuplicateFromObjectArray = ({ array, byFields }) => {
   ];
 };
 
-export const sort = ({ array, sortBy, isNumeric = false }) => {
+export const sort = ({ array, sortBy, isNumeric = false }): Array<unknown> => {
   const callbackSorting = (a, b, sortBy) => {
     if (!isNumeric) {
       const firsTarget = a[sortBy].toUpperCase();

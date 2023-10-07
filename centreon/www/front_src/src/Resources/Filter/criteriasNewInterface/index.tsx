@@ -5,27 +5,34 @@ import { useSetAtom } from 'jotai';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
-import { useMemoComponent } from '@centreon/ui';
-
-import { Criteria, CriteriaById } from '../Criterias/models';
+import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 
-import { CheckBoxWrapper } from './CheckBoxWrapper';
+import MemoizedPoller from './MemoizedPoller';
+import MemoizedState from './MemoizedState';
 import BasicFilter from './basicFilter';
-import InputGroup from './basicFilter/InputGroup';
 import SectionWrapper from './basicFilter/sections';
 import ExtendedFilter from './extendedFilter';
-import { BasicCriteria, CategoryFilter, ExtendedCriteria } from './model';
-import useSearchWihSearchDataCriteria from './useSearchWithSearchDataCriteria';
 import {
-  findData,
-  handleDataByCategoryFilter,
-  mergeArraysByField
-} from './utils';
+  BasicCriteria,
+  BuildDataByCategoryFilter,
+  CategoryFilter,
+  ChangedCriteriaParams,
+  Data,
+  DataByCategoryFilter,
+  ExtendedCriteria
+} from './model';
+import useSearchWihSearchDataCriteria from './useSearchWithSearchDataCriteria';
+import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
 
 export { CheckboxGroup } from '@centreon/ui';
 
-const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
+interface Criterias {
+  actions: JSX.Element;
+  data: Data;
+}
+
+const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
   const [open, setOpen] = useState(false);
 
   const setCriteriaAndNewFilter = useSetAtom(
@@ -36,7 +43,11 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
 
   useSearchWihSearchDataCriteria({ selectableCriterias });
 
-  const changeCriteria = ({ updatedValue, filterName, searchData }): void => {
+  const changeCriteria = ({
+    updatedValue,
+    filterName,
+    searchData
+  }: ChangedCriteriaParams): void => {
     const parameters = {
       name: filterName,
       value: updatedValue
@@ -49,16 +60,16 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
 
   const controlFilterInterface = (event): void => setOpen(event.target.checked);
 
-  const getDataByCategoryFilter = ({
+  const buildDataByCategoryFilter = ({
     CriteriaType,
-    selectableCriteriass,
-    buildCriteriass
-  }): Array<(CriteriaById & Criteria) | Criteria> => {
-    const dataInteraction = selectableCriteriass.filter((item) =>
+    selectableCriteria,
+    buildedCriteria
+  }: BuildDataByCategoryFilter): Array<CriteriaDisplayProps & Criteria> => {
+    const dataInteraction = selectableCriteria.filter((item) =>
       Object.values(CriteriaType).includes(item.name)
     );
 
-    const dataOfBuild = Object.keys(buildCriteriass).map((item) => {
+    const dataOfBuild = Object.keys(buildedCriteria).map((item) => {
       if (!Object.values(CriteriaType).includes(item)) {
         return null;
       }
@@ -70,18 +81,22 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
       firstArray: dataInteraction,
       mergeBy: 'name',
       secondArray: dataOfBuild
-    });
+    }) as Array<CriteriaDisplayProps & Criteria>;
   };
 
-  const getData = (categoryFilter, select, build) => {
+  const getDataByCategoryFilter = ({
+    categoryFilter,
+    selectableCriteria,
+    buildedCriteria
+  }: DataByCategoryFilter): Array<Criteria & CriteriaDisplayProps> => {
     const criteriaType =
       categoryFilter === CategoryFilter.BasicFilter
         ? Object.values(BasicCriteria)
         : Object.values(ExtendedCriteria);
-    const dataByCategory = getDataByCategoryFilter({
+    const dataByCategory = buildDataByCategoryFilter({
       CriteriaType: criteriaType,
-      buildCriteriass: build,
-      selectableCriteriass: select
+      buildedCriteria,
+      selectableCriteria
     });
 
     return handleDataByCategoryFilter({
@@ -92,19 +107,19 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
   };
 
   const basicData = useMemo(() => {
-    return getData(
-      CategoryFilter.BasicFilter,
-      selectableCriterias,
-      buildCriterias
-    );
+    return getDataByCategoryFilter({
+      buildedCriteria: buildCriterias,
+      categoryFilter: CategoryFilter.BasicFilter,
+      selectableCriteria: selectableCriterias
+    });
   }, [selectableCriterias, buildCriterias]);
 
   const extendedData = useMemo(() => {
-    return getData(
-      CategoryFilter.ExtendedFilter,
-      selectableCriterias,
-      buildCriterias
-    );
+    return getDataByCategoryFilter({
+      buildedCriteria: buildCriterias,
+      categoryFilter: CategoryFilter.ExtendedFilter,
+      selectableCriteria: selectableCriterias
+    });
   }, [selectableCriterias, buildCriterias]);
 
   return (
@@ -124,7 +139,7 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
             />
           }
           state={
-            <MemoizedCheckBoxState
+            <MemoizedState
               basicData={basicData}
               changeCriteria={changeCriteria}
             />
@@ -148,37 +163,5 @@ const CriteriasNewInterface = ({ data, actions }): JSX.Element => {
     </>
   );
 };
-
-const MemoizedPoller = ({ basicData, changeCriteria }): JSX.Element => {
-  return useMemoComponent({
-    Component: (
-      <InputGroup
-        changeCriteria={changeCriteria}
-        data={basicData}
-        filterName={BasicCriteria.monitoringServers}
-        label="Poller"
-      />
-    ),
-    memoProps: [
-      findData({ data: basicData, target: BasicCriteria.monitoringServers })
-        ?.value
-    ]
-  });
-};
-
-const MemoizedCheckBoxState = ({ basicData, changeCriteria }): JSX.Element =>
-  useMemoComponent({
-    Component: (
-      <CheckBoxWrapper
-        changeCriteria={changeCriteria}
-        data={basicData}
-        filterName={BasicCriteria.states}
-        title="State"
-      />
-    ),
-    memoProps: [
-      findData({ data: basicData, target: BasicCriteria.states })?.value
-    ]
-  });
 
 export default CriteriasNewInterface;

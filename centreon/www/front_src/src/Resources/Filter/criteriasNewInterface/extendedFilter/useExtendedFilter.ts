@@ -1,18 +1,36 @@
 import { useEffect, useState } from 'react';
 
-import { findData, sort } from '../utils';
-import { ExtendedCriteria } from '../model';
+import { SelectEntry } from '@centreon/ui';
 
-const useExtendedFilter = ({ data }) => {
-  const [resourceTypes, setResourceTypes] = useState();
-  const [statusTypes, setStatusTypes] = useState();
-  const [inputGroupsData, setInputGroupsData] = useState();
+import { CriteriaDisplayProps, Criteria } from '../../Criterias/models';
+import { ExtendedCriteria } from '../model';
+import { findData, sort } from '../utils';
+
+interface Parameters {
+  data: Array<Criteria & CriteriaDisplayProps>;
+}
+
+interface UseExtendedFilter {
+  inputGroupsData?: Array<Criteria & CriteriaDisplayProps>;
+  resourceTypes?: Array<SelectEntry>;
+  statusTypes?: Array<Criteria & CriteriaDisplayProps>;
+}
+
+const useExtendedFilter = ({ data }: Parameters): UseExtendedFilter => {
+  const [resourceTypes, setResourceTypes] = useState<Array<SelectEntry>>();
+  const [statusTypes, setStatusTypes] =
+    useState<Array<Criteria & CriteriaDisplayProps>>();
+  const [inputGroupsData, setInputGroupsData] =
+    useState<Array<Criteria & CriteriaDisplayProps>>();
   useEffect(() => {
     if (!data) {
       return;
     }
 
-    const types = findData({ data, target: ExtendedCriteria.resourceTypes });
+    const types = findData({
+      data,
+      filterName: ExtendedCriteria.resourceTypes
+    });
     setResourceTypes(types?.options);
 
     const status = data?.filter(

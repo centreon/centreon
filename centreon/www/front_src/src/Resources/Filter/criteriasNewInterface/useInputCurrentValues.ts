@@ -1,7 +1,21 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
-const useInputCurrentValues = ({ data, content }) => {
-  const [value, setValue] = useState([]);
+interface Parameters {
+  content: unknown;
+  data: unknown;
+}
+
+interface UseInputCurrentValue {
+  setValue: Dispatch<SetStateAction<[] | unknown>>;
+  value: unknown | [];
+}
+
+const useInputCurrentValues = ({
+  data,
+  content
+}: Parameters): UseInputCurrentValue => {
+  const [value, setValue] = useState<unknown | []>([]);
+
   useEffect(() => {
     if (!data) {
       setValue([]);

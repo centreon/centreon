@@ -11,13 +11,11 @@ import { replaceValueFromSearchInput } from '../../utils';
 
 import useFilterSearchValue from './useFilterSearch';
 
-const FilterSearch = ({
-  field,
-  placeholder
-}: {
+interface Props {
   field: SearchableFields;
   placeholder?: string;
-}): JSX.Element => {
+}
+const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
   const [isDirty, setIsDirty] = useState(false);
   const [search, setSearch] = useAtom(searchAtom);
 
@@ -55,7 +53,7 @@ const FilterSearch = ({
     wait: 300
   });
 
-  const onChange = (e) => {
+  const onChange = (e): void => {
     setValue(e.target.value);
     setIsDirty(true);
 

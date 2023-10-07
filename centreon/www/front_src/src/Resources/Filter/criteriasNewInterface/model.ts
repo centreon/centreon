@@ -1,3 +1,5 @@
+import { SelectEntry } from '@centreon/ui';
+
 import { ResourceType } from '../../models';
 import {
   labelPending,
@@ -9,9 +11,14 @@ import {
   labelCritical,
   labelUnknown
 } from '../../translatedLabels';
-import { CriteriaNames } from '../Criterias/models';
+import {
+  Criteria,
+  CriteriaById,
+  CriteriaDisplayProps,
+  CriteriaNames,
+  SearchData
+} from '../Criterias/models';
 
-// todo add period time filter when it's implemented
 export enum BasicCriteria {
   hostGroups = CriteriaNames.hostGroups,
   resourceTypes = CriteriaNames.resourceTypes,
@@ -65,8 +72,60 @@ export enum SectionType {
   service = 'service'
 }
 
-export interface MergeArraysByField {
+export type MergeArraysByField = {
   firstArray: Array<Record<string, unknown>>;
   mergeBy: string;
   secondArray: Array<Record<string, unknown>>;
+};
+
+export interface DataFilter {
+  buildedCriteria: CriteriaDisplayProps;
+  selectableCriteria: Array<Criteria>;
+}
+export interface BuildDataByCategoryFilter {
+  CriteriaType: Array<BasicCriteria> | Array<ExtendedCriteria>;
+  buildedCriteria: CriteriaById;
+  selectableCriteria: Array<Criteria>;
+}
+
+export interface DataByCategoryFilter {
+  buildedCriteria: CriteriaById;
+  categoryFilter: CategoryFilter;
+  selectableCriteria: Array<Criteria>;
+}
+
+export interface Data {
+  newSelectableCriterias: CriteriaById;
+  selectableCriterias: Array<Criteria>;
+}
+
+export interface ChangedCriteriaParams {
+  filterName: string;
+  searchData?: SearchData;
+  updatedValue: unknown;
+}
+
+export interface MemoizedChild {
+  basicData: Array<Criteria & CriteriaDisplayProps>;
+  changeCriteria: (data: ChangedCriteriaParams) => void;
+}
+
+export interface MemoizedChildSectionWrapper extends MemoizedChild {
+  sectionType: SectionType;
+}
+
+export interface FindData {
+  data: Array<Criteria & CriteriaDisplayProps>;
+  filterName: string;
+  findBy?: string;
+}
+
+export interface ParametersRemoveDuplicate {
+  array: Array<Record<string, unknown>>;
+  byFields: Array<string>;
+}
+
+export interface SelectedResourceType extends SelectEntry {
+  checked: boolean;
+  resourceType: ResourceType | SectionType;
 }

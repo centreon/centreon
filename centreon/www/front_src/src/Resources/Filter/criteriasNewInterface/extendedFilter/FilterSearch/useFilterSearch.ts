@@ -1,6 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction, Dispatch } from 'react';
 
-const useFilterSearchValue = ({ isDirty, content, search }) => {
+interface Params {
+  content: string;
+  isDirty: boolean;
+  search: string;
+}
+interface UseFilterSearchValue {
+  setValue: Dispatch<SetStateAction<string>>;
+  value: string;
+}
+
+const useFilterSearchValue = ({
+  isDirty,
+  content,
+  search
+}: Params): UseFilterSearchValue => {
   const [value, setValue] = useState('');
 
   useEffect(() => {

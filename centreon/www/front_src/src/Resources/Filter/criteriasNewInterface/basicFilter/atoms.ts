@@ -1,6 +1,9 @@
 import { atomWithStorage } from 'jotai/utils';
 
-export const selectedStatusByResourceTypeAtom = atomWithStorage(
-  'FilterSelectedStatus',
-  null
-);
+import { SelectedResourceType } from '../model';
+
+export const selectedStatusByResourceTypeAtom =
+  atomWithStorage<Array<SelectedResourceType> | null>(
+    'FilterSelectedStatus',
+    null
+  );

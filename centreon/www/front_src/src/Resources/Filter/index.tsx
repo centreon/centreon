@@ -1,36 +1,36 @@
 import {
-  lazy,
-  useRef,
-  useState,
-  useEffect,
   KeyboardEvent,
+  RefObject,
   Suspense,
-  RefObject
+  lazy,
+  useEffect,
+  useRef,
+  useState
 } from 'react';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
-  isEmpty,
-  propEq,
-  pick,
-  find,
-  equals,
-  last,
-  inc,
-  length,
-  dec,
-  isNil,
-  not,
-  map,
-  difference,
-  pluck,
   concat,
-  pipe,
+  dec,
+  difference,
   dropLast,
+  equals,
+  find,
+  inc,
+  isEmpty,
+  isNil,
+  last,
+  length,
+  map,
+  not,
   or,
+  pick,
+  pipe,
+  pluck,
+  propEq,
   remove
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -44,37 +44,33 @@ import {
 } from '@mui/material';
 
 import {
+  IconButton,
+  LoadingSkeleton,
   MemoizedFilter,
   SearchField,
-  IconButton,
+  SelectEntry,
   getData,
-  useRequest,
-  LoadingSkeleton,
-  SelectEntry
+  useRequest
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
-  labelStateFilter,
-  labelSearch,
-  labelNewFilter,
-  labelMyFilters,
   labelClearFilter,
-  labelSearchBar
+  labelMyFilters,
+  labelNewFilter,
+  labelSearch,
+  labelSearchBar,
+  labelStateFilter
 } from '../translatedLabels';
 
-import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import {
-  standardFilterById,
-  unhandledProblemsFilter,
-  resourceProblemsFilter,
-  allFilter
-} from './models';
-import {
+  DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
-  getDynamicCriteriaParametersAndValue,
-  DynamicCriteriaParametersAndValues
+  getDynamicCriteriaParametersAndValue
 } from './Criterias/searchQueryLanguage';
+import FilterLoadingSkeleton from './FilterLoadingSkeleton';
+import SearchHelp from './SearchHelp';
+import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
@@ -85,11 +81,14 @@ import {
   sendingFilterAtom,
   setNewFilterDerivedAtom
 } from './filterAtoms';
-import useFilterByModule from './useFilterByModule';
-import SearchHelp from './SearchHelp';
+import {
+  allFilter,
+  resourceProblemsFilter,
+  standardFilterById,
+  unhandledProblemsFilter
+} from './models';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
-import CriteriasNewInterface from './criteriasNewInterface';
-import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
+import useFilterByModule from './useFilterByModule';
 
 const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();

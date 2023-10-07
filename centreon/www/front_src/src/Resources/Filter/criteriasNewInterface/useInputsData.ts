@@ -1,27 +1,55 @@
 import { useEffect, useState } from 'react';
 
+import {
+  Criteria,
+  CriteriaDisplayProps,
+  SearchedDataValue as SearchedDataValueModel
+} from '../Criterias/models';
+
+import { SectionType } from './model';
 import { findData } from './utils';
 
-const useInputData = ({ data, filterName, resourceType }) => {
-  const [target, setTarget] = useState();
-  const [valueSearchData, setValueSearchData] = useState();
+interface Parameters {
+  data: Array<Criteria & CriteriaDisplayProps>;
+  filterName: string;
+  resourceType?: SectionType;
+}
+
+type SearchedDataValue = SearchedDataValueModel | undefined | null;
+interface UseInputData {
+  dataByFilterName: (Criteria & CriteriaDisplayProps) | undefined;
+  valueSearchData?: SearchedDataValue;
+}
+
+const useInputData = ({
+  data,
+  filterName,
+  resourceType
+}: Parameters): UseInputData => {
+  const [dataByFilterName, setDataByFilterName] = useState<
+    undefined | (Criteria & CriteriaDisplayProps)
+  >();
+  const [valueSearchData, setValueSearchData] = useState<SearchedDataValue>();
 
   useEffect(() => {
     if (!data) {
       return;
     }
-    const item = findData({ data, target: filterName });
-    setTarget(item);
+    const item = findData({ data, filterName });
 
-    const currentValueSearchData = findData({
-      data: item?.searchData?.values,
-      findBy: 'id',
-      target: resourceType
-    });
-    setValueSearchData(currentValueSearchData);
+    setDataByFilterName(item);
+
+    if (!resourceType) {
+      return;
+    }
+    const currentValueSearchData = item?.searchData?.values.find(
+      (element) => element.id === resourceType
+    );
+
+    setValueSearchData(currentValueSearchData as SearchedDataValue);
   }, [data]);
 
-  return { target, valueSearchData };
+  return { dataByFilterName, valueSearchData };
 };
 
 export default useInputData;

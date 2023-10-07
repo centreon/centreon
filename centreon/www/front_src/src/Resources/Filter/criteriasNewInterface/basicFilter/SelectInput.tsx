@@ -1,20 +1,34 @@
-import { SingleConnectedAutocompleteField } from '@centreon/ui';
+import { SelectEntry, SingleConnectedAutocompleteField } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
+import {
+  Criteria,
+  CriteriaDisplayProps,
+  SearchData,
+  SearchedDataValue
+} from '../../Criterias/models';
+import { ChangedCriteriaParams, SectionType } from '../model';
 import useInputCurrentValues from '../useInputCurrentValues';
 import useInputData from '../useInputsData';
 import { findData, removeDuplicateFromObjectArray } from '../utils';
 
 import useSectionsData from './sections/useSections';
 
+interface Props {
+  changeCriteria: (data: ChangedCriteriaParams) => void;
+  data: Array<Criteria & CriteriaDisplayProps>;
+  filterName: string;
+  resourceType: SectionType;
+}
+
 const SelectInput = ({
   data,
   filterName,
   resourceType,
   changeCriteria
-}): JSX.Element => {
+}: Props): JSX.Element => {
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
-  const { target, valueSearchData } = useInputData({
+  const { dataByFilterName, valueSearchData } = useInputData({
     data: sectionData,
     filterName,
     resourceType
@@ -25,8 +39,8 @@ const SelectInput = ({
     data: valueSearchData
   });
 
-  const handleSearchData = (updatedValue) => {
-    const { values } = target?.searchData;
+  const handleSearchData = (updatedValue): SearchData | undefined => {
+    const { values = undefined } = dataByFilterName?.searchData;
     const currentValue = {
       id: resourceType,
       value: updatedValue.name,
@@ -34,32 +48,38 @@ const SelectInput = ({
     };
 
     const searchedValues = removeDuplicateFromObjectArray({
-      array: [...values, currentValue],
+      array: values ? [...values, currentValue] : [currentValue],
       byFields: ['id']
     });
 
-    return { ...target.searchData, values: searchedValues };
+    return {
+      ...dataByFilterName?.searchData,
+      values: searchedValues as Array<SearchedDataValue>
+    } as SearchData;
   };
 
-  const handleValues = () => {
+  const handleValues = (): Array<SelectEntry> | [] => {
     const selectedValue = {
       id: resourceType,
       name: findData({
-        data: target?.options,
-        findBy: 'id',
-        target: resourceType
+        data: dataByFilterName?.options,
+        filterName: resourceType,
+        findBy: 'id'
       })?.name
     };
 
     return removeDuplicateFromObjectArray({
-      array: [...target.value, selectedValue],
+      array: dataByFilterName?.value
+        ? [...dataByFilterName?.value, selectedValue]
+        : [selectedValue],
       byFields: ['id']
-    });
+    }) as Array<SelectEntry>;
   };
 
-  const handleChange = (updatedValue) => {
+  const handleChange = (updatedValue): void => {
     const searchData = handleSearchData(updatedValue);
     const selectedValues = handleValues();
+
     changeCriteria({
       filterName,
       searchData,
@@ -67,28 +87,31 @@ const SelectInput = ({
     });
   };
 
-  const initializeInput = () => {
-    const initializedSearchedData = target?.searchData?.values.filter(
+  const initializeInput = (): void => {
+    const initializedSearchedData = dataByFilterName?.searchData?.values.filter(
       (item) => item?.id !== resourceType
     );
 
-    const updatedValue = target?.value?.filter(
+    const updatedValue = dataByFilterName?.value?.filter(
       (item) => item?.id !== resourceType
     );
 
     setValue([]);
     changeCriteria({
       filterName,
-      searchData: { ...target?.searchData, values: initializedSearchedData },
+      searchData: {
+        ...dataByFilterName?.searchData,
+        values: initializedSearchedData
+      },
       updatedValue
     });
   };
 
-  const onInputChange = (event, value) => {
+  const onInputChange = (event, valueInput): void => {
     if (!event) {
       return;
     }
-    if (value) {
+    if (valueInput) {
       return;
     }
 
@@ -109,7 +132,7 @@ const SelectInput = ({
       field="name"
       getEndpoint={getEndpoint}
       label={resourceType}
-      placeholder={target?.label}
+      placeholder={dataByFilterName?.label}
       value={value}
       onChange={(_, updatedValue): void => handleChange(updatedValue)}
       onInputChange={onInputChange}

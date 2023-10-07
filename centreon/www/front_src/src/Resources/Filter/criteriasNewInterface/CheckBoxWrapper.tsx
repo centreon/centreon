@@ -1,14 +1,17 @@
 import { ReactNode } from 'react';
 
-import { CheckboxGroup } from '@centreon/ui';
+import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 
+import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
+
+import { ChangedCriteriaParams } from './model';
 import useInputData from './useInputsData';
 import { findData } from './utils';
 
 interface Props {
-  changeCriteria;
-  data;
-  filterName;
+  changeCriteria: (data: ChangedCriteriaParams) => void;
+  data: Array<Criteria & CriteriaDisplayProps>;
+  filterName: string;
   title?: ReactNode;
 }
 
@@ -18,26 +21,33 @@ export const CheckBoxWrapper = ({
   filterName,
   changeCriteria
 }: Props): JSX.Element => {
-  const { target } = useInputData({
+  const { dataByFilterName } = useInputData({
     data,
     filterName
   });
 
-  const transformData = (input: array<{ id: string; name: string }>): any =>
+  const transformData = (input: Array<SelectEntry>): Array<string> =>
     input?.map((item) => item?.name);
 
-  const handleChangeStatus = (event) => {
-    const item = findData({ data: target?.options, target: event.target.id });
+  const handleChangeStatus = (event): void => {
+    const item = findData({
+      data: dataByFilterName?.options,
+      filterName: event.target.id
+    });
 
     if (event.target.checked) {
       changeCriteria({
         filterName,
-        updatedValue: [...target?.value, item]
+        updatedValue: dataByFilterName?.value
+          ? [...dataByFilterName?.value, item]
+          : [item]
       });
 
       return;
     }
-    const result = target?.value?.filter((v) => v.name !== event.target.id);
+    const result = dataByFilterName?.value?.filter(
+      (v) => v.name !== event.target.id
+    );
     changeCriteria({
       filterName,
       updatedValue: result
@@ -47,11 +57,12 @@ export const CheckBoxWrapper = ({
   return (
     <div>
       {title}
-      {target?.options && (
+
+      {dataByFilterName?.options && (
         <CheckboxGroup
           direction="horizontal"
-          options={transformData(target?.options)}
-          values={transformData(target?.value) ?? []}
+          options={transformData(dataByFilterName?.options) || []}
+          values={transformData(dataByFilterName?.value) || []}
           onChange={(event) => handleChangeStatus(event)}
         />
       )}

@@ -6,17 +6,24 @@ import { isEmpty, isNil, not, pipe } from 'ramda';
 import { getFoundFields } from '@centreon/ui';
 
 import { searchAtom } from '../filterAtoms';
+import { Criteria } from '../Criterias/models';
 
-const useSearchWihSearchDataCriteria = ({ selectableCriterias }) => {
+interface Parameters {
+  selectableCriterias: Array<Criteria>;
+}
+
+interface UpdatedSearchInput {
+  updatedSearch: string;
+}
+
+const useSearchWihSearchDataCriteria = ({
+  selectableCriterias
+}: Parameters): void => {
   const [search, setSearch] = useAtom(searchAtom);
 
   const getBuiltCustomSearchedFields = useMemo(() => {
-    if (!selectableCriterias) {
-      return null;
-    }
-
     return selectableCriterias
-      ?.filter(pipe(({ searchData }) => searchData, isNil, not))
+      .filter(pipe(({ searchData }) => searchData, isNil, not))
       .map(({ searchData }) => {
         const formattedCustomSearchedFields = searchData?.values?.map(
           ({ value }) => value
@@ -29,8 +36,8 @@ const useSearchWihSearchDataCriteria = ({ selectableCriterias }) => {
       });
   }, [selectableCriterias]);
 
-  const updatedSearchInput = useMemo(() => {
-    return getBuiltCustomSearchedFields?.reduce(
+  const updatedSearchInput = useMemo((): UpdatedSearchInput | string => {
+    return getBuiltCustomSearchedFields.reduce(
       (accumulator, currentValue) => {
         const { content } = currentValue;
         const { field } = currentValue;
