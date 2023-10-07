@@ -88,7 +88,7 @@ const AlignPicker = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button disabled={disabled}>
+      <Menu.Button ariaLabel={elementFormat} disabled={disabled}>
         {selectedFormat && (
           <div className={classes.button}>
             <selectedFormat.Icon /> {selectedFormat.label}
