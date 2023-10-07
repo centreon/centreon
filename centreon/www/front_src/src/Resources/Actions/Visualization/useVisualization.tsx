@@ -1,11 +1,11 @@
-import { useSetAtom, useAtomValue } from 'jotai';
+import { useSetAtom, useAtomValue, useAtom } from 'jotai';
 import { cond, equals, has } from 'ramda';
 
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { Visualization } from '../../models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
 import { CriteriaNames } from '../../Filter/Criterias/models';
-import { selectedColumnIdsAtom } from '../../Listing/listingAtoms';
+import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
@@ -22,6 +22,7 @@ interface State {
 }
 
 const useVisualization = ({ type }: Props): State => {
+  const [listingData, setListingData] = useAtom(listingAtom);
   const platform = useAtomValue(platformVersionsAtom);
   const setVisualization = useSetAtom(selectedVisualizationAtom);
   const setCriteriaAndNewFilter = useSetAtom(
@@ -86,7 +87,13 @@ const useVisualization = ({ type }: Props): State => {
     });
   };
 
+  const initializeListingRows = (): void => {
+    const emptyListingData = { ...listingData, result: [] };
+    setListingData(emptyListingData);
+  };
+
   const selectVisualization = (): void => {
+    initializeListingRows();
     setVisualization(type);
     resetColumnsConfiguration();
     updateSearchAndSortValues();
