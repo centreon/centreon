@@ -59,10 +59,10 @@ const Item = forwardRef(
     return useMemoComponent({
       Component: (
         <div
+          {...cardContainerListeners}
           className={className}
           ref={ref}
-          style={style}
-          {...cardContainerListeners}
+          style={{ ...style, width: `calc(${style?.width || '0px'} - 12px)` }}
         >
           <Card className={classes.widgetContainer}>
             {header && (
