@@ -1,10 +1,11 @@
 import { lazy, Suspense } from 'react';
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { animated, useTransition } from '@react-spring/web';
 
-import { styled } from '@mui/material';
+import { styled, useTheme } from '@mui/material';
 
 import { PageSkeleton, useMemoComponent } from '@centreon/ui';
 
@@ -74,17 +75,19 @@ interface Props {
   allowedPages?: Array<string | Array<string>>;
   externalPagesFetched: boolean;
   federatedModules: Array<FederatedModule>;
+  pathname: string;
 }
 
 const ReactRouterContent = ({
   federatedModules,
   externalPagesFetched,
-  allowedPages
+  allowedPages,
+  pathname
 }: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
-        <Routes>
+        <Routes location={pathname}>
           {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
             const isLogoutPage = path === routeMap.logout;
             const isAllowed =
@@ -117,23 +120,49 @@ const ReactRouterContent = ({
         </Routes>
       </Suspense>
     ),
-    memoProps: [externalPagesFetched, federatedModules, allowedPages]
+    memoProps: [externalPagesFetched, federatedModules, allowedPages, pathname]
   });
 };
 
 const ReactRouter = (): JSX.Element => {
   const federatedModules = useAtomValue(federatedModulesAtom);
   const { allowedPages } = useNavigation();
+  const { pathname } = useLocation();
+  const theme = useTheme();
+
+  const transitions = useTransition(pathname, {
+    config: {
+      duration: theme.transitions.duration.shortest
+    },
+    enter: {
+      height: '100%',
+      opacity: '1',
+      width: '100%'
+    },
+    from: {
+      height: '100%',
+      opacity: '0',
+      width: '100%'
+    },
+    leave: {
+      height: '100%',
+      opacity: '0',
+      width: '100%'
+    }
+  });
 
   const externalPagesFetched = not(isNil(federatedModules));
 
-  return (
-    <ReactRouterContent
-      allowedPages={allowedPages}
-      externalPagesFetched={externalPagesFetched}
-      federatedModules={federatedModules as Array<FederatedModule>}
-    />
-  );
+  return transitions((style, item) => (
+    <animated.div style={style}>
+      <ReactRouterContent
+        allowedPages={allowedPages}
+        externalPagesFetched={externalPagesFetched}
+        federatedModules={federatedModules as Array<FederatedModule>}
+        pathname={item}
+      />
+    </animated.div>
+  ));
 };
 
 export default ReactRouter;

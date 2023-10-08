@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useRef } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
@@ -6,6 +6,7 @@ import { Box } from '@mui/material';
 
 import { useMemoComponent } from '../utils';
 import WithPanel from '../Panel/WithPanel';
+import { ParentSize } from '..';
 
 import FilterSkeleton from './FilterSkeleton';
 import ListingSkeleton from './ListingSkeleton';
@@ -54,29 +55,7 @@ const ListingPage = ({
   memoListingProps = []
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
-  const [listingHeight, setListingHeight] = useState(0);
-  const listingRef = useRef<HTMLDivElement | null>(null);
   const filtersRef = useRef<HTMLDivElement | null>(null);
-
-  const resize = (): void => {
-    setListingHeight(window.innerHeight);
-  };
-
-  useEffect(() => {
-    window.addEventListener('resize', resize);
-
-    setListingHeight(window.innerHeight);
-
-    return () => {
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
-  const listingContainerHeight =
-    listingHeight -
-    (filtersRef.current?.getBoundingClientRect().height || 0) -
-    (filtersRef.current?.getBoundingClientRect().top || 0) -
-    listingScrollOffset;
 
   const memoListingComponent = useMemoComponent({
     Component: listing,
@@ -90,18 +69,21 @@ const ListingPage = ({
       </div>
 
       <WithPanel fixed={panelFixed} open={panelOpen} panel={panel}>
-        <Box
-          className={classes.listing}
-          ref={listingRef}
-          sx={{
-            ...(fullHeight && { height: '100%' }),
-            maxHeight: listingContainerHeight
-          }}
-        >
-          <Suspense fallback={<ListingSkeleton />}>
-            {memoListingComponent}
-          </Suspense>
-        </Box>
+        <ParentSize>
+          {({ height }) => (
+            <Box
+              className={classes.listing}
+              sx={{
+                height: `calc(${height}px - ${listingScrollOffset}px)`,
+                ...(fullHeight && { height: '100%' })
+              }}
+            >
+              <Suspense fallback={<ListingSkeleton />}>
+                {memoListingComponent}
+              </Suspense>
+            </Box>
+          )}
+        </ParentSize>
       </WithPanel>
     </div>
   );
