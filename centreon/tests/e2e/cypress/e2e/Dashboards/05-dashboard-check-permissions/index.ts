@@ -212,7 +212,6 @@ Then(
       'contain.text',
       `created by ${adminUser.login}`
     );
-    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('admin admin').should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
