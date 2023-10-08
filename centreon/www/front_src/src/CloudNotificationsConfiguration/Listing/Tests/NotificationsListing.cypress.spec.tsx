@@ -40,17 +40,19 @@ const store = createStore();
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <Provider store={store}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <>
-            <Listing />
-            <DeleteConfirmationDialog />
-            <DuplicationForm />
-          </>
-        </SnackbarProvider>
-      </TestQueryProvider>
-    </Provider>
+    <div style={{ height: '100vh' }}>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <>
+              <Listing />
+              <DeleteConfirmationDialog />
+              <DuplicationForm />
+            </>
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
+    </div>
   );
 };
 

@@ -46,7 +46,11 @@ const ListingTest = (): JSX.Element => {
   useFilter();
   useDetails();
 
-  return <Listing />;
+  return (
+    <div style={{ height: '100vh' }}>
+      <Listing />
+    </div>
+  );
 };
 
 const store = createStore();
