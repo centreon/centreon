@@ -4,36 +4,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { equals, isNil, replace } from 'ramda';
 import { useTransition, animated } from '@react-spring/web';
 
-import { useTheme } from '@mui/material';
-
 import { PageSkeleton } from '@centreon/ui';
+
+import { pageTransitionConfig } from '../../components/ReactRouter';
 
 const LegacyRoute = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const theme = useTheme();
 
-  const transitions = useTransition(location, {
-    config: {
-      duration: theme.transitions.duration.shortest
-    },
-    enter: {
-      height: '100%',
-      opacity: '1',
-      width: '100%'
-    },
-    from: {
-      height: '100%',
-      opacity: '0',
-      width: '100%'
-    },
-    leave: {
-      height: '100%',
-      opacity: '0',
-      width: '100%'
-    }
-  });
+  const transitions = useTransition(location, pageTransitionConfig);
 
   const handleHref = (event): void => {
     const { href } = event.detail;

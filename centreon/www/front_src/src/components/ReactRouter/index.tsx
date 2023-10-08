@@ -5,7 +5,7 @@ import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { animated, useTransition } from '@react-spring/web';
 
-import { styled, useTheme } from '@mui/material';
+import { styled } from '@mui/material';
 
 import { PageSkeleton, useMemoComponent } from '@centreon/ui';
 
@@ -26,6 +26,27 @@ const PageContainer = styled('div')(() => ({
   height: '100%',
   overflow: 'auto'
 }));
+
+export const pageTransitionConfig = {
+  config: {
+    duration: 150
+  },
+  enter: {
+    height: '100%',
+    opacity: '1',
+    width: '100%'
+  },
+  from: {
+    height: '100%',
+    opacity: '0',
+    width: '100%'
+  },
+  leave: {
+    height: '100%',
+    opacity: '0',
+    width: '100%'
+  }
+};
 
 interface IsAllowedPageProps {
   allowedPages?: Array<string | Array<string>>;
@@ -128,28 +149,8 @@ const ReactRouter = (): JSX.Element => {
   const federatedModules = useAtomValue(federatedModulesAtom);
   const { allowedPages } = useNavigation();
   const { pathname } = useLocation();
-  const theme = useTheme();
 
-  const transitions = useTransition(pathname, {
-    config: {
-      duration: theme.transitions.duration.shortest
-    },
-    enter: {
-      height: '100%',
-      opacity: '1',
-      width: '100%'
-    },
-    from: {
-      height: '100%',
-      opacity: '0',
-      width: '100%'
-    },
-    leave: {
-      height: '100%',
-      opacity: '0',
-      width: '100%'
-    }
-  });
+  const transitions = useTransition(pathname, pageTransitionConfig);
 
   const externalPagesFetched = not(isNil(federatedModules));
 
