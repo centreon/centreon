@@ -254,7 +254,7 @@ const DetailsPanelWithTabs = (): JSX.Element => (
   />
 );
 
-const Template = (args: ListingPageProps) => {
+const Template = (args: ListingPageProps): JSX.Element => {
   const { classes } = useStyles();
 
   return (
