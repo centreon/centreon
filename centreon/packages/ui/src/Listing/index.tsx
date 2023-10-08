@@ -459,7 +459,7 @@ const Listing = <TRow extends { id: RowId }>({
   );
 
   return (
-    <>
+    <div className={classes.listingContainer}>
       {loading && rows.length > 0 && (
         <LinearProgress className={classes.loadingIndicator} />
       )}
@@ -507,7 +507,7 @@ const Listing = <TRow extends { id: RowId }>({
               className={classes.tableWrapper}
               component="div"
               style={{
-                height: innerScrollDisabled ? '100%' : height
+                height: innerScrollDisabled ? '100%' : `calc(${height}px - 4px)`
               }}
             >
               <Table
@@ -640,7 +640,7 @@ const Listing = <TRow extends { id: RowId }>({
           )}
         </ParentSize>
       </div>
-    </>
+    </div>
   );
 };
 
