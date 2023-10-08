@@ -28,7 +28,7 @@ const CheckBoxSection = ({
   filterName,
   changeCriteria,
   resourceType
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
   const [selectedStatusByResourceType, setSelectedStatusByResourceType] =
     useAtom(selectedStatusByResourceTypeAtom);
 
@@ -47,6 +47,10 @@ const CheckBoxSection = ({
     selectedStatusByResourceType,
     setSelectedStatusByResourceType
   });
+
+  if (!dataByFilterName) {
+    return null;
+  }
 
   const transformData = (
     input: Array<SelectEntry>

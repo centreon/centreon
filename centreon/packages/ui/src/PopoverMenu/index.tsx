@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
@@ -52,7 +52,6 @@ const PopoverMenu = ({
   const theme = useTheme();
   const { classes, cx } = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
-
   const isOpen = Boolean(anchorEl);
 
   const close = (reason?): void => {

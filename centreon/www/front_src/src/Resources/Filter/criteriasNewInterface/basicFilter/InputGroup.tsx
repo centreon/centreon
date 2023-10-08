@@ -29,7 +29,7 @@ const InputGroup = ({
   changeCriteria,
   label,
   resourceType
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
 
   const { dataByFilterName } = useInputData({
@@ -41,6 +41,10 @@ const InputGroup = ({
     content: dataByFilterName?.value,
     data: dataByFilterName?.value
   });
+
+  if (!dataByFilterName) {
+    return null;
+  }
 
   const currentLabel = label || dataByFilterName?.label || '';
 

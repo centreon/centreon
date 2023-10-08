@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { useSetAtom } from 'jotai';
+
 import {
   Criteria,
   CriteriaDisplayProps,
@@ -8,6 +10,7 @@ import {
 
 import { SectionType } from './model';
 import { findData } from './utils';
+import { displayActionsAtom } from './basicFilter/atoms';
 
 interface Parameters {
   data: Array<Criteria & CriteriaDisplayProps>;
@@ -31,6 +34,8 @@ const useInputData = ({
   >();
   const [valueSearchData, setValueSearchData] = useState<SearchedDataValue>();
 
+  const setDisplayActions = useSetAtom(displayActionsAtom);
+
   useEffect(() => {
     if (!data) {
       return;
@@ -48,6 +53,14 @@ const useInputData = ({
 
     setValueSearchData(currentValueSearchData as SearchedDataValue);
   }, [data]);
+
+  useEffect(() => {
+    if (!dataByFilterName) {
+      return;
+    }
+
+    setDisplayActions(true);
+  }, [dataByFilterName]);
 
   return { dataByFilterName, valueSearchData };
 };

@@ -20,14 +20,19 @@ export const CheckBoxWrapper = ({
   data,
   filterName,
   changeCriteria
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
   const { dataByFilterName } = useInputData({
     data,
     filterName
   });
 
-  const transformData = (input: Array<SelectEntry>): Array<string> =>
-    input?.map((item) => item?.name);
+  if (!dataByFilterName) {
+    return null;
+  }
+
+  const transformData = (input: Array<SelectEntry>): Array<string> => {
+    return input?.map((item) => item?.name);
+  };
 
   const handleChangeStatus = (event): void => {
     const item = findData({
@@ -57,15 +62,12 @@ export const CheckBoxWrapper = ({
   return (
     <div>
       {title}
-
-      {dataByFilterName?.options && (
-        <CheckboxGroup
-          direction="horizontal"
-          options={transformData(dataByFilterName?.options) || []}
-          values={transformData(dataByFilterName?.value) || []}
-          onChange={(event) => handleChangeStatus(event)}
-        />
-      )}
+      <CheckboxGroup
+        direction="horizontal"
+        options={transformData(dataByFilterName.options)}
+        values={transformData(dataByFilterName.value)}
+        onChange={(event) => handleChangeStatus(event)}
+      />
     </div>
   );
 };

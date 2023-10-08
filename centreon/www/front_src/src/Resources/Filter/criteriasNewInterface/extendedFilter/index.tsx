@@ -1,3 +1,5 @@
+import { forwardRef } from 'react';
+
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
 import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
@@ -13,41 +15,43 @@ interface Props {
   data: Array<Criteria & CriteriaDisplayProps>;
 }
 
-const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
-  const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
-    data
-  });
+const ExtendedFilter = forwardRef(
+  ({ data, changeCriteria }, ref): JSX.Element => {
+    const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
+      data
+    });
 
-  return (
-    <div style={{ minWidth: 400 }}>
-      {inputGroupsData?.map((item) => (
-        <MemoizedInputGroup
-          changeCriteria={changeCriteria}
-          data={data}
-          filterName={item.name}
-          key={item.name}
-        />
-      ))}
-      {resourceTypes?.map((item) => (
-        <MemoizedSelectInput
-          changeCriteria={changeCriteria}
-          data={data}
-          filterName={ExtendedCriteria.resourceTypes}
-          key={item.name}
-          resourceType={item.id}
-        />
-      ))}
+    return (
+      <div ref={ref}>
+        {inputGroupsData?.map((item) => (
+          <MemoizedInputGroup
+            changeCriteria={changeCriteria}
+            data={data}
+            filterName={item.name}
+            key={item.name}
+          />
+        ))}
+        {resourceTypes?.map((item) => (
+          <MemoizedSelectInput
+            changeCriteria={changeCriteria}
+            data={data}
+            filterName={ExtendedCriteria.resourceTypes}
+            key={item.name}
+            resourceType={item.id}
+          />
+        ))}
 
-      <FilterSearch
-        field={SearchableFields.information}
-        placeholder="Information"
-      />
-      <MemoizedCheckBoxWrapper
-        changeCriteria={changeCriteria}
-        data={statusTypes}
-      />
-    </div>
-  );
-};
+        <FilterSearch
+          field={SearchableFields.information}
+          placeholder="Information"
+        />
+        <MemoizedCheckBoxWrapper
+          changeCriteria={changeCriteria}
+          data={statusTypes}
+        />
+      </div>
+    );
+  }
+);
 
 export default ExtendedFilter;

@@ -16,7 +16,10 @@ import useActionFilter from '../Save/useActionFilter';
 import CriteriasNewInterface from '../criteriasNewInterface';
 import Actions from '../criteriasNewInterface/actions';
 import Save from '../criteriasNewInterface/actions/Save';
-import { selectedStatusByResourceTypeAtom } from '../criteriasNewInterface/basicFilter/atoms';
+import {
+  displayActionsAtom,
+  selectedStatusByResourceTypeAtom
+} from '../criteriasNewInterface/basicFilter/atoms';
 import {
   applyCurrentFilterDerivedAtom,
   clearFilterDerivedAtom,
@@ -33,8 +36,13 @@ import {
 } from './models';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
-const useStyles = makeStyles()((theme) => ({
+interface Styles {
+  display: boolean;
+}
+
+const useStyles = makeStyles<Styles>()((theme, { display }) => ({
   container: {
+    display: !display ? 'none' : 'flex',
     padding: theme.spacing(2)
   },
   searchButton: {
@@ -42,8 +50,12 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const CriteriasContent = (): JSX.Element => {
-  const { classes } = useStyles();
+interface Props {
+  display?: boolean;
+}
+
+const CriteriasContent = ({ display = false }: Props): JSX.Element => {
+  const { classes } = useStyles({ display });
   const { t } = useTranslation();
   const [isCreateFilter, setIsCreateFilter] = useState(false);
   const [isUpdateFilter, setIsUpdateFilter] = useState(false);
@@ -60,6 +72,8 @@ const CriteriasContent = (): JSX.Element => {
   const filterByInstalledModulesWithParsedSearch = useAtomValue(
     filterByInstalledModulesWithParsedSearchDerivedAtom
   );
+
+  const setDisplayActions = useSetAtom(displayActionsAtom);
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({
@@ -99,8 +113,12 @@ const CriteriasContent = (): JSX.Element => {
     setIsUpdateFilter(boolean);
   };
 
-  const getPopoverData = (data): void => {
+  const getPopoverData = (data: PopoverData): void => {
+    const { anchorEl } = data;
     setPopoverData(data);
+    if (!anchorEl) {
+      setDisplayActions(false);
+    }
   };
 
   return (
@@ -159,6 +177,7 @@ const Criterias = (): JSX.Element => {
   const filterWithParsedSearch = useAtomValue(
     filterWithParsedSearchDerivedAtom
   );
+  const display = useAtomValue(displayActionsAtom);
   // const filters = useAtomValue(filtersDerivedAtom);
   // const currentFilter = useAtomValue(currentFilterAtom);
 
@@ -167,7 +186,7 @@ const Criterias = (): JSX.Element => {
   //   memoProps: [filterWithParsedSearch]
   // });
 
-  return <CriteriasContent />;
+  return <CriteriasContent display={display} />;
 };
 
 export default Criterias;

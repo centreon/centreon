@@ -1,4 +1,5 @@
 import { atomWithStorage } from 'jotai/utils';
+import { atom } from 'jotai';
 
 import { SelectedResourceType } from '../model';
 
@@ -7,3 +8,5 @@ export const selectedStatusByResourceTypeAtom =
     'FilterSelectedStatus',
     null
   );
+
+export const displayActionsAtom = atom(false);

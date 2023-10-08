@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { TransitionGroup } from 'react-transition-group';
 
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import Slide from '@mui/material/Slide';
 
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
@@ -11,6 +13,7 @@ import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 import MemoizedPoller from './MemoizedPoller';
 import MemoizedState from './MemoizedState';
 import BasicFilter from './basicFilter';
+import { displayActionsAtom } from './basicFilter/atoms';
 import SectionWrapper from './basicFilter/sections';
 import ExtendedFilter from './extendedFilter';
 import {
@@ -33,7 +36,10 @@ interface Criterias {
 }
 
 const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
+  const containerRef = useRef(null);
   const [open, setOpen] = useState(false);
+
+  const displayActions = useAtomValue(displayActionsAtom);
 
   const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom
@@ -124,7 +130,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
+      <div ref={containerRef} style={{ display: 'flex', flexDirection: 'row' }}>
         <BasicFilter
           poller={
             <MemoizedPoller
@@ -145,21 +151,32 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
             />
           }
         />
+
         {open && (
-          <ExtendedFilter changeCriteria={changeCriteria} data={extendedData} />
+          <Slide direction="right" in={open}>
+            <ExtendedFilter
+              changeCriteria={changeCriteria}
+              data={extendedData}
+            />
+          </Slide>
         )}
       </div>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={open}
-            inputProps={{ 'aria-label': 'controlled' }}
-            onChange={controlFilterInterface}
+
+      {displayActions && (
+        <>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={open}
+                inputProps={{ 'aria-label': 'controlled' }}
+                onChange={controlFilterInterface}
+              />
+            }
+            label="Advanced mode"
           />
-        }
-        label="Advanced mode"
-      />
-      {actions}
+          {actions}
+        </>
+      )}
     </>
   );
 };

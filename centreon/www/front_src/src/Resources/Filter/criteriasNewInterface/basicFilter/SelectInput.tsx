@@ -26,7 +26,7 @@ const SelectInput = ({
   filterName,
   resourceType,
   changeCriteria
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { dataByFilterName, valueSearchData } = useInputData({
     data: sectionData,
@@ -38,6 +38,10 @@ const SelectInput = ({
     content: { id: valueSearchData?.valueId, name: valueSearchData?.value },
     data: valueSearchData
   });
+
+  if (!dataByFilterName) {
+    return null;
+  }
 
   const handleSearchData = (updatedValue): SearchData | undefined => {
     const { values = undefined } = dataByFilterName?.searchData;
@@ -132,7 +136,7 @@ const SelectInput = ({
       field="name"
       getEndpoint={getEndpoint}
       label={resourceType}
-      placeholder={dataByFilterName?.label}
+      placeholder={dataByFilterName.label}
       value={value}
       onChange={(_, updatedValue): void => handleChange(updatedValue)}
       onInputChange={onInputChange}
