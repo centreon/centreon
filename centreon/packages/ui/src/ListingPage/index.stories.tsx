@@ -14,7 +14,7 @@ import Panel from '../Panel';
 
 import Filter from './Filter';
 
-import ListingPage from '.';
+import ListingPage, { ListingPageProps } from '.';
 
 export default { title: 'Listing Page' };
 
@@ -58,6 +58,9 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridGap: theme.spacing(2),
     gridTemplateColumns: 'auto auto 1fr'
+  },
+  page: {
+    height: '100vh'
   },
   title: {
     alignItems: 'center',
@@ -251,8 +254,18 @@ const DetailsPanelWithTabs = (): JSX.Element => (
   />
 );
 
+const Template = (args: ListingPageProps) => {
+  const { classes } = useStyles();
+
+  return (
+    <div className={classes.page}>
+      <ListingPage {...args} />
+    </div>
+  );
+};
+
 export const normal = (): JSX.Element => (
-  <ListingPage
+  <Template
     filter={<FilterWithContent />}
     listing={listing}
     panelOpen={false}
@@ -260,7 +273,7 @@ export const normal = (): JSX.Element => (
 );
 
 export const withOpenPanel = (): JSX.Element => (
-  <ListingPage
+  <Template
     panelOpen
     filter={<FilterWithContent />}
     listing={listing}
@@ -269,7 +282,7 @@ export const withOpenPanel = (): JSX.Element => (
 );
 
 export const withOpenPanelAndTabs = (): JSX.Element => (
-  <ListingPage
+  <Template
     panelOpen
     filter={<FilterWithContent />}
     listing={listing}
@@ -278,7 +291,7 @@ export const withOpenPanelAndTabs = (): JSX.Element => (
 );
 
 export const withFilterDetailsAndOpenPanel = (): JSX.Element => (
-  <ListingPage
+  <Template
     panelOpen
     filter={<FilterWithContent />}
     listing={listing}
@@ -290,7 +303,7 @@ export const withFixedPanel = (): JSX.Element => {
   const [open, setOpen] = useState(true);
 
   return (
-    <ListingPage
+    <Template
       panelFixed
       filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
       listing={listing}
@@ -304,7 +317,7 @@ export const withResponsivePaginationTable = (): JSX.Element => {
   const [open, setOpen] = useState(true);
 
   return (
-    <ListingPage
+    <Template
       filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
       listing={
         <Listing
@@ -326,7 +339,7 @@ export const withResponsivePaginationTable = (): JSX.Element => {
 };
 
 export const withALongContent = (): JSX.Element => (
-  <ListingPage
+  <Template
     filter={<FilterWithContent />}
     listing={
       <div>

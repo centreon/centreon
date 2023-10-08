@@ -41,7 +41,6 @@ import ListingActionBar from './ActionBar';
 import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
-import getCumulativeOffset from './getCumulativeOffset';
 import {
   Column,
   ColumnConfiguration,
@@ -52,9 +51,8 @@ import {
 } from './models';
 import ListingRow from './Row/Row';
 import { labelNoResultFound } from './translatedLabels';
-import useResizeObserver from './useResizeObserver';
 import useStyleTable from './useStyleTable';
-import { loadingIndicatorHeight, useListingStyles } from './Listing.styles';
+import { useListingStyles } from './Listing.styles';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import { ListingHeader } from './Header';
@@ -195,7 +193,6 @@ const Listing = <TRow extends { id: RowId }>({
 
   const { t } = useTranslation();
 
-  const [tableTopOffset, setTableTopOffset] = React.useState(0);
   const [hoveredRowId, setHoveredRowId] = React.useState<RowId | null>(null);
   const [shiftKeyDownRowPivot, setShiftKeyDownRowPivot] = React.useState<
     number | null
@@ -229,19 +226,12 @@ const Listing = <TRow extends { id: RowId }>({
     [rows, subItemsPivots, subItems]
   );
 
-  const { classes, theme } = useListingStyles({
+  const { classes } = useListingStyles({
     dataStyle,
     getGridTemplateColumn,
     limit,
     listingVariant,
     rows: rowsToDisplay
-  });
-
-  useResizeObserver({
-    onResize: () => {
-      setTableTopOffset(getCumulativeOffset(containerRef.current));
-    },
-    ref: containerRef
   });
 
   const { isShiftKeyDown } = useKeyObserver();
@@ -435,18 +425,6 @@ const Listing = <TRow extends { id: RowId }>({
 
   const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
 
-  const tableMaxHeight = (): string => {
-    if (innerScrollDisabled) {
-      return '100%';
-    }
-
-    return `calc(100vh - ${tableTopOffset}px - ${
-      actionBarRef.current?.offsetHeight
-    }px - ${
-      dataStyle.header.height
-    }px - ${loadingIndicatorHeight}px - ${theme.spacing(1)})`;
-  };
-
   const changeLimit = (updatedLimit: string): void => {
     onLimitChange?.(Number(updatedLimit));
   };
@@ -529,7 +507,7 @@ const Listing = <TRow extends { id: RowId }>({
               className={classes.tableWrapper}
               component="div"
               style={{
-                height
+                height: innerScrollDisabled ? '100%' : height
               }}
             >
               <Table

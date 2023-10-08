@@ -31,7 +31,7 @@ const useStyles = makeStyles()((theme) => {
   };
 });
 
-interface Props {
+export interface ListingPageProps {
   filter: JSX.Element;
   fullHeight?: boolean;
   listing: JSX.Element;
@@ -53,7 +53,7 @@ const ListingPage = ({
   listingScrollOffset = 16,
   fullHeight = false,
   memoListingProps = []
-}: Props): JSX.Element => {
+}: ListingPageProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const filtersRef = useRef<HTMLDivElement | null>(null);
 
