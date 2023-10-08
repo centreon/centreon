@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 
-import { FeatureFlags, PlatformFeatures } from '../../api/models';
+import { FeatureFlags, PlatformFeatures } from '@centreon/ui-context';
 
 export const platformFeaturesAtom = atom<PlatformFeatures | null>(null);
 export const featureFlagsDerivedAtom = atom<FeatureFlags | null>(

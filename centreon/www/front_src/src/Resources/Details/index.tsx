@@ -7,9 +7,9 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTheme, alpha, Skeleton } from '@mui/material';
 
 import { MemoizedPanel as Panel, Tab } from '@centreon/ui';
+import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { rowColorConditions } from '../colors';
-import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import Header from './Header';
 import { ResourceDetails } from './models';
