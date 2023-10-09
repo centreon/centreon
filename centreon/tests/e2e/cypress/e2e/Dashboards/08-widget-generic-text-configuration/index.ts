@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
+import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
@@ -26,7 +26,7 @@ before(() => {
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
+    jsonName: dashboardCreatorUser.login,
     loginViaApi: true
   });
   cy.insertDashboard({ ...dashboards.default });
@@ -47,7 +47,7 @@ beforeEach(() => {
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
+    jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
   cy.visit('/centreon/home/dashboards');
