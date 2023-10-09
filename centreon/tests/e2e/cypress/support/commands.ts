@@ -14,8 +14,12 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   'getByTestId',
-  ({ tag = '', testId }: GetByTestIdProps): Cypress.Chainable => {
-    return cy.get(`${tag}[data-testid="${testId}"]`);
+  ({
+    tag = '',
+    location = '',
+    testId
+  }: GetByTestIdProps): Cypress.Chainable => {
+    return cy.get(`${tag}[data-testid${location}="${testId}"]`);
   }
 );
 
@@ -190,6 +194,7 @@ interface GetByLabelProps {
 }
 
 interface GetByTestIdProps {
+  location?: string;
   tag?: string;
   testId: string;
 }
