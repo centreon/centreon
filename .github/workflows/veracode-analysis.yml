@@ -88,14 +88,21 @@ jobs:
           echo "[DEBUG] - pnpm dependencies analysis disabled"
           find ./ -type f -not \( -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" \) -delete
 
+          find ./ -type f -name "composer.lock" -o -name "composer.json"
+
           RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
           if [[ -n ${RESULT[0]} ]]; then
-            echo "[DEBUG] - found a composer file"
           	echo "trigger_sca_scan=true" >> $GITHUB_ENV
+            echo "found one"
           else
-            echo "[DEBUG] - KO"
+            echo "KO"
           fi
           cat $GITHUB_ENV
+
+          echo "RESULT ?"
+          for FILE in ${RESULT[@]}; do
+            echo "[DEBUG] - File = $FILE"
+          done
 
       - name: SCA scan
         if: env.trigger_sca_scan == 'true'
