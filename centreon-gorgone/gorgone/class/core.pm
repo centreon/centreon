@@ -772,8 +772,8 @@ sub router_internal_event {
         push @{$self->{ievents}}, [$identity, $frame];
     }
 
-    # @todo check why recursion happens and avoid this workaround
-    if ($self->{recursion_ievents} > 10) {
+
+    if ($self->{recursion_ievents} > 1) {
         $self->{recursion_ievents}--;
         return;
     }
