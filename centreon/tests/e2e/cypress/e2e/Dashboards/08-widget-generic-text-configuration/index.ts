@@ -76,6 +76,7 @@ Given(
 When(
   'the dashboard administrator user selects the option to add a new widget',
   () => {
+    cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.getByTestId({ testId: 'AddIcon' }).click();
   }
@@ -116,6 +117,7 @@ When('the user saves the widget containing the Generic text', () => {
 });
 
 Then("the Generic text widget is added in the dashboard's layout", () => {
+  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains('Your widget has been created successfully!').should('exist');
   cy.getByTestId({
     location: '^',
@@ -151,11 +153,22 @@ When('the dashboard administrator user duplicates the widget', () => {
 Then(
   'a second widget with identical content is displayed on the dashboard',
   () => {
-    cy.getByTestId({
-      location: '^',
-      testId: 'panel_/widgets/generictext'
-    })
-      .eq(1)
+    cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
+      .eq(0)
       .should('contain.text', genericTextWidgets.default.title);
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
+      .eq(1)
+      .should('contain.text', genericTextWidgets.default.description);
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
+      .eq(0)
+      .should('contain.text', genericTextWidgets.default.title);
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
+      .eq(1)
+      .should('contain.text', genericTextWidgets.default.description);
   }
 );
