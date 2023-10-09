@@ -25,9 +25,9 @@ properties:
     type: boolean
     description: |
       If your command requires shell features like pipes, redirections, globbing etc. check this box.
-      
+
       If you are using the monitoring engine this option cannot be disabled.
-      
+
       Note that commands that require shell are slowing down the poller server.
     example: true
   is_locked:
@@ -38,4 +38,3 @@ properties:
     type: boolean
     description: "Indicates whether the command is activated or not"
     example: true
-
