@@ -93,7 +93,7 @@ jobs:
             echo "[DEBUG] - found a composer file"
           	echo "trigger_sca_scan=true" >> $GITHUB_ENV
           else
-          echo "[DEBUG] - KO"
+            echo "[DEBUG] - KO"
           fi
           cat $GITHUB_ENV
 
