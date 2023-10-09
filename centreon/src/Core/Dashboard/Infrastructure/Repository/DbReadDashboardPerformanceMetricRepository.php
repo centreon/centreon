@@ -63,7 +63,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+        return $this->buildResourceMetrics($statement);
     }
 
     /**
@@ -77,7 +77,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+        return $this->buildResourceMetrics($statement);
     }
 
     /**
@@ -89,7 +89,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+        return $this->buildResourceMetrics($statement);
     }
 
     /**
@@ -104,7 +104,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+        return $this->buildResourceMetrics($statement);
     }
 
     /**
@@ -404,7 +404,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param RequestParametersInterface $requestParameters
      * @param array $accessGroups
      * @param bool $hasMetricName
-     * 
+     *
      * @return string
      */
     private function buildQuery(
@@ -412,6 +412,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         array $accessGroups = [],
         $hasMetricName = false): string
     {
+        if ($requestParameters->getLimit() < self::MAXIMUM_METRICS_COUNT) {
+            $requestParameters->setLimit(self::MAXIMUM_METRICS_COUNT);
+        }
+
         $request
         = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
@@ -503,18 +507,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *
      * @return ResourceMetrics[]
      */
-    private function buildResourceMetrics(
-        RequestParametersInterface $requestParameters,
-        \PDOStatement $statement
-    ): array {
-        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+    private function buildResourceMetrics(\PDOStatement $statement): array {
         $resourceMetrics = [];
-        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
-            $requestParameters->setTotal((int) $total);
-            if ($total > self::MAXIMUM_METRICS_COUNT) {
-                return $resourceMetrics;
-            }
-        }
 
         if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {
             $metricsInformation = [];
