@@ -116,15 +116,10 @@ export const addPanelDerivedAtom = atom(
       ? 3
       : columnsFromScreenSize;
 
-    const panelWidth =
-      Math.max(width || 0, panelConfiguration?.panelMinWidth || 0) ||
-      maxColumns;
+    const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
 
-    const widgetHeight = Math.max(
-      height || 1,
-      panelConfiguration?.panelMinHeight || 1,
-      3
-    );
+    const widgetHeight =
+      height || Math.max(panelConfiguration?.panelMinHeight || 1, 3);
 
     const basePanelLayout = {
       data,
