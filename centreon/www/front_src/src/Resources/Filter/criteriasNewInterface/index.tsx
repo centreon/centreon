@@ -3,7 +3,6 @@ import { useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Slide from '@mui/material/Slide';
 import Switch from '@mui/material/Switch';
 
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
@@ -12,7 +11,10 @@ import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 import MemoizedPoller from './MemoizedPoller';
 import MemoizedState from './MemoizedState';
 import BasicFilter from './basicFilter';
-import { displayActionsAtom } from './basicFilter/atoms';
+import {
+  displayActionsAtom,
+  displayInformationFilterAtom
+} from './basicFilter/atoms';
 import SectionWrapper from './basicFilter/sections';
 import ExtendedFilter from './extendedFilter';
 import {
@@ -44,6 +46,8 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
     setCriteriaAndNewFilterDerivedAtom
   );
 
+  const setDisplayInformationFilter = useSetAtom(displayInformationFilterAtom);
+
   const { newSelectableCriterias: buildCriterias, selectableCriterias } = data;
 
   useSearchWihSearchDataCriteria({ selectableCriterias });
@@ -63,7 +67,13 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
     );
   };
 
-  const controlFilterInterface = (event): void => setOpen(event.target.checked);
+  const controlFilterInterface = (event): void => {
+    setOpen(event.target.checked);
+    if (!event.target.checked) {
+      return;
+    }
+    setDisplayInformationFilter(false);
+  };
 
   const buildDataByCategoryFilter = ({
     CriteriaType,
@@ -129,7 +139,14 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   return (
     <>
-      <div ref={containerRef} style={{ display: 'flex', flexDirection: 'row' }}>
+      <div
+        ref={containerRef}
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          maxWidth: open ? 600 : 300
+        }}
+      >
         <BasicFilter
           poller={
             <MemoizedPoller
@@ -152,12 +169,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         />
 
         {open && (
-          <Slide direction="right" in={open}>
-            <ExtendedFilter
-              changeCriteria={changeCriteria}
-              data={extendedData}
-            />
-          </Slide>
+          <ExtendedFilter changeCriteria={changeCriteria} data={extendedData} />
         )}
       </div>
 

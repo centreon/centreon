@@ -10,3 +10,4 @@ export const selectedStatusByResourceTypeAtom =
   );
 
 export const displayActionsAtom = atom(false);
+export const displayInformationFilterAtom = atom(false);

@@ -8,9 +8,12 @@ import {
   SearchedDataValue as SearchedDataValueModel
 } from '../Criterias/models';
 
-import { SectionType } from './model';
+import { ExtendedCriteria, SectionType } from './model';
 import { findData } from './utils';
-import { displayActionsAtom } from './basicFilter/atoms';
+import {
+  displayActionsAtom,
+  displayInformationFilterAtom
+} from './basicFilter/atoms';
 
 interface Parameters {
   data: Array<Criteria & CriteriaDisplayProps>;
@@ -35,6 +38,7 @@ const useInputData = ({
   const [valueSearchData, setValueSearchData] = useState<SearchedDataValue>();
 
   const setDisplayActions = useSetAtom(displayActionsAtom);
+  const setDisplayInformationFilter = useSetAtom(displayInformationFilterAtom);
 
   useEffect(() => {
     if (!data) {
@@ -58,9 +62,15 @@ const useInputData = ({
     if (!dataByFilterName) {
       return;
     }
+    if (
+      !Object.values(ExtendedCriteria).includes(filterName as ExtendedCriteria)
+    ) {
+      return;
+    }
+    setDisplayInformationFilter(true);
 
     setDisplayActions(true);
-  }, [dataByFilterName]);
+  }, [dataByFilterName, filterName]);
 
   return { dataByFilterName, valueSearchData };
 };

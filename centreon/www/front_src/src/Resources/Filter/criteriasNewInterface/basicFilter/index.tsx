@@ -6,7 +6,7 @@ interface BasicFilter {
 
 const BasicFilter = ({ sections, poller, state }: BasicFilter): JSX.Element => {
   return (
-    <div>
+    <div style={{ maxWidth: 300 }}>
       {sections}
       {poller}
       {state}

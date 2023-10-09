@@ -25,7 +25,17 @@ import {
 } from '../filterAtoms';
 import { Filter } from '../models';
 
-const useActionFilter = () => {
+interface UseActionFilter {
+  canSaveFilter: boolean;
+  canSaveFilterAsNew: boolean;
+  isNewFilter: boolean;
+  loadFiltersAndUpdateCurrent: (data: Filter) => void;
+  sendingListCustomFiltersRequest: boolean;
+  sendingUpdateFilterRequest: boolean;
+  updateFilter: () => void;
+}
+
+const useActionFilter = (): UseActionFilter => {
   const { t } = useTranslation();
   const {
     sendRequest: sendUpdateFilterRequest,
@@ -38,7 +48,7 @@ const useActionFilter = () => {
     sendRequest: sendListCustomFiltersRequest,
     sending: sendingListCustomFiltersRequest
   } = useRequest({
-    decoder: listCustomFiltersDecoder,
+    // decoder: listCustomFiltersDecoder,
     request: listCustomFilters
   });
 
