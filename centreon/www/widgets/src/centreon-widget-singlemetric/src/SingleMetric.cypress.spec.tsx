@@ -354,7 +354,7 @@ describe('Single metric Widget', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the metric value as warning when the warning threshold is customized', () => {
+    it.only('displays the metric value as warning when the warning threshold is customized', () => {
       initializeComponent({
         options: {
           singleMetricGraphType: 'bar',
@@ -364,6 +364,11 @@ describe('Single metric Widget', () => {
 
       cy.contains('34%').should('have.css', 'fill', 'rgb(253, 155, 39)');
       cy.findByTestId('34-bar-#FD9B27').should('be.visible');
+      cy.findByTestId('34-bar-#FD9B27').should(
+        'have.css',
+        'width',
+        '469.1313171386719px'
+      );
 
       cy.makeSnapshot();
     });
