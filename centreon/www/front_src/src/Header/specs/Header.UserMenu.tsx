@@ -17,14 +17,14 @@ export default (): void =>
       cy.get('@clock').contains('April 28, 2022');
       cy.get('@clock').contains('4:20 PM');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('does not display the clock for a width less than 769px', () => {
       initialize();
       cy.viewport(768, 500);
       cy.get('[data-cy=clock]').as('clock').should('not.be.visible');
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('expands the popper when the user icon is clicked', () => {
@@ -39,7 +39,7 @@ export default (): void =>
       cy.get('@popper').contains('Light');
       cy.get('@popper').contains('Logout');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('changes style when switch is clicked', () => {

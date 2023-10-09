@@ -59,9 +59,10 @@ export interface SubMenuProps {
     submenuTitle: string;
     to: string;
   }>;
+  onClose?: () => void;
 }
 
-const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
+const SubMenu = ({ items, onClose }: SubMenuProps): JSX.Element => {
   const { classes, theme } = useStyles();
 
   return (
@@ -80,6 +81,7 @@ const SubMenu = ({ items }: SubMenuProps): JSX.Element => {
             className={classes.submenuItem}
             key={to}
             role="none"
+            onClick={onClose}
           >
             <Link
               className={classes.link}

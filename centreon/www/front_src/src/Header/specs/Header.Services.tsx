@@ -48,7 +48,7 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@serviceButton').within(() => {
           cy.findByText(labelServices).should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('GrainIcon').should('be.visible');
         });
       });
@@ -114,7 +114,7 @@ export default (): void =>
         cy.get('@okCounter').should('be.visible').contains('12.1k');
         cy.get('@warningCounter').should('be.visible').contains('14.7m');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('redirects on click on the counter', () => {
@@ -166,7 +166,7 @@ export default (): void =>
         cy.get('@serviceButton').should('be.visible');
         cy.get('@serviceButton').click();
         submenuShouldBeOpened(labelServices);
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {
@@ -187,6 +187,19 @@ export default (): void =>
 
         cy.get('@serviceButton').click();
         submenuShouldBeClosed(labelServices);
+      });
+
+      it('closes the submenu when clicking on an item', () => {
+        initialize();
+        openSubMenu(labelServices);
+
+        cy.findAllByRole('menuitem').as('items');
+
+        cy.get('@items').each((item: string) => {
+          cy.get(item).click();
+          submenuShouldBeClosed(labelServices);
+          openSubMenu(labelServices);
+        });
       });
 
       it('displays the items in the right order, with the right texts and urls', () => {

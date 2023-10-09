@@ -21,7 +21,6 @@ import {
   selectedResourcesAtom
 } from '../Actions/actionsAtoms';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
-import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
 import { rowColorConditions } from '../colors';
 import {
   openDetailsTabIdAtom,
@@ -144,10 +143,9 @@ const ResourceListing = (): JSX.Element => {
     name: 'detailsOpen'
   };
 
-  const onForcedCheck = (resource: Resource): void => {
+  const onForcedCheck = (): void => {
     checkResource({
-      check: { is_forced: true },
-      resources: adjustCheckedResources({ resources: [resource] })
+      is_forced: true
     }).then(() => {
       showSuccessMessage(t(labelForcedCheckCommandSent));
     });

@@ -40,7 +40,7 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@serviceButton').within(() => {
           cy.findByText(labelHosts).should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DnsIcon').should('be.visible');
         });
       });
@@ -103,7 +103,7 @@ export default (): void =>
         cy.get('@unreachableCounter').should('be.visible').contains('126');
         cy.get('@upCounter').should('be.visible').contains('12.1k');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('redirect to Resources Status with the correct filter when a counter is clicked', () => {
@@ -149,7 +149,7 @@ export default (): void =>
         cy.get('@serviceButton').should('be.visible');
         cy.get('@serviceButton').click();
         submenuShouldBeOpened(labelHosts);
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {
@@ -170,6 +170,19 @@ export default (): void =>
 
         cy.get('@serviceButton').click();
         submenuShouldBeClosed(labelHosts);
+      });
+
+      it('closes the submenu when clicking on an item', () => {
+        initialize();
+        openSubMenu(labelHosts);
+
+        cy.findAllByRole('menuitem').as('items');
+
+        cy.get('@items').each((item: string) => {
+          cy.get(item).click();
+          submenuShouldBeClosed(labelHosts);
+          openSubMenu(labelHosts);
+        });
       });
 
       it('links to the expected urls', () => {
