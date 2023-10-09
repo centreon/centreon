@@ -354,7 +354,7 @@ describe('Single metric Widget', () => {
       cy.makeSnapshot();
     });
 
-    it.only('displays the metric value as warning when the warning threshold is customized', () => {
+    it('displays the metric value as warning when the warning threshold is customized', () => {
       initializeComponent({
         options: {
           singleMetricGraphType: 'bar',
