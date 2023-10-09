@@ -24,7 +24,7 @@ declare(strict_types = 1);
 namespace Tests\Core\Host\Domain\Model;
 
 use Core\Common\Domain\TrimmedString;
-use Core\Host\Domain\Model\SimpleEntity;
+use Core\Common\Domain\SimpleEntity;
 use Core\Host\Domain\Model\TinyHost;
 
 beforeEach(function (): void {
