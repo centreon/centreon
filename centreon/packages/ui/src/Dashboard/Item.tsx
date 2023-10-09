@@ -6,7 +6,7 @@ import {
   ReactElement
 } from 'react';
 
-import { isNil } from 'ramda';
+import { isNil, propOr } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
 
@@ -62,7 +62,10 @@ const Item = forwardRef(
           {...cardContainerListeners}
           className={className}
           ref={ref}
-          style={{ ...style, width: `calc(${style?.width || '0px'} - 12px)` }}
+          style={{
+            ...style,
+            width: `calc(${propOr('width', '0px', style)} - 12px)`
+          }}
         >
           <Card className={classes.widgetContainer}>
             {header && (
