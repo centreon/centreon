@@ -44,7 +44,7 @@ const SelectInput = ({
   }
 
   const handleSearchData = (updatedValue): SearchData | undefined => {
-    const { values = undefined } = dataByFilterName?.searchData;
+    const values = dataByFilterName?.searchData?.values;
     const currentValue = {
       id: resourceType,
       value: updatedValue.name,
@@ -72,9 +72,11 @@ const SelectInput = ({
       })?.name
     };
 
+    const dataByFilterNameValue = dataByFilterName?.value;
+
     return removeDuplicateFromObjectArray({
-      array: dataByFilterName?.value
-        ? [...dataByFilterName?.value, selectedValue]
+      array: dataByFilterNameValue
+        ? [...dataByFilterNameValue, selectedValue]
         : [selectedValue],
       byFields: ['id']
     }) as Array<SelectEntry>;

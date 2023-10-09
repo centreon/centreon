@@ -41,10 +41,11 @@ export const CheckBoxWrapper = ({
     });
 
     if (event.target.checked) {
+      const dataByFilterNameValue = dataByFilterName?.value;
       changeCriteria({
         filterName,
-        updatedValue: dataByFilterName?.value
-          ? [...dataByFilterName?.value, item]
+        updatedValue: dataByFilterNameValue
+          ? [...dataByFilterNameValue, item]
           : [item]
       });
 

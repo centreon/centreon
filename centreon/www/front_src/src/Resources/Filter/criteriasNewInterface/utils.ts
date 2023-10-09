@@ -7,41 +7,43 @@ import {
 
 import {
   BasicCriteriaResourceType,
+  CallbackCheck,
   CategoryFilter,
   ExtendedCriteriaResourceType,
+  FieldInformationFromSearchInput,
   FindData,
+  HandleDataByCategoryFilter,
   MergeArraysByField,
+  ParametersFieldInformation,
   ParametersRemoveDuplicate,
   SectionType,
+  Sort,
   categoryHostStatus,
   categoryServiceStatus
 } from './model';
 
-const statusBySectionType = (sectionType: SectionType | ResourceType) => {
+const statusBySectionType = (
+  sectionType: SectionType | ResourceType
+): Array<string> => {
   return sectionType === ResourceType.service
     ? Object.keys(categoryServiceStatus)
     : Object.keys(categoryHostStatus);
 };
 
-const resourceTypesBySection = (categoryFilter) => {
+const resourceTypesBySection = (categoryFilter): Array<string> => {
   return categoryFilter === CategoryFilter.BasicFilter
     ? Object.values(BasicCriteriaResourceType)
     : Object.values(ExtendedCriteriaResourceType);
 };
 
-const callBackCheck = ({ id, dataToCheck }) =>
+const callBackCheck = ({ id, dataToCheck }: CallbackCheck): boolean =>
   dataToCheck.some((status) => status === id);
 
-interface HandleData {
-  data: Array<Criteria & CriteriaDisplayProps>;
-  fieldToUpdate: string;
-  filter: CategoryFilter | SectionType;
-}
 export const handleDataByCategoryFilter = ({
   data,
   fieldToUpdate,
   filter
-}: HandleData): Array<Criteria & CriteriaDisplayProps> => {
+}: HandleDataByCategoryFilter): Array<Criteria & CriteriaDisplayProps> => {
   const target =
     filter in CategoryFilter
       ? CriteriaNames.resourceTypes
@@ -50,7 +52,7 @@ export const handleDataByCategoryFilter = ({
   const dataToCheck =
     filter in CategoryFilter
       ? resourceTypesBySection(filter)
-      : statusBySectionType(filter);
+      : statusBySectionType(filter as SectionType);
 
   return data.map((item) => {
     if (item.name !== target) {
@@ -86,7 +88,10 @@ export const findData = ({
 }: FindData): (Criteria & CriteriaDisplayProps) | undefined =>
   data?.find((item) => item[findBy] === filterName);
 
-export const findFieldInformationFromSearchInput = ({ search, field }) => {
+export const findFieldInformationFromSearchInput = ({
+  search,
+  field
+}: ParametersFieldInformation): FieldInformationFromSearchInput => {
   const fieldInformation = search
     .split(' ')
     .find((item) => item.includes(field));
@@ -133,11 +138,15 @@ export const removeDuplicateFromObjectArray = ({
   ];
 };
 
-export const sort = ({ array, sortBy, isNumeric = false }): Array<unknown> => {
-  const callbackSorting = (a, b, sortBy) => {
+export const sort = ({
+  array,
+  sortBy,
+  isNumeric = false
+}: Sort): Array<unknown> => {
+  const callbackSorting = (a, b, sortByField): number => {
     if (!isNumeric) {
-      const firsTarget = a[sortBy].toUpperCase();
-      const secondTarget = b[sortBy].toUpperCase();
+      const firsTarget = a[sortByField].toUpperCase();
+      const secondTarget = b[sortByField].toUpperCase();
 
       if (firsTarget < secondTarget) {
         return -1;
@@ -149,7 +158,7 @@ export const sort = ({ array, sortBy, isNumeric = false }): Array<unknown> => {
       return 0;
     }
 
-    return a[sortBy] - b[sortBy];
+    return a[sortByField] - b[sortByField];
   };
 
   return array.sort((a, b) => callbackSorting(a, b, sortBy));

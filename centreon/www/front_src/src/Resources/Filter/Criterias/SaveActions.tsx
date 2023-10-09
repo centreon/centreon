@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 import { useAtomValue } from 'jotai';
 import { omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -8,14 +10,31 @@ import { createFilter, updateFilter } from '../api';
 import { labelFilterCreated, labelFilterSaved } from '../../translatedLabels';
 import { currentFilterAtom } from '../filterAtoms';
 import CreateFilterDialog from '../Save/CreateFilterDialog';
+import { Filter } from '../models';
 
 import { Action } from './models';
+
+interface DataCreateFilter {
+  isCreateFilter: boolean;
+  setIsCreateFilter: Dispatch<SetStateAction<boolean>>;
+}
+
+interface DataUpdateFilter {
+  isUpdateFilter: boolean;
+  setIsUpdateFilter: Dispatch<SetStateAction<boolean>>;
+}
+
+interface Props {
+  dataCreateFilter: DataCreateFilter;
+  dataUpdateFilter: DataUpdateFilter;
+  loadFiltersAndUpdateCurrent: (data: Filter) => void;
+}
 
 const SaveActions = ({
   dataCreateFilter,
   dataUpdateFilter,
   loadFiltersAndUpdateCurrent
-}): JSX.Element => {
+}: Props): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 

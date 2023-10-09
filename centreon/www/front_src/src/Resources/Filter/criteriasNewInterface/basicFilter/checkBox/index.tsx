@@ -1,5 +1,4 @@
 import { useAtom } from 'jotai';
-import { isEmpty, isNil } from 'ramda';
 
 import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 

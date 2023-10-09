@@ -1,11 +1,10 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { TransitionGroup } from 'react-transition-group';
 
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import Slide from '@mui/material/Slide';
+import Switch from '@mui/material/Switch';
 
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';

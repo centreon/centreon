@@ -129,3 +129,27 @@ export interface SelectedResourceType extends SelectEntry {
   checked: boolean;
   resourceType: ResourceType | SectionType;
 }
+
+export interface FieldInformationFromSearchInput {
+  content: string;
+  fieldInformation: string | undefined;
+}
+export interface ParametersFieldInformation {
+  field: string;
+  search: string;
+}
+export interface Sort {
+  array: Array<unknown>;
+  isNumeric: boolean;
+  sortBy: string;
+}
+export interface HandleDataByCategoryFilter {
+  data: Array<Criteria & CriteriaDisplayProps>;
+  fieldToUpdate: string;
+  filter: CategoryFilter | SectionType | ResourceType;
+}
+
+export interface CallbackCheck {
+  dataToCheck: Array<string>;
+  id: string;
+}

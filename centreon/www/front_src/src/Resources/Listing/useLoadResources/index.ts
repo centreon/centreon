@@ -20,7 +20,11 @@ import {
   getUrlQueryParameters,
   getFoundFields
 } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
+import type {
+  ListsSearchParameter,
+  RegexSearchParameter,
+  SelectEntry
+} from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { ResourceListing, SortOrder } from '../../models';
@@ -54,6 +58,10 @@ import {
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
+}
+interface Search {
+  lists?: Array<ListsSearchParameter>;
+  regex?: RegexSearchParameter;
 }
 
 const secondSortField = 'last_status_change';
@@ -134,7 +142,7 @@ const useLoadResources = (): LoadResources => {
       });
   };
 
-  const getSearch = () => {
+  const getSearch = (): Search | undefined => {
     const searchCriteria = getCriteriaValue('search');
     if (!searchCriteria) {
       return undefined;
@@ -150,13 +158,15 @@ const useLoadResources = (): LoadResources => {
         return { field: item.field, values: item.value?.split(',') };
       });
 
-      return { lists: matches.filter((item) => item.values) };
+      return {
+        lists: matches.filter((item) => item.values)
+      };
     }
 
     return {
       regex: {
         fields: searchableFields,
-        value: searchCriteria
+        value: searchCriteria as string
       }
     };
   };

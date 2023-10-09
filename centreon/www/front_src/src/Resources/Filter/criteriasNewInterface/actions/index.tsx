@@ -1,11 +1,9 @@
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, Grid } from '@mui/material';
 
 import { labelClear, labelSearch } from '../../../translatedLabels';
-
-import Save from './Save';
 
 const useStyles = makeStyles()((theme) => ({
   actions: {
@@ -17,7 +15,13 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const Actions = ({ onSearch, onClear, save }) => {
+interface Props {
+  onClear: () => void;
+  onSearch: () => void;
+  save: JSX.Element;
+}
+
+const Actions = ({ onSearch, onClear, save }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 

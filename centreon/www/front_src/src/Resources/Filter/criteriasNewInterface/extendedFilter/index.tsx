@@ -16,7 +16,7 @@ interface Props {
 }
 
 const ExtendedFilter = forwardRef(
-  ({ data, changeCriteria }, ref): JSX.Element => {
+  ({ data, changeCriteria }: Props, ref): JSX.Element => {
     const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
       data
     });

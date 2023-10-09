@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
-
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -12,11 +10,17 @@ import Paper from '@mui/material/Paper';
 
 import { PopoverData } from '../../Criterias/models';
 
+interface Option {
+  disabled: boolean;
+  onClick: () => void;
+  title: string;
+}
+
 interface Save {
-  canSaveFilter;
-  getIsCreateFilter;
-  getIsUpdateFilter;
-  isNewFilter;
+  canSaveFilter: boolean;
+  getIsCreateFilter: (value: boolean) => void;
+  getIsUpdateFilter: (value: boolean) => void;
+  isNewFilter: boolean;
   popoverData: PopoverData | undefined;
 }
 
@@ -27,10 +31,8 @@ const Save = ({
   getIsUpdateFilter,
   popoverData
 }: Save): JSX.Element => {
-  const { t } = useTranslation();
-  const { setAnchorEl = undefined } = popoverData;
   const [open, setOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState();
+  const [selectedOption, setSelectedOption] = useState<Option | undefined>();
 
   const handleToggle = (): void => {
     setOpen(!open);
@@ -42,12 +44,12 @@ const Save = ({
 
   const saveAsNew = (): void => {
     getIsCreateFilter(true);
-    setAnchorEl?.(undefined);
+    popoverData?.setAnchorEl?.(undefined);
   };
 
   const saveAs = (): void => {
     getIsUpdateFilter(true);
-    setAnchorEl?.(undefined);
+    popoverData?.setAnchorEl?.(undefined);
   };
 
   const options = [
@@ -63,7 +65,7 @@ const Save = ({
     }
   ];
 
-  const selectOption = (option): void => {
+  const selectOption = (option: Option): void => {
     setSelectedOption(option);
     handleToggle();
   };
@@ -97,7 +99,7 @@ const Save = ({
           {open && (
             <Paper>
               <MenuList autoFocusItem id="split-button-menu">
-                {options.map((option, index) => (
+                {options.map((option) => (
                   <MenuItem
                     disabled={option.disabled}
                     key={option.title}
