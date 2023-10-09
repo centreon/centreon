@@ -88,7 +88,7 @@ jobs:
           echo "[DEBUG] - pnpm dependencies analysis disabled"
           find ./ -type f -not \( -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" \) -delete
 
-          if [[ -f composer.lock ]]; then
+          if [[ -f ./composer.lock ]]; then
             echo "trigger_sca_scan=true" >> $GITHUB_ENV
           fi
 
