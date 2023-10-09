@@ -213,17 +213,17 @@ const mockNotConnectedGetRequests = (): void => {
         is_installed: true
       }
     })
-    .mockResolvedValueOnce({
-      data: {
-        feature_flags: {},
-        is_cloud_platform: false
-      }
-    })
     .mockRejectedValueOnce({
       response: { status: 403 }
     })
     .mockResolvedValueOnce({
       data: retrievedWeb
+    })
+    .mockResolvedValueOnce({
+      data: {
+        feature_flags: {},
+        is_cloud_platform: false
+      }
     })
     .mockResolvedValueOnce({
       data: retrievedTranslations
