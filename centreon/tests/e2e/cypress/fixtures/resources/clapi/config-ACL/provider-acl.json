@@ -27,7 +27,7 @@
     {
       "action": "GRANTRW",
       "object": "ACLMENU",
-      "values": "acl_menu_test;1;Custom Views"
+      "values": "acl_menu_test;1;Home"
     },
     {
       "action": "RELOAD",
