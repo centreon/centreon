@@ -84,10 +84,14 @@ jobs:
 
       - name: Removing pnpm dependencies
         run: |
+          pwd
+
           cd ${{ inputs.module_directory }}
           echo "[DEBUG] - pnpm dependencies analysis disabled"
           find ./ -type f -not \( -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" \) -delete
 
+          pwd
+          ls -la
           find ./ -type f -name "composer.lock" -o -name "composer.json"
 
           RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
