@@ -11,11 +11,11 @@ import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
-  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
+  // cy.execInContainer({
+  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+  //   name: Cypress.env('dockerName')
+  // });
+  // cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 
 beforeEach(() => {
@@ -142,12 +142,12 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@addContactToDashboardShareList');
+  cy.customWaitUntil(3, 'share');
 });
 
 Then(
   "the viewer user is listed as a viewer in the dashboard's share list",
   () => {
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('exist');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -246,13 +246,13 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
+    cy.customWaitUntil(3, 'share');
   }
 );
 
 Then(
   "the second editor user is listed as an editor in the dashboard's share list",
   () => {
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('exist');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -346,13 +346,13 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
+    cy.customWaitUntil(3, 'share');
   }
 );
 
 Then(
   'any member of the contact group has access to the dashboard in the dashboards library but cannot share it or update its properties',
   () => {
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('exist');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -456,13 +456,13 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
+    cy.customWaitUntil(3, 'share');
   }
 );
 
 Then(
   'any member of the contact group has access to the dashboard in the dashboards library and can share it or update its properties',
   () => {
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('exist');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -563,13 +563,13 @@ Given(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
+    cy.customWaitUntil(3, 'share');
   }
 );
 
 When(
   'the editor user sets write permissions on the dashboard to a specific user of the contact group',
   () => {
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('exist');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCGMember3.login).click();
@@ -711,7 +711,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('exist');
+    cy.customWaitUntil(3, 'share');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -737,7 +737,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.getByLabel({ label: 'share', tag: 'button' }).should('exist');
+    cy.customWaitUntil(3, 'share');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)

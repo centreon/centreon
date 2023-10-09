@@ -184,6 +184,45 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
+Cypress.Commands.add('customWaitUntil', (maxRetries, accessRightsTestId) => {
+  let retries = 0;
+
+  cy.waitUntil(
+    () => {
+      retries += 1;
+      cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
+      cy.getByTestId({ testId: 'role-input' })
+        .eq(1)
+        .contains('editor')
+        .should('be.visible');
+
+      cy.getByTestId({ testId: 'CloseIcon' }).click();
+
+      if (retries === maxRetries) {
+        return cy
+          .getByTestId({ testId: 'role-input' })
+          .eq(2)
+          .contains('viewer')
+          .should('be.visible')
+          .then((isVisible) => {
+            if (isVisible) {
+              return true;
+            }
+
+            return false;
+          });
+      }
+
+      return false;
+    },
+    {
+      errorMsg: 'Element undefined',
+      interval: 3000,
+      timeout: 30000
+    }
+  );
+});
+
 interface GetByLabelProps {
   label: string;
   tag?: string;
@@ -202,6 +241,10 @@ interface requestOnDatabaseProps {
 declare global {
   namespace Cypress {
     interface Chainable {
+      customWaitUntil: (
+        maxRetries: number,
+        accessRightsTestId: string
+      ) => Cypress.Chainable;
       disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
