@@ -7,6 +7,10 @@ export { default as acknowledgementAtom } from './acknowledgementAtom';
 export { default as resourceStorageOptimizationModeAtom } from './resourceStorageOptimizationMode';
 export { default as platformNameAtom } from './platformNameAtom';
 export { ThemeMode, ListingVariant } from './types';
+export {
+  platformFeaturesAtom,
+  featureFlagsDerivedAtom
+} from './platformFeaturesAtom';
 
 export type {
   User,
@@ -16,5 +20,7 @@ export type {
   Downtime,
   CloudServices,
   Acknowledgement,
-  Acl
+  Acl,
+  FeatureFlags,
+  PlatformFeatures
 } from './types';

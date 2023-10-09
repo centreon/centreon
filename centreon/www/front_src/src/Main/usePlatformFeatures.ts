@@ -5,10 +5,10 @@ import { useSetAtom } from 'jotai';
 import { getData, useRequest } from '@centreon/ui';
 
 import { platformFeaturesEndpoint } from '../api/endpoint';
-import { PlatformFeatures } from '../api/models';
 import { platformFeaturesDecoder } from '../api/decoders';
 
-import { platformFeaturesAtom } from './atoms/platformFeaturesAtom';
+
+import { platformFeaturesAtom, PlatformFeatures } from '@centreon/ui-context';
 
 interface UsePlatformFeaturesState {
   getPlatformFeatures: () => void;
