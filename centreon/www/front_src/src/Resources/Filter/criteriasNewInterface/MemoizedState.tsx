@@ -1,7 +1,7 @@
 import { useMemoComponent } from '@centreon/ui';
 
-import { BasicCriteria, MemoizedChild } from './model';
 import { CheckBoxWrapper } from './CheckBoxWrapper';
+import { BasicCriteria, MemoizedChild } from './model';
 import { findData } from './utils';
 
 const MemoizedState = ({

@@ -1,11 +1,12 @@
-import { forwardRef } from 'react';
-
 import { useAtomValue } from 'jotai';
+
+import { Divider } from '@mui/material';
 
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
-import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
 import { displayInformationFilterAtom } from '../basicFilter/atoms';
+import { useStyles } from '../criterias.style';
+import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
 
 import FilterSearch from './FilterSearch';
 import MemoizedCheckBoxWrapper from './MemoizedCheckBoxWrapper';
@@ -19,6 +20,7 @@ interface Props {
 }
 
 const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
     data
   });
@@ -26,23 +28,29 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   const displayInformationFilter = useAtomValue(displayInformationFilterAtom);
 
   return (
-    <div style={{ width: 300 }}>
+    <div className={classes.containerFilter}>
       {inputGroupsData?.map((item) => (
-        <MemoizedInputGroup
-          changeCriteria={changeCriteria}
-          data={data}
-          filterName={item.name}
-          key={item.name}
-        />
+        <>
+          <MemoizedInputGroup
+            changeCriteria={changeCriteria}
+            data={data}
+            filterName={item.name}
+            key={item.name}
+          />
+          <Divider className={classes.dividerInputs} />
+        </>
       ))}
       {resourceTypes?.map((item) => (
-        <MemoizedSelectInput
-          changeCriteria={changeCriteria}
-          data={data}
-          filterName={ExtendedCriteria.resourceTypes}
-          key={item.name}
-          resourceType={item.id}
-        />
+        <>
+          <MemoizedSelectInput
+            changeCriteria={changeCriteria}
+            data={data}
+            filterName={ExtendedCriteria.resourceTypes}
+            key={item.name}
+            resourceType={item.id}
+          />
+          <Divider className={classes.dividerInputs} />
+        </>
       ))}
 
       {displayInformationFilter && (
@@ -51,12 +59,15 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
           placeholder="Information"
         />
       )}
+      <Divider className={classes.dividerInputs} />
+
       {displayInformationFilter && (
         <MemoizedCheckBoxWrapper
           changeCriteria={changeCriteria}
           data={statusTypes}
         />
       )}
+      <Divider className={classes.dividerInputs} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { Divider } from '@mui/material';
 
 import { MemoizedChild, SectionType } from '../../model';
 
+import { useStyles } from './sections.style';
 import MemoizedInputGroup from './MemoizedInputGroup';
 import MemoizedSelectInput from './MemoizedSelectInput';
 import MemoizedStatus from './MemoizedStatus';
@@ -11,6 +12,7 @@ const SectionWrapper = ({
   basicData,
   changeCriteria
 }: MemoizedChild): JSX.Element => {
+  const { classes } = useStyles();
   const sectionsType = Object.values(SectionType);
 
   return (
@@ -40,7 +42,7 @@ const SectionWrapper = ({
               />
             }
           />
-          <Divider sx={{ marginBottom: 5 }} />
+          <Divider className={classes.divider} />
         </>
       ))}
     </div>

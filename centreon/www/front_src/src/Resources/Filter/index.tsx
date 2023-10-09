@@ -105,11 +105,11 @@ const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
       >
         <CloseIcon color="action" fontSize="small" />
       </IconButton>
-      <Suspense
+      {/* <Suspense
         fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
       >
         <Criterias />
-      </Suspense>
+      </Suspense> */}
     </div>
   );
 };
@@ -587,6 +587,17 @@ const Filter = (): JSX.Element => {
                   onFocus={(): void => setIsSearchFieldFocused(true)}
                   onKeyDown={inputKey}
                 />
+                <Suspense
+                  fallback={
+                    <LoadingSkeleton
+                      height={24}
+                      variant="circular"
+                      width={24}
+                    />
+                  }
+                >
+                  <Criterias />
+                </Suspense>
                 <SearchHelp />
               </Box>
               <Popper

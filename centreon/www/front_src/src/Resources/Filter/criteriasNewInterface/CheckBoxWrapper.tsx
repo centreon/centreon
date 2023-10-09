@@ -1,9 +1,13 @@
 import { ReactNode } from 'react';
 
+import { Variant } from '@mui/material/styles/createTypography';
+import { Typography } from '@mui/material';
+
 import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 
+import { useStyles } from './basicFilter/checkBox/checkBox.style';
 import { ChangedCriteriaParams } from './model';
 import useInputData from './useInputsData';
 import { findData } from './utils';
@@ -21,6 +25,13 @@ export const CheckBoxWrapper = ({
   filterName,
   changeCriteria
 }: Props): JSX.Element | null => {
+  const { classes } = useStyles();
+
+  const labelProps = {
+    classes: { root: classes.label },
+    variant: 'body2' as Variant
+  };
+  const formGroupProps = { classes: { root: classes.container } };
   const { dataByFilterName } = useInputData({
     data,
     filterName
@@ -61,14 +72,20 @@ export const CheckBoxWrapper = ({
   };
 
   return (
-    <div>
-      {title}
+    <>
+      <Typography classes={{ root: classes.title }} variant="subtitle2">
+        {title}
+      </Typography>
+
       <CheckboxGroup
+        className={classes.checkbox}
         direction="horizontal"
+        formGroupProps={formGroupProps}
+        labelProps={labelProps}
         options={transformData(dataByFilterName.options)}
         values={transformData(dataByFilterName.value)}
         onChange={(event) => handleChangeStatus(event)}
       />
-    </div>
+    </>
   );
 };

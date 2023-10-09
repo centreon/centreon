@@ -1,5 +1,7 @@
 import { useAtom } from 'jotai';
 
+import { Variant } from '@mui/material/styles/createTypography';
+
 import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
@@ -13,6 +15,7 @@ import { findData, removeDuplicateFromObjectArray } from '../../utils';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import useSectionsData from '../sections/useSections';
 
+import { useStyles } from './checkBox.style';
 import useCheckBox from './useCheckBox';
 
 interface Props {
@@ -28,6 +31,12 @@ const CheckBoxSection = ({
   changeCriteria,
   resourceType
 }: Props): JSX.Element | null => {
+  const { classes } = useStyles();
+  const labelProps = {
+    classes: { root: classes.label },
+    variant: 'body2' as Variant
+  };
+  const formGroupProps = { classes: { root: classes.container } };
   const [selectedStatusByResourceType, setSelectedStatusByResourceType] =
     useAtom(selectedStatusByResourceTypeAtom);
 
@@ -89,7 +98,10 @@ const CheckBoxSection = ({
 
   return (
     <CheckboxGroup
+      className={classes.checkbox}
       direction="horizontal"
+      formGroupProps={formGroupProps}
+      labelProps={labelProps}
       options={transformData(dataByFilterName?.options) ?? []}
       values={transformData(values) || []}
       onChange={(event) => handleChangeStatus(event)}

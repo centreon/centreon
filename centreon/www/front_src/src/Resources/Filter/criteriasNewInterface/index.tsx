@@ -1,7 +1,8 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 
+import { Divider } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
@@ -16,6 +17,7 @@ import {
   displayInformationFilterAtom
 } from './basicFilter/atoms';
 import SectionWrapper from './basicFilter/sections';
+import { useStyles } from './criterias.style';
 import ExtendedFilter from './extendedFilter';
 import {
   BasicCriteria,
@@ -37,7 +39,7 @@ interface Criterias {
 }
 
 const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
-  const containerRef = useRef(null);
+  const { classes, cx } = useStyles();
   const [open, setOpen] = useState(false);
 
   const displayActions = useAtomValue(displayActionsAtom);
@@ -139,14 +141,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   return (
     <>
-      <div
-        ref={containerRef}
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          maxWidth: open ? 600 : 300
-        }}
-      >
+      <div className={cx(classes.small, { [classes.extended]: open })}>
         <BasicFilter
           poller={
             <MemoizedPoller
@@ -169,9 +164,22 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         />
 
         {open && (
-          <ExtendedFilter changeCriteria={changeCriteria} data={extendedData} />
+          <>
+            <Divider
+              flexItem
+              className={classes.bridge}
+              orientation="vertical"
+              variant="middle"
+            />
+            <ExtendedFilter
+              changeCriteria={changeCriteria}
+              data={extendedData}
+            />
+          </>
         )}
       </div>
+
+      <Divider className={classes.footer} />
 
       {displayActions && (
         <>
