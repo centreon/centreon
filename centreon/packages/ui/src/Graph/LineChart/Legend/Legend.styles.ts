@@ -18,10 +18,9 @@ export const useStyles = makeStyles<MakeStylesProps>()(
     },
     items: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-      justifyContent: 'center',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, max-content))',
       marginLeft: theme.spacing(0.5),
-      maxHeight: limitLegendRows ? theme.spacing(19) : 'unset',
+      maxHeight: limitLegendRows ? theme.spacing(14) : 'unset',
       overflowY: 'auto',
       width: '100%'
     },
@@ -40,6 +39,7 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       display: 'flex',
       flexDirection: 'row',
       justifyContent: 'start',
+      marginRight: theme.spacing(0.5),
       overflow: 'hidden',
       textOverflow: 'ellipsis'
     },
