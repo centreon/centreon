@@ -48,6 +48,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.42.1
       '@typescript-eslint/parser': ^5.42.1
       '@visx/curve': ^2.1.0
+      '@visx/responsive': ^3.3.0
       '@visx/scale': ^3.0.0
       '@visx/shape': ^2.12.2
       '@visx/threshold': ^2.12.2
@@ -163,6 +164,7 @@ importers:
       '@tanstack/react-query': 4.29.7_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query-devtools': 4.29.7_rj5w6kms7jpdvm2o5bkb5pclni
       '@visx/curve': 2.17.0
+      '@visx/responsive': 3.3.0_react@18.2.0
       '@visx/scale': 3.0.0
       '@visx/shape': 2.18.0_react@18.2.0
       '@visx/threshold': 2.18.0_react@18.2.0
@@ -290,8 +292,11 @@ importers:
       '@swc/cli': ^0.1.61
       '@swc/core': ^1.3.35
       lighthouse: ^10.0.0
+      node-fetch: ^3.3.2
       open: ^8.4.0
       puppeteer: ^19.7.0
+    dependencies:
+      node-fetch: 3.3.2
     devDependencies:
       '@swc/cli': 0.1.62_@swc+core@1.3.58
       '@swc/core': 1.3.58
@@ -2335,7 +2340,7 @@ packages:
       find-up: 6.3.0
       fs-extra: 9.1.0
       html-webpack-plugin-4: /html-webpack-plugin/4.5.2_webpack@5.82.1
-      html-webpack-plugin-5: /html-webpack-plugin/5.5.1_webpack@5.82.1
+      html-webpack-plugin-5: /html-webpack-plugin/5.5.3_webpack@5.82.1
       local-pkg: 0.4.1
       speed-measure-webpack-plugin: 1.4.2_webpack@5.82.1
       tslib: 2.5.0
@@ -7621,6 +7626,18 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@visx/responsive/3.3.0_react@18.2.0:
+    resolution: {integrity: sha512-Y3Bgrh6cJ760lG6yXsxJRNCmYZAHKQqSmTG2qxJ8yImledieGEqI0ZizXJgFkxoBaZK5gSMvFsmFWKtf7a86kQ==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/lodash': 4.14.194
+      '@types/react': 18.2.6
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /@visx/scale/2.18.0:
     resolution: {integrity: sha512-clH8HFblMlCuHvUjGRwenvbY1w9YXHU9fPl91Vbtd5bdM9xAN0Lo2+cgV46cvaX3YpnyVb4oNhlbPCBu3h6Rhw==}
     dependencies:
@@ -9144,7 +9161,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /camelcase/5.3.1:
@@ -10310,6 +10327,11 @@ packages:
     dependencies:
       assert-plus: 1.0.0
 
+  /data-uri-to-buffer/4.0.1:
+    resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
+    engines: {node: '>= 12'}
+    dev: false
+
   /data-urls/3.0.2:
     resolution: {integrity: sha512-Jy/tj3ldjZJo63sVAvg6LHt2mHvl4V6AgRAmNDtLdm7faqtsx+aJG42rsyCo9JCoRVKwPFzKlIPx3DIibwSIaQ==}
     engines: {node: '>=12'}
@@ -10815,7 +10837,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /dot-prop/5.3.0:
@@ -12262,6 +12284,14 @@ packages:
     dependencies:
       pend: 1.2.0
 
+  /fetch-blob/3.2.0:
+    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
+    engines: {node: ^12.20 || >= 14.13}
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 3.2.1
+    dev: false
+
   /fetch-retry/5.0.5:
     resolution: {integrity: sha512-q9SvpKH5Ka6h7X2C6r1sP31pQoeDb3o6/R9cg21ahfPAqbIOkW9tus1dXfwYb6G6dOI4F7nVS4Q+LSssBGIz0A==}
     dev: true
@@ -12513,6 +12543,13 @@ packages:
       combined-stream: 1.0.8
       mime-types: 2.1.35
     dev: true
+
+  /formdata-polyfill/4.0.10:
+    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
+    engines: {node: '>=12.20.0'}
+    dependencies:
+      fetch-blob: 3.2.0
+    dev: false
 
   /formik/2.2.9_react@18.2.0:
     resolution: {integrity: sha512-LQLcISMmf1r5at4/gyJigGn0gOwFbeEAlji+N9InZF6LIMXnFNkO42sCI8Jt84YZggpD4cPWObAZaxpEFtSzNA==}
@@ -13244,6 +13281,20 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
+    dev: true
+
+  /html-webpack-plugin/5.5.3_webpack@5.82.1:
+    resolution: {integrity: sha512-6YrDKTuqaP/TquFH7h4srYWsZx+x6k6+FbsTm0ziCwGHDP78Unr1r9F/H4+sGmMbX08GQcJ+K64x55b+7VM/jg==}
+    engines: {node: '>=10.13.0'}
+    peerDependencies:
+      webpack: ^5.20.0
+    dependencies:
+      '@types/html-minifier-terser': 6.1.0
+      html-minifier-terser: 6.1.0
+      lodash: 4.17.21
+      pretty-error: 4.0.0
+      tapable: 2.2.1
+      webpack: 5.82.1_ilv23h42sd7ioyiaw4anl5c75u
     dev: true
 
   /htmlparser2/3.10.1:
@@ -15554,7 +15605,7 @@ packages:
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.6.2
 
   /lowercase-keys/2.0.0:
     resolution: {integrity: sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==}
@@ -16381,7 +16432,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.5.0
+      tslib: 2.6.2
 
   /node-dir/0.1.17:
     resolution: {integrity: sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg==}
@@ -16389,6 +16440,11 @@ packages:
     dependencies:
       minimatch: 3.1.2
     dev: true
+
+  /node-domexception/1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    dev: false
 
   /node-fetch-native/1.1.1:
     resolution: {integrity: sha512-9VvspTSUp2Sxbl+9vbZTlFGq9lHwE8GDVVekxx6YsNd1YH59sb3Ba8v3Y3cD8PkLNcileGGcA21PFjVl0jzDaw==}
@@ -16417,6 +16473,15 @@ packages:
     dependencies:
       whatwg-url: 5.0.0
     dev: true
+
+  /node-fetch/3.3.2:
+    resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      data-uri-to-buffer: 4.0.1
+      fetch-blob: 3.2.0
+      formdata-polyfill: 4.0.10
+    dev: false
 
   /node-forge/1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
@@ -16910,7 +16975,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /parent-module/1.0.1:
@@ -16959,7 +17024,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /path-case/3.0.4:
@@ -20547,6 +20612,11 @@ packages:
     optionalDependencies:
       '@zxing/text-encoding': 0.9.0
     dev: true
+
+  /web-streams-polyfill/3.2.1:
+    resolution: {integrity: sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==}
+    engines: {node: '>= 8'}
+    dev: false
 
   /webidl-conversions/3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
