@@ -21,12 +21,16 @@
 
 declare(strict_types = 1);
 
-namespace Core\Host\Domain\Model;
+namespace Core\Common\Domain;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\TrimmedString;
 
+/**
+ * This class contain the id and name of any object regardles of their other attributes.
+ * It can be used as property of another object.
+ */
 class SimpleEntity
 {
     /**

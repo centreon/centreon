@@ -40,7 +40,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
-use Core\Service\Domain\Model\SimpleEntity;
+use Core\Common\Domain\SimpleEntity;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
 
