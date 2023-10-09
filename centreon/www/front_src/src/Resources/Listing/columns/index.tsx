@@ -14,6 +14,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { ColumnType } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
+import { FeatureFlags } from '@centreon/ui-context';
 
 import {
   labelResource,
@@ -53,8 +54,6 @@ import NotificationColumn from './Notification';
 import ChecksColumn from './Checks';
 import ParentAliasColumn from './ParentAlias';
 import SubItem from './ServiceSubItemColumn/SubItem';
-
-import { FeatureFlags } from 'www/front_src/src/api/models';
 
 interface StyleProps {
   isHovered: boolean;
