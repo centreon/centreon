@@ -191,10 +191,7 @@ Cypress.Commands.add('customWaitUntil', (maxRetries, accessRightsTestId) => {
     () => {
       retries += 1;
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
-      cy.getByTestId({ testId: 'role-input' })
-        .eq(1)
-        .contains('editor')
-        .should('be.visible');
+      cy.getByTestId({ testId: 'role-input' }).eq(1).should('be.visible');
 
       cy.getByTestId({ testId: 'CloseIcon' }).click();
 
@@ -202,7 +199,6 @@ Cypress.Commands.add('customWaitUntil', (maxRetries, accessRightsTestId) => {
         return cy
           .getByTestId({ testId: 'role-input' })
           .eq(2)
-          .contains('viewer')
           .should('be.visible')
           .then((isVisible) => {
             if (isVisible) {

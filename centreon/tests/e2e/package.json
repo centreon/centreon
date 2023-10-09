@@ -3,7 +3,7 @@
   "version": "21.04.0",
   "description": "centreon web package",
   "scripts": {
-    "cypress:open": "cypress open --config-file cypress.dev.config.ts --browser=edge --e2e",
+    "cypress:open": "cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e",
     "cypress:run": "cypress run --config-file cypress.dev.config.ts --browser=chrome --e2e",
     "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt",
     "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e",
