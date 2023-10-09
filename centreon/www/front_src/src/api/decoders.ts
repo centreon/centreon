@@ -1,6 +1,11 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { ThemeMode, ListingVariant, FeatureFlags, PlatformFeatures } from '@centreon/ui-context';
+import {
+  ThemeMode,
+  ListingVariant,
+  FeatureFlags,
+  PlatformFeatures
+} from '@centreon/ui-context';
 import type { User } from '@centreon/ui-context';
 
 import {
