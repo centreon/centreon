@@ -63,7 +63,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($statement);
+        return $this->buildResourceMetrics($requestParameters, $statement);
     }
 
     /**
@@ -77,7 +77,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($statement);
+        return $this->buildResourceMetrics($requestParameters, $statement);
     }
 
     /**
@@ -89,7 +89,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($statement);
+        return $this->buildResourceMetrics($requestParameters, $statement);
     }
 
     /**
@@ -104,7 +104,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($statement);
+        return $this->buildResourceMetrics($requestParameters, $statement);
     }
 
     /**
@@ -507,8 +507,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *
      * @return ResourceMetrics[]
      */
-    private function buildResourceMetrics(\PDOStatement $statement): array {
+    private function buildResourceMetrics(
+        RequestParametersInterface $requestParameters,
+        \PDOStatement $statement
+    ): array {
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
         $resourceMetrics = [];
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $requestParameters->setTotal((int) $total);
+        }
 
         if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {
             $metricsInformation = [];
