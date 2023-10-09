@@ -274,15 +274,8 @@ jobs:
       - name: Removing pnpm dependencies
         run: |
           cd ${{ inputs.module_directory }}
-          echo "[DEBUG] - package-lock.json scan disabled"
-
-          if [[ -f package-lock.json ]]; then
-            rm -f package-lock.json
-          fi
-
-          if [[ -f package.json ]]; then
-            rm -f package.json
-          fi
+          echo "[DEBUG] - pnpm dependencies analysis disabled"
+          find ./build -type f -not \( -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" \) -delete
 
           if [[ -f composer.lock ]]; then
             echo "trigger_sca_scan=true" >> $GITHUB_ENV
