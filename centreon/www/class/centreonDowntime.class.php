@@ -60,6 +60,8 @@ class CentreonDowntime
     protected $periods = null;
     protected $downtimes = null;
 
+    private const SERVICE_REGISTER_SERVICE_TEMPLATE = 0;
+
     /**
      * Construtor
      *
@@ -530,7 +532,8 @@ class CentreonDowntime
                 h.host_id,
                 h.host_name,
                 s.service_id,
-                s.service_description
+                s.service_description,
+                s.service_register
             FROM downtime_period dtp,
                 downtime dt,
                 downtime_servicegroup_relation dtr,
@@ -558,7 +561,8 @@ class CentreonDowntime
                     h.host_id,
                     h.host_name,
                     s.service_id,
-                    s.service_description
+                    s.service_description,
+                    s.service_register
                 FROM downtime_period dtp,
                     downtime dt,
                     downtime_servicegroup_relation dtr,
@@ -580,10 +584,69 @@ class CentreonDowntime
         $statement = $this->db->query($request);
 
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $downtimes[] = $record;
+            if ((int) $record['service_register'] === self::SERVICE_REGISTER_SERVICE_TEMPLATE) {
+                foreach ($this->findServicesLinkedToServiceTemplate((int) $record['service_id']) as $service) {
+                    $downtimes[] = [
+                        'dt_id' => $record['dt_id'],
+                        'dt_activate' => $record['dt_activate'],
+                        'dtp_start_time' => $record['dtp_start_time'],
+                        'dtp_end_time' => $record['dtp_end_time'],
+                        'dtp_day_of_week' => $record['dtp_day_of_week'],
+                        'dtp_month_cycle' => $record['dtp_month_cycle'],
+                        'dtp_day_of_month' => $record['dtp_day_of_month'],
+                        'dtp_fixed' => $record['dtp_fixed'],
+                        'dtp_duration' => $record['dtp_duration'],
+                        'host_id' => $service['host_id'],
+                        'host_name' => $service['host_name'],
+                        'service_id' => $service['service_id'],
+                        'service_description' => $service['service_description'],
+                    ];
+                }
+            } else {
+                $downtimes[] = $record;
+            }
         }
 
+        var_export($downtimes);
+
         return $downtimes;
+    }
+
+    // private function createDowntime(array $data): array
+    // {
+    //
+    // }
+
+    /**
+     * @param int $serviceTemplateId 
+     * @return array 
+     * @throws PDOException 
+     */
+    private function findServicesLinkedToServiceTemplate(int $serviceTemplateId): array
+    {
+        $request = <<<SQL
+            SELECT
+                h.host_name,
+                h.host_id,
+                s.service_id,
+                s.service_description
+            FROM host h
+            LEFT JOIN host_service_relation hsr
+                ON h.host_id = hsr.host_host_id
+            INNER JOIN service s
+                ON hsr.service_service_id = s.service_id
+            WHERE
+                s.service_template_model_stm_id = $serviceTemplateId
+        SQL;
+
+        $statement = $this->db->query($request);
+
+        $services = [];
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $services[] = $record;
+        }
+
+        return $services;
     }
 
     /**
