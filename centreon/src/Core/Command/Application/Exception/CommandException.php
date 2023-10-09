@@ -66,7 +66,7 @@ final class CommandException extends \Exception
     public static function invalidCommandType(int $type): self
     {
         return new self(
-            sprintf( _("'%d' is not a valid command type'"), $type),
+            sprintf( _("'%d' is not a valid command type"), $type),
             self::CODE_CONFLICT
         );
     }
