@@ -20,6 +20,8 @@ import {
 } from '../../translatedLabels';
 import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
 
+import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
+
 interface DashboardEditActionsProps {
   panels?: Array<DashboardPanel>;
 }
@@ -27,6 +29,7 @@ interface DashboardEditActionsProps {
 const DashboardEditActions = ({
   panels
 }: DashboardEditActionsProps): ReactElement => {
+  const { classes } = useDashboardEditActionsStyles();
   const { t } = useTranslation();
 
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
@@ -64,11 +67,11 @@ const DashboardEditActions = ({
   useEffect(() => {
     if (searchParams.get('edit') === 'true') startEditing();
     if (searchParams.get('edit') === null) stopEditing();
-  }, [searchParams]);
+  }, []);
 
   const saveAndProceed = (): void => {
     saveDashboard();
-    switchPanelsEditionMode(false);
+    stopEditing();
   };
 
   if (!isEditing) {
@@ -88,7 +91,7 @@ const DashboardEditActions = ({
   }
 
   return (
-    <>
+    <div className={classes.root}>
       <Button
         aria-label={t(labelCancel) as string}
         data-testid="cancel_dashboard"
@@ -103,12 +106,12 @@ const DashboardEditActions = ({
         data-testid="save_dashboard"
         disabled={!dirty}
         size="small"
-        variant="ghost"
+        variant="primary"
         onClick={saveAndProceed}
       >
         {t(labelSave)}
       </Button>
-    </>
+    </div>
   );
 };
 

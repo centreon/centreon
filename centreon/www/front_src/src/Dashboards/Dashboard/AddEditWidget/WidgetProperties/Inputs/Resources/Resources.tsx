@@ -78,7 +78,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               className={classes.resourceType}
               dataTestId={labelResourceType}
               disabled={!canEditField}
-              label={t(labelResourceType) as string}
+              label={t(labelSelectAResource) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}

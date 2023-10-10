@@ -30,14 +30,13 @@ import {
   ServiceMetric,
   Widget,
   WidgetDataMetric,
-  WidgetDataResource,
-  WidgetResourceType
+  WidgetDataResource
 } from '../../../models';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { labelPleaseSelectAMetric } from '../../../../translatedLabels';
 import { singleMetricSelectionAtom } from '../../../atoms';
-import { getDataProperty } from '../utils';
+import { getDataProperty, resourceTypeQueryParameter } from '../utils';
 
 interface UseMetricsState {
   addButtonHidden?: boolean;
@@ -60,13 +59,6 @@ interface UseMetricsState {
   serviceOptions: Array<SelectEntry>;
   value: Array<WidgetDataMetric>;
 }
-
-const resourceTypeQueryParameter = {
-  [WidgetResourceType.host]: 'host.id',
-  [WidgetResourceType.hostCategory]: 'hostcategory.id',
-  [WidgetResourceType.hostGroup]: 'hostgroup.id',
-  [WidgetResourceType.service]: 'service.name'
-};
 
 const useMetrics = (propertyName: string): UseMetricsState => {
   const { values, setFieldValue, setFieldTouched, touched } =
@@ -242,7 +234,11 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       return;
     }
 
-    if (equals(servicesMetrics.result.length, 1)) {
+    if (
+      equals(servicesMetrics.result.length, 1) &&
+      isEmpty(value?.[0].id) &&
+      isEmpty(value?.[0].metrics)
+    ) {
       setFieldValue(`data.${propertyName}`, [
         {
           id: servicesMetrics.result[0].id,

@@ -5,12 +5,12 @@ import {
   DashboardGlobalRole,
   DashboardRolesAndPermissions,
   ListingVariant,
-  ThemeMode
+  ThemeMode,
+  FeatureFlags,
+  PlatformFeatures
 } from '@centreon/ui-context';
 
 import {
-  FeatureFlags,
-  PlatformFeatures,
   PlatformInstallationStatus,
   PlatformVersions,
   Version

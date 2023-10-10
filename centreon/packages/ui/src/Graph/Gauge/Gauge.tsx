@@ -1,5 +1,4 @@
-import { Responsive } from '@visx/visx';
-
+import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
 import { getMetricWithLatestData } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
@@ -26,7 +25,7 @@ export const Gauge = ({
   const metric = getMetricWithLatestData(data) as Metric;
 
   return (
-    <Responsive.ParentSize>
+    <ParentSize>
       {({ width, height }) => (
         <ResponsiveGauge
           baseColor={baseColor}
@@ -37,6 +36,6 @@ export const Gauge = ({
           width={width}
         />
       )}
-    </Responsive.ParentSize>
+    </ParentSize>
   );
 };
