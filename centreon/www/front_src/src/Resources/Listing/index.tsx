@@ -11,10 +11,9 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { userAtom, featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
-import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 import Actions from '../Actions';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import VisualizationActions from '../Actions/Visualization';

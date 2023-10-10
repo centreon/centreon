@@ -80,3 +80,16 @@ export interface Downtime {
   fixed: boolean;
   with_services: boolean;
 }
+
+export interface FeatureFlags {
+  adExclusionPeriods?: boolean;
+  dashboard?: boolean;
+  notification?: boolean;
+  resourceStatusTreeView?: boolean;
+  vault?: boolean;
+}
+
+export interface PlatformFeatures {
+  featureFlags: FeatureFlags;
+  isCloudPlatform: boolean;
+}

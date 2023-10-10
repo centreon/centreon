@@ -4,7 +4,7 @@ import { always, cond, equals } from 'ramda';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
 interface Props {
-  globalRefreshInterval: {
+  globalRefreshInterval?: {
     interval: number | null;
     type: 'global' | 'manual';
   };
@@ -15,7 +15,10 @@ interface Props {
 export const useRefreshInterval = ({
   refreshInterval,
   refreshIntervalCustom,
-  globalRefreshInterval
+  globalRefreshInterval = {
+    interval: null,
+    type: 'global'
+  }
 }: Props): number | false => {
   const platformInterval = useAtomValue(refreshIntervalAtom);
 
