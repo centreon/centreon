@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 Cypress.Commands.add(
-  'waitDashboardModalToCharge',
+  'waitUntilForDashboardRoles',
   (accessRightsTestId, expectedElementCount) => {
     const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
       return cy
@@ -35,7 +35,7 @@ Cypress.Commands.add(
 declare global {
   namespace Cypress {
     interface Chainable {
-      waitDashboardModalToCharge: (
+      waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number
       ) => Cypress.Chainable;
