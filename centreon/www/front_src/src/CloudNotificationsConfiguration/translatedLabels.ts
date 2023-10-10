@@ -1,7 +1,7 @@
 export const labelNotificationsManagement = 'Notifications management';
 export const labelWelcomeToTheNotifications =
   'Welcome to the notifications interface';
-export const labelCreateNotification = 'Create a notification';
+export const labelCreateNotification = 'Create a notification rule';
 export const labelAdd = 'Add';
 export const labelDuplicate = 'Duplicate';
 export const labelDelete = 'Delete';

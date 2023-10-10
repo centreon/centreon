@@ -16349,7 +16349,7 @@ msgstr ""
 # msgid 'Welcome to the notifications interface'
 # msgstr ""
 
-# msgid 'Create a notification'
+# msgid 'Create a notification rule'
 # msgstr ""
 
 # msgid 'Add'
