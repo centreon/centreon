@@ -12,6 +12,10 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: theme.spacing(1)
+  },
+  rightContainer: {
+    display: 'flex',
+    gap: 4
   }
 }));
 
@@ -37,7 +41,7 @@ const Actions = ({ onSearch, onClear, save }: Props): JSX.Element => {
           {t(labelClear)}
         </Button>
       </Grid>
-      <Grid item style={{ display: 'flex' }}>
+      <Grid item className={classes.rightContainer}>
         {save}
         <Button
           color="primary"

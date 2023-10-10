@@ -23,7 +23,7 @@ export const useStyles = makeStyles()((theme) => ({
   },
   footer: {
     borderStyle: 'dashed',
-    margin: theme.spacing(2, 0, 0, 0)
+    margin: theme.spacing(1, 0, 0, 0)
   },
   small: {
     display: 'flex',

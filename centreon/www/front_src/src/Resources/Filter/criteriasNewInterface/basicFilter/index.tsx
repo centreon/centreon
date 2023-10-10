@@ -1,6 +1,6 @@
 import { Divider } from '@mui/material';
 
-import { useStyles } from './sections/sections.style';
+import { useStyles } from '../criterias.style';
 
 interface BasicFilter {
   poller: JSX.Element;
@@ -16,7 +16,6 @@ const BasicFilter = ({ sections, poller, state }: BasicFilter): JSX.Element => {
       {sections}
       {poller}
       <Divider className={classes.divider} />
-
       {state}
     </div>
   );
