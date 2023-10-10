@@ -16327,3 +16327,9 @@ msgstr ""
 
 #  msgid "View by service"
 #  msgstr ""
+
+msgid "Advanced mode"
+msgstr "Modo avanzado"
+
+msgid "Information"
+msgstr "Información"

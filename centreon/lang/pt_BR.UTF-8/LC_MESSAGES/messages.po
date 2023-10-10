@@ -16792,3 +16792,9 @@ msgstr ""
 
 #  msgid "View by service"
 #  msgstr ""
+
+#  msgid "Advanced mode"
+#  msgstr ""
+
+#  msgid "Information"
+#  msgstr ""

@@ -1,4 +1,5 @@
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
@@ -30,6 +31,7 @@ const InputGroup = ({
   label,
   resourceType
 }: Props): JSX.Element | null => {
+  const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
 
   const { dataByFilterName } = useInputData({
@@ -80,7 +82,7 @@ const InputGroup = ({
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
       isOptionEqualToValue={isOptionEqualToValue}
-      label={currentLabel}
+      label={t(currentLabel) as string}
       placeholder={currentLabel}
       search={dataByFilterName?.autocompleteSearch}
       value={value}

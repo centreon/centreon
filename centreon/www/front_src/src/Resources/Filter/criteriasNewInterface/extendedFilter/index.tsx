@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Divider } from '@mui/material';
 
@@ -21,6 +22,7 @@ interface Props {
 
 const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   const { classes } = useStyles();
+  const { t } = useTranslation();
   const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
     data
   });
@@ -56,7 +58,7 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
       {displayInformationFilter && (
         <FilterSearch
           field={SearchableFields.information}
-          placeholder="Information"
+          placeholder={t('Information') as string}
         />
       )}
       <Divider className={classes.dividerInputs} />

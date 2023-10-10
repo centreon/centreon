@@ -18129,3 +18129,9 @@ msgstr "Afficher par hôte"
 
 msgid "View by service"
 msgstr "Afficher par service"
+
+msgid "Advanced mode"
+msgstr "Mode avancé"
+
+msgid "Information"
+msgstr "Information"

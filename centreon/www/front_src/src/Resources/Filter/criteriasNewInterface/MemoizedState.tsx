@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useMemoComponent } from '@centreon/ui';
 
 import { CheckBoxWrapper } from './CheckBoxWrapper';
@@ -7,19 +9,22 @@ import { findData } from './utils';
 const MemoizedState = ({
   basicData,
   changeCriteria
-}: MemoizedChild): JSX.Element =>
-  useMemoComponent({
+}: MemoizedChild): JSX.Element => {
+  const { t } = useTranslation();
+
+  return useMemoComponent({
     Component: (
       <CheckBoxWrapper
         changeCriteria={changeCriteria}
         data={basicData}
         filterName={BasicCriteria.states}
-        title="State"
+        title={t('State')}
       />
     ),
     memoProps: [
       findData({ data: basicData, filterName: BasicCriteria.states })?.value
     ]
   });
+};
 
 export default MemoizedState;

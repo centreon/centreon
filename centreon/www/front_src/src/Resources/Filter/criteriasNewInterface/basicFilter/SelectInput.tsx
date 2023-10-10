@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { SelectEntry, SingleConnectedAutocompleteField } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
@@ -27,6 +29,7 @@ const SelectInput = ({
   resourceType,
   changeCriteria
 }: Props): JSX.Element | null => {
+  const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { dataByFilterName, valueSearchData } = useInputData({
     data: sectionData,
@@ -137,7 +140,7 @@ const SelectInput = ({
     <SingleConnectedAutocompleteField
       field="name"
       getEndpoint={getEndpoint}
-      label={resourceType}
+      label={t(resourceType) as string}
       placeholder={dataByFilterName.label}
       value={value}
       onChange={(_, updatedValue): void => handleChange(updatedValue)}

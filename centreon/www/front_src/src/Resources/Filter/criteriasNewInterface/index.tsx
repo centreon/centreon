@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Divider } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -40,6 +41,7 @@ interface Criterias {
 
 const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
   const { classes, cx } = useStyles();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const displayActions = useAtomValue(displayActionsAtom);
@@ -191,7 +193,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
                 onChange={controlFilterInterface}
               />
             }
-            label="Advanced mode"
+            label={t('Advanced mode')}
           />
           {actions}
         </>

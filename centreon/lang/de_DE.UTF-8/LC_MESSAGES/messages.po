@@ -15993,3 +15993,9 @@ msgstr ""
 
 #  msgid "View by service"
 #  msgstr ""
+
+msgid "Advanced mode"
+msgstr "Geavanceerde modus"
+
+msgid "Information"
+msgstr "Informatie"

@@ -16781,3 +16781,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "View by service"
 #  msgstr ""
+
+#  msgid "Advanced mode"
+#  msgstr ""
+
+#  msgid "Information"
+#  msgstr ""

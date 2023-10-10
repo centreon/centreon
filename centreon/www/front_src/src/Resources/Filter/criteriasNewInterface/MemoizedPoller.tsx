@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useMemoComponent } from '@centreon/ui';
 
 import InputGroup from './basicFilter/InputGroup';
@@ -8,13 +10,15 @@ const MemoizedPoller = ({
   basicData,
   changeCriteria
 }: MemoizedChild): JSX.Element => {
+  const { t } = useTranslation();
+
   return useMemoComponent({
     Component: (
       <InputGroup
         changeCriteria={changeCriteria}
         data={basicData}
         filterName={BasicCriteria.monitoringServers}
-        label="Poller"
+        label={t('Poller') as string}
       />
     ),
     memoProps: [
