@@ -602,16 +602,18 @@ class CentreonDowntime
             }
         }
 
-        foreach ($this->findServicesByServiceTemplateIds(array_keys($templateDowntimeInformation)) as $service) {
-            $downtimes[] = array_merge(
-                $templateDowntimeInformation[$service['service_template_model_stm_id']],
-                [
-                    'host_id' => $service['host_id'],
-                    'host_name' => $service['host_name'],
-                    'service_id' => $service['service_id'],
-                    'service_description' => $service['service_description']
-                ]
-            ); 
+        if (! empty($templateDowntimeInformation)) {
+            foreach ($this->findServicesByServiceTemplateIds(array_keys($templateDowntimeInformation)) as $service) {
+                $downtimes[] = array_merge(
+                    $templateDowntimeInformation[$service['service_template_model_stm_id']],
+                    [
+                        'host_id' => $service['host_id'],
+                        'host_name' => $service['host_name'],
+                        'service_id' => $service['service_id'],
+                        'service_description' => $service['service_description']
+                    ]
+                ); 
+            }
         }
 
         return $downtimes;
