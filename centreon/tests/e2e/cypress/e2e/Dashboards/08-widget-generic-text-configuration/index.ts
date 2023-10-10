@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import '@testing-library/cypress/add-commands';
 
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
@@ -6,13 +7,13 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
-  );
+  ); */
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -46,6 +47,10 @@ beforeEach(() => {
     method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
+  cy.intercept({
+    method: 'PATCH',
+    url: `/centreon/api/latest/configuration/dashboards/*`
+  }).as('updateDashboard');
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
@@ -58,7 +63,7 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-  cy.stopWebContainer();
+  // cy.stopWebContainer();
 });
 
 Given(
@@ -129,6 +134,7 @@ Then('its title and description are displayed', () => {
   cy.contains(genericTextWidgets.default.title).should('exist');
   cy.contains(genericTextWidgets.default.description).should('exist');
   cy.getByTestId({ testId: 'save_dashboard' }).click();
+  cy.wait('@updateDashboard');
   cy.contains(genericTextWidgets.default.title).should('exist');
   cy.contains(genericTextWidgets.default.description).should('exist');
 });
@@ -141,13 +147,18 @@ Given('a dashboard containing a Generic text widget', () => {
   })
     .contains(dashboards.default.name)
     .click();
+  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains(genericTextWidgets.default.title).should('exist');
   cy.contains(genericTextWidgets.default.description).should('exist');
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
-  cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByLabel({ label: 'Duplicate' }).click();
+  cy.getByLabel({ label: 'Refresh' }).click();
+  cy.getByTestId({ testId: 'save_dashboard' }).click();
+  cy.wait('@updateDashboard');
 });
 
 Then(
@@ -160,15 +171,71 @@ Then(
       .should('contain.text', genericTextWidgets.default.title);
     cy.get('*[class^="react-grid-layout"]')
       .children()
-      .eq(1)
+      .eq(0)
       .should('contain.text', genericTextWidgets.default.description);
     cy.get('*[class^="react-grid-layout"]')
       .children()
-      .eq(0)
+      .eq(1)
       .should('contain.text', genericTextWidgets.default.title);
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(1)
       .should('contain.text', genericTextWidgets.default.description);
+  }
+);
+
+Given('a dashboard containing Generic text widgets', () => {
+  cy.visit('/centreon/home/dashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByTestId({ testId: 'edit_dashboard' }).click();
+
+  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
+});
+
+When(
+  'the dashboard administrator user updates the contents of one of these widgets',
+  () => {
+    cy.findAllByLabelText('More actions').eq(1).trigger('click');
+    cy.findByLabelText('Edit widget').click();
+    cy.getByLabel({ label: 'Title' }).clear();
+    cy.getByLabel({ label: 'Title' }).type(
+      `${genericTextWidgets.default.title}-edited`
+    );
+    cy.findAllByTestId('RichTextEditor')
+      .get('[contenteditable="true"]')
+      .trigger('click', { force: true });
+    cy.findAllByTestId('RichTextEditor')
+      .get('[contenteditable="true"]')
+      .clear({ force: true });
+    cy.findAllByTestId('RichTextEditor')
+      .get('[contenteditable="true"]')
+      .type(`${genericTextWidgets.default.description}-edited`, {
+        force: true
+      });
+    cy.getByTestId({ testId: 'confirm' }).click();
+    cy.getByTestId({ testId: 'save_dashboard' }).click();
+    cy.wait('@updateDashboard');
+  }
+);
+
+Then(
+  'the updated contents of the widget are displayed instead of the original ones',
+  () => {
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
+      .eq(1)
+      .should('contain.text', `${genericTextWidgets.default.title}-edited`);
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
+      .eq(1)
+      .should(
+        'contain.text',
+        `${genericTextWidgets.default.description}-edited`
+      );
   }
 );

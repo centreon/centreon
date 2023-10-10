@@ -18,3 +18,8 @@ Scenario: Copying a Generic text widget
   Given a dashboard containing a Generic text widget
   When the dashboard administrator user duplicates the widget
   Then a second widget with identical content is displayed on the dashboard
+
+Scenario: Editing a Generic text widget
+  Given a dashboard containing Generic text widgets
+  When the dashboard administrator user updates the contents of one of these widgets
+  Then the updated contents of the widget are displayed instead of the original ones

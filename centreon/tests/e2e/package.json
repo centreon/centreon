@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^18.0.6",
+    "@testing-library/cypress": "^10.0.1",
     "@types/cypress-cucumber-preprocessor": "^4.0.2",
     "@types/node": "^20.6.3",
     "cypress": "^13.2.0",
