@@ -7,7 +7,7 @@ on:
       - "centreon/packages/ui-context/**"
       - '.github/workflows/ui-context.yml'
     branches:
-      - develop
+      - dev-23.04.x
 
 env:
   directory: "centreon/packages/ui-context"
