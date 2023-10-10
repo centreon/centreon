@@ -83,7 +83,7 @@ it('should throw an exception when name is too long', function (): void {
     )->getMessage()
 );
 
-it('should throw an exception when name contains invalid character', function (): void {
+it('should throw an exception when name contains invalid characters', function (): void {
     new NewCommand(
         name: new TrimmedString('command-name-' . MonitoringServer::ILLEGAL_CHARACTERS[0] . '-test'),
         commandLine: new TrimmedString('commandline'),

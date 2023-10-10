@@ -151,7 +151,7 @@ it(
 });
 
 it(
-    'should present an ConflictResponse when an a request parameter is invalid',
+    'should present a ConflictResponse when an a request parameter is invalid',
     function (): void {
         $this->user
             ->expects($this->atMost(4))
@@ -215,7 +215,7 @@ it(
 );
 
 it(
-    'should present a AddCommandResponse when everything has gone well',
+    'should present an AddCommandResponse when everything has gone well',
     function (): void {
         $this->user
             ->expects($this->atMost(4))

@@ -118,7 +118,7 @@ it('should throw an exception when name is too long', function (): void {
     )->getMessage()
 );
 
-it('should throw an exception when name contains invalid character', function (): void {
+it('should throw an exception when name contains invalid characters', function (): void {
     new Command(
         id: 1,
         name: 'command-name-' . MonitoringServer::ILLEGAL_CHARACTERS[0] . '-test',
