@@ -57,7 +57,6 @@ it('should throw an exception when name is too long', function (): void {
 );
 
 it('should throw an exception when name does not respect format', function (): void {
-
     new Argument(
         new TrimmedString('test'),
         new TrimmedString('argDescription')
@@ -72,7 +71,6 @@ it('should throw an exception when name does not respect format', function (): v
 );
 
 it('should throw an exception when description is too long', function (): void {
-
     new Argument(
         new TrimmedString('ARG1'),
         new TrimmedString(str_repeat('a', Argument::DESCRIPTION_MAX_LENGTH + 1))

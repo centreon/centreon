@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -40,7 +41,6 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
-use Core\Common\Domain\SimpleEntity;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
 

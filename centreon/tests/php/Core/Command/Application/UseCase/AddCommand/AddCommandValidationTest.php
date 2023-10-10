@@ -23,31 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Command\Application\UseCase\AddCommand;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Application\UseCase\AddCommand\AddCommandRequest;
 use Core\Command\Application\UseCase\AddCommand\AddCommandValidation;
 use Core\Command\Application\UseCase\AddCommand\ArgumentDto;
 use Core\Command\Application\UseCase\AddCommand\MacroDto;
-use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
-use Core\Common\Domain\TrimmedString;
 use Core\Connector\Application\Repository\ReadConnectorRepositoryInterface;
 use Core\GraphTemplate\Application\Repository\ReadGraphTemplateRepositoryInterface;
-use Core\Host\Application\Exception\HostException;
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostValidation;
-use Core\Host\Domain\Model\Host;
-use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
-use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
     $this->validation = new AddCommandValidation(

@@ -25,8 +25,6 @@ namespace Tests\Core\Command\Application\UseCase\AddCommand;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -39,19 +37,15 @@ use Core\Command\Application\UseCase\AddCommand\AddCommandResponse;
 use Core\Command\Application\UseCase\AddCommand\AddCommandValidation;
 use Core\Command\Application\UseCase\AddCommand\ArgumentDto;
 use Core\Command\Application\UseCase\AddCommand\MacroDto;
-use Core\Command\Application\UseCase\FindCommands\FindCommands;
-use Core\Command\Application\UseCase\FindCommands\FindCommandsResponse;
 use Core\Command\Domain\Model\Argument;
 use Core\Command\Domain\Model\Command;
 use Core\Command\Domain\Model\CommandType;
-use Core\Command\Infrastructure\Model\CommandTypeConverter;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Tests\Core\Command\Infrastructure\API\AddCommand\AddCommandPresenterStub;
-use Tests\Core\Command\Infrastructure\API\FindCommands\FindCommandsPresenterStub;
 
 beforeEach(closure: function (): void {
     $this->presenter = new AddCommandPresenterStub($this->createMock(PresenterFormatterInterface::class));
@@ -147,7 +141,6 @@ it(
                 [Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW, true],
             ]
         );
-
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -265,21 +258,21 @@ it(
             ->and($response->isActivated)->toBe($this->command->isActivated())
             ->and($response->argumentExample)->tobe($this->command->getArgumentExample())
             ->and($response->connector)->toBe([
-                    'id' => $this->command->getConnector()->getId(),
-                    'name' => $this->command->getConnector()->getName(),
-                ])
+                'id' => $this->command->getConnector()->getId(),
+                'name' => $this->command->getConnector()->getName(),
+            ])
             ->and($response->graphTemplate)->toBe([
-                    'id' => $this->command->getGraphTemplate()->getId(),
-                    'name' => $this->command->getGraphTemplate()->getName(),
-                ])
+                'id' => $this->command->getGraphTemplate()->getId(),
+                'name' => $this->command->getGraphTemplate()->getName(),
+            ])
             ->and($response->arguments)->tobe([[
-                    'name' => $this->command->getArguments()[0]->getName(),
-                    'description' => $this->command->getArguments()[0]->getDescription(),
-                ]])
+                'name' => $this->command->getArguments()[0]->getName(),
+                'description' => $this->command->getArguments()[0]->getDescription(),
+            ]])
             ->and($response->macros)->tobe([[
-                    'name' => $this->command->getMacros()[0]->getName(),
-                    'description' => $this->command->getMacros()[0]->getDescription(),
-                    'type' => $this->command->getMacros()[0]->getType(),
-                ]]);
+                'name' => $this->command->getMacros()[0]->getName(),
+                'description' => $this->command->getMacros()[0]->getDescription(),
+                'type' => $this->command->getMacros()[0]->getType(),
+            ]]);
     }
 );

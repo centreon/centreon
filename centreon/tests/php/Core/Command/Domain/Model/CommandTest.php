@@ -76,7 +76,6 @@ it('should return properly set instance', function (): void {
         ->and($command->getMacros()[0]->getName())->toBe('macro-name')
         ->and($command->getConnector()->getName())->toBe('connector-name')
         ->and($command->getGraphTemplate()->getName())->toBe('graphTemplate-name');
-
 });
 
 it('should throw an exception when ID is < 0', function (): void {

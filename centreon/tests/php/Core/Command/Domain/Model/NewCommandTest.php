@@ -54,7 +54,6 @@ it('should return properly set instance', function (): void {
         ->and($command->getMacros()[0]->getName())->toBe('macro-name')
         ->and($command->getConnectorId())->toBe(1)
         ->and($command->getGraphTemplateId())->toBe(2);
-
 });
 
 it('should throw an exception when name is empty', function (): void {
