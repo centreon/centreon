@@ -7,13 +7,13 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 
 before(() => {
   cy.startWebContainer();
-  /* cy.execInContainer({
+  cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
-  ); */
+  );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -63,7 +63,7 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-  // cy.stopWebContainer();
+  cy.stopWebContainer();
 });
 
 Given(
