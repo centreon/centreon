@@ -711,7 +711,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.waitUntilForDashboardRoles('share', 3);
+    cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -737,6 +737,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
+    cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)

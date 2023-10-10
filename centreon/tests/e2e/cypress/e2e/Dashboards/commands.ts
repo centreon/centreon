@@ -4,23 +4,16 @@ Cypress.Commands.add(
   'waitUntilForDashboardRoles',
   (accessRightsTestId, expectedElementCount) => {
     const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
-      return cy
-        .getByTestId({ testId: accessRightsTestId })
-        .invoke('show')
-        .click()
-        .then(() => {
-          return cy
-            .get('[data-testid="role-input"]')
-            .should('be.visible')
-            .then(($element) => {
-              if ($element.length === expectedElementCount) {
-                cy.getByTestId({ testId: 'CloseIcon' }).click();
-                return cy.wrap(true);
+      cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
+      cy.getByTestId({ testId: 'role-input' }).eq(1).should('be.visible');
 
-              }
-              cy.getByTestId({ testId: 'CloseIcon' }).click();
-              return openModalAndCheck();
-            });
+      return cy
+        .get('[data-testid="role-input"]')
+        .should('be.visible')
+        .then(($element) => {
+          cy.getByTestId({ testId: 'CloseIcon' }).click();
+
+          return cy.wrap($element.length === expectedElementCount);
         });
     };
 
@@ -42,3 +35,5 @@ declare global {
     }
   }
 }
+
+export {};
