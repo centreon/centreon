@@ -220,6 +220,12 @@ const mockNotConnectedGetRequests = (): void => {
       data: retrievedWeb
     })
     .mockResolvedValueOnce({
+      data: {
+        feature_flags: {},
+        is_cloud_platform: false
+      }
+    })
+    .mockResolvedValueOnce({
       data: retrievedTranslations
     })
     .mockResolvedValueOnce({
