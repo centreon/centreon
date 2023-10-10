@@ -289,3 +289,47 @@ Then('only the contents of the other widget are displayed', () => {
     .eq(1)
     .should('not.have.class', '^"react-grid-layout"');
 });
+
+Given('a dashboard featuring a single text widget', () => {
+  cy.visit('/centreon/home/dashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByTestId({ testId: 'edit_dashboard' }).click();
+
+  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
+});
+
+When(
+  'the dashboard administrator user hides the description of the widget',
+  () => {
+    cy.findAllByLabelText('More actions').trigger('click');
+    cy.findByLabelText('Edit widget').click();
+    cy.getByLabel({ label: 'Show description' }).click();
+    cy.getByTestId({ testId: 'confirm' }).click();
+    cy.getByTestId({ testId: 'save_dashboard' }).click();
+    cy.wait('@updateDashboard');
+  }
+);
+
+Then('the description is hidden and only the title is displayed', () => {
+  cy.get('*[class^="react-grid-layout"]')
+    .children()
+    .eq(0)
+    .should('contain.text', `${genericTextWidgets.default.title}`);
+  cy.get('*[class^="react-grid-layout"]')
+    .children()
+    .eq(0)
+    .should('not.contain.text', `${genericTextWidgets.default.description}`);
+
+  cy.getByTestId({ testId: 'edit_dashboard' }).click();
+  cy.findAllByLabelText('More actions').trigger('click', { force: true });
+  cy.findByLabelText('Edit widget').click();
+  cy.getByLabel({ label: 'Show description' }).click({ force: true });
+  cy.getByTestId({ testId: 'confirm' }).click();
+  cy.getByTestId({ testId: 'save_dashboard' }).click();
+  cy.wait('@updateDashboard');
+});

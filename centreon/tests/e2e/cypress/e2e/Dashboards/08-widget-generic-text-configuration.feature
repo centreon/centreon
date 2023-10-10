@@ -14,7 +14,7 @@ Scenario: Creating and configuring a new Generic text widget on a dashboard
   Then the Generic text widget is added in the dashboard's layout
   And its title and description are displayed
 
-Scenario: Copying a Generic text widget
+Scenario: Duplicating a Generic text widget
   Given a dashboard containing a Generic text widget
   When the dashboard administrator user duplicates the widget
   Then a second widget with identical content is displayed on the dashboard
@@ -28,3 +28,8 @@ Scenario: Deleting a Generic text widget
   Given a dashboard featuring two Generic text widgets
   When the dashboard administrator user deletes one of the widgets
   Then only the contents of the other widget are displayed
+
+Scenario: Hiding the description of a Generic text widget
+  Given a dashboard featuring a single text widget
+  When the dashboard administrator user hides the description of the widget
+  Then the description is hidden and only the title is displayed
