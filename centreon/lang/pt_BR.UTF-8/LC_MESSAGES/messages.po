@@ -16343,7 +16343,7 @@ msgstr ""
 
 #cloud notifications
 
-# msgid 'Notifications management'
+# msgid 'Notification rules'
 # msgstr ""
 
 # msgid 'Welcome to the notifications interface'

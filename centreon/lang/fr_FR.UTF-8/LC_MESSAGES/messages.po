@@ -15500,14 +15500,14 @@ msgstr "Notification envoyée à"
 
 #: cloud notification configuration
 
-msgid "Notifications management"
-msgstr "Gestion des notifications"
+msgid "Notification rules"
+msgstr "Règles de notification"
 
 msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
 
 msgid "Create a notification rule"
-msgstr "Créer une notification"
+msgstr "Créer une règle notification"
 
 msgid "Channels"
 msgstr "Canaux"
