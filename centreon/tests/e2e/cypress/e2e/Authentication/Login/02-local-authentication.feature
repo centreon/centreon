@@ -1,3 +1,4 @@
+@REQ_MON-22115
 Feature: Local authentication
   As a user
   I want to be able to manage password security policies on a Centreon platform for users going through local authentication
