@@ -16404,7 +16404,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Please enter a name for the duplicated notification"
 # msgstr ""
 
-# msgid 'Delete notification?'
+# msgid 'Delete notification rule?'
 # msgstr ""
 
 # msgid 'This action cannot be undone'

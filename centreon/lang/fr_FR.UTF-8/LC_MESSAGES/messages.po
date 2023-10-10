@@ -15533,8 +15533,8 @@ msgstr "Échec de la duplication de la notification"
 msgid "Please enter a name for the duplicated notification"
 msgstr "Veuillez entrer un nom pour la notification dupliquée"
 
-msgid "Delete notification?"
-msgstr "Supprimer la notification?"
+msgid "Delete notification rule?"
+msgstr "Supprimer la règle de notification ?"
 
 msgid "This action cannot be undone"
 msgstr "Cette action est irréversible"
