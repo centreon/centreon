@@ -3,25 +3,28 @@
 Cypress.Commands.add(
   'waitDashboardModalToCharge',
   (accessRightsTestId, expectedElementCount) => {
-    const openModalAndCheck: () => boolean = () => {
-      cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
-      cy.getByTestId({ testId: 'role-input' }).eq(1).should('be.visible');
-
+    const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
       return cy
-        .get('[data-testid="role-input"]')
-        .should('be.visible')
-        .then(($element) => {
-          if ($element.length === expectedElementCount) {
-            cy.getByTestId({ testId: 'CloseIcon' }).click();
-            return cy.wrap(true);
-          }
-          cy.getByTestId({ testId: 'CloseIcon' }).click();
+        .getByTestId({ testId: accessRightsTestId })
+        .invoke('show')
+        .click()
+        .then(() => {
+          return cy
+            .get('[data-testid="role-input"]')
+            .should('be.visible')
+            .then(($element) => {
+              if ($element.length === expectedElementCount) {
+                cy.getByTestId({ testId: 'CloseIcon' }).click();
+                return cy.wrap(true);
 
-          return openModalAndCheck();
+              }
+              cy.getByTestId({ testId: 'CloseIcon' }).click();
+              return openModalAndCheck();
+            });
         });
     };
 
-    return cy.waitUntil(openModalAndCheck, {
+    return cy.waitUntil(() => openModalAndCheck(), {
       errorMsg: 'The element does not exist',
       interval: 3000,
       timeout: 30000
