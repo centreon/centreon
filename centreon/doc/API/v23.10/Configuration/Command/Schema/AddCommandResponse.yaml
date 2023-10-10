@@ -28,7 +28,7 @@ properties:
 
       If you are using the monitoring engine this option cannot be disabled.
 
-      Note that commands that require the features are slowing down the poller server.
+      Note that commands that require the shell features are slowing down the poller server.
     example: true
   is_locked:
     type: boolean
