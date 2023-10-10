@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import {
   Box,
@@ -22,15 +21,12 @@ import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
 import Subtitle from '../../../../components/Subtitle';
 import { editProperties } from '../../../../useCanEditDashboard';
-import { customBaseColorAtom } from '../../../atoms';
 
 import useThreshold from './useThreshold';
 
 const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useThresholdStyles();
-
-  const customBaseColorActivated = useAtomValue(customBaseColorAtom);
 
   const { changeType, options, enabled } = useThreshold({
     propertyName
@@ -56,7 +52,7 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           propertyName={`${propertyName}.enabled`}
         />
       </div>
-      {(!customBaseColorActivated || enabled) && (
+      {enabled && (
         <Box className={classes.thresholds}>
           {options.map(({ label, radioButtons, type, value }) => (
             <div key={label}>

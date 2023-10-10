@@ -20,13 +20,6 @@ export interface MetricsTop {
   unit: string;
 }
 
-export enum WidgetResourceType {
-  host = 'host',
-  hostCategory = 'host-category',
-  hostGroup = 'host-group',
-  service = 'service'
-}
-
 export interface WidgetDataResource {
   resourceType: 'host-group' | 'host-category' | 'host' | 'service';
   resources: Array<SelectEntry>;

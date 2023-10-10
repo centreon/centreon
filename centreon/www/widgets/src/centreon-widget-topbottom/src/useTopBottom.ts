@@ -2,6 +2,7 @@ import { equals, isEmpty, pluck } from 'ramda';
 
 import {
   buildListingEndpoint,
+  resourceTypeQueryParameter,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
@@ -9,12 +10,7 @@ import {
 import { GlobalRefreshInterval, Metric } from '../../models';
 
 import { metricsTopEndpoint } from './api/endpoint';
-import {
-  MetricsTop,
-  TopBottomSettings,
-  WidgetDataResource,
-  WidgetResourceType
-} from './models';
+import { MetricsTop, TopBottomSettings, WidgetDataResource } from './models';
 import { metricsTopDecoder } from './api/decoder';
 
 interface UseTopBottomProps {
@@ -31,13 +27,6 @@ interface UseTopBottomState {
   isLoading: boolean;
   metricsTop?: MetricsTop;
 }
-
-const resourceTypeQueryParameter = {
-  [WidgetResourceType.host]: 'host.id',
-  [WidgetResourceType.hostCategory]: 'hostcategory.id',
-  [WidgetResourceType.hostGroup]: 'hostgroup.id',
-  [WidgetResourceType.service]: 'service.name'
-};
 
 export const areResourcesFullfilled = (
   value: Array<WidgetDataResource>
