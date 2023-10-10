@@ -293,3 +293,11 @@ export const quitWithoutSavedDashboardAtom =
     'centreon-quit-without-saved-dashboard',
     null
   );
+
+export const resetDashboardDerivedAtom = atom(null, (_, setAtom) => {
+  setAtom(dashboardAtom, {
+    layout: []
+  });
+  setAtom(dashboardRefreshIntervalAtom, undefined);
+  setAtom(panelsLengthAtom, 0);
+});

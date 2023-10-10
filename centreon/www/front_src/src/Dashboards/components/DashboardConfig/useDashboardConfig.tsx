@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 
-import { atom, useAtom } from 'jotai';
+import { atom, useAtom, useSetAtom } from 'jotai';
 import {
   createSearchParams,
   generatePath,
   useNavigate
 } from 'react-router-dom';
+import { equals } from 'ramda';
 
 import { useSnackbar } from '@centreon/ui';
 
@@ -14,6 +15,7 @@ import { useCreateDashboard } from '../../api/useCreateDashboard';
 import routeMap from '../../../reactRoutes/routeMap';
 import { useUpdateDashboard } from '../../api/useUpdateDashboard';
 import { labelDashboardUpdated } from '../../translatedLabels';
+import { resetDashboardDerivedAtom } from '../../Dashboard/atoms';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
@@ -40,6 +42,8 @@ type UseDashboardConfig = {
 
 const useDashboardConfig = (): UseDashboardConfig => {
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
+
+  const resetDashboard = useSetAtom(resetDashboardDerivedAtom);
 
   const {
     mutate: createDashboardMutation,
@@ -93,6 +97,10 @@ const useDashboardConfig = (): UseDashboardConfig => {
       dialogState.variant === 'create'
         ? await createDashboardMutation(dashboard)
         : await updateDashboardMutation(dashboard);
+
+    if (equals(dialogState.variant, 'create')) {
+      resetDashboard();
+    }
 
     if (isDashboard(data) && dialogState.variant === 'create')
       navigateToDashboard(data.id);
