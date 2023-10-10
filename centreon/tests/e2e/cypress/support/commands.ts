@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../e2e/Resources-status/common';
 import { apiActionV1 } from '../commons';
+import '../e2e/Dashboards/commands';
 
 Cypress.Commands.add(
   'getByLabel',
@@ -184,41 +184,6 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
-Cypress.Commands.add('customWaitUntil', (maxRetries, accessRightsTestId) => {
-  let retries = 0;
-
-  cy.waitUntil(
-    () => {
-      retries += 1;
-      cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
-      cy.getByTestId({ testId: 'role-input' }).eq(1).should('be.visible');
-
-      cy.getByTestId({ testId: 'CloseIcon' }).click();
-
-      if (retries === maxRetries) {
-        return cy
-          .getByTestId({ testId: 'role-input' })
-          .eq(2)
-          .should('be.visible')
-          .then((isVisible) => {
-            if (isVisible) {
-              return true;
-            }
-
-            return false;
-          });
-      }
-
-      return false;
-    },
-    {
-      errorMsg: 'Element undefined',
-      interval: 3000,
-      timeout: 30000
-    }
-  );
-});
-
 interface GetByLabelProps {
   label: string;
   tag?: string;
@@ -237,10 +202,6 @@ interface requestOnDatabaseProps {
 declare global {
   namespace Cypress {
     interface Chainable {
-      customWaitUntil: (
-        maxRetries: number,
-        accessRightsTestId: string
-      ) => Cypress.Chainable;
       disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;

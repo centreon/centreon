@@ -1,5 +1,4 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import 'cypress-wait-until';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -7,11 +6,11 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 
 before(() => {
   cy.startWebContainer();
-  // cy.execInContainer({
-  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-  //   name: Cypress.env('dockerName')
-  // });
-  // cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
+  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 
 beforeEach(() => {
@@ -61,13 +60,13 @@ Given(
       .should('contain.text', 'editor');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
+    cy.customWaitUntil('edit-access-rights');
   }
 );
 
 When(
   'the dashboard administrator user promotes the viewer user to an editor',
   () => {
-    cy.customWaitUntil(3, 'edit-access-rights');
     cy.getByTestId({ testId: 'edit-access-rights' }).invoke('show').click();
     cy.getByTestId({ testId: 'role-input' }).eq(2).contains('viewer').click();
     cy.get('[role="listbox"]').contains('editor').click();
@@ -201,7 +200,7 @@ Given(
       .should('contain.text', 'editor');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.customWaitUntil(3, 'edit-access-rights');
+    cy.customWaitUntil('edit-access-rights');
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(
       'exist'
     );
