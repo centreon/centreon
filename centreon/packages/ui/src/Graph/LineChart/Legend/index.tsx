@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
-import { slice } from 'ramda';
+import { prop, slice, sortBy } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { Box, alpha, useTheme } from '@mui/material';
@@ -58,9 +58,11 @@ const MainLegend = ({
     xScale
   });
 
+  const sortedData = sortBy(prop('metric_id'), lines);
+
   const displayedLines = limitLegendRows
-    ? slice(0, maxLinesDisplayedLegend, lines)
-    : lines;
+    ? slice(0, maxLinesDisplayedLegend, sortedData)
+    : sortedData;
 
   const getMetricValue = ({ value, unit }: GetMetricValueProps): string =>
     formatMetricValue({
