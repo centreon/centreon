@@ -8,6 +8,7 @@ const useKeyObserver = (): UseKeyObserverProps => {
   const [isShiftKeyDown, setIsShiftKeyDown] = useState<boolean>(false);
 
   const pressShift = (): void => setIsShiftKeyDown(true);
+
   const releaseShift = (): void => setIsShiftKeyDown(false);
 
   const observeKeyDown = (event: KeyboardEvent): void => {
