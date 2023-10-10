@@ -24,11 +24,11 @@ properties:
   is_shell:
     type: boolean
     description: |
-      If your command requires shell features like pipes, redirections, globbing etc. check this box.
+     Is required if your command requires shell features like pipes, redirections, globbing etc..
 
       If you are using the monitoring engine this option cannot be disabled.
 
-      Note that commands that require shell are slowing down the poller server.
+      Note that commands that require shell features are slowing down the poller server.
     example: true
   is_locked:
     type: boolean
