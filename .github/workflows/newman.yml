@@ -90,7 +90,7 @@ jobs:
       with:
         registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
         username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password}}
+        password: ${{ secrets.registry_password }}
 
     - name: Start Centreon Web Container
       run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
