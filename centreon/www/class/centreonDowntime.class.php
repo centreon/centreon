@@ -607,8 +607,6 @@ class CentreonDowntime
             }
         }
 
-        var_export($downtimes);
-
         return $downtimes;
     }
 
