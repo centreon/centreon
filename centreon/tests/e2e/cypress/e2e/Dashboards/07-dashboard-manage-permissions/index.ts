@@ -60,7 +60,7 @@ Given(
       .should('contain.text', 'editor');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.customWaitUntil('edit-access-rights');
+    cy.waitDashboardModalToCharge('edit-access-rights', 3);
   }
 );
 
@@ -200,7 +200,7 @@ Given(
       .should('contain.text', 'editor');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.customWaitUntil('edit-access-rights');
+    cy.waitDashboardModalToCharge('edit-access-rights', 3);
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(
       'exist'
     );

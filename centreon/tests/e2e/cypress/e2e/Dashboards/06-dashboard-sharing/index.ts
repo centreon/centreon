@@ -142,7 +142,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@addContactToDashboardShareList');
-  cy.customWaitUntil('share');
+  cy.waitDashboardModalToCharge('share', 3);
 });
 
 Then(
@@ -246,7 +246,7 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.customWaitUntil('share');
+    cy.waitDashboardModalToCharge('share', 3);
   }
 );
 
@@ -346,7 +346,7 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.customWaitUntil('share');
+    cy.waitDashboardModalToCharge('share', 3);
   }
 );
 
@@ -456,7 +456,7 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.customWaitUntil('share');
+    cy.waitDashboardModalToCharge('share', 3);
   }
 );
 
@@ -563,7 +563,7 @@ Given(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.customWaitUntil('share');
+    cy.waitDashboardModalToCharge('share', 3);
   }
 );
 
@@ -711,7 +711,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.customWaitUntil('share');
+    cy.waitDashboardModalToCharge('share', 3);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)

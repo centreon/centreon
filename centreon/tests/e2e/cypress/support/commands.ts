@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../e2e/Resources-status/common';
 import { apiActionV1 } from '../commons';
