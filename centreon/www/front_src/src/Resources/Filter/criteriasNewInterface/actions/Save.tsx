@@ -9,8 +9,6 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Paper from '@mui/material/Paper';
 
-import { PopoverData } from '../../Criterias/models';
-
 import { useStyles } from './actions.style';
 
 interface Option {
@@ -21,18 +19,18 @@ interface Option {
 
 interface Save {
   canSaveFilter: boolean;
+  canSaveFilterAsNew: boolean;
+  closePopover?: () => void;
   getIsCreateFilter: (value: boolean) => void;
   getIsUpdateFilter: (value: boolean) => void;
-  isNewFilter: boolean;
-  popoverData: PopoverData | undefined;
 }
 
 const Save = ({
-  isNewFilter,
+  canSaveFilterAsNew,
   canSaveFilter,
   getIsCreateFilter,
   getIsUpdateFilter,
-  popoverData
+  closePopover
 }: Save): JSX.Element => {
   const { classes } = useStyles();
   const [open, setOpen] = useState(false);
@@ -52,17 +50,17 @@ const Save = ({
 
   const saveAsNew = (): void => {
     getIsCreateFilter(true);
-    popoverData?.setAnchorEl?.(undefined);
+    closePopover?.();
   };
 
   const saveAs = (): void => {
     getIsUpdateFilter(true);
-    popoverData?.setAnchorEl?.(undefined);
+    closePopover?.();
   };
 
   const options = [
     {
-      disabled: !isNewFilter,
+      disabled: !canSaveFilterAsNew,
       onClick: saveAsNew,
       title: 'Save as new'
     },

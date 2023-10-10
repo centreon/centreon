@@ -30,7 +30,7 @@ interface Props {
   children: (props?) => JSX.Element;
   className?: string;
   dataTestId?: string;
-  getPopoverData: (data: PopoverData) => void;
+  getPopoverData?: (data: PopoverData) => void;
   icon: JSX.Element;
   onClose?: () => void;
   onOpen?: () => void;

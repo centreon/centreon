@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   and,
   find,
@@ -48,14 +48,14 @@ const useActionFilter = (): UseActionFilter => {
     sendRequest: sendListCustomFiltersRequest,
     sending: sendingListCustomFiltersRequest
   } = useRequest({
-    // decoder: listCustomFiltersDecoder,
+    decoder: listCustomFiltersDecoder,
     request: listCustomFilters
   });
 
-  const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
   const currentFilter = useAtomValue(currentFilterAtom);
   const filters = useAtomValue(filtersDerivedAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const setCustomFilters = useSetAtom(customFiltersAtom);
 
   const { showSuccessMessage } = useSnackbar();
 

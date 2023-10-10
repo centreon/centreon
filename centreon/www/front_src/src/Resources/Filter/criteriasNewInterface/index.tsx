@@ -29,7 +29,6 @@ import {
   DataByCategoryFilter,
   ExtendedCriteria
 } from './model';
-import useSearchWihSearchDataCriteria from './useSearchWithSearchDataCriteria';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
 
 export { CheckboxGroup } from '@centreon/ui';
@@ -53,8 +52,6 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
   const setDisplayInformationFilter = useSetAtom(displayInformationFilterAtom);
 
   const { newSelectableCriterias: buildCriterias, selectableCriterias } = data;
-
-  useSearchWihSearchDataCriteria({ selectableCriterias });
 
   const changeCriteria = ({
     updatedValue,

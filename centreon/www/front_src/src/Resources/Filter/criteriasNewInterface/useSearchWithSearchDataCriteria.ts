@@ -1,15 +1,19 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { isEmpty, isNil, not, pipe } from 'ramda';
 
 import { getFoundFields } from '@centreon/ui';
 
-import { searchAtom } from '../filterAtoms';
 import { Criteria } from '../Criterias/models';
+import { currentFilterAtom, searchAtom } from '../filterAtoms';
 
 interface Parameters {
   selectableCriterias: Array<Criteria>;
+}
+interface CustomSearchedFields {
+  content: Array<string>;
+  field: string;
 }
 
 interface UpdatedSearchInput {
@@ -19,9 +23,11 @@ interface UpdatedSearchInput {
 const useSearchWihSearchDataCriteria = ({
   selectableCriterias
 }: Parameters): void => {
+  const [inputSearch, setInputSearch] = useState('');
   const [search, setSearch] = useAtom(searchAtom);
+  const currentFilter = useAtomValue(currentFilterAtom);
 
-  const getBuiltCustomSearchedFields = useMemo(() => {
+  const getBuiltCustomSearchedFields = (): CustomSearchedFields => {
     return selectableCriterias
       .filter(pipe(({ searchData }) => searchData, isNil, not))
       .map(({ searchData }) => {
@@ -34,10 +40,12 @@ const useSearchWihSearchDataCriteria = ({
           field: searchData?.field
         };
       });
-  }, [selectableCriterias]);
+  };
 
-  const updatedSearchInput = useMemo((): UpdatedSearchInput | string => {
-    return getBuiltCustomSearchedFields.reduce(
+  const updatedSearchInput = (): UpdatedSearchInput | string => {
+    const data = getBuiltCustomSearchedFields();
+
+    return data.reduce(
       (accumulator, currentValue) => {
         const { content } = currentValue;
         const { field } = currentValue;
@@ -60,7 +68,7 @@ const useSearchWihSearchDataCriteria = ({
           }
 
           return !updatedSearch
-            ? { ...accumulator, updatedSearch: search.concat(' ', target) }
+            ? { ...accumulator, updatedSearch: search.concat('', target) }
             : { ...accumulator };
         }
 
@@ -68,17 +76,17 @@ const useSearchWihSearchDataCriteria = ({
       },
       { updatedSearch: '' }
     );
-  }, [search, getBuiltCustomSearchedFields]);
+  };
 
   useEffect(() => {
-    const newSearch =
-      isNil(updatedSearchInput?.updatedSearch) ||
-      isEmpty(updatedSearchInput?.updatedSearch)
-        ? search
-        : updatedSearchInput?.updatedSearch;
+    const value = updatedSearchInput()?.updatedSearch;
+    const newSearch = isNil(value) || isEmpty(value) ? search : value;
+    setInputSearch(newSearch);
+  }, [currentFilter]);
 
-    setSearch(newSearch);
-  }, [updatedSearchInput]);
+  useEffect(() => {
+    setSearch(inputSearch);
+  }, [inputSearch]);
 };
 
 export default useSearchWihSearchDataCriteria;
