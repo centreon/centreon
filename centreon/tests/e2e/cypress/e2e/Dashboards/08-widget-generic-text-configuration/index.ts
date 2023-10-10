@@ -7,13 +7,13 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
-  );
+  ); */
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -63,7 +63,7 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-  cy.stopWebContainer();
+  // cy.stopWebContainer();
 });
 
 Given(
@@ -228,6 +228,17 @@ Then(
   () => {
     cy.get('*[class^="react-grid-layout"]')
       .children()
+      .eq(0)
+      .should('not.contain.text', `${genericTextWidgets.default.title}-edited`);
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
+      .eq(0)
+      .should(
+        'not.contain.text',
+        `${genericTextWidgets.default.description}-edited`
+      );
+    cy.get('*[class^="react-grid-layout"]')
+      .children()
       .eq(1)
       .should('contain.text', `${genericTextWidgets.default.title}-edited`);
     cy.get('*[class^="react-grid-layout"]')
@@ -239,3 +250,42 @@ Then(
       );
   }
 );
+
+Given('a dashboard featuring two Generic text widgets', () => {
+  cy.visit('/centreon/home/dashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByTestId({ testId: 'edit_dashboard' }).click();
+
+  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
+});
+
+When('the dashboard administrator user deletes one of the widgets', () => {
+  cy.findAllByLabelText('More actions').eq(1).trigger('click');
+  cy.findByLabelText('Delete widget').click();
+  cy.getByTestId({ testId: 'confirm' }).click();
+  cy.getByTestId({ testId: 'save_dashboard' }).click();
+  cy.wait('@updateDashboard');
+});
+
+Then('only the contents of the other widget are displayed', () => {
+  cy.get('*[class^="react-grid-layout"]')
+    .children()
+    .eq(0)
+    .should('not.contain.text', `${genericTextWidgets.default.title}-edited`);
+  cy.get('*[class^="react-grid-layout"]')
+    .children()
+    .eq(0)
+    .should(
+      'not.contain.text',
+      `${genericTextWidgets.default.description}-edited`
+    );
+  cy.get('*[class^="react-grid-layout"]')
+    .children()
+    .eq(1)
+    .should('not.have.class', '^"react-grid-layout"');
+});

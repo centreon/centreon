@@ -23,3 +23,8 @@ Scenario: Editing a Generic text widget
   Given a dashboard containing Generic text widgets
   When the dashboard administrator user updates the contents of one of these widgets
   Then the updated contents of the widget are displayed instead of the original ones
+
+Scenario: Deleting a Generic text widget
+  Given a dashboard featuring two Generic text widgets
+  When the dashboard administrator user deletes one of the widgets
+  Then only the contents of the other widget are displayed
