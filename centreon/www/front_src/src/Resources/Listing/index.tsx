@@ -214,6 +214,7 @@ const ResourceListing = (): JSX.Element => {
     });
   };
 
+  // eslint-disable-next-line no-console
   console.log('feature flags : ', featureFlags);
 
   return (
