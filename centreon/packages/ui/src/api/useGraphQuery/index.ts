@@ -55,10 +55,12 @@ interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
   base: number;
 }
 
-const resourceTypeQueryParameter = {
+export const resourceTypeQueryParameter = {
   [WidgetResourceType.host]: 'host.id',
   [WidgetResourceType.hostCategory]: 'hostcategory.id',
   [WidgetResourceType.hostGroup]: 'hostgroup.id',
+  [WidgetResourceType.serviceCategory]: 'servicecategory.id',
+  [WidgetResourceType.serviceGroup]: 'servicegroup.id',
   [WidgetResourceType.service]: 'service.name'
 };
 
