@@ -68,3 +68,10 @@ runs:
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false
+
+    - name: Rename JSON report
+      run: |
+        # Assuming your reports are located in the cypress/cucumber-logs directory
+        feature_name=$(basename "${{ inputs.feature_file_path }}")
+        mv ${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json ${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json
+      shell: bash

@@ -135,6 +135,9 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/results/reports/*.json
           retention-days: 1
 
+      - name: List Cucumber reports
+        run: ls -la ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/
+
       - name: Upload xray reports
         uses: actions/upload-artifact@v3
         with:
