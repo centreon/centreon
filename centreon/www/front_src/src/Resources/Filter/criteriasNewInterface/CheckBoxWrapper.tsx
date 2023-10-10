@@ -1,5 +1,8 @@
 import { ReactNode } from 'react';
 
+import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
+
 import { Variant } from '@mui/material/styles/createTypography';
 import { Typography } from '@mui/material';
 
@@ -26,6 +29,7 @@ export const CheckBoxWrapper = ({
   changeCriteria
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
+  const { t } = useTranslation();
 
   const labelProps = {
     classes: { root: classes.label },
@@ -45,14 +49,29 @@ export const CheckBoxWrapper = ({
     return input?.map((item) => item?.name);
   };
 
+  const getTranslated = (values: Array<SelectEntry>): Array<SelectEntry> => {
+    return values.map((entry) => ({
+      id: entry.id,
+      name: t(entry.name)
+    }));
+  };
+
+  const translatedOptions = getTranslated(dataByFilterName?.options);
+  const translatedValues = getTranslated(dataByFilterName?.value);
+
   const handleChangeStatus = (event): void => {
+    const originalValue = translatedOptions.find(({ name }) =>
+      equals(name, event.target.id)
+    );
     const item = findData({
       data: dataByFilterName?.options,
-      filterName: event.target.id
+      filterName: originalValue?.id,
+      findBy: 'id'
     });
 
     if (event.target.checked) {
       const dataByFilterNameValue = dataByFilterName?.value;
+
       changeCriteria({
         filterName,
         updatedValue: dataByFilterNameValue
@@ -63,7 +82,7 @@ export const CheckBoxWrapper = ({
       return;
     }
     const result = dataByFilterName?.value?.filter(
-      (v) => v.name !== event.target.id
+      (v) => v.id !== originalValue?.id
     );
     changeCriteria({
       filterName,
@@ -82,8 +101,8 @@ export const CheckBoxWrapper = ({
         direction="horizontal"
         formGroupProps={formGroupProps}
         labelProps={labelProps}
-        options={transformData(dataByFilterName.options)}
-        values={transformData(dataByFilterName.value)}
+        options={transformData(translatedOptions)}
+        values={transformData(translatedValues)}
         onChange={(event) => handleChangeStatus(event)}
       />
     </>

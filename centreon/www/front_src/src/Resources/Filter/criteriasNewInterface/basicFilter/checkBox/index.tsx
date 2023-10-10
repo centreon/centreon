@@ -1,4 +1,6 @@
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { Variant } from '@mui/material/styles/createTypography';
 
@@ -32,6 +34,8 @@ const CheckBoxSection = ({
   resourceType
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
+  const { t } = useTranslation();
+
   const labelProps = {
     classes: { root: classes.label },
     variant: 'body2' as Variant
@@ -66,10 +70,24 @@ const CheckBoxSection = ({
     return input?.map((item) => item?.name);
   };
 
+  const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
+    return keys.map((entry) => ({
+      id: entry.id,
+      name: t(entry.name)
+    }));
+  };
+
+  const translatedOptions = getTranslated(dataByFilterName?.options);
+  const translatedValues = getTranslated(values);
+
   const handleChangeStatus = (event): void => {
+    const originalValue = translatedOptions.find(({ name }) =>
+      equals(name, event.target.id)
+    );
     const item = findData({
       data: dataByFilterName?.options,
-      filterName: event.target.id
+      filterName: originalValue?.id,
+      findBy: 'id'
     });
 
     if (event.target.checked) {
@@ -102,8 +120,8 @@ const CheckBoxSection = ({
       direction="horizontal"
       formGroupProps={formGroupProps}
       labelProps={labelProps}
-      options={transformData(dataByFilterName?.options) ?? []}
-      values={transformData(values) || []}
+      options={transformData(translatedOptions) || []}
+      values={transformData(translatedValues) || []}
       onChange={(event) => handleChangeStatus(event)}
     />
   );
