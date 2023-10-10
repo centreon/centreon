@@ -16418,7 +16418,7 @@ msgstr ""
 # msgid 'Delete notification rule?'
 # msgstr ""
 
-# msgid 'This action cannot be undone'
+# msgid 'This action cannot be undone.'
 # msgstr ""
 
 # msgid 'Collapse information panel'
