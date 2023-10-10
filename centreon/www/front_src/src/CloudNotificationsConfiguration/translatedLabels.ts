@@ -19,8 +19,7 @@ export const labelSave = 'Save';
 export const labelSelectResourcesAndEvents = 'Select resources and events';
 export const labelSearchHostGroups = 'Search host groups';
 export const labelSelectUsers = 'Select users';
-export const labelSelectTimePeriodAndChannels =
-  'Select time period / channels of notifications';
+export const labelNotificationSettings = 'Notification settings';
 export const labelDeleteNotification = 'Delete notification?';
 export const labelDeleteNotificationWarning = 'This action cannot be undone';
 export const labelReduceInformationPanel = 'Collapse information panel';

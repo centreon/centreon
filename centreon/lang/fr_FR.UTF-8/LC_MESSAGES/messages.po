@@ -15521,8 +15521,8 @@ msgstr "Rechercher les groupes d'hôtes"
 msgid "Select users"
 msgstr "Sélectionner les utilisateurs"
 
-msgid "Select time period / channels of notifications"
-msgstr "Sélectionner la période / les canaux de notifications"
+msgid "Notification settings"
+msgstr "Paramètres de notification"
 
 msgid "Notification duplicated"
 msgstr "Notification dupliquée"

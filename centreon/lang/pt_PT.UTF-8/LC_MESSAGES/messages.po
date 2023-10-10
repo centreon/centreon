@@ -16392,7 +16392,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid 'Select users'
 # msgstr ""
 
-# msgid 'Select time period / channels of notifications'
+# msgid 'Notification settings'
 # msgstr ""
 
 # msgid "Notification duplicated"
