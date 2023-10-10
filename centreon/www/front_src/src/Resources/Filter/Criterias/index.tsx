@@ -128,6 +128,16 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
         getPopoverData={getPopoverData}
         icon={<TuneIcon fontSize="small" />}
         popperPlacement="bottom-start"
+        popperProps={{
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: [0, 16]
+              }
+            }
+          ]
+        }}
         title={t(labelSearchOptions) as string}
         onClose={applyCurrentFilter}
       >

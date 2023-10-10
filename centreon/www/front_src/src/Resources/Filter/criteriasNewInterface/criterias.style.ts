@@ -25,6 +25,9 @@ export const useStyles = makeStyles()((theme) => ({
     borderStyle: 'dashed',
     margin: theme.spacing(1, 0, 0, 0)
   },
+  formControlContainer: {
+    paddingLeft: theme.spacing(1)
+  },
   small: {
     display: 'flex',
     flexDirection: 'row',

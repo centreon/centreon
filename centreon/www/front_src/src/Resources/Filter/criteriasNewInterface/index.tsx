@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Divider } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
@@ -184,19 +184,22 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
       <Divider className={classes.footer} />
 
       {displayActions && (
-        <>
+        <div className={classes.formControlContainer}>
           <FormControlLabel
             control={
               <Switch
                 checked={open}
                 inputProps={{ 'aria-label': 'controlled' }}
+                size="small"
                 onChange={controlFilterInterface}
               />
             }
-            label={t('Advanced mode')}
+            label={
+              <Typography variant="body2">{t('Advanced mode')}</Typography>
+            }
           />
           {actions}
-        </>
+        </div>
       )}
     </>
   );

@@ -9,6 +9,7 @@ import {
   PopperPlacementType,
   useTheme
 } from '@mui/material';
+import { PopperProps } from '@mui/material/Popper';
 
 import { IconButton } from '..';
 
@@ -34,6 +35,7 @@ interface Props {
   onClose?: () => void;
   onOpen?: () => void;
   popperPlacement?: PopperPlacementType;
+  popperProps?: Partial<PopperProps>;
   title?: string;
 }
 
@@ -47,7 +49,8 @@ const PopoverMenu = ({
   canOpen = true,
   className,
   dataTestId,
-  getPopoverData
+  getPopoverData,
+  popperProps
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes, cx } = useStyles();
@@ -107,6 +110,7 @@ const PopoverMenu = ({
             style={{ zIndex: theme.zIndex.tooltip }}
             onResize={(): undefined => undefined}
             onResizeCapture={(): undefined => undefined}
+            {...popperProps}
           >
             <Paper>{children({ close })}</Paper>
           </Popper>
