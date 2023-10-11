@@ -34,6 +34,11 @@ on:
         required: true
       registry_password:
         required: true
+      CLIENT_ID :
+        required: true
+      CLIENT_SECRET:
+        required: true
+
 
 jobs:
   cypress-e2e-test-list:
@@ -146,6 +151,7 @@ jobs:
           retention-days: 1
 
   import-reports-to-xray:
+    needs: [cypress-e2e-test-run]
     runs-on: ubuntu-22.04
     steps:
       - name: Verify CLIENT_ID Secret
@@ -154,8 +160,8 @@ jobs:
       - name: Import results to Xray
         uses: mikepenz/xray-action@v3.0.2
         with:
-          username: "${{ secrets.CLIENT_ID  }}"
-          password: "${{ secrets.CLIENT_SECRET }}"
+          username: ${{ secrets.CLIENT_ID }}
+          password: ${{ secrets.CLIENT_SECRET }}
           testFormat: "cucumber"
           testPaths: "${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json"
           projectKey: "MON"
