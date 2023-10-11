@@ -257,6 +257,7 @@ const useFormInputs = ({
             },
             dataTestId: 'Email',
             fieldName: 'messages.channel',
+            getDisabled: () => true,
             label: 'Email',
             type: InputType.Checkbox
           },
