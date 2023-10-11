@@ -97,7 +97,7 @@ When('the administrator activates the auto-import option for SAML', () => {
     tag: 'input'
   }).type('{selectall}{backspace}urn:oid:2.5.4.42');
 
-  configureACLGroups();
+  configureACLGroups('Role');
 
   cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 

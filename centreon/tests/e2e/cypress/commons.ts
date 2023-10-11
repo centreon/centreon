@@ -365,7 +365,7 @@ const configureProviderAcls = (): Cypress.Chainable => {
     });
 };
 
-const configureACLGroups = (): Cypress.Chainable => {
+const configureACLGroups = (path: string): Cypress.Chainable => {
   cy.getByLabel({ label: 'Roles mapping' }).click();
 
   cy.getByLabel({
@@ -378,7 +378,7 @@ const configureACLGroups = (): Cypress.Chainable => {
   cy.getByLabel({
     label: 'Roles attribute path',
     tag: 'input'
-  }).type('{selectAll}{backspace}Role');
+  }).type(`{selectAll}{backspace}${path}`);
 
   cy.getByLabel({
     label: 'Role value',

@@ -108,7 +108,7 @@ When(
       tag: 'input'
     }).type('{selectall}{backspace}name');
 
-    configureACLGroups();
+    configureACLGroups('realm_access.roles');
 
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
