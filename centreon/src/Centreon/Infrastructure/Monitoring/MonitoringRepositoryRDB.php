@@ -358,7 +358,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         ];
 
         // To allow to find host groups relating to Service information
-        $ServiceConcordanceArray = [
+        $serviceConcordanceArray = [
             'service.display_name' => 'srv.display_name',
         ];
 
@@ -371,9 +371,9 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($ServiceConcordanceArray))) > 0) {
+        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
             $shouldJoinService = true;
-            $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $ServiceConcordanceArray);
+            $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $serviceConcordanceArray);
         }
 
         //if the filter is for specific host id, remove it from search parameters
