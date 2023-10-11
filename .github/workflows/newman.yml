@@ -100,6 +100,10 @@ jobs:
         username: ${{ secrets.registry_username }}
         password: ${{ secrets.registry_password }}
 
+    - name: List Contents of Cache Directory
+      run: |
+          ls /tmp/cache/docker-image
+
     - name: Restore standard slim image from cache
       id: cache-docker-slim
       uses: actions/cache/restore@v3
