@@ -179,7 +179,9 @@ jobs:
           path: ${{ inputs.name }}-json-xray-reports
 
       - name: List Cucumber reports
-        run: ls -la ${{ inputs.name }}-json-xray-reports/**/*.json
+        run: |
+          cd /home/runner/work/centreon/centreon/e2e-json-xray-reports
+          find . -type f -name "*.json"
 
       - name: Import results to Xray
         uses: mikepenz/xray-action@v3.0.2
