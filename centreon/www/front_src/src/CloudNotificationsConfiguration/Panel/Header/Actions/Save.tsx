@@ -10,7 +10,7 @@ import { ConfirmDialog, IconButton } from '@centreon/ui';
 
 import {
   labelSave,
-  labelDoYouWantToConfirmAction
+  labelDoYouWantToCreateTheNotificationRule
 } from '../../../translatedLabels';
 import useFormSubmit from '../../Form/useFormSubmit';
 
@@ -57,8 +57,7 @@ const SaveAction = (): JSX.Element => {
       <ConfirmDialog
         confirmDisabled={isSubmitting}
         data-testid={dataTestId}
-        labelMessage={t(labelConfirm)}
-        labelTitle={t(labelDoYouWantToConfirmAction)}
+        labelTitle={t(labelDoYouWantToCreateTheNotificationRule)}
         open={dialogOpen}
         submitting={isSubmitting}
         onCancel={onCancel}

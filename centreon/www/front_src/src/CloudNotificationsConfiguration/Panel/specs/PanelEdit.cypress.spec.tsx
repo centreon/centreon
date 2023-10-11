@@ -20,7 +20,7 @@ import {
   labelTimePeriod,
   labelSubject,
   labelMessageFieldShouldNotBeEmpty,
-  labelDoYouWantToConfirmAction,
+  labelDoYouWantToCreateTheNotificationRule,
   labelConfirmEditNotification,
   labelSuccessfulEditNotification,
   labelThisNameAlreadyExists,
@@ -514,7 +514,7 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.findByLabelText(labelActiveOrInactive).click();
     cy.findByLabelText(labelSave).click();
 
-    cy.findByText(labelDoYouWantToConfirmAction);
+    cy.findByText(labelDoYouWantToCreateTheNotificationRule);
     cy.findByText(labelConfirmEditNotification);
 
     cy.get('#panel-content').scrollTo('top');

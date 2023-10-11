@@ -16448,7 +16448,7 @@ msgstr ""
 # msgid 'The notification was successfully added'
 # msgstr ""
 
-# msgid 'Do you want to confirm the action ?'
+# msgid 'Do you want to create the notification rule?'
 # msgstr ""
 
 # msgid 'Confirm notification creation'

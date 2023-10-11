@@ -33,8 +33,8 @@ export const labelSuccessfulEditNotification =
   'The notification was successfully updated';
 export const labelSuccessfulNotificationAdded =
   'The notification was successfully added';
-export const labelDoYouWantToConfirmAction =
-  'Do you want to confirm the action ?';
+export const labelDoYouWantToCreateTheNotificationRule =
+  'Do you want to create the notification rule?';
 export const labelConfirmAddNotification = 'Confirm notification creation';
 export const labelConfirmEditNotification = 'Confirm notification update';
 export const labelChooseAtLeastOneResource = 'Choose at least 1 resource';

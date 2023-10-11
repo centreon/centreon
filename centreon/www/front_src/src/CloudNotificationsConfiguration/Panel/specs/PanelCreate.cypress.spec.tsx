@@ -10,7 +10,7 @@ import {
   labelChangeName,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelDoYouWantToConfirmAction,
+  labelDoYouWantToCreateTheNotificationRule,
   labelSuccessfulNotificationAdded,
   labelConfirmAddNotification,
   labelClosePanel,
@@ -167,7 +167,7 @@ describe('Create Panel', () => {
 
     cy.findByLabelText(labelSave).click();
 
-    cy.findByText(labelDoYouWantToConfirmAction);
+    cy.findByText(labelDoYouWantToCreateTheNotificationRule);
     cy.findByText(labelConfirmAddNotification);
 
     cy.makeSnapshot();
