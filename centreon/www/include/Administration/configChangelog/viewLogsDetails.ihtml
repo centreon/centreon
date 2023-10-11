@@ -24,7 +24,7 @@
         </tr>
         <tr class={$classStyle}>
             <td class="ListColCenter">
-            {if $list.action_type == "Create" || $list.action_type == "Change" || $list.action_type == "Massive change"}
+            {if $list.action_type == "Create" || $list.action_type == "Change" || $list.action_type == "Mass change"}
                 <table class="ListTable"
                         {if $firstFlag}
                         {assign var='firstFlag' value=0}

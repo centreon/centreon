@@ -288,7 +288,7 @@ if ($o == ADD_CONTACT) {
         ]
     );
 } elseif ($o == MASSIVE_CHANGE) {
-    $form->addElement('header', 'title', _("Massive Change"));
+    $form->addElement('header', 'title', _("Mass Change"));
 
     $eventDispatcher->notify(
         'contact.form',
