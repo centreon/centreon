@@ -141,31 +141,45 @@ jobs:
           retention-days: 1
 
       - name: Upload xray reports
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
-      - name: Import results to Xray
-        uses: mikepenz/xray-action@v3.0.2
-        with:
-          username: ${{ secrets.CLIENT_ID }}
-          password: ${{ secrets.CLIENT_SECRET }}
-          testFormat: "cucumber"
-          testPaths: "${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json"
-          projectKey: "MON"
-          testPlanKey: "MON-22411"
-          combineInSingleTestExec: true
-          testExecKey:
+      # - name: Import results to Xray
+      #   if: always()
+      #   uses: mikepenz/xray-action@v3.0.2
+      #   with:
+      #     username: ${{ secrets.CLIENT_ID }}
+      #     password: ${{ secrets.CLIENT_SECRET }}
+      #     testFormat: "cucumber"
+      #     testPaths: "${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json"
+      #     projectKey: "MON"
+      #     testPlanKey: "MON-22411"
+      #     combineInSingleTestExec: true
+      #     testExecKey:
 
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: always()
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.name }}-json-xray-reports
+
       - name: List Cucumber reports
-        run: ls -la ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/
+        run: ls -la ${{ inputs.name }}-json-xray-reports/**/*.json
 
       - name: Import results to Xray
         uses: mikepenz/xray-action@v3.0.2
@@ -173,7 +187,7 @@ jobs:
           username: ${{ secrets.CLIENT_ID }}
           password: ${{ secrets.CLIENT_SECRET }}
           testFormat: "cucumber"
-          testPaths: "${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json"
+          testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
           testPlanKey: "MON-22411"
           combineInSingleTestExec: true
