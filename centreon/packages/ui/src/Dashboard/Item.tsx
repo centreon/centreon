@@ -8,7 +8,7 @@ import {
 
 import { isNil } from 'ramda';
 
-import { Card } from '@mui/material';
+import { Card, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '../utils';
 
@@ -46,6 +46,7 @@ const Item = forwardRef(
     const hasHeader = !isNil(header);
 
     const { classes, cx } = useDashboardItemStyles({ hasHeader });
+    const theme = useTheme();
 
     const listeners = {
       onMouseDown,
@@ -85,7 +86,7 @@ const Item = forwardRef(
           </Card>
         </div>
       ),
-      memoProps: [style, className, header]
+      memoProps: [style, className, header, theme.palette.mode, canMove]
     });
   }
 );

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 import Carousel from 'react-material-ui-carousel';
-import { Responsive } from '@visx/visx';
 import { useTranslation } from 'react-i18next';
 import { equals, length } from 'ramda';
 
@@ -18,7 +17,13 @@ import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InstallIcon from '@mui/icons-material/Add';
 
-import { Dialog, IconButton, useRequest, getData } from '@centreon/ui';
+import {
+  Dialog,
+  IconButton,
+  useRequest,
+  getData,
+  ParentSize
+} from '@centreon/ui';
 
 import {
   labelAvailable,
@@ -119,7 +124,7 @@ const ExtensionDetailPopup = ({
     >
       <Grid container direction="column" spacing={2} sx={{ width: 540 }}>
         <Grid item>
-          <Responsive.ParentSize>
+          <ParentSize>
             {({ width }): JSX.Element =>
               extensionDetails.images ? (
                 <Carousel
@@ -147,7 +152,7 @@ const ExtensionDetailPopup = ({
                 <SliderSkeleton width={width} />
               )
             }
-          </Responsive.ParentSize>
+          </ParentSize>
         </Grid>
         <Grid item>
           {extensionDetails.version.installed &&

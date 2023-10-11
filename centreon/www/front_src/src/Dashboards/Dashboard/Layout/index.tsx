@@ -35,8 +35,7 @@ const emptyLayout: Array<Panel> = [
 
 const Layout = (): JSX.Element => {
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
-  const [refreshCounts, setRefreshCounts] =
-    useAtom<Record<string, number>>(refreshCountsAtom);
+  const [refreshCounts, setRefreshCounts] = useAtom(refreshCountsAtom);
   const isEditing = useAtomValue(isEditingAtom);
 
   const { canEdit } = editProperties.useCanEditProperties();
@@ -94,12 +93,14 @@ const Layout = (): JSX.Element => {
       <DashboardLayout.Layout
         changeLayout={changeLayout}
         displayGrid={isEditing}
-        isStatic={!isEditing}
+        isStatic={!isEditing || showDefaultLayout}
         layout={panels}
       >
         {panels.map(({ i, panelConfiguration, refreshCount }) => (
           <DashboardLayout.Item
-            canMove={canEdit && isEditing}
+            canMove={
+              canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
+            }
             disablePadding={panelConfiguration?.isAddWidgetPanel}
             header={
               !panelConfiguration?.isAddWidgetPanel ? (

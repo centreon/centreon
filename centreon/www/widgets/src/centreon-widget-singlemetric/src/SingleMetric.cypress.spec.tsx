@@ -316,22 +316,22 @@ describe('Single metric Widget', () => {
 
       cy.findByTestId('warning-line-65-tooltip').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 65%. Value defined by the {{metric}} metric'
+        'Warning threshold: 65%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('warning-line-70-tooltip').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 70%. Value defined by the {{metric}} metric'
+        'Warning threshold: 70%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('critical-line-85-tooltip').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 85%. Value defined by the {{metric}} metric'
+        'Critical threshold: 85%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('critical-line-90-tooltip').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 90%. Value defined by the {{metric}} metric'
+        'Critical threshold: 90%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();
@@ -434,19 +434,19 @@ describe('Single metric Widget', () => {
 
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseover');
       cy.contains(
-        'Warning threshold: 65%. Value defined by the {{metric}} metric'
+        'Warning threshold: 65%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Warning threshold: 70%. Value defined by the {{metric}} metric'
+        'Warning threshold: 70%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseleave');
 
       cy.findAllByTestId('5-arc').eq(1).trigger('mouseover');
       cy.contains(
-        'Critical threshold: 85%. Value defined by the {{metric}} metric'
+        'Critical threshold: 85%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Critical threshold: 90%. Value defined by the {{metric}} metric'
+        'Critical threshold: 90%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();

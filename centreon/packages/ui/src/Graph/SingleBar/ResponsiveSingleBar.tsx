@@ -110,7 +110,7 @@ const ResponsiveSingleBar = ({
     () =>
       scaleLinear<number>({
         domain: [0, adaptedMaxValue],
-        range: [0, width]
+        range: [0, width - 10 || 0]
       }),
     [width, adaptedMaxValue]
   );
@@ -150,7 +150,7 @@ const ResponsiveSingleBar = ({
               height={barHeights[size]}
               rx={4}
               style={springStyle}
-              x={0}
+              x={5}
               y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
             />
             <Bar
@@ -160,7 +160,7 @@ const ResponsiveSingleBar = ({
               ry={4}
               stroke={alpha(theme.palette.text.primary, 0.3)}
               width={maxBarWidth}
-              x={0}
+              x={5}
               y={groupMargin + (isSmall ? 0 : 2 * margins.top)}
             />
             {thresholds.enabled && (

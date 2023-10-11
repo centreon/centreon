@@ -23,19 +23,26 @@ declare(strict_types=1);
 
 namespace Core\Host\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
+use Core\Host\Domain\Model\SimpleEntity;
 use Core\Host\Domain\Model\SnmpVersion;
+use Core\Host\Domain\Model\TinyHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -84,10 +91,31 @@ use Utility\SqlConcatenator;
  *     ehi_icon_image_alt: string|null,
  *     severity_id: int|null
  * }
+ * @phpstan-type _TinyHost array{
+ *     id: int,
+ *     name: string,
+ *     alias: string|null,
+ *     ip_address: string,
+ *     check_interval: int|null,
+ *     retry_check_interval: int|null,
+ *     is_activated: string,
+ *     check_timeperiod_id: int|null,
+ *     check_timeperiod_name: string|null,
+ *     notification_timeperiod_id: int|null,
+ *     notification_timeperiod_name: string|null,
+ *     severity_id: int|null,
+ *     severity_name: string|null,
+ *     monitoring_server_id: int,
+ *     monitoring_server_name: string,
+ *     category_ids: string,
+ *     hostgroup_ids: string,
+ *     template_ids: string
+ * }
  */
 class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -296,14 +324,11 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 SQL
         );
         $concatenator->storeBindValueMultiple(':hostIds', $hostIds, \PDO::PARAM_INT);
-
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
         $concatenator->bindValuesToStatement($statement);
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
-
         $groupNames = new HostNamesById();
-
         foreach ($statement as $result) {
             /** @var array{host_id:int,host_name:string} $result */
             $groupNames->addName(
@@ -313,6 +338,273 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         }
 
         return $groupNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'h.host_id',
+            'name' => 'h.host_name',
+            'address' => 'h.host_address',
+            'poller.id' => 'ns.id',
+            'poller.name' => 'ns.name',
+            'is_activated' => 'h.host_activate',
+            'category.id' => 'hc.hc_id',
+            'category.name' => 'hc.hc_name',
+            'severity.id' => 'sev.hc_id',
+            'severity.name' => 'sev.hc_name',
+            'group.id' => 'hg.hg_id',
+            'group.name' => 'hg.hg_name',
+        ]);
+        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
+
+        $aclQuery = '';
+        $accessGroupsBindValues = [];
+        $hostGroupAcl = '';
+        $hostCategoriesAcl = '';
+        $hostSeveritiesAcl = '';
+        $monitoringServersAcl = '';
+        if ($accessGroups !== []) {
+            [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
+                array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
+                ':acl_'
+            );
+            $aclQuery = <<<SQL
+
+                INNER JOIN `:dbstg`.centreon_acl acl
+                    ON acl.host_id = h.host_id
+                    AND acl.service_id IS NULL
+                    AND acl.group_id IN ({$accessGroupIdsQuery})
+                SQL;
+
+            $hostGroupAcl = <<<SQL
+
+                AND hgr.hostgroup_hg_id IN (
+                    SELECT aclhgr.hg_hg_id AS id
+                    FROM `:db`.acl_resources_hg_relations aclhgr
+                    INNER JOIN `:db`.acl_resources aclr
+                        ON aclr.acl_res_id = aclhgr.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations aclrgr
+                        ON aclrgr.acl_res_id = aclr.acl_res_id
+                        AND aclrgr.acl_group_id IN ({$accessGroupIdsQuery})
+                )
+                SQL;
+
+            if ($this->hasHostCategoriesFilter($accessGroupIdsQuery, $accessGroupsBindValues)) {
+                $hostCategoriesAcl = <<<SQL
+
+                    AND hc.hc_id IN (
+                        SELECT hc.hc_id AS id
+                        FROM `:db`.hostcategories hc
+                        INNER JOIN `:db`.acl_resources_hc_relations aclhcr_hc
+                            ON aclhcr_hc.hc_id = hc.hc_id
+                        INNER JOIN `:db`.acl_resources aclr_hc
+                            ON aclr_hc.acl_res_id = aclhcr_hc.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations aclrgr_hc
+                            ON aclrgr_hc.acl_res_id = aclr_hc.acl_res_id
+                            AND aclrgr_hc.acl_group_id IN ({$accessGroupIdsQuery})
+                        WHERE hc.level IS NULL
+                    )
+                    SQL;
+
+                $hostSeveritiesAcl = <<<SQL
+
+                    AND sev.hc_id IN (
+                        SELECT sev.hc_id AS id
+                        FROM `:db`.hostcategories sev
+                        INNER JOIN `:db`.acl_resources_hc_relations aclhcr_sev
+                            ON sev.hc_id = aclhcr_sev.hc_id
+                        INNER JOIN `:db`.acl_resources aclr_sev
+                            ON aclr_sev.acl_res_id = aclhcr_sev.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations aclrgr_sev
+                            ON aclrgr_sev.acl_res_id = aclr_sev.acl_res_id
+                            AND aclrgr_sev.acl_group_id IN ({$accessGroupIdsQuery})
+                        WHERE sev.level IS NOT NULL
+                    )
+                    SQL;
+            }
+
+            if ($this->hasMonitoringServerFilter($accessGroupIdsQuery, $accessGroupsBindValues)) {
+                $monitoringServersAcl = <<<SQL
+
+                    AND ns.id IN (
+                        SELECT aclpoller.poller_id AS id
+                        FROM `:db`.acl_resources_poller_relations aclpoller
+                        INNER JOIN `:db`.acl_resources aclr_poller
+                            ON aclr_poller.acl_res_id = aclpoller.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations aclrgr_poller
+                            ON aclrgr_poller.acl_res_id = aclr_poller.acl_res_id
+                            AND aclrgr_poller.acl_group_id IN ({$accessGroupIdsQuery})
+                    )
+                    SQL;
+            }
+        }
+
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS
+                h.host_id AS id,
+                h.host_name AS name,
+                h.host_alias AS alias,
+                h.host_address AS ip_address,
+                h.host_check_interval AS check_interval,
+                h.host_retry_check_interval AS retry_check_interval,
+                h.host_activate AS is_activated,
+                ctime.tp_id AS check_timeperiod_id,
+                ctime.tp_name AS check_timeperiod_name,
+                ntime.tp_id AS notification_timeperiod_id,
+                ntime.tp_name AS notification_timeperiod_name,
+                GROUP_CONCAT(DISTINCT sev.hc_id) AS severity_id,
+                GROUP_CONCAT(DISTINCT sev.hc_name) AS severity_name,
+                ns.id AS monitoring_server_id,
+                ns.name AS monitoring_server_name,
+                GROUP_CONCAT(DISTINCT hc.hc_id) AS category_ids,
+                GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS hostgroup_ids,
+                GROUP_CONCAT(DISTINCT htpl.host_tpl_id) AS template_ids
+            FROM `:db`.host h {$aclQuery}
+            LEFT JOIN `:db`.hostcategories_relation hcr
+                ON hcr.host_host_id = h.host_id
+            LEFT JOIN `:db`.hostcategories sev
+                ON sev.hc_id = hcr.hostcategories_hc_id
+                AND sev.level IS NOT NULL {$hostSeveritiesAcl}
+            LEFT JOIN `:db`.hostcategories hc
+                ON hc.hc_id = hcr.hostcategories_hc_id
+                AND hc.level IS NULL {$hostCategoriesAcl}
+            LEFT JOIN `:db`.hostgroup_relation hgr
+                ON hgr.host_host_id = h.host_id {$hostGroupAcl}
+            INNER JOIN `:db`.hostgroup hg
+                ON hg.hg_id = hgr.hostgroup_hg_id
+            LEFT JOIN `:db`.ns_host_relation nsr
+                ON nsr.host_host_id = h.host_id
+            INNER JOIN `:db`.nagios_server ns
+                ON ns.id = nsr.nagios_server_id {$monitoringServersAcl}
+            LEFT JOIN `:db`.host_template_relation htpl
+                ON htpl.host_host_id = h.host_id
+            LEFT JOIN `:db`.timeperiod ctime
+                ON ctime.tp_id = h.timeperiod_tp_id
+            LEFT JOIN `:db`.timeperiod ntime
+                ON ntime.tp_id = h.timeperiod_tp_id2
+            SQL;
+
+        // Search
+        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        $request .= $search !== null
+            ? ' AND h.host_register = \'1\''
+            : ' WHERE h.host_register = \'1\'';
+        $request .= ' GROUP BY h.host_id';
+
+        // Sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= ! is_null($sortRequest)
+            ? $sortRequest
+            : ' ORDER BY h.host_id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator->translatePaginationToSql();
+        $request = $this->translateDbName($request);
+
+        $statement = $this->db->prepare($request);
+
+        $hosts = [];
+        if ($statement === false) {
+            return $hosts;
+        }
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        foreach ($statement as $data) {
+            /** @var _TinyHost $data */
+            $hosts[] = $this->createLittleHost($data);
+        }
+
+        return $hosts;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws AssertionFailedException
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array
+    {
+        return $this->findByRequestParametersAndAccessGroups($requestParameters, []);
+    }
+
+    /**
+     * @param string $accessGroupIdsQuery
+     * @param array<string, mixed> $accessGroupsBindValues
+     *
+     * @return bool
+     */
+    private function hasHostCategoriesFilter(string $accessGroupIdsQuery, array $accessGroupsBindValues): bool
+    {
+        $hostCategoriesQuery = <<<SQL
+            SELECT COUNT(*)
+            FROM `:db`.hostcategories hc
+            INNER JOIN `:db`.acl_resources_hc_relations aclhcr_hc
+                ON aclhcr_hc.hc_id = hc.hc_id
+            INNER JOIN `:db`.acl_resources aclr_hc
+                ON aclr_hc.acl_res_id = aclhcr_hc.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations aclrgr_hc
+                ON aclrgr_hc.acl_res_id = aclr_hc.acl_res_id
+                AND aclrgr_hc.acl_group_id IN ({$accessGroupIdsQuery})
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($hostCategoriesQuery));
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return ($numberOfElements = $statement->fetchColumn()) && ((int) $numberOfElements) > 0;
+    }
+
+    /**
+     * @param string $accessGroupIdsQuery
+     * @param array<string, mixed> $accessGroupsBindValues
+     *
+     * @return bool
+     */
+    private function hasMonitoringServerFilter(string $accessGroupIdsQuery, array $accessGroupsBindValues): bool
+    {
+        $monitoringServersQuery = <<<SQL
+            SELECT COUNT(*)
+            FROM `:db`.acl_resources_poller_relations aclpoller
+            INNER JOIN `:db`.acl_resources aclr_poller
+                ON aclr_poller.acl_res_id = aclpoller.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations aclrgr_poller
+                ON aclrgr_poller.acl_res_id = aclr_poller.acl_res_id
+                AND aclrgr_poller.acl_group_id IN ({$accessGroupIdsQuery})
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($monitoringServersQuery));
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return ($numberOfElements = $statement->fetchColumn()) && ((int) $numberOfElements) > 0;
     }
 
     /**
@@ -401,5 +693,90 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             addInheritedContact: (bool) $result['contact_additive_inheritance'],
             isActivated: (bool) $result['host_activate'],
         );
+    }
+
+    /**
+     * @param _TinyHost $result
+     *
+     * @throws AssertionFailedException
+     *
+     * @return TinyHost
+     */
+    private function createLittleHost(array $result): TinyHost
+    {
+        $severity = $result['severity_id'] !== null && $result['severity_name'] !== null
+            ? new SimpleEntity(
+                (int) $result['severity_id'],
+                new TrimmedString($result['severity_name']),
+                'Host'
+            ) : null;
+
+        $checkTimePeriod
+            = $result['check_timeperiod_id'] !== null && $result['check_timeperiod_name'] !== null
+                ? new SimpleEntity(
+                    (int) $result['check_timeperiod_id'],
+                    new TrimmedString($result['check_timeperiod_name']),
+                    'Host'
+                ) : null;
+
+        $notificationTimePeriod
+            = $result['notification_timeperiod_id'] !== null && $result['notification_timeperiod_name'] !== null
+            ? new SimpleEntity(
+                (int) $result['notification_timeperiod_id'],
+                new TrimmedString($result['notification_timeperiod_name']),
+                'Host'
+            ) : null;
+
+        $host = new TinyHost(
+            (int) $result['id'],
+            new TrimmedString($result['name']),
+            $result['alias'] !== null ? new TrimmedString($result['alias']) : null ,
+            new TrimmedString($result['ip_address']),
+            $this->intOrNull($result, 'check_interval'),
+            $this->intOrNull($result, 'retry_check_interval'),
+            $result['is_activated'] === '1',
+            new SimpleEntity(
+                (int) $result['monitoring_server_id'],
+                new TrimmedString($result['monitoring_server_name']),
+                'Host'
+            ),
+            $checkTimePeriod,
+            $notificationTimePeriod,
+            $severity,
+        );
+
+        if ($result['category_ids'] !== null) {
+            $categoryIds = explode(',', $result['category_ids']);
+            foreach ($categoryIds as $categoryId) {
+                $host->addCategoryId((int) $categoryId);
+            }
+        }
+        if ($result['hostgroup_ids'] !== null) {
+            $groupIds = explode(',', $result['hostgroup_ids']);
+            foreach ($groupIds as $groupId) {
+                $host->addGroupId((int) $groupId);
+            }
+        }
+        if ($result['template_ids'] !== null) {
+            $templateIds = explode(',', $result['template_ids']);
+            foreach ($templateIds as $templateId) {
+                $host->addTemplateId((int) $templateId);
+            }
+        }
+
+        return $host;
+    }
+
+    /**
+     * @param _TinyHost $data
+     * @param string $property
+     *
+     * @return int|null
+     */
+    private function intOrNull(array $data, string $property): ?int
+    {
+        return array_key_exists($property, $data) && $data[$property] !== null
+            ? (int) $data[$property]
+            : null;
     }
 }
