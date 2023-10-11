@@ -106,9 +106,6 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
-    # - name: Wait for Centreon Web Container to Start
-    #   run: pnpx wait-on http://localhost:4000/ --timeout 100000
-
     - name: Run Postman Tests and Generate HTML Report
       run: |
         collection_file="collections/${{ matrix.feature }}"
