@@ -148,14 +148,13 @@ jobs:
       - name: "Import results to Xray"
         uses: mikepenz/xray-action@v3.0.2
         with:
-          username: ${{ secrets.CLIENT_ID  }}
-          password: ${{ secrets.CLIENT_SECRET }}
+          username: "${{ secrets.CLIENT_ID  }}"
+          password: "${{ secrets.CLIENT_SECRET }}"
           testFormat: "cucumber"
           testPaths: "${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json"
           projectKey: "MON"
           testPlanKey: "MON-22411"
           combineInSingleTestExec: true
-          testExecutionJson: ""
           testExecKey:
 
   cypress-e2e-test-report:
