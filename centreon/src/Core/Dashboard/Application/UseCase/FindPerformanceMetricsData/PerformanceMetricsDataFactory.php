@@ -94,11 +94,11 @@ class PerformanceMetricsDataFactory
         $metricBases = [];
         $metrics = [];
         $times = [];
-        foreach ($metricsData as $metricData) {
+        foreach ($metricsData as $index => $metricData) {
             $metricBases[] = $metricData['global']['base'];
-            \preg_match('/^[a-zA-Z]+ graph on ([[:ascii:]]+)$/', $metricData['global']['title'], $matches);
+            \preg_match('/^[[:ascii:]]+ graph on ([[:ascii:]]+)$/', $metricData['global']['title'], $matches);
             $hostName = $matches[1];
-            $metrics[$hostName] = $metricData['metrics'];
+            $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
         $base = $this->getHighestBase($metricBases);
@@ -132,6 +132,8 @@ class PerformanceMetricsDataFactory
     {
         $metrics = [];
         foreach ($metricsData as $hostName => $metricData) {
+            \preg_match('/^index:\d+;host_name:([[:ascii:]]+)$/', $hostName, $matches);
+            $hostName = $matches[1];
             foreach ($metricData as $metric) {
                 if (in_array($metric['metric'], $metricNames, true)) {
                     $metric['metric'] = $hostName . ': ' . $metric['metric'];
