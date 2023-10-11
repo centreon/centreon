@@ -357,12 +357,23 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'poller.id' => 'h.instance_id'
         ];
 
+        // To allow to find host groups relating to Service information
+        $ServiceConcordanceArray = [
+            'service.display_name' => 'srv.display_name',
+        ];
+
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
         if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
             $shouldJoinHost = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostConcordanceArray);
+        }
+
+        $shouldJoinService = false;
+        if (count(array_intersect($searchParameters, array_keys($ServiceConcordanceArray))) > 0) {
+            $shouldJoinService = true;
+            $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $ServiceConcordanceArray);
         }
 
         //if the filter is for specific host id, remove it from search parameters
@@ -402,8 +413,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        // This join will only be added if a search parameter corresponding to one of the host parameter
-        if ($shouldJoinHost) {
+        // This join will only be added if a search parameter corresponding to one of the host or Service parameter
+        if ($shouldJoinHost || $shouldJoinService) {
             $subRequest .=
                 ' INNER JOIN `:dbstg`.hosts_hostgroups hhg 
                     ON hhg.hostgroup_id = hg.hostgroup_id
@@ -411,6 +422,13 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON h.host_id = hhg.host_id
                     AND h.enabled = \'1\'
                     AND h.name NOT LIKE \'_Module_BAM%\'';
+
+            if ($shouldJoinService) {
+                $subRequest .=
+                    ' LEFT JOIN `:dbstg`.`services` srv
+                        ON srv.host_id = h.host_id
+                        AND srv.enabled = \'1\'';
+            }
 
             if (!$this->isAdmin()) {
                 $subRequest .=
