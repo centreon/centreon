@@ -105,18 +105,22 @@ jobs:
         collection_directory="$(dirname "$collection_file")"
         environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
           if [ -f "$environment_file" ]; then
-            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitxray,json-summary --reporter-junitxray-export "newman/${collection_name}-junitxray.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
           else
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
             exit 1
           fi
 
-    - name: Upload HTML Reports
-      if: failure()
-      uses: actions/upload-artifact@v3
+    - name: Import results to Xray
+      uses: mikepenz/xray-action@v3.0.2
       with:
-        name: postman-html-reports
-        path: centreon/tests/rest_api/newman/
+            username: ${{ secrets.CLIENT_ID }}
+            password: ${{ secrets.CLIENT_SECRET }}
+            testFormat: "junit"
+            testPaths: "centreon/tests/rest_api/newman/"
+            projectKey: "MON"
+            testPlanKey: "MON-22343"
+            testExecKey:
 
     - name: Extract and Store Summaries
       if: failure()
