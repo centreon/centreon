@@ -118,6 +118,7 @@ CREATE TABLE `acl_resources_hc_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   KEY `hc_id` (`hc_id`),
   KEY `acl_res_id` (`acl_res_id`),
+  CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_ibfk_1` FOREIGN KEY (`hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -453,7 +454,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.0',
+  `bbdo_version` varchar(50) DEFAULT '3.0.1',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1444,7 +1445,8 @@ CREATE TABLE `hostcategories` (
   `hc_activate` enum('0','1') NOT NULL DEFAULT '1',
   PRIMARY KEY (`hc_id`),
   KEY `name_index` (`hc_name`),
-  KEY `alias_index` (`hc_alias`)
+  KEY `alias_index` (`hc_alias`),
+  KEY `level_index` (`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2370,12 +2372,18 @@ CREATE TABLE `security_authentication_tokens` (
   `provider_token_refresh_id` int(11) DEFAULT NULL,
   `provider_configuration_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `token_name` varchar(255) DEFAULT NULL,
+  `token_type` enum('auto', 'manual') NOT NULL DEFAULT 'auto',
+  `creator_id` int(11) DEFAULT NULL,
+  `creator_name` varchar(255) DEFAULT NULL,
+  `is_revoked` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`token`),
   KEY `security_authentication_tokens_token_fk` (`token`),
   KEY `security_authentication_tokens_provider_token_id_fk` (`provider_token_id`),
   KEY `security_authentication_tokens_provider_token_refresh_id_fk` (`provider_token_refresh_id`),
   KEY `security_authentication_tokens_configuration_id_fk` (`provider_configuration_id`),
   KEY `security_authentication_tokens_user_id_fk` (`user_id`),
+  KEY `security_authentication_tokens_creator_id_fk` (`creator_id`),
   CONSTRAINT `security_authentication_tokens_configuration_id_fk` FOREIGN KEY (`provider_configuration_id`)
   REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE,
   CONSTRAINT `security_authentication_tokens_provider_token_id_fk` FOREIGN KEY (`provider_token_id`)
@@ -2383,7 +2391,9 @@ CREATE TABLE `security_authentication_tokens` (
   CONSTRAINT `security_authentication_tokens_provider_token_refresh_id_fk` FOREIGN KEY (`provider_token_refresh_id`)
   REFERENCES `security_token` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_authentication_tokens_user_id_fk` FOREIGN KEY (`user_id`)
-  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `security_authentication_tokens_creator_id_fk` FOREIGN KEY (`creator_id`)
+  REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contact_password` (
@@ -2554,6 +2564,8 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
   `updated_by` int(11) NULL,
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
+  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global',
+  `refresh_interval` int(11) NULL,
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `contact_created_by`

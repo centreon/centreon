@@ -1,6 +1,6 @@
 {
   "title": "Single metric",
-  "description": "Single metric description (TBD)",
+  "description": "Displays the value of a single metric as a text, a gauge or a bar chart.",
   "options": {
     "singleMetricGraphType": {
       "type": "single-metric-graph-type",
@@ -13,7 +13,8 @@
         "customCritical": null,
         "criticalType": "default",
         "customWarning": null,
-        "warningType": "default"
+        "warningType": "default",
+        "baseColor": null
       },
       "label": "threshold"
     },
@@ -21,6 +22,11 @@
       "type": "refresh-interval",
       "defaultValue": "default",
       "label": "Interval"
+    },
+    "valueFormat": {
+      "type": "value-format",
+      "defaultValue": "human",
+      "label": "Value format"
     }
   },
   "data": {
@@ -34,5 +40,7 @@
     }
   },
   "singleMetricSelection": true,
+  "singleResourceTypeSelection": true,
+  "customBaseColor": true,
   "moduleName": "centreon-widget-singlemetric"
 }

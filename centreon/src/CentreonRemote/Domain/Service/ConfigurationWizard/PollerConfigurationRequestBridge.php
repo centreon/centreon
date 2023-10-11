@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,6 @@ use Pimple\Container;
 
 class PollerConfigurationRequestBridge
 {
-
     /** @var CentreonDBAdapter */
     private $dbAdapter;
 
@@ -38,7 +37,6 @@ class PollerConfigurationRequestBridge
     /** @var PollerServer[] */
     private $additionalRemotes = [];
 
-
     public function __construct(Container $di)
     {
         $this->dbAdapter = $di[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]->getAdapter('configuration_db');
@@ -46,7 +44,7 @@ class PollerConfigurationRequestBridge
 
     public function hasPollersForUpdating(): bool
     {
-        return !empty($this->pollers);
+        return ! empty($this->pollers);
     }
 
     /**
@@ -66,7 +64,7 @@ class PollerConfigurationRequestBridge
     }
 
     /**
-     * Set linked pollers regarding wizard type (poller/remote server)
+     * Set linked pollers regarding wizard type (poller/remote server).
      */
     public function collectDataFromRequest(): void
     {
@@ -84,14 +82,14 @@ class PollerConfigurationRequestBridge
     }
 
     /**
-     * Set linked Additonal Remote Servers regarding wizard type poller (poller/remote server)
+     * Set linked Additonal Remote Servers regarding wizard type poller (poller/remote server).
      */
     public function collectDataFromAdditionalRemoteServers(): void
     {
         $isRemoteServerWizard = (new ServerWizardIdentity)->requestConfigurationIsRemote();
 
         $linkedRemotes = [];
-        if (!$isRemoteServerWizard && isset($_POST['linked_remote_slaves'])) {
+        if (! $isRemoteServerWizard && isset($_POST['linked_remote_slaves'])) {
             $linkedRemotes = $_POST['linked_remote_slaves'];
         }
 
@@ -99,9 +97,37 @@ class PollerConfigurationRequestBridge
     }
 
     /**
-     * Get pollers to link a set of poller information
+     * Get poller information from poller id.
+     *
+     * @param int $pollerId the poller id to get
+     *
+     * @return null|PollerServer
+     */
+    public function getPollerFromId(int $pollerId): ?PollerServer
+    {
+        $query = 'SELECT id, name, ns_ip_address as ip FROM nagios_server WHERE id = ?';
+
+        $this->dbAdapter->query($query, [$pollerId]);
+        $results = $this->dbAdapter->results();
+
+        if (count($results)) {
+            $remoteData = reset($results);
+            $remoteServer = new PollerServer;
+            $remoteServer->setId($remoteData->id);
+            $remoteServer->setName($remoteData->name);
+            $remoteServer->setIp($remoteData->ip);
+
+            return $remoteServer;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get pollers to link a set of poller information.
      *
      * @param array<mixed> $pollers the pollers to get list of poller objects
+     *
      * @return PollerServer[] the pollers to link
      */
     private function getPollersToLink(array $pollers)
@@ -140,31 +166,5 @@ class PollerConfigurationRequestBridge
         }
 
         return $data;
-    }
-
-    /**
-     * Get poller information from poller id
-     *
-     * @param int $pollerId the poller id to get
-     * @return null|PollerServer
-     */
-    public function getPollerFromId(int $pollerId): ?PollerServer
-    {
-        $query = 'SELECT id, name, ns_ip_address as ip FROM nagios_server WHERE id = ?';
-
-        $this->dbAdapter->query($query, [$pollerId]);
-        $results = $this->dbAdapter->results();
-
-        if (count($results)) {
-            $remoteData = reset($results);
-            $remoteServer = new PollerServer;
-            $remoteServer->setId($remoteData->id);
-            $remoteServer->setName($remoteData->name);
-            $remoteServer->setIp($remoteData->ip);
-
-            return $remoteServer;
-        }
-
-        return null;
     }
 }

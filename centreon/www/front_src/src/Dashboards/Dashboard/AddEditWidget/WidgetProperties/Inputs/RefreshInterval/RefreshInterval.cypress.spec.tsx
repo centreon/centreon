@@ -1,27 +1,49 @@
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
 import {
+  labelDashboardGlobalInterval,
   labelInterval,
   labelRefreshInterval
 } from '../../../../translatedLabels';
+import { editProperties } from '../../../../useCanEditDashboard';
+import { dashboardRefreshIntervalAtom } from '../../../../atoms';
 
 import RefreshInterval from './RefreshInterval';
 
-const initializeComponent = (): void => {
+const initializeComponent = (
+  refreshInterval: {
+    interval: number | null;
+    type: 'global' | 'manual';
+  } = {
+    interval: null,
+    type: 'global' as const
+  }
+): void => {
+  const store = createStore();
+
+  store.set(dashboardRefreshIntervalAtom, refreshInterval);
+
+  cy.stub(editProperties, 'useCanEditProperties').returns({
+    canEdit: true,
+    canEditField: true
+  });
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          moduleName: 'widget',
-          options: {
-            refreshInterval: 'default',
-            refreshIntervalCount: null
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <RefreshInterval label="" propertyName="refreshInterval" />
-      </Formik>
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            moduleName: 'widget',
+            options: {
+              refreshInterval: 'default',
+              refreshIntervalCount: null
+            }
+          }}
+          onSubmit={cy.stub()}
+        >
+          <RefreshInterval label="" propertyName="refreshInterval" />
+        </Formik>
+      </Provider>
     )
   });
 };
@@ -32,36 +54,46 @@ describe('Refresh interval', () => {
   });
   it('displays the refresh interval fields', () => {
     cy.contains(labelRefreshInterval).should('be.visible');
+    cy.contains(`${labelDashboardGlobalInterval} (15 seconds)`).should(
+      'be.visible'
+    );
     cy.findByTestId('default').should('be.visible');
     cy.findByTestId('custom').should('be.visible');
-    cy.findAllByTestId(labelInterval).eq(1).should('be.disabled');
     cy.findByTestId('manual').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('enables the Interval field when the Custom radio button is selected', () => {
-    cy.findByTestId('custom').click();
-    cy.findAllByTestId(labelInterval).eq(1).should('be.enabled');
 
     cy.makeSnapshot();
   });
 
   it('changes the "second" label to "seconds" when the value is greater than 1', () => {
     cy.findByTestId('custom').click();
-    cy.findAllByTestId(labelInterval).eq(1).type('2');
+    cy.findByTestId(labelInterval).type('2');
     cy.findAllByText('second').should('not.exist');
     cy.findAllByText('seconds').should('exist');
 
     cy.makeSnapshot();
   });
+});
 
-  it('changes the "seconds" label to "second" when the value is 1', () => {
-    cy.findByTestId('custom').click();
-    cy.findAllByTestId(labelInterval).eq(1).type('1');
-    cy.findAllByText('second').should('exist');
-    cy.findAllByText('seconds').should('not.exist');
+describe('Global properties', () => {
+  it('displays the global properties when the refresh interval is global and interval', () => {
+    initializeComponent({
+      interval: 50,
+      type: 'global'
+    });
 
-    cy.makeSnapshot();
+    cy.contains(`${labelDashboardGlobalInterval} (50 seconds)`).should(
+      'be.visible'
+    );
+  });
+
+  it('displays the global properties when the refresh interval is manual', () => {
+    initializeComponent({
+      interval: null,
+      type: 'manual'
+    });
+
+    cy.contains(`${labelDashboardGlobalInterval} (manual)`).should(
+      'be.visible'
+    );
   });
 });

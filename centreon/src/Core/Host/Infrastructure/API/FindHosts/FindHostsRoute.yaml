@@ -1,0 +1,5 @@
+FindHosts:
+  methods: GET
+  path: /configuration/hosts
+  controller: 'Core\Host\Infrastructure\API\FindHosts\FindHostsController'
+  condition: "request.attributes.get('version') >= 23.10"

@@ -2,10 +2,12 @@ import { useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
+import { equals, isNil } from 'ramda';
 
 import { RichTextEditor } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../models';
+import { editProperties } from '../../../useCanEditDashboard';
 
 import { getProperty } from './utils';
 
@@ -18,6 +20,13 @@ const WidgetRichTextEditor = ({
 
   const { errors, values, setFieldValue, setFieldTouched } =
     useFormikContext<Widget>();
+
+  const { canEditField } = editProperties.useCanEditProperties();
+
+  const isGenericTextWidget = equals(
+    values.moduleName,
+    'centreon-widget-generictext'
+  );
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),
@@ -42,13 +51,15 @@ const WidgetRichTextEditor = ({
   return (
     <RichTextEditor
       editable
-      disabled={disabledCondition?.(values)}
+      disabled={!canEditField || disabledCondition?.(values)}
+      displayBlockButtons={isGenericTextWidget}
       editorState={value || undefined}
       error={error}
       getEditorState={change}
       initialEditorState={value || undefined}
       openLinkInNewTab={openLinksInNewTab}
       placeholder={t(label) as string}
+      resetEditorToInitialStateCondition={() => isNil(value)}
     />
   );
 };

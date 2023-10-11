@@ -1,7 +1,7 @@
 import { includes, map, prop, reject } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Chip } from '@mui/material';
+import { Chip, ChipProps, Tooltip } from '@mui/material';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import Autocomplete, { Props as AutocompleteProps } from '..';
@@ -18,7 +18,6 @@ const useStyles = makeStyles()((theme) => ({
     width: theme.spacing(1.5)
   },
   tag: {
-    backgroundColor: theme.palette.divider,
     fontSize: theme.typography.caption.fontSize
   }
 }));
@@ -33,7 +32,9 @@ export interface Props
       UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
       'multiple'
     > {
+  chipProps?: ChipProps;
   disableSortedOptions?: boolean;
+  getOptionTooltipLabel?: (option) => string;
   getTagLabel?: (option) => string;
   optionProperty?: string;
 }
@@ -45,22 +46,30 @@ const MultiAutocompleteField = ({
   optionProperty = 'name',
   getOptionLabel = (option): string => option.name,
   getTagLabel = (option): string => option[optionProperty],
+  getOptionTooltipLabel,
+  chipProps,
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
   const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
     renderedValue.map((option, index) => (
-      <Chip
-        classes={{
-          deleteIcon: classes.deleteIcon,
-          root: classes.tag
-        }}
+      <Tooltip
         key={option.id}
-        label={getTagLabel(option)}
-        size="medium"
-        {...getTagProps({ index })}
-      />
+        placement="top"
+        title={getOptionTooltipLabel?.(option)}
+      >
+        <Chip
+          classes={{
+            deleteIcon: classes.deleteIcon,
+            root: classes.tag
+          }}
+          label={getTagLabel(option)}
+          size="medium"
+          {...getTagProps({ index })}
+          {...chipProps}
+        />
+      </Tooltip>
     ));
 
   const getLimitTagsText = (more): JSX.Element => <Option>{`+${more}`}</Option>;

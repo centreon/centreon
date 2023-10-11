@@ -46,14 +46,13 @@ export type Dashboard = NamedEntity & {
   updatedBy: NamedEntity;
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
+  refresh: {
+    type: 'global' | 'manual';
+    interval: number | null;
+  };
 };
 
 export type CreateDashboardDto = Omit<
-  Dashboard,
-  'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'ownRole'
->;
-
-export type UpdateDashboardDto = Omit<
   Dashboard,
   'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'ownRole'
 >;

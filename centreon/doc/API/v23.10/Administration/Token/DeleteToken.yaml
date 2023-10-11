@@ -1,0 +1,17 @@
+delete:
+  tags:
+    - Authentication token
+  summary: "Delete an API token"
+  description: |
+    Delete an API token
+  parameters:
+    - $ref: 'QueryParameter/TokenName.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

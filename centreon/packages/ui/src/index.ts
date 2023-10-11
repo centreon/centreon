@@ -126,7 +126,10 @@ export type {
 export { default as Responsive } from './Responsive';
 export { default as useFetchQuery } from './api/useFetchQuery';
 export { default as useMutationQuery, Method } from './api/useMutationQuery';
-export { default as useGraphQuery } from './api/useGraphQuery';
+export {
+  default as useGraphQuery,
+  resourceTypeQueryParameter
+} from './api/useGraphQuery';
 export { default as QueryProvider } from './api/QueryProvider';
 export {
   default as FileDropZone,
@@ -150,3 +153,7 @@ export * from './Dashboard';
 export * from './Graph';
 export type { LineChartData } from './Graph/common/models';
 export * from './Graph/common/timeSeries';
+
+export { default as TimePeriods } from './TimePeriods';
+export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePeriod/SimpleCustomTimePeriod';
+export * from './ParentSize';

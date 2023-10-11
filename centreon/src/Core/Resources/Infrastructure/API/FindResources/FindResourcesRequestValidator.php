@@ -154,6 +154,14 @@ final class FindResourcesRequestValidator
     }
 
     /**
+     * @return array<string>
+     */
+    public function getResourceTypes(): array
+    {
+        return $this->resourceTypes;
+    }
+
+    /**
      * @param array<mixed> $queryParameters
      *
      * @throws \InvalidArgumentException

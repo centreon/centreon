@@ -5,6 +5,7 @@ import {
   equals,
   ifElse,
   isNil,
+  map,
   not,
   pathEq,
   pathOr,
@@ -27,7 +28,7 @@ import type {
 } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
-import { ResourceListing, SortOrder } from '../../models';
+import { ResourceListing, SortOrder, Visualization } from '../../models';
 import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
 import {
   clearSelectedResourceDerivedAtom,
@@ -55,6 +56,11 @@ import {
   customFiltersAtom,
   getCriteriaValueDerivedAtom
 } from '../../Filter/filterAtoms';
+import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
+import {
+  hostsEndpoint,
+  resourcesEndpoint as allResourcesEndpoint
+} from '../../api/endpoint';
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
@@ -102,6 +108,7 @@ const useLoadResources = (): LoadResources => {
   const customFilters = useAtomValue(customFiltersAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const appliedFilter = useAtomValue(appliedFilterAtom);
+  const visualization = useAtomValue(selectedVisualizationAtom);
   const setListing = useSetAtom(listingAtom);
   const setSending = useSetAtom(sendingAtom);
   const setSendingDetails = useSetAtom(sendingDetailsAtom);
@@ -109,6 +116,10 @@ const useLoadResources = (): LoadResources => {
   const refreshIntervalRef = useRef<number>();
 
   const refreshIntervalMs = refreshInterval * 1000;
+
+  const resourcesEndpoint = equals(visualization, Visualization.Host)
+    ? hostsEndpoint
+    : allResourcesEndpoint;
 
   const getSort = (): { [sortField: string]: SortOrder } | undefined => {
     const sort = getCriteriaValue('sort');
@@ -205,6 +216,7 @@ const useLoadResources = (): LoadResources => {
     }
 
     sendRequest({
+      endpoint: resourcesEndpoint,
       hostCategories: getCriteriaNames('host_categories'),
       hostGroups: getCriteriaNames('host_groups'),
       hostSeverities: getCriteriaNames('host_severities'),
@@ -222,7 +234,25 @@ const useLoadResources = (): LoadResources => {
       states: getCriteriaIds('states'),
       statusTypes: getCriteriaIds('status_types'),
       statuses: getCriteriaIds('statuses')
-    }).then(setListing);
+    }).then((response) => {
+      if (!equals(visualization, Visualization.Host)) {
+        setListing(response);
+
+        return;
+      }
+
+      const result = map((item) => {
+        return {
+          ...item,
+          children: item?.children.resources,
+          childrenCount: item?.children.status_count
+        };
+      }, response.result);
+
+      const hostsResponse = { ...response, result };
+
+      setListing(hostsResponse);
+    });
 
     if (isNil(details)) {
       return;

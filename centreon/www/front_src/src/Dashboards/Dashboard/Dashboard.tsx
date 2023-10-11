@@ -1,11 +1,14 @@
-import { ReactElement, useMemo } from 'react';
+import { ReactElement, useEffect } from 'react';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { inc } from 'ramda';
 
 import {
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
+import { Divider } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
@@ -15,15 +18,18 @@ import { useDashboardConfig } from '../components/DashboardConfig/useDashboardCo
 import { Dashboard as DashboardType } from '../api/models';
 import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/DashboardAccessRightsModal';
 import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
-import { useDashboardUserPermissions } from '../components/DashboardUserPermissions/useDashboardUserPermissions';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
-import { isEditingAtom } from './atoms';
+import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
+import { editProperties } from './useCanEditDashboard';
+import { useDashboardStyles } from './Dashboard.styles';
 
 const Dashboard = (): ReactElement => {
+  const { classes } = useDashboardStyles();
+
   const { dashboardId } = routerParams.useParams();
   const { dashboard, panels } = useDashboardDetails({
     dashboardId: dashboardId as string
@@ -32,13 +38,29 @@ const Dashboard = (): ReactElement => {
   const { editAccessRights } = useDashboardAccessRights();
 
   const isEditing = useAtomValue(isEditingAtom);
+  const { layout } = useAtomValue(dashboardAtom);
+  const setRefreshCounts = useSetAtom(refreshCountsAtom);
 
-  const { hasEditPermission } = useDashboardUserPermissions();
+  const { canEdit } = editProperties.useCanEditProperties();
 
-  const canEdit = useMemo(
-    () => dashboard && hasEditPermission(dashboard),
-    [dashboard]
-  );
+  const refreshAllWidgets = (): void => {
+    setRefreshCounts((prev) => {
+      return layout.reduce((acc, widget) => {
+        const prevRefreshCount = prev[widget.i];
+
+        return {
+          ...acc,
+          [widget.i]: inc(prevRefreshCount || 0)
+        };
+      }, {});
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      setRefreshCounts({});
+    };
+  }, []);
 
   return (
     <PageLayout>
@@ -53,43 +75,55 @@ const Dashboard = (): ReactElement => {
               title={dashboard?.name || ''}
             />
           </PageHeader.Main>
-          <PageHeader.Actions>
-            {canEdit && <DashboardEditActions panels={panels} />}
-          </PageHeader.Actions>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <PageLayout.Actions>
-          <span>
-            {!isEditing && hasEditPermission(dashboard as DashboardType) && (
-              <>
-                <IconButton
-                  aria-label="edit"
-                  data-testid="edit"
-                  icon={<SettingsIcon />}
-                  size="small"
-                  variant="ghost"
-                  onClick={editDashboard(dashboard as DashboardType)}
+        <PageLayout.Actions rowReverse={isEditing}>
+          {!isEditing && canEdit && (
+            <span>
+              <IconButton
+                aria-label="edit"
+                data-testid="edit"
+                icon={<SettingsIcon />}
+                size="small"
+                variant="primary"
+                onClick={editDashboard(dashboard as DashboardType)}
+              />
+              <IconButton
+                aria-label="share"
+                data-testid="share"
+                icon={<ShareIcon />}
+                size="small"
+                variant="primary"
+                onClick={editAccessRights(dashboard as DashboardType)}
+              />
+              <IconButton
+                aria-label="refresh"
+                data-testid="refresh"
+                icon={<RefreshIcon />}
+                size="small"
+                variant="ghost"
+                onClick={refreshAllWidgets}
+              />
+            </span>
+          )}
+          {canEdit && (
+            <div className={classes.editActions}>
+              <AddWidgetButton />
+              {isEditing && (
+                <Divider
+                  className={classes.divider}
+                  orientation="vertical"
+                  variant="middle"
                 />
-                <IconButton
-                  aria-label="share"
-                  data-testid="share"
-                  icon={<ShareIcon />}
-                  size="small"
-                  variant="ghost"
-                  onClick={editAccessRights(dashboard as DashboardType)}
-                />
-              </>
-            )}
-          </span>
-          <span>
-            <AddWidgetButton />
-          </span>
+              )}
+              <DashboardEditActions panels={panels} />
+            </div>
+          )}
         </PageLayout.Actions>
-
         <Layout />
       </PageLayout.Body>
-      <DashboardConfigModal />
+      <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
     </PageLayout>
   );

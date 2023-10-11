@@ -21,6 +21,7 @@ export interface WidgetPropertyProps {
   propertyName: string;
   required?: boolean;
   text?: {
+    autoSize?: boolean;
     multiline?: boolean;
     size?: string;
     step?: string;
@@ -58,7 +59,9 @@ export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
   hostGroup = 'host-group',
-  service = 'service'
+  service = 'service',
+  serviceCategory = 'service-category',
+  serviceGroup = 'service-group'
 }
 
 export enum RadioOptions {

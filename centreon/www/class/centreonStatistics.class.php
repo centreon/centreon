@@ -1,36 +1,21 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <htcommand://www.gnu.org/licenses>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : command@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -45,18 +30,22 @@ use Psr\Log\LoggerInterface;
 
 class CentreonStatistics
 {
-    /**
-     * @var LoggerInterface $logger
-     */
-    private $logger;
+    private LoggerInterface $logger;
+
+    private CentreonDB $dbConfig;
+
+    private ?\Core\Common\Infrastructure\FeatureFlags $featureFlags;
 
     /**
      * CentreonStatistics constructor.
      */
     public function __construct(LoggerInterface $logger)
     {
-        $this->dbConfig = new centreonDB();
+        $this->dbConfig = new CentreonDB();
         $this->logger = $logger;
+
+        $kernel = \App\Kernel::createForWeb();
+        $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class);
     }
 
     /**
@@ -67,9 +56,9 @@ class CentreonStatistics
     public function getCentreonUUID()
     {
         $centreonUUID = new CentreonUUID($this->dbConfig);
-        return array(
+        return [
             'CentreonUUID' => $centreonUUID->getUUID()
-        );
+        ];
     }
 
     /**
@@ -79,23 +68,21 @@ class CentreonStatistics
      */
     public function getPlatformInfo()
     {
+        $query = <<<'SQL'
+            SELECT
+                COUNT(h.host_id) as nb_hosts,
+                ( SELECT COUNT(hg.hg_id) FROM hostgroup hg WHERE hg.hg_activate = '1' ) as nb_hg,
+                ( SELECT COUNT(s.service_id) FROM service s WHERE s.service_activate = '1' AND s.service_register = '1' ) as nb_services,
+                ( SELECT COUNT(sg.sg_id) FROM servicegroup sg WHERE sg.sg_activate = '1' ) as nb_sg,
+                @nb_remotes:=( SELECT COUNT(ns.id) FROM nagios_server ns, remote_servers rs
+                               WHERE ns.ns_activate = '1' AND rs.server_id = ns.id ) as nb_remotes,
+                ( ( SELECT COUNT(ns2.id) FROM nagios_server ns2 WHERE ns2.ns_activate = '1' )-@nb_remotes-1 ) as nb_pollers,
+                '1' as nb_central
+            FROM host h
+            WHERE h.host_activate = '1' AND h.host_register = '1'
+            SQL;
 
-        $query = "SELECT COUNT(h.host_id) as nb_hosts, " .
-            "(SELECT COUNT(hg.hg_id) FROM hostgroup hg " .
-            "WHERE hg.hg_activate = '1') as nb_hg, " .
-            "(SELECT COUNT(s.service_id) FROM service s " .
-            "WHERE s.service_activate = '1' AND s.service_register = '1') as nb_services, " .
-            "(SELECT COUNT(sg.sg_id) FROM servicegroup sg " .
-            "WHERE sg.sg_activate = '1') as nb_sg, " .
-            "@nb_remotes:=(SELECT COUNT(ns.id) FROM nagios_server ns, remote_servers rs WHERE ns.ns_activate = '1' " .
-            "AND rs.server_id = ns.id) as nb_remotes , " .
-            "((SELECT COUNT(ns2.id) FROM nagios_server ns2 WHERE ns2.ns_activate = '1')-@nb_remotes-1) as nb_pollers," .
-            " '1' as nb_central " .
-            "FROM host h WHERE h.host_activate = '1' AND h.host_register = '1'";
-        $dbResult = $this->dbConfig->query($query);
-        $data = $dbResult->fetch();
-
-        return $data;
+        return $this->dbConfig->query($query)->fetch();
     }
 
     /**
@@ -108,12 +95,12 @@ class CentreonStatistics
     {
         $dbStorage = new CentreonDB("centstorage");
         $centreonVersion = new CentreonVersion($this->dbConfig, $dbStorage);
-        return array(
+        return [
             'core' => $centreonVersion->getCore(),
             'modules' => $centreonVersion->getModules(),
             'widgets' => $centreonVersion->getWidgets(),
             'system' => $centreonVersion->getSystem(),
-        );
+        ];
     }
 
     /**
@@ -133,9 +120,9 @@ class CentreonStatistics
             $timezone = date_default_timezone_get();
         }
 
-        return array(
+        return [
             'timezone' => $timezone
-        );
+        ];
     }
 
     /**
@@ -148,11 +135,13 @@ class CentreonStatistics
         $data = [];
 
         # Get the number of LDAP directories configured by LDAP configuration
-        $query = "SELECT ar.ar_id, COUNT(arh.auth_ressource_id) AS configured_ad
-        FROM auth_ressource_host AS arh
-        INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
-        WHERE ar.ar_enable = '1'
-        GROUP BY ar_id";
+        $query = <<<'SQL'
+            SELECT ar.ar_id, COUNT(arh.auth_ressource_id) AS configured_ad
+            FROM auth_ressource_host AS arh
+            INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
+            WHERE ar.ar_enable = '1'
+            GROUP BY ar_id
+            SQL;
         $result = $this->dbConfig->query($query);
         while ($row = $result->fetch()) {
             $data[$row['ar_id']] = [
@@ -161,12 +150,14 @@ class CentreonStatistics
         }
 
         # Get configured options by LDAP configuration
-        $query = "SELECT ar.ar_id, ari.ari_name, ari.ari_value
-        FROM auth_ressource_host AS arh
-        INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
-        INNER JOIN auth_ressource_info AS ari ON (ari.ar_id = ar.ar_id)
-        WHERE ari.ari_name IN ('ldap_template', 'ldap_auto_sync', 'ldap_sync_interval', 'ldap_auto_import',
-            'ldap_search_limit', 'ldap_search_timeout', 'ldap_srv_dns', 'ldap_store_password', 'protocol_version')";
+        $query = <<<'SQL'
+            SELECT ar.ar_id, ari.ari_name, ari.ari_value
+            FROM auth_ressource_host AS arh
+            INNER JOIN auth_ressource AS ar ON (arh.auth_ressource_id = ar.ar_id)
+            INNER JOIN auth_ressource_info AS ari ON (ari.ar_id = ar.ar_id)
+            WHERE ari.ari_name IN ('ldap_template', 'ldap_auto_sync', 'ldap_sync_interval', 'ldap_auto_import',
+                'ldap_search_limit', 'ldap_search_timeout', 'ldap_srv_dns', 'ldap_store_password', 'protocol_version')
+            SQL;
         $result = $this->dbConfig->query($query);
         while ($row = $result->fetch()) {
             $data[$row['ar_id']][$row['ari_name']] = $row['ari_value'];
@@ -281,6 +272,55 @@ class CentreonStatistics
     }
 
     /**
+     * get info about manually managed API tokens
+     *
+     * @return array
+     */
+    public function getApiTokensInfo()
+    {
+        $data = [];
+
+        $statementNbTokens = $this->dbConfig->query(
+            <<<'SQL'
+                SELECT count(token_type)
+                FROM security_authentication_tokens
+                WHERE token_type ='manual'
+                SQL
+        );
+        $data['total'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
+
+        $statementNbTokens = $this->dbConfig->query(
+            <<<'SQL'
+                SELECT count(contact_id)
+                FROM contact
+                WHERE
+                    contact_id IN (
+                        SELECT contact_id
+                        FROM contact
+                        WHERE
+                            contact_admin = '1'
+                            AND contact_name != 'centreon-gorgone'
+
+                    )
+                    OR contact_id IN (
+                        SELECT contact_id
+                        FROM contact
+                        JOIN acl_group_contacts_relations acl_grp_contact_rel
+                            ON contact.contact_id = acl_grp_contact_rel.contact_contact_id
+                        JOIN acl_group_actions_relations acl_grp_action_rel
+                            ON acl_grp_contact_rel.acl_group_id = acl_grp_action_rel.acl_group_id
+                        JOIN acl_actions_rules acl_action
+                            ON acl_grp_action_rel.acl_action_id = acl_action.acl_action_rule_id
+                            AND acl_action.acl_action_name = 'manage_tokens'
+                    )
+                SQL
+        );
+        $data['managers'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
+
+        return $data;
+    }
+
+    /**
      * Get Additional data
      *
      * @return array
@@ -289,11 +329,11 @@ class CentreonStatistics
     {
         $centreonVersion = new CentreonVersion($this->dbConfig);
 
-        $data = array(
-            'extension' => array(
+        $data = [
+            'extension' => [
                 'widgets' => $centreonVersion->getWidgetsUsage()
-            ),
-        );
+            ],
+        ];
 
         $oModulesStats = new CentreonStatsModules($this->logger);
         $modulesData = $oModulesStats->getModulesStatistics();
@@ -301,38 +341,147 @@ class CentreonStatistics
             $data['extension'] = array_merge($data['extension'], $moduleData);
         }
 
+        if ($this->featureFlags?->isEnabled('notification')) {
+            $data['notification'] = $this->getAdditionalNotificationInformation();
+        }
+
+        $data['user_filter'] = $this->getAdditionalUserFiltersInformation();
+
+        return $data;
+    }
+
+    /**
+     * @return array{
+     *     total: int,
+     *     avg_hg_notification?: float,
+     *     avg_sg_notification?: float,
+     *     avg_bv_notification?: float,
+     *     avg_contact_notification?: float,
+     *     avg_cg_notification?: float
+     * }
+     */
+    private function getAdditionalNotificationInformation(): array
+    {
+        $data = [];
+
+        $avgGetValue = function (string $tableRelation): float|null {
+            $sqlAverage = <<<SQL
+                SELECT AVG(nb) FROM (
+                    SELECT COUNT(id) as nb, n.id
+                    FROM {$tableRelation} rel
+                    INNER JOIN notification n ON n.id=rel.notification_id AND n.is_activated=1
+                    GROUP BY n.id
+                ) tmp
+                SQL;
+
+            $sqlTableExists = 'SHOW TABLES LIKE ' . $this->dbConfig->quote($tableRelation);
+            $statement = $this->dbConfig->query($sqlTableExists);
+            $tableExists = $statement && $statement->rowCount() > 0;
+
+            return $tableExists ? round((float) $this->sqlFetchValue($sqlAverage), 1) : null;
+        };
+
+        $data['total'] = (int) $this->sqlFetchValue('SELECT COUNT(id) FROM notification WHERE is_activated=1');
+        $data['avg_hg_notification'] = $avgGetValue('notification_hg_relation');
+        $data['avg_sg_notification'] = $avgGetValue('notification_sg_relation');
+        $data['avg_bv_notification'] = $avgGetValue('mod_bam_notification_bv_relation');
+        $data['avg_contact_notification'] = $avgGetValue('notification_user_relation');
+        $data['avg_cg_notification'] = $avgGetValue('notification_contactgroup_relation');
+
+        return array_filter($data, static fn(mixed $value): bool => null !== $value);
+    }
+
+    /**
+     * @return array{
+     *     nb_users: int,
+     *     avg_filters_per_user: float,
+     *     max_filters_user: int
+     * }
+     */
+    private function getAdditionalUserFiltersInformation(): array
+    {
+        $data = [];
+
+        $filtersPerUserRequest = <<<SQL
+            SELECT COUNT(id) as count FROM user_filter GROUP BY user_id;
+        SQL;
+
+        $statement = $this->dbConfig->query($filtersPerUserRequest);
+
+        $filtersPerUser = [];
+
+        while (false !== ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            $filtersPerUser[] = $record['count'];
+        }
+
+        $data['nb_users'] = (int) $this->sqlFetchValue('SELECT COUNT(DISTINCT user_id) FROM user_filter');
+        $filters = (int) $this->sqlFetchValue('SELECT COUNT(id) FROM user_filter');
+        $data['avg_filters_per_user'] = (float) ($filters / $data['nb_users']);
+        $data['max_filters_user'] = (int) max(array_values($filtersPerUser));
+
         return $data;
     }
 
     /**
      * @param string $providerType
+     *
      * @return int
      */
     private function getAclRelationsByProviderType(string $providerType): int
     {
-        $query = "SELECT  COUNT(*) AS acl_relation 
-        FROM security_provider_access_group_relation gr
-        INNER JOIN provider_configuration pc on pc.id = gr.provider_configuration_id
-        WHERE pc.type = '$providerType'";
-
-        $result = $this->dbConfig->query($query);
-
-        return (int) $result->fetchColumn();
+        return (int) $this->sqlFetchValue(
+            <<<'SQL'
+                SELECT COUNT(*) AS acl_relation
+                FROM security_provider_access_group_relation gr
+                INNER JOIN provider_configuration pc on pc.id = gr.provider_configuration_id
+                WHERE pc.type = :providerType
+                SQL,
+            [':providerType', $providerType, \PDO::PARAM_STR]
+        );
     }
 
     /**
      * @param string $providerType
+     *
      * @return int
      */
     private function getContactGroupRelationsByProviderType(string $providerType): int
     {
-        $query = "SELECT  COUNT(*) AS cg_relation 
-        FROM security_provider_contact_group_relation cg
-        INNER JOIN provider_configuration pc on pc.id = cg.provider_configuration_id
-        WHERE pc.type = '$providerType'";
+        return (int) $this->sqlFetchValue(
+            <<<'SQL'
+                SELECT COUNT(*) AS cg_relation
+                FROM security_provider_contact_group_relation cg
+                INNER JOIN provider_configuration pc on pc.id = cg.provider_configuration_id
+                WHERE pc.type = :providerType
+                SQL,
+            [':providerType', $providerType, \PDO::PARAM_STR]
+        );
+    }
 
-        $result = $this->dbConfig->query($query);
+    /**
+     * Helper to retrieve the first value of a SQL query.
+     *
+     * @param string $sql
+     * @param array{string, mixed, int} ...$binds List of [':field', $value, \PDO::PARAM_STR]
+     *
+     * @return string|float|int|null
+     */
+    private function sqlFetchValue(string $sql, array ...$binds): string|float|int|null
+    {
+        try {
+            $statement = $this->dbConfig->prepare($sql) ?: null;
+            foreach ($binds as $args) {
+                $statement?->bindValue(...$args);
+            }
+            $statement?->execute();
+            $row = $statement?->fetch(\PDO::FETCH_NUM);
+            $value = is_array($row) && isset($row[0]) ? $row[0] : null;
 
-        return (int) $result->fetchColumn();
+            return is_string($value) || is_int($value) || is_float($value) ? $value : null;
+        } catch (PDOException $exception) {
+            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+
+            return null;
+        }
     }
 }

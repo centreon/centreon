@@ -1,0 +1,8 @@
+in: path
+name: user_id
+required: true
+description: "User ID linked to the token"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

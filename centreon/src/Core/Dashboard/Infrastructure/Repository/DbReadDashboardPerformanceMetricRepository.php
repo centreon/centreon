@@ -33,8 +33,6 @@ use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 
 class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB implements RepositoryInterface
 {
-    private const MAXIMUM_METRICS_COUNT = 100;
-
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
@@ -404,7 +402,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param RequestParametersInterface $requestParameters
      * @param array $accessGroups
      * @param bool $hasMetricName
-     * 
+     *
      * @return string
      */
     private function buildQuery(
@@ -511,9 +509,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $resourceMetrics = [];
         if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
             $requestParameters->setTotal((int) $total);
-            if ($total > self::MAXIMUM_METRICS_COUNT) {
-                return $resourceMetrics;
-            }
         }
 
         if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {

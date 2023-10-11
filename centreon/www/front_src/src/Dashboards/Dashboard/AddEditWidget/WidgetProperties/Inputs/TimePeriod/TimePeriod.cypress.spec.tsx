@@ -2,16 +2,22 @@ import { Formik } from 'formik';
 
 import {
   labelCustomize,
-  labelEnd,
-  labelStart,
-  labelTimePeriod
+  labelFrom,
+  labelTimePeriod,
+  labelTo
 } from '../../../../translatedLabels';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
 
 const initializeComponent = (): void => {
+  cy.stub(editProperties, 'useCanEditProperties').returns({
+    canEdit: true,
+    canEditField: true
+  });
   cy.clock(new Date(2023, 5, 5, 8, 0, 0).getTime());
+  cy.viewport('macbook-13');
   cy.mount({
     Component: (
       <Formik
@@ -41,7 +47,7 @@ describe('Time Period', () => {
     cy.contains(labelTimePeriod).should('be.visible');
     cy.findByTestId(labelTimePeriod).should('have.value', '1');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   options.slice(1).forEach(({ id, name }) => {
@@ -52,7 +58,7 @@ describe('Time Period', () => {
 
       cy.findByTestId(labelTimePeriod).should('have.value', `${id}`);
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -70,16 +76,16 @@ describe('Time Period', () => {
 
     cy.contains(labelCustomize).click();
 
-    cy.findByLabelText(labelEnd)
+    cy.findByLabelText(labelFrom)
       .find('input')
       .click({ force: true })
-      .type('{leftarrow}{leftarrow}{backspace}10');
-    cy.findByLabelText(labelStart)
+      .type('{leftarrow}{leftarrow}10');
+    cy.findByLabelText(labelTo)
       .find('input')
       .click({ force: true })
-      .type('{leftarrow}{leftarrow}{backspace}05');
+      .type('{leftarrow}{leftarrow}05');
 
-    cy.get('input').eq(1).should('have.value', '06/05/2023 05:00 AM');
-    cy.get('input').eq(2).should('have.value', '06/05/2023 10:00 AM');
+    cy.get('input').eq(1).should('have.value', '06/05/2023 10:00 AM');
+    cy.get('input').eq(2).should('have.value', '06/05/2023 05:00 AM');
   });
 });

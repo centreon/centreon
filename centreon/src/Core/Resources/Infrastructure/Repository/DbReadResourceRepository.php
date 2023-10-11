@@ -68,6 +68,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'status_code' => 'resources.status',
         'status_severity_code' => 'resources.status_ordered',
         'action_url' => 'resources.action_url',
+        'parent_id' => 'resources.parent_id',
         'parent_name' => 'resources.parent_name',
         'parent_alias' => 'parent_resource.alias',
         'parent_status' => 'parent_status',
@@ -141,7 +142,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->resources = array_values(
             array_filter(
                 $this->resources,
-                static fn(ResourceEntity $resource) => $resource->hasGraph(),
+                static fn (ResourceEntity $resource) => $resource->hasGraph(),
             )
         );
     }
@@ -352,6 +353,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         $request .= $accessGroupRequest;
 
+        $request .= $this->addResourceParentIdSubRequest($filter, $collector);
+
         /**
          * Resource Type filter
          * 'service', 'metaservice', 'host'.
@@ -408,7 +411,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            static fn(ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
+            static fn (ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -504,11 +507,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithIcons = array_filter(
             $this->resources,
-            static fn(ResourceEntity $resource): bool => null !== $resource->getIcon()
+            static fn (ResourceEntity $resource): bool => null !== $resource->getIcon()
         );
 
         return array_map(
-            static fn(ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
             $resourcesWithIcons
         );
     }
@@ -520,11 +523,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithSeverities = array_filter(
             $this->resources,
-            static fn(ResourceEntity $resource): bool => null !== $resource->getSeverity()
+            static fn (ResourceEntity $resource): bool => null !== $resource->getSeverity()
         );
 
         return array_map(
-            static fn(ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
             $resourcesWithSeverities
         );
     }
@@ -654,6 +657,33 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
             $subRequest .= ' LIMIT 1)';
         }
+
+        return $subRequest;
+    }
+
+    /**
+     * @param ResourceFilter $filter
+     * @param StatementCollector $collector
+     *
+     * @return string
+     */
+    private function addResourceParentIdSubRequest(ResourceFilter $filter, StatementCollector $collector): string
+    {
+        $subRequest = '';
+        $filteredParentIds = [];
+
+        if (empty($filter->getHostIds())) {
+            return $subRequest;
+        }
+
+        foreach ($filter->getHostIds() as $index => $hostId) {
+            $key = ":parentId_{$index}";
+            $filteredParentIds[] = $key;
+            $collector->addValue($key, $hostId, \PDO::PARAM_INT);
+        }
+
+        $subRequest = ' AND (resources.parent_id IN (' . implode(', ', $filteredParentIds) . ')';
+        $subRequest .= ' OR resources.id IN (' . implode(', ', $filteredParentIds) . '))';
 
         return $subRequest;
     }

@@ -69,7 +69,11 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
 export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
   (theme, { hasHeader }) => ({
     widgetContainer: {
+      background: theme.palette.background.widget,
+      border: 'none',
+      borderRadius: theme.spacing(1),
       height: '100%',
+      paddingBottom: theme.spacing(2),
       width: '100%'
     },
     widgetContent: {
@@ -79,12 +83,17 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       '&:hover': {
         backgroundColor: theme.palette.action.hover
       },
-      cursor: 'move',
+      '&[data-canMove="false"]': {
+        cursor: 'default'
+      },
+      '&[data-canMove="true"]': {
+        cursor: 'move'
+      },
       padding: theme.spacing(0.5, 2)
     },
     widgetPadding: {
       overflowX: 'auto',
-      padding: hasHeader ? theme.spacing(1, 2, 2) : theme.spacing(1, 2)
+      padding: hasHeader ? theme.spacing(1, 2, 0) : theme.spacing(1, 2)
     }
   })
 );

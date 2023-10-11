@@ -5,7 +5,10 @@
     "typeRoots": [
       "./types",
       "./node_modules/@types"
-    ]
+    ],
+    "paths": {
+      "@centreon/ui/components": ["./packages/ui/src/components"]
+    }
   },
   "include": [
     "./www/front_src/src",

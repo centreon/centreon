@@ -24,6 +24,7 @@ describe('timeSeries', () => {
         legend: 'Round-Trip-Time Average (ms)',
         maximum_value: 1.5,
         metric: 'rta',
+        metric_id: 1,
         minimum_value: 0.5,
         unit: 'ms'
       },
@@ -43,6 +44,7 @@ describe('timeSeries', () => {
         legend: 'Time (ms)',
         maximum_value: 1.5,
         metric: 'time',
+        metric_id: 2,
         minimum_value: 0.5,
         unit: 'ms'
       },
@@ -62,6 +64,7 @@ describe('timeSeries', () => {
         legend: 'Average duration (ms)',
         maximum_value: 1.5,
         metric: 'avgDuration',
+        metric_id: 3,
         minimum_value: 0.5,
         unit: 'ms'
       },
@@ -81,6 +84,7 @@ describe('timeSeries', () => {
         legend: 'Duration (ms)',
         maximum_value: 1.5,
         metric: 'duration',
+        metric_id: 4,
         minimum_value: 0.5,
         unit: 'ms'
       },
@@ -100,6 +104,7 @@ describe('timeSeries', () => {
         legend: 'Packet Loss (%)',
         maximum_value: 1.5,
         metric: 'packet_loss',
+        metric_id: 5,
         minimum_value: 0.5,
         unit: '%'
       }
@@ -111,19 +116,19 @@ describe('timeSeries', () => {
     it('returns the time series for the given graph data', () => {
       expect(timeSeries.getTimeSeries(graphData)).toEqual([
         {
-          avgDuration: 6,
-          duration: 12,
-          packet_loss: 0,
-          rta: 0,
-          time: 0.5,
+          1: 0,
+          2: 0.5,
+          3: 6,
+          4: 12,
+          5: 0,
           timeTick: '2020-11-05T10:35:00Z'
         },
         {
-          avgDuration: 4,
-          duration: 25,
-          packet_loss: 1,
-          rta: 1,
-          time: 3,
+          1: 1,
+          2: 3,
+          3: 4,
+          4: 25,
+          5: 1,
           timeTick: '2020-11-05T10:40:00Z'
         }
       ]);
@@ -139,17 +144,17 @@ describe('timeSeries', () => {
 
       expect(timeSeries.getTimeSeries(graphDataWithLowerLimit)).toEqual([
         {
-          avgDuration: 6,
-          duration: 12,
-          time: 0.5,
+          2: 0.5,
+          3: 6,
+          4: 12,
           timeTick: '2020-11-05T10:35:00Z'
         },
         {
-          avgDuration: 4,
-          duration: 25,
-          packet_loss: 1,
-          rta: 1,
-          time: 3,
+          1: 1,
+          2: 3,
+          3: 4,
+          4: 25,
+          5: 1,
           timeTick: '2020-11-05T10:40:00Z'
         }
       ]);
@@ -171,6 +176,7 @@ describe('timeSeries', () => {
           lineColor: 'black',
           maximum_value: 1.5,
           metric: 'rta',
+          metric_id: 1,
           minimum_value: 0.5,
           name: 'Round-Trip-Time Average (ms)',
           stackOrder: null,
@@ -189,6 +195,7 @@ describe('timeSeries', () => {
           lineColor: 'blue',
           maximum_value: 1.5,
           metric: 'time',
+          metric_id: 2,
           minimum_value: 0.5,
           name: 'Time (ms)',
           stackOrder: null,
@@ -207,6 +214,7 @@ describe('timeSeries', () => {
           lineColor: 'red',
           maximum_value: 1.5,
           metric: 'avgDuration',
+          metric_id: 3,
           minimum_value: 0.5,
           name: 'Average duration (ms)',
           stackOrder: 2,
@@ -225,6 +233,7 @@ describe('timeSeries', () => {
           lineColor: 'yellow',
           maximum_value: 1.5,
           metric: 'duration',
+          metric_id: 4,
           minimum_value: 0.5,
           name: 'Duration (ms)',
           stackOrder: 1,
@@ -243,6 +252,7 @@ describe('timeSeries', () => {
           lineColor: 'yellow',
           maximum_value: 1.5,
           metric: 'packet_loss',
+          metric_id: 5,
           minimum_value: 0.5,
           name: 'Packet Loss (%)',
           stackOrder: null,
@@ -300,7 +310,7 @@ describe('timeSeries', () => {
     it('returns the line corresponding to the given metrics', () => {
       const lines = timeSeries.getLineData(graphData);
 
-      expect(timeSeries.getLineForMetric({ lines, metric: 'rta' })).toEqual({
+      expect(timeSeries.getLineForMetric({ lines, metric_id: 1 })).toEqual({
         areaColor: 'transparent',
         average_value: 1,
         color: 'black',
@@ -312,6 +322,7 @@ describe('timeSeries', () => {
         lineColor: 'black',
         maximum_value: 1.5,
         metric: 'rta',
+        metric_id: 1,
         minimum_value: 0.5,
         name: 'Round-Trip-Time Average (ms)',
         stackOrder: null,
@@ -335,10 +346,10 @@ describe('timeSeries', () => {
   describe(timeSeries.formatMetricValue, () => {
     const cases: Array<TestCase> = [
       [218857269, '', 1000, '218.86m'],
-      [218857269, '', 1024, '208.72M'],
+      [218857269, '', 1024, '208.72 M'],
       [0.12232323445, '', 1000, '0.12'],
-      [1024, 'B', 1000, '1K'],
-      [1024, 'B', 1024, '1K'],
+      [1024, 'B', 1000, '1 KB'],
+      [1024, 'B', 1024, '1 KB'],
       [null, 'B', 1024, null]
     ];
 
@@ -369,6 +380,7 @@ describe('timeSeries', () => {
           lineColor: 'yellow',
           maximum_value: 1.5,
           metric: 'duration',
+          metric_id: 4,
           minimum_value: 0.5,
           name: 'Duration (ms)',
           stackOrder: 1,
@@ -387,6 +399,7 @@ describe('timeSeries', () => {
           lineColor: 'red',
           maximum_value: 1.5,
           metric: 'avgDuration',
+          metric_id: 3,
           minimum_value: 0.5,
           name: 'Average duration (ms)',
           stackOrder: 2,
@@ -423,13 +436,13 @@ describe('timeSeries', () => {
         })
       ).toEqual([
         {
-          avgDuration: 6,
-          duration: 12,
+          3: 6,
+          4: 12,
           timeTick: '2020-11-05T10:35:00Z'
         },
         {
-          avgDuration: 4,
-          duration: 25,
+          3: 4,
+          4: 25,
           timeTick: '2020-11-05T10:40:00Z'
         }
       ]);
@@ -453,6 +466,7 @@ describe('timeSeries', () => {
           lineColor: 'yellow',
           maximum_value: 1.5,
           metric: 'duration',
+          metric_id: 4,
           minimum_value: 0.5,
           name: 'Duration (ms)',
           stackOrder: 1,
@@ -480,6 +494,7 @@ describe('timeSeries', () => {
           lineColor: 'red',
           maximum_value: 1.5,
           metric: 'avgDuration',
+          metric_id: 3,
           minimum_value: 0.5,
           name: 'Average duration (ms)',
           stackOrder: 2,
@@ -502,5 +517,108 @@ describe('timeSeries', () => {
         false
       );
     });
+  });
+});
+
+describe('Format value with unit', () => {
+  const units = [
+    'B',
+    'bytes',
+    'bytespersecond',
+    'B/s',
+    'B/sec',
+    'o',
+    'octets',
+    'b/s',
+    'b',
+    'ms',
+    '%',
+    ''
+  ];
+
+  const getExpectedResult = (unit): string => {
+    if (unit === '') {
+      return '324.23m';
+    }
+
+    return `309.21 M${unit}`;
+  };
+
+  const humanReadableTestCases = units.map((unit) => {
+    if (unit === '%') {
+      return {
+        expectedResult: '45.56%',
+        unit,
+        value: 45.55678
+      };
+    }
+
+    if (unit === 'ms') {
+      return {
+        expectedResult: '34.23 seconds',
+        unit,
+        value: 34232
+      };
+    }
+
+    return {
+      expectedResult: getExpectedResult(unit),
+      unit,
+      value: 324234232.34233
+    };
+  });
+
+  const rawTestCases = units.map((unit) => {
+    if (unit === '%') {
+      return {
+        expectedResult: '45.55678%',
+        unit,
+        value: 45.55678
+      };
+    }
+
+    if (unit === 'ms') {
+      return {
+        expectedResult: '34232 ms',
+        unit,
+        value: 34232
+      };
+    }
+
+    return {
+      expectedResult:
+        unit === '' ? '324234232.34233 ' : `324234232.34233 ${unit}`,
+      unit,
+      value: 324234232.34233
+    };
+  });
+
+  describe('Format the value as human readable', () => {
+    it.each(humanReadableTestCases)(
+      'formats the value with $unit',
+      ({ value, unit, expectedResult }) => {
+        expect(
+          timeSeries.formatMetricValueWithUnit({
+            unit,
+            value
+          })
+        ).toEqual(expectedResult);
+      }
+    );
+  });
+
+  describe('Format the value as raw', () => {
+    it.each(rawTestCases)(
+      'formats the value with $unit',
+      ({ value, unit, expectedResult }) => {
+        expect(
+          timeSeries.formatMetricValueWithUnit({
+            isRaw: true,
+            unit,
+            value
+          })
+        ).toEqual(expectedResult);
+      }
+    );
   });
 });

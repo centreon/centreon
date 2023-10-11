@@ -2782,8 +2782,8 @@ msgid "Custom Views"
 msgstr "Vistas personalizadas"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Salpicadero"
+# msgid "Dashboards"
+# msgstr ""
 
 #: centreon-web/www/install/menu_translation.php:73
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:865
@@ -5342,7 +5342,7 @@ msgstr "modificado"
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:662
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:690
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:793
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Cambio masivo"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:132
@@ -16316,6 +16316,51 @@ msgstr ""
 #  msgid "'%s' service name already exists for host ID %d"
 #  msgstr ""
 
+# msgid "Widget type"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Text"
+# msgstr ""
+
+# msgid "Gauge"
+# msgstr ""
+
+# msgid "Bar chart"
+# msgstr ""
+
+# msgid "The default value is the value defined for the first metric used."
+# msgstr ""
+
+# msgid "None"
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Raw value"
+# msgstr ""
+
+# msgid "Human readable"
+# msgstr ""
+
+# msgid "You can choose only one resource for each resource type."
+# msgstr ""
+
+# msgid "View properties"
+# msgstr ""
+
+# msgid "Your rights only allow you to view the properties of a widget."
+# msgstr ""
+
+# msgid "Please contact your administrator for more information."
+# msgstr ""
+
+# msgid "Base color"
+# msgstr ""
+
 #  msgid "Display view:"
 #  msgstr ""
 
@@ -16333,3 +16378,155 @@ msgstr "Modo avanzado"
 
 msgid "Information"
 msgstr "Información"
+
+#  msgid "Error while adding a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens"
+#  msgstr ""
+
+#  msgid "Error while retrieving a token"
+#  msgstr ""
+
+#  msgid "The token name '%s' already exists"
+#  msgstr ""
+
+#  msgid "The user with ID %d' doesn't exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} resources"
+# msgstr ""
+
+#  msgid "Error while deleting a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "hosts"
+# msgstr ""
+
+# msgid "none"
+# msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""
+
+# msgid "View widget properties"
+# msgstr ""
+
+# msgid "Dashboard library"
+# msgstr ""
+
+# msgid "Welcome to the Dashboards interface!"
+# msgstr ""
+
+#  msgid "You are not allowed to access services"
+#  msgstr ""
+
+#  msgid "Error while searching for services"
+#  msgstr ""
+
+
+# msgid "Availability"
+# msgstr ""
+
+# msgid "Generic text"
+# msgstr ""
+
+# msgid "Allows you to add free text to your dashboards (section titles, information, etc.)."
+# msgstr ""
+
+# msgid "Single metric"
+# msgstr ""
+
+# msgid "Displays the value of a single metric as a text, a gauge or a bar chart."
+# msgstr ""
+
+# msgid "Metrics graph"
+# msgstr ""
+
+# msgid "Displays metrics for a given time period."
+# msgstr ""
+
+# msgid "Top/bottom"
+# msgstr ""
+
+# msgid "Displays the top or bottom x hosts, for a selected metric."
+# msgstr ""
+
+# msgid "Thresholds"
+# msgstr ""
+
+# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Time period"
+# msgstr ""
+
+# msgid "Last hour (default)"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Customize"
+# msgstr ""
+
+# msgid "to"
+# msgstr ""
+
+# msgid "Add widget"
+# msgstr ""
+
+# msgid "Dataset selection"
+# msgstr ""
+
+# msgid "Select resource"
+# msgstr ""
+
+# msgid "Select metric"
+# msgstr ""
+
+# msgid "You can select a maximum of 2 metric units."
+# msgstr ""
+
+#  msgid "You are not allowed to list hosts"
+#  msgstr ""
+
+#  msgid "Error while searching for host configurations"
+#  msgstr ""
+

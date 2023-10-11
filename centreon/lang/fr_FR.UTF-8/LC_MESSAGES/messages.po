@@ -1381,10 +1381,6 @@ msgstr "Groupes ayant accès en visualisation"
 msgid "Add viewer / viewer group"
 msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
 
-#: centreon-web/www/install/smarty_translate.php:150
-msgid "Add widget"
-msgstr "Ajouter widget"
-
 #: centreon-web/www/install/smarty_translate.php:153
 #: centreon-web/www/install/menu_translation.php:128
 msgid "Rotation"
@@ -3034,8 +3030,8 @@ msgid "Custom Views"
 msgstr "Vues personnalisées"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Tableau de bord"
+msgid "Dashboards"
+msgstr "Tableaux de bord"
 
 #: centreon-web/www/install/menu_translation.php:73
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:865
@@ -4018,8 +4014,8 @@ msgstr "Page par défaut"
 #: centreon-web/www/include/monitoring/status/Hosts/host.php:189
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:838
 #: centreon-web/www/include/monitoring/objectDetails/hostDetails.php:719
-msgid "[Page deprecated] Please use the new page: "
-msgstr "[Page dépréciée] Utilisez la nouvelle page: "
+msgid "[Page deprecated] This page will be removed in the next major version. Please use the new page: "
+msgstr "[Page dépréciée] Cette page sera supprimée dans la prochaine version majeure. Veuillez utiliser la nouvelle page : "
 
 #: centreon-web/www/include/Administration/myAccount/formMyAccount.php:138
 msgid "Show Up status"
@@ -5718,7 +5714,7 @@ msgstr "Modifié"
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:662
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:690
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:793
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Changement massif"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:132
@@ -7205,15 +7201,6 @@ msgstr "Appliquer la période"
 msgid "or"
 msgstr "ou"
 
-#: centreon-web/www/include/views/graphs/graphs.php:262
-#: centreon-web/www/include/reporting/dashboard/viewServicesLog.php:122
-#: centreon-web/www/include/reporting/dashboard/viewHostLog.php:122
-#: centreon-web/www/include/reporting/dashboard/viewServicesGroupLog.php:123
-#: centreon-web/www/include/reporting/dashboard/initReport.php:278
-#: centreon-web/www/include/reporting/dashboard/viewHostGroupLog.php:134
-msgid "to"
-msgstr "au"
-
 #: centreon-web/www/include/views/graphs/graphs.php:263
 msgid "Display Status"
 msgstr "Affichage de l'état"
@@ -7386,11 +7373,11 @@ msgstr "Unité de la métrique / courbe"
 
 #: centreon-web/www/include/views/virtualMetrics/formVirtualMetrics.php:129
 msgid "Warning Threshold"
-msgstr "Niveau d'alerte"
+msgstr "Seuil d'alerte"
 
 #: centreon-web/www/include/views/virtualMetrics/formVirtualMetrics.php:130
 msgid "Critical Threshold"
-msgstr "Niveau critique"
+msgstr "Seuil critique"
 
 #: centreon-web/www/include/views/virtualMetrics/formVirtualMetrics.php:132
 msgid "Hidden Graph And Legend"
@@ -11927,13 +11914,6 @@ msgstr "La date de fin doit être plus grande que la date de début."
 #: centreon-web/www/include/configuration/configDowntime/formDowntime.php:355
 msgid "No relation set for this downtime"
 msgstr "Aucune relation faite avec cette plage de maintenance"
-
-#: centreon-web/www/include/configuration/configDowntime/formDowntime.php:334
-#: centreon-web/www/include/configuration/configDowntime/ajaxForms.php:77
-#: centreon-web/www/include/configuration/configDowntime/ajaxForms.php:88
-#: centreon-web/www/include/configuration/configDowntime/ajaxForms.php:95
-msgid "Time period"
-msgstr "Période de temps"
 
 #: centreon-web/www/include/configuration/configDowntime/formDowntime.php:336
 #: centreon-web/www/include/configuration/configDowntime/ajaxForms.php:70
@@ -17989,8 +17969,8 @@ msgstr "Format de métrique invalide"
 msgid "Refresh interval"
 msgstr "Intervalle de rafraîchissement"
 
-msgid "Dashboard global interval (by default)"
-msgstr "Intervalle global du tableau de bord (par défaut)"
+msgid "Dashboard global interval"
+msgstr "Intervalle global du tableau de bord"
 
 msgid "Custom refresh interval"
 msgstr "Intervalle de rafraîchissement personnalisé"
@@ -18010,12 +17990,6 @@ msgstr "Seuil"
 msgid "Show thresholds"
 msgstr "Afficher les seuils"
 
-msgid "Warning threshold"
-msgstr "Seuil d'alerte"
-
-msgid "Critical threshold"
-msgstr "Seuil critique"
-
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -18031,11 +18005,8 @@ msgstr "Ouvrir les liens dans un nouvel onglet"
 msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
 
-msgid "Dataset selection"
-msgstr "Sélection du jeu de données"
-
-msgid "You have too many metrics, please filter more resources to optimize platform performance"
-msgstr "Vous avez trop de métriques, veuillez filtrer plus de ressources pour optimiser les performances de la plateforme"
+msgid "You have too many metrics, please filter more resources to optimize platform performance."
+msgstr "Vous avez trop de métriques, veuillez filtrer plus de ressources pour optimiser les performances de la plateforme."
 
 msgid "You can select a maximum of two metric units"
 msgstr "Vous pouvez sélectionner un maximum de deux unités de métrique"
@@ -18064,29 +18035,11 @@ msgstr "En désactivant cette option, tous les liens inclus dans le widget seron
 msgid "Graph type"
 msgstr "Type de graphique"
 
-msgid "Value defined by the {{metric}} metric"
+msgid "Value defined by {{metric}} metric"
 msgstr "Valeur définie par la métrique {{metric}}"
 
 msgid "The {{module}} license will expire in {{expirationDate}} days"
 msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
-
-msgid "Last hour"
-msgstr "La dernière heure"
-
-msgid "Last 24 hours"
-msgstr "Les dernières 24 heures"
-
-msgid "Last 7 days"
-msgstr "Les 7 derniers jours"
-
-msgid "Last 30 days"
-msgstr "Les 30 derniers jours"
-
-msgid "Last 3 months"
-msgstr "Les 3 derniers mois"
-
-msgid "Last 12 months"
-msgstr "Les 12 derniers mois"
 
 msgid "Start"
 msgstr "Début"
@@ -18118,6 +18071,45 @@ msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 msgid "Manage the organization's authentication tokens"
 msgstr "Gérer les jetons d'authentification de l'organisation"
 
+msgid "Widget type"
+msgstr "Type de widget"
+
+msgid "Display type"
+msgstr "Type d'affichage"
+
+msgid "Text"
+msgstr "Texte"
+
+msgid "Gauge"
+msgstr "Jauge"
+
+msgid "Bar chart"
+msgstr "Diagramme à barres"
+
+msgid "The default value is the value defined for the first metric used."
+msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée."
+
+msgid "Raw value"
+msgstr "Valeur brute"
+
+msgid "Human readable"
+msgstr "Lisible par l'humain"
+
+msgid "You can choose only one resource for each resource type."
+msgstr "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource."
+
+msgid "View properties"
+msgstr "Voir les propriétés"
+
+msgid "Your rights only allow you to view the properties of a widget."
+msgstr "Vos droits ne vous permettent que de voir les propriétés d'un widget."
+
+msgid "Please contact your administrator for more information."
+msgstr "Veuillez contacter votre administrateur pour plus d'informations."
+
+msgid "Base color"
+msgstr "Couleur de base"
+
 msgid "Display view:"
 msgstr "Afficher la vue :"
 
@@ -18135,3 +18127,155 @@ msgstr "Mode avancé"
 
 msgid "Information"
 msgstr "Information"
+
+msgid "Error while adding a token"
+msgstr "Erreur lors de l'ajout d'un token"
+
+msgid "You are not allowed to add tokens"
+msgstr "Vous n'êtes pas autorisé à ajouter des tokens"
+
+msgid "Error while retrieving a token"
+msgstr "Erreur lors de la récupération du token"
+
+msgid "The token name '%s' already exists"
+msgstr "Le nom de token '%s' existe déjà"
+
+msgid "The user with ID %d doesn't exist"
+msgstr "L'utilisateur avec l'ID %d n'existe pas"
+
+msgid "You are not allowed to add tokens linked to user with ID %d"
+msgstr "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "Show value labels"
+msgstr "Afficher les étiquettes de valeur"
+
+msgid "Top"
+msgstr "Top"
+
+msgid "Bottom"
+msgstr "Bottom"
+
+msgid "Includes {{count}} resources"
+msgstr "Inclut {{count}} ressources"
+
+msgid "Error while deleting a token"
+msgstr "Erreur lors de la suppression d'un token"
+
+msgid "You are not allowed to delete tokens"
+msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
+
+msgid "You are not allowed to delete tokens linked to user ID %d"
+msgstr "Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"
+
+msgid "hosts"
+msgstr "hôtes"
+
+msgid "none"
+msgstr "aucun"
+
+msgid "Error while searching for authentication tokens"
+msgstr "Erreur lors de la recherche de jetons d'authentification"
+
+msgid "You are not allowed to list authentication tokens"
+msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
+
+msgid "View widget properties"
+msgstr "Voir les propriétés du widget"
+
+msgid "Dashboard library"
+msgstr "Bibliothèque de tableaux de bord"
+
+msgid "Welcome to the Dashboards interface!"
+msgstr "Bienvenue dans l'interface des tableaux de bord !"
+
+msgid "You are not allowed to access services"
+msgstr "Vous n'êtes pas autorisé à accéder aux services"
+
+msgid "Error while searching for services"
+msgstr "Erreur lors de la recherche de services"
+
+
+msgid "Availability"
+msgstr "Disponibilité"
+
+msgid "Generic text"
+msgstr "Texte générique"
+
+msgid "Allows you to add free text to your dashboards (section titles, information, etc.)."
+msgstr "Permet d'ajouter du texte libre à vos tableaux de bord (titres de sections, informations, etc.)."
+
+msgid "Single metric"
+msgstr "Métrique unique"
+
+msgid "Displays the value of a single metric as a text, a gauge or a bar chart."
+msgstr "Affiche la valeur d'une seule métrique sous forme de texte, de jauge ou de diagramme à barres."
+
+msgid "Metrics graph"
+msgstr "Graphe de métriques"
+
+msgid "Displays metrics for a given time period."
+msgstr "Affiche les métriques pour une période donnée."
+
+msgid "Top/bottom"
+msgstr "Top/bottom"
+
+msgid "Displays the top or bottom x hosts, for a selected metric."
+msgstr "Affiche le top ou le bottom x des hôtes, pour une métrique sélectionnée."
+
+msgid "Thresholds"
+msgstr "Seuils"
+
+msgid "Thresholds are automatically hidden if you select 2 metric units."
+msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique."
+
+msgid "Value format"
+msgstr "Format de la valeur"
+
+msgid "Time period"
+msgstr "Période temporelle"
+
+msgid "Last hour (default)"
+msgstr "Dernière heure (par défaut)"
+
+msgid "Last 24 hours"
+msgstr "Dernières 24 heures"
+
+msgid "Last 7 days"
+msgstr "7 derniers jours"
+
+msgid "Last 30 days"
+msgstr "30 derniers jours"
+
+msgid "Last 3 months"
+msgstr "3 derniers mois"
+
+msgid "Last 12 months"
+msgstr "12 derniers mois"
+
+msgid "Customize"
+msgstr "Personnaliser"
+
+msgid "to"
+msgstr "à"
+
+msgid "Add widget"
+msgstr "Ajouter un widget"
+
+msgid "Dataset selection"
+msgstr "Sélection d'un jeu de données"
+
+msgid "Select resource"
+msgstr "Sélectionner une ressource"
+
+msgid "Select metric"
+msgstr "Sélectionner une métrique"
+
+msgid "You can select a maximum of 2 metric units."
+msgstr "Vous pouvez sélectionner 2 unités métriques au maximum."
+
+msgid "You are not allowed to list hosts"
+msgstr "Vous n'êtes pas autorisé à lister les hôtes"
+
+msgid "Error while searching for host configurations"
+msgstr "Erreur lors de la recherche des configurations d'hôtes"
+

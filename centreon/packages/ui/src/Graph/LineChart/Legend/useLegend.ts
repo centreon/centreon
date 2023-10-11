@@ -8,21 +8,17 @@ import {
   isNil,
   map,
   pipe,
-  prop,
   propEq,
-  reject,
-  sortBy,
-  compose,
-  toLower
+  reject
 } from 'ramda';
 
 import { Line } from '../../common/timeSeries/models';
 
 interface LegendActions {
   clearHighlight: () => void;
-  highlightLine: (metric: string) => void;
-  selectMetricLine: (metric: string) => void;
-  toggleMetricLine: (metric: string) => void;
+  highlightLine: (metric_id: number) => void;
+  selectMetricLine: (metric_id: number) => void;
+  toggleMetricLine: (metric_id: number) => void;
 }
 
 interface Props {
@@ -32,36 +28,34 @@ interface Props {
 
 const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
   const displayedLines = reject(propEq('display', false), lines);
-  const getLineByMetric = (metric: string): Line =>
-    find(propEq('metric', metric), lines) as Line;
+  const getLineByMetric = (metric_id: number): Line =>
+    find(propEq('metric_id', metric_id), lines) as Line;
 
-  const toggleMetricLine = (metric): void => {
-    const line = getLineByMetric(metric);
+  const toggleMetricLine = (metric_id): void => {
+    const line = getLineByMetric(metric_id);
 
     setLinesGraph([
-      ...reject(propEq('metric', metric), lines),
+      ...reject(propEq('metric_id', metric_id), lines),
       { ...line, display: !line.display }
     ]);
   };
 
-  const highlightLine = (metric): void => {
+  const highlightLine = (metric_id): void => {
     const fadedLines = map((line) => ({ ...line, highlight: false }), lines);
     const data = [
-      ...reject(propEq('metric', metric), fadedLines),
-      { ...getLineByMetric(metric), highlight: true }
+      ...reject(propEq('metric_id', metric_id), fadedLines),
+      { ...getLineByMetric(metric_id), highlight: true }
     ];
 
-    const sortedData = sortBy(compose(toLower, prop('name')), data);
-
-    setLinesGraph(sortedData);
+    setLinesGraph(data);
   };
 
   const clearHighlight = (): void => {
     setLinesGraph(map((line) => ({ ...line, highlight: undefined }), lines));
   };
 
-  const selectMetricLine = (metric: string): void => {
-    const metricLine = getLineByMetric(metric);
+  const selectMetricLine = (metric_id: number): void => {
+    const metricLine = getLineByMetric(metric_id);
 
     const isLineDisplayed = pipe(head, equals(metricLine))(displayedLines);
     const isOnlyLineDisplayed =
@@ -99,7 +93,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
 
     const newLines = lines.map((line) => ({
       ...line,
-      display: find(propEq('name', line.name), lines)?.display ?? true
+      display: find(propEq('metric_id', line.metric_id), lines)?.display ?? true
     }));
 
     setLinesGraph(newLines);

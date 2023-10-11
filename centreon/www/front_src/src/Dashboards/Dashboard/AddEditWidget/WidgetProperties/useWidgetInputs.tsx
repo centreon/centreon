@@ -6,7 +6,12 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
-import { singleMetricSectionAtom, widgetPropertiesAtom } from '../atoms';
+import {
+  customBaseColorAtom,
+  singleMetricSelectionAtom,
+  singleResourceTypeSelectionAtom,
+  widgetPropertiesAtom
+} from '../atoms';
 
 import {
   WidgetMetrics,
@@ -16,7 +21,10 @@ import {
   WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold,
-  WidgetTimePeriod
+  WidgetValueFormat,
+  WidgetTimePeriod,
+  WidgetTopBottomSettings,
+  WidgetMetric
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -43,7 +51,10 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
   [FederatedWidgetOptionType.singleMetricGraphType]:
     WidgetSingleMetricGraphType,
-  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod
+  [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
+  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
+  [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
+  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
@@ -57,7 +68,11 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
+  const setSingleResourceTypeSelection = useSetAtom(
+    singleResourceTypeSelectionAtom
+  );
+  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const selectedWidget = find(
     propEq('moduleName', values.moduleName),
@@ -103,6 +118,8 @@ export const useWidgetInputs = (
     }
 
     setSingleMetricSection(selectedWidget.singleMetricSelection);
+    setSingleResourceTypeSelection(selectedWidget.singleResourceTypeSelection);
+    setCustomBaseColor(selectedWidget.customBaseColor);
   }, useDeepCompare([selectedWidget]));
 
   return inputs;

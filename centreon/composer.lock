@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e9674ffa0102885663c8f66b234dfa87",
+    "content-hash": "8373c43b46d69a38788e738d6d144395",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -552,16 +552,16 @@
         },
         {
             "name": "enshrined/svg-sanitize",
-            "version": "0.14.1",
+            "version": "0.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/darylldoyle/svg-sanitizer.git",
-                "reference": "307b42066fb0b76b5119f5e1f0826e18fefabe95"
+                "reference": "17e12ba9c2881caa6b167d0fbea555c11207fbb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/darylldoyle/svg-sanitizer/zipball/307b42066fb0b76b5119f5e1f0826e18fefabe95",
-                "reference": "307b42066fb0b76b5119f5e1f0826e18fefabe95",
+                "url": "https://api.github.com/repos/darylldoyle/svg-sanitizer/zipball/17e12ba9c2881caa6b167d0fbea555c11207fbb0",
+                "reference": "17e12ba9c2881caa6b167d0fbea555c11207fbb0",
                 "shasum": ""
             },
             "require": {
@@ -592,9 +592,9 @@
             "description": "An SVG sanitizer for PHP",
             "support": {
                 "issues": "https://github.com/darylldoyle/svg-sanitizer/issues",
-                "source": "https://github.com/darylldoyle/svg-sanitizer/tree/0.14.1"
+                "source": "https://github.com/darylldoyle/svg-sanitizer/tree/0.15.0"
             },
-            "time": "2021-08-09T23:46:54+00:00"
+            "time": "2022-02-13T00:42:56+00:00"
         },
         {
             "name": "friendsofsymfony/rest-bundle",
@@ -6879,12 +6879,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "14ec7f153892b2c9b8be6dc14f0096fb0cd8353f"
+                "reference": "e3e671d724a06947ef07b47099a8e0e90c1e5851"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/14ec7f153892b2c9b8be6dc14f0096fb0cd8353f",
-                "reference": "14ec7f153892b2c9b8be6dc14f0096fb0cd8353f",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/e3e671d724a06947ef07b47099a8e0e90c1e5851",
+                "reference": "e3e671d724a06947ef07b47099a8e0e90c1e5851",
                 "shasum": ""
             },
             "require": {
@@ -6894,7 +6894,7 @@
                 "justinrainbow/json-schema": "^5.2",
                 "league/openapi-psr7-validator": "^0.17",
                 "nyholm/psr7": "^1.3",
-                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan": "~1.10.0",
                 "psr/http-client": "^1.0",
                 "symfony/console": "^5.4",
                 "symfony/http-client": "^5.4.0",
@@ -6936,7 +6936,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2023-08-21T09:36:10+00:00"
+            "time": "2023-09-21T11:32:21+00:00"
         },
         {
             "name": "composer/pcre",

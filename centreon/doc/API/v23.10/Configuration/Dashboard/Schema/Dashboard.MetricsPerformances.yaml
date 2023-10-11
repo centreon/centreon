@@ -25,19 +25,24 @@ properties:
           type: string
           description: unit of the metric
           example: '%'
+          nullable: true
         warning_high_threshold:
           type: number
-          description: warning threshold
+          description: warning high threshold
           example: 200
+          nullable: true
         critical_high_threshold:
           type: number
-          description: critical threshold
+          description: critical high threshold
           example: 400
+          nullable: true
         warning_low_threshold:
           type: number
-          description: warning threshold
+          description: warning low threshold
           example: 200
+          nullable: true
         critical_low_threshold:
           type: number
-          description: critical threshold
+          description: critical low threshold
           example: 400
+          nullable: true

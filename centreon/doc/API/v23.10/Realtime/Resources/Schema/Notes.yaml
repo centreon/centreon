@@ -1,0 +1,13 @@
+type: object
+nullable: true
+properties:
+  url:
+    type: string
+    nullable: true
+    description: "URL that can be used to provide more information on the resource"
+    example: "http://mediawiki/resource/name"
+  label:
+    type: string
+    nullable: true
+    description: "Note that can be used to describe the note url"
+    example: "How to turn back on the server"

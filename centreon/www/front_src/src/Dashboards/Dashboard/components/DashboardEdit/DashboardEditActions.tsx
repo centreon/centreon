@@ -15,10 +15,12 @@ import useSaveDashboard from '../../useSaveDashboard';
 import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import {
   labelEditDashboard,
-  labelExit,
+  labelCancel,
   labelSave
 } from '../../translatedLabels';
 import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
+
+import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
 
 interface DashboardEditActionsProps {
   panels?: Array<DashboardPanel>;
@@ -27,6 +29,7 @@ interface DashboardEditActionsProps {
 const DashboardEditActions = ({
   panels
 }: DashboardEditActionsProps): ReactElement => {
+  const { classes } = useDashboardEditActionsStyles();
   const { t } = useTranslation();
 
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
@@ -64,11 +67,11 @@ const DashboardEditActions = ({
   useEffect(() => {
     if (searchParams.get('edit') === 'true') startEditing();
     if (searchParams.get('edit') === null) stopEditing();
-  }, [searchParams]);
+  }, []);
 
   const saveAndProceed = (): void => {
     saveDashboard();
-    switchPanelsEditionMode(false);
+    stopEditing();
   };
 
   if (!isEditing) {
@@ -88,27 +91,27 @@ const DashboardEditActions = ({
   }
 
   return (
-    <>
+    <div className={classes.root}>
       <Button
-        aria-label={t(labelExit) as string}
+        aria-label={t(labelCancel) as string}
         data-testid="cancel_dashboard"
         size="small"
         variant="ghost"
         onClick={stopEditing}
       >
-        {t(labelExit)}
+        {t(labelCancel)}
       </Button>
       <Button
         aria-label={t(labelSave) as string}
         data-testid="save_dashboard"
         disabled={!dirty}
         size="small"
-        variant="ghost"
+        variant="primary"
         onClick={saveAndProceed}
       >
         {t(labelSave)}
       </Button>
-    </>
+    </div>
   );
 };
 

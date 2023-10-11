@@ -28,13 +28,22 @@ import {
   WidgetOptions
 } from './models';
 
-export const refreshIntervalAtom = atom(30);
+export const refreshCountsAtom = atom<Record<string, number>>({});
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
 });
 
 export const isEditingAtom = atom(false);
+
+export const hasEditPermissionAtom = atom(false);
+export const dashboardRefreshIntervalAtom = atom<
+  | {
+      interval: number | null;
+      type: 'global' | 'manual';
+    }
+  | undefined
+>(undefined);
 
 export const setLayoutModeDerivedAtom = atom(
   null,
@@ -109,9 +118,12 @@ export const addPanelDerivedAtom = atom(
 
     const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
 
+    const widgetHeight =
+      height || Math.max(panelConfiguration?.panelMinHeight || 1, 3);
+
     const basePanelLayout = {
       data,
-      h: height || panelConfiguration?.panelMinHeight || 3,
+      h: widgetHeight,
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
@@ -284,3 +296,11 @@ export const quitWithoutSavedDashboardAtom =
     'centreon-quit-without-saved-dashboard',
     null
   );
+
+export const resetDashboardDerivedAtom = atom(null, (_, setAtom) => {
+  setAtom(dashboardAtom, {
+    layout: []
+  });
+  setAtom(dashboardRefreshIntervalAtom, undefined);
+  setAtom(panelsLengthAtom, 0);
+});

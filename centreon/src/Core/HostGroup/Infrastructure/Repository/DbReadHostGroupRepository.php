@@ -29,6 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
@@ -55,6 +56,8 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHostGroupRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
@@ -224,6 +227,51 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
 
         return $this->retrieveHostGroupsByHost($concatenator, $hostId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIds(int ...$hostGroupIds): array
+    {
+        if ($hostGroupIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostGroupIdsQuery] = $this->createMultipleBindQuery($hostGroupIds, ':hg_');
+
+        $request = <<<SQL
+            SELECT
+                hg.hg_id,
+                hg.hg_name,
+                hg.hg_alias,
+                hg.hg_notes,
+                hg.hg_notes_url,
+                hg.hg_action_url,
+                hg.hg_icon_image,
+                hg.hg_map_icon_image,
+                hg.hg_rrd_retention,
+                hg.geo_coords,
+                hg.hg_comment,
+                hg.hg_activate
+            FROM `:db`.`hostgroup` hg
+            WHERE hg.hg_id IN ({$hostGroupIdsQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bindValues as $bindKey => $hostGroupId) {
+            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $hostGroups = [];
+        foreach ($statement as $result) {
+            /** @var HostGroupResultSet $result */
+            $hostGroups[] = $this->createHostGroupFromArray($result);
+        }
+
+        return $hostGroups;
     }
 
     /**
@@ -496,9 +544,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      * true: all host groups are accessible
      * false: all host groups are NOT accessible.
      *
-     * @param int[] $accessGroupIds
-     *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
+     * @param list<int> $accessGroupIds
      *
      * @return bool
      */

@@ -16,9 +16,12 @@ import {
   labelYourWidgetHasBeenCreated,
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
+import { editProperties } from '../useCanEditDashboard';
 
 import {
-  singleMetricSectionAtom,
+  customBaseColorAtom,
+  singleMetricSelectionAtom,
+  singleResourceTypeSelectionAtom,
   widgetFormInitialDataAtom,
   widgetPropertiesAtom
 } from './atoms';
@@ -39,6 +42,8 @@ interface useWidgetModalState {
 const useWidgetModal = (): useWidgetModalState => {
   const { t } = useTranslation();
 
+  const { canEditField } = editProperties.useCanEditProperties();
+
   const [askingBeforeCloseModal, setAskingBeforeCloseModal] = useState(false);
 
   const [widgetFormInitialData, setWidgetFormInitialDataAtom] = useAtom(
@@ -49,7 +54,11 @@ const useWidgetModal = (): useWidgetModalState => {
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
-  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
+  const setSingleResourceTypeSelection = useSetAtom(
+    singleResourceTypeSelectionAtom
+  );
+  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -70,6 +79,8 @@ const useWidgetModal = (): useWidgetModalState => {
       setWidgetProperties(null);
       setAskingBeforeCloseModal(false);
       setSingleMetricSection(undefined);
+      setSingleResourceTypeSelection(undefined);
+      setCustomBaseColor(undefined);
     });
 
   const addWidget = (values: Widget): void => {
@@ -77,11 +88,9 @@ const useWidgetModal = (): useWidgetModalState => {
 
     addPanel({
       data: values.data || undefined,
-      height: panelConfiguration.panelMinHeight,
       moduleName: values.moduleName || '',
       options: values.options,
-      panelConfiguration,
-      width: panelConfiguration.panelMinWidth
+      panelConfiguration
     });
     showSuccessMessage(t(labelYourWidgetHasBeenCreated));
     closeModal();
@@ -96,11 +105,9 @@ const useWidgetModal = (): useWidgetModalState => {
       addPanel({
         data: values.data || undefined,
         fixedId: widgetFormInitialData?.id || undefined,
-        height: panelConfiguration.panelMinHeight,
         moduleName: values.moduleName || '',
         options: values.options,
-        panelConfiguration,
-        width: panelConfiguration.panelMinWidth
+        panelConfiguration
       });
       showSuccessMessage(t(labelYourWidgetHasBeenModified));
       closeModal();
@@ -118,7 +125,7 @@ const useWidgetModal = (): useWidgetModalState => {
   };
 
   const askBeforeCloseModal = (shouldAskForClosingConfirmation): void => {
-    if (!shouldAskForClosingConfirmation) {
+    if (!shouldAskForClosingConfirmation || !canEditField) {
       closeModal();
 
       return;

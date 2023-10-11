@@ -30,19 +30,19 @@ import {
   ServiceMetric,
   Widget,
   WidgetDataMetric,
-  WidgetDataResource,
-  WidgetResourceType
+  WidgetDataResource
 } from '../../../models';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { labelPleaseSelectAMetric } from '../../../../translatedLabels';
-import { singleMetricSectionAtom } from '../../../atoms';
-import { getDataProperty } from '../utils';
+import { singleMetricSelectionAtom } from '../../../atoms';
+import { getDataProperty, resourceTypeQueryParameter } from '../utils';
 
 interface UseMetricsState {
   addButtonHidden?: boolean;
   addMetric: () => void;
-  changeMetric: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
+  changeMetric: (index) => (_, newMetrics: SelectEntry | null) => void;
+  changeMetrics: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
   error: string | null;
@@ -50,26 +50,21 @@ interface UseMetricsState {
   getMetricsFromService: (serviceId: number) => Array<SelectEntry>;
   getOptionLabel: (metric) => string;
   hasNoResources: () => boolean;
+  hasOnlyOneService: boolean;
   hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount: number | undefined;
+  resources: Array<WidgetDataResource>;
   serviceOptions: Array<SelectEntry>;
   value: Array<WidgetDataMetric>;
 }
-
-const resourceTypeQueryParameter = {
-  [WidgetResourceType.host]: 'host.id',
-  [WidgetResourceType.hostCategory]: 'hostcategory.id',
-  [WidgetResourceType.hostGroup]: 'hostgroup.id',
-  [WidgetResourceType.service]: 'service.name'
-};
 
 const useMetrics = (propertyName: string): UseMetricsState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleMetricSection = useAtomValue(singleMetricSelectionAtom);
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
@@ -81,6 +76,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       buildListingEndpoint({
         baseEndpoint: metricsEndpoint,
         parameters: {
+          limit: 100,
           search: {
             lists: resources.map((resource) => ({
               field: resourceTypeQueryParameter[resource.resourceType],
@@ -136,6 +132,10 @@ const useMetrics = (propertyName: string): UseMetricsState => {
 
   const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
 
+  const hasOnlyOneService = servicesMetrics
+    ? equals(length(servicesMetrics.result || []), 1)
+    : false;
+
   const hasNoResources = (): boolean => {
     if (!resources.length) {
       return true;
@@ -149,7 +149,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       ...(value || []),
       {
         id: '',
-        metrics: []
+        metrics: [],
+        name: ''
       }
     ]);
   };
@@ -205,10 +206,20 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, []);
     };
 
-  const changeMetric =
+  const changeMetrics =
     (index) =>
     (_, newMetrics: Array<SelectEntry> | null): void => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
+      setFieldTouched(`data.${propertyName}`, true, false);
+    };
+
+  const changeMetric =
+    (index) =>
+    (_, newMetrics: SelectEntry | null): void => {
+      setFieldValue(
+        `data.${propertyName}.${index}.metrics`,
+        newMetrics ? [newMetrics] : []
+      );
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
@@ -219,6 +230,22 @@ const useMetrics = (propertyName: string): UseMetricsState => {
 
     if (isEmpty(resources)) {
       setFieldValue(`data.${propertyName}`, []);
+
+      return;
+    }
+
+    if (
+      equals(servicesMetrics.result.length, 1) &&
+      isEmpty(value?.[0].id) &&
+      isEmpty(value?.[0].metrics)
+    ) {
+      setFieldValue(`data.${propertyName}`, [
+        {
+          id: servicesMetrics.result[0].id,
+          metrics: [],
+          name: servicesMetrics.result[0].name
+        }
+      ]);
 
       return;
     }
@@ -240,7 +267,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
         return {
           id: service.id,
           metrics: service.metrics.map((metric) => {
-            const newMetric = newService.metrics.find(
+            const newMetric = newService?.metrics.find(
               (metricFromService) => metricFromService.id === metric.id
             );
 
@@ -265,7 +292,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
         ? [
             {
               id: '',
-              metrics: []
+              metrics: [],
+              name: ''
             }
           ]
         : newServiceMetrics
@@ -289,6 +317,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     addButtonHidden: singleMetricSection,
     addMetric,
     changeMetric,
+    changeMetrics,
     changeService,
     deleteMetric,
     error: errorToDisplay,
@@ -296,10 +325,12 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     getMetricsFromService,
     getOptionLabel,
     hasNoResources,
+    hasOnlyOneService,
     hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,
+    resources,
     serviceOptions,
     value: value || []
   };
