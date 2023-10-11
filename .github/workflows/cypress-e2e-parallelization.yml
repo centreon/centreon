@@ -140,9 +140,6 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/results/reports/*.json
           retention-days: 1
 
-      - name: List Cucumber reports
-        run: ls -la ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/
-
       - name: Upload xray reports
         uses: actions/upload-artifact@v3
         with:
@@ -150,13 +147,25 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
+      - name: Import results to Xray
+        uses: mikepenz/xray-action@v3.0.2
+        with:
+          username: ${{ secrets.CLIENT_ID }}
+          password: ${{ secrets.CLIENT_SECRET }}
+          testFormat: "cucumber"
+          testPaths: "${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json"
+          projectKey: "MON"
+          testPlanKey: "MON-22411"
+          combineInSingleTestExec: true
+          testExecKey:
+
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: always()
     runs-on: ubuntu-22.04
     steps:
-      - name: Verify CLIENT_ID Secret
-        run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
+      - name: List Cucumber reports
+        run: ls -la ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/
 
       - name: Import results to Xray
         uses: mikepenz/xray-action@v3.0.2
