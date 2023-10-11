@@ -15563,15 +15563,6 @@ msgstr "La notification a été mise à jour avec succès"
 msgid "The notification was successfully added"
 msgstr "La notification a été ajoutée avec succès"
 
-msgid "Do you want to create the notification rule?"
-msgstr "Souhaitez-vous créer la règle de notification ?"
-
-msgid "Confirm notification creation"
-msgstr "Confirmer la création de la notification"
-
-msgid "Confirm notification update"
-msgstr "Confirmer la mise à jour de la notification"
-
 msgid "Choose at least 1 resource"
 msgstr "Veuillez sélectionner au moins 1 ressource"
 

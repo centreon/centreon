@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { equals } from 'ramda';
@@ -13,8 +11,6 @@ import {
 } from '@centreon/ui';
 
 import {
-  labelConfirmAddNotification,
-  labelConfirmEditNotification,
   labelSuccessfulEditNotification,
   labelSuccessfulNotificationAdded
 } from '../../translatedLabels';
@@ -29,10 +25,6 @@ import {
 import { notificationEndpoint } from '../api/endpoints';
 
 interface UseFormState {
-  dialogOpen: boolean;
-  labelConfirm: string;
-  panelMode: PanelMode;
-  setDialogOpen;
   submit: (
     values,
     {
@@ -48,16 +40,10 @@ const useForm = (): UseFormState => {
   const { showSuccessMessage } = useSnackbar();
   const queryClient = useQueryClient();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(editedNotificationIdAtom);
   const htmlEmailBody = useAtomValue(htmlEmailBodyAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
-
-  const labelConfirm = equals(panelMode, PanelMode.Create)
-    ? labelConfirmAddNotification
-    : labelConfirmEditNotification;
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
@@ -84,7 +70,6 @@ const useForm = (): UseFormState => {
           return;
         }
         showSuccessMessage(t(labelMessage));
-        setDialogOpen(false);
         setPanelOpen(false);
         queryClient.invalidateQueries(['notificationsListing']);
         queryClient.invalidateQueries(['notifications']);
@@ -93,10 +78,6 @@ const useForm = (): UseFormState => {
   };
 
   return {
-    dialogOpen,
-    labelConfirm,
-    panelMode,
-    setDialogOpen,
     submit
   };
 };
