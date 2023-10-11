@@ -25,18 +25,17 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateRows: 'min-content',
     overflow: 'hidden',
-    padding: theme.spacing(2, 3, 5)
+    padding: theme.spacing(1.5, 3, 5)
   },
   pageLayoutHeader: {
     '[data-variant="fixed-header"] &': {
       backgroundColor: theme.palette.layout.header.background,
       borderBottom: `1px solid ${theme.palette.layout.header.border}`,
-      padding: theme.spacing(5, 4, 2),
+      padding: theme.spacing(3, 4, 2),
       position: 'sticky',
       top: 0,
       zIndex: `calc(${theme.zIndex.mobileStepper} - 100)`
     },
-
-    padding: theme.spacing(5, 3, 0)
+    padding: theme.spacing(3, 3, 0)
   }
 }));
