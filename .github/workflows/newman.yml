@@ -4,13 +4,10 @@ on:
       collection_path:
         required: true
         type: string
-      container_name:
+      image_name:
         required: true
         type: string
-      centreon_url:
-        required: true
-        type: string
-      centreon_image:
+      os:
         required: true
         type: string
       dependencies_lock_file:
