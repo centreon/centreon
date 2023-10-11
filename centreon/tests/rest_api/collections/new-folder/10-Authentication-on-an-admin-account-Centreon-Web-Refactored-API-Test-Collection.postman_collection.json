@@ -58,6 +58,7 @@
 							"host": [
 								"{{baseUrl}}"
 							],
+
 							"path": [
 								"login"
 							]

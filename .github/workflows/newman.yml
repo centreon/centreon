@@ -10,6 +10,15 @@ on:
       os:
         required: true
         type: string
+      container_name:
+          required: true
+          type: string
+      centreon_url:
+          required: true
+          type: string
+      centreon_image:
+          required: true
+          type: string
       dependencies_lock_file:
         required: true
         type: string
@@ -57,6 +66,9 @@ jobs:
    env:
     IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
     SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
+    CONTAINER_NAME: ${{ inputs.container_name }}
+    CENTREON_URL: ${{ inputs.centreon_url }}
+    CENTREON_IMAGE: ${{ inputs.centreon_image }}
 
    steps:
     - name: Checkout Repository
@@ -105,6 +117,14 @@ jobs:
           docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
+
+    - name: Start Centreon Web Container
+      if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+      run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
+
+    - name: Wait for Centreon Web Container to Start
+      if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+      run: pnpx wait-on http://localhost:4000/ --timeout 100000
 
     - name: Run Postman Tests and Generate HTML Report
       run: |
