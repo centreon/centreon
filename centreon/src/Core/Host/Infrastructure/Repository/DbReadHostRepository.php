@@ -103,7 +103,7 @@ use Utility\SqlConcatenator;
  *     check_timeperiod_name: string|null,
  *     notification_timeperiod_id: int|null,
  *     notification_timeperiod_name: string|null,
- *     severity_id: int|null,
+ *     severity_id: string|null,
  *     severity_name: string|null,
  *     monitoring_server_id: int,
  *     monitoring_server_name: string,
@@ -426,6 +426,8 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                             ON aclrgr_sev.acl_res_id = aclr_sev.acl_res_id
                             AND aclrgr_sev.acl_group_id IN ({$accessGroupIdsQuery})
                         WHERE sev.level IS NOT NULL
+                        ORDER BY sev.level ASC
+                        LIMIT 1
                     )
                     SQL;
             }
@@ -459,8 +461,8 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 ctime.tp_name AS check_timeperiod_name,
                 ntime.tp_id AS notification_timeperiod_id,
                 ntime.tp_name AS notification_timeperiod_name,
-                GROUP_CONCAT(DISTINCT sev.hc_id) AS severity_id,
-                GROUP_CONCAT(DISTINCT sev.hc_name) AS severity_name,
+                GROUP_CONCAT(sev.hc_id ORDER BY sev.level ASC LIMIT 1)  AS severity_id,
+                GROUP_CONCAT(sev.hc_name ORDER BY sev.level ASC LIMIT 1)  AS severity_name,
                 ns.id AS monitoring_server_id,
                 ns.name AS monitoring_server_name,
                 GROUP_CONCAT(DISTINCT hc.hc_id) AS category_ids,
@@ -477,7 +479,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 AND hc.level IS NULL {$hostCategoriesAcl}
             LEFT JOIN `:db`.hostgroup_relation hgr
                 ON hgr.host_host_id = h.host_id {$hostGroupAcl}
-            INNER JOIN `:db`.hostgroup hg
+            LEFT JOIN `:db`.hostgroup hg
                 ON hg.hg_id = hgr.hostgroup_hg_id
             LEFT JOIN `:db`.ns_host_relation nsr
                 ON nsr.host_host_id = h.host_id
