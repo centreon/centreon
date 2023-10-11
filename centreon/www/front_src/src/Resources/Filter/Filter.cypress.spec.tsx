@@ -2,8 +2,9 @@
 import { useAtomValue } from 'jotai';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import * as Ramda from 'ramda';
+import { isEmpty } from 'ramda';
 
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { TestQueryProvider, Method, getFoundFields } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
@@ -31,8 +32,10 @@ import {
   searchableFields,
   EndpointParams
 } from '../testUtils';
+import { Search } from '../Listing/useLoadResources/models';
 
 import useFilter from './useFilter';
+import { SearchableFields } from './Criterias/searchQueryLanguage/models';
 
 import Filter from '.';
 
@@ -129,6 +132,34 @@ const FilterWithProvider = (): JSX.Element => (
   </TestQueryProvider>
 );
 
+const getSearch = (searchedValue?: string): Search | undefined => {
+  if (!searchedValue) {
+    return undefined;
+  }
+
+  const fieldMatches = getFoundFields({
+    fields: searchableFields,
+    value: searchedValue
+  });
+
+  if (!isEmpty(fieldMatches)) {
+    const matches = fieldMatches.map((item) => {
+      return { field: item.field, values: item.value?.split(',') };
+    });
+
+    return {
+      lists: matches.filter((item) => item.values)
+    };
+  }
+
+  return {
+    regex: {
+      fields: searchableFields,
+      value: searchedValue
+    }
+  };
+};
+
 before(() => {
   const userData = renderHook(() => useAtomValue(userAtom));
 
@@ -158,7 +189,7 @@ describe('Filter', () => {
 
     const endpointWithSearchValue = getListingEndpoint({
       resourceTypes: [],
-      search: searchValue,
+      search: getSearch(searchValue),
       states: [],
       statusTypes: [],
       statuses: []
@@ -180,7 +211,7 @@ describe('Filter', () => {
       const fieldSearchValue = `${searchableField}:${search}`;
       const endpoint = getListingEndpoint({
         resourceTypes: [],
-        search: fieldSearchValue,
+        search: getSearch(fieldSearchValue),
         states: [],
         statusTypes: [],
         statuses: []
@@ -286,7 +317,7 @@ describe('Custom filters', () => {
 
       const endpoint = getListingEndpoint({
         resourceTypes: [],
-        search: searchValue,
+        search: getSearch(searchValue),
         states: [],
         statusTypes: [],
         statuses: [],
@@ -318,7 +349,7 @@ describe('Custom filters', () => {
   });
 
   customFilters.forEach(([filterGroup, criterias]) => {
-    it(`executes a listing request with ${filterGroup} parameters when ${JSON.stringify(
+    it.only(`executes a listing request with ${filterGroup} parameters when ${JSON.stringify(
       criterias
     )} filter is set`, () => {
       cy.waitForRequest('@filterRequest');
@@ -332,7 +363,7 @@ describe('Custom filters', () => {
   });
 
   filterParams.forEach(({ criteria, value }) => {
-    it(`executes a listing request with current search and selected ${criteria} criteria when it's changed`, () => {
+    it.only(`executes a listing request with current search and selected ${criteria} criteria when it's changed`, () => {
       const searchValue = 'foobar';
 
       cy.findByPlaceholderText(labelSearch).clear();

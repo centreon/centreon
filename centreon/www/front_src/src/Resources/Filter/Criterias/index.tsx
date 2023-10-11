@@ -9,6 +9,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 import { Grid } from '@mui/material';
 
 import { PopoverMenu, useMemoComponent } from '@centreon/ui';
+import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
 import { labelSearchOptions } from '../../translatedLabels';
@@ -62,6 +63,10 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [isCreateFilter, setIsCreateFilter] = useState(false);
   const [isUpdateFilter, setIsUpdateFilter] = useState(false);
+
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
+
+  const enableActionsFilter = featureFlags?.resourceStatusFilterRevamp;
 
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
   const canOpenPopover = isNil(hoveredNavigationItem);
@@ -170,13 +175,15 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
                 actions={
                   <Actions
                     save={
-                      <Save
-                        canSaveFilter={canSaveFilter}
-                        canSaveFilterAsNew={canSaveFilterAsNew}
-                        closePopover={closePopover}
-                        getIsCreateFilter={getIsCreateFilter}
-                        getIsUpdateFilter={getIsUpdateFilter}
-                      />
+                      enableActionsFilter && (
+                        <Save
+                          canSaveFilter={canSaveFilter}
+                          canSaveFilterAsNew={canSaveFilterAsNew}
+                          closePopover={closePopover}
+                          getIsCreateFilter={getIsCreateFilter}
+                          getIsUpdateFilter={getIsUpdateFilter}
+                        />
+                      )
                     }
                     onClear={clearFilters}
                     onSearch={applyCurrentFilter}
