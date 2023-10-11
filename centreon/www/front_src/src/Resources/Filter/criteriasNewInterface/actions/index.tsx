@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -22,7 +24,7 @@ const useStyles = makeStyles()((theme) => ({
 interface Props {
   onClear: () => void;
   onSearch: () => void;
-  save: JSX.Element;
+  save?: ReactNode;
 }
 
 const Actions = ({ onSearch, onClear, save }: Props): JSX.Element => {
