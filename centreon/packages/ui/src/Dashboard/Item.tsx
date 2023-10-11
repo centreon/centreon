@@ -6,7 +6,7 @@ import {
   ReactElement
 } from 'react';
 
-import { isNil } from 'ramda';
+import { isNil, prop } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
 
@@ -59,10 +59,13 @@ const Item = forwardRef(
     return useMemoComponent({
       Component: (
         <div
+          {...cardContainerListeners}
           className={className}
           ref={ref}
-          style={style}
-          {...cardContainerListeners}
+          style={{
+            ...style,
+            width: `calc(${prop('width', style) || '0px'} - 12px)`
+          }}
         >
           <Card className={classes.widgetContainer}>
             {header && (
