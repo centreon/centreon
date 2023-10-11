@@ -62,7 +62,7 @@ jobs:
    defaults:
     run:
       shell: bash
-      working-directory: centreon/tests/rest_api
+      # working-directory: centreon/tests/rest_api
    env:
     IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
     SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
