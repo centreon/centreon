@@ -88,11 +88,9 @@ const useWidgetModal = (): useWidgetModalState => {
 
     addPanel({
       data: values.data || undefined,
-      height: panelConfiguration.panelMinHeight,
       moduleName: values.moduleName || '',
       options: values.options,
-      panelConfiguration,
-      width: panelConfiguration.panelMinWidth
+      panelConfiguration
     });
     showSuccessMessage(t(labelYourWidgetHasBeenCreated));
     closeModal();
@@ -107,11 +105,9 @@ const useWidgetModal = (): useWidgetModalState => {
       addPanel({
         data: values.data || undefined,
         fixedId: widgetFormInitialData?.id || undefined,
-        height: panelConfiguration.panelMinHeight,
         moduleName: values.moduleName || '',
         options: values.options,
-        panelConfiguration,
-        width: panelConfiguration.panelMinWidth
+        panelConfiguration
       });
       showSuccessMessage(t(labelYourWidgetHasBeenModified));
       closeModal();

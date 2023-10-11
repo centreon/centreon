@@ -78,7 +78,7 @@ use Utility\SqlConcatenator;
  *      ehi_action_url: string|null,
  *      ehi_icon_image: int|null,
  *      ehi_icon_image_alt: string|null,
- *      severity_id: int|null
+ *      severity_id: string|null
  *  }
  */
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
@@ -143,7 +143,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_action_url,
                     ehi.ehi_icon_image,
                     ehi.ehi_icon_image_alt,
-                    hc.hc_id as severity_id
+                    GROUP_CONCAT(hc.hc_id ORDER BY hc.level ASC LIMIT 1) AS severity_id
                 FROM `:db`.host h
                 LEFT JOIN `:db`.extended_host_information ehi
                     ON h.host_id = ehi.host_host_id
@@ -236,7 +236,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_action_url,
                     ehi.ehi_icon_image,
                     ehi.ehi_icon_image_alt,
-                    hcr.hostcategories_hc_id as severity_id
+                    hcr.hostcategories_hc_id AS severity_id
                 FROM `:db`.host h
                 LEFT JOIN `:db`.extended_host_information ehi
                     ON h.host_id = ehi.host_host_id
@@ -318,7 +318,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_action_url,
                     ehi.ehi_icon_image,
                     ehi.ehi_icon_image_alt,
-                    hcr.hostcategories_hc_id as severity_id
+                    GROUP_CONCAT(hc.hc_id ORDER BY hc.level ASC LIMIT 1) AS severity_id
                 FROM `:db`.host h
                 LEFT JOIN `:db`.extended_host_information ehi
                     ON h.host_id = ehi.host_host_id
@@ -329,6 +329,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     AND hc.level IS NOT NULL
                 WHERE h.host_register = '0'
                     AND h.host_id IN ({$hostTemplateIdsQuery})
+                GROUP BY h.host_id
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -571,7 +572,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             },
             (string) $result['host_snmp_community'],
             0 === $result['host_location'] ? null : $result['host_location'],
-            $result['severity_id'],
+            $result['severity_id'] !== null ? (int) $result['severity_id'] : null,
             $result['command_command_id'],
             $extractCommandArguments($result['command_command_id_arg1']),
             $result['timeperiod_tp_id'],
