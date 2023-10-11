@@ -145,7 +145,13 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
-      - name: "Import results to Xray"
+  import-reports-to-xray:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Verify CLIENT_ID Secret
+        run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
+
+      - name: Import results to Xray
         uses: mikepenz/xray-action@v3.0.2
         with:
           username: "${{ secrets.CLIENT_ID  }}"
