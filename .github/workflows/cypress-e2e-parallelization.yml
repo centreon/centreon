@@ -194,6 +194,7 @@ jobs:
           testPlanKey: "MON-22411"
           combineInSingleTestExec: true
           testExecKey:
+        timeout-minutes: 10 
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
