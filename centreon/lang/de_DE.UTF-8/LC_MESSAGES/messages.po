@@ -5901,7 +5901,7 @@ msgstr "Monitoring Engine Konfigurationsdatei anzeigen"
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php:256
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php:102
 msgid "Information"
-msgstr "Informatie"
+msgstr "Information"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php:187
 msgid "Configuration Name"
