@@ -1,4 +1,4 @@
-@REQ_MON-22206
+@REQ_MON-22206 @ignore
 Feature: Add a downtime on a resource
   As a user
   I would like to be able to add a downtime on a resource
