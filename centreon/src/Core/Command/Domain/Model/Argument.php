@@ -21,40 +21,40 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Domain\Model;
+namespace Core\Command\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\TrimmedString;
 
-class SimpleEntity
-{
+class Argument {
+    public const NAME_MAX_LENGTH = 255;
+    public const DESCRIPTION_MAX_LENGTH = 255;
+
     /**
-     * @param int $id
-     * @param TrimmedString|null $name
-     * @param string $objectName
+     * @param TrimmedString $name
+     * @param TrimmedString $description
      *
      * @throws AssertionFailedException
      */
     public function __construct(
-        private readonly int $id,
-        private readonly ?TrimmedString $name,
-        string $objectName,
-    )
-    {
-        Assertion::positiveInt($id, "{$objectName}::id");
-        if ($name !== null) {
-            Assertion::notEmptyString($name->value, "{$objectName}::name");
-        }
+        private readonly TrimmedString $name,
+        private readonly TrimmedString $description,
+    ) {
+        Assertion::notEmptyString($name->value, 'Argument::name');
+        Assertion::maxLength($name->value, self::NAME_MAX_LENGTH, 'Argument::name');
+        Assertion::regex($name->value, '/^ARG\d+$/', 'Argument::name');
+
+        Assertion::maxLength($description->value, self::DESCRIPTION_MAX_LENGTH, 'Argument::description');
     }
 
-    public function getId(): int
+    public function getName(): string
     {
-        return $this->id;
+        return $this->name->value;
     }
 
-    public function getName(): ?string
+    public function getDescription(): string
     {
-        return $this->name?->value;
+        return $this->description->value;
     }
 }
