@@ -112,7 +112,7 @@ jobs:
           echo "Generating reports for: $collection_name"
           echo "Collection: $collection_file"
           echo "Environment: $environment_file"
-           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitxray,json-summary --reporter-junitxray-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" -n 1
+           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitfull,json-summary --reporter-junitfull-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" -n 1
           else
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
