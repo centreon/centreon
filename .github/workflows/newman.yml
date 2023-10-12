@@ -21,6 +21,10 @@ on:
         required: true
       registry_password:
         required: true
+      CLIENT_ID :
+        required: true
+      CLIENT_SECRET:
+        required: true
 
 jobs:
   newman-test-list:
