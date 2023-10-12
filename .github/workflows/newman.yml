@@ -119,11 +119,9 @@ jobs:
       shell: bash
 
     - name: Start Centreon Web Container
-      if: ${{ steps.cache-docker-slim.outputs.cache-hit != 'true' }}
       run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
 
     - name: Wait for Centreon Web Container to Start
-      if: ${{ steps.cache-docker-slim.outputs.cache-hit != 'true' }}
       run: pnpx wait-on http://localhost:4000/ --timeout 100000
 
     - name: Run Postman Tests and Generate HTML Report
