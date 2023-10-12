@@ -426,8 +426,6 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                             ON aclrgr_sev.acl_res_id = aclr_sev.acl_res_id
                             AND aclrgr_sev.acl_group_id IN ({$accessGroupIdsQuery})
                         WHERE sev.level IS NOT NULL
-                        ORDER BY sev.level ASC
-                        LIMIT 1
                     )
                     SQL;
             }
