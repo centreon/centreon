@@ -349,6 +349,7 @@ class QueryGenerator
 
         // Build final request
         $req = "SELECT SQL_CALC_FOUND_ROWS " . (!$this->is_admin ? "DISTINCT" : "") . "
+            1 AS REALTIME,
             logs.ctime,
             logs.host_id,
             logs.host_name,
