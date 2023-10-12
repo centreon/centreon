@@ -355,6 +355,53 @@ const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
     });
 };
 
+const configureProviderAcls = (): Cypress.Chainable => {
+  return cy
+    .fixture('resources/clapi/config-ACL/provider-acl.json')
+    .then((fixture: Array<ActionClapi>) => {
+      fixture.forEach((action) =>
+        cy.executeActionViaClapi({ bodyContent: action })
+      );
+    });
+};
+
+const configureACLGroups = (path: string): Cypress.Chainable => {
+  cy.getByLabel({ label: 'Roles mapping' }).click();
+
+  cy.getByLabel({
+    label: 'Enable automatic management',
+    tag: 'input'
+  })
+    .eq(0)
+    .check();
+
+  cy.getByLabel({
+    label: 'Roles attribute path',
+    tag: 'input'
+  }).type(`{selectAll}{backspace}${path}`);
+
+  cy.getByLabel({
+    label: 'Role value',
+    tag: 'input'
+  }).type('{selectAll}{backspace}centreon-editor');
+
+  cy.getByLabel({
+    label: 'ACL access group',
+    tag: 'input'
+  }).click({ force: true });
+
+  cy.wait('@getListAccessGroup');
+
+  cy.get('div[role="presentation"] ul li').contains('ACL Group test').click();
+
+  return cy
+    .getByLabel({
+      label: 'ACL access group',
+      tag: 'input'
+    })
+    .should('have.value', 'ACL Group test');
+};
+
 export {
   ActionClapi,
   SubmitResult,
@@ -373,5 +420,7 @@ export {
   logout,
   checkIfConfigurationIsExported,
   getUserContactId,
-  getAccessGroupId
+  getAccessGroupId,
+  configureProviderAcls,
+  configureACLGroups
 };

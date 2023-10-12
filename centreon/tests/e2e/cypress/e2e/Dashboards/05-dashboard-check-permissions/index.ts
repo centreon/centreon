@@ -168,17 +168,18 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
   );
 
   cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
-  cy.reload();
-  cy.getByLabel({ label: 'page header title' }).should(
-    'contain.text',
-    `${dashboards.fromAdminUser.name}-edited`
-  );
-  cy.getByLabel({ label: 'page header description' }).should(
-    'contain.text',
-    `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
-  );
+  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.getByLabel({ label: 'page header title' })
+    .should('contain.text', `${dashboards.fromAdminUser.name}-edited`)
+    .should('be.visible');
+
+  cy.getByLabel({ label: 'page header description' })
+    .should(
+      'contain.text',
+      `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
+    )
+    .should('be.visible');
 });
 
 Given('an admin user on the dashboards library', () => {
@@ -357,16 +358,19 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'page header title' })
+      .should('be.visible')
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardAdministratorUser.name}-edited`
+      );
 
-    cy.reload();
-    cy.getByLabel({ label: 'page header title' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardAdministratorUser.name}-edited`
-    );
-    cy.getByLabel({ label: 'page header description' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
-    );
+    cy.getByLabel({ label: 'page header description' })
+      .should('be.visible')
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
+      );
   }
 );
 
@@ -551,17 +555,21 @@ Then(
     );
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
-    cy.reload();
-    cy.getByLabel({ label: 'page header title' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardCreatorUser.name}-edited`
-    );
-    cy.getByLabel({ label: 'page header description' }).should(
-      'contain.text',
-      `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
-    );
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'page header title' })
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardCreatorUser.name}-edited`
+      )
+      .should('be.visible');
+
+    cy.getByLabel({ label: 'page header description' })
+      .should(
+        'contain.text',
+        `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
+      )
+      .should('be.visible');
   }
 );
 
