@@ -15,8 +15,8 @@ import { Filter } from '../models';
 import { Action } from './models';
 
 interface DataCreateFilter {
-  isCreateFilter: boolean;
-  setIsCreateFilter: Dispatch<SetStateAction<boolean>>;
+  isCreatingFilter: boolean;
+  setIsCreatingFilter: Dispatch<SetStateAction<boolean>>;
 }
 
 interface DataUpdateFilter {
@@ -40,11 +40,11 @@ const SaveActions = ({
 
   const currentFilter = useAtomValue(currentFilterAtom);
 
-  const { isCreateFilter, setIsCreateFilter } = dataCreateFilter;
+  const { isCreatingFilter, setIsCreatingFilter } = dataCreateFilter;
   const { isUpdateFilter, setIsUpdateFilter } = dataUpdateFilter;
 
   const createFilterCallback = (result): void => {
-    setIsCreateFilter(false);
+    setIsCreatingFilter(false);
     showSuccessMessage(t(labelFilterCreated));
     loadFiltersAndUpdateCurrent({ ...result });
   };
@@ -56,7 +56,7 @@ const SaveActions = ({
   };
 
   const cancelCreateFilter = (): void => {
-    setIsCreateFilter(false);
+    setIsCreatingFilter(false);
   };
 
   const cancelUpdateFilter = (): void => {
@@ -68,7 +68,7 @@ const SaveActions = ({
       {isCreatingFilter && (
         <CreateFilterDialog
           callbackSuccess={createFilterCallback}
-          open={isCreateFilter}
+          open={isCreatingFilter}
           payloadAction={{ criterias: currentFilter?.criterias }}
           request={createFilter}
           onCancel={cancelCreateFilter}

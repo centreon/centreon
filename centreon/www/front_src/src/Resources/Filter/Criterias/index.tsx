@@ -61,7 +61,7 @@ interface Props {
 const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   const { classes } = useStyles({ display });
   const { t } = useTranslation();
-  const [isCreateFilter, setIsCreateFilter] = useState(false);
+  const [isCreatingFilter, setIsCreatingFilter] = useState(false);
   const [isUpdateFilter, setIsUpdateFilter] = useState(false);
 
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
@@ -118,7 +118,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   };
 
   const getIsCreateFilter = (boolean: boolean): void => {
-    setIsCreateFilter(boolean);
+    setIsCreatingFilter(boolean);
   };
 
   const getIsUpdateFilter = (boolean: boolean): void => {
@@ -185,7 +185,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
       </PopoverMenu>
 
       <SaveActions
-        dataCreateFilter={{ isCreateFilter, setIsCreateFilter }}
+        dataCreateFilter={{ isCreatingFilter, setIsCreatingFilter }}
         dataUpdateFilter={{ isUpdateFilter, setIsUpdateFilter }}
         loadFiltersAndUpdateCurrent={loadFiltersAndUpdateCurrent}
       />
