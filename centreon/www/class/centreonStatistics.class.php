@@ -395,6 +395,9 @@ class CentreonStatistics
         return array_filter($data, static fn(mixed $value): bool => null !== $value);
     }
 
+    /**
+     * @return array<string,array<string,array<string,int|null>>>
+     */
     private function getAdditionalDashboardsInformation(): array
     {
         $data = [];
