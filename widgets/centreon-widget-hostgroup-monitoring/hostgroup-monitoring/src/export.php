@@ -87,8 +87,14 @@ $serviceStateLabels = array(
     4 => "Pending"
 );
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name ";
-$query .= "FROM hostgroups ";
+$query = <<<'SQL'
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+        1 AS REALTIME,
+        name
+    FROM hostgroups 
+    SQL;
+
+
 if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
     $tab = explode(" ", $preferences['hg_name_search']);
     $op = $tab[0];
@@ -113,17 +119,14 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY $orderby";
 
 $res = $dbb->query($query);
-$nbRows = $res->rowCount();
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
 }
 $data = array();
-while ($row = $res->fetch()) {
-    foreach ($row as $key => $value) {
-        $hostgroup[$key] = $value;
-    }
-    $data[$row['name']] = $hostgroup;
+while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
+    $data[$row['name']]['name'] = $row['name'];
 }
 
 $sgMonObj->getHostStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);

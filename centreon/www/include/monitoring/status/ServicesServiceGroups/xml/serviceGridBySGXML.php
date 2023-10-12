@@ -112,7 +112,7 @@ if ($o == "svcgridSG_ack_0" || $o == "svcOVSG_ack_0") {
 }
 
 // this query allows to manage pagination
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT sg.servicegroup_id, h.host_id
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.servicegroup_id, h.host_id
     FROM servicegroups sg, services_servicegroups sgm, hosts h, services s ";
 
 if (!$obj->is_admin) {
@@ -175,7 +175,7 @@ foreach ($queryValues as $bindId => $bindData) {
     }
 }
 $dbResult->execute();
-$numRows = $obj->DBC->query("SELECT FOUND_ROWS()")->fetchColumn();
+$numRows = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 
 // Create XML Flow
 $obj->XML = new CentreonXML();
@@ -218,7 +218,7 @@ if ($numRows > 0) {
         ];
     }
 
-    $query2 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT sg.name AS sg_name,
+    $query2 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.name AS sg_name,
         sg.name AS alias,
         h.name AS host_name,
         h.state AS host_state,
