@@ -102,6 +102,7 @@ $stateLabels = getLabels();
 
 // Request
 $query = 'SELECT SQL_CALC_FOUND_ROWS
+    1 AS REALTIME,
     h.host_id,
     h.name,
     h.alias,
@@ -270,7 +271,9 @@ foreach ($mainQueryParameters as $parameter) {
 unset($parameter, $mainQueryParameters);
 
 $res->execute();
-$nbRows = $res->rowCount();
+
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+
 $data = [];
 $outputLength = $preferences['output_length'] ?? 50;
 $commentLength = $preferences['comment_length'] ?? 50;
@@ -305,9 +308,16 @@ while ($row = $res->fetch()) {
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
-        $res2 = $dbb->prepare(
-            'SELECT data FROM comments where host_id = :hostId
-            AND service_id IS NULL ORDER BY entry_time DESC LIMIT 1'
+        $res2 = $dbb->prepare(<<<'SQL'
+            SELECT 
+                1 AS REALTIME,
+                data
+            FROM comments
+            WHERE host_id = :hostId
+                AND service_id IS NULL
+            ORDER BY entry_time DESC
+            LIMIT 1
+            SQL
         );
         $res2->bindValue(':hostId', $row['host_id'], \PDO::PARAM_INT);
         $res2->execute();
