@@ -83,6 +83,7 @@ function generateAccessGroupSubQuery(\Traversable $providers, array $accessGroup
 function generateExpectedSQLQuery(string $accessGroupRequest): string
 {
     $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
             resources.resource_id,
             resources.name,
             resources.alias,
@@ -153,7 +154,7 @@ it(
         $dbConnection->expects($this->once())->method('getCentreonDbName')->willReturn('centreon');
         $dbConnection->expects($this->once())->method('prepare')->with(generateExpectedSQLQuery(''))
             ->willReturn($statement);
-        $dbConnection->expects($this->once())->method('query')->with('SELECT FOUND_ROWS()')
+        $dbConnection->expects($this->once())->method('query')->with('SELECT FOUND_ROWS() AS REALTIME')
             ->willReturn($statement);
         $serviceResourceType = $this->createMock(ServiceResourceType::class);
         $requestParams = $this->createMock(RequestParametersInterface::class);
@@ -197,7 +198,7 @@ it(
             ->method('prepare')
             ->with(generateExpectedSQLQuery($accessGroupSubQuery))
             ->willReturn($statement);
-        $dbConnection->expects($this->once())->method('query')->with('SELECT FOUND_ROWS()')
+        $dbConnection->expects($this->once())->method('query')->with('SELECT FOUND_ROWS() AS REALTIME')
             ->willReturn($statement);
         $serviceResourceType = $this->createMock(ServiceResourceType::class);
         $requestParams = $this->createMock(RequestParametersInterface::class);
