@@ -7,6 +7,7 @@ import { equals, isEmpty } from 'ramda';
 import { Method, TestQueryProvider, getFoundFields } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import { labelPoller } from '../../Header/Poller/translatedLabels';
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
 import { Search } from '../Listing/useLoadResources/models';
@@ -20,32 +21,22 @@ import {
   labelAcknowledged,
   labelAll,
   labelAllAlerts,
-  labelHost,
   labelHostCategory,
   labelHostGroup,
   labelHostSeverity,
-  labelInformation,
   labelOk,
   labelSearch,
   labelSearchOptions,
-  labelService,
   labelServiceGroup,
-  labelSoft,
   labelState,
   labelStateFilter,
   labelStatus,
-  labelStatusType,
-  labelType,
   labelUp
 } from '../translatedLabels';
-import { labelPoller } from '../../Header/Poller/translatedLabels';
 
-import useFilter from './useFilter';
-import {
-  BasicCriteria,
-  BasicCriteriaResourceType
-} from './criteriasNewInterface/model';
+import { BasicCriteriaResourceType } from './criteriasNewInterface/model';
 import { advancedModeLabel } from './criteriasNewInterface/translatedLabels';
+import useFilter from './useFilter';
 
 import Filter from '.';
 

@@ -16830,9 +16830,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Advanced mode"
 #  msgstr ""
 
-#  msgid "Information"
-#  msgstr ""
-
 #  msgid "Error while adding a token"
 #  msgstr ""
 

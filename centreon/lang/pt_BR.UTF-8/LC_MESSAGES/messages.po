@@ -16841,11 +16841,6 @@ msgstr ""
 #  msgid "Advanced mode"
 #  msgstr ""
 
-#  msgid "Information"
-#  msgstr ""
-
-#  msgstr ""
-
 #  msgid "Error while adding a token"
 #  msgstr ""
 
