@@ -139,7 +139,7 @@ Then('its title and description are displayed', () => {
   cy.contains(genericTextWidgets.default.description).should('exist');
 });
 
-Given('a dashboard containing a Generic text widget', () => {
+Given('a dashboard featuring a single Generic text widget', () => {
   cy.visit('/centreon/home/dashboards');
   cy.getByLabel({
     label: 'view',
@@ -150,10 +150,10 @@ Given('a dashboard containing a Generic text widget', () => {
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains(genericTextWidgets.default.title).should('exist');
   cy.contains(genericTextWidgets.default.description).should('exist');
+  cy.getByTestId({ testId: 'edit_dashboard' }).click();
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
-  cy.getByTestId({ testId: 'edit_dashboard' }).click();
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({ label: 'Duplicate' }).click();
   cy.getByLabel({ label: 'Refresh' }).click();
@@ -184,7 +184,7 @@ Then(
   }
 );
 
-Given('a dashboard containing Generic text widgets', () => {
+Given('a dashboard featuring two Generic text widgets', () => {
   cy.visit('/centreon/home/dashboards');
   cy.getByLabel({
     label: 'view',
@@ -251,19 +251,6 @@ Then(
   }
 );
 
-Given('a dashboard featuring two Generic text widgets', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByTestId({ testId: 'edit_dashboard' }).click();
-
-  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
-});
-
 When('the dashboard administrator user deletes one of the widgets', () => {
   cy.findAllByLabelText('More actions').eq(1).trigger('click');
   cy.findByLabelText('Delete widget').click();
@@ -288,19 +275,6 @@ Then('only the contents of the other widget are displayed', () => {
     .children()
     .eq(1)
     .should('not.have.class', '^"react-grid-layout"');
-});
-
-Given('a dashboard featuring a single text widget', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByTestId({ testId: 'edit_dashboard' }).click();
-
-  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
 });
 
 When(
@@ -333,3 +307,41 @@ Then('the description is hidden and only the title is displayed', () => {
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
 });
+
+When(
+  'the dashboard administrator user adds a clickable link in the contents of the widget',
+  () => {
+    cy.findAllByLabelText('More actions').trigger('click', { force: true });
+    cy.findByLabelText('Edit widget').click();
+    cy.findAllByTestId('RichTextEditor')
+      .get('[contenteditable="true"]')
+      .clear({ force: true });
+    cy.findAllByTestId('RichTextEditor')
+      .get('[contenteditable="true"]')
+      .type('Link to Centreon website{selectall}', { force: true });
+    cy.getByTestId({ testId: 'LinkIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'EditIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'InputLinkField' })
+      .eq(1)
+      .type('www.centreon.com{enter}', { force: true });
+    cy.contains('www.centreon.com').should('be.visible');
+    cy.getByTestId({ testId: 'confirm' }).click();
+    cy.getByTestId({ testId: 'save_dashboard' }).click();
+  }
+);
+
+Then(
+  'the link is clickable on the dashboard view page and redirects to the proper website',
+  () => {
+    cy.contains('Link to Centreon website')
+      .should('have.attr', 'href')
+      .and('equal', 'https://www.centreon.com');
+    cy.contains('Link to Centreon website')
+      .should('have.attr', 'target')
+      .and('equal', '_blank');
+    cy.contains('Link to Centreon website').invoke('attr', 'target', '_self');
+    cy.contains('Link to Centreon website').click({ force: true });
+    cy.url().should('equal', 'https://www.centreon.com/');
+    cy.go('back');
+  }
+);
