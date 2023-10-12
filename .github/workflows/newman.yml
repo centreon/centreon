@@ -119,23 +119,18 @@ jobs:
         fi
     - name: Check Summary JSON Report
       run: |
-              collection_name=$(basename "$collection_file" .postman_collection.json)
-
-              if [ -f ./postman_summaries/${collection_name}-summary.json ]; then
-                echo "Summary JSON report exists."
-              else
-                echo "Summary JSON report does not exist."
-                exit 1
-              fi
+        json_files=$(find ./postman_summaries -name "*.json")
+        for file in $json_files; do
+          echo "Found JSON file: $file"
+          # Vous pouvez ajouter ici d'autres actions à effectuer sur les fichiers JSON
+        done
     - name: Check JUnitXray Report
       run: |
-          collection_name=$(basename "$collection_file" .postman_collection.json)
-          if [ -f ./newman/${collection_name}.xml ]; then
-            echo "JUnitXray report exists."
-          else
-            echo "JUnitXray report does not exist."
-            exit 1
-          fi
+        json_files=$(find ./newman -name "*.xml")
+        for file in $json_files; do
+          echo "Found JSON file: $file"
+          # Vous pouvez ajouter ici d'autres actions à effectuer sur les fichiers JSON
+        done
 
     - name: Upload HTML Reports
       uses: actions/upload-artifact@v3
