@@ -1,7 +1,5 @@
 import { useAtom } from 'jotai';
 
-import { Box } from '@mui/material';
-
 import { ListingPage } from '@centreon/ui';
 
 import Panel from '../Panel';
@@ -16,9 +14,8 @@ const NotificationsListingPage = (): JSX.Element => {
   const [isPannelOpen] = useAtom(isPanelOpenAtom);
 
   return (
-    <Box>
+    <>
       <ListingPage
-        fullHeight
         filter={<ListingPageHeader />}
         listing={<Listing />}
         panel={<Panel />}
@@ -26,7 +23,7 @@ const NotificationsListingPage = (): JSX.Element => {
       />
       <DeleteConfirmationDialog />
       <DuplicationForm />
-    </Box>
+    </>
   );
 };
 

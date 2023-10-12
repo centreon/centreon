@@ -280,9 +280,9 @@ function construct_selecteList_ndo_instance(id){
      */
 
 if ($centreon->user->admin || !count($pollerArray)) {
-    $instanceQuery = "SELECT instance_id, name FROM `instances` WHERE running = 1 AND deleted = 0 ORDER BY name";
+    $instanceQuery = "SELECT 1 AS REALTIME, instance_id, name FROM `instances` WHERE running = 1 AND deleted = 0 ORDER BY name";
 } else {
-    $instanceQuery = "SELECT instance_id, name
+    $instanceQuery = "SELECT 1 AS REALTIME, instance_id, name
                       FROM `instances` WHERE running = 1 AND deleted = 0
                       AND name IN (". $centreon->user->access->getPollerString('NAME') .")
                       ORDER BY name";
@@ -351,7 +351,7 @@ if (!$centreon->user->access->admin) {
 }
 
 $DBRESULT = $pearDBO->query(
-    "SELECT DISTINCT hg.name, hg.hostgroup_id " .
+    "SELECT DISTINCT 1 AS REALTIME, hg.name, hg.hostgroup_id " .
     "FROM hostgroups hg, hosts_hostgroups hhg " .
     "WHERE hg.hostgroup_id = hhg.hostgroup_id " .
     "AND hg.name NOT LIKE 'meta\_%' " .
@@ -437,7 +437,7 @@ if (!$centreon->user->access->admin) {
     unset($data);
 }
 
-        $DBRESULT = $pearDBO->query("SELECT DISTINCT sg.name, sg.servicegroup_id FROM servicegroups sg, services_servicegroups ssg WHERE sg.servicegroup_id = ssg.servicegroup_id AND sg.name NOT LIKE 'meta\_%' ORDER BY sg.name");
+$DBRESULT = $pearDBO->query("SELECT DISTINCT 1 AS REALTIME, sg.name, sg.servicegroup_id FROM servicegroups sg, services_servicegroups ssg WHERE sg.servicegroup_id = ssg.servicegroup_id AND sg.name NOT LIKE 'meta\_%' ORDER BY sg.name");
 while ($servicegroups = $DBRESULT->fetchRow()) {
     if ($centreon->user->access->admin || ($centreon->user->access->admin == 0 && isset($sgBrk[$servicegroups["name"]]))) {
         if (!isset($tabSG)) {

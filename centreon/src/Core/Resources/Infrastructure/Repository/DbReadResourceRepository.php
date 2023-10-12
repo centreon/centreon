@@ -272,6 +272,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
         $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
             resources.resource_id,
             resources.name,
             resources.alias,
@@ -445,7 +446,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $collector->bind($statement);
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);

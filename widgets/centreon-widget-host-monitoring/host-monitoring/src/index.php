@@ -94,6 +94,7 @@ $stateLabels = getLabels();
 $aStateType = ['1' => 'H', '0' => 'S'];
 
 $query = 'SELECT SQL_CALC_FOUND_ROWS
+    1 AS REALTIME,
     h.host_id,
     h.name AS host_name,
     h.alias,
@@ -254,7 +255,8 @@ foreach ($mainQueryParameters as $parameter) {
 unset($parameter, $mainQueryParameters);
 $res->execute();
 
-$nbRows = $dbb->numberRows();
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+
 $data = array();
 $outputLength = $preferences['output_length'] ?: 50;
 $commentLength = $preferences['comment_length'] ?: 50;
