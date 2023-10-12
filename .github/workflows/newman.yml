@@ -62,7 +62,6 @@ jobs:
    defaults:
     run:
       shell: bash
-      working-directory: centreon/tests/rest_api
    env:
     IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
     SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
@@ -85,6 +84,10 @@ jobs:
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
+    - name: List Cache Contents
+      run: |
+        ls /tmp/cache/docker-image
+
     - name: Install Dependencies for tests/rest_api
       run: pnpm install --frozen-lockfile
       shell: bash
@@ -100,17 +103,13 @@ jobs:
         username: ${{ secrets.registry_username }}
         password: ${{ secrets.registry_password }}
 
-    - name: List Cache Contents
-      run: |
-          ls $RUNNER_TOOL_CACHE
-
     - name: Restore standard slim image from cache
       id: cache-docker-slim
       uses: actions/cache/restore@v3
       continue-on-error: true
       timeout-minutes: 6
       with:
-          path: ../tmp/cache/docker-image
+          path: /tmp/cache/docker-image
           key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
       env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
