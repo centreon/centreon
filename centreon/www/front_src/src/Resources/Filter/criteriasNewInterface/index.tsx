@@ -30,6 +30,7 @@ import {
   ExtendedCriteria
 } from './model';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
+import { advancedModeLabel } from './translatedLabels';
 
 export { CheckboxGroup } from '@centreon/ui';
 
@@ -192,7 +193,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
               />
             }
             label={
-              <Typography variant="body2">{t('Advanced mode')}</Typography>
+              <Typography variant="body2">{t(advancedModeLabel)}</Typography>
             }
           />
           {actions}

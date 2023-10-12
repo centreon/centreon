@@ -28,6 +28,9 @@ export const useStyles = makeStyles()((theme) => ({
   formControlContainer: {
     paddingLeft: theme.spacing(1)
   },
+  inputInformation: {
+    backgroundColor: theme.palette.background.default
+  },
   small: {
     display: 'flex',
     flexDirection: 'row',

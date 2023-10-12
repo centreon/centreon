@@ -141,6 +141,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
     <>
       <PopoverMenu
         canOpen={canOpenPopover}
+        dataTestId={labelSearchOptions}
         getPopoverData={getPopoverData}
         icon={<TuneIcon fontSize="small" />}
         popperPlacement="bottom-start"

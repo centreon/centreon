@@ -8,6 +8,7 @@ import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
 import { displayInformationFilterAtom } from '../basicFilter/atoms';
 import { useStyles } from '../criterias.style';
 import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
+import { informationLabel } from '../translatedLabels';
 
 import FilterSearch from './FilterSearch';
 import MemoizedCheckBoxWrapper from './MemoizedCheckBoxWrapper';
@@ -58,7 +59,7 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
       {displayInformationFilter && (
         <FilterSearch
           field={SearchableFields.information}
-          placeholder={t('Information') as string}
+          placeholder={t(informationLabel) as string}
         />
       )}
       <Divider className={classes.dividerInputs} />

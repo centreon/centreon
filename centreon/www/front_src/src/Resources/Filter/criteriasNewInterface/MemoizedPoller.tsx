@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 
 import { useMemoComponent } from '@centreon/ui';
 
+import { labelPoller } from '../../../Header/Poller/translatedLabels';
+
 import InputGroup from './basicFilter/InputGroup';
 import { BasicCriteria, MemoizedChild } from './model';
 import { findData } from './utils';
@@ -18,7 +20,7 @@ const MemoizedPoller = ({
         changeCriteria={changeCriteria}
         data={basicData}
         filterName={BasicCriteria.monitoringServers}
-        label={t('Poller') as string}
+        label={t(labelPoller) as string}
       />
     ),
     memoProps: [

@@ -68,7 +68,7 @@ const useSearchWihSearchDataCriteria = ({
           }
 
           return !updatedSearch
-            ? { ...accumulator, updatedSearch: search.concat('', target) }
+            ? { ...accumulator, updatedSearch: search.concat(' ', target) }
             : { ...accumulator };
         }
 
@@ -81,7 +81,8 @@ const useSearchWihSearchDataCriteria = ({
   useEffect(() => {
     const value = updatedSearchInput()?.updatedSearch;
     const newSearch = isNil(value) || isEmpty(value) ? search : value;
-    setInputSearch(newSearch);
+    const result = newSearch.replace(/\s+/g, ' ');
+    setInputSearch(result);
   }, [currentFilter]);
 
   useEffect(() => {

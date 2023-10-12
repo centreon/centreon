@@ -8,6 +8,8 @@ import { SearchableFields } from '../../../Criterias/searchQueryLanguage/models'
 import { searchAtom } from '../../../filterAtoms';
 import useSearchInputDataByField from '../../useSearchInputDataByField';
 import { replaceValueFromSearchInput } from '../../utils';
+import { useStyles } from '../../criterias.style';
+import { informationLabel } from '../../translatedLabels';
 
 import useFilterSearchValue from './useFilterSearch';
 
@@ -16,6 +18,7 @@ interface Props {
   placeholder?: string;
 }
 const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const [isDirty, setIsDirty] = useState(false);
   const [search, setSearch] = useAtom(searchAtom);
 
@@ -63,7 +66,8 @@ const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
       <TextField
-        dataTestId=""
+        className={classes.inputInformation}
+        dataTestId={informationLabel}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
