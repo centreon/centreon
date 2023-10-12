@@ -138,11 +138,7 @@ export interface ParametersFieldInformation {
   field: string;
   search: string;
 }
-export interface Sort {
-  array: Array<unknown>;
-  isNumeric: boolean;
-  sortBy: string;
-}
+
 export interface HandleDataByCategoryFilter {
   data: Array<Criteria & CriteriaDisplayProps>;
   fieldToUpdate: string;

@@ -19,7 +19,6 @@ import {
   ParametersFieldInformation,
   ParametersRemoveDuplicate,
   SectionType,
-  Sort,
   categoryHostStatus,
   categoryServiceStatus
 } from './model';
