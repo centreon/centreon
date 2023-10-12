@@ -176,6 +176,9 @@ jobs:
               "components": [
                 { "name": "centreon-web" }
               ]
+            },
+            "xrayFields": {
+              "testPlanKey": "MON-22411"
             }
           }' > testExecutionJson.json
 
@@ -188,7 +191,7 @@ jobs:
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
           combineInSingleTestExec: true
-          testExecutionJson : "testExecutionJson.json"
+          testExecutionJson : testExecutionJson.json
           testPlanKey: "MON-22411"
           testExecKey:
         timeout-minutes: 10 
