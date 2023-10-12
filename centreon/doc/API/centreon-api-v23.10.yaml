@@ -2255,6 +2255,7 @@ paths:
         * host.name
         * host.alias
         * host.address
+        * host.display_name
         * host.state
         * poller.id
         * service.display_name
@@ -2301,10 +2302,12 @@ paths:
         * host.name
         * host.alias
         * host.address
+        * host.display_name
         * host.state
         * poller.id
         * service.display_name
         * host_group.id
+
       parameters:
         - $ref: '#/components/parameters/ShowService'
         - $ref: '#/components/parameters/ShowHost'
