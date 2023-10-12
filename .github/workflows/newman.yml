@@ -109,7 +109,7 @@ jobs:
         collection_directory="$(dirname "$collection_file")"
         environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
           if [ -f "$environment_file" ]; then
-            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitxray,json-summary --reporter-junitxray-title "$collection_name" --reporter-junitxray-title "${collection_name// /_}" --reporter-junitxray-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitxray,json-summary --reporter-junitxray-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
             else
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
             exit 1
