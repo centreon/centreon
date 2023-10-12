@@ -237,7 +237,7 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
-      getDisabled: () => true,
+      getDisabled: T,
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
       label: t(labelTimePeriod),
@@ -257,7 +257,7 @@ const useFormInputs = ({
             },
             dataTestId: 'Email',
             fieldName: 'messages.channel',
-            getDisabled: () => true,
+            getDisabled: T,
             label: 'Email',
             type: InputType.Checkbox
           },
@@ -267,7 +267,7 @@ const useFormInputs = ({
             },
             dataTestId: 'SMS',
             fieldName: 'sms.channel',
-            getDisabled: () => true,
+            getDisabled: T,
             label: 'SMS',
             type: InputType.Checkbox
           },
@@ -277,7 +277,7 @@ const useFormInputs = ({
             },
             dataTestId: 'Slack',
             fieldName: 'slack.channel',
-            getDisabled: () => true,
+            getDisabled: T,
             label: 'Slack',
             type: InputType.Checkbox
           }

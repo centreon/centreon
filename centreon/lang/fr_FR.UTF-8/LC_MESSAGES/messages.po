@@ -15507,7 +15507,7 @@ msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
 
 msgid "Create a notification rule"
-msgstr "Créer une règle notification"
+msgstr "Créer une règle de notification"
 
 msgid "Channels"
 msgstr "Canaux"
