@@ -102,7 +102,7 @@ jobs:
 
     - name: List Contents of Cache Directory
       run: |
-          ls ../tmp/cache/docker-image
+          ls $GITHUB_WORKSPACE/centreon/tests/rest_api/tmp/cache/docker-image
 
     - name: Restore standard slim image from cache
       id: cache-docker-slim
