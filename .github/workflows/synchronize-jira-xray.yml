@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
+      - demo-test
         
 jobs:
   get-version:
