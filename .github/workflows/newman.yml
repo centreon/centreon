@@ -119,6 +119,8 @@ jobs:
         fi
     - name: Check Summary JSON Report
       run: |
+              collection_name=$(basename "$collection_file" .postman_collection.json)
+
               if [ -f ./postman_summaries/${collection_name}-summary.json ]; then
                 echo "Summary JSON report exists."
               else
@@ -127,6 +129,7 @@ jobs:
               fi
     - name: Check JUnitXray Report
       run: |
+          collection_name=$(basename "$collection_file" .postman_collection.json)
           if [ -f ./newman/${collection_name}.xml ]; then
             echo "JUnitXray report exists."
           else
