@@ -14,6 +14,7 @@ import { has, includes, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
+import { useDeepCompare } from '../..';
 
 export interface UseFetchQueryProps<T> {
   catchError?: (props: CatchErrorProps) => void;
@@ -162,7 +163,7 @@ const useFetchQuery = <T extends object>({
 
   useEffect(() => {
     manageError();
-  }, [queryData.data]);
+  }, useDeepCompare([queryData.data]));
 
   return {
     ...omit(['data'], queryData),

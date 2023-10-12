@@ -6,14 +6,21 @@ import {
   ListingVariant,
   userAtom
 } from '@centreon/ui-context';
-import { TestQueryProvider } from '@centreon/ui';
+import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
 import { DashboardRole } from './api/models';
 import { DashboardsPage } from './DashboardsPage';
-import { dashboardsEndpoint } from './api/endpoints';
 import {
+  dashboardsContactGroupsEndpoint,
+  dashboardsContactsEndpoint,
+  dashboardsEndpoint
+} from './api/endpoints';
+import {
+  labelCancel,
   labelCreate,
+  labelDashboardDeleted,
+  labelDelete,
   labelName,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
@@ -65,6 +72,24 @@ const initializeAndMount = ({
     });
   });
 
+  cy.fixture(`Dashboards/contacts.json`).then((response) => {
+    cy.interceptAPIRequest({
+      alias: 'getContacts',
+      method: Method.GET,
+      path: `${dashboardsContactsEndpoint}?**`,
+      response
+    });
+  });
+
+  cy.fixture(`Dashboards/contactGroups.json`).then((response) => {
+    cy.interceptAPIRequest({
+      alias: 'getContactGroups',
+      method: Method.GET,
+      path: `${dashboardsContactGroupsEndpoint}?**`,
+      response
+    });
+  });
+
   cy.interceptAPIRequest({
     alias: 'postDashboards',
     method: Method.POST,
@@ -88,15 +113,24 @@ const initializeAndMount = ({
     statusCode: 201
   });
 
+  cy.interceptAPIRequest({
+    alias: 'deleteDashboard',
+    method: Method.DELETE,
+    path: `${dashboardsEndpoint}/1`,
+    statusCode: 204
+  });
+
   cy.mount({
     Component: (
-      <TestQueryProvider>
-        <BrowserRouter>
-          <Provider store={store}>
-            <DashboardsPage />
-          </Provider>
-        </BrowserRouter>
-      </TestQueryProvider>
+      <SnackbarProvider>
+        <TestQueryProvider>
+          <BrowserRouter>
+            <Provider store={store}>
+              <DashboardsPage />
+            </Provider>
+          </BrowserRouter>
+        </TestQueryProvider>
+      </SnackbarProvider>
     )
   });
 
@@ -226,5 +260,26 @@ describe('Dashboards', () => {
       'equal',
       'http://localhost:9092/home/dashboards/1?edit=true'
     );
+  });
+
+  it('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByLabelText('delete').eq(0).click();
+    cy.contains(labelDelete).click();
+
+    cy.waitForRequest('@deleteDashboard');
+
+    cy.contains(labelDashboardDeleted).should('be.visible');
+  });
+
+  it('does not delete a dashboard when the corresponding icon button is clicked and the cancellation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByLabelText('delete').eq(0).click();
+    cy.contains(labelCancel).click();
+
+    cy.contains(labelCancel).should('not.exist');
+    cy.contains(labelDelete).should('not.exist');
   });
 });

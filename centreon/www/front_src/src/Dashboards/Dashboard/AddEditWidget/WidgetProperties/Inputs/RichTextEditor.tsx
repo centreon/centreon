@@ -7,7 +7,7 @@ import { equals, isNil } from 'ramda';
 import { RichTextEditor } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../models';
-import { editProperties } from '../../../useCanEditDashboard';
+import { editProperties } from '../../../hooks/useCanEditDashboard';
 
 import { getProperty } from './utils';
 

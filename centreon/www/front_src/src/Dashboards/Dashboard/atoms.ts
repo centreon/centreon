@@ -185,8 +185,6 @@ export const addPanelDerivedAtom = atom(
   }
 );
 
-export const askDeletePanelAtom = atom<string | null>(null);
-
 export const removePanelDerivedAtom = atom(
   null,
   (get, setAtom, panelKey: string) => {

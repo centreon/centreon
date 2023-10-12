@@ -140,7 +140,12 @@ export * from './TopCounterElements';
 export { default as Image, ImageVariant } from './Image/Image';
 export { default as WallpaperPage } from './WallpaperPage';
 export { RichTextEditor } from './RichTextEditor';
-export { default as ActionsList } from './ActionsList';
+export {
+  default as ActionsList,
+  ActionsListActionDivider
+} from './ActionsList';
+export type { ActionsListActions } from './ActionsList';
+export type { ActionVariants } from './ActionsList/models';
 
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
 

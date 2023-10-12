@@ -4,12 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { getDashboardEndpoint } from '../api/endpoints';
-import { resource } from '../api/models';
+import { getDashboardEndpoint } from '../../api/endpoints';
+import { resource } from '../../api/models';
+import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
+import { Panel, PanelDetailsToAPI } from '../models';
+import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
-import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
-import { Panel, PanelDetailsToAPI } from './models';
-import { labelYourDashboardHasBeenSaved } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>

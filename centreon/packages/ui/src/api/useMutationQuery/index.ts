@@ -12,6 +12,7 @@ import { includes } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
+import { useDeepCompare } from '../..';
 
 export enum Method {
   DELETE = 'DELETE',
@@ -98,7 +99,7 @@ const useMutationQuery = <T extends object, TMeta>({
 
   useEffect(() => {
     manageError();
-  }, [queryData.data]);
+  }, useDeepCompare([queryData.data]));
 
   return {
     ...queryData,

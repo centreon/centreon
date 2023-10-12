@@ -18,7 +18,7 @@ import {
   labelYourRightsOnlyAllowToView
 } from '../../translatedLabels';
 import { isGenericText } from '../../utils';
-import { editProperties } from '../../useCanEditDashboard';
+import { editProperties } from '../../hooks/useCanEditDashboard';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';

@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 
 import { IconButton } from '../../Button';
+import { ConfirmationTooltip } from '../../Tooltip/ConfirmationTooltip';
 
 import { useStyles } from './DataTableItem.styles';
 
@@ -21,6 +22,13 @@ export interface DataTableItemProps {
   description?: string;
   hasActions?: boolean;
   hasCardAction?: boolean;
+  labelsDelete: {
+    cancel: string;
+    confirm: {
+      label: string;
+      secondaryLabel?: string;
+    };
+  };
   onClick?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
@@ -38,7 +46,8 @@ const DataTableItem = forwardRef(
       onClick,
       onEdit,
       onDelete,
-      onEditAccessRights
+      onEditAccessRights,
+      labelsDelete
     }: DataTableItemProps,
     ref
   ): ReactElement => {
@@ -67,14 +76,24 @@ const DataTableItem = forwardRef(
         {hasActions && (
           <MuiCardActions>
             <span>
-              <IconButton
-                aria-label="delete"
-                data-testid="delete"
-                icon={<DeleteIcon />}
-                size="small"
-                variant="ghost"
-                onClick={() => onDelete?.()}
-              />
+              {onDelete && (
+                <ConfirmationTooltip
+                  confirmVariant="error"
+                  labels={labelsDelete}
+                  onConfirm={onDelete}
+                >
+                  {(openTooltip) => (
+                    <IconButton
+                      aria-label="delete"
+                      data-testid="delete"
+                      icon={<DeleteIcon />}
+                      size="small"
+                      variant="ghost"
+                      onClick={openTooltip}
+                    />
+                  )}
+                </ConfirmationTooltip>
+              )}
             </span>
             <span>
               <IconButton
