@@ -5,12 +5,13 @@ import {
   initializeSAMLUser,
   navigateToSAMLConfigPage
 } from '../common';
-import { getUserContactId } from '../../../../commons';
+import { configureProviderAcls, getUserContactId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()
     .startOpenIdProviderContainer()
     .then(() => {
+      configureProviderAcls();
       initializeSAMLUser();
     });
 });
