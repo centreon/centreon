@@ -12,7 +12,7 @@ import { includes } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
-import { useDeepCompare } from '../..';
+import { useDeepCompare } from '../../utils';
 
 export enum Method {
   DELETE = 'DELETE',

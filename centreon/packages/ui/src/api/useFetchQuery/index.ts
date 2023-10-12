@@ -14,7 +14,7 @@ import { has, includes, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
-import { useDeepCompare } from '../..';
+import { useDeepCompare } from '../../utils';
 
 export interface UseFetchQueryProps<T> {
   catchError?: (props: CatchErrorProps) => void;
