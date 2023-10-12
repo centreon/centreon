@@ -122,8 +122,7 @@ jobs:
         xml_files=$(find ./newman -name "*.xml")
         for file in $xml_files; do
           echo "Found XML file: $file"
-          echo "::set-env name=GITHUB_OUTPUT::$file"
-          done
+        done
 
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
@@ -131,7 +130,7 @@ jobs:
           username: ${{ secrets.CLIENT_ID }}
           password: ${{ secrets.CLIENT_SECRET }}
           testFormat: "junit"
-          testPaths: ${{ env.GITHUB_OUTPUT }}
+          testPaths: "${{ github.workspace }}/newman/"
           projectKey: "MON"
           testPlanKey: "MON-22343"
           testExecKey:
