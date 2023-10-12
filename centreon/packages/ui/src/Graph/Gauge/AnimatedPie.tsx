@@ -1,6 +1,6 @@
 import { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
 import { useTransition, to, animated } from '@react-spring/web';
-import { equals, includes, pluck } from 'ramda';
+import { equals, includes, isNil, pluck } from 'ramda';
 
 import { Typography } from '@mui/material';
 
@@ -43,14 +43,21 @@ const AnimatedPie = <Datum,>({
   showTooltip,
   hideTooltip,
   thresholds
-}: AnimatedPieProps<Datum>): JSX.Element => {
-  const transitions = useTransition<PieArcDatum<Datum>, AnimatedStyles>(arcs, {
-    enter: enterUpdateTransition,
-    from: animate ? fromLeaveTransition : enterUpdateTransition,
-    keys: getKey,
-    leave: animate ? fromLeaveTransition : enterUpdateTransition,
-    update: enterUpdateTransition
-  });
+}: AnimatedPieProps<Datum>): JSX.Element | null => {
+  const transitions = useTransition?.<PieArcDatum<Datum>, AnimatedStyles>(
+    arcs,
+    {
+      enter: enterUpdateTransition,
+      from: animate ? fromLeaveTransition : enterUpdateTransition,
+      keys: getKey,
+      leave: animate ? fromLeaveTransition : enterUpdateTransition,
+      update: enterUpdateTransition
+    }
+  );
+
+  if (isNil(useTransition)) {
+    return null;
+  }
 
   return transitions((props, arc, { key }) => (
     <g key={key}>
