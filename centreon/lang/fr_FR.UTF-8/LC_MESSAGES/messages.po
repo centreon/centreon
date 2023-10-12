@@ -15500,14 +15500,14 @@ msgstr "Notification envoyée à"
 
 #: cloud notification configuration
 
-msgid "Notifications management"
-msgstr "Gestion des notifications"
+msgid "Notification rules"
+msgstr "Règles de notification"
 
 msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
 
-msgid "Create a notification"
-msgstr "Créer une notification"
+msgid "Create a notification rule"
+msgstr "Créer une règle de notification"
 
 msgid "Channels"
 msgstr "Canaux"
@@ -15521,8 +15521,8 @@ msgstr "Rechercher les groupes d'hôtes"
 msgid "Select users"
 msgstr "Sélectionner les utilisateurs"
 
-msgid "Select time period / channels of notifications"
-msgstr "Sélectionner la période / les canaux de notifications"
+msgid "Notification settings"
+msgstr "Paramètres de notification"
 
 msgid "Notification duplicated"
 msgstr "Notification dupliquée"
@@ -15533,11 +15533,11 @@ msgstr "Échec de la duplication de la notification"
 msgid "Please enter a name for the duplicated notification"
 msgstr "Veuillez entrer un nom pour la notification dupliquée"
 
-msgid "Delete notification?"
-msgstr "Supprimer la notification?"
+msgid "Delete notification rule?"
+msgstr "Supprimer la règle de notification ?"
 
-msgid "This action cannot be undone"
-msgstr "Cette action est irréversible"
+msgid "This action cannot be undone."
+msgstr "Cette action est irréversible."
 
 msgid "Collapse information panel"
 msgstr "Réduire le panneau d'informations"
@@ -15562,15 +15562,6 @@ msgstr "La notification a été mise à jour avec succès"
 
 msgid "The notification was successfully added"
 msgstr "La notification a été ajoutée avec succès"
-
-msgid "Do you want to confirm the action ?"
-msgstr "Souhaitez-vous confirmer l'action ?"
-
-msgid "Confirm notification creation"
-msgstr "Confirmer la création de la notification"
-
-msgid "Confirm notification update"
-msgstr "Confirmer la mise à jour de la notification"
 
 msgid "Choose at least 1 resource"
 msgstr "Veuillez sélectionner au moins 1 ressource"
