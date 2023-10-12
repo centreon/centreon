@@ -53,6 +53,7 @@ const parsedSearch = [
   {
     name: 'service_groups',
     object_type: 'service_groups',
+    search_data: null,
     type: 'multi_select',
     value: []
   },
@@ -73,30 +74,35 @@ const parsedSearch = [
   {
     name: 'service_categories',
     object_type: 'service_categories',
+    search_data: null,
     type: 'multi_select',
     value: []
   },
   {
     name: 'host_severities',
     object_type: 'host_severities',
+    search_data: null,
     type: 'multi_select',
     value: []
   },
   {
     name: 'host_severity_levels',
     object_type: 'host_severity_levels',
+    search_data: null,
     type: 'multi_select',
     value: []
   },
   {
     name: 'service_severities',
     object_type: 'service_severities',
+    search_data: null,
     type: 'multi_select',
     value: []
   },
   {
     name: 'service_severity_levels',
     object_type: 'service_severity_levels',
+    search_data: null,
     type: 'multi_select',
     value: []
   },

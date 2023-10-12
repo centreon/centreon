@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue } from 'jotai';
 import * as Ramda from 'ramda';
+import { omit } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -275,13 +276,26 @@ describe('Filter storage', () => {
     searchField.clear();
     searchField.type('searching...');
 
+    const criteriasSearch = allFilter?.criterias?.find(
+      (item) => item?.name === 'search'
+    );
+    const updatedSearch = omit(['search_data'], criteriasSearch);
+    const updatedCriterias = allFilter.criterias.map((element) =>
+      element.name === 'search' ? updatedSearch : element
+    );
+
     cy.waitForRequest('@getAllrequest').then(() => {
       expect(localStorage.getItem(filterKey)).to.deep.equal(
         JSON.stringify(
           getFilterWithUpdatedCriteria({
             criteriaName: 'search',
             criteriaValue: 'searching...',
-            filter: { ...allFilter, id: '', name: labelNewFilter }
+            filter: {
+              ...allFilter,
+              criterias: updatedCriterias,
+              id: '',
+              name: labelNewFilter
+            }
           })
         )
       );

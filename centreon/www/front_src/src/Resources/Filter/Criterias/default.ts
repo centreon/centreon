@@ -129,6 +129,7 @@ const getDefaultCriterias = (
     {
       name: 'host_severities',
       object_type: 'host_severities',
+      search_data: null,
       type: 'multi_select',
       value: hostSeverities
     },
