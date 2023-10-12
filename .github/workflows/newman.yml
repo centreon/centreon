@@ -117,6 +117,28 @@ jobs:
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
         fi
+    - name: Check Summary JSON Report
+      run: |
+              if [ -f postman_summaries/${collection_name}-summary.json ]; then
+                echo "Summary JSON report exists."
+              else
+                echo "Summary JSON report does not exist."
+                exit 1
+              fi
+    - name: Check JUnitXray Report
+      run: |
+          if [ -f newman/${collection_name}.xml ]; then
+            echo "JUnitXray report exists."
+          else
+            echo "JUnitXray report does not exist."
+            exit 1
+          fi
+
+    - name: Upload HTML Reports
+      uses: actions/upload-artifact@v3
+      with:
+          name: postman-html-reports
+          path: centreon/tests/rest_api/newman/
 
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
