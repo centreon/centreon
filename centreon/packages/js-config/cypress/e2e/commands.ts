@@ -3,6 +3,9 @@
 import './commands/configuration';
 import './commands/monitoring';
 
+import { execSync } from 'child_process';
+// import fs from 'fs';
+
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
 installLogsCollector();
@@ -292,7 +295,9 @@ Cypress.Commands.add(
 
     return cy
       .visitEmptyPage()
-      .exec(`mkdir -p "${logDirectory}"`)
+      .then(() => {
+        execSync(`mkdir "${logDirectory}"`, { stdio: 'inherit' });
+      })
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
         name,
