@@ -75,7 +75,7 @@ const SaveActions = ({
         />
       )}
 
-      {isUpdateFilter && (
+      {isUpdatingFilter && (
         <CreateFilterDialog
           action={Action.update}
           callbackSuccess={updateFilterCallback}
