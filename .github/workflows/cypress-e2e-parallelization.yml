@@ -148,19 +148,6 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
-      # - name: Import results to Xray
-      #   if: always()
-      #   uses: mikepenz/xray-action@v3.0.2
-      #   with:
-      #     username: ${{ secrets.CLIENT_ID }}
-      #     password: ${{ secrets.CLIENT_SECRET }}
-      #     testFormat: "cucumber"
-      #     testPaths: "${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json"
-      #     projectKey: "MON"
-      #     testPlanKey: "MON-22411"
-      #     combineInSingleTestExec: true
-      #     testExecKey:
-
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: always()
@@ -177,11 +164,23 @@ jobs:
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.name }}-json-xray-reports
-
-      - name: List Cucumber reports
+      
+      - name: Create testExecutionJson File
         run: |
-          cd /home/runner/work/centreon/centreon/e2e-json-xray-reports
-          find . -type f -name "*.json"
+          branch_name="${{ github.ref_name }}"
+          commit_number="${{ github.sha }}"
+          echo '{
+            "fields": {
+              "summary": "Branch: '"$branch_name"' Commit: '"$commit_number"'",
+              "issuetype": { "id": "10271" },
+              "components": [
+                { "name": "centreon-web" }
+              ]
+            },
+            "xrayFields": {
+              "testPlanKey": "MON-22411"
+            }
+          }' > testExecutionJson.json
 
       - name: Import results to Xray
         uses: mikepenz/xray-action@v3.0.2
@@ -191,8 +190,8 @@ jobs:
           testFormat: "cucumber"
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
-          testPlanKey: "MON-22411"
           combineInSingleTestExec: true
+          testExecutionJson : "testExecutionJson.json"
           testExecKey:
         timeout-minutes: 10 
 
