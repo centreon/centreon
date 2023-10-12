@@ -70,6 +70,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         );
 
         $request = 'SELECT SQL_CALC_FOUND_ROWS
+            1 AS REALTIME,
             severity_id,
             s.id,
             s.name,
@@ -111,7 +112,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         $statement->execute();
 
         // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
@@ -130,6 +131,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
     public function findByResourceAndTypeId(int $resourceId, int $parentResourceId, int $typeId): ?Severity
     {
         $request = 'SELECT
+            1 AS REALTIME,
             resources.severity_id,
             s.id,
             s.name,

@@ -108,7 +108,7 @@ $en = array("0" => _("No"), "1" => _("Yes"));
 /*
  * Service Comments
  */
-$rq2 = "SELECT SQL_CALC_FOUND_ROWS c.internal_id, c.entry_time, c.author, c.data, c.persistent, c.host_id,
+$rq2 = "SELECT SQL_CALC_FOUND_ROWS 1 AS REALTIME, c.internal_id, c.entry_time, c.author, c.data, c.persistent, c.host_id,
  c.service_id, h.name AS host_name, s.description AS service_description " .
     "FROM comments c, hosts h, services s ";
 if (!$is_admin) {
@@ -130,7 +130,7 @@ $rq2 .= ' UNION ';
 /*
  * Host Comments
  */
-$rq2 .= "SELECT c.internal_id, c.entry_time, c.author, c.data, c.persistent, c.host_id,
+$rq2 .= "SELECT 1 AS REALTIME, c.internal_id, c.entry_time, c.author, c.data, c.persistent, c.host_id,
  '' as service_id, h.name AS host_name, '' AS service_description " .
     "FROM comments c, hosts h ";
 if (!$is_admin) {
@@ -150,7 +150,7 @@ $rq2 .= (isset($searchOutput) && $searchOutput != "" ? " AND c.data LIKE '%$sear
 $rq2 .= " ORDER BY entry_time DESC LIMIT " . $num * $limit . ", " . $limit;
 
 $DBRESULT = $pearDBO->query($rq2);
-$rows = $pearDBO->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDBO->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 
 for ($i = 0; $data = $DBRESULT->fetchRow(); $i++) {
     $tab_comments_svc[$i] = $data;

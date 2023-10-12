@@ -98,7 +98,7 @@ $filterRq2 = '';
 //Get Host status
 $rq1 = <<<SQL
     SELECT SQL_CALC_FOUND_ROWS DISTINCT
-    hg.name AS alias, h.host_id id, h.name AS host_name, hgm.hostgroup_id, h.state hs, h.icon_image
+    1 AS REALTIME, hg.name AS alias, h.host_id id, h.name AS host_name, hgm.hostgroup_id, h.state hs, h.icon_image
     FROM hosts h
     INNER JOIN hosts_hostgroups hgm
       ON hgm.host_id = h.host_id
@@ -181,7 +181,7 @@ $dbResult->execute();
 $tabH = [];
 $tabHG = [];
 $tab_finalH = [];
-$numRows = $obj->DBC->query("SELECT FOUND_ROWS()")->fetchColumn();
+$numRows = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 while ($ndo = $dbResult->fetch()) {
     if (!isset($tab_finalH[$ndo["alias"]])) {
         $tab_finalH[$ndo["alias"]] = array($ndo["host_name"] => []);
@@ -199,7 +199,7 @@ $queryValues = [];
 
 // Get Services status
 $rq2 = <<<SQL
-    SELECT DISTINCT s.service_id, h.name as host_name, s.description, s.state svcs,
+    SELECT DISTINCT 1 AS REALTIME, s.service_id, h.name as host_name, s.description, s.state svcs,
                     (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
     FROM services s
     INNER JOIN hosts h
