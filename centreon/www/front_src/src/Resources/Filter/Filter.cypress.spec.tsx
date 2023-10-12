@@ -734,7 +734,7 @@ describe.only('Criterias', () => {
     data.forEach((element) => {
       const { criteria, value, type, endpointParam, requestToWait } = element;
 
-      it(`executes a listing request with current search and selected ${criteria} criteria value when it's changed:${label}`, () => {
+      it(`executes a listing request with current search and selected ${criteria} criteria value when ${label} has changed`, () => {
         cy.findByPlaceholderText(labelSearch).clear();
         cy.findByPlaceholderText(labelSearch).type(searchValue);
         cy.get('[data-testid="Filter options"]').click();
