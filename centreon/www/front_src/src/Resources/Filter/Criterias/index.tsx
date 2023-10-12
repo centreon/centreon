@@ -47,6 +47,7 @@ interface Styles {
 const useStyles = makeStyles<Styles>()((theme, { display }) => ({
   container: {
     display: !display ? 'none' : 'flex',
+    marginTop: theme.spacing(1),
     padding: theme.spacing(2)
   },
   searchButton: {
@@ -145,16 +146,6 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
         getPopoverData={getPopoverData}
         icon={<TuneIcon fontSize="small" />}
         popperPlacement="bottom-start"
-        popperProps={{
-          modifiers: [
-            {
-              name: 'offset',
-              options: {
-                offset: [0, 16]
-              }
-            }
-          ]
-        }}
         title={t(labelSearchOptions) as string}
         onClose={applyCurrentFilter}
       >
@@ -217,10 +208,11 @@ const Criterias = (): JSX.Element => {
   const customFilters = useAtomValue(customFiltersAtom);
   const currentFilter = useAtomValue(currentFilterAtom);
 
-  return useMemoComponent({
-    Component: <CriteriasContent display={display} />,
-    memoProps: [filterWithParsedSearch, display, customFilters, currentFilter]
-  });
+  // return useMemoComponent({
+  //   Component: <CriteriasContent display={display} />,
+  //   memoProps: [filterWithParsedSearch, display, customFilters, currentFilter]
+  // });
+  return <CriteriasContent display={display} />;
 };
 
 export default Criterias;

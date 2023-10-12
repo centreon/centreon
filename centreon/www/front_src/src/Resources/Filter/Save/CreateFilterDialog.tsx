@@ -1,7 +1,7 @@
 import { ChangeEvent, KeyboardEvent } from 'react';
 
 import { useFormik } from 'formik';
-import { equals, not, or, path } from 'ramda';
+import { equals, not, or, path, omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 
@@ -47,9 +47,10 @@ const CreateFilterDialog = ({
     },
     onSubmit: (values) => {
       const payloadCreation = { ...payloadAction, name: values.name };
+      const filterPayloadAction = omit(['order'], payloadAction.filter);
       const payloadUpdate = {
         ...payloadAction,
-        filter: { ...payloadAction.filter, name: values.name }
+        filter: { ...filterPayloadAction, name: values.name }
       };
 
       const payload = equals(action, Action.create)

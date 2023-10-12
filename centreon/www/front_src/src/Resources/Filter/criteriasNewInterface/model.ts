@@ -101,7 +101,7 @@ export interface Data {
 
 export interface ChangedCriteriaParams {
   filterName: string;
-  searchData?: SearchData;
+  search_data?: SearchData;
   updatedValue: unknown;
 }
 

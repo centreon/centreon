@@ -41,11 +41,16 @@ const useCheckBox = ({
 
       return;
     }
+    const checkedData = selectedStatusByResourceType?.filter(
+      (item) => item?.checked
+    );
+    const updatedValue = checkedData?.map((element) => ({
+      id: element?.id,
+      name: element?.name
+    }));
     changeCriteria({
       filterName,
-      updatedValue: selectedStatusByResourceType?.filter(
-        (item) => item?.checked
-      )
+      updatedValue
     });
 
     const checkedValues = selectedStatusByResourceType?.filter(

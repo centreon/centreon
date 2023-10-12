@@ -66,10 +66,15 @@ const useActionFilter = (): UseActionFilter => {
     ) => boolean;
     const retrievedFilter = find(propEq('id', currentFilter.id), filters);
 
-    return !areValuesEqual(
-      currentFilter.criterias,
-      retrievedFilter?.criterias || []
+    const criteriasCurrentFilter = currentFilter.criterias?.map((element) => ({
+      ...element,
+      search_data: null
+    }));
+    const criteriasFilters = (retrievedFilter?.criterias || [])?.map(
+      (element) => ({ ...element, search_data: null })
     );
+
+    return !areValuesEqual(criteriasCurrentFilter, criteriasFilters);
   };
 
   const isNewFilter = currentFilter.id === '';
@@ -91,6 +96,10 @@ const useActionFilter = (): UseActionFilter => {
   };
 
   const updateFilter = (): void => {
+    console.log('----->data', {
+      filter: omit(['id'], currentFilter),
+      id: currentFilter.id
+    });
     sendUpdateFilterRequest({
       filter: omit(['id'], currentFilter),
       id: currentFilter.id

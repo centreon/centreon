@@ -22,7 +22,7 @@ const MemoizedSelectInput = ({
       findData({ data: basicData, filterName: BasicCriteria.resourceTypes })
         ?.value,
       findData({ data: basicData, filterName: BasicCriteria.resourceTypes })
-        ?.searchData?.values
+        ?.search_data?.values
     ]
   });
 };

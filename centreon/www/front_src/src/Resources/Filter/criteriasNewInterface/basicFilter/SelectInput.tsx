@@ -47,7 +47,7 @@ const SelectInput = ({
   }
 
   const handleSearchData = (updatedValue): SearchData | undefined => {
-    const values = dataByFilterName?.searchData?.values;
+    const values = dataByFilterName?.search_data?.values;
     const currentValue = {
       id: resourceType,
       value: updatedValue.name,
@@ -60,7 +60,7 @@ const SelectInput = ({
     });
 
     return {
-      ...dataByFilterName?.searchData,
+      ...dataByFilterName?.search_data,
       values: searchedValues as Array<SearchedDataValue>
     } as SearchData;
   };
@@ -86,20 +86,21 @@ const SelectInput = ({
   };
 
   const handleChange = (updatedValue): void => {
-    const searchData = handleSearchData(updatedValue);
+    const search_data = handleSearchData(updatedValue);
     const selectedValues = handleValues();
 
     changeCriteria({
       filterName,
-      searchData,
+      search_data,
       updatedValue: selectedValues
     });
   };
 
   const initializeInput = (): void => {
-    const initializedSearchedData = dataByFilterName?.searchData?.values.filter(
-      (item) => item?.id !== resourceType
-    );
+    const initializedSearchedData =
+      dataByFilterName?.search_data?.values.filter(
+        (item) => item?.id !== resourceType
+      );
 
     const updatedValue = dataByFilterName?.value?.filter(
       (item) => item?.id !== resourceType
@@ -108,8 +109,8 @@ const SelectInput = ({
     setValue([]);
     changeCriteria({
       filterName,
-      searchData: {
-        ...dataByFilterName?.searchData,
+      search_data: {
+        ...dataByFilterName?.search_data,
         values: initializedSearchedData
       },
       updatedValue

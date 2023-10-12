@@ -29,15 +29,15 @@ const useSearchWihSearchDataCriteria = ({
 
   const getBuiltCustomSearchedFields = (): CustomSearchedFields => {
     return selectableCriterias
-      .filter(pipe(({ searchData }) => searchData, isNil, not))
-      .map(({ searchData }) => {
-        const formattedCustomSearchedFields = searchData?.values?.map(
+      .filter(pipe(({ search_data }) => search_data, isNil, not))
+      .map(({ search_data }) => {
+        const formattedCustomSearchedFields = search_data?.values?.map(
           ({ value }) => value
         );
 
         return {
           content: formattedCustomSearchedFields,
-          field: searchData?.field
+          field: search_data?.field
         };
       });
   };

@@ -51,7 +51,7 @@ const useInputData = ({
     if (!resourceType) {
       return;
     }
-    const currentValueSearchData = item?.searchData?.values.find(
+    const currentValueSearchData = item?.search_data?.values.find(
       (element) => element.id === resourceType
     );
 

@@ -61,7 +61,7 @@ const getDefaultCriterias = (
     {
       name: 'resource_types',
       object_type: null,
-      searchData: {
+      search_data: {
         field: SearchableFields.name,
         id: 'resources_types',
         type: SearchType.lists,
@@ -73,48 +73,56 @@ const getDefaultCriterias = (
     {
       name: 'states',
       object_type: null,
+      search_data: null,
       type: 'multi_select',
       value: states
     },
     {
       name: 'statuses',
       object_type: null,
+      search_data: null,
       type: 'multi_select',
       value: statuses
     },
     {
       name: 'status_types',
       object_type: null,
+      search_data: null,
       type: 'multi_select',
       value: statusTypes
     },
     {
       name: 'host_groups',
       object_type: 'host_groups',
+      search_data: null,
       type: 'multi_select',
       value: hostGroups
     },
     {
       name: 'service_groups',
       object_type: 'service_groups',
+      search_data: null,
       type: 'multi_select',
       value: serviceGroups
     },
     {
       name: 'monitoring_servers',
       object_type: 'monitoring_servers',
+      search_data: null,
       type: 'multi_select',
       value: monitoringServers
     },
     {
       name: 'host_categories',
       object_type: 'host_categories',
+      search_data: null,
       type: 'multi_select',
       value: hostCategories
     },
     {
       name: 'service_categories',
       object_type: 'service_categories',
+      search_data: null,
       type: 'multi_select',
       value: serviceCategories
     },
@@ -127,30 +135,35 @@ const getDefaultCriterias = (
     {
       name: 'host_severity_levels',
       object_type: 'host_severity_levels',
+      search_data: null,
       type: 'multi_select',
       value: hostSeverityLevels
     },
     {
       name: 'service_severities',
       object_type: 'service_severities',
+      search_data: null,
       type: 'multi_select',
       value: serviceSeverities
     },
     {
       name: 'service_severity_levels',
       object_type: 'service_severity_levels',
+      search_data: null,
       type: 'multi_select',
       value: serviceSeverityLevels
     },
     {
       name: 'search',
       object_type: null,
+      search_data: null,
       type: 'text',
       value: ''
     },
     {
       name: 'sort',
       object_type: null,
+      search_data: null,
       type: 'array',
       value: [defaultSortField, defaultSortOrder]
     }

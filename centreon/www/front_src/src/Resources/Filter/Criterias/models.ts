@@ -52,7 +52,7 @@ export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];
 export interface Criteria {
   name: string;
   object_type: string | null;
-  searchData?: SearchData;
+  search_data?: SearchData | null;
   type: string;
   value?: CriteriaValue;
 }

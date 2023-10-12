@@ -12,7 +12,7 @@ const parsedSearch = [
   {
     name: 'resource_types',
     object_type: null,
-    searchData: undefined,
+    search_data: null,
     type: 'multi_select',
     value: [
       { id: 'host', name: 'Host' },
@@ -22,14 +22,14 @@ const parsedSearch = [
   {
     name: 'states',
     object_type: null,
-    searchData: undefined,
+    search_data: null,
     type: 'multi_select',
     value: [{ id: 'unhandled_problems', name: 'Unhandled' }]
   },
   {
     name: 'statuses',
     object_type: null,
-    searchData: undefined,
+    search_data: null,
     type: 'multi_select',
     value: [
       { id: 'OK', name: 'Ok' },
@@ -39,14 +39,14 @@ const parsedSearch = [
   {
     name: 'status_types',
     object_type: null,
-    searchData: undefined,
+    search_data: null,
     type: 'multi_select',
     value: [{ id: 'soft', name: labelSoft }]
   },
   {
     name: 'host_groups',
     object_type: 'host_groups',
-    searchData: undefined,
+    search_data: null,
     type: 'multi_select',
     value: [{ id: 0, name: 'Linux-Servers' }]
   },
@@ -59,14 +59,14 @@ const parsedSearch = [
   {
     name: 'monitoring_servers',
     object_type: 'monitoring_servers',
-    searchData: undefined,
+    search_data: null,
     type: 'multi_select',
     value: [{ id: 0, name: 'Central' }]
   },
   {
     name: 'host_categories',
     object_type: 'host_categories',
-    searchData: undefined,
+    search_data: null,
     type: 'multi_select',
     value: [{ id: 0, name: 'Linux' }]
   },

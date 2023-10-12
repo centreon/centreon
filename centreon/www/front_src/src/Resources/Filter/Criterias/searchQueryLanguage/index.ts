@@ -106,12 +106,12 @@ const parse = ({
     const target = currentFilter?.find(
       ({ name }) => name === defaultCriteria?.name
     );
-    const searchData = target?.searchData;
+    const search_data = target?.search_data;
 
     const result = {
       name: pluralizedKey,
       object_type: objectType,
-      searchData,
+      search_data,
       type: 'multi_select',
       value: values?.split(',').map((value) => {
         const isStaticCriteria = isNil(objectType);
@@ -132,11 +132,11 @@ const parse = ({
       })
     };
 
-    if (!searchData) {
-      return result;
+    if (!search_data) {
+      return { ...result, search_data: null };
     }
 
-    return { ...result, searchData };
+    return { ...result, search_data };
   });
 
   const criteriasWithSearch = [

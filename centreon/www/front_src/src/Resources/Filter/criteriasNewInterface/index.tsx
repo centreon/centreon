@@ -57,7 +57,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
   const changeCriteria = ({
     updatedValue,
     filterName,
-    searchData
+    search_data
   }: ChangedCriteriaParams): void => {
     const parameters = {
       name: filterName,
@@ -65,7 +65,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
     };
 
     setCriteriaAndNewFilter(
-      searchData ? { ...parameters, searchData } : parameters
+      search_data ? { ...parameters, search_data } : parameters
     );
   };
 

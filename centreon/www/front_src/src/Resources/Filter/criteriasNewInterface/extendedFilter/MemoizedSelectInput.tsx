@@ -20,7 +20,7 @@ const MemoizedSelectInput = ({
     ),
     memoProps: [
       findData({ data, filterName })?.value,
-      findData({ data, filterName })?.searchData?.values
+      findData({ data, filterName })?.search_data?.values
     ]
   });
 };
