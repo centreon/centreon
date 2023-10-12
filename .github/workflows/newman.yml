@@ -117,7 +117,7 @@ jobs:
 
     - name: Display Postman Test Reports
       run: |
-            report_path="centreon/tests/rest_api/"
+            report_path="centreon/tests/rest_api/newman"
 
             for report_file in "$report_path"/*.xml; do
               echo "Content of $report_file:"
@@ -131,7 +131,7 @@ jobs:
             username: ${{ secrets.CLIENT_ID }}
             password: ${{ secrets.CLIENT_SECRET }}
             testFormat: "junit"
-            testPaths: "centreon/tests/rest_api/"
+            testPaths: "centreon/tests/rest_api/newman"
             projectKey: "MON"
             testPlanKey: "MON-22343"
             testExecKey:
