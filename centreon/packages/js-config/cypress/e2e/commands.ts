@@ -3,9 +3,6 @@
 import './commands/configuration';
 import './commands/monitoring';
 
-import { execSync } from 'child_process';
-// import fs from 'fs';
-
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
 installLogsCollector();
@@ -236,6 +233,13 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'createDirectory',
+  (directoryPath: string): Cypress.Chainable => {
+    return cy.task('createDirectory', directoryPath);
+  }
+);
+
 interface StartWebContainerProps {
   name?: string;
   os?: string;
@@ -295,9 +299,7 @@ Cypress.Commands.add(
 
     return cy
       .visitEmptyPage()
-      .then(() => {
-        execSync(`mkdir "${logDirectory}"`, { stdio: 'inherit' });
-      })
+      .createDirectory(logDirectory)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
         name,
@@ -468,6 +470,7 @@ declare global {
         props: CopyToContainerProps,
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
+      createDirectory: (directoryPath: string) => Cypress.Chainable;
       execInContainer: ({
         command,
         name
