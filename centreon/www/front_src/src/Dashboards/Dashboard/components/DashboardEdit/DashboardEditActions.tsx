@@ -3,6 +3,7 @@ import { ReactElement, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
+import { equals } from 'ramda';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
@@ -46,7 +47,9 @@ const DashboardEditActions = ({
     )
   );
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
 
   const startEditing = useCallback(() => {
     switchPanelsEditionMode(true);
@@ -65,8 +68,12 @@ const DashboardEditActions = ({
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (searchParams.get('edit') === 'true') startEditing();
-    if (searchParams.get('edit') === null) stopEditing();
+    if (equals(searchParams.get('edit'), 'true')) {
+      startEditing();
+
+      return;
+    }
+    stopEditing();
   }, []);
 
   const saveAndProceed = (): void => {
