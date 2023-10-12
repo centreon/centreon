@@ -114,18 +114,19 @@ jobs:
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
             exit 1
           fi
-    - name: List Files in Report Directory
-      run: ls -l centreon/tests/rest_api/newman/
-
-    - name: Display Postman Test Reports
+    - name: Check reports
       run: |
-            report_path="centreon/tests/rest_api/newman/"
-
-            for report_file in "$report_path"/*.xml; do
-              echo "Content of $report_file:"
-              cat "$report_file"
-            done
-      continue-on-error: true
+            collection_file="collections/${{ matrix.feature }}"
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+            report_directory="centreon/tests/rest_api/newman/"
+            junitxray_report="newman/${collection_name}.xml"
+            summary_json="postman_summaries/${collection_name}-summary.json"
+            if [ -f "$report_directory/$junitxray_report" ] && [ -f "$report_directory/$summary_json" ]; then
+              echo "Les rapports ont été générés avec succès."
+            else
+              echo "Les rapports n'ont pas été générés correctement."
+              exit 1
+            fi
 
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
