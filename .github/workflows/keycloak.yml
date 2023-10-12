@@ -26,6 +26,12 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+      - name: speedtest
+        run: |
+          apt update
+          apt install -y speedtest-cli
+          speedtest
+
       - name: Pull keycloak image
         run: |
           docker pull docker.centreon.com/centreon/keycloak:23.10
