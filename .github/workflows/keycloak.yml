@@ -38,3 +38,7 @@ jobs:
       - name: Pull keycloak image
         run: |
           docker pull docker.centreon.com/centreon/keycloak:23.10
+
+      - name: speedtest
+        run: |
+          fast -u
