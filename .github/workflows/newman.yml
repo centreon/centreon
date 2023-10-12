@@ -130,7 +130,7 @@ jobs:
           username: ${{ secrets.CLIENT_ID }}
           password: ${{ secrets.CLIENT_SECRET }}
           testFormat: "junit"
-          testPaths: "${{ github.workspace }}/newman/"
+          testPaths: "centreon/tests/rest_api/newman/"
           projectKey: "MON"
           testPlanKey: "MON-22343"
           testExecKey:
