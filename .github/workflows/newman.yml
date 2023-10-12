@@ -124,7 +124,7 @@ jobs:
             username: ${{ secrets.CLIENT_ID }}
             password: ${{ secrets.CLIENT_SECRET }}
             testFormat: "junit"
-            testPaths: "centreon/tests/rest_api/newman"
+            testPaths: "/newman/"
             projectKey: "MON"
             testPlanKey: "MON-22343"
             testExecKey:
