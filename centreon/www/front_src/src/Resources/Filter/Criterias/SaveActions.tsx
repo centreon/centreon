@@ -20,8 +20,8 @@ interface DataCreateFilter {
 }
 
 interface DataUpdateFilter {
-  isUpdateFilter: boolean;
-  setIsUpdateFilter: Dispatch<SetStateAction<boolean>>;
+  isUpdatingFilter: boolean;
+  setIsUpdatingFilter: Dispatch<SetStateAction<boolean>>;
 }
 
 interface Props {
@@ -41,7 +41,7 @@ const SaveActions = ({
   const currentFilter = useAtomValue(currentFilterAtom);
 
   const { isCreatingFilter, setIsCreatingFilter } = dataCreateFilter;
-  const { isUpdateFilter, setIsUpdateFilter } = dataUpdateFilter;
+  const { isUpdatingFilter, setIsUpdatingFilter } = dataUpdateFilter;
 
   const createFilterCallback = (result): void => {
     setIsCreatingFilter(false);
@@ -52,7 +52,7 @@ const SaveActions = ({
   const updateFilterCallback = (result): void => {
     showSuccessMessage(t(labelFilterSaved));
     loadFiltersAndUpdateCurrent(omit(['order'], result));
-    setIsUpdateFilter(false);
+    setIsUpdatingFilter(false);
   };
 
   const cancelCreateFilter = (): void => {
@@ -60,7 +60,7 @@ const SaveActions = ({
   };
 
   const cancelUpdateFilter = (): void => {
-    setIsUpdateFilter(false);
+    setIsUpdatingFilter(false);
   };
 
   return (
@@ -79,7 +79,7 @@ const SaveActions = ({
         <CreateFilterDialog
           action={Action.update}
           callbackSuccess={updateFilterCallback}
-          open={isUpdateFilter}
+          open={isUpdatingFilter}
           payloadAction={{
             filter: omit(['id'], currentFilter),
             id: currentFilter.id

@@ -62,7 +62,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   const { classes } = useStyles({ display });
   const { t } = useTranslation();
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
-  const [isUpdateFilter, setIsUpdateFilter] = useState(false);
+  const [isUpdatingFilter, setIsUpdatingFilter] = useState(false);
 
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
   const canOpenPopover = isNil(hoveredNavigationItem);
@@ -122,7 +122,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   };
 
   const getIsUpdateFilter = (boolean: boolean): void => {
-    setIsUpdateFilter(boolean);
+    setIsUpdatingFilter(boolean);
   };
 
   const getPopoverData = (data: PopoverData): void => {
@@ -186,7 +186,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
 
       <SaveActions
         dataCreateFilter={{ isCreatingFilter, setIsCreatingFilter }}
-        dataUpdateFilter={{ isUpdateFilter, setIsUpdateFilter }}
+        dataUpdateFilter={{ isUpdatingFilter, setIsUpdatingFilter }}
         loadFiltersAndUpdateCurrent={loadFiltersAndUpdateCurrent}
       />
     </>
