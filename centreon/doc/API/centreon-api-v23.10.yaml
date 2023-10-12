@@ -2249,6 +2249,8 @@ paths:
 
         The available parameters to **search** / **sort_by** are:
 
+        * id
+        * name
         * host.id
         * host.name
         * host.alias
@@ -2295,6 +2297,14 @@ paths:
 
         * id
         * name
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.state
+        * poller.id
+        * service.display_name
+        * host_group.id
       parameters:
         - $ref: '#/components/parameters/ShowService'
         - $ref: '#/components/parameters/ShowHost'
