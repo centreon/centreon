@@ -115,6 +115,16 @@ jobs:
             exit 1
           fi
 
+    - name: Display Postman Test Reports
+      run: |
+            report_path="centreon/tests/rest_api/newman/"
+
+            for report_file in "$report_path"/*.xml; do
+              echo "Content of $report_file:"
+              cat "$report_file"
+            done
+      continue-on-error: true
+
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
       with:
