@@ -125,6 +125,9 @@ jobs:
           cat "$file"
         done
 
+    - name: Verify CLIENT_ID Secret
+      run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
+
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
       with:
@@ -134,6 +137,7 @@ jobs:
           testPaths: "centreon/tests/rest_api/newman/"
           projectKey: "MON"
           testPlanKey: "MON-22578"
+          combineInSingleTestExec: true
           testExecKey:
 
     - name: Extract and Store Summaries
