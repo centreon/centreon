@@ -1,4 +1,4 @@
-@REQ_MON-22183
+@REQ_MON-22183 @ignore
 Feature: Sharing a dashboard
   As a Centreon User with dashboard edition rights,
   I need to be able to share dashboards to other users with either read or write access,

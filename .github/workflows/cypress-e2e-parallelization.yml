@@ -176,11 +176,16 @@ jobs:
               "components": [
                 { "name": "centreon-web" }
               ]
-            },
-            "xrayFields": {
-              "testPlanKey": "MON-22411"
             }
           }' > testExecutionJson.json
+
+      - name: Check and Display testExecutionJson File
+        run: |
+          if [ -f "testExecutionJson.json" ]; then
+            cat testExecutionJson.json
+          else
+            echo "testExecutionJson.json file does not exist."
+          fi
 
       - name: Import results to Xray
         uses: mikepenz/xray-action@v3.0.2
