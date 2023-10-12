@@ -15,7 +15,8 @@ import { listingDecoder } from './Listing/api/decoders';
 
 const useStyle = makeStyles()((theme: Theme) => ({
   box: {
-    marginTop: theme.spacing(1)
+    height: '100%',
+    paddingTop: theme.spacing(1)
   }
 }));
 
