@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import * as fs from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 
 import Docker from 'dockerode';
 
@@ -23,8 +23,8 @@ export default (on: Cypress.PluginEvents): void => {
 
   on('task', {
     createDirectory: async (directoryPath: string) => {
-      if (!fs.existsSync(directoryPath)) {
-        fs.mkdirSync(directoryPath, { recursive: true });
+      if (!existsSync(directoryPath)) {
+        mkdirSync(directoryPath, { recursive: true });
       }
 
       return null;
