@@ -176,9 +176,6 @@ jobs:
               "components": [
                 { "name": "centreon-web" }
               ]
-            },
-            "xrayFields": {
-              "testPlanKey": "MON-22411"
             }
           }' > testExecutionJson.json
 
