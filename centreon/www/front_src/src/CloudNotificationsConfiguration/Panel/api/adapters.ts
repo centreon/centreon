@@ -9,7 +9,7 @@ const getBinaryEquivalence = cond([
   [equals(EventsType.Ok), always(1)],
   [equals(EventsType.Warning), always(2)],
   [equals(EventsType.Critical), always(4)],
-  [equals(EventsType.Unkown), always(8)],
+  [equals(EventsType.Unknown), always(8)],
   [T, always(0)]
 ]);
 

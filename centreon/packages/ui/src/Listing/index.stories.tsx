@@ -34,7 +34,8 @@ type Story = StoryObj<typeof Listing>;
 
 const useStyles = makeStyles()((theme) => ({
   listing: {
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
+    height: '100vh'
   }
 }));
 

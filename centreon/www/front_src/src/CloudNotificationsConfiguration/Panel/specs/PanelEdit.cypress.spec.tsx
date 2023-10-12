@@ -20,8 +20,6 @@ import {
   labelTimePeriod,
   labelSubject,
   labelMessageFieldShouldNotBeEmpty,
-  labelDoYouWantToConfirmAction,
-  labelConfirmEditNotification,
   labelSuccessfulEditNotification,
   labelThisNameAlreadyExists,
   labelDeleteNotification,
@@ -507,28 +505,11 @@ describe('Edit Panel', () => {
 describe('Edit Panel : Confirm Dialog', () => {
   beforeEach(() => initialize({ isBamModuleInstalled: false }));
 
-  it('confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
-    cy.waitForRequest('@getNotificationRequest');
-
-    cy.findByLabelText(labelSave).should('be.disabled');
-    cy.findByLabelText(labelActiveOrInactive).click();
-    cy.findByLabelText(labelSave).click();
-
-    cy.findByText(labelDoYouWantToConfirmAction);
-    cy.findByText(labelConfirmEditNotification);
-
-    cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
-  });
-
   it('confirms that the Confirm button triggers the sending of a PUT request', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelActiveOrInactive).click();
     cy.findByLabelText(labelSave).click();
-
-    cy.findByLabelText('Confirm').click();
 
     cy.waitForRequest('@editNotificationRequest').then(({ request }) => {
       expect(JSON.parse(request.body).is_activated).to.equal(true);
