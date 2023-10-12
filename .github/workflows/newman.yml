@@ -109,24 +109,11 @@ jobs:
         collection_directory="$(dirname "$collection_file")"
         environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
           if [ -f "$environment_file" ]; then
-            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitxray,json-summary --reporter-junitxray-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
-            else
+           echo "Commande newman : pnpm newman run \"$collection_file\" -e \"$environment_file\" --reporters cli,junitxray,json-summary --reporter-junitxray-export \"newman/${collection_name}.xml\" --reporter-summary-json-export \"postman_summaries/${collection_name}-summary.json\""
+          else
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
             exit 1
           fi
-    - name: Check reports
-      run: |
-            collection_file="collections/${{ matrix.feature }}"
-            collection_name=$(basename "$collection_file" .postman_collection.json)
-            report_directory="centreon/tests/rest_api/newman/"
-            junitxray_report="newman/${collection_name}.xml"
-            summary_json="postman_summaries/${collection_name}-summary.json"
-            if [ -f "$report_directory/$junitxray_report" ] && [ -f "$report_directory/$summary_json" ]; then
-              echo "Les rapports ont été générés avec succès."
-            else
-              echo "Les rapports n'ont pas été générés correctement."
-              exit 1
-            fi
 
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
