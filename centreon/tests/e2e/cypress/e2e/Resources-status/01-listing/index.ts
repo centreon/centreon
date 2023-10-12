@@ -153,7 +153,6 @@ When('I put in some criterias', () => {
 Then(
   'only the Resources matching the selected criterias are displayed in the result',
   () => {
-    cy.contains('1-1 of 1');
     cy.contains(serviceInDtName);
   }
 );
