@@ -1,5 +1,4 @@
 /* eslint-disable react/no-array-index-key */
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
@@ -12,10 +11,15 @@ import {
   Divider
 } from '@mui/material';
 
+import { useStyles } from './ActionsList.styles';
+import { ActionVariants } from './models';
+
 interface ActionsType {
   Icon?: (props: SvgIconProps) => JSX.Element;
   label: string;
   onClick?: (e?) => void;
+  secondaryLabel?: string;
+  variant?: ActionVariants;
 }
 
 interface Props {
@@ -23,12 +27,6 @@ interface Props {
   className?: string;
   listItemClassName?: string;
 }
-
-const useStyles = makeStyles()({
-  list: {
-    maxWidth: '100%'
-  }
-});
 
 const ActionsList = ({
   className,
@@ -45,18 +43,28 @@ const ActionsList = ({
           return <Divider key={`divider_${idx}`} />;
         }
 
-        const { label, Icon, onClick } = action as ActionsType;
+        const { label, Icon, onClick, variant, secondaryLabel } =
+          action as ActionsType;
 
         return (
-          <MenuItem aria-label={label} id={label} key={label} onClick={onClick}>
+          <MenuItem
+            aria-label={label}
+            className={classes.item}
+            data-variant={variant}
+            id={label}
+            key={label}
+            onClick={onClick}
+          >
             {Icon && (
               <ListItemIcon>
                 <Icon fontSize="small" />
               </ListItemIcon>
             )}
-            <ListItemText className={listItemClassName}>
-              {t(label)}
-            </ListItemText>
+            <ListItemText
+              className={listItemClassName}
+              primary={t(label)}
+              secondary={secondaryLabel && t(secondaryLabel)}
+            />
           </MenuItem>
         );
       })}
