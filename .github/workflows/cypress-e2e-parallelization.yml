@@ -38,6 +38,10 @@ on:
         required: true
       CLIENT_SECRET:
         required: true
+      JIRA_USER: 
+        required: true
+      JIRA_TOKEN_TEST: 
+        required: true
 
 
 jobs:
@@ -164,30 +168,9 @@ jobs:
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.name }}-json-xray-reports
-      
-      - name: Create testExecutionJson File
-        run: |
-          branch_name="${{ github.ref_name }}"
-          commit_number="${{ github.sha }}"
-          echo '{
-            "fields": {
-              "summary": "Branch: '"$branch_name"' Commit: '"$commit_number"'",
-              "issuetype": { "id": "10271" },
-              "components": [
-                { "name": "centreon-web" }
-              ]
-            }
-          }' > testExecutionJson.json
-
-      - name: Check and Display testExecutionJson File
-        run: |
-          if [ -f "testExecutionJson.json" ]; then
-            cat testExecutionJson.json
-          else
-            echo "testExecutionJson.json file does not exist."
-          fi
 
       - name: Import results to Xray
+        id: import-reports
         uses: mikepenz/xray-action@v3.0.2
         with:
           username: ${{ secrets.CLIENT_ID }}
@@ -196,10 +179,24 @@ jobs:
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
           combineInSingleTestExec: true
-          testExecutionJson : testExecutionJson.json
-          testPlanKey: "MON-22411"
           testExecKey:
-        timeout-minutes: 10 
+        timeout-minutes: 10
+
+      - name: Update TestExecution Issue
+        run: |
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
+
+          jira_payload='
+          {
+            "fields": {
+              "summary": "Branch: ${{ github.ref_name }} Commit: ${{ github.sha }}",
+              "components": [{"name": "centreon-web"}],
+              "status": {"name": "RESOLVED"}
+            }
+          }'
+          
+          curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }}" --data "${jira_payload}" "${jira_url}"
+
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
