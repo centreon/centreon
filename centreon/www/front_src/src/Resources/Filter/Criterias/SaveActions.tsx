@@ -65,7 +65,7 @@ const SaveActions = ({
 
   return (
     <>
-      {isCreateFilter && (
+      {isCreatingFilter && (
         <CreateFilterDialog
           callbackSuccess={createFilterCallback}
           open={isCreateFilter}
