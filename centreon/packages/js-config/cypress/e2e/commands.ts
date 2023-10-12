@@ -233,6 +233,13 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'createDirectory',
+  (directoryPath: string): Cypress.Chainable => {
+    return cy.task('createDirectory', directoryPath);
+  }
+);
+
 interface StartWebContainerProps {
   name?: string;
   os?: string;
@@ -292,7 +299,7 @@ Cypress.Commands.add(
 
     return cy
       .visitEmptyPage()
-      .exec(`mkdir -p "${logDirectory}"`)
+      .createDirectory(logDirectory)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
         name,
@@ -463,6 +470,7 @@ declare global {
         props: CopyToContainerProps,
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
+      createDirectory: (directoryPath: string) => Cypress.Chainable;
       execInContainer: ({
         command,
         name
