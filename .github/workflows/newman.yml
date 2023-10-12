@@ -11,14 +11,14 @@ on:
         required: true
         type: string
       container_name:
-          required: true
-          type: string
+        required: true
+        type: string
       centreon_url:
-          required: true
-          type: string
+        required: true
+        type: string
       centreon_image:
-          required: true
-          type: string
+        required: true
+        type: string
       dependencies_lock_file:
         required: true
         type: string
@@ -62,7 +62,7 @@ jobs:
    defaults:
     run:
       shell: bash
-      # working-directory: centreon/tests/rest_api
+      working-directory: centreon/tests/rest_api
    env:
     IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
     SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
@@ -85,13 +85,13 @@ jobs:
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
-    # - name: Install Dependencies for tests/rest_api
-    #   run: pnpm install --frozen-lockfile
-    #   shell: bash
-    #   env:
-    #     CYPRESS_INSTALL_BINARY: “0”
-    #     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: “1"
-    #     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: “true”
+    - name: Install Dependencies for tests/rest_api
+      run: pnpm install --frozen-lockfile
+      shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: “0”
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: “1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: “true”
 
     - name: Login to registry
       uses: docker/login-action@v2

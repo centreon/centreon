@@ -498,7 +498,7 @@ jobs:
     with:
       collection_path: centreon/tests/rest_api/collections
       image_name: centreon-web
-      os: ${{ matrix.os }}
+      os: alma9
       container_name: my_centreon_container
       centreon_url: http://localhost
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
