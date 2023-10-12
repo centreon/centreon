@@ -62,7 +62,7 @@ jobs:
    defaults:
     run:
       shell: bash
-      # working-directory: centreon/tests/rest_api
+      working-directory: centreon/tests/rest_api
    env:
     IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
     SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
@@ -102,7 +102,7 @@ jobs:
 
     - name: List Contents of Cache Directory
       run: |
-          ls /tmp/cache/docker-image
+          ls ../tmp/cache/docker-image
 
     - name: Restore standard slim image from cache
       id: cache-docker-slim
@@ -110,7 +110,7 @@ jobs:
       continue-on-error: true
       timeout-minutes: 6
       with:
-          path: /tmp/cache/docker-image
+          path: ../tmp/cache/docker-image
           key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
       env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
