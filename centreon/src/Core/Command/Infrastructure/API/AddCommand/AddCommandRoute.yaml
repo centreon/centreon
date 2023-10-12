@@ -1,0 +1,5 @@
+AddCommand:
+  methods: POST
+  path: /configuration/commands
+  controller: 'Core\Command\Infrastructure\API\AddCommand\AddCommandController'
+  condition: "request.attributes.get('version') >= 23.10"

@@ -17,7 +17,7 @@ const serviceEvents = [
   EventsType.Ok,
   EventsType.Warning,
   EventsType.Critical,
-  EventsType.Unkown
+  EventsType.Unknown
 ];
 
 const formatEvents = (

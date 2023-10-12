@@ -17,7 +17,7 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     color: theme.palette.common.white
   },
   widgetDataset: {
-    height: '37vh',
+    height: '27vh',
     [theme.breakpoints.down('xl')]: {
       height: '23vh'
     },

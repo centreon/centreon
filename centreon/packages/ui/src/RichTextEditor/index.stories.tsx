@@ -63,7 +63,8 @@ withMacrosPlugin.args = {
 
 export const withEditableFalse = Template.bind({});
 withEditableFalse.args = {
-  editable: false,
+  editable: true,
+  editorState: JSON.stringify(initialEditorState),
   initialEditorState: JSON.stringify(initialEditorState)
 };
 
@@ -71,7 +72,8 @@ export const Disabled = Template.bind({});
 Disabled.args = {
   disabled: true,
   editable: false,
-  editorState: JSON.stringify(initialEditorState)
+  editorState: JSON.stringify(initialEditorState),
+  initialEditorState: JSON.stringify(initialEditorState)
 };
 
 const StoryWithEditableFalseLikePreview = (): JSX.Element => {

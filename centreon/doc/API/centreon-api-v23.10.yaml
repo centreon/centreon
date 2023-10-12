@@ -13,6 +13,8 @@ info:
     + Added host endpoints (POST, DELETE)
     + Added token endpoints (GET, POST, DELETE)
     + Added resources by parent endpoint (GET)
+    + Added command endpoint (ADD)
+    +
     # Updated features
     + Updated host template endpoint (GET)
     + Updated JSON API returned keys for /monitoring/resources endpoint (GET)
@@ -253,7 +255,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/commands:
-    $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
+    $ref: "./v23.10/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
   /configuration/notifications/_delete:

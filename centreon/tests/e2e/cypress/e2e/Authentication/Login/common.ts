@@ -1,16 +1,4 @@
-import { applyConfigurationViaClapi, insertFixture } from '../../../commons';
-
-const initializeContactData = (): Cypress.Chainable => {
-  const files = ['resources/clapi/contact1/01-add.json'];
-
-  return cy.wrap(Promise.all(files.map(insertFixture)));
-};
-
-const insertContactFixture = (): Cypress.Chainable => {
-  return initializeContactData()
-    .then(applyConfigurationViaClapi)
-    .then(() => cy.fixture('users/admin.json'));
-};
+import { applyConfigurationViaClapi } from '../../../commons';
 
 interface DataToUseForCheckForm {
   custom?: () => void;
@@ -136,6 +124,5 @@ export {
   millisecondsValueForFourHour,
   initializeConfigACLAndGetLoginPage,
   checkDefaultsValueForm,
-  DataToUseForCheckForm,
-  insertContactFixture
+  DataToUseForCheckForm
 };

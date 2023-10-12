@@ -1,3 +1,5 @@
+import { ActionClapi } from '../../../commons';
+
 const injectWebSSOScriptsIntoContainer = (): Cypress.Chainable => {
   return cy
     .exec(
@@ -24,7 +26,11 @@ const injectWebSSOScriptsIntoContainer = (): Cypress.Chainable => {
 const initializeWebSSOUserAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-web-sso/web-sso-authentication-user.json')
-    .then((contact) => cy.executeActionViaClapi({ bodyContent: contact }));
+    .then((fixture: Array<ActionClapi>) => {
+      fixture.forEach((action) =>
+        cy.executeActionViaClapi({ bodyContent: action })
+      );
+    });
 };
 
 const removeWebSSOContact = (): Cypress.Chainable => {

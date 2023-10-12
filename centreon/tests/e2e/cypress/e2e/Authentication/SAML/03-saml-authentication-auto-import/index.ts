@@ -2,10 +2,18 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { configureSAML, navigateToSAMLConfigPage } from '../common';
-import { getUserContactId } from '../../../../commons';
+import {
+  configureACLGroups,
+  configureProviderAcls,
+  getUserContactId
+} from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer().startOpenIdProviderContainer();
+  cy.startWebContainer()
+    .startOpenIdProviderContainer()
+    .then(() => {
+      configureProviderAcls();
+    });
 });
 
 beforeEach(() => {
@@ -37,6 +45,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/access-groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+  }).as('getListAccessGroup');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -84,6 +96,8 @@ When('the administrator activates the auto-import option for SAML', () => {
     label: 'Full name attribute',
     tag: 'input'
   }).type('{selectall}{backspace}urn:oid:2.5.4.42');
+
+  configureACLGroups('Role');
 
   cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
