@@ -5,7 +5,7 @@ import { SelectedResourceType } from '../model';
 
 export const selectedStatusByResourceTypeAtom =
   atomWithStorage<Array<SelectedResourceType> | null>(
-    'FilterSelectedStatus',
+    'centreon-23.10-resourceStatusRevamp-filterSelectedStatus',
     null
   );
 

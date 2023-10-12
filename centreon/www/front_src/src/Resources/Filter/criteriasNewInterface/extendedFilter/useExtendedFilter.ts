@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { SelectEntry } from '@centreon/ui';
 
-import { CriteriaDisplayProps, Criteria } from '../../Criterias/models';
+import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { ExtendedCriteria } from '../model';
-import { findData, sort } from '../utils';
+import { findData, sortByNameCaseInsensitive } from '../utils';
 
 interface Parameters {
   data: Array<Criteria & CriteriaDisplayProps>;
@@ -41,10 +41,9 @@ const useExtendedFilter = ({ data }: Parameters): UseExtendedFilter => {
     const arrayInputGroup = data?.filter(
       (item) => item?.buildAutocompleteEndpoint
     );
-    const inputGroups = sort({
-      array: arrayInputGroup,
-      sortBy: 'name'
-    })?.filter((item) => !item.name.includes('level'));
+    const inputGroups = sortByNameCaseInsensitive(arrayInputGroup)?.filter(
+      (item) => !item.name.includes('level')
+    );
     setInputGroupsData(inputGroups);
   }, [data]);
 

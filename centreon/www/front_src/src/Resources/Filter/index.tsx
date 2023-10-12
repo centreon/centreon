@@ -105,11 +105,6 @@ const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
       >
         <CloseIcon color="action" fontSize="small" />
       </IconButton>
-      {/* <Suspense
-        fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
-      >
-        <Criterias />
-      </Suspense> */}
     </div>
   );
 };

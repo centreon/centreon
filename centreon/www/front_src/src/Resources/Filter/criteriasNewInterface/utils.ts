@@ -1,3 +1,5 @@
+import { sortBy, prop, compose, toLower } from 'ramda';
+
 import { ResourceType } from '../../models';
 import {
   Criteria,
@@ -138,28 +140,4 @@ export const removeDuplicateFromObjectArray = ({
   ];
 };
 
-export const sort = ({
-  array,
-  sortBy,
-  isNumeric = false
-}: Sort): Array<unknown> => {
-  const callbackSorting = (a, b, sortByField): number => {
-    if (!isNumeric) {
-      const firsTarget = a[sortByField].toUpperCase();
-      const secondTarget = b[sortByField].toUpperCase();
-
-      if (firsTarget < secondTarget) {
-        return -1;
-      }
-      if (firsTarget > secondTarget) {
-        return 1;
-      }
-
-      return 0;
-    }
-
-    return a[sortByField] - b[sortByField];
-  };
-
-  return array.sort((a, b) => callbackSorting(a, b, sortBy));
-};
+export const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
