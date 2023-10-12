@@ -4,6 +4,7 @@ import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../e2e/Resources-status/common';
 import { apiActionV1 } from '../commons';
+import '../e2e/Dashboards/commands';
 
 Cypress.Commands.add(
   'getByLabel',
