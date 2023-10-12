@@ -23,15 +23,12 @@ declare(strict_types=1);
 
 namespace Core\GraphTemplate\Infrastructure\Repository;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\GraphTemplate\Application\Repository\ReadGraphTemplateRepositoryInterface;
 
 class DbReadGraphTemplateRepository extends AbstractRepositoryRDB implements ReadGraphTemplateRepositoryInterface
 {
-    use LoggerTrait;
-
     /**
      * @param DatabaseConnection $db
      */

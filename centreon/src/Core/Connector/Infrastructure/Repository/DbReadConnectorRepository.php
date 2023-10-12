@@ -23,15 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Connector\Infrastructure\Repository;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Connector\Application\Repository\ReadConnectorRepositoryInterface;
 
 class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadConnectorRepositoryInterface
 {
-    use LoggerTrait;
-
     /**
      * @param DatabaseConnection $db
      */

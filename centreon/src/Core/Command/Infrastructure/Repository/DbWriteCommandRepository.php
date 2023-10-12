@@ -64,8 +64,6 @@ class DbWriteCommandRepository extends AbstractRepositoryRDB implements WriteCom
                 $this->db->commit();
             }
 
-            $this->debug('Command added with ID ' . $commandId);
-
             return $commandId;
         } catch (\Throwable $ex) {
              $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -78,6 +76,13 @@ class DbWriteCommandRepository extends AbstractRepositoryRDB implements WriteCom
         }
     }
 
+    /**
+     * @param NewCommand $command
+     *
+     * @throws \Throwable
+     *
+     * @return int
+     */
     private function addCommand(NewCommand $command): int
     {
         $request = $this->translateDbName(
@@ -121,6 +126,12 @@ class DbWriteCommandRepository extends AbstractRepositoryRDB implements WriteCom
         return (int) $this->db->lastInsertId();
     }
 
+    /**
+     * @param int $commandId
+     * @param NewCommand $command
+     *
+     * @throws \Throwable
+     */
     private function addArguments(int $commandId, NewCommand $command): void
     {
         if ($command->getArguments() === []) {
@@ -159,6 +170,12 @@ class DbWriteCommandRepository extends AbstractRepositoryRDB implements WriteCom
         $statement->execute();
     }
 
+    /**
+     * @param int $commandId
+     * @param NewCommand $command
+     *
+     * @throws \Throwable
+     */
     private function addMacros(int $commandId, NewCommand $command): void
     {
         if ($command->getMacros() === []) {

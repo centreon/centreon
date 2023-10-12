@@ -55,6 +55,8 @@ class AddCommandValidation
     }
 
     /**
+     * Assert that the defined arguments are present in the command_line and matching the required pattern ('/\$(?<args>ARG\d+)\$/').
+     *
      * @param AddCommandRequest $request
      *
      * @throws \Throwable
@@ -79,6 +81,10 @@ class AddCommandValidation
     }
 
     /**
+     * Assert the defined macros are present in the command_line in the format required for their defined type.
+     * '/(\$_HOST(?<macros_h>\w+)\$)/' => for host macros
+     * '/(\$_SERVICE(?<macros_s>\w+)\$)/' => for service macros.
+     *
      * @param AddCommandRequest $request
      *
      * @throws \Throwable

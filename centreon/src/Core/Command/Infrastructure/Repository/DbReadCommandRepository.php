@@ -267,14 +267,14 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
                 ? new SimpleEntity(
                     id: $data['connector_id'],
                     name: new TrimmedString($data['connector_name']),
-                    objectName: 'connector'
+                    objectName: 'Connector'
                 )
                 : null,
             graphTemplate: isset($data['graph_template_id']) && isset($data['graph_template_name'])
                 ? new SimpleEntity(
                     id: $data['graph_template_id'],
                     name: new TrimmedString($data['graph_template_name']),
-                    objectName: 'graphTemplate'
+                    objectName: 'GraphTemplate'
                 )
                 : null,
         );
