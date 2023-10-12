@@ -96,10 +96,6 @@ const useActionFilter = (): UseActionFilter => {
   };
 
   const updateFilter = (): void => {
-    console.log('----->data', {
-      filter: omit(['id'], currentFilter),
-      id: currentFilter.id
-    });
     sendUpdateFilterRequest({
       filter: omit(['id'], currentFilter),
       id: currentFilter.id
