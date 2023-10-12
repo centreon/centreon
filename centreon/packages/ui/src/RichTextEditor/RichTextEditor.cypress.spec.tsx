@@ -331,6 +331,29 @@ describe('Rich Text Editor', () => {
         cy.findByText(blockType).click();
 
         cy.get('[data-testid="RichTextEditor"]').find(tag).should('be.visible');
+
+        cy.makeSnapshot();
+      });
+    });
+  });
+
+  describe('Aligns', () => {
+    beforeEach(() => {
+      cy.mount({
+        Component: <RichTextEditor editable />
+      });
+    });
+
+    const testCases = ['Center', 'Right'];
+
+    testCases.forEach((label) => {
+      it(`aligns the text to the ${label} when the corresponding button is clicked`, () => {
+        cy.get('[data-testid="RichTextEditor"]').type('Example');
+
+        cy.findByLabelText('left').click();
+        cy.contains(label).click();
+
+        cy.makeSnapshot();
       });
     });
   });
