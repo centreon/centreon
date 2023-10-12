@@ -4,7 +4,6 @@ import { equals, includes, isNil, pluck } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { Metric } from '../common/timeSeries/models';
 import { Thresholds } from '../common/models';
 
 type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
@@ -25,11 +24,9 @@ const enterUpdateTransition = <T,>({
 
 type AnimatedPieProps<Datum> = ProvidedProps<Datum> & {
   animate?: boolean;
-  delay?: number;
   getColor: (d: PieArcDatum<Datum>) => string;
   getKey: (d: PieArcDatum<Datum>) => string;
   hideTooltip?: () => void;
-  metric?: Metric;
   showTooltip?: (args) => void;
   thresholds: Thresholds;
 };
