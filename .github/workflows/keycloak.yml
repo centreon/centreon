@@ -26,11 +26,14 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: speedtest
         run: |
-          sudo apt update
-          sudo apt install -y speedtest-cli
-          speedtest
+          npm install --global fast-cli
+          fast -u
 
       - name: Pull keycloak image
         run: |
