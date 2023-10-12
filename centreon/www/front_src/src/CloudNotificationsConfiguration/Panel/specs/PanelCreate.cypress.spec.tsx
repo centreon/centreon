@@ -156,7 +156,7 @@ describe('Create Panel', () => {
     cy.makeSnapshot();
   });
 
-  it('sends a request to add a new notification with the form values When the Confirm button is clicked', () => {
+  it('sends a request to add a new notification with the form values when the Confirm button is clicked', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
     fillFormRequiredFields();
