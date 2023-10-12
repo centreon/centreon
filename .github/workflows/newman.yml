@@ -117,37 +117,24 @@ jobs:
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
         fi
-    - name: Check Summary JSON Report
-      run: |
-        json_files=$(find ./postman_summaries -name "*.json")
-        for file in $json_files; do
-          echo "Found JSON file: $file"
-          # Vous pouvez ajouter ici d'autres actions à effectuer sur les fichiers JSON
-        done
     - name: Check JUnitXray Report
       run: |
-        json_files=$(find ./newman -name "*.xml")
-        for file in $json_files; do
-          echo "Found JSON file: $file"
-          # Vous pouvez ajouter ici d'autres actions à effectuer sur les fichiers JSON
+        xml_files=$(find ./newman -name "*.xml")
+        for file in $xml_files; do
+          echo "Found XML file: $file"
+          echo "GITHUB_OUTPUT=$file" >> $GITHUB_ENV
         done
-
-    - name: Upload HTML Reports
-      uses: actions/upload-artifact@v3
-      with:
-          name: postman-html-reports
-          path: centreon/tests/rest_api/newman/
 
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
       with:
-            username: ${{ secrets.CLIENT_ID }}
-            password: ${{ secrets.CLIENT_SECRET }}
-            testFormat: "junit"
-            testPaths: "./newman/"
-            projectKey: "MON"
-            testPlanKey: "MON-22343"
-            testExecKey:
+          username: ${{ secrets.CLIENT_ID }}
+          password: ${{ secrets.CLIENT_SECRET }}
+          testFormat: "junit"
+          testPaths: $GITHUB_OUTPUT
+          projectKey: "MON"
+          testPlanKey: "MON-22343"
+          testExecKey:
 
     - name: Extract and Store Summaries
       if: failure()
