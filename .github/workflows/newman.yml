@@ -113,7 +113,7 @@ jobs:
           echo "Generating reports for: $collection_name"
           echo "Collection: $collection_file"
           echo "Environment: $environment_file"
-           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitfull,json-summary --reporter-junitfull-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" -n 1
+           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitxray,json-summary --reporter-junitxray-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" -n 1
           else
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
@@ -129,54 +129,15 @@ jobs:
     - name: Verify CLIENT_ID Secret
       run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
 
-    # - name: Import results to Xray
-    #   uses: mikepenz/xray-action@v3.0.2
-    #   with:
-    #       username: ${{ secrets.CLIENT_ID }}
-    #       password: ${{ secrets.CLIENT_SECRET }}
-    #       testFormat: "junit"
-    #       testPaths: "centreon/tests/rest_api/newman/"
-    #       projectKey: "MON"
-    #       testExecKey:
-
-    - name: Import JUnit XML results to Jira Xray
-      run: |
-              API_USERNAME=$CLIENT_ID
-              API_PASSWORD=$CLIENT_SECRET
-
-              BASE_URL="https://centreon.atlassian.net/rest/raven/1.0/import/execution/junit"
-              PROJECT_KEY="MON"
-              TEST_EXEC_KEY="MON-22584"
-              JUNIT_XML_DIRECTORY=$(find ./newman -name "*.xml")
-              # Itérez sur les fichiers JUnit XML dans le répertoire
-              for file in $JUNIT_XML_DIRECTORY; do
-                echo "Importing file: $file"
-                # Créez une requête POST pour importer le fichier actuel
-                curl -X POST -u $API_USERNAME:$API_PASSWORD \
-                     -F "projectKey=$PROJECT_KEY" \
-                     -F "testExecKey=$TEST_EXEC_KEY" \
-                     -F "file=@$file" \
-                     "$BASE_URL"
-              done
-      env:
-            CLIENT_ID: ${{ secrets.CLIENT_ID }}
-            CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-    # - name: Import results to Xray
-    #   run: |
-    #         API_USERNAME=$CLIENT_ID
-    #         API_PASSWORD=$CLIENT_SECRET
-    #         xml_files=$(find ./newman -name "*.xml")
-
-    #         for file in $xml_files; do
-    #           echo "Found XML file: $file"
-    #           curl -X POST -u $API_USERNAME:$API_PASSWORD \
-    #             -F "file=@$file" \
-    #             "https://centreon.atlassian.net/rest/api/2/issue/MON-22584"
-    #             -H "Content-Type: multipart/form-data"
-    #         done
-    #   env:
-    #       CLIENT_ID: ${{ secrets.CLIENT_ID }}
-    #       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+    - name: Import results to Xray
+      uses: mikepenz/xray-action@v3.0.2
+      with:
+          username: ${{ secrets.CLIENT_ID }}
+          password: ${{ secrets.CLIENT_SECRET }}
+          testFormat: "junit"
+          testPaths: "centreon/tests/rest_api/newman/"
+          projectKey: "MON"
+          testExecKey: 22584
 
     - name: Extract and Store Summaries
       if: failure()
