@@ -119,11 +119,13 @@ class SSOAuthenticationException extends \Exception
      */
     public static function loginClaimNotFound(string $providerName, string $loginClaim): self
     {
-        return new self(sprintf(
-            _('[%s]: Login claim [%s] not found from external provider user'),
-            $providerName,
-            $loginClaim
-        ));
+        return new self(
+            sprintf(
+                _('[%s]: Login claim [%s] not found from external provider user'),
+                $providerName,
+                $loginClaim
+            )
+        );
     }
 
     /**
@@ -167,10 +169,12 @@ class SSOAuthenticationException extends \Exception
      */
     public static function autoImportBindAttributeNotFound(array $missingAttributes): self
     {
-        return new self(sprintf(
-            _('The following bound attributes are missing: %s'),
-            implode(', ', $missingAttributes)
-        ));
+        return new self(
+            sprintf(
+                _('The following bound attributes are missing: %s'),
+                implode(', ', $missingAttributes)
+            )
+        );
     }
 
     /**

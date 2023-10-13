@@ -113,11 +113,12 @@ class AclUpdater implements AclUpdaterInterface
      */
     private function updateContactGroupsForUser(ContactInterface $user, array $contactGroups): void
     {
+        $contactGroup = null;
         try {
             $this->info('Updating user contact group', [
                 'user_id' => $user->getId(),
                 'contact_group_id' => [
-                    array_map(fn ($contactGroup) => $contactGroup->getId(), $contactGroups),
+                    array_map(fn($contactGroup) => $contactGroup->getId(), $contactGroups),
                 ],
             ]);
             $this->dataStorageEngine->startTransaction();
@@ -130,7 +131,7 @@ class AclUpdater implements AclUpdaterInterface
             $this->dataStorageEngine->rollbackTransaction();
             $this->error('Error during contact group update', [
                 'user_id' => $user->getId(),
-                'contact_group_id' => $contactGroup->getId(),
+                'contact_group_id' => $contactGroup?->getId(),
                 'trace' => $ex->getTraceAsString(),
             ]);
         }
