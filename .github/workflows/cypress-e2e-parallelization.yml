@@ -178,6 +178,7 @@ jobs:
           testFormat: "cucumber"
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
+          testPlanKey: MON-22631
           combineInSingleTestExec: true
           testExecKey:
         timeout-minutes: 10
@@ -191,7 +192,10 @@ jobs:
             "fields": {
               "summary": "Branch: ${{ github.ref_name }} Commit: ${{ github.sha }}",
               "components": [{"name": "centreon-web"}]
-            }
+            },
+            "xrayFields": {
+              "testPlanKey": "MON-22631",
+          }
           }'
           
           curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" --data "${jira_payload}" "${jira_url}"
