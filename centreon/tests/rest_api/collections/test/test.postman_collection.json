@@ -1,0 +1,274 @@
+{
+	"info": {
+		"_postman_id": "92c3304d-95c0-4c96-9fe1-519422c653b4",
+		"name": "test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29556865",
+		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/29556865-92c3304d-95c0-4c96-9fe1-519422c653b4?action=share&source=collection_link&creator=29556865"
+	},
+	"item": [
+		{
+			"name": "1001 - Standard authentication with admin user",
+			"item": [
+				{
+					"name": "[1001] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1001] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1001] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{token}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "X-AUTH-TOKEN",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"Object.prototype.setNextRequestBasedOnStatusCode = (pm, postman, response, expectedResponseCode, nextRequestInCaseOfFailure) => {",
+							"    if(expectedResponseCode != response.code) {",
+							"        if (!pm.collectionVariables.get(\"requestTries\")) {",
+							"            pm.collectionVariables.set(\"requestTries\", 0);",
+							"        }",
+							"        pm.collectionVariables.set(\"requestTries\", pm.collectionVariables.get(\"requestTries\") + 1);",
+							"        if(pm.collectionVariables.get(\"requestTries\") < pm.environment.get(\"maxNumberOfRetries\")) {",
+							"            console.log(\"Response does not have the expected status code | Resending the request \\\"\" + pm.info.requestName + \"\\\"... | Number of tries: \" + pm.collectionVariables.get(\"requestTries\"));",
+							"            postman.setNextRequest(pm.info.requestName);",
+							"        } else {",
+							"            pm.collectionVariables.unset(\"requestTries\");",
+							"            pm.collectionVariables.unset(\"nextRequestInCaseOfFailure\");",
+							"            console.log(\"Response does not have the expected status code | Aborting the current scenario (too many tries)\");",
+							"            postman.setNextRequest(nextRequestInCaseOfFailure);",
+							"        }",
+							"    } else {",
+							"        pm.collectionVariables.unset(\"requestTries\");",
+							"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
+							"    }",
+							"  }"
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"Object.prototype.setNextRequestBasedOnStatusCode = (pm, postman, response, expectedResponseCode, nextRequestInCaseOfFailure) => {",
+					"    if(expectedResponseCode != response.code) {",
+					"        if (!pm.collectionVariables.get(\"requestTries\")) {",
+					"            pm.collectionVariables.set(\"requestTries\", 0);",
+					"        }",
+					"        pm.collectionVariables.set(\"requestTries\", pm.collectionVariables.get(\"requestTries\") + 1);",
+					"        if(pm.collectionVariables.get(\"requestTries\") < pm.environment.get(\"maxNumberOfRetries\")) {",
+					"            console.log(\"Response does not have the expected status code | Resending the request \\\"\" + pm.info.requestName + \"\\\"... | Number of tries: \" + pm.collectionVariables.get(\"requestTries\"));",
+					"            postman.setNextRequest(pm.info.requestName);",
+					"        } else {",
+					"            pm.collectionVariables.unset(\"requestTries\");",
+					"            pm.collectionVariables.unset(\"nextRequestInCaseOfFailure\");",
+					"            console.log(\"Response does not have the expected status code | Aborting the current scenario (too many tries)\");",
+					"            postman.setNextRequest(nextRequestInCaseOfFailure);",
+					"        }",
+					"    } else {",
+					"        pm.collectionVariables.unset(\"requestTries\");",
+					"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
+					"    }",
+					"  }"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "old_password",
+			"value": ""
+		}
+	]
+}
