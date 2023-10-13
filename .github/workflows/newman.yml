@@ -25,7 +25,10 @@ on:
         required: true
       CLIENT_SECRET:
         required: true
-
+      JIRA_USER:
+          required: true
+      JIRA_TOKEN_TEST:
+          required: true
 jobs:
   newman-test-list:
     runs-on: ubuntu-22.04
@@ -132,51 +135,57 @@ jobs:
     - name: Import results to Xray
       uses: mikepenz/xray-action@v3.0.2
       with:
-          username: ${{ secrets.CLIENT_ID }}
-          password: ${{ secrets.CLIENT_SECRET }}
-          testFormat: "junit"
-          testPaths: "./newman/test.xml"
-          projectKey: "MON"
-          testExecKey:
-      timeout-minutes: 10
-    # - name: Import JUnit XML results to Jira Xray
-    #   run: |
-    #         API_USERNAME=$CLIENT_ID
-    #         API_PASSWORD=$CLIENT_SECRET
+        username: ${{ secrets.CLIENT_ID }}
+        password: ${{ secrets.CLIENT_SECRET }}
+        testFormat: "junit"
+        testPaths: "./newman/${{ matrix.feature }}.xml"
+        projectKey: "MON"
+        testExecKey: "22584"
+      env:
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
-    #         BASE_URL="https://centreon.atlassian.net/rest/raven/1.0/import/execution/junit/multipart"
-    #         PROJECT_KEY="MON"
-    #         TEST_EXEC_KEY="MON-22584"
-    #         JUnit_XML_DIRECTORY=$(find ./newman -name "*.xml")
-    #         # Itérez sur les fichiers JUnit XML dans le répertoire
-    #         for file in $JUnit_XML_DIRECTORY; do
-    #           echo "Importing file: $file"
-    #           # Créez une requête POST pour importer le fichier actuel
-    #           curl -H "Content-Type: multipart/form-data" -u $API_USERNAME:$API_PASSWORD \
-    #               -F "projectKey=$PROJECT_KEY" \
-    #               -F "testExecKey=$TEST_EXEC_KEY" \
-    #               -F "file=@$file" \
-    #               "$BASE_URL"
-    #         done
-    #   env:
-    #     CLIENT_ID: ${{ secrets.CLIENT_ID }}
-    #     CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-    # - name: Import results to Xray
-    #   run: |
-    #         API_USERNAME=$CLIENT_ID
-    #         API_PASSWORD=$CLIENT_SECRET
-    #         xml_files=$(find ./newman -name "*.xml")
+    - name: Create Xray Test Cases
+      run: |
+          collections=($(find ./collections -type f -name "*.postman_collection.json"))
+          for collection_file in "${collections[@]}"; do
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+            collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
+            # Create a test case in Jira Xray and associate it with the Test Exécution MON-22584
+            curl -X POST \
+            -H "Authorization: Bearer VOTRE_JETON" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "fields": {
+                "project": {
+                  "key": "VOTRE_PROJET_KEY"
+                },
+                "summary": "'"$collection_name_sanitized"'",
+                "description": "Test case for '"$collection_name_sanitized"'",
+                "issuetype": {
+                  "name": "Test"
+                }
+              }
+            }' \
+            "https://centreon.atlassian.net/rest/api/2/issue"
 
-    #         for file in $xml_files; do
-    #           echo "Found XML file: $file"
-    #           curl -X POST -u $API_USERNAME:$API_PASSWORD \
-    #             -F "file=@$file" \
-    #             "https://centreon.atlassian.net/rest/api/2/issue/MON-22584"
-    #             -H "Content-Type: multipart/form-data"
-    #         done
-    #   env:
-    #       CLIENT_ID: ${{ secrets.CLIENT_ID }}
-    #       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+            # Associate the test case with the Test Exécution MON-22584
+            curl -X POST \
+            -H "Authorization: Bearer VOTRE_JETON" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "issues": ["VOTRE_NOUVEAU_TEST_CASE_KEY"],
+              "projectKey": "VOTRE_PROJET_KEY",
+              "testExecutionKey": "MON-22584"
+            }' \
+            "https://centreon.atlassian.net/testexec/MON-22584/issue"
+
+            echo "Created test case $collection_name_sanitized and associated it with MON-22584"
+          done
+      env:
+          VOTRE_JETON: ${{ secrets.JIRA_TOKEN_TEST }}
+          VOTRE_PROJET_KEY: "MON"
+
 
     - name: Extract and Store Summaries
       if: failure()
