@@ -132,18 +132,18 @@ jobs:
     - name: Verify CLIENT_ID Secret
       run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
 
-    - name: Import results to Xray
-      uses: mikepenz/xray-action@v3.0.2
-      with:
-        username: ${{ secrets.CLIENT_ID }}
-        password: ${{ secrets.CLIENT_SECRET }}
-        testFormat: "junit"
-        testPaths: "./newman/${{ matrix.feature }}.xml"
-        projectKey: "MON"
-        testExecKey: "22584"
-      env:
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+    # - name: Import results to Xray
+    #   uses: mikepenz/xray-action@v3.0.2
+    #   with:
+    #     username: ${{ secrets.CLIENT_ID }}
+    #     password: ${{ secrets.CLIENT_SECRET }}
+    #     testFormat: "junit"
+    #     testPaths: "./newman/${{ matrix.feature }}.xml"
+    #     projectKey: "MON"
+    #     testExecKey: "22584"
+    #   env:
+    #     CLIENT_ID: ${{ secrets.CLIENT_ID }}
+    #     CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
     - name: Create Xray Test Cases
       run: |
