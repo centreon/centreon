@@ -1,4 +1,4 @@
-@REQ_MON-22172 @ignore
+@REQ_MON-22172
 Feature: Checking dashboard permissions
   As a Centreon User with dashboard administration rights,
   I need to list all dashboards and user/user group rights to each, and update access rights if needed

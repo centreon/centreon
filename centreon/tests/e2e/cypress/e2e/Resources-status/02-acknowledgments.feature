@@ -1,4 +1,4 @@
-@REQ_MON-22199 @ignore
+@REQ_MON-22199
 Feature: Add an acknowledgement on a resource with a problem
   As a user
   I would like to be able to add an acknowledgement on a problematic resource

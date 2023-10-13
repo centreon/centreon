@@ -1,4 +1,4 @@
-@REQ_MON-22212 @ignore
+@REQ_MON-22212
 Feature: Timezone in monitoring
   As a Centreon user
   I want to be able to use timezones across the platform

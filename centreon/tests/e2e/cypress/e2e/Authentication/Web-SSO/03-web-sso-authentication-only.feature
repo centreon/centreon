@@ -4,7 +4,7 @@ Feature: Web SSO authentication
     I want to be able to use an external authentication provider
     So platform users can use an existing authentication services to authenticate
 
-@TEST_MON-22143 @ignore-scenario
+@TEST_MON-22143-scenario
 Scenario: The third party authentication service is unavailable (Web SSO)
     Given an administrator logged in the platform
     When the administrator sets authentication mode to Web SSO only

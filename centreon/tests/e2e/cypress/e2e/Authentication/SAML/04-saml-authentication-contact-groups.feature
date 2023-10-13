@@ -1,4 +1,4 @@
-@REQ_MON-22149 @ignore
+@REQ_MON-22149
 Feature: SAML authentication
     As an admin of Centreon Platform
     I want to be able to make use of an external authentication provider

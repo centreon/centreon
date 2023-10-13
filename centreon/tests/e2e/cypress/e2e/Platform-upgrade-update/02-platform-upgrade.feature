@@ -1,5 +1,5 @@
 @execTimeout(300000)
-@REQ_MON-22196 @ignore
+@REQ_MON-22196
 Feature: Upgrade platform from major version A to major version B
 
 @TEST_MON-22198

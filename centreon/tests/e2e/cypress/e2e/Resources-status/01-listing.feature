@@ -1,4 +1,4 @@
-@REQ_MON-22028 @ignore
+@REQ_MON-22028
 Feature: List Resources
   As a user
   I want to list the available Resources and filter them
