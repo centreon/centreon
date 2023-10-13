@@ -318,7 +318,7 @@ const checkIfConfigurationIsExported = ({
 };
 
 const getUserContactId = (userName: string): Cypress.Chainable => {
-  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}';`;
+  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}'`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
@@ -337,7 +337,7 @@ const getUserContactId = (userName: string): Cypress.Chainable => {
 };
 
 const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
-  const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}';`;
+  const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}'`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
@@ -351,7 +351,7 @@ const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
         return cy.wrap(accessGroupid || '0');
       }
 
-      return cy.log(`Can't execute command on database.`);
+      return cy.log(`Cannot execute command on database.`);
     });
 };
 
