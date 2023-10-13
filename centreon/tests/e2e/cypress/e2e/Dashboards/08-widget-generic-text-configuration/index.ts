@@ -254,7 +254,7 @@ Then(
 When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByLabel({ label: 'More actions' }).eq(1).click();
   cy.getByLabel({ label: 'Delete widget' }).click();
-  cy.getByTestId({ testId: 'confirm' }).click();
+  cy.getByLabel({ label: 'Delete' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
 });
