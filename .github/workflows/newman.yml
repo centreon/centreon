@@ -152,13 +152,8 @@ jobs:
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-          # Remplacez Bearer par Basic et utilisez un nom d'utilisateur et un mot de passe
-          # Assurez-vous que votre nom d'utilisateur et votre mot de passe sont corrects et codés en base64
-          credentials_base64=$(echo -n 'VOTRE_NOM_UTILISATEUR:VOTRE_MOT_DE_PASSE' | base64)
-
-          # Créez un cas de test dans Jira Xray et associez-le à l'exécution de test MON-22584
           test_case_response=$(curl -X POST \
-          -H "Authorization: Basic $credentials_base64" \
+          -u "$JIRA_USER:$JIRA_TOKEN_TEST" \
           -H "Content-Type: application/json" \
           -d '{
             "fields": {
@@ -174,12 +169,10 @@ jobs:
           }' \
           "https://centreon.atlassian.net/rest/api/2/issue")
 
-          # Extrayez la clé du nouveau cas de test créé
           test_case_key=$(echo "$test_case_response" | jq -r '.key')
 
-          # Associez le cas de test à l'exécution de test MON-22584
           curl -X POST \
-          -H "Authorization: Basic $credentials_base64" \
+          -u "$JIRA_USER:$JIRA_TOKEN_TEST" \
           -H "Content-Type: application/json" \
           -d '{
             "issues": ["'"$test_case_key"'"],
