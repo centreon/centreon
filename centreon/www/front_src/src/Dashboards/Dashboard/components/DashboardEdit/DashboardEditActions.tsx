@@ -3,15 +3,16 @@ import { ReactElement, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
+import { equals } from 'ramda';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 import { Button } from '@centreon/ui/components';
 
 import { DashboardPanel } from '../../../api/models';
-import { formatPanel } from '../../useDashboardDetails';
-import useDashboardDirty from '../../useDashboardDirty';
-import useSaveDashboard from '../../useSaveDashboard';
+import { formatPanel } from '../../hooks/useDashboardDetails';
+import useDashboardDirty from '../../hooks/useDashboardDirty';
+import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import {
   labelEditDashboard,
@@ -46,7 +47,9 @@ const DashboardEditActions = ({
     )
   );
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
 
   const startEditing = useCallback(() => {
     switchPanelsEditionMode(true);
@@ -65,8 +68,12 @@ const DashboardEditActions = ({
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (searchParams.get('edit') === 'true') startEditing();
-    if (searchParams.get('edit') === null) stopEditing();
+    if (equals(searchParams.get('edit'), 'true')) {
+      startEditing();
+
+      return;
+    }
+    stopEditing();
   }, []);
 
   const saveAndProceed = (): void => {

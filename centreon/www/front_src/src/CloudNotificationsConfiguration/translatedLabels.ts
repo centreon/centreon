@@ -1,7 +1,7 @@
-export const labelNotificationsManagement = 'Notifications management';
+export const labelNotificationsManagement = 'Notification rules';
 export const labelWelcomeToTheNotifications =
   'Welcome to the notifications interface';
-export const labelCreateNotification = 'Create a notification';
+export const labelCreateNotification = 'Create a notification rule';
 export const labelAdd = 'Add';
 export const labelDuplicate = 'Duplicate';
 export const labelDelete = 'Delete';
@@ -19,10 +19,9 @@ export const labelSave = 'Save';
 export const labelSelectResourcesAndEvents = 'Select resources and events';
 export const labelSearchHostGroups = 'Search host groups';
 export const labelSelectUsers = 'Select users';
-export const labelSelectTimePeriodAndChannels =
-  'Select time period / channels of notifications';
-export const labelDeleteNotification = 'Delete notification?';
-export const labelDeleteNotificationWarning = 'This action cannot be undone';
+export const labelNotificationSettings = 'Notification settings';
+export const labelDeleteNotification = 'Delete notification rule?';
+export const labelDeleteNotificationWarning = 'This action cannot be undone.';
 export const labelReduceInformationPanel = 'Collapse information panel';
 export const labelExpandInformationPanel = 'Expand information panel';
 export const labelTypeYourTextHere = 'Type your text here';
@@ -34,10 +33,7 @@ export const labelSuccessfulEditNotification =
   'The notification was successfully updated';
 export const labelSuccessfulNotificationAdded =
   'The notification was successfully added';
-export const labelDoYouWantToConfirmAction =
-  'Do you want to confirm the action ?';
 export const labelConfirmAddNotification = 'Confirm notification creation';
-export const labelConfirmEditNotification = 'Confirm notification update';
 export const labelChooseAtLeastOneResource = 'Choose at least 1 resource';
 export const labelChooseAtleastOneServiceGroup =
   'Choose at least 1 service group';

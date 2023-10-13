@@ -25,6 +25,11 @@
         "values": "ACL Group test;user1"
     },
     {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "ACL Group test;All Resources"
+    },
+    {
         "action": "GRANTRW",
         "object": "ACLMENU",
         "values": "acl_menu_test;1;Monitoring"

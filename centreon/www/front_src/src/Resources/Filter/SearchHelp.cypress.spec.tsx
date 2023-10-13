@@ -1,6 +1,7 @@
 import { Provider, createStore } from 'jotai';
 
 import { cloudDocsURL, getOnPremDocsURL } from '@centreon/ui';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 import {
   labelNeedHelpWithSearchBarUsage,
@@ -8,7 +9,6 @@ import {
   labelHere
 } from '../translatedLabels';
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
-import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import SearchHelp from './SearchHelp';
 

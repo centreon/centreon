@@ -595,6 +595,7 @@ foreach ($tab_id as $openid) {
 
 // Build final request
 $req = "SELECT " . (!$is_admin ? "DISTINCT" : "") . "
+        1 AS REALTIME,
         logs.ctime,
         logs.host_id,
         logs.host_name,

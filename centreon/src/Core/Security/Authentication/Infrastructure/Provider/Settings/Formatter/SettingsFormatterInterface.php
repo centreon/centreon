@@ -30,7 +30,7 @@ interface SettingsFormatterInterface
     /**
      * @param CustomConfigurationInterface $customConfiguration
      *
-     * @return array
+     * @return array<mixed>
      */
     public function format(CustomConfigurationInterface $customConfiguration): array;
 }

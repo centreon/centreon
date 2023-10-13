@@ -6,7 +6,11 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue, Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { ListingVariant, userAtom } from '@centreon/ui-context';
+import {
+  ListingVariant,
+  userAtom,
+  platformFeaturesAtom
+} from '@centreon/ui-context';
 
 import { Visualization } from '../models';
 import {
@@ -20,7 +24,6 @@ import { getListingEndpoint, defaultSecondSortCriteria } from '../testUtils';
 import useDetails from '../Details/useDetails';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
-import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import {
   defaultSelectedColumnIds,
@@ -46,7 +49,11 @@ const ListingTest = (): JSX.Element => {
   useFilter();
   useDetails();
 
-  return <Listing />;
+  return (
+    <div style={{ height: '100vh' }}>
+      <Listing />
+    </div>
+  );
 };
 
 const store = createStore();

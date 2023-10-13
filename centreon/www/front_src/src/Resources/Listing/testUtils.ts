@@ -1,10 +1,10 @@
 import * as Ramda from 'ramda';
 
 import type { Column } from '@centreon/ui';
+import { PlatformFeatures } from '@centreon/ui-context';
 
 import { Resource, ResourceType } from '../models';
 import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
-import { PlatformFeatures } from '../../api/models';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 

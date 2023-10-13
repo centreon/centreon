@@ -12,7 +12,6 @@ import {
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 
 interface StyleProps {
-  disabled: boolean;
   hasIcon: boolean;
   labelPlacement: LabelPlacement;
 }
@@ -26,7 +25,13 @@ const getLabelSpacing = (labelPlacement, theme): string => {
 };
 
 const useStyles = makeStyles<StyleProps>()(
-  (theme, { disabled, hasIcon, labelPlacement }) => ({
+  (theme, { hasIcon, labelPlacement }) => ({
+    checkbox: {
+      '&.Mui-checked': {
+        color: theme.palette.primary.main
+      },
+      color: theme.palette.primary.main
+    },
     container: hasIcon
       ? {
           alignItems: 'center',
@@ -40,13 +45,8 @@ const useStyles = makeStyles<StyleProps>()(
       fontSize: theme.spacing(10)
     },
     label: {
-      color: disabled
-        ? theme.palette.action.disabled
-        : theme.palette.text.secondary,
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: equals(labelPlacement, 'top')
-        ? theme.typography.fontWeightBold
-        : theme.typography.fontWeightMedium,
+      fontSize: theme.typography.body2.fontSize,
+      fontWeight: theme.typography.fontWeightMedium,
       padding: getLabelSpacing(labelPlacement, theme)
     }
   })
@@ -74,7 +74,6 @@ const Checkbox = ({
   dataTestId
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({
-    disabled,
     hasIcon: !!Icon,
     labelPlacement
   });
@@ -86,6 +85,7 @@ const Checkbox = ({
         control={
           <MuiCheckbox
             checked={checked}
+            className={classes.checkbox}
             color="primary"
             disabled={disabled}
             id={label}

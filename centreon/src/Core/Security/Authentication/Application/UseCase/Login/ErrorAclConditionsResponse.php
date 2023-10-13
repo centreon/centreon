@@ -25,6 +25,6 @@ namespace Core\Security\Authentication\Application\UseCase\Login;
 
 use Core\Application\Common\UseCase\ForbiddenResponse;
 
-class ErrorAclConditionsResponse extends ForbiddenResponse
+final class ErrorAclConditionsResponse extends ForbiddenResponse
 {
 }
