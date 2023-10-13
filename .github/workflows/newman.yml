@@ -145,46 +145,41 @@ jobs:
     #     CLIENT_ID: ${{ secrets.CLIENT_ID }}
     #     CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
-    - name: Create Xray Test Cases
+    - name: Associate Test Cases with Test Execution
       run: |
         collections=($(find ./collections -type f -name "*.postman_collection.json"))
         for collection_file in "${collections[@]}"; do
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-          curl --request POST \
-          --url 'https://centreon.atlassian.net/rest/api/3/issue' \
-          --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
-          --header 'Accept: application/json' \
-          --header 'Content-Type: application/json' \
-          --data '{
-            "fields": {
-              "project": {
-                "key": "MON"
-              },
-              "summary": "'"$collection_name_sanitized"'",
-              "description": "Test case for '"$collection_name_sanitized"'",
-              "issuetype": {
-                "name": "Test"
+          test_case_key=$(curl --request POST \
+            --url 'https://centreon.atlassian.net/rest/api/3/issue' \
+            --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "fields": {
+                "project": {
+                  "key": "MON"
+                },
+                "summary": "'"$collection_name_sanitized"'",
+                "description": "Test case for '"$collection_name_sanitized"'",
+                "issuetype": {
+                  "name": "Test"
+                }
               }
-            }
-          }'
+            }' | jq -r '.key')
 
-
-          test_case_key=$(echo "$test_case_response" | jq -r '.key')
-
-          curl -X POST \
-          --url 'https://centreon.atlassian.net/testexec/MON-22584/test'
-          --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
-          --header 'Accept: application/json' \
-          --header "Content-Type: application/json" \
-          --data '{
-            "issues": ["'"$test_case_key"'"],
-            "projectKey": "'"$VOTRE_PROJET_KEY"'",
-            "testExecutionKey": "MON-22584"
-          }' \
-          "https://centreon.atlassian.net/testexec/MON-22584/test"
-
+          curl --request POST \
+            --url 'https://centreon.atlassian.net/testexec/MON-22584/test' \
+            --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "issues": ["'"$test_case_key"'"],
+              "projectKey": "MON",
+              "testExecutionKey": "MON-22584"
+            }'
           echo "Created test case $collection_name_sanitized and associated it with MON-22584"
         done
       env:
