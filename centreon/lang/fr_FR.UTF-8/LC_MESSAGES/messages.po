@@ -18113,6 +18113,9 @@ msgstr "Afficher par hôte"
 msgid "View by service"
 msgstr "Afficher par service"
 
+msgid "Advanced mode"
+msgstr "Mode avancé"
+
 msgid "Error while adding a token"
 msgstr "Erreur lors de l'ajout d'un token"
 

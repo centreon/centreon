@@ -77,14 +77,6 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     {
         $maxOrder = $this->findMaxOrderByUserId($filter->getUserId(), $filter->getPageName());
 
-        /**
-         * @var FilterCriteria[] $filterCriterias
-         */
-        $filterCriterias = $this->serializer->serialize(
-            $filter->getCriterias(),
-            'json'
-        );
-
         $request = $this->translateDbName(
             'INSERT INTO `:db`.user_filter
             (name, user_id, page_name, criterias, `order`)
@@ -94,11 +86,31 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         $statement->bindValue(':name', $filter->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':user_id', $filter->getUserId(), \PDO::PARAM_INT);
         $statement->bindValue(':page_name', $filter->getPageName(), \PDO::PARAM_STR);
-        $statement->bindValue(':criterias', $filterCriterias, \PDO::PARAM_STR);
+        $statement->bindValue(':criterias', json_encode($this->buildCriteriasFromFilter($filter)), \PDO::PARAM_STR);
         $statement->bindValue(':order', $maxOrder + 1, \PDO::PARAM_INT);
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * @param Filter $filter 
+     * @return array<string, mixed> 
+     */
+    private function buildCriteriasFromFilter(Filter $filter): array
+    {
+        $criterias = $filter->getCriterias(); 
+
+        return array_map(
+            static fn (FilterCriteria $criteria): array => [
+                'name' => $criteria->getName(),
+                'type' => $criteria->getType(),
+                'object_type' => $criteria->getObjectType(),
+                'value' => $criteria->getValue(),
+                'search_data' => $criteria->getSearchData(),
+            ],
+            $criterias
+        );
     }
 
     /**
@@ -134,14 +146,6 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
             );
         }
 
-        /**
-         * @var FilterCriteria[] $filterCriterias
-         */
-        $filterCriterias = $this->serializer->serialize(
-            $filter->getCriterias(),
-            'json'
-        );
-
         $request = $this->translateDbName('
             UPDATE `:db`.user_filter
             SET name = :name, criterias = :criterias, `order` = :order
@@ -152,7 +156,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', $filter->getName(), \PDO::PARAM_STR);
-        $statement->bindValue(':criterias', $filterCriterias, \PDO::PARAM_STR);
+        $statement->bindValue(':criterias', json_encode($this->buildCriteriasFromFilter($filter)), \PDO::PARAM_STR);
         $statement->bindValue(':order', $filter->getOrder(), \PDO::PARAM_INT);
         $statement->bindValue(':user_id', $filter->getUserId(), \PDO::PARAM_INT);
         $statement->bindValue(':page_name', $filter->getPageName(), \PDO::PARAM_STR);

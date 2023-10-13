@@ -85,6 +85,7 @@ export interface FeatureFlags {
   adExclusionPeriods?: boolean;
   dashboard?: boolean;
   notification?: boolean;
+  resourceStatusFilterRevamp?: boolean;
   resourceStatusTreeView?: boolean;
   vault?: boolean;
 }

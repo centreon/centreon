@@ -16032,6 +16032,9 @@ msgstr ""
 #  msgid "View by service"
 #  msgstr ""
 
+msgid "Advanced mode"
+msgstr "Erweiterter Modus"
+
 #  msgid "Error while adding a token"
 #  msgstr ""
 

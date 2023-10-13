@@ -75,7 +75,10 @@ export { default as useCancelTokenSource } from './api/useCancelTokenSource';
 export { getData, patchData, postData, putData, deleteData } from './api';
 export { default as useRequest } from './api/useRequest';
 export { default as buildListingEndpoint } from './api/buildListingEndpoint';
-export { default as getSearchQueryParameterValue } from './api/buildListingEndpoint/getSearchQueryParameterValue';
+export {
+  getSearchQueryParameterValue,
+  getFoundFields
+} from './api/buildListingEndpoint/getSearchQueryParameterValue';
 export type {
   Parameters as ListingParameters,
   BuildListingEndpointParameters,

@@ -16818,6 +16818,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "View by service"
 #  msgstr ""
 
+#  msgid "Advanced mode"
+#  msgstr ""
+
 #  msgid "Error while adding a token"
 #  msgstr ""
 
@@ -16968,7 +16971,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while searching for host configurations"
 #  msgstr ""
-
 #  msgid "The '%s' command name already exists"
 #  msgstr ""
 

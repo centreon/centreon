@@ -2,12 +2,8 @@ import { makeStyles } from 'tss-react/mui';
 import { T, always, cond, equals } from 'ramda';
 
 import { SvgIconComponent } from '@mui/icons-material';
-import {
-  FormControlLabel,
-  Checkbox as MuiCheckbox,
-  Box,
-  Typography
-} from '@mui/material';
+import Typography, { TypographyTypeMap } from '@mui/material/Typography';
+import { FormControlLabel, Checkbox as MuiCheckbox, Box } from '@mui/material';
 
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 
@@ -60,6 +56,7 @@ interface Props {
   disabled?: boolean;
   label: string;
   labelPlacement?: LabelPlacement;
+  labelProps?: TypographyTypeMap['props'];
   onChange?: (e) => void;
 }
 
@@ -71,7 +68,8 @@ const Checkbox = ({
   className,
   disabled = false,
   labelPlacement = 'end',
-  dataTestId
+  dataTestId,
+  labelProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({
     hasIcon: !!Icon,
@@ -96,7 +94,11 @@ const Checkbox = ({
         }
         data-testid={dataTestId || ''}
         key={label}
-        label={<Typography className={classes.label}>{label}</Typography>}
+        label={
+          <Typography classes={{ root: classes.label }} {...labelProps}>
+            {label}
+          </Typography>
+        }
         labelPlacement={labelPlacement}
         sx={{ margin: 0, padding: 0 }}
       />
