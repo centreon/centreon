@@ -767,18 +767,20 @@ sub router_internal_event {
             logger => $self->{logger}
         );
         next if (!defined($identity));
-
-        $self->decrypt_internal_message(identity => $identity, frame => $frame);
+        push @{$self->{ievents}}, [ $identity, $frame ];
+    }
+    while (my $event = shift(@{$self->{ievents}})) {
+        $self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]);
 
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
-                frame => $frame,
-                identity => $identity,
+                frame => $event->[1],
+                identity => $event->[0],
                 router_type => 'internal'
             }
         );
         $self->send_internal_response(
-            identity => $identity,
+            identity => $event->[0],
             response_type => $response_type,
             data => $response,
             code => $code,
