@@ -135,7 +135,7 @@ jobs:
           username: ${{ secrets.CLIENT_ID }}
           password: ${{ secrets.CLIENT_SECRET }}
           testFormat: "junit"
-          testPaths: "centreon/tests/rest_api/newman/10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection.xml"
+          testPaths: "./newman/10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection.xml"
           projectKey: "MON"
           testExecKey: "MON-22584"
 
