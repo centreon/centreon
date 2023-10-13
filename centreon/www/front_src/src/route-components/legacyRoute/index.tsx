@@ -2,18 +2,13 @@ import { useState, useEffect } from 'react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { equals, isNil, replace } from 'ramda';
-import { useTransition, animated } from '@react-spring/web';
 
 import { PageSkeleton } from '@centreon/ui';
-
-import { pageTransitionConfig } from '../../components/ReactRouter';
 
 const LegacyRoute = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-
-  const transitions = useTransition(location, pageTransitionConfig);
 
   const handleHref = (event): void => {
     const { href } = event.detail;
@@ -66,8 +61,8 @@ const LegacyRoute = (): JSX.Element => {
 
   const params = (search || '') + (hash || '');
 
-  return transitions((style) => (
-    <animated.div style={style}>
+  return (
+    <>
       {loading && <PageSkeleton />}
       <iframe
         frameBorder="0"
@@ -79,8 +74,8 @@ const LegacyRoute = (): JSX.Element => {
         title="Main Content"
         onLoad={load}
       />
-    </animated.div>
-  ));
+    </>
+  );
 };
 
 export default LegacyRoute;
