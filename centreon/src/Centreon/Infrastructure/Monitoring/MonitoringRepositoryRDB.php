@@ -360,12 +360,23 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'poller.id' => 'h.instance_id'
         ];
 
+        // To allow to find host groups relating to Service information
+        $serviceConcordanceArray = [
+            'service.display_name' => 'srv.display_name',
+        ];
+
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
         if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
             $shouldJoinHost = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostConcordanceArray);
+        }
+
+        $shouldJoinService = false;
+        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+            $shouldJoinService = true;
+            $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $serviceConcordanceArray);
         }
 
         //if the filter is for specific host id, remove it from search parameters
@@ -405,8 +416,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        // This join will only be added if a search parameter corresponding to one of the host parameter
-        if ($shouldJoinHost) {
+        // This join will only be added if a search parameter corresponding to one of the host or Service parameter
+        if ($shouldJoinHost || $shouldJoinService) {
             $subRequest .=
                 ' INNER JOIN `:dbstg`.hosts_hostgroups hhg 
                     ON hhg.hostgroup_id = hg.hostgroup_id
@@ -414,6 +425,13 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON h.host_id = hhg.host_id
                     AND h.enabled = \'1\'
                     AND h.name NOT LIKE \'_Module_BAM%\'';
+
+            if ($shouldJoinService) {
+                $subRequest .=
+                    ' LEFT JOIN `:dbstg`.`services` srv
+                        ON srv.host_id = h.host_id
+                        AND srv.enabled = \'1\'';
+            }
 
             if (!$this->isAdmin()) {
                 $subRequest .=
@@ -1337,6 +1355,36 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'name' => 'sg.name'
         ];
 
+        // To allow to find service groups relating to host information
+        $hostConcordanceArray = [
+            'host.id' => 'h.host_id',
+            'host.name' => 'h.name',
+            'host.alias' => 'h.alias',
+            'host.address' => 'h.address',
+            'host.display_name' => 'h.display_name',
+            'host.state' => 'h.state',
+            'poller.id' => 'h.instance_id'
+        ];
+
+        // To allow to find service groups relating to Service information
+        $serviceConcordanceArray = [
+            'service.display_name' => 'srv.display_name',
+        ];
+
+        $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
+
+        $shouldJoinHost = false;
+        if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
+            $shouldJoinHost = true;
+            $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostConcordanceArray);
+        }
+
+        $shouldJoinService = false;
+        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+            $shouldJoinService = true;
+            $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $serviceConcordanceArray);
+        }
+
         $this->sqlRequestTranslator->setConcordanceArray($serviceGroupConcordanceArray);
 
         $sqlExtraParameters = [];
@@ -1366,6 +1414,32 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
                     AND cgcr.contact_contact_id = :contact_id
                     OR gcr.contact_contact_id = :contact_id';
+        }
+
+        // This join will only be added if a search parameter corresponding to one of the host or Service parameter
+        if ($shouldJoinHost || $shouldJoinService) {
+            $subRequest .=
+                ' INNER JOIN `:dbstg`.services_servicegroups ssg 
+                    ON ssg.servicegroup_id = sg.servicegroup_id
+                    INNER JOIN `:dbstg`.hosts h
+                    ON h.host_id = ssg.host_id
+                    AND h.enabled = \'1\'';
+
+            if ($shouldJoinService) {
+                $subRequest .=
+                ' LEFT JOIN `:dbstg`.`services` srv
+                            ON srv.service_id = ssg.service_id
+                            AND srv.host_id = h.host_id
+                            AND srv.enabled = \'1\'';
+            }
+
+            if (!$this->isAdmin()) {
+                $subRequest .=
+                    ' INNER JOIN `:dbstg`.`centreon_acl` acl
+                        ON acl.host_id = h.host_id
+                        AND acl.service_id IS NULL
+                        AND acl.group_id = grp.acl_group_id';
+            }
         }
 
         $request =
