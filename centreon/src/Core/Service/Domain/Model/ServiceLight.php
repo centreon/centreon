@@ -25,6 +25,7 @@ namespace Core\Service\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 

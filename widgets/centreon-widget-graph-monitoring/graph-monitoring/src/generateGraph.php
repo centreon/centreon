@@ -55,7 +55,16 @@ if (!isset($_GET['service'])) {
 list($hostId, $serviceId) = explode('-', $_GET['service']);
 
 $db = $dependencyInjector['realtime_db'];
-$query = "SELECT `id` FROM index_data WHERE host_id = :hostId AND service_id = :serviceId LIMIT 1";
+$query = <<<'SQL'
+    SELECT
+        1 AS REALTIME,
+        `id`
+    FROM index_data
+    WHERE host_id = :hostId
+      AND service_id = :serviceId
+    LIMIT 1
+    SQL;
+
 $stmt = $db->prepare($query);
 $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
 $stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);

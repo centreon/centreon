@@ -106,7 +106,8 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT hg.* FROM `:dbstg`.`hostgroups` hg ' . $subRequest;
+        $request = 'SELECT DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg ' .
+            $subRequest;
         $request = $this->translateDbName($request);
 
         $bindHostGroupNames = [];
@@ -180,7 +181,8 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT hg.* FROM `:dbstg`.`hostgroups` hg ' . $subRequest;
+        $request = 'SELECT DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg ' .
+            $subRequest;
         $request = $this->translateDbName($request);
 
         $bindHostGroupIds = [];

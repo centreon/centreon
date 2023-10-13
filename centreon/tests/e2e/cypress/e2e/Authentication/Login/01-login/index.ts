@@ -1,12 +1,12 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import { loginAsAdminViaApiV2 } from '../../../../commons';
-import { insertContactFixture } from '../common';
+import { initializeConfigACLAndGetLoginPage } from '../common';
 
 before(() => {
   cy.startWebContainer()
     .then(() => {
-      return insertContactFixture();
+      return initializeConfigACLAndGetLoginPage();
     })
     .intercept(
       '/centreon/api/internal.php?object=centreon_topcounter&action=user'

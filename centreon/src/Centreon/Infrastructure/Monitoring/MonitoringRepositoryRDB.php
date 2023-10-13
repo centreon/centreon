@@ -139,6 +139,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $request =
             'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+              1 AS REALTIME,
               h.*,
               cv.value AS criticality,
               i.name AS poller_name,
@@ -185,7 +186,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             throw new \Exception(_('Bad SQL request'));
         }
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal(
@@ -232,7 +233,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            'SELECT DISTINCT
+              1 AS REALTIME,
               hg.hostgroup_id, h.*, i.name AS poller_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
@@ -294,7 +296,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            'SELECT DISTINCT
+              1 AS REALTIME,
               ssg.servicegroup_id, h.*, i.name AS poller_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
@@ -439,7 +442,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT hg.* FROM `:dbstg`.`hostgroups` hg ' . $subRequest;
+        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg ' .
+            $subRequest;
         $request = $this->translateDbName($request);
 
         // Search
@@ -484,7 +488,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal(
@@ -528,7 +532,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT h.*,
+            'SELECT 1 AS REALTIME, h.*,
             i.name AS poller_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state,
@@ -594,7 +598,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT DISTINCT srv.*,
+            'SELECT DISTINCT 1 AS REALTIME, srv.*,
               h.host_id AS `host_host_id`, h.name AS `host_name`, h.alias AS `host_alias`,
               h.instance_id AS `host_poller_id`, srv.state AS `status_code`,
               CASE
@@ -664,7 +668,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $collector = new StatementCollector();
 
         $request =
-            'SELECT DISTINCT h.*,
+            'SELECT DISTINCT 1 AS REALTIME, h.*,
             i.name AS poller_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
@@ -721,7 +725,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 AND acg.acl_group_id IN (' . $this->accessGroupIdToString($this->accessGroups) . ') ';
 
         $request =
-            'SELECT DISTINCT h.*,
+            'SELECT DISTINCT 1 AS REALTIME, h.*,
             i.name AS poller_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
               IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
@@ -782,7 +786,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT DISTINCT srv.*, h.host_id AS `host_host_id`,
+            'SELECT DISTINCT 1 AS REALTIME, srv.*, h.host_id AS `host_host_id`,
               srv.state AS `status_code`,
               CASE
                 WHEN srv.state = 0 THEN "' . ResourceStatus::STATUS_NAME_OK . '"
@@ -880,7 +884,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT DISTINCT srv.*, h.host_id AS `host_host_id`,
+            'SELECT DISTINCT 1 AS REALTIME, srv.*, h.host_id AS `host_host_id`,
               srv.state AS `status_code`,
               CASE
                 WHEN srv.state = 0 THEN "' . ResourceStatus::STATUS_NAME_OK . '"
@@ -970,7 +974,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 AND acg.acl_group_id IN (' . $this->accessGroupIdToString($this->accessGroups) . ') ';
 
         $request =
-            'SELECT DISTINCT srv.*,
+            'SELECT DISTINCT 1 AS REALTIME, srv.*,
               h.host_id AS `host_host_id`, h.name AS `host_name`, h.alias AS `host_alias`,
               h.instance_id AS `host_poller_id`, srv.state AS `status_code`,
               CASE
@@ -1077,6 +1081,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $request =
             'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+              1 AS REALTIME,
               srv.*,
               h.host_id, h.alias AS host_alias, h.name AS host_name,
               cv.value as criticality,
@@ -1145,7 +1150,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             throw new \Exception(_('Bad SQL request'));
         }
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal(
@@ -1252,7 +1257,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT srv.*,
+            'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, srv.*,
               srv.state AS `status_code`,
               CASE
                 WHEN srv.state = 0 THEN "' . ResourceStatus::STATUS_NAME_OK . '"
@@ -1308,7 +1313,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             throw new \Exception(_('Bad SQL request'));
         }
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal(
@@ -1438,7 +1443,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT sg.*
+            'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
             FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
         $request = $this->translateDbName($request);
 
@@ -1469,7 +1474,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal(
@@ -1525,8 +1530,8 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $request =
-            'SELECT DISTINCT 
-              srv.service_id, srv.display_name, srv.description, srv.host_id, srv.state
+            'SELECT DISTINCT
+              1 AS REALTIME, srv.service_id, srv.display_name, srv.description, srv.host_id, srv.state
             FROM `:dbstg`.services srv
             INNER JOIN `:dbstg`.hosts h
               ON h.host_id = srv.host_id
@@ -1585,6 +1590,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $request =
             'SELECT DISTINCT
+                1 AS REALTIME,
                 srv.service_id,
                 srv.display_name,
                 srv.description,
@@ -1640,6 +1646,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $request =
             'SELECT DISTINCT
+                1 AS REALTIME,
 		        ssg.servicegroup_id,
                 srv.service_id, 
                 srv.display_name, 
@@ -1745,7 +1752,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $subRequest .= ' WHERE srv.service_id = :serviceId AND srv.host_id = :hostId';
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT sg.* 
+            'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.* 
             FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
         $request = $this->translateDbName($request);
 
@@ -1771,7 +1778,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal(
@@ -1800,7 +1807,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             return $downtimes;
         }
 
-        $sql = 'SELECT d.*, c.contact_id AS `author_id` FROM `:dbstg`.`downtimes`  AS `d` '
+        $sql = 'SELECT 1 AS REALTIME, d.*, c.contact_id AS `author_id` FROM `:dbstg`.`downtimes`  AS `d` '
             . 'LEFT JOIN `:db`.contact AS `c` ON c.contact_alias = d.author '
             . 'WHERE d.host_id = :hostId AND d.service_id = :serviceId '
             . 'AND d.deletion_time IS NULL AND ((NOW() BETWEEN FROM_UNIXTIME(d.actual_start_time) '
@@ -1835,7 +1842,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             return $acks;
         }
 
-        $sql = 'SELECT a.*, c.contact_id AS `author_id` FROM `:dbstg`.`acknowledgements` AS `a` '
+        $sql = 'SELECT 1 AS REALTIME, a.*, c.contact_id AS `author_id` FROM `:dbstg`.`acknowledgements` AS `a` '
             . 'LEFT JOIN `:db`.contact AS `c` ON c.contact_alias = a.author '
             . 'WHERE a.host_id = :hostId AND a.service_id = :serviceId AND a.deletion_time IS NULL '
             . 'ORDER BY a.entry_time DESC';

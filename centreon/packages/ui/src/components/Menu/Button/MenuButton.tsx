@@ -13,6 +13,7 @@ import { useMenu } from '../useMenu';
 import { useStyles } from './MenuButton.styles';
 
 type MenuButtonProps = {
+  ariaLabel?: string;
   children?: ReactNode;
   hasArrow?: boolean;
   isOpen?: boolean;
@@ -27,6 +28,7 @@ const MenuButton = ({
   hasArrow = true,
   size = 'small',
   variant = 'ghost',
+  ariaLabel,
   ...attr
 }: MenuButtonProps): ReactElement => {
   const { classes } = useStyles();
@@ -47,6 +49,7 @@ const MenuButton = ({
   return (
     <Button
       {...attr}
+      aria-label={ariaLabel}
       className={classes.menuButton}
       data-is-active={isMenuOpen}
       size={size}
