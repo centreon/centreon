@@ -152,13 +152,15 @@ jobs:
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-          test_case_response=$(curl -X POST \
-          -u "$JIRA_USER:$JIRA_TOKEN_TEST" \
-          -H "Content-Type: application/json" \
-          -d '{
+          curl --request POST \
+          --url 'https://centreon.atlassian.net/rest/api/3/issue' \
+          --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: application/json' \
+          --data '{
             "fields": {
               "project": {
-                "key": "'"$VOTRE_PROJET_KEY"'"
+                "key": "MON"
               },
               "summary": "'"$collection_name_sanitized"'",
               "description": "Test case for '"$collection_name_sanitized"'",
@@ -166,15 +168,17 @@ jobs:
                 "name": "Test"
               }
             }
-          }' \
-          "https://centreon.atlassian.net/rest/api/2/issue")
+          }'
+
 
           test_case_key=$(echo "$test_case_response" | jq -r '.key')
 
           curl -X POST \
-          -u "$JIRA_USER:$JIRA_TOKEN_TEST" \
-          -H "Content-Type: application/json" \
-          -d '{
+          --url 'https://centreon.atlassian.net/testexec/MON-22584/test'
+          --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
+          --header 'Accept: application/json' \
+          --header "Content-Type: application/json" \
+          --data '{
             "issues": ["'"$test_case_key"'"],
             "projectKey": "'"$VOTRE_PROJET_KEY"'",
             "testExecutionKey": "MON-22584"
