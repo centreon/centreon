@@ -88,7 +88,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             $excludeAnomalyDetection = true;
         }
 
-        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT fullname, host_id, service_id, index_id ' .
+        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, fullname, host_id, service_id, index_id ' .
             'FROM ( ' .
             '( SELECT CONCAT(i.host_name, " - ", i.service_description) as fullname, i.host_id, ' .
             'i.service_id, m.index_id ' .
@@ -222,7 +222,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         }
         return array(
             'items' => $serviceList,
-            'total' => (int) $this->pearDBMonitoring->numberRows()
+            'total' => (int) $this->pearDBMonitoring->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn()
         );
     }
 
