@@ -345,6 +345,10 @@ class CentreonStatistics
             $data['notification'] = $this->getAdditionalNotificationInformation();
         }
 
+        if ($this->featureFlags?->isEnabled('dashboard')) {
+            $data['dashboards'] = $this->getAdditionalDashboardsInformation();
+        }
+
         $data['user_filter'] = $this->getAdditionalUserFiltersInformation();
 
         return $data;
@@ -392,6 +396,47 @@ class CentreonStatistics
     }
 
     /**
+     * @return array<string,array<string,array<string,int|null>>>
+     */
+    private function getAdditionalDashboardsInformation(): array
+    {
+        $data = [];
+        $dashboardsInformations = $this->dbConfig->query(
+            <<<'SQL'
+                SELECT `dashboard_id`,
+                    `name` AS `widget_type`,
+                    `widget_settings`
+                FROM
+                    `dashboard_panel`
+                SQL
+        );
+        $dashboardId = '';
+        foreach ($dashboardsInformations as $dashboardsInformation) {
+            $widgetType = (string) $dashboardsInformation['widget_type'];
+            $widgetSettings = \json_decode((string) $dashboardsInformation['widget_settings'], true);
+
+            if ($dashboardId !== (string) $dashboardsInformation['dashboard_id']) {
+                $dashboardId = (string) $dashboardsInformation['dashboard_id'];
+                $data[$dashboardId] = [];
+            }
+            if (\array_key_exists($widgetType, $data[$dashboardId])) {
+                $data[$dashboardId][$widgetType]['widget_number'] += 1;
+                if ($data[$dashboardId][$widgetType]['metric_number'] !== null) {
+                    $data[$dashboardId][$widgetType]['metric_number'] += \count($widgetSettings['data']['metrics']);
+                }
+            } else {
+                $data[$dashboardId][$widgetType]['widget_number'] = 1;
+                $data[$dashboardId][$widgetType]['metric_number'] =
+                (\is_array($widgetSettings['data']) && [] === $widgetSettings['data'])
+                    ? null
+                    : \count($widgetSettings['data']['metrics']);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * @return array{
      *     nb_users: int,
      *     avg_filters_per_user: float,
@@ -416,8 +461,8 @@ class CentreonStatistics
 
         $data['nb_users'] = (int) $this->sqlFetchValue('SELECT COUNT(DISTINCT user_id) FROM user_filter');
         $filters = (int) $this->sqlFetchValue('SELECT COUNT(id) FROM user_filter');
-        $data['avg_filters_per_user'] = (float) ($filters / $data['nb_users']);
-        $data['max_filters_user'] = (int) max(array_values($filtersPerUser));
+        $data['avg_filters_per_user'] = ((int) $data['nb_users'] !== 0) ? (float) ($filters / $data['nb_users']) : 0;
+        $data['max_filters_user'] = ($filtersPerUser !== []) ? (int) max(array_values($filtersPerUser)) : 0;
 
         return $data;
     }
