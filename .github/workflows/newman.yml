@@ -158,7 +158,7 @@ jobs:
             -d '{
               "fields": {
                 "project": {
-                  "key": "VOTRE_PROJET_KEY"
+                  "key": "MON"
                 },
                 "summary": "'"$collection_name_sanitized"'",
                 "description": "Test case for '"$collection_name_sanitized"'",
@@ -175,7 +175,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "issues": ["VOTRE_NOUVEAU_TEST_CASE_KEY"],
-              "projectKey": "VOTRE_PROJET_KEY",
+              "projectKey": "MON",
               "testExecutionKey": "MON-22584"
             }' \
             "https://centreon.atlassian.net/testexec/MON-22584/issue"
