@@ -137,7 +137,7 @@ jobs:
           testFormat: "junit"
           testPaths: "centreon/tests/rest_api/newman/"
           projectKey: "MON"
-          testExecKey: 22584
+          testExecKey: "22584"
 
     - name: Extract and Store Summaries
       if: failure()
