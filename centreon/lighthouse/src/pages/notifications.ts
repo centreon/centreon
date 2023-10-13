@@ -1,6 +1,5 @@
 import { GenerateReportForPageProps } from '../models';
 import { baseUrl } from '../defaults';
-import fetch from 'node-fetch';
 import notification from '../fixtures/notification';
 
 export const generateReportForNotificationsPage = async ({
