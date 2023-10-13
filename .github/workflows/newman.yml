@@ -151,14 +151,14 @@ jobs:
           for collection_file in "${collections[@]}"; do
             collection_name=$(basename "$collection_file" .postman_collection.json)
             collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
-            # Create a test case in Jira Xray and associate it with the Test Exécution MON-22584
-            curl -X POST \
-            -H "Authorization: Bearer VOTRE_JETON" \
+            # Créer un cas de test dans Jira Xray et l'associer à l'exécution de test MON-22584
+            test_case_response=$(curl -X POST \
+            -H "Authorization: Bearer $VOTRE_JETON" \
             -H "Content-Type: application/json" \
             -d '{
               "fields": {
                 "project": {
-                  "key": "MON"
+                  "key": "'"$VOTRE_PROJET_KEY"'"
                 },
                 "summary": "'"$collection_name_sanitized"'",
                 "description": "Test case for '"$collection_name_sanitized"'",
@@ -167,15 +167,18 @@ jobs:
                 }
               }
             }' \
-            "https://centreon.atlassian.net/rest/api/2/issue"
+            "https://centreon.atlassian.net/rest/api/2/issue")
 
-            # Associate the test case with the Test Exécution MON-22584
+            # Extraire la clé du nouveau cas de test créé
+            test_case_key=$(echo "$test_case_response" | jq -r '.key')
+
+            # Associer le cas de test à l'exécution de test MON-22584
             curl -X POST \
-            -H "Authorization: Bearer VOTRE_JETON" \
+            -H "Authorization: Bearer $VOTRE_JETON" \
             -H "Content-Type: application/json" \
             -d '{
-              "issues": ["VOTRE_NOUVEAU_TEST_CASE_KEY"],
-              "projectKey": "MON",
+              "issues": ["'"$test_case_key"'"],
+              "projectKey": "'"$VOTRE_PROJET_KEY"'",
               "testExecutionKey": "MON-22584"
             }' \
             "https://centreon.atlassian.net/testexec/MON-22584/issue"
@@ -183,8 +186,8 @@ jobs:
             echo "Created test case $collection_name_sanitized and associated it with MON-22584"
           done
       env:
-          VOTRE_JETON: ${{ secrets.JIRA_TOKEN_TEST }}
-          VOTRE_PROJET_KEY: "MON"
+        VOTRE_JETON: ${{ secrets.JIRA_TOKEN_TEST }}
+        VOTRE_PROJET_KEY: "MON"
 
 
     - name: Extract and Store Summaries
