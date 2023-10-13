@@ -74,7 +74,9 @@ sub new {
         'GET_/internal/information' => 'INFORMATION',
         'POST_/internal/logger' => 'BCASTLOGGER',
     };
-    $self->{config} = 
+
+    $self->{ievents} = [];
+    $self->{recursion_ievents} = 0;
 
     return $self;
 }
@@ -513,17 +515,11 @@ sub broadcast_core_key {
     );
 }
 
-sub read_internal_message {
+sub decrypt_internal_message {
     my ($self, %options) = @_;
 
-    my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
-        socket => $self->{internal_socket},
-        logger => $self->{logger}
-    );
-    return undef if (!defined($identity));
-
     if ($self->{internal_crypt}->{enabled} == 1) {
-        my $id = pack('H*', $identity);
+        my $id = pack('H*', $options{identity});
         my $keys;
         if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_identity_keys}->{$id})) {
             $keys = [ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_identity_keys}->{$id}->{key} ];
@@ -533,16 +529,16 @@ sub read_internal_message {
                 if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_oldkey}));
         }
         foreach my $key (@$keys) {
-            if ($frame->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
-                return ($identity, $frame);
+            if ($options{frame}->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
+                return;
             }
         }
 
-        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $frame->getLastError());
-        return undef;
+        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $options{frame}->getLastError());
+        return;
     }
 
-    return ($identity, $frame);
+    return;
 }
 
 sub send_internal_response {
@@ -640,7 +636,7 @@ sub message_run {
 
     if ($self->{logger}->is_debug()) {
         my $frame_ref = $options->{frame}->getFrame();
-        $self->{logger}->writeLogDebug('[core] Message received - ' . $$frame_ref);
+        $self->{logger}->writeLogDebug('[core] Message received ' . $options->{router_type} . ' - ' . $$frame_ref);
     }
     if ($options->{frame}->parse({ releaseFrame => 1 }) != 0) {
         return (undef, 1, { message => 'request not well formatted' });
@@ -765,8 +761,14 @@ sub router_internal_event {
     my ($self, %options) = @_;
 
     while ($self->{internal_socket}->has_pollin()) {
-        my ($identity, $frame) = $self->read_internal_message();
+
+        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
+            socket => $self->{internal_socket},
+            logger => $self->{logger}
+        );
         next if (!defined($identity));
+
+        $self->decrypt_internal_message(identity => $identity, frame => $frame);
 
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
