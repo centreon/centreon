@@ -189,7 +189,7 @@ jobs:
           token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
           xray_token=$(echo "$token_response" | jq -r '.access_token')
           echo "this is the xray token : $xray_token"
-          echo "::set-output name=xray_token::$xray_token"
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Get TestExecution ID
@@ -199,7 +199,7 @@ jobs:
       
           testExecution_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testExecution ID : $testExecution_id"
-          echo "::set-output name=testExecution_id::$testExecution_id"
+          echo "testExecution_id=$testExecution_id" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Update TestExecution Issue
@@ -224,10 +224,13 @@ jobs:
           }
           }'
           
+          #Update the component and the summary for the testExecution
           curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" --data "${jira_payload}" "${jira_url}"
 
+          #Update the status of the testExecution
           curl -D- -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}/transitions?expand=transitions.fields
 
+          #Add the testExecution to the testPlan
           curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
 
 
