@@ -190,12 +190,14 @@ jobs:
           {
             "fields": {
               "summary": "Branch: ${{ github.ref_name }} Commit: ${{ github.sha }}",
-              "components": [{"name": "centreon-web"}],
-              "status": {"name": "RESOLVED"}
+              "components": [{"name": "centreon-web"}]
             }
           }'
           
           curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" --data "${jira_payload}" "${jira_url}"
+
+          curl -D- -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}/transitions?expand=transitions.fields
+
 
 
   cypress-e2e-test-report:
