@@ -77,7 +77,7 @@ class DbReadServicegroupRepository extends AbstractRepositoryDRB implements Read
      */
     private function findServicegroups(int $hostId, int $serviceId, ?string $aclRequest = null): array
     {
-        $request = 'SELECT DISTINCT sg.servicegroup_id, sg.name AS `servicegroup_name`
+        $request = 'SELECT DISTINCT 1 AS REALTIME, sg.servicegroup_id, sg.name AS `servicegroup_name`
             FROM `:dbstg`.`services_servicegroups` AS ssg
             INNER JOIN `:dbstg`.`servicegroups` AS sg ON sg.servicegroup_id = ssg.servicegroup_id';
 

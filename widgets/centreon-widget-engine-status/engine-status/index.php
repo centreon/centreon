@@ -103,15 +103,23 @@ if (isset($preferences['poller']) && $preferences['poller']) {
 }
 
 if (!empty($instances)) {
-    $queryLat = "SELECT MAX(T1.latency) AS h_max, AVG(T1.latency) AS h_moy,
-            MAX(T2.latency) AS s_max, AVG(T2.latency) AS s_moy
+    $queryLat = "SELECT
+            1 AS REALTIME,
+            MAX(T1.latency) AS h_max,
+            AVG(T1.latency) AS h_moy,
+            MAX(T2.latency) AS s_max,
+            AVG(T2.latency) AS s_moy
             FROM hosts T1, services T2
             WHERE T1.instance_id IN (" . implode(',', $instances) . ")
             AND T1.host_id = T2.host_id
             AND T2.enabled = '1'
             AND T2.check_type = '0'";
-    $queryEx = "SELECT MAX(T1.execution_time) AS h_max, AVG(T1.execution_time) AS h_moy,
-            MAX(T2.execution_time) AS s_max, AVG(T2.execution_time) AS s_moy
+    $queryEx = "SELECT
+            1 AS REALTIME,
+            MAX(T1.execution_time) AS h_max,
+            AVG(T1.execution_time) AS h_moy,
+            MAX(T2.execution_time) AS s_max,
+            AVG(T2.execution_time) AS s_moy
             FROM hosts T1, services T2
             WHERE T1.instance_id IN (" . implode(',', $instances) . ") AND T1.host_id = T2.host_id
             AND T2.enabled = '1'
@@ -136,7 +144,9 @@ if (!empty($instances)) {
         $dataEx[] = $row;
     }
 
-    $querySth = "SELECT SUM(CASE WHEN h.state = 1 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
+    $querySth = "SELECT
+                1 AS REALTIME,
+                SUM(CASE WHEN h.state = 1 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
                 THEN 1 ELSE 0 END) AS Dow,
                 SUM(CASE WHEN h.state = 2 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
                 THEN 1 ELSE 0 END) AS Un,
@@ -146,7 +156,9 @@ if (!empty($instances)) {
                 THEN 1 ELSE 0 END) AS Pend
                 FROM hosts h WHERE h.instance_id IN (" . implode(',', $instances) . ")";
 
-    $querySts = "SELECT SUM(CASE WHEN s.state = 2 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
+    $querySts = "SELECT
+                1 AS REALTIME,
+                SUM(CASE WHEN s.state = 2 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
                 THEN 1 ELSE 0 END) AS Cri,
                 SUM(CASE WHEN s.state = 1 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
                 THEN 1 ELSE 0 END) AS Wa,

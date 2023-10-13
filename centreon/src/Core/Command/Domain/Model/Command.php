@@ -25,33 +25,59 @@ namespace Core\Command\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\CommandMacro\Domain\Model\CommandMacro;
+use Core\Common\Domain\SimpleEntity;
+use Core\MonitoringServer\Model\MonitoringServer;
 
 class Command
 {
+    public const COMMAND_MAX_LENGTH = NewCommand::COMMAND_MAX_LENGTH;
+    public const EXAMPLE_MAX_LENGTH = NewCommand::EXAMPLE_MAX_LENGTH;
+    public const NAME_MAX_LENGTH = NewCommand::NAME_MAX_LENGTH;
+
     /**
      * @param int $id
      * @param string $name
      * @param string $commandLine
-     * @param CommandType $type
      * @param bool $isShellEnabled
      * @param bool $isActivated
+     * @param string $argumentExample
+     * @param Argument[] $arguments
+     * @param CommandMacro[] $macros
+     * @param null|SimpleEntity $connector
+     * @param null|SimpleEntity $graphTemplate
+     * @param CommandType $type
      * @param bool $isLocked
      *
      * @throws AssertionFailedException
      */
     public function __construct(
         private readonly int $id,
-        private readonly string $name,
-        private readonly string $commandLine,
+        private string $name,
+        private string $commandLine,
+        private bool $isShellEnabled = false,
+        private bool $isActivated = true,
+        private string $argumentExample = '',
+        private array $arguments = [],
+        private array $macros = [],
+        private ?SimpleEntity $connector = null,
+        private ?SimpleEntity $graphTemplate = null,
         private readonly CommandType $type = CommandType::Check,
-        private readonly bool $isShellEnabled = false,
-        private readonly bool $isActivated = true,
         private readonly bool $isLocked = false,
-        // Note: this is not the full list of object properties, see DB definition for more
     ) {
         Assertion::positiveInt($id, 'Command::id');
+
         Assertion::notEmptyString($name, 'Command::name');
-        Assertion::notEmptyString($this->commandLine, 'Command::commandLine');
+        Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'Command::name');
+        Assertion::unauthorizedCharacters(
+            $name,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            'Command::name'
+        );
+
+        Assertion::notEmptyString($commandLine, 'Command::commandLine');
+        Assertion::maxLength($commandLine, self::COMMAND_MAX_LENGTH, 'Command::commandLine');
+        Assertion::maxLength($argumentExample, self::EXAMPLE_MAX_LENGTH, 'Command::argumentExample');
     }
 
     public function getId(): int
@@ -64,9 +90,6 @@ class Command
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getCommandLine(): string
     {
         return $this->commandLine;
@@ -77,9 +100,6 @@ class Command
         return $this->type;
     }
 
-    /**
-     * @return bool
-     */
     public function isShellEnabled(): bool
     {
         return $this->isShellEnabled;
@@ -93,5 +113,52 @@ class Command
     public function isLocked(): bool
     {
         return $this->isLocked;
+    }
+
+    public function getArgumentExample(): string
+    {
+        return $this->argumentExample;
+    }
+
+    /**
+     * @return Argument[]
+     */
+    public function getArguments(): array
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * @return CommandMacro[]
+     */
+    public function getMacros(): array
+    {
+        return $this->macros;
+    }
+
+    public function getConnector(): ?SimpleEntity
+    {
+        return $this->connector;
+    }
+
+    public function getGraphTemplate(): ?SimpleEntity
+    {
+        return $this->graphTemplate;
+    }
+
+    /**
+     * @param Argument[] $arguments
+     */
+    public function setArguments(array $arguments): void
+    {
+        $this->arguments = $arguments;
+    }
+
+    /**
+     * @param CommandMacro[] $macros
+     */
+    public function setMacros(array $macros): void
+    {
+        $this->macros = $macros;
     }
 }

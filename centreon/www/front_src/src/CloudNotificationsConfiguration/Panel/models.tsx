@@ -19,7 +19,7 @@ export enum EventsType {
   Critical = 'Critical',
   Down = 'Down',
   Ok = 'Recovery',
-  Unkown = 'Unkown',
+  Unknown = 'Unknown',
   Unreachable = 'Unreachable',
   Up = 'Recovery',
   Warning = 'Warning'

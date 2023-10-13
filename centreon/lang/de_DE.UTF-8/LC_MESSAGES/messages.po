@@ -15544,13 +15544,13 @@ msgstr ""
 
 #cloud notifications
 
-# msgid 'Notifications management'
+# msgid 'Notification rules'
 # msgstr ""
 
 # msgid 'Welcome to the notifications interface'
 # msgstr ""
 
-# msgid 'Create a notification'
+# msgid 'Create a notification rule'
 # msgstr ""
 
 # msgid 'Add'
@@ -15604,7 +15604,7 @@ msgstr ""
 # msgid 'Select users'
 # msgstr ""
 
-# msgid 'Select time period / channels of notifications'
+# msgid 'Notification settings'
 # msgstr ""
 
 # msgid "Notification duplicated"
@@ -15616,10 +15616,10 @@ msgstr ""
 # msgid "Please enter a name for the duplicated notification"
 # msgstr ""
 
-# msgid 'Delete notification?'
+# msgid 'Delete notification rule?'
 # msgstr ""
 
-# msgid 'This action cannot be undone'
+# msgid 'This action cannot be undone.'
 # msgstr ""
 
 # msgid 'Collapse information panel'
@@ -15649,14 +15649,7 @@ msgstr ""
 # msgid 'The notification was successfully added'
 # msgstr ""
 
-# msgid 'Do you want to confirm the action ?'
-# msgstr ""
 
-# msgid 'Confirm notification creation'
-# msgstr ""
-
-# msgid 'Confirm notification update'
-# msgstr ""
 
 # msgid 'Choose at least 1 resource'
 # msgstr ""
@@ -16187,4 +16180,25 @@ msgstr ""
 #  msgstr ""
 
 #  msgid "Error while searching for host configurations"
+#  msgstr ""
+
+#  msgid "The '%s' command name already exists"
+#  msgstr ""
+
+#  msgid "'%d' is not a valid command type"
+#  msgstr ""
+
+#  msgid "The following arguments are not valid: %s"
+#  msgstr ""
+
+#  msgid "The following macros are not valid: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to add a command"
+#  msgstr ""
+
+#  msgid "Error while adding the command"
+#  msgstr ""
+
+#  msgid "Error while retrieving a command"
 #  msgstr ""

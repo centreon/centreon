@@ -25,6 +25,7 @@ namespace Core\Host\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 
 class TinyHost

@@ -10,9 +10,7 @@ import {
   labelChangeName,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelDoYouWantToConfirmAction,
   labelSuccessfulNotificationAdded,
-  labelConfirmAddNotification,
   labelClosePanel,
   labelDoYouWantToQuitWithoutSaving,
   labelYourFormHasUnsavedChanges,
@@ -158,7 +156,7 @@ describe('Create Panel', () => {
     cy.makeSnapshot();
   });
 
-  it('confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
+  it('sends a request to add a new notification with the form values when the Confirm button is clicked', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
     fillFormRequiredFields();
@@ -166,23 +164,6 @@ describe('Create Panel', () => {
     cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelSave).click();
-
-    cy.findByText(labelDoYouWantToConfirmAction);
-    cy.findByText(labelConfirmAddNotification);
-
-    cy.makeSnapshot();
-  });
-
-  it('sends a request to add a new notification with the form values When the Confirm button is clicked', () => {
-    cy.findByLabelText(labelSave).should('be.disabled');
-
-    fillFormRequiredFields();
-
-    cy.get('#panel-content').scrollTo('top');
-
-    cy.findByLabelText(labelSave).click();
-
-    cy.findByLabelText('Confirm').click();
 
     cy.waitForRequest('@addNotificationRequest').then(({ request }) => {
       expect(JSON.parse(request.body)).to.deep.equal(formData);

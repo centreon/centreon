@@ -89,7 +89,7 @@ $queryValues = [];
 
 // Get Host status
 $rq1 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT
-    h.name AS host_name, hg.name AS hgname, hgm.hostgroup_id, h.host_id, h.state, h.icon_image
+    1 AS REALTIME, h.name AS host_name, hg.name AS hgname, hgm.hostgroup_id, h.host_id, h.state, h.icon_image
     FROM hostgroups hg, hosts_hostgroups hgm, hosts h ";
 
 if (!$obj->is_admin) {
@@ -162,7 +162,7 @@ foreach ($queryValues as $bindId => $bindData) {
     }
 }
 $dbResult->execute();
-$numRows = $obj->DBC->query("SELECT FOUND_ROWS()")->fetchColumn();
+$numRows = $obj->DBC->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 
 $class = "list_one";
 $ct = 0;
