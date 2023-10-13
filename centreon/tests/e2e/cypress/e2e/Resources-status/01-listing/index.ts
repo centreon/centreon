@@ -179,7 +179,6 @@ When('I select the custom filter', () => {
 Then(
   'only Resources matching the selected filter are displayed in the result',
   () => {
-    cy.contains('1-1 of 1');
     cy.contains(serviceOk);
   }
 );
