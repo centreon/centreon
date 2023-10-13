@@ -530,15 +530,15 @@ sub decrypt_internal_message {
         }
         foreach my $key (@$keys) {
             if ($options{frame}->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
-                return;
+                return 0;
             }
         }
 
         $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $options{frame}->getLastError());
-        return;
+        return 1;
     }
 
-    return;
+    return 0;
 }
 
 sub send_internal_response {
@@ -770,7 +770,7 @@ sub router_internal_event {
         push @{$self->{ievents}}, [ $identity, $frame ];
     }
     while (my $event = shift(@{$self->{ievents}})) {
-        $self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]);
+        next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
 
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
