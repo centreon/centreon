@@ -52,6 +52,7 @@ export const ConfirmationTooltip = ({
         {children(isOpen ? close : open)}
         <Popper
           anchorEl={anchorElement}
+          className={classes.popper}
           open={isOpen}
           popperOptions={{
             placement: 'bottom-start'

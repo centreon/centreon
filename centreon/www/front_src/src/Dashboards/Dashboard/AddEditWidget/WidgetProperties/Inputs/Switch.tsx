@@ -8,7 +8,7 @@ import { Box, FormControlLabel, Typography } from '@mui/material';
 import { Switch } from '@centreon/ui/components';
 
 import { Widget, WidgetPropertyProps } from '../../models';
-import { editProperties } from '../../../useCanEditDashboard';
+import { editProperties } from '../../../hooks/useCanEditDashboard';
 
 import { getProperty } from './utils';
 import { useSwitchStyles } from './Inputs.styles';

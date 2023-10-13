@@ -3,27 +3,37 @@ import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
 import {
-  SvgIconProps,
   MenuList,
   MenuItem,
   ListItemText,
   ListItemIcon,
-  Divider
+  Divider,
+  SvgIconTypeMap
 } from '@mui/material';
+import { OverridableComponent } from '@mui/material/OverridableComponent';
+
+import { sanitizedHTML } from '..';
 
 import { useStyles } from './ActionsList.styles';
 import { ActionVariants } from './models';
 
 interface ActionsType {
-  Icon?: (props: SvgIconProps) => JSX.Element;
+  Icon?: OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
+    muiName: string;
+  };
   label: string;
   onClick?: (e?) => void;
   secondaryLabel?: string;
   variant?: ActionVariants;
 }
 
+export enum ActionsListActionDivider {
+  divider = 'divider'
+}
+export type ActionsListActions = Array<ActionsType | ActionsListActionDivider>;
+
 interface Props {
-  actions: Array<ActionsType | 'divider'>;
+  actions: ActionsListActions;
   className?: string;
   listItemClassName?: string;
 }
@@ -39,7 +49,7 @@ const ActionsList = ({
   return (
     <MenuList className={cx(classes.list, className)}>
       {actions?.map((action, idx) => {
-        if (equals(action, 'divider')) {
+        if (equals(action, ActionsListActionDivider.divider)) {
           return <Divider key={`divider_${idx}`} />;
         }
 
@@ -63,7 +73,10 @@ const ActionsList = ({
             <ListItemText
               className={listItemClassName}
               primary={t(label)}
-              secondary={secondaryLabel && t(secondaryLabel)}
+              secondary={
+                secondaryLabel &&
+                sanitizedHTML({ initialContent: t(secondaryLabel) })
+              }
             />
           </MenuItem>
         );

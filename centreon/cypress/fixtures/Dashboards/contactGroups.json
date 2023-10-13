@@ -1,0 +1,19 @@
+{
+  "result": [
+    {
+      "id": 3,
+      "name": "Guest"
+    },
+    {
+      "id": 5,
+      "name": "Supervisors"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 1000,
+    "search": {},
+    "sort_by": {},
+    "total": 2
+  }
+}

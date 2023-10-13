@@ -20,7 +20,7 @@ import {
 import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
 import Subtitle from '../../../../components/Subtitle';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useThreshold from './useThreshold';
 

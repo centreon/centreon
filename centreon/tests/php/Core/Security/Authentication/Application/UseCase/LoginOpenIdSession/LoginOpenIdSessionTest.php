@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginOpenIdSession;
 
 use CentreonDB;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Pimple\Container;
 use Centreon\Domain\Contact\Contact;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,6 +65,7 @@ use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryI
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 beforeEach(function () {
     $this->repository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
@@ -105,6 +107,7 @@ beforeEach(function () {
     $this->aclUpdater = $this->createMock(AclUpdaterInterface::class);
     $this->menuService = $this->createMock(MenuServiceInterface::class);
     $this->defaultRedirectUri = '/monitoring/resources';
+    $this->thirdPartyLoginForm = new ThirdPartyLoginForm($this->createMock(UrlGeneratorInterface::class));
 
     $configuration = new Configuration(
         1,
@@ -170,7 +173,8 @@ it('expects to return an error message in presenter when no provider configurati
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $useCase($request, $this->presenter);
@@ -199,7 +203,8 @@ it('expects to execute authenticateOrFail method from OpenIdProvider', function 
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
     $useCase($request, $this->presenter);
 });
@@ -241,7 +246,8 @@ it(
             $this->writeSessionTokenRepository,
             $this->aclUpdater,
             $this->menuService,
-            $this->defaultRedirectUri
+            $this->defaultRedirectUri,
+            $this->thirdPartyLoginForm,
         );
         $useCase($request, $this->presenter);
         expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
@@ -287,7 +293,8 @@ it(
             $this->writeSessionTokenRepository,
             $this->aclUpdater,
             $this->menuService,
-            $this->defaultRedirectUri
+            $this->defaultRedirectUri,
+            $this->thirdPartyLoginForm,
         );
 
         $useCase($request, $this->presenter);
@@ -337,7 +344,8 @@ it('should update access groups for the authenticated user', function () {
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $useCase($request, $this->presenter);

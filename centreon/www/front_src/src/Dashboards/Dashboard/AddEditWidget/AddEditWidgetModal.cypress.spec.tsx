@@ -37,7 +37,7 @@ import {
   labelAddMetric
 } from '../translatedLabels';
 import { dashboardAtom } from '../atoms';
-import { editProperties } from '../useCanEditDashboard';
+import { editProperties } from '../hooks/useCanEditDashboard';
 
 import { widgetFormInitialDataAtom } from './atoms';
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';

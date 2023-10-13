@@ -4,13 +4,12 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { unstable_useBlocker } from 'react-router-dom';
 import { equals } from 'ramda';
 
-import { NamedEntity } from '../api/models';
-
+import { NamedEntity } from '../../api/models';
 import {
   dashboardAtom,
   isEditingAtom,
   quitWithoutSavedDashboardAtom
-} from './atoms';
+} from '../atoms';
 
 export interface UseDashboardSaveBlockerState {
   blockNavigation?: () => void;

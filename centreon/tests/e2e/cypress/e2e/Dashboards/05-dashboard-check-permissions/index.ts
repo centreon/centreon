@@ -213,6 +213,7 @@ Then(
       'contain.text',
       `created by ${adminUser.login}`
     );
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('admin admin').should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
@@ -242,9 +243,7 @@ When('the admin user deletes the newly created dashboard', () => {
     .find('button[aria-label="delete"]')
     .click();
 
-  cy.contains('Delete dashboard').should('be.visible');
-
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
   cy.wait('@listAllDashboards');
 });
 
@@ -408,6 +407,7 @@ Then(
       'contain.text',
       `created by ${dashboardAdministratorUser.login}`
     );
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains(`${dashboardAdministratorUser.login}`).should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
@@ -439,9 +439,7 @@ When(
       .find('button[aria-label="delete"]')
       .click();
 
-    cy.contains('Delete dashboard').should('be.visible');
-
-    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
     cy.wait('@listAllDashboards');
   }
 );
@@ -604,6 +602,7 @@ Then(
       'contain.text',
       `created by ${dashboardCreatorUser.login}`
     );
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains(`${dashboardCreatorUser.login}`).should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
@@ -633,9 +632,7 @@ When('the dashboard editor user deletes the newly created dashboard', () => {
     .find('button[aria-label="delete"]')
     .click();
 
-  cy.contains('Delete dashboard').should('be.visible');
-
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
   cy.wait('@listAllDashboards');
 });
 

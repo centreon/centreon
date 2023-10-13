@@ -6,21 +6,20 @@ import { equals, propOr } from 'ramda';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 
-import { dashboardsEndpoint } from '../api/endpoints';
-import { Dashboard, DashboardPanel, resource } from '../api/models';
-import { dashboardDecoder } from '../api/decoders';
-import { FederatedModule } from '../../federatedModules/models';
-import { federatedWidgetsAtom } from '../../federatedModules/atoms';
-import { useDashboardUserPermissions } from '../components/DashboardUserPermissions/useDashboardUserPermissions';
-
-import { Panel, PanelConfiguration } from './models';
+import { dashboardsEndpoint } from '../../api/endpoints';
+import { Dashboard, DashboardPanel, resource } from '../../api/models';
+import { dashboardDecoder } from '../../api/decoders';
+import { FederatedModule } from '../../../federatedModules/models';
+import { federatedWidgetsAtom } from '../../../federatedModules/atoms';
+import { useDashboardUserPermissions } from '../../components/DashboardUserPermissions/useDashboardUserPermissions';
+import { Panel, PanelConfiguration } from '../models';
 import {
   dashboardAtom,
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
   isEditingAtom,
   panelsLengthAtom
-} from './atoms';
+} from '../atoms';
 
 interface UseDashboardDetailsState {
   dashboard?: Dashboard;

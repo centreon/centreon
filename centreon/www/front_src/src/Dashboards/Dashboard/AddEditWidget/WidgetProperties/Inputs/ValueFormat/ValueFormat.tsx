@@ -9,7 +9,7 @@ import {
   labelValueFormat
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useValueFormat from './useValueFormat';
 
