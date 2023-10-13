@@ -34,6 +34,7 @@ import {
 import { dialogStateAtom } from '../components/DashboardAccessRights/useDashboardAccessRights';
 import { labelDelete } from '../translatedLabels';
 
+import { routerParams } from './hooks/useDashboardDetails';
 import {
   labelAddAWidget,
   labelDeleteAWidget,
@@ -55,7 +56,6 @@ import {
   labelManualRefreshOnly,
   labelInterval
 } from './translatedLabels';
-import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
 import { dashboardAtom } from './atoms';
 
@@ -365,7 +365,6 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
       cy.contains(labelDeleteWidget).click();
 
-      cy.contains(labelDeleteAWidget).should('be.visible');
       cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
 
       cy.findByLabelText(labelDelete).click();

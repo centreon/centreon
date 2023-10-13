@@ -9,7 +9,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { labelTimePeriod } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useTimePeriod from './useTimePeriod';
 import { useTimePeriodStyles } from './TimePeriod.styles';

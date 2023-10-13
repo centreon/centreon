@@ -10,9 +10,9 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Button } from '@centreon/ui/components';
 
 import { DashboardPanel } from '../../../api/models';
-import { formatPanel } from '../../useDashboardDetails';
-import useDashboardDirty from '../../useDashboardDirty';
-import useSaveDashboard from '../../useSaveDashboard';
+import { formatPanel } from '../../hooks/useDashboardDetails';
+import useDashboardDirty from '../../hooks/useDashboardDirty';
+import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import {
   labelEditDashboard,

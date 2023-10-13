@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 
-import { hasEditPermissionAtom, isEditingAtom } from './atoms';
+import { hasEditPermissionAtom, isEditingAtom } from '../atoms';
 
 const useCanEditProperties = (): {
   canEdit?: boolean;

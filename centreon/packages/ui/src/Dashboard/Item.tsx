@@ -67,7 +67,10 @@ const Item = forwardRef(
             width: `calc(${prop('width', style) || '0px'} - 12px)`
           }}
         >
-          <Card className={classes.widgetContainer}>
+          <Card
+            className={classes.widgetContainer}
+            data-padding={!disablePadding}
+          >
             {header && (
               <div
                 {...listeners}

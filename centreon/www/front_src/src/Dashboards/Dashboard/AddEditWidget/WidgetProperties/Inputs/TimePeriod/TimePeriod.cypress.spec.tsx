@@ -6,7 +6,7 @@ import {
   labelTimePeriod,
   labelTo
 } from '../../../../translatedLabels';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
