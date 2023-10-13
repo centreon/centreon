@@ -15,7 +15,7 @@ import {
   labelViewWidgetProperties
 } from '../translatedLabels';
 import Title from '../../components/Title';
-import { editProperties } from '../useCanEditDashboard';
+import { editProperties } from '../hooks/useCanEditDashboard';
 import { isSidebarOpenAtom } from '../../../Navigation/navigationAtoms';
 
 import useWidgetForm from './useWidgetModal';

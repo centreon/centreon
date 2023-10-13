@@ -6,7 +6,7 @@ import {
   labelInterval,
   labelRefreshInterval
 } from '../../../../translatedLabels';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import { dashboardRefreshIntervalAtom } from '../../../../atoms';
 
 import RefreshInterval from './RefreshInterval';

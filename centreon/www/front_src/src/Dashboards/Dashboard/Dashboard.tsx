@@ -20,11 +20,11 @@ import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/
 import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
 
 import Layout from './Layout';
-import useDashboardDetails, { routerParams } from './useDashboardDetails';
+import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
-import { editProperties } from './useCanEditDashboard';
+import { editProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
 
 const Dashboard = (): ReactElement => {

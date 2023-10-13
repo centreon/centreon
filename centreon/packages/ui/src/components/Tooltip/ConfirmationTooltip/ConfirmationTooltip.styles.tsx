@@ -15,5 +15,8 @@ export const useStyles = makeStyles()((theme) => ({
     boxShadow: theme.shadows[3],
     marginLeft: theme.spacing(2),
     maxWidth: '350px'
+  },
+  popper: {
+    zIndex: theme.zIndex.tooltip + 1
   }
 }));

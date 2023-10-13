@@ -9,8 +9,7 @@ import { DashboardLayout, getColumnsFromScreenSize } from '@centreon/ui';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
 import { AddEditWidgetModal, AddWidgetPanel } from '../AddEditWidget';
-import { DeleteWidgetModal } from '../DeleteWidget';
-import { editProperties } from '../useCanEditDashboard';
+import { editProperties } from '../hooks/useCanEditDashboard';
 
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
@@ -119,7 +118,6 @@ const Layout = (): JSX.Element => {
         ))}
       </DashboardLayout.Layout>
       <AddEditWidgetModal />
-      <DeleteWidgetModal />
     </>
   );
 };
