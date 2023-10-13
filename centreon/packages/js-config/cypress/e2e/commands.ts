@@ -229,7 +229,11 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
-    return cy.task('startContainer', { image, name, portBindings });
+    return cy.task(
+      'startContainer',
+      { image, name, portBindings },
+      { timeout: 600000 } // 10 minutes because docker pull can be very slow
+    );
   }
 );
 
