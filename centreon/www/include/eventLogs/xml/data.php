@@ -592,6 +592,7 @@ foreach ($tab_id as $openid) {
 
 // Build final request
 $req = "SELECT SQL_CALC_FOUND_ROWS " . (!$is_admin ? "DISTINCT" : "") . "
+        1 AS REALTIME,
         logs.ctime,
         logs.host_id,
         logs.host_name,
@@ -731,7 +732,7 @@ if (isset($req) && $req) {
     $logs = $stmt->fetchAll();
     $stmt->closeCursor();
 
-    $rows = $pearDBO->query("SELECT FOUND_ROWS()")->fetchColumn();
+    $rows = $pearDBO->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 
     $buffer->startElement("selectLimit");
     for ($i = 10; $i <= 100; $i = $i + 10) {

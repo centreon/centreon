@@ -96,7 +96,7 @@ $queryValues = [];
 /**
  * Get status
  */
-$rq1 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT hosts.name, hosts.state, hosts.icon_image, hosts.host_id FROM hosts ";
+$rq1 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hosts.name, hosts.state, hosts.icon_image, hosts.host_id FROM hosts ";
 if ($hostgroups) {
     $rq1 .= ", hosts_hostgroups hg, hostgroups hg2 ";
 }
@@ -162,7 +162,7 @@ foreach ($queryValues as $bindId => $bindData) {
 }
 $dbResult->execute();
 
-$numRows = $obj->DBC->numberRows();
+$numRows = (int) $obj->DBC->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
 // Info / Pagination
 $obj->XML->startElement("reponse");
