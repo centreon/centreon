@@ -193,7 +193,6 @@ jobs:
         shell: bash
 
       - name: Get TestExecution ID
-        if: always()
         id: get-testExecution-id
         run: |
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
@@ -215,14 +214,12 @@ jobs:
             }
           }'
 
-          xray_graphql_mutation='mutation {
-          addTestExecutionsToTestPlan(
-            issueId: "72369",
-            testExecIssueIds: ["'${{ steps.get-testExecution-id.outputs.testExecution_id }}'"]
-          ) {
-            addedTestExecutions
-            warning
-          }
+          xray_graphql_mutation='{
+            "query": "mutation AddTestExecution($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
+            "variables": {
+              "issueId": "72369", 
+              "testExecIssueIds": ["'${{ steps.get-testExecution-id.outputs.testExecution_id }}'"]
+            }
           }'
           
           #Update the component and the summary for the testExecution
