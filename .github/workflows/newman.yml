@@ -149,7 +149,7 @@ jobs:
               TEST_EXEC_KEY="MON-22584"
               JUNIT_XML_DIRECTORY=$(find ./newman -name "*.xml")
               # Itérez sur les fichiers JUnit XML dans le répertoire
-              for file in JUNIT_XML_DIRECTORY; do
+              for file in $JUNIT_XML_DIRECTORY; do
                 echo "Importing file: $file"
                 # Créez une requête POST pour importer le fichier actuel
                 curl -X POST -u $API_USERNAME:$API_PASSWORD \
