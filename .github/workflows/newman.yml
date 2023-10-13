@@ -129,16 +129,33 @@ jobs:
     - name: Verify CLIENT_ID Secret
       run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
 
+    # - name: Import results to Xray
+    #   uses: mikepenz/xray-action@v3.0.2
+    #   with:
+    #       username: ${{ secrets.CLIENT_ID }}
+    #       password: ${{ secrets.CLIENT_SECRET }}
+    #       testFormat: "junit"
+    #       testPaths: "centreon/tests/rest_api/newman/"
+    #       projectKey: "MON"
+    #       combineInSingleTestExec: true
+    #       testExecKey: MON-22582
+
     - name: Import results to Xray
-      uses: mikepenz/xray-action@v3.0.2
-      with:
-          username: ${{ secrets.CLIENT_ID }}
-          password: ${{ secrets.CLIENT_SECRET }}
-          testFormat: "junit"
-          testPaths: "centreon/tests/rest_api/newman/"
-          projectKey: "MON"
-          combineInSingleTestExec: true
-          testExecKey: MON-22582
+      run: |
+            API_USERNAME=$CLIENT_ID
+            API_PASSWORD=$CLIENT_SECRET
+            xml_files=$(find ./newman -name "*.xml")
+
+            for file in $xml_files; do
+              echo "Found XML file: $file"
+              curl -X POST -u $API_USERNAME:$API_PASSWORD \
+                -F "file=@$file" \
+                "https://centreon.atlassian.net/rest/raven/1.0/import/execution//MON-22584" \
+                -H "Content-Type: multipart/form-data"
+            done
+      env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
     - name: Extract and Store Summaries
       if: failure()
