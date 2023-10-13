@@ -116,7 +116,7 @@ jobs:
           echo "Generating reports for: $collection_name"
           echo "Collection: $collection_file"
           echo "Environment: $environment_file"
-           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitfull,json-summary --reporter-junitfull-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" -n 1
+           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,junitxray,json-summary --reporter-junitxray-export "newman/${collection_name}.xml" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json" -n 1
           else
           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
           exit 1
@@ -147,46 +147,52 @@ jobs:
 
     - name: Create Xray Test Cases
       run: |
-          collections=($(find ./collections -type f -name "*.postman_collection.json"))
-          for collection_file in "${collections[@]}"; do
-            collection_name=$(basename "$collection_file" .postman_collection.json)
-            collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
-            # Créer un cas de test dans Jira Xray et l'associer à l'exécution de test MON-22584
-            test_case_response=$(curl -X POST \
-            -H "Authorization: Bearer $VOTRE_JETON" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "fields": {
-                "project": {
-                  "key": "'"$VOTRE_PROJET_KEY"'"
-                },
-                "summary": "'"$collection_name_sanitized"'",
-                "description": "Test case for '"$collection_name_sanitized"'",
-                "issuetype": {
-                  "name": "Test"
-                }
+        collections=($(find ./collections -type f -name "*.postman_collection.json"))
+        for collection_file in "${collections[@]}"; do
+          collection_name=$(basename "$collection_file" .postman_collection.json)
+          collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
+
+          # Remplacez Bearer par Basic et utilisez un nom d'utilisateur et un mot de passe
+          # Assurez-vous que votre nom d'utilisateur et votre mot de passe sont corrects et codés en base64
+          credentials_base64=$(echo -n 'VOTRE_NOM_UTILISATEUR:VOTRE_MOT_DE_PASSE' | base64)
+
+          # Créez un cas de test dans Jira Xray et associez-le à l'exécution de test MON-22584
+          test_case_response=$(curl -X POST \
+          -H "Authorization: Basic $credentials_base64" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "fields": {
+              "project": {
+                "key": "'"$VOTRE_PROJET_KEY"'"
+              },
+              "summary": "'"$collection_name_sanitized"'",
+              "description": "Test case for '"$collection_name_sanitized"'",
+              "issuetype": {
+                "name": "Test"
               }
-            }' \
-            "https://centreon.atlassian.net/rest/api/2/issue")
+            }
+          }' \
+          "https://centreon.atlassian.net/rest/api/2/issue")
 
-            # Extraire la clé du nouveau cas de test créé
-            test_case_key=$(echo "$test_case_response" | jq -r '.key')
+          # Extrayez la clé du nouveau cas de test créé
+          test_case_key=$(echo "$test_case_response" | jq -r '.key')
 
-            # Associer le cas de test à l'exécution de test MON-22584
-            curl -X POST \
-            -H "Authorization: Bearer $VOTRE_JETON" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "issues": ["'"$test_case_key"'"],
-              "projectKey": "'"$VOTRE_PROJET_KEY"'",
-              "testExecutionKey": "MON-22584"
-            }' \
-            "https://centreon.atlassian.net/testexec/MON-22584/issue"
+          # Associez le cas de test à l'exécution de test MON-22584
+          curl -X POST \
+          -H "Authorization: Basic $credentials_base64" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "issues": ["'"$test_case_key"'"],
+            "projectKey": "'"$VOTRE_PROJET_KEY"'",
+            "testExecutionKey": "MON-22584"
+          }' \
+          "https://centreon.atlassian.net/testexec/MON-22584/issue"
 
-            echo "Created test case $collection_name_sanitized and associated it with MON-22584"
-          done
+          echo "Created test case $collection_name_sanitized and associated it with MON-22584"
+        done
       env:
-        VOTRE_JETON: ${{ secrets.JIRA_TOKEN_TEST }}
+        VOTRE_NOM_UTILISATEUR: ${{ secrets.JIRA_USER }}
+        VOTRE_MOT_DE_PASSE: ${{ secrets.JIRA_TOKEN_TEST }}
         VOTRE_PROJET_KEY: "MON"
 
 
