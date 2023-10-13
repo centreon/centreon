@@ -137,7 +137,7 @@ jobs:
           testFormat: "junit"
           testPaths: "centreon/tests/rest_api/newman/10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection.xml"
           projectKey: "MON"
-          testExecKey: "22584"
+          testExecKey: "MON-22584"
 
     - name: Extract and Store Summaries
       if: failure()
