@@ -171,7 +171,7 @@ jobs:
             }' | jq -r '.key')
 
           curl --request POST \
-            --url 'https://centreon.atlassian.net/testexec/MON-22584/test' \
+            --url 'https://centreon.atlassian.net/rest/api/3/testexec/MON-22584/test' \
             --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
