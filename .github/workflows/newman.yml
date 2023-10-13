@@ -186,7 +186,7 @@ jobs:
             "projectKey": "'"$VOTRE_PROJET_KEY"'",
             "testExecutionKey": "MON-22584"
           }' \
-          "https://centreon.atlassian.net/testexec/MON-22584/issue"
+          "https://centreon.atlassian.net/testexec/MON-22584/test"
 
           echo "Created test case $collection_name_sanitized and associated it with MON-22584"
         done
