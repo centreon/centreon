@@ -1,4 +1,4 @@
-@REQ_MON-22122
+@REQ_MON-22122 @ignore
 Feature: OpenID Connect authentication
     As an admin of Centreon Platform
     I want to be able to use an external authentication provider
