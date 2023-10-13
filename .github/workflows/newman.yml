@@ -138,7 +138,7 @@ jobs:
           testPaths: "centreon/tests/rest_api/newman/"
           projectKey: "MON"
           testExecKey:
-
+      timeout-minutes: 10
     # - name: Import JUnit XML results to Jira Xray
     #   run: |
     #         API_USERNAME=$CLIENT_ID
