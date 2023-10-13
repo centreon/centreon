@@ -129,16 +129,38 @@ jobs:
     - name: Verify CLIENT_ID Secret
       run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
 
-    - name: Import results to Xray
-      uses: mikepenz/xray-action@v3.0.2
-      with:
-          username: ${{ secrets.CLIENT_ID }}
-          password: ${{ secrets.CLIENT_SECRET }}
-          testFormat: "junit"
-          testPaths: "centreon/tests/rest_api/newman/"
-          projectKey: "MON"
-          testExecKey:
+    # - name: Import results to Xray
+    #   uses: mikepenz/xray-action@v3.0.2
+    #   with:
+    #       username: ${{ secrets.CLIENT_ID }}
+    #       password: ${{ secrets.CLIENT_SECRET }}
+    #       testFormat: "junit"
+    #       testPaths: "centreon/tests/rest_api/newman/"
+    #       projectKey: "MON"
+    #       testExecKey:
 
+    - name: Import JUnit XML results to Jira Xray
+      run: |
+              API_USERNAME=$CLIENT_ID
+              API_PASSWORD=$CLIENT_SECRET
+
+              BASE_URL="https://centreon.atlassian.net/rest/raven/1.0/import/execution/junit"
+              PROJECT_KEY="MON"
+              TEST_EXEC_KEY="MON-22584"
+              JUNIT_XML_DIRECTORY=$(find ./newman -name "*.xml")
+              # Itérez sur les fichiers JUnit XML dans le répertoire
+              for file in JUNIT_XML_DIRECTORY; do
+                echo "Importing file: $file"
+                # Créez une requête POST pour importer le fichier actuel
+                curl -X POST -u $API_USERNAME:$API_PASSWORD \
+                     -F "projectKey=$PROJECT_KEY" \
+                     -F "testExecKey=$TEST_EXEC_KEY" \
+                     -F "file=@$file" \
+                     "$BASE_URL"
+              done
+      env:
+            CLIENT_ID: ${{ secrets.CLIENT_ID }}
+            CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
     # - name: Import results to Xray
     #   run: |
     #         API_USERNAME=$CLIENT_ID
