@@ -99,7 +99,7 @@ class CentreonLogAction
         global $pearDBO;
 
         // Check if audit log option is activated
-        $optLogs = $pearDBO->query("SELECT audit_log_option FROM `config`");
+        $optLogs = $pearDBO->query("SELECT 1 AS REALTIME, audit_log_option FROM `config`");
         $auditLog = $optLogs->fetchRow();
 
         if (($auditLog) && ($auditLog['audit_log_option'] == '1')) {

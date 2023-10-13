@@ -94,7 +94,7 @@ $queryValues = [];
  */
 $request = <<<SQL
     SELECT SQL_CALC_FOUND_ROWS DISTINCT
-      hosts.name, hosts.state, hosts.icon_image, hosts.host_id
+      1 AS REALTIME, hosts.name, hosts.state, hosts.icon_image, hosts.host_id
     FROM hosts
     SQL;
 
@@ -177,7 +177,7 @@ foreach ($queryValues as $bindId => $bindData) {
 }
 $dbResult->execute();
 
-$numRows = $obj->DBC->numberRows();
+$numRows = (int) $obj->DBC->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
 $obj->XML->startElement("reponse");
 $obj->XML->startElement("i");
