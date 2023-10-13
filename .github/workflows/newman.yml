@@ -150,7 +150,7 @@ jobs:
               echo "Found XML file: $file"
               curl -X POST -u $API_USERNAME:$API_PASSWORD \
                 -F "file=@$file" \
-                "https://centreon.atlassian.net/rest/raven/1.0/import/execution//MON-22584" \
+                "https://centreon.atlassian.net/rest/api/2/issue/MON-22584"
                 -H "Content-Type: multipart/form-data"
             done
       env:
