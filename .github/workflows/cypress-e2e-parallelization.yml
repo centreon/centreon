@@ -209,7 +209,7 @@ jobs:
           jira_payload='
           {
             "fields": {
-              "summary": "Branch: ${{ github.ref}} Commit: ${{ github.sha }}",
+              "summary": "${{ github.run_id}} E2E Tests",
               "components": [{"name": "centreon-web"}]
             }
           }'
