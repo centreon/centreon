@@ -16033,7 +16033,7 @@ msgstr ""
 #  msgstr ""
 
 msgid "Advanced mode"
-msgstr "Erweitert-modus"
+msgstr "Erweiterter Modus"
 
 #  msgid "Error while adding a token"
 #  msgstr ""
