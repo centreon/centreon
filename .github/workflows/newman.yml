@@ -137,7 +137,7 @@ jobs:
           testFormat: "junit"
           testPaths: "centreon/tests/rest_api/newman/"
           projectKey: "MON"
-          testExecKey: MON-22582
+          testExecKey:
 
     # - name: Import results to Xray
     #   run: |
