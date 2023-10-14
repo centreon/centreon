@@ -98,7 +98,9 @@ const getExtensions = cond([
   [T, identity]
 ]) as (accept: string) => Array<string>;
 
-export const transformFileListToArray = (files: FileList | null): Array<File> =>
+export const transformFileListToArray = (
+  files: FileList | null
+): Array<File> =>
   isNil(files)
     ? []
     : (Array(files.length)

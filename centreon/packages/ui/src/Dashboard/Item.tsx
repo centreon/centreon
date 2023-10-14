@@ -27,7 +27,7 @@ interface DashboardItemProps {
   style?: CSSProperties;
 }
 
-const Item = forwardRef(
+const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
   (
     {
       children,

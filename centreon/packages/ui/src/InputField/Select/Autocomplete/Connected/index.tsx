@@ -280,13 +280,16 @@ const ConnectedAutocompleteField = (
       }
     }, [optionsOpen]);
 
-    useEffect(() => {
-      setSearchParameter(
-        !isEmpty(searchConditions)
-          ? { conditions: searchConditions }
-          : undefined
-      );
-    }, useDeepCompare([searchConditions]));
+    useEffect(
+      () => {
+        setSearchParameter(
+          !isEmpty(searchConditions)
+            ? { conditions: searchConditions }
+            : undefined
+        );
+      },
+      useDeepCompare([searchConditions])
+    );
 
     useEffect(() => {
       if (!autocompleteChangedValue && !props?.value) {

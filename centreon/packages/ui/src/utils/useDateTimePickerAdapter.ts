@@ -86,10 +86,14 @@ export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
       const january = hasNoTimezone
         ? dayjs(new Date(currentYear, 0, 1)).utcOffset()
-        : dayjs(new Date(currentYear, 0, 1)).tz(timezoneToUse).utcOffset();
+        : dayjs(new Date(currentYear, 0, 1))
+            .tz(timezoneToUse)
+            .utcOffset();
       const july = hasNoTimezone
         ? dayjs(new Date(currentYear, 6, 1)).utcOffset()
-        : dayjs(new Date(currentYear, 6, 1)).tz(timezoneToUse).utcOffset();
+        : dayjs(new Date(currentYear, 6, 1))
+            .tz(timezoneToUse)
+            .utcOffset();
 
       if (equals(january, july)) {
         return DSTState.NODST;
