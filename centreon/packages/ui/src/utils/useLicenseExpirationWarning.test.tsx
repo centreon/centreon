@@ -7,6 +7,7 @@ import {
   resetMocks,
   waitFor
 } from '../../test/testRenderer';
+import TestQueryProvider from '../api/TestQueryProvider';
 
 import { labelLicenseWarning } from './translatedLabel';
 
@@ -107,10 +108,14 @@ jest.mock('../Snackbar/useSnackbar', () => ({
 }));
 
 const initialize = (): void => {
-  renderHook(() =>
-    useLicenseExpirationWarning({
-      module: 'centreon-autodiscovery-server'
-    })
+  renderHook(
+    () =>
+      useLicenseExpirationWarning({
+        module: 'centreon-autodiscovery-server'
+      }),
+    {
+      wrapper: TestQueryProvider
+    }
   );
 };
 
