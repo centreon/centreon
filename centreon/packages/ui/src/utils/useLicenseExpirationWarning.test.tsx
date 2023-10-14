@@ -90,12 +90,6 @@ const mockRequest = ({ expirationDate }: { expirationDate }): void => {
   mockResponse({
     data: getMockedResponse(expirationDate)
   });
-  // cy.interceptAPIRequest({
-  //   alias: 'getLicenseInformations',
-  //   method: Method.GET,
-  //   path: '**internal.php?object=centreon_module&action=list',
-  //   response: getMockedResponse(expirationDate)
-  // });
 };
 
 const showMessage = jest.fn();
@@ -145,8 +139,10 @@ describe('License', () => {
       );
     });
 
-    expect(showMessage).toHaveBeenCalledWith(
-      labelLicenseWarning('centreon-autodiscovery-server', 10)
-    );
+    waitFor(() => {
+      expect(showMessage).toHaveBeenCalledWith(
+        labelLicenseWarning('centreon-autodiscovery-server', 10)
+      );
+    });
   });
 });

@@ -283,6 +283,10 @@ const getPreviousMonth = ({
   return cy.get(`[aria-label="${labelButton}"]`).click();
 };
 
+const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
+  return new Set(arr).size !== arr.length;
+};
+
 testData.forEach((item) =>
   describe(`DateTimePicker ${item.button}`, () => {
     beforeEach(() => {
@@ -319,6 +323,32 @@ testData.forEach((item) =>
 
         const currentMonth = Object.keys(element)[0];
 
+        if (equals(item.button, ButtonCalendar.PMONTH)) {
+          getPreviousMonth({ currentMonth, labelButton: item.button });
+        } else {
+          getNextMonth({ currentMonth, labelButton: item.button });
+        }
+      });
+    });
+
+    it(`does not duplicate days in any of the month in the year when the ${item.button} button is clicked`, () => {
+      cy.get('button').click();
+      item.data.forEach((element) => {
+        const daysInCurrentMonth: Array<string> = [];
+        cy.get('[role="rowgroup"]').first().children().as('listWeeks');
+        cy.get('@listWeeks').children('button').as('days');
+
+        cy.get('@days')
+          .each(($day) => daysInCurrentMonth.push($day.text()))
+          .as('currentDays');
+
+        cy.get('@currentDays').then(() => {
+          const isDuplicateExist = checkIfDuplicateExists(daysInCurrentMonth);
+
+          return expect(isDuplicateExist).to.be.false;
+        });
+
+        const currentMonth = Object.keys(element)[0];
         if (equals(item.button, ButtonCalendar.PMONTH)) {
           getPreviousMonth({ currentMonth, labelButton: item.button });
         } else {
