@@ -1,6 +1,12 @@
 import dayjs from 'dayjs';
+import { renderHook } from '@testing-library/react';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import {
+  getFetchCall,
+  mockResponse,
+  resetMocks,
+  waitFor
+} from '../../test/testRenderer';
 
 import { labelLicenseWarning } from './translatedLabel';
 
@@ -79,59 +85,63 @@ const getMockedResponse = (expirationDate): object => ({
 });
 
 const mockRequest = ({ expirationDate }: { expirationDate }): void => {
-  cy.interceptAPIRequest({
-    alias: 'getLicenseInformations',
-    method: Method.GET,
-    path: '**internal.php?object=centreon_module&action=list',
-    response: getMockedResponse(expirationDate)
+  resetMocks();
+  mockResponse({
+    data: getMockedResponse(expirationDate)
   });
+  // cy.interceptAPIRequest({
+  //   alias: 'getLicenseInformations',
+  //   method: Method.GET,
+  //   path: '**internal.php?object=centreon_module&action=list',
+  //   response: getMockedResponse(expirationDate)
+  // });
 };
 
-const TestComponent = (): JSX.Element => {
-  useLicenseExpirationWarning({
-    module: 'centreon-autodiscovery-server'
-  });
+const showMessage = jest.fn();
 
-  return <div />;
-};
-
-const TestWithQueryProvider = (): JSX.Element => {
-  return (
-    <TestQueryProvider>
-      <SnackbarProvider>
-        <TestComponent />
-      </SnackbarProvider>
-    </TestQueryProvider>
-  );
-};
+jest.mock('../Snackbar/useSnackbar', () => ({
+  __esModule: true,
+  default: jest
+    .fn()
+    .mockImplementation(() => ({ showWarningMessage: showMessage }))
+}));
 
 const initialize = (): void => {
-  cy.viewport('macbook-13');
-
-  cy.mount({
-    Component: <TestWithQueryProvider />
-  });
+  renderHook(() =>
+    useLicenseExpirationWarning({
+      module: 'centreon-autodiscovery-server'
+    })
+  );
 };
 
 const currentDate = dayjs();
 
 describe('License', () => {
-  beforeEach(initialize);
-
   it('does not display any warning message when the license expires in more than 15 days from the current date', () => {
     mockRequest({ expirationDate: currentDate.add(20, 'day') });
+    initialize();
 
-    cy.waitForRequest('@getLicenseInformations');
+    waitFor(() => {
+      expect(getFetchCall(0)).toEqual(
+        'internal.php?object=centreon_module&action=list'
+      );
+    });
 
-    cy.findByText(
-      labelLicenseWarning('centreon-autodiscovery-server', 20)
-    ).should('not.exist');
+    expect(showMessage).not.toHaveBeenCalled();
   });
+
   it('displays a warning message when the license expires within 15 days', () => {
     mockRequest({ expirationDate: currentDate.add(10.5, 'day') });
+    initialize();
 
-    cy.findByText(labelLicenseWarning('centreon-autodiscovery-server', 10));
+    waitFor(() => {
+      expect(getFetchCall(0)).toEqual(
+        'internal.php?object=centreon_module&action=list'
+      );
+    });
 
-    cy.makeSnapshot();
+    expect(showMessage).toHaveBeenCalledWith(
+      labelLicenseWarning('centreon-autodiscovery-server', 10)
+    );
   });
 });
