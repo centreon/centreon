@@ -3,15 +3,10 @@ import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { Provider, createStore } from 'jotai';
-import { equals, inc } from 'ramda';
+import { equals } from 'ramda';
 import { renderHook } from '@testing-library/react';
 
-import { LocalizationProvider } from '@mui/x-date-pickers';
-
-import {
-  useLocaleDateTimeFormat,
-  useDateTimePickerAdapter
-} from '@centreon/ui';
+import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from './models';
@@ -288,18 +283,10 @@ const getPreviousMonth = ({
   return cy.get(`[aria-label="${labelButton}"]`).click();
 };
 
-const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
-  return new Set(arr).size !== arr.length;
-};
-
 testData.forEach((item) =>
   describe(`DateTimePicker ${item.button}`, () => {
     beforeEach(() => {
       cy.viewport('macbook-13');
-
-      const { result } = renderHook(() => useDateTimePickerAdapter());
-
-      const { Adapter } = result.current;
 
       const store = createStore();
       store.set(userAtom, {
@@ -311,14 +298,11 @@ testData.forEach((item) =>
       cy.mount({
         Component: (
           <Provider store={store}>
-            <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
-              <DateTimePickerInput
-                changeDate={cy.stub()}
-                date={new Date(item.initialDate)}
-                desktopMediaQuery="@media (min-width: 1024px)"
-                property={CustomTimePeriodProperty.start}
-              />
-            </LocalizationProvider>
+            <DateTimePickerInput
+              changeDate={cy.stub()}
+              date={new Date(item.initialDate)}
+              property={CustomTimePeriodProperty.start}
+            />
           </Provider>
         )
       });
@@ -355,32 +339,6 @@ testData.forEach((item) =>
       });
     });
 
-    it(`does not duplicate days in any of the month in the year when the ${item.button} button is clicked`, () => {
-      cy.get('button').click();
-      item.data.forEach((element) => {
-        const daysInCurrentMonth: Array<string> = [];
-        cy.get('[role="rowgroup"]').first().children().as('listWeeks');
-        cy.get('@listWeeks').children('button').as('days');
-
-        cy.get('@days')
-          .each(($day) => daysInCurrentMonth.push($day.text()))
-          .as('currentDays');
-
-        cy.get('@currentDays').then(() => {
-          const isDuplicateExist = checkIfDuplicateExists(daysInCurrentMonth);
-
-          return expect(isDuplicateExist).to.be.false;
-        });
-
-        const currentMonth = Object.keys(element)[0];
-        if (equals(item.button, ButtonCalendar.PMONTH)) {
-          getPreviousMonth({ currentMonth, labelButton: item.button });
-        } else {
-          getNextMonth({ currentMonth, labelButton: item.button });
-        }
-      });
-    });
-
     it(`displays the first day as the start of the week when the ${item.button} button is clicked`, () => {
       cy.get('button').click();
 
@@ -389,7 +347,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
+        cy.get('@listWeeks').should('have.length', numberWeeks);
         cy.get('@listWeeks').eq(0).as('firstWeek');
         cy.get('@firstWeek').children().as('listDaysInFirstWeek');
 
@@ -416,7 +374,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
+        cy.get('@listWeeks').should('have.length', numberWeeks);
 
         cy.get('@listWeeks')
           .eq(numberWeeks - 1)

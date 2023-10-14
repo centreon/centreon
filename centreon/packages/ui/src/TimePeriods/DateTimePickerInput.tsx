@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
+import { useAtomValue } from 'jotai';
 
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-import { useDateTimePickerAdapter } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from './models';
 
@@ -25,24 +27,33 @@ const DateTimePickerInput = ({
   disabled = false,
   desktopMediaQuery
 }: Props): JSX.Element => {
-  const { desktopPickerMediaQuery } = useDateTimePickerAdapter();
+  const desktopPickerMediaQuery =
+    '@media (min-width: 1024px) or (pointer: fine)';
+
+  const { timezone, locale } = useAtomValue(userAtom);
 
   const changeTime = (newValue: dayjs.Dayjs | null): void => {
     changeDate({ date: dayjs(newValue).toDate(), property });
   };
 
   return (
-    <DateTimePicker<dayjs.Dayjs>
-      dayOfWeekFormatter={(day: string): string =>
-        day.substring(0, 2).toUpperCase()
-      }
-      desktopModeMediaQuery={desktopMediaQuery ?? desktopPickerMediaQuery}
-      disabled={disabled}
-      maxDate={maxDate && dayjs(maxDate)}
-      minDate={minDate && dayjs(minDate)}
-      value={dayjs(date)}
-      onChange={changeTime}
-    />
+    <LocalizationProvider
+      adapterLocale={locale.substring(0, 2)}
+      dateAdapter={AdapterDayjs}
+      dateLibInstance={dayjs}
+    >
+      <DateTimePicker<dayjs.Dayjs>
+        dayOfWeekFormatter={(dayOfWeek) =>
+          dayOfWeek.substring(0, 2).toLocaleUpperCase()
+        }
+        desktopModeMediaQuery={desktopMediaQuery ?? desktopPickerMediaQuery}
+        disabled={disabled}
+        maxDate={maxDate && dayjs.tz(maxDate, timezone)}
+        minDate={minDate && dayjs.tz(minDate, timezone)}
+        value={dayjs.tz(date, timezone)}
+        onChange={changeTime}
+      />
+    </LocalizationProvider>
   );
 };
 

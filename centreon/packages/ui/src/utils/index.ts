@@ -3,7 +3,6 @@ export * from './getNormalizedId';
 export * from './statuses';
 export * from './typedMemo';
 export * from './useCopyToClipboard';
-export * from './useDateTimePickerAdapter';
 export * from './useDebounce';
 export * from './useDeepCallback';
 export * from './useDeepMemo';
