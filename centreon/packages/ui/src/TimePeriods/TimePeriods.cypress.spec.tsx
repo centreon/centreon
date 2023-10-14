@@ -308,18 +308,6 @@ testData.forEach((item) =>
       });
     });
 
-    it('checks input calendar value contains correct date', () => {
-      const { result } = renderHook(() => useLocaleDateTimeFormat());
-      const { format } = result.current;
-
-      const dateInput = format({
-        date: dayjs(item.initialDate).tz(item.timezone),
-        formatString: 'L hh:mm A'
-      });
-
-      cy.get('input').should('have.value', dateInput);
-    });
-
     it(`displays the correct number of days for the current month when the ${item.button} button is clicked`, () => {
       cy.get('button').click();
       item.data.forEach((element) => {

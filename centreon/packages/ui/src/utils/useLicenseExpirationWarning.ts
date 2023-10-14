@@ -19,7 +19,7 @@ export const useLicenseExpirationWarning = ({ module }: Props): void => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
 
-  const { fetchQuery } = useFetchQuery({
+  const { data } = useFetchQuery({
     getEndpoint: () => extensionsEndpoint,
     getQueryKey: () => [module]
   });
@@ -33,20 +33,20 @@ export const useLicenseExpirationWarning = ({ module }: Props): void => {
   ) as (data) => string;
 
   useEffect(() => {
-    fetchQuery().then((response) => {
-      const expirationDate = getExpirationDate(response);
-      if (isNil(expirationDate)) {
-        return;
-      }
+    if (isNil(data)) {
+      return;
+    }
 
-      const daysUntilExpiration = dayjs(expirationDate).diff(
-        currentDate,
-        'day'
-      );
+    const expirationDate = getExpirationDate(data);
 
-      if (lt(daysUntilExpiration, 15)) {
-        showWarningMessage(t(labelLicenseWarning(module, daysUntilExpiration)));
-      }
-    });
-  }, []);
+    if (isNil(expirationDate)) {
+      return;
+    }
+
+    const daysUntilExpiration = dayjs(expirationDate).diff(currentDate, 'day');
+
+    if (lt(daysUntilExpiration, 15)) {
+      showWarningMessage(t(labelLicenseWarning(module, daysUntilExpiration)));
+    }
+  }, [data]);
 };
