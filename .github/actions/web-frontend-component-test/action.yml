@@ -14,16 +14,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 8
-        run_install: false
-
     - uses: actions/setup-node@v3
       with:
         node-version: 18
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        run_install: false
 
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
@@ -44,7 +44,7 @@ runs:
         command: cd ${{ inputs.module }} && pnpm cypress install --force
 
     - name: Cypress web component testing
-      uses: cypress-io/github-action@v5
+      uses: cypress-io/github-action@v6
       with:
         browser: chrome
         component: true
