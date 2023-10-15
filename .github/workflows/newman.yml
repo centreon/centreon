@@ -136,8 +136,8 @@ jobs:
       id: generate-xray-token
       run: |
         token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
-        xray_token=$(echo "$token_response" | grep -o '"access_token":"[^"]*' | awk -F ':"' '{print $2}')
-        echo "this is the xray token: $xray_token"
+        xray_token=$(echo "$token_response" | sed -n 's/."\(.\)".*/\1/p')
+        echo "this is the xray token : $xray_token"
         echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
 
 
@@ -195,10 +195,11 @@ jobs:
               "testIssueIds": ["23208"]
             }
           }'
+          BEARER_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnQiOiJqaXJhOjJfN2E2ZTg2LWMwMGMtNGI1YS05YzZjLWE2OTYzNmRjZTY2YiIsImFjY291bnRJZCI6IjcxMjAyMDo2NDVjNzc4Ni02Nzc2LTRlYzAtYTEzNy00ZjBkNWU2YzE1ZWIiLCJpc1hlYSI6ZmFsc2UsImlhdCI6MTY5NzM5NTIyMSwiZXhwIjoxNjk3NDgxNjIxLCJhdWQiOiJEQjFDNThEMTY3QkM0QkU3OThEQ0ZCOENBMUM3MTJCOSIsImlzcyI6ImNvbS54cGFuZGl0LnBsdWdpbnMueHJheSIsInN1YiI6IkRCMUM1OEQxNjdCQzRCRTc5OERDRkI4Q0ExQzcxMkI5In0.aNmvVixmNO3niGHO1J9EaJDb3qqc4SBAeydyXQkN1Mw"
 
           curl -X POST \
           -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" \
+          -H "Authorization: Bearer $BEARER_TOKEN" \
           --data "$xray_graphql_mutation" \
           "https://xray.cloud.getxray.app/api/v2/graphql"
         done
