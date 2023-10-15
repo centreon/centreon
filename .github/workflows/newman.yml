@@ -195,13 +195,9 @@ jobs:
               "testIssueIds": ["23208"]
             }
           }'
-          BEARER_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnQiOiJqaXJhOjJfN2E2ZTg2LWMwMGMtNGI1YS05YzZjLWE2OTYzNmRjZTY2YiIsImFjY291bnRJZCI6IjcxMjAyMDo2NDVjNzc4Ni02Nzc2LTRlYzAtYTEzNy00ZjBkNWU2YzE1ZWIiLCJpc1hlYSI6ZmFsc2UsImlhdCI6MTY5NzM5NTIyMSwiZXhwIjoxNjk3NDgxNjIxLCJhdWQiOiJEQjFDNThEMTY3QkM0QkU3OThEQ0ZCOENBMUM3MTJCOSIsImlzcyI6ImNvbS54cGFuZGl0LnBsdWdpbnMueHJheSIsInN1YiI6IkRCMUM1OEQxNjdCQzRCRTc5OERDRkI4Q0ExQzcxMkI5In0.aNmvVixmNO3niGHO1J9EaJDb3qqc4SBAeydyXQkN1Mw"
-
-          curl -X POST \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Bearer $BEARER_TOKEN" \
-          --data "$xray_graphql_mutation" \
-          "https://xray.cloud.getxray.app/api/v2/graphql"
+          BEARER_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnQiOiJqaXJhOjJmN2E2ZTg2LWMwMGMtNGI1YS05YzZjLWE2OTYzNmRjZTY2YiIsImFjY291bnRJZCI6IjcxMjAyMDo2NDVjNzc4Ni02Nzc2LTRlYzAtYTEzNy00ZjBkNWU2YzE1ZWIiLCJpc1hlYSI6ZmFsc2UsImlhdCI6MTY5NzM5NTU1OCwiZXhwIjoxNjk3NDgxOTU4LCJhdWQiOiJEQjFDNThEMTY3QkM0QkU3OThEQ0ZCOENBMUM3MTJCOSIsImlzcyI6ImNvbS54cGFuZGl0LnBsdWdpbnMueHJheSIsInN1YiI6IkRCMUM1OEQxNjdCQzRCRTc5OERDRkI4Q0ExQzcxMkI5In0.HTRdwbCEtCCrLo8GO5WVpmueX1Oqt3BK5f0-kveTq0A"
+          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $BEARER_TOKEN" --data "$xray_graphql_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
+          echo "Raw Response: $response"
         done
 
     - name: Extract and Store Summaries
