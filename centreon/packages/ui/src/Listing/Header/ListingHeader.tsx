@@ -71,8 +71,6 @@ const ListingHeader = ({
   });
 
   const getColumnById = (id: string): Column => {
-    console.log(columns, id, find(propEq(id, 'id'), columns));
-
     return find(propEq(id, 'id'), columns) as Column;
   };
 
