@@ -136,10 +136,11 @@ jobs:
       id: generate-xray-token
       run: |
         token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
-        xray_token=$(echo "$token_response" | jq -r .token)
+        xray_token=$(echo "$token_response" | sed -n 's/."\(.\)".*/\1/p')
         echo "this is the xray token : $xray_token"
         echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
       shell: bash
+
     # - name: Import results to Xray
     #   uses: mikepenz/xray-action@v3.0.2
     #   with:
@@ -178,16 +179,24 @@ jobs:
                 }
               }
             }' | jq -r '.key')
-           echo "Created test case: $collection_name_sanitized, Test Key: $test_case_key"
-           test_Case_key="${test_case_key//\'/}"
-           xray_graphql_mutation='{
-            "query": "mutation AddTestToTestExecution($testKey: String!, $testExecKeys: [String]!) { addTestExecutionsToTest(input: { testKey: $testKey, testExecKeys: $testExecKeys }) { warnings } }",
+
+          echo "Created test case: $collection_name_sanitized, Test Key: $test_case_key"
+
+          # Use the GraphQL mutation to associate the test case with the test execution
+          xray_graphql_mutation='{
+            "query": "mutation AddTestToTestExecution($issueId: String!, $testIssueIds: [String]) { addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
-              "testKey": "$test_Case_key",
-              "testExecKeys": ["MON-22584"]
+              "issueId": "MON-22584",  # Remplacez par l'ID de votre exécution de test
+              "testIssueIds": ["'"$test_case_key"'"]
             }
           }'
-          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
+
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" \
+            --data "$xray_graphql_mutation" \
+            "https://xray.cloud.getxray.app/api/v2/graphql"
+
         done
 
     - name: Extract and Store Summaries
