@@ -844,9 +844,8 @@ describe(Details, () => {
     userEvent.click(getByText(labelDisplayEvents));
 
     const commentAnnotations = await findAllByLabelText(labelComment);
-    const acknowledgementAnnotations = await findAllByLabelText(
-      labelAcknowledgement
-    );
+    const acknowledgementAnnotations =
+      await findAllByLabelText(labelAcknowledgement);
     const downtimeAnnotations = await findAllByLabelText(labelDowntime);
 
     expect(commentAnnotations).toHaveLength(5);

@@ -1,8 +1,15 @@
 import { and, isEmpty, isNil, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
 import { useAtomValue } from 'jotai';
-import { ObjectShape } from 'yup/lib/object';
+import {
+  AnySchema,
+  ArraySchema,
+  ObjectSchema,
+  ObjectShape,
+  array,
+  object,
+  string
+} from 'yup';
 
 import {
   labelRequired,
@@ -16,7 +23,7 @@ import { emptyEmail } from '../utils';
 import { editedNotificationIdAtom } from '../atom';
 
 interface UseValidationSchemaState {
-  validationSchema: Yup.ObjectSchema<ObjectShape>;
+  validationSchema: ObjectSchema<ObjectShape>;
 }
 
 const useValidationSchema = ({
@@ -32,47 +39,52 @@ const useValidationSchema = ({
     .filter((item) => item.id !== notificationId)
     .map((item) => item.name);
 
-  const validateName = Yup.string()
+  const validateName = string()
     .required(t(labelRequired) as string)
     .notOneOf(names, t(labelThisNameAlreadyExists) as string);
 
-  const messagesSchema = Yup.object({
-    message: Yup.string().notOneOf(
+  const messagesSchema = object({
+    message: string().notOneOf(
       [emptyEmail],
       t(labelMessageFieldShouldNotBeEmpty) as string
     ),
-    subject: Yup.string().required(t(labelRequired) as string)
+    subject: string().required(t(labelRequired) as string)
   });
 
   const resourceSchema = (
     dependency1,
     dependency2
-  ): Yup.ObjectSchema<ObjectShape> =>
-    Yup.object().when([dependency1, dependency2], {
-      is: (value1, value2) =>
+  ): ObjectSchema<ObjectShape> =>
+    object().when([dependency1, dependency2], ([value1, value2]) => {
+      if (
         and(
           or(isNil(value1), isEmpty(value1)),
           or(isNil(value2), isEmpty(value2))
-        ),
-      otherwise: Yup.object().shape({
-        ids: Yup.array()
-      }),
-      then: Yup.object().shape({
-        ids: Yup.array().min(1, t(labelChooseAtLeastOneResource) as string)
-      })
+        )
+      ) {
+        return object().shape({
+          ids: array().min(1, t(labelChooseAtLeastOneResource) as string)
+        });
+      }
+
+      return object().shape({
+        ids: array()
+      });
     });
 
-  const contactsSchema = (dependency): Yup.ArraySchema<Yup.AnySchema> =>
-    Yup.array().when(dependency, {
-      is: (value) => isEmpty(value),
-      otherwise: Yup.array(),
-      then: Yup.array().min(
-        1,
-        t(labelChooseAtleastOneContactOrContactGroup) as string
-      )
+  const contactsSchema = (dependency): ArraySchema<AnySchema> =>
+    array().when(dependency, ([value]) => {
+      if (isEmpty(value)) {
+        return array().min(
+          1,
+          t(labelChooseAtleastOneContactOrContactGroup) as string
+        );
+      }
+
+      return array();
     });
 
-  const validationSchema = Yup.object().shape(
+  const validationSchema = object().shape(
     {
       contactgroups: contactsSchema('users'),
       hostGroups: resourceSchema('serviceGroups.ids', 'businessviews.ids'),

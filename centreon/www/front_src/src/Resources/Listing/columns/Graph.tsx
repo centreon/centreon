@@ -96,18 +96,17 @@ const Graph = ({
 
 const renderChip =
   ({ onClick, label, className }) =>
-  (): JSX.Element =>
-    (
-      <IconButton
-        ariaLabel={label}
-        className={className}
-        size="small"
-        title={label}
-        onClick={onClick}
-      >
-        <IconGraph fontSize="small" />
-      </IconButton>
-    );
+  (): JSX.Element => (
+    <IconButton
+      ariaLabel={label}
+      className={className}
+      size="small"
+      title={label}
+      onClick={onClick}
+    >
+      <IconGraph fontSize="small" />
+    </IconButton>
+  );
 
 const GraphColumn = ({
   onClick

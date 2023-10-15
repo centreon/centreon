@@ -18,7 +18,8 @@ import { List, ListQueryParams } from './meta.models';
 import { dashboardAccessRightsContactListDecoder } from './decoders';
 
 type UseListAccessRightsContactsProps<
-  TQueryFnData extends List<DashboardAccessRightsContact> = List<DashboardAccessRightsContact>,
+  TQueryFnData extends
+    List<DashboardAccessRightsContact> = List<DashboardAccessRightsContact>,
   TError = ResponseError,
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
@@ -33,7 +34,8 @@ type UseListAccessRightsContactsProps<
 
 type UseListAccessRightsContacts<
   TError = ResponseError,
-  TData extends List<DashboardAccessRightsContact> = List<DashboardAccessRightsContact>
+  TData extends
+    List<DashboardAccessRightsContact> = List<DashboardAccessRightsContact>
 > = UseQueryResult<TData | TError, TError>;
 
 const useListAccessRightsContacts = ({

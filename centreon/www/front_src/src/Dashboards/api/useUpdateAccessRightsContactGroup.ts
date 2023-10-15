@@ -14,7 +14,8 @@ import {
 import { getDashboardAccessRightsContactGroupEndpoint } from './endpoints';
 
 type UseUpdateAccessRightsContactGroup<
-  TData extends DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
+  TData extends
+    DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
   TVariables extends UpdateAccessRightDto = UpdateAccessRightDto,
   TError = ResponseError
 > = {

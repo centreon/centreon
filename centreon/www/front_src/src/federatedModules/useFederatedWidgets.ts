@@ -59,9 +59,12 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
     ).then(setFederatedWidgetsProperties);
   }, [widgets]);
 
-  useEffect(() => {
-    getFederatedModulesConfigurations();
-  }, useDeepCompare([widgets]));
+  useEffect(
+    () => {
+      getFederatedModulesConfigurations();
+    },
+    useDeepCompare([widgets])
+  );
 
   return {
     federatedWidgets,

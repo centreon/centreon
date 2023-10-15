@@ -52,10 +52,8 @@ export interface PickersData {
   disabledPickerEndInput?: boolean;
   disabledPickerStartInput?: boolean;
   getIsErrorDatePicker?: (value: boolean) => void;
-  maxDatePickerEndInput?: Date | dayjs.Dayjs;
+  maxDatePickerEndInput?: Date;
   maxDatePickerStartInput?: Date;
   minDatePickerEndInput?: Date;
   minDatePickerStartInput?: Date;
-  onCloseEndPicker?: (isClosed: boolean) => void;
-  onCloseStartPicker?: (isClosed: boolean) => void;
 }

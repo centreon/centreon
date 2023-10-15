@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
+import { Schema, array, boolean, number, object, string } from 'yup';
 
 import { NamedEntity } from '../shared/models';
 
@@ -8,86 +8,85 @@ import { labelRequired, labelInvalidURL } from './translatedLabels';
 
 const urlRegexp = /https?:\/\/(\S+)/;
 
-const useValidationSchema = (): Yup.SchemaOf<SAMLConfiguration> => {
+const useValidationSchema = (): Schema<SAMLConfiguration> => {
   const { t } = useTranslation();
 
-  const namedEntitySchema: Yup.SchemaOf<NamedEntity> = Yup.object({
-    id: Yup.number().required(t(labelRequired)),
-    name: Yup.string().required(t(labelRequired))
+  const namedEntitySchema: Schema<NamedEntity> = object({
+    id: number().required(t(labelRequired)),
+    name: string().required(t(labelRequired))
   });
 
-  const rolesRelationSchema = Yup.object({
+  const rolesRelationSchema = object({
     accessGroup: namedEntitySchema.nullable().required(t(labelRequired)),
-    claimValue: Yup.string().required(t(labelRequired)),
-    priority: Yup.number().required(t(labelRequired))
+    claimValue: string().required(t(labelRequired)),
+    priority: number().required(t(labelRequired))
   });
 
-  const groupsRelationSchema = Yup.object({
+  const groupsRelationSchema = object({
     contactGroup: namedEntitySchema.nullable().required(t(labelRequired)),
-    groupValue: Yup.string().required(t(labelRequired))
+    groupValue: string().required(t(labelRequired))
   });
 
-  const switchSchema = Yup.boolean().required(t(labelRequired));
+  const switchSchema = boolean().required(t(labelRequired));
 
-  return Yup.object({
-    authenticationConditions: Yup.object({
-      attributePath: Yup.string(),
-      authorizedValues: Yup.array().of(Yup.string().defined()),
+  return object({
+    authenticationConditions: object({
+      attributePath: string(),
+      authorizedValues: array().of(string().defined()),
       isEnabled: switchSchema
     }),
     autoImport: switchSchema,
-    certificate: Yup.string().required(t(labelRequired)),
+    certificate: string().required(t(labelRequired)),
     contactTemplate: namedEntitySchema
-      .when('autoImport', (autoImport, schema) => {
+      .when('autoImport', ([autoImport], schema) => {
         return autoImport
           ? schema.nullable().required(t(labelRequired))
           : schema.nullable();
       })
       .defined(),
-    emailBindAttribute: Yup.string().when(
-      'autoImport',
-      (autoImport, schema) => {
-        return autoImport
-          ? schema.nullable().required(t(labelRequired))
-          : schema.nullable();
-      }
-    ),
-    entityIdUrl: Yup.string()
+    emailBindAttribute: string().when('autoImport', ([autoImport], schema) => {
+      return autoImport
+        ? schema.nullable().required(t(labelRequired))
+        : schema.nullable();
+    }),
+    entityIdUrl: string()
       .matches(urlRegexp, t(labelInvalidURL))
       .required(t(labelRequired)),
-    fullnameBindAttribute: Yup.string().when(
+    fullnameBindAttribute: string().when(
       'autoImport',
-      (autoImport, schema) => {
+      ([autoImport], schema) => {
         return autoImport
           ? schema.nullable().required(t(labelRequired))
           : schema.nullable();
       }
     ),
-    groupsMapping: Yup.object({
-      attributePath: Yup.string(),
+    groupsMapping: object({
+      attributePath: string(),
       isEnabled: switchSchema,
-      relations: Yup.array().of(groupsRelationSchema)
+      relations: array().of(groupsRelationSchema)
     }),
     isActive: switchSchema,
     isForced: switchSchema,
     logoutFrom: switchSchema,
-    logoutFromUrl: Yup.string()
+    logoutFromUrl: string()
       .matches(urlRegexp, t(labelInvalidURL))
-      .when('logoutFrom', {
-        is: true,
-        otherwise: (schema) => schema.nullable(),
-        then: (schema) => schema.required(t(labelRequired))
+      .when('logoutFrom', ([logoutFrom], schema) => {
+        if (logoutFrom) {
+          return schema.required(t(labelRequired));
+        }
+
+        return schema.nullable();
       }),
-    remoteLoginUrl: Yup.string()
+    remoteLoginUrl: string()
       .matches(urlRegexp, t(labelInvalidURL))
       .required(t(labelRequired)),
-    rolesMapping: Yup.object({
+    rolesMapping: object({
       applyOnlyFirstRole: switchSchema,
-      attributePath: Yup.string(),
+      attributePath: string(),
       isEnabled: switchSchema,
-      relations: Yup.array().of(rolesRelationSchema)
+      relations: array().of(rolesRelationSchema)
     }),
-    userIdAttribute: Yup.string().required(t(labelRequired))
+    userIdAttribute: string().required(t(labelRequired))
   });
 };
 

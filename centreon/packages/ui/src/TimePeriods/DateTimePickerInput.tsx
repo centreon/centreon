@@ -1,5 +1,8 @@
-import dayjs from 'dayjs';
+import { useCallback } from 'react';
+
+import dayjs, { Dayjs } from 'dayjs';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -8,14 +11,19 @@ import { userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from './models';
 
+interface ChangeDateProps {
+  date: Date;
+  property: CustomTimePeriodProperty | string;
+}
+
 interface Props {
-  changeDate: (props) => void;
+  changeDate: (props: ChangeDateProps) => void;
   date: Date | null;
   desktopMediaQuery?: string;
   disabled?: boolean;
   maxDate?: Date;
   minDate?: Date;
-  property: CustomTimePeriodProperty;
+  property: CustomTimePeriodProperty | string;
 }
 
 const DateTimePickerInput = ({
@@ -32,9 +40,18 @@ const DateTimePickerInput = ({
 
   const { timezone, locale } = useAtomValue(userAtom);
 
+  const isUTC = equals(timezone, 'UTC');
+
   const changeTime = (newValue: dayjs.Dayjs | null): void => {
     changeDate({ date: dayjs(newValue).toDate(), property });
   };
+
+  const formatDate = useCallback(
+    (currentDate: Date | null): Dayjs => {
+      return isUTC ? dayjs.utc(currentDate) : dayjs.tz(currentDate, timezone);
+    },
+    [isUTC, timezone]
+  );
 
   return (
     <LocalizationProvider
@@ -48,9 +65,9 @@ const DateTimePickerInput = ({
         }
         desktopModeMediaQuery={desktopMediaQuery ?? desktopPickerMediaQuery}
         disabled={disabled}
-        maxDate={maxDate && dayjs.tz(maxDate, timezone)}
-        minDate={minDate && dayjs.tz(minDate, timezone)}
-        value={dayjs.tz(date, timezone)}
+        maxDate={maxDate && formatDate(maxDate)}
+        minDate={minDate && formatDate(minDate)}
+        value={formatDate(date)}
         onChange={changeTime}
       />
     </LocalizationProvider>

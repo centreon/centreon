@@ -38,9 +38,12 @@ const useFederatedModules = (): UseFederatedModulesState => {
     ).then(setFederatedModules);
   }, [modules]);
 
-  useEffect(() => {
-    getFederatedModulesConfigurations();
-  }, useDeepCompare([modules]));
+  useEffect(
+    () => {
+      getFederatedModulesConfigurations();
+    },
+    useDeepCompare([modules])
+  );
 
   return {
     federatedModules,

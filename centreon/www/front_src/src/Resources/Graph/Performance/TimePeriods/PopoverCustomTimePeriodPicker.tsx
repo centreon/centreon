@@ -1,16 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai';
 import { and, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { FormHelperText, Popover, Typography } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
 
-import { userAtom } from '@centreon/ui-context';
-import { useDateTimePickerAdapter } from '@centreon/ui';
+import { DateTimePickerInput } from '@centreon/ui';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 import {
@@ -21,7 +18,6 @@ import {
   labelTo
 } from '../../../translatedLabels';
 
-import DateTimePickerInput from './DateTimePickerInput';
 import {
   CustomStyle,
   OriginHorizontalEnum,
@@ -103,8 +99,6 @@ const PopoverCustomTimePeriodPickers = ({
   const [end, setEnd] = useState<Date | null>(
     !isNil(customTimePeriod) ? customTimePeriod.end : null
   );
-  const { locale } = useAtomValue(userAtom);
-  const { Adapter } = useDateTimePickerAdapter();
 
   const isInvalidDate = ({ startDate, endDate }): boolean =>
     dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
@@ -163,42 +157,35 @@ const PopoverCustomTimePeriodPickers = ({
     >
       <div className={classNamePaper} data-testid="popover">
         {renderTitle}
-        <LocalizationProvider
-          adapterLocale={locale.substring(0, 2)}
-          dateAdapter={Adapter}
-        >
-          <div className={classNamePicker}>
-            <Typography>{t(labelFrom)}</Typography>
-            <div aria-label={t(labelStartDate) as string}>
-              <DateTimePickerInput
-                changeDate={changeDate}
-                date={start}
-                disabled={pickersData?.disabledPickerStartInput}
-                maxDate={pickersData?.maxDatePickerStartInput}
-                minDate={pickersData?.minDatePickerStartInput}
-                property={CustomTimePeriodProperty.start}
-                onClosePicker={pickersData?.onCloseStartPicker}
-              />
-            </div>
-            <Typography>{t(labelTo)}</Typography>
-            <div aria-label={t(labelEndDate) as string}>
-              <DateTimePickerInput
-                changeDate={changeDate}
-                date={end}
-                disabled={pickersData?.disabledPickerEndInput}
-                maxDate={pickersData?.maxDatePickerEndInput}
-                minDate={pickersData?.minDatePickerEndInput}
-                property={CustomTimePeriodProperty.end}
-                onClosePicker={pickersData?.onCloseEndPicker}
-              />
-            </div>
+        <div className={classNamePicker}>
+          <Typography>{t(labelFrom)}</Typography>
+          <div aria-label={t(labelStartDate) as string}>
+            <DateTimePickerInput
+              changeDate={changeDate}
+              date={start}
+              disabled={pickersData?.disabledPickerStartInput}
+              maxDate={pickersData?.maxDatePickerStartInput}
+              minDate={pickersData?.minDatePickerStartInput}
+              property={CustomTimePeriodProperty.start}
+            />
           </div>
-          {error && (
-            <FormHelperText error className={classNameError}>
-              {t(labelEndDateGreaterThanStartDate)}
-            </FormHelperText>
-          )}
-        </LocalizationProvider>
+          <Typography>{t(labelTo)}</Typography>
+          <div aria-label={t(labelEndDate) as string}>
+            <DateTimePickerInput
+              changeDate={changeDate}
+              date={end}
+              disabled={pickersData?.disabledPickerEndInput}
+              maxDate={pickersData?.maxDatePickerEndInput}
+              minDate={pickersData?.minDatePickerEndInput}
+              property={CustomTimePeriodProperty.end}
+            />
+          </div>
+        </div>
+        {error && (
+          <FormHelperText error className={classNameError}>
+            {t(labelEndDateGreaterThanStartDate)}
+          </FormHelperText>
+        )}
         {renderBody}
         {renderFooter}
       </div>

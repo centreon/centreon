@@ -17,34 +17,35 @@ const Line = (line, index): JSX.Element => (
   </Typography>
 );
 
-const useStyles = makeStyles<Pick<Props, 'severityCode'>>()(
-  (theme, { severityCode }) => {
-    const getStatusBackgroundColor = (): string =>
-      getStatusColors({
-        severityCode,
-        theme
-      }).backgroundColor;
+const useStyles = makeStyles<Pick<Props, 'severityCode'>>()((
+  theme,
+  { severityCode }
+) => {
+  const getStatusBackgroundColor = (): string =>
+    getStatusColors({
+      severityCode,
+      theme
+    }).backgroundColor;
 
-    const getStatusTextColor = (): string =>
-      getStatusColors({
-        severityCode,
-        theme
-      }).color;
+  const getStatusTextColor = (): string =>
+    getStatusColors({
+      severityCode,
+      theme
+    }).color;
 
-    return {
-      card: {
-        ...(severityCode && {
-          backgroundColor: getStatusBackgroundColor(),
-          border: 0,
-          color: getStatusTextColor()
-        })
-      },
-      title: {
-        ...(severityCode && { color: getStatusTextColor() })
-      }
-    };
-  }
-);
+  return {
+    card: {
+      ...(severityCode && {
+        backgroundColor: getStatusBackgroundColor(),
+        border: 0,
+        color: getStatusTextColor()
+      })
+    },
+    title: {
+      ...(severityCode && { color: getStatusTextColor() })
+    }
+  };
+});
 
 interface Props {
   changeExpandedCards: (props: ChangeExpandedCardsProps) => void;

@@ -15,7 +15,8 @@ import { getDashboardAccessRightsContactGroupsEndpoint } from './endpoints';
 import { dashboardAccessRightsContactGroupDecoder } from './decoders';
 
 type UseCreateAccessRightsContactGroup<
-  TData extends DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
+  TData extends
+    DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
   TVariables extends CreateAccessRightDto = CreateAccessRightDto,
   TError = ResponseError
 > = {

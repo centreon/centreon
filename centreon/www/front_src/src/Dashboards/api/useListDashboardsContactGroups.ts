@@ -16,7 +16,8 @@ import { List, ListQueryParams } from './meta.models';
 import { dashboardsContactGroupsListDecoder } from './decoders';
 
 type UseListDashboardsContactGroupsProps<
-  TQueryFnData extends List<DashboardsContactGroup> = List<DashboardsContactGroup>,
+  TQueryFnData extends
+    List<DashboardsContactGroup> = List<DashboardsContactGroup>,
   TError = ResponseError,
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey

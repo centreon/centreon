@@ -161,4 +161,5 @@ export * from './Graph/common/timeSeries';
 
 export { default as TimePeriods } from './TimePeriods';
 export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePeriod/SimpleCustomTimePeriod';
+export { default as DateTimePickerInput } from './TimePeriods/DateTimePickerInput';
 export * from './ParentSize';

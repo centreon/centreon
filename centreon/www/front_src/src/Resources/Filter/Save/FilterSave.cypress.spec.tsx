@@ -205,10 +205,9 @@ describe('SaveMenu', () => {
     cy.findByLabelText(labelSaveFilter).should('exist');
     cy.findByLabelText(labelSaveFilter).click();
     cy.findByText(labelSaveAsNew).should('have.attr', 'aria-disabled');
-    cy.findByText(labelSave)?.parentElement?.parentElement.should(
-      'have.attr',
-      'aria-disabled'
-    );
+    cy
+      .findByText(labelSave)
+      ?.parentElement?.parentElement.should('have.attr', 'aria-disabled');
 
     cy.makeSnapshot();
   });

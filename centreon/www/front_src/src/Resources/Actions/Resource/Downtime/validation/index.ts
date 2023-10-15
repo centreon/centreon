@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { isNil } from 'ramda';
-import * as Yup from 'yup';
+import { AnySchema, boolean, date, object, string } from 'yup';
 
 import {
   labelEndDateGreaterThanStartDate,
@@ -10,37 +10,34 @@ import {
 } from '../../../../translatedLabels';
 
 const getValidationSchema = (t: (string) => string): unknown => {
-  const dateSchema = Yup.date()
+  const dateSchema = date()
     .typeError(t(labelInvalidFormat))
     .required(t(labelRequired))
     .nullable();
 
-  return Yup.object().shape({
-    comment: Yup.string().required(t(labelRequired)),
-    duration: Yup.object().when('fixed', (fixed, schema) => {
+  return object().shape({
+    comment: string().required(t(labelRequired)),
+    duration: object().when('fixed', ([fixed], schema) => {
       return !fixed
         ? schema.shape({
-            unit: Yup.string().required(t(labelRequired)),
-            value: Yup.string().required(t(labelRequired))
+            unit: string().required(t(labelRequired)),
+            value: string().required(t(labelRequired))
           })
         : schema;
     }),
-    endTime: dateSchema.when(
-      'startTime',
-      (startTime: Date | null): Yup.AnySchema => {
-        if (isNil(startTime) || !dayjs(startTime).isValid()) {
-          return dateSchema;
-        }
-
-        return dateSchema
-          .min(
-            dayjs(startTime).add(1, 'minute'),
-            t(labelEndDateGreaterThanStartDate)
-          )
-          .max(dayjs(startTime).add(1, 'year'), t(labelMaxDuration1Year));
+    endTime: dateSchema.when('startTime', ([startTime]): AnySchema => {
+      if (isNil(startTime) || !dayjs(startTime).isValid()) {
+        return dateSchema;
       }
-    ),
-    fixed: Yup.boolean(),
+
+      return dateSchema
+        .min(
+          dayjs(startTime).add(1, 'minute'),
+          t(labelEndDateGreaterThanStartDate)
+        )
+        .max(dayjs(startTime).add(1, 'year'), t(labelMaxDuration1Year));
+    }),
+    fixed: boolean(),
     startTime: dateSchema
   });
 };

@@ -22,7 +22,8 @@ import { dashboardAccessRightsContactGroupListDecoder } from './decoders';
 import { List, ListQueryParams } from './meta.models';
 
 type UseListAccessRightsContactGroupsProps<
-  TQueryFnData extends List<DashboardAccessRightsContactGroup> = List<DashboardAccessRightsContactGroup>,
+  TQueryFnData extends
+    List<DashboardAccessRightsContactGroup> = List<DashboardAccessRightsContactGroup>,
   TError = ResponseError,
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey
@@ -37,7 +38,8 @@ type UseListAccessRightsContactGroupsProps<
 
 type UseListAccessRightsContactGroups<
   TError = ResponseError,
-  TData extends List<DashboardAccessRightsContactGroup> = List<DashboardAccessRightsContactGroup>
+  TData extends
+    List<DashboardAccessRightsContactGroup> = List<DashboardAccessRightsContactGroup>
 > = UseQueryResult<TData | TError, TError>;
 
 const useListAccessRightsContactGroups = ({

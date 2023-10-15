@@ -18,8 +18,6 @@ export interface PickersData {
   getError?: (value: boolean) => void;
   isDisabledEndPicker?: boolean;
   isDisabledStartPicker?: boolean;
-  onCloseEndPicker?: (isClosed: boolean) => void;
-  onCloseStartPicker?: (isClosed: boolean) => void;
   rangeEndDate?: RangeDate;
   rangeStartDate?: RangeDate;
 }
