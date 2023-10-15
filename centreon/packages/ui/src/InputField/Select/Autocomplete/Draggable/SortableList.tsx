@@ -49,7 +49,7 @@ const SortableList = ({
   const dragEnd = ({ items: newItems }): void =>
     changeItemsOrder(
       map(
-        (item) => find(propEq('id', item), items),
+        (item) => find(propEq(item, 'id'), items),
         newItems
       ) as Array<DraggableSelectEntry>
     );

@@ -107,7 +107,7 @@ interface TabByIdProps {
 const TabById = ({ id, details }: TabByIdProps): JSX.Element | null => {
   const { classes } = useStyles();
 
-  const { Component } = find(propEq('id', id), tabs) as Tab;
+  const { Component } = find(propEq(id, 'id'), tabs) as Tab;
 
   return (
     <div className={classes.container}>

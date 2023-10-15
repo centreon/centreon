@@ -49,7 +49,7 @@ const Layout = (): JSX.Element => {
     }
 
     const newLayout = map<Layout, Panel>((panel) => {
-      const currentWidget = dashboard.layout.find(propEq('i', panel.i));
+      const currentWidget = dashboard.layout.find(propEq(panel.i, 'i'));
 
       return {
         ...panel,

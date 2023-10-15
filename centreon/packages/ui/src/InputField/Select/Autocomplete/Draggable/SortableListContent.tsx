@@ -49,7 +49,7 @@ const SortableListContent = ({
         return;
       }
 
-      const itemIndex = findIndex(propEq('id', id), items);
+      const itemIndex = findIndex(propEq(id, 'id'), items);
 
       itemHover?.(null);
       itemClick?.({ index: itemIndex, item: { createOption, id, name } });

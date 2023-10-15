@@ -27,7 +27,7 @@ const WidgetSelection = (): JSX.Element => {
 
   const renderOption = (renderProps, option): JSX.Element => {
     const widget = find(
-      propEq('title', option.name),
+      propEq(option.name, 'title'),
       widgets
     ) as FederatedWidgetProperties;
 

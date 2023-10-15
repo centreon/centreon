@@ -24,7 +24,21 @@ export const success: Story = {
       critical: 'Critical',
       warning: 'Warning'
     },
-    thresholds: [0.5, 1.5]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 1.5
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
   },
   render: Template
 };
@@ -36,7 +50,21 @@ export const warning: Story = {
       critical: 'Critical',
       warning: 'Warning'
     },
-    thresholds: [0.2, 0.5]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 1.5
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.4
+        }
+      ]
+    }
   },
   render: Template
 };
@@ -48,7 +76,21 @@ export const critical: Story = {
       critical: 'Critical',
       warning: 'Warning'
     },
-    thresholds: [0.13, 0.35]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.3
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.2
+        }
+      ]
+    }
   },
   render: Template
 };
@@ -61,7 +103,21 @@ export const rawValue: Story = {
       critical: 'Critical',
       warning: 'Warning'
     },
-    thresholds: [0.5, 1.5]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 1.5
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
   },
   render: Template
 };

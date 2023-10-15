@@ -28,7 +28,7 @@ export const useLicenseExpirationWarning = ({ module }: Props): void => {
 
   const getExpirationDate = pipe(
     path(['result', 'module', 'entities']),
-    find(propEq('id', module)),
+    find(propEq(module, 'id')),
     path(['license', 'expiration_date'])
   ) as (data) => string;
 

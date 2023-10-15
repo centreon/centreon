@@ -27,15 +27,15 @@ interface Props {
 }
 
 const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
-  const displayedLines = reject(propEq('display', false), lines);
+  const displayedLines = reject(propEq(false, 'display'), lines);
   const getLineByMetric = (metric_id: number): Line =>
-    find(propEq('metric_id', metric_id), lines) as Line;
+    find(propEq(metric_id, 'metric_id'), lines) as Line;
 
   const toggleMetricLine = (metric_id): void => {
     const line = getLineByMetric(metric_id);
 
     setLinesGraph([
-      ...reject(propEq('metric_id', metric_id), lines),
+      ...reject(propEq(metric_id, 'metric_id'), lines),
       { ...line, display: !line.display }
     ]);
   };
@@ -43,7 +43,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
   const highlightLine = (metric_id): void => {
     const fadedLines = map((line) => ({ ...line, highlight: false }), lines);
     const data = [
-      ...reject(propEq('metric_id', metric_id), fadedLines),
+      ...reject(propEq(metric_id, 'metric_id'), fadedLines),
       { ...getLineByMetric(metric_id), highlight: true }
     ];
 
@@ -93,7 +93,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
 
     const newLines = lines.map((line) => ({
       ...line,
-      display: find(propEq('metric_id', line.metric_id), lines)?.display ?? true
+      display: find(propEq(line.metric_id, 'metric_id'), lines)?.display ?? true
     }));
 
     setLinesGraph(newLines);

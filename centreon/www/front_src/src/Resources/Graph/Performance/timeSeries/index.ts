@@ -163,7 +163,7 @@ const getMetricValuesForUnit = ({
     ) as Array<number>;
 
   return pipe(
-    filter(propEq('unit', unit)) as (line) => Array<Line>,
+    filter(propEq(unit, 'unit')) as (line) => Array<Line>,
     map(prop('metric')),
     map(getTimeSeriesValuesForMetric),
     flatten,
@@ -187,7 +187,7 @@ const getLineForMetric = ({
   lines,
   metric
 }: LineForMetricProps): Line | undefined =>
-  find(propEq('metric', metric), lines);
+  find(propEq(metric, 'metric'), lines);
 
 interface LinesTimeSeries {
   lines: Array<Line>;
@@ -259,7 +259,7 @@ interface HasStackedLines {
 }
 
 const hasUnitStackedLines = ({ lines, unit }: HasStackedLines): boolean =>
-  pipe(getSortedStackedLines, any(propEq('unit', unit)))(lines);
+  pipe(getSortedStackedLines, any(propEq(unit, 'unit')))(lines);
 
 const getTimeSeriesForLines = ({
   lines,

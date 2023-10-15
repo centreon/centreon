@@ -82,12 +82,12 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     }
 
     const selectedWidget = find(
-      propEq('moduleName', widget.id),
+      propEq(widget.id, 'moduleName'),
       federatedWidgets || []
     ) as FederatedModule;
 
     const selectedWidgetProperties = find(
-      propEq('moduleName', widget.id),
+      propEq(widget.id, 'moduleName'),
       federatedWidgetsProperties || []
     ) as FederatedWidgetProperties;
 

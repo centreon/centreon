@@ -50,7 +50,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
     panelOptionsAndData.options?.description?.content &&
     !isRichTextEditorEmpty(panelOptionsAndData.options?.description?.content);
 
-  const isGenericTextPanel = isGenericText(panelConfigurations.path);
+  const isGenericTextPanel = isGenericText(panelConfigurations?.path);
 
   return useMemoComponent({
     Component: (

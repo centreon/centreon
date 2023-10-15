@@ -73,14 +73,14 @@ const IconPopoverMultiAutocomplete = ({
   };
 
   const isSelected = (id: number | string): boolean => {
-    return pipe(find(propEq('id', id)), Boolean)(value);
+    return pipe(find(propEq(id, 'id')), Boolean)(value);
   };
 
   const unSelect = (option: SelectEntry): void => {
     const { id } = option;
 
     const updatedValue = isSelected(id)
-      ? reject(propEq('id', id), value)
+      ? reject(propEq(id, 'id'), value)
       : [...value, option];
 
     onChange(updatedValue);

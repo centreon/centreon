@@ -64,7 +64,7 @@ const useActionFilter = (): UseActionFilter => {
       a,
       b
     ) => boolean;
-    const retrievedFilter = find(propEq('id', currentFilter.id), filters);
+    const retrievedFilter = find(propEq(currentFilter.id, 'id'), filters);
 
     const criteriasCurrentFilter = currentFilter.criterias?.map((element) => ({
       ...element,

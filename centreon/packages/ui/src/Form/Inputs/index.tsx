@@ -185,7 +185,7 @@ const Inputs = ({
         const hasGroupTitle = R.not(R.isNil(groupName));
 
         const groupProps = hasGroupTitle
-          ? R.find(R.propEq('name', groupName), groups)
+          ? R.find(R.propEq(groupName, 'name'), groups)
           : ({} as Group);
 
         const isFirstElement = areGroupsOpen || R.equals(index, 0);

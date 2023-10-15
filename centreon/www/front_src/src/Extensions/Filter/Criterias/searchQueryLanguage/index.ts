@@ -120,7 +120,7 @@ const parse = (search: string): Array<Criteria> => {
 };
 
 const build = (criterias: Array<Criteria>): string => {
-  const nameEqualsSearch = propEq('name', 'search');
+  const nameEqualsSearch = propEq('search', 'name');
   const hasEmptyValue = propSatisfies(isEmpty, 'value');
 
   const rejectSearch = reject(nameEqualsSearch);

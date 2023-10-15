@@ -68,7 +68,7 @@ const DisacknowledgeForm = ({
     setDisacknowledgeAttachedResources(Boolean(event.target.checked));
   };
 
-  const hasHosts = resources.find(propEq('type', 'host'));
+  const hasHosts = resources.find(propEq('host', 'type'));
 
   return (
     <Dialog

@@ -79,9 +79,9 @@ interface GetPanelProps {
 }
 
 const getPanel = ({ id, layout }: GetPanelProps): Panel =>
-  find(propEq('i', id), layout) as Panel;
+  layout.find(({ i }) => equals(i, id)) as Panel;
 const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
-  findIndex(propEq('i', id), layout) as number;
+  layout.findIndex(({ i }) => equals(i, id)) as number;
 
 export const panelsLengthAtom = atom(0);
 
@@ -190,7 +190,7 @@ export const removePanelDerivedAtom = atom(
   (get, setAtom, panelKey: string) => {
     const dashboard = get(dashboardAtom);
 
-    const newLayout = reject(propEq('i', panelKey), dashboard.layout);
+    const newLayout = reject(propEq(panelKey, 'i'), dashboard.layout);
 
     setAtom(dashboardAtom, { layout: newLayout });
   }
@@ -259,7 +259,7 @@ export const duplicatePanelDerivedAtom = atom(
   null,
   (get, setAtom, title: string) => {
     const dashboard = get(dashboardAtom);
-    const panel = find(propEq('i', title), dashboard.layout);
+    const panel = find(propEq(title, 'i'), dashboard.layout);
 
     setAtom(addPanelDerivedAtom, {
       data: panel?.data,

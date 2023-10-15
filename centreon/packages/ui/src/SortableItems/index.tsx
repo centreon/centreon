@@ -169,7 +169,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   };
 
   const getItemById = (id): T | undefined =>
-    find(propEq(propertyToFilterItemsOn, id), items);
+    find(propEq(id, propertyToFilterItemsOn), items);
 
   const activeItem = getItemById(activeId) as Record<string, unknown>;
 

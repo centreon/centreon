@@ -497,7 +497,7 @@ const Filter = (): JSX.Element => {
 
     const updatedFilter =
       standardFilterById[filterId] ||
-      customFilters?.find(propEq('id', filterId));
+      customFilters?.find(propEq(filterId, 'id'));
 
     applyFilter(updatedFilter);
   };
@@ -526,7 +526,7 @@ const Filter = (): JSX.Element => {
   ];
 
   const canDisplaySelectedFilter = find(
-    propEq('id', currentFilter.id),
+    propEq(currentFilter.id, 'id'),
     options
   );
 

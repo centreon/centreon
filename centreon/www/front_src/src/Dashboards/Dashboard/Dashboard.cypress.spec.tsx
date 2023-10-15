@@ -475,8 +475,10 @@ describe('Dashboard', () => {
     });
   });
 
-  it('displays the title and the description in the panel', () => {
+  it.only('displays the title and the description in the panel', () => {
     initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
 
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');

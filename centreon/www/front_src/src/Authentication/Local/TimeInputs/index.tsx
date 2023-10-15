@@ -65,7 +65,7 @@ const TimeInputs = ({
       {timeInputConfigurations.map(
         ({ dataTestId, unit, maxOption, minOption }, idx) => {
           const { pluralLabel, singularLabel } = find(
-            propEq('unit', unit),
+            propEq(unit, 'unit'),
             mapUnitAndLabels
           ) as UnitAndLabels;
 
