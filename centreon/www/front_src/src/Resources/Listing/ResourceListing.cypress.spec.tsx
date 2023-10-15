@@ -173,7 +173,7 @@ describe('Resource Listing', () => {
     cy.makeSnapshot();
   });
 
-  it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
+  it('reorders columns when a drag handle is focused and an arrow is pressed', () => {
     interceptRequestsAndMountBeforeEach();
     cy.waitFiltersAndListingRequests();
 

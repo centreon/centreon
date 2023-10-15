@@ -15,11 +15,7 @@ import {
   DragEndEvent,
   Over
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  SortingStrategy
-} from '@dnd-kit/sortable';
+import { SortableContext, SortingStrategy } from '@dnd-kit/sortable';
 import {
   equals,
   find,
@@ -117,7 +113,6 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
     useSensor(MouseSensor),
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
       keyboardCodes: {
         cancel: ['Escape'],
         end: ['Space', 'Enter'],

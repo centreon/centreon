@@ -1,4 +1,4 @@
-import { fromPairs } from 'ramda';
+import { equals, fromPairs, type } from 'ramda';
 
 import { QueryParameter } from '../models';
 
@@ -25,6 +25,10 @@ const getUrlQueryParameters = <
 
   const entries = [...urlParams.entries()].map<[string, string]>(
     ([key, value]) => {
+      if (equals(type(value), 'String')) {
+        return [key, value];
+      }
+
       return [key, JSON.parse(value)];
     }
   );
