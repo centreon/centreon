@@ -47,12 +47,19 @@ export default (): void =>
 
       it('hides top counters when the screen is is under 600px width', () => {
         initialize();
-        getElements();
-
         cy.viewport(599, 300);
-        cy.get('@downCounter').should('not.be.visible');
-        cy.get('@unreachableCounter').should('not.be.visible');
-        cy.get('@upCounter').should('not.be.visible');
+
+        cy.findByRole('button', { name: labelHosts, timeout: 5000 }).should(
+          'be.visible'
+        );
+
+        cy.findByRole('link', { name: labelDownStatusHosts }).should(
+          'not.exist'
+        );
+        cy.findByRole('link', { name: labelUnreachableStatusHosts }).should(
+          'not.exist'
+        );
+        cy.findByRole('link', { name: labelUpStatusHosts }).should('not.exist');
       });
     });
 
