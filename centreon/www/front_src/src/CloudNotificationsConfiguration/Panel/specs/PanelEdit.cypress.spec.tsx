@@ -576,8 +576,6 @@ describe('Edit Panel: Delete button', () => {
     cy.findByText('internal server error');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 });
 
