@@ -153,7 +153,7 @@ jobs:
           collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
           test_case_key=$(curl --request POST \
-            --url 'https://centreon.atlassian.net/rest/api/3/issue' \
+            --url 'https://centreon.atlassian.net/rest/raven/2.0/api/issue' \
             --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
