@@ -4,7 +4,12 @@ import { useAtomValue } from 'jotai';
 import * as Ramda from 'ramda';
 import { equals, isEmpty } from 'ramda';
 
-import { Method, TestQueryProvider, getFoundFields } from '@centreon/ui';
+import {
+  Method,
+  TestQueryProvider,
+  buildListingEndpoint,
+  getFoundFields
+} from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { labelPoller } from '../../Header/Poller/translatedLabels';
@@ -33,6 +38,7 @@ import {
   labelStatus,
   labelUp
 } from '../translatedLabels';
+import { resourcesEndpoint } from '../api/endpoint';
 
 import { BasicCriteriaResourceType } from './criteriasNewInterface/model';
 import { advancedModeLabel } from './criteriasNewInterface/translatedLabels';
@@ -386,40 +392,6 @@ const customFilters = [
   ]
 ];
 
-interface Query {
-  name: string;
-  value: string;
-}
-interface Request {
-  criteria: string;
-  endpointParam: unknown;
-  query?: Query;
-  searchValue?: string;
-}
-
-const prepareRequest = ({
-  searchValue,
-  endpointParam,
-  criteria,
-  query
-}: Request): void => {
-  const endpoint = getListingEndpoint({
-    resourceTypes: [],
-    search: searchValue ? getSearch(searchValue) : undefined,
-    states: [],
-    statusTypes: [],
-    statuses: [],
-    ...endpointParam
-  });
-  const body = {
-    alias: `request/${criteria}`,
-    method: Method.GET,
-    path: endpoint
-  };
-
-  cy.interceptAPIRequest(query ? { ...body, query } : body);
-};
-
 const FilterWithLoading = (): JSX.Element => {
   useLoadResources();
 
@@ -604,13 +576,27 @@ describe('Custom filters', () => {
   });
 });
 
-describe.only('Criterias', () => {
+describe('Criterias', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'filterRequest',
       method: Method.GET,
       path: '**/events-view*',
       response: emptyListData
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getResources',
+      method: Method.GET,
+      path: `${resourcesEndpoint}**`,
+      response: {
+        meta: {
+          limit: 30,
+          page: 1,
+          total: 0
+        },
+        result: []
+      }
     });
 
     const endpointByHostType = getListingEndpoint({
@@ -732,7 +718,7 @@ describe.only('Criterias', () => {
     const searchValue = 'foobar';
 
     data.forEach((element) => {
-      const { criteria, value, type, endpointParam, requestToWait } = element;
+      const { criteria, value, type, endpointParam } = element;
 
       it(`executes a listing request with current search and selected ${criteria} criteria value when ${label} has changed`, () => {
         cy.findByPlaceholderText(labelSearch).clear();
@@ -745,11 +731,19 @@ describe.only('Criterias', () => {
 
         if (equals(type, Type.select)) {
           cy.findByLabelText(criteria).click();
-          cy.waitForRequest(requestToWait);
+          cy.waitForRequest('@getResources');
           cy.findByText(value).click();
-          prepareRequest({ criteria, endpointParam, searchValue });
           cy.findByText(labelSearch).click();
-          cy.waitForRequest(`@request/${criteria}`);
+          cy.waitForRequest('@getResources').then(({ request }) => {
+            expect(
+              request.url.search.includes(
+                buildListingEndpoint({
+                  baseEndpoint: resourcesEndpoint,
+                  parameters: endpointParam
+                }).split('?')[1]
+              )
+            ).to.equal(true);
+          });
 
           cy.makeSnapshot();
 
@@ -757,9 +751,17 @@ describe.only('Criterias', () => {
         }
         if (equals(type, Type.checkbox)) {
           cy.findByText(value).click();
-          prepareRequest({ criteria, endpointParam, searchValue });
           cy.findByText(labelSearch).click();
-          cy.waitForRequest(`@request/${criteria}`);
+          cy.waitForRequest('@getResources').then(({ request }) => {
+            expect(
+              request.url.search.includes(
+                buildListingEndpoint({
+                  baseEndpoint: resourcesEndpoint,
+                  parameters: endpointParam
+                }).split('?')[1]
+              )
+            ).to.equal(true);
+          });
           cy.makeSnapshot();
           cy.findByText(value).click();
         }
@@ -775,6 +777,20 @@ describe('Keyboard actions', () => {
       method: Method.GET,
       path: '**/events-view*',
       response: emptyListData
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getResources',
+      method: Method.GET,
+      path: `${resourcesEndpoint}**`,
+      response: {
+        meta: {
+          limit: 30,
+          page: 1,
+          total: 0
+        },
+        result: []
+      }
     });
 
     cy.interceptAPIRequest({
@@ -805,6 +821,8 @@ describe('Keyboard actions', () => {
   });
 
   it('accepts the selected autocomplete suggestion when the beginning of a criteria is input and the "enter" key is pressed', () => {
+    cy.waitForRequest('@getResources');
+
     const searchBar = cy.findByPlaceholderText(labelSearch);
 
     searchBar.clear();
