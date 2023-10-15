@@ -180,7 +180,18 @@ jobs:
             }' | jq -r '.key')
            echo "Created test case: $collection_name_sanitized, Test Key: $test_case_key"
 
-
+           xray_graphql_mutation='{
+            "query": "mutation AddTestToTestExecution($testKey: String!, $testExecKeys: [String]!) { addTestExecutionsToTest(input: { testKey: $testKey, testExecKeys: $testExecKeys }) { warnings } }",
+            "variables": {
+              "testKey": "'"$test_case_key"'",
+              "testExecKeys": ["MON-22584"]
+            }
+          }'
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" \
+            --data ""${xray_graphql_mutation}"" \
+           "https://xray.cloud.getxray.app/api/v2/graphql"
 
         done
       env:
