@@ -132,6 +132,14 @@ jobs:
     - name: Verify CLIENT_ID Secret
       run: "echo CLIENT_ID: ${{ secrets.CLIENT_ID }}"
 
+    - name: Generate Xray Token
+      id: generate-xray-token
+      run: |
+        token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+        xray_token=$(echo "$token_response" | sed -n 's/."\(.\)".*/\1/p')
+        echo "this is the xray token : $xray_token"
+        echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+      shell: bash
     # - name: Import results to Xray
     #   uses: mikepenz/xray-action@v3.0.2
     #   with:
@@ -170,16 +178,9 @@ jobs:
                 }
               }
             }' | jq -r '.key')
+           echo "Created test case: $collection_name_sanitized, Test Key: $test_case_key"
 
-          # Associate the test case with the test execution
-          curl --request POST \
-            --url "https://centreon.atlassian.net/rest/raven/1.0/api/testexec/MON-22584/test" \
-            --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
-            --header 'Accept: application/json' \
-            --header 'Content-Type: application/json' \
-            --data '{
-              "add": ["'"$test_case_key"'"]
-            }'
+
 
         done
       env:
