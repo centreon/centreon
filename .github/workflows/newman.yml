@@ -162,7 +162,6 @@ jobs:
                 "project": {
                   "key": "MON"
                 },
-                "testExecutionKey": "MON-22584",
                 "summary": "'"$collection_name_sanitized"'",
                 "description": "Test case for '"$collection_name_sanitized"'",
                 "issuetype": {
