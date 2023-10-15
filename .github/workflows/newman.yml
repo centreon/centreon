@@ -188,7 +188,7 @@ jobs:
             }
           }'
           echo "$xray_graphql_mutation" | curl -X POST \
-             -H "Content-Type: application/json" \
+             -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}"
              -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" \
              --data @- \
                "https://xray.cloud.getxray.app/api/v2/graphql"
