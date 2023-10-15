@@ -12,6 +12,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useTranslation } from 'react-i18next';
 import { dec, equals, gt, isNil, replace } from 'ramda';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 import { Popper, IconButton, Paper, Link, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';

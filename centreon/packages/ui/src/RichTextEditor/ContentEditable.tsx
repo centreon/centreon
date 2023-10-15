@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { makeStyles } from 'tss-react/mui';
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { mergeRegister } from '@lexical/utils';
 
 import { Typography } from '@mui/material';
 
