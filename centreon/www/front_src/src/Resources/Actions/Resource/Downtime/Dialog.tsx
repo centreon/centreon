@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
 

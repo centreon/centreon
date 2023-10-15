@@ -3,7 +3,6 @@ import {
   collectBy,
   equals,
   find,
-  findIndex,
   inc,
   length,
   lensIndex,

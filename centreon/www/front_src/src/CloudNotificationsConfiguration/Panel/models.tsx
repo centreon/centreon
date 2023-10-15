@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
+
 import { SvgIconComponent } from '@mui/icons-material';
 
 import { ResourcesTypeEnum, ChannelsEnum, TimeperiodType } from '../models';

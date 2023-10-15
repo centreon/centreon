@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-
 import { PopoverOrigin, PopoverPosition } from '@mui/material';
 
 import {

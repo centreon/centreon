@@ -1,8 +1,7 @@
-import * as Yup from 'yup';
-import { ObjectShape } from 'yup/lib/object';
 import { map, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { ObjectSchema, ObjectShape, object, string } from 'yup';
 
 import { notificationsNamesAtom } from '../../atom';
 import {
@@ -11,15 +10,15 @@ import {
 } from '../../translatedLabels';
 
 const useValidateName = (): {
-  validationSchema: Yup.ObjectSchema<ObjectShape>;
+  validationSchema: ObjectSchema<ObjectShape>;
 } => {
   const { t } = useTranslation();
   const notificationsNames = useAtomValue(notificationsNamesAtom);
 
   const names = map(prop('name'), notificationsNames);
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string()
+  const validationSchema = object().shape({
+    name: string()
       .required(t(labelRequired) as string)
       .notOneOf(names, t(labelThisNameAlreadyExists) as string)
   });
