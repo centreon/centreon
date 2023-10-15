@@ -5,7 +5,6 @@ module.exports = {
       'jest-transform-stub',
     '^react($|/.+)': '<rootDir>/node_modules/react$1'
   },
-  setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['/node_modules/', '!*.cypress.spec.tsx'],
   transform: {
