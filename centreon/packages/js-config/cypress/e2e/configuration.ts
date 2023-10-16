@@ -53,7 +53,7 @@ export default ({
       ...env,
       OPENID_IMAGE_VERSION: '23.04',
       WEB_IMAGE_OS: 'alma9',
-      WEB_IMAGE_VERSION: webImageVersion,
+      WEB_IMAGE_VERSION: 'MON-22701-upgrade-pnpm-to-v8', // webImageVersion,
       dockerName: dockerName || 'centreon-dev'
     },
     execTimeout: 60000,
