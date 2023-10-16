@@ -148,9 +148,9 @@ jobs:
           exit 1
         fi
         # Process the response
-        xray_token=$(echo "$response_content" | sed -n 's/."\(.\)".*/\1/p')
+        xray_token=$(echo "$response_content" |sed -e 's/^"//' -e 's/"$//')
         echo "This is the xray token: $xray_token"
-        echo "xray_token=$xray_token" >> $GITHUB_ENV
+        echo "xray_token=$xray_token" >>  $GITHUB_OUTPUT
 
         # Clean up the response file
         rm -f "$response_file"
