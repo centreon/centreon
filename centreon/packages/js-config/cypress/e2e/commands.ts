@@ -178,13 +178,11 @@ Cypress.Commands.add(
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
 
-    return cy
-      .get('.notistack-Snackbar > .MuiAlert-message')
-      .then(($snackbar) => {
-        if ($snackbar.text().includes('Login succeeded')) {
-          cy.wait('@getNavigationList');
-        }
-      });
+    return cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.wait('@getNavigationList');
+      }
+    });
   }
 );
 
