@@ -178,15 +178,14 @@ jobs:
                 }
               }
             }'| jq -r '.id')
-          test_case_id=${test_case_id%!}
-          echo :"$test_case_id"
           echo "Created test case: $collection_name_sanitized, Test Key: $test_case_id"
+          test_case_id=$(echo "$test_case_id" | sed 's/[^0-9]*//g')
           # Use the GraphQL mutation to associate the test case with the test execution
           xray_graphql_mutation='{
             "query": "mutation AddTestToTestExecution($issueId: String!, $testIssueIds: [String]) {addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
               "issueId": "72317",
-              "testIssueIds": ["'"${test_case_id%?}"'"]
+              "testIssueIds": ["'"${test_case_id}"'"]
               }
           }'
           curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" -v "https://xray.cloud.getxray.app/api/v2/graphql"
