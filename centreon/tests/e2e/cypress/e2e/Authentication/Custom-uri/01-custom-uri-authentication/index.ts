@@ -20,7 +20,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: '/monitor/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getLastestUserFilters');
   cy.intercept({
     method: 'GET',
