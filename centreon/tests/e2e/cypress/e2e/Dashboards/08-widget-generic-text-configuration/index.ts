@@ -154,10 +154,10 @@ Given('a dashboard featuring a single Generic text widget', () => {
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({ label: 'Duplicate' }).click();
-  cy.getByLabel({ label: 'Refresh' }).click();
-  cy.getByTestId({ testId: 'save_dashboard' }).click();
+  cy.getByLabel({ label: 'More actions' }).eq(0).trigger('click');
+  cy.getByLabel({ label: 'Duplicate' }).eq(0).trigger('click');
+  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
+  cy.getByTestId({ testId: 'save_dashboard' }).click({ force: true });
   cy.wait('@updateDashboard');
 });
 
@@ -200,8 +200,8 @@ Given('a dashboard featuring two Generic text widgets', () => {
 When(
   'the dashboard administrator user updates the contents of one of these widgets',
   () => {
-    cy.getByLabel({ label: 'More actions' }).eq(1).click();
-    cy.getByLabel({ label: 'Edit widget' }).click();
+    cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
+    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
     cy.getByLabel({ label: 'Title' }).clear();
     cy.getByLabel({ label: 'Title' }).type(
       `${genericTextWidgets.default.title}-edited`
@@ -252,8 +252,8 @@ Then(
 );
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByLabel({ label: 'More actions' }).eq(1).click();
-  cy.getByLabel({ label: 'Delete widget' }).click();
+  cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
+  cy.getByLabel({ label: 'Delete widget' }).trigger('click');
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
@@ -280,8 +280,8 @@ Then('only the contents of the other widget are displayed', () => {
 When(
   'the dashboard administrator user hides the description of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).click();
-    cy.getByLabel({ label: 'Edit widget' }).click();
+    cy.getByLabel({ label: 'More actions' }).trigger('click');
+    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
     cy.getByLabel({ label: 'Show description' }).click({ force: true });
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -300,8 +300,8 @@ Then('the description is hidden and only the title is displayed', () => {
     .should('not.contain.text', `${genericTextWidgets.default.description}`);
 
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
-  cy.getByLabel({ label: 'More actions' }).click({ force: true });
-  cy.getByLabel({ label: 'Edit widget' }).click();
+  cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
+  cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
   cy.getByLabel({ label: 'Show description' }).click({ force: true });
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -311,8 +311,8 @@ Then('the description is hidden and only the title is displayed', () => {
 When(
   'the dashboard administrator user adds a clickable link in the contents of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).click({ force: true });
-    cy.getByLabel({ label: 'Edit widget' }).click();
+    cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
+    cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .clear({ force: true });

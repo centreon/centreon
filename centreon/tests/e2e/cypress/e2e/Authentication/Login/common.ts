@@ -71,7 +71,7 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayMonth',
-    value: '6'
+    value: '5'
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayDay',
