@@ -179,6 +179,26 @@ jobs:
               }
             }'| jq -r '.id')
           echo "Created test case: $collection_name_sanitized, Test Key: $test_case_id"
+
+
+          jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/${test_case_id}"
+
+          # Perform the GET request
+          response=$(curl --request GET \
+              --url "$jira_issue_url" \
+              --user "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" \
+              --header 'Accept: application/json')
+
+          # Check the response
+          if [ "$(echo "$response" | jq -r '.errorMessages[0]')" == "Issue does not exist or you do not have permission to see it." ]; then
+              echo "The issue with ID $test_case_id does not exist or you do not have permission to see it."
+              # Handle the non-existence here
+          else
+              echo "The issue with ID $test_case_id exists."
+              # Proceed with your further actions
+          fi
+
+
           test_case_id=$(echo "$test_case_id" | tr -cd '0-9')
           echo "$test_case_id"
           # Use the GraphQL mutation to associate the test case with the test execution
