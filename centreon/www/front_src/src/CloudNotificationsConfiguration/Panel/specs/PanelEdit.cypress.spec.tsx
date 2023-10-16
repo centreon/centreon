@@ -690,8 +690,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByText(errorMessage).should('be.visible');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 });
 
