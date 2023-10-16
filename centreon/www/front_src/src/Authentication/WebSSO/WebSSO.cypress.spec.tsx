@@ -143,7 +143,7 @@ describe('Web SSO configuration form', () => {
     cy.makeSnapshot();
   });
 
-  it('resets the web SSO configuration when a field is modified and the "Reset" button is clicked', async () => {
+  it('resets the web SSO configuration when a field is modified and the "Reset" button is clicked', () => {
     cy.waitForRequest('@getWebSSOConfiguration');
 
     cy.findByLabelText(labelLoginHeaderAttributeName).type('admin');
