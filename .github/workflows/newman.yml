@@ -157,7 +157,7 @@ jobs:
 
     - name: Debug GraphQL Request
       run: |
-        echo "Xray Token: $xray_token"
+        echo "${{ steps.generate-xray-token.outputs.xray_token }}"
 
     - name: Associate Test Cases with Test Execution
       run: |
