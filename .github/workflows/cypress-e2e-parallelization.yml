@@ -45,6 +45,11 @@ on:
 
 
 jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
   cypress-e2e-test-list:
     runs-on: ubuntu-22.04
     outputs:
@@ -153,8 +158,8 @@ jobs:
           retention-days: 1
 
   import-reports-to-xray:
-    needs: [cypress-e2e-test-run]
-    if: always()
+    needs: [cypress-e2e-test-run,get-version]
+    if: ${{ needs.get-version.outputs.stability != 'canary' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
