@@ -174,7 +174,59 @@ jobs:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.name }}-json-xray-reports
 
-      - name: Import results to Xray
+      # dev-23.10.x => MON-22631
+      # release-23.10-next,hotfix-23.10-next => MON-23275
+      # dev-23.04.x => MON-23278
+      # release-23.04-next,hotfix-23.04-next => MON-23280
+      # dev-22.10.x => MON-23281
+      # release-22.10-next,hotfix-22.10-next => MON-23282
+      # dev-22.04.x => MON-23283
+      # release-22.04-next,hotfix-22.04-next => MON-23284
+      # dev-21.10.x => MON-23285
+      # release-21.10-next,hotfix-21.10-next => MON-23287
+
+      - name: Determine testPlanKey
+        id: determine-testplan-key
+        run: |
+          stability="${{ needs.get-version.outputs.stability }}"
+          major_version="${{ needs.get-version.outputs.major_version }}"
+
+          if [[ $stability == "unstable" ]]; then
+            if [[ $major_version == "23.10" ]]; then
+              testPlanKey="MON-22631"
+            elif [[ $major_version == "23.04" ]]; then
+              testPlanKey="MON-23278"
+            elif [[ $major_version == "22.10" ]]; then
+              testPlanKey="MON-23281"
+            elif [[ $major_version == "22.04" ]]; then
+              testPlanKey="MON-23283"
+            elif [[ $major_version == "21.10" ]]; then
+              testPlanKey="MON-23285"
+            else
+              testPlanKey="MON-UNKNOWN"  # Handle other cases
+            fi
+          elif [[ $stability == "testing" ]]; then
+            if [[ $major_version == "23.10" ]]; then
+              testPlanKey="MON-23275"
+            elif [[ $major_version == "23.04" ]]; then
+              testPlanKey="MON-23280"
+            elif [[ $major_version == "22.10" ]]; then
+              testPlanKey="MON-23282"
+            elif [[ $major_version == "22.04" ]]; then
+              testPlanKey="MON-23284"
+            elif [[ $major_version == "21.10" ]]; then
+              testPlanKey="MON-23287"
+            else
+              testPlanKey="MON-UNKNOWN"  # Handle other cases
+            fi
+          else
+            testPlanKey="MON-UNKNOWN"  # Handle other cases
+          fi
+
+          echo "testPlanKey=$testPlanKey" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Import results to 
         id: import-reports
         uses: mikepenz/xray-action@v3.0.2
         with:
@@ -183,7 +235,7 @@ jobs:
           testFormat: "cucumber"
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
-          testPlanKey: MON-22631
+          testPlanKey: "${{ steps.determine-testplan-key.outputs.testPlanKey }}"
           combineInSingleTestExec: true
           testExecKey:
         timeout-minutes: 10
