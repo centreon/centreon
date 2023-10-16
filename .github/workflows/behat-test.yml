@@ -46,7 +46,7 @@ jobs:
 
   behat-test-run:
     needs: [behat-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       fail-fast: false
       matrix:
