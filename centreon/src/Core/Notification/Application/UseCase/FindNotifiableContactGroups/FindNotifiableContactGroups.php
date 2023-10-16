@@ -28,7 +28,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
-use Core\Notification\Application\Repository\ReadNotifiableContactGroupsRepositoryInterface;
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response\NotifiableContactGroupDto;
 
 final class FindNotifiableContactGroups
