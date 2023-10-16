@@ -147,7 +147,6 @@ jobs:
           echo "Failed to retrieve Xray token"
           exit 1
         fi
-
         # Process the response
         xray_token=$(echo "$response_content" | sed -n 's/."\(.\)".*/\1/p')
         echo "This is the xray token: $xray_token"
