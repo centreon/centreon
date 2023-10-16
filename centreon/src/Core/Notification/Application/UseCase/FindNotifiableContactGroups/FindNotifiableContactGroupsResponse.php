@@ -28,8 +28,6 @@ use Core\Notification\Application\UseCase\FindNotfiableContactGroups\Response\No
 final class FindNotifiableContactGroupsResponse
 {
     /**
-     * Undocumented function
-     *
      * @param array<NotifiableContactGroupDto> $notifiableContactGroups
      */
     public function __construct(public array $notifiableContactGroups = [])

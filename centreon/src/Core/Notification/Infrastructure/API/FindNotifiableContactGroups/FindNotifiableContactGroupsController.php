@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\FindNotifiableContactGroups;
 
-use Symfony\Component\HttpFoundation\Response;
 use Centreon\Application\Controller\AbstractController;
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\FindNotifiableContactGroups;
+use Symfony\Component\HttpFoundation\Response;
 
 final class FindNotifiableContactGroupsController extends AbstractController
 {
