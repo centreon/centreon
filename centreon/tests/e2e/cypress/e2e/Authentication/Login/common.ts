@@ -75,7 +75,7 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayDay',
-    value: '0'
+    value: '27'
   },
   {
     custom: (): void => {
