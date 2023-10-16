@@ -146,9 +146,6 @@ jobs:
     #     CLIENT_ID: ${{ secrets.CLIENT_ID }}
     #     CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
-    - name: Debug GraphQL Request
-      run: |
-        echo "${{ steps.generate-xray-token.outputs.xray_token }}"
 
     - name: Associate Test Cases with Test Execution
       run: |
