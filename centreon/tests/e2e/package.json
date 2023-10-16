@@ -26,7 +26,6 @@
     "omitFiltered": true,
     "json": {
       "enabled": true,
-      "formatter": "./cypress/jsonFormatter/cucumber-json-formatter",
       "output": "cypress/cucumber-logs/report.json"
     },
     "pretty": {
