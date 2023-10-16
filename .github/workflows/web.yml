@@ -557,10 +557,10 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      CLIENT_SECRET : ${{ secrets.CLIENT_SECRET }}
-      JIRA_USER: ${{ secrets.JIRA_USER }}
-      JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
+      client_id: ${{ secrets.CLIENT_ID }}
+      client_secret: ${{ secrets.CLIENT_SECRET }}
+      jira_user: ${{ secrets.JIRA_USER }}
+      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
 
   performances-test:
     runs-on: ubuntu-22.04
