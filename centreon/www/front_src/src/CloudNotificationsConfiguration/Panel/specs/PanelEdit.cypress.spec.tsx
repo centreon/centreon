@@ -592,8 +592,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByTestId(labelDuplicate).should('be.disabled');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('displays confirmation dialog with new notification name field on Duplicate button click', () => {
