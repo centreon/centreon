@@ -1,0 +1,3339 @@
+{
+	"info": {
+		"_postman_id": "3db3edfd-25ae-4832-b16e-d65dfd124ea1",
+		"name": "Service Category",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-3db3edfd-25ae-4832-b16e-d65dfd124ea1?action=share&creator=16182525&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Service Category by Admin",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory1Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new service category\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ServiceCategory1Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ServiceCategory1Name\", \"Test_S_Category_1\");\r",
+									"pm.collectionVariables.set(\"ServiceCategory1Alias\", \"I'm a service category!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_S_Category_1\",\n    \"alias\":\"I'm a service category!\",\n    \"is_activated\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service categories (5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service categories retrieved are listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service categories (5)\r",
+									"    pm.expect(responseJson.result.length).to.eql(5);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Ping\"}).\r",
+									"            and.to.include({alias:\"ping\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"Traffic\"}).\r",
+									"            and.to.include({alias:\"Traffic\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"Disk\"}).\r",
+									"            and.to.include({alias:\"Disk\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"Memory\"}).\r",
+									"            and.to.include({alias:\"Memory\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_1\"}).\r",
+									"            and.to.include({alias:\"I'm a service category!\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category with mandatory properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory2Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new service category\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ServiceCategory2Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ServiceCategory2Name\", \"Test_S_Category_2\");\r",
+									"pm.collectionVariables.set(\"ServiceCategory2Alias\", \"Oh I'm your second category!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_S_Category_2\",\n\"alias\":\"Oh I'm your second category!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service categories (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service categories retrieved are listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service category (6)\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Ping\"}).\r",
+									"            and.to.include({alias:\"ping\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"Traffic\"}).\r",
+									"            and.to.include({alias:\"Traffic\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"Disk\"}).\r",
+									"            and.to.include({alias:\"Disk\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"Memory\"}).\r",
+									"            and.to.include({alias:\"Memory\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_1\"}).\r",
+									"            and.to.include({alias:\"I'm a service category!\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_2\"}).\r",
+									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category without name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service category has not been created, because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"alias\":\"Oh I'm your third category!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category with empty name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service category has not been created, because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[NewServiceCategory::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"\",\n\"alias\":\"Hello, I'm your fourth category!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category without alias (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service category has not been created, because the alias is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[alias] The property alias is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_S_Category_2.5\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category with wrong type of value (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service category has not been created, because there are values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] NULL value found, but a string is required\\n[is_activated] String value found, but a boolean is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":true,\n\"alias\":null,\n\"is_activated\":\"true\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category with special characters (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new service category\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ServiceCategory3Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ServiceCategory3Name\", \"Test_S_Catégory_3!\");\r",
+									"pm.collectionVariables.set(\"ServiceCategory3Alias\", \"Finally, a third successful category!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_S_Catégory_3!\",\n\"alias\":\"Finally, a third successful category!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (7)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service categories retrieved are listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service categories (7)\r",
+									"    pm.expect(responseJson.result.length).to.eql(7);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Ping\"}).\r",
+									"            and.to.include({alias:\"ping\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"Traffic\"}).\r",
+									"            and.to.include({alias:\"Traffic\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"Disk\"}).\r",
+									"            and.to.include({alias:\"Disk\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"Memory\"}).\r",
+									"            and.to.include({alias:\"Memory\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_1\"}).\r",
+									"            and.to.include({alias:\"I'm a service category!\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_2\"}).\r",
+									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[6]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
+									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a service category (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category with name '\" + pm.collectionVariables.get(\"ServiceCategory1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory1Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"ServiceCategory1Name\");\r",
+									"    pm.collectionVariables.unset(\"ServiceCategory1Alias\");\r",
+									"    pm.collectionVariables.unset(\"ServiceCategory1Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service categories retrieved are listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service categories (6)\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Ping\"}).\r",
+									"            and.to.include({alias:\"ping\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"Traffic\"}).\r",
+									"            and.to.include({alias:\"Traffic\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"Disk\"}).\r",
+									"            and.to.include({alias:\"Disk\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"Memory\"}).\r",
+									"            and.to.include({alias:\"Memory\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_2\"}).\r",
+									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
+									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Service Category by user R/W without filters",
+			"item": [
+				{
+					"name": "Login with Read/Write user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_RW'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW}}\",\r\n      \"password\": \"{{api_password_user_RW}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category with all properties defined (successful) Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory4Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new service category\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ServiceCategory4Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ServiceCategory4Name\", \"Test_S_Category_4\");\r",
+									"pm.collectionVariables.set(\"ServiceCategory4Alias\", \"I'm the fourth successful category!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_S_Category_4\",\n\"alias\":\"I'm the fourth successful category!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (7)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service categories retrieved are listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service categories (7)\r",
+									"    pm.expect(responseJson.result.length).to.eql(7);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Ping\"}).\r",
+									"            and.to.include({alias:\"ping\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"Traffic\"}).\r",
+									"            and.to.include({alias:\"Traffic\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"Disk\"}).\r",
+									"            and.to.include({alias:\"Disk\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"Memory\"}).\r",
+									"            and.to.include({alias:\"Memory\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_2\"}).\r",
+									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
+									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[6]).to.include({name:\"Test_S_Category_4\"}).\r",
+									"            and.to.include({alias:\"I'm the fourth successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a service category (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category with name '\" + pm.collectionVariables.get(\"ServiceCategory2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory2Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"ServiceCategory2Name\");\r",
+									"    pm.collectionVariables.unset(\"ServiceCategory2Alias\");\r",
+									"    pm.collectionVariables.unset(\"ServiceCategory2Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory2Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (6)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service categories retrieved are listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service categories (6)\r",
+									"    pm.expect(responseJson.result.length).to.eql(6);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Ping\"}).\r",
+									"            and.to.include({alias:\"ping\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"Traffic\"}).\r",
+									"            and.to.include({alias:\"Traffic\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"Disk\"}).\r",
+									"            and.to.include({alias:\"Disk\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"Memory\"}).\r",
+									"            and.to.include({alias:\"Memory\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
+									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_4\"}).\r",
+									"            and.to.include({alias:\"I'm the fourth successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from R/W user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Service Category by user R/W with filters",
+			"item": [
+				{
+					"name": "ACL Resources",
+					"item": [
+						{
+							"name": "Login with admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+											"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+											"    pm.environment.set(\"token\", responseJson.security.token);\r",
+											"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+											"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableCookies": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show ACLResources",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"A list of ACL Resources has been fetched.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"",
+											"    var response = JSON.parse(responseBody);",
+											"    pm.collectionVariables.set(\"ACLResources\", response.result[1].name);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"show\",\n  \"object\": \"ACLRESOURCE\"\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add the new category to the ACL Resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The service category has been granted to ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"addfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceCategory3Name}}\"\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout from admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+											"    pm.environment.unset(\"token\");\r",
+											"    pm.environment.unset(\"currentUserName\");\r",
+											"    pm.environment.unset(\"currentUserID\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "{{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "X-AUTH-TOKEN",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/logout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"logout"
+									],
+									"variable": [
+										{
+											"key": "protocol",
+											"value": "{{protocol}}",
+											"description": "HTTP schema (This can only be one of http,https)"
+										},
+										{
+											"key": "server",
+											"value": "{{server}}",
+											"description": "IP address or hostname of Centreon server"
+										},
+										{
+											"key": "port",
+											"value": "{{port}}",
+											"description": "Port used by HTTP server"
+										},
+										{
+											"key": "version",
+											"value": "{{version}}",
+											"description": "Version of the API"
+										}
+									]
+								},
+								"description": "Entry point to delete an existing authentication token."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Login with Read/Write user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_RW_filters'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW_filters}}\",\r\n      \"password\": \"{{api_password_user_RW_filters}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory5Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new service category\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ServiceCategory5Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ServiceCategory5Name\", \"Test_S_Category_5\");\r",
+									"pm.collectionVariables.set(\"ServiceCategory5Alias\", \"I'm the fifth successful category!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_S_Category_5\",\n\"alias\":\"I'm the fifth successful category!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A service category has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service category retrieved is listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service category (1)\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
+									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a service category (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Service category not found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Service category not found\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from R/W user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Service Category by user Read Only without filters",
+			"item": [
+				{
+					"name": "Login with Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Read'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Read}}\",\r\n      \"password\": \"{{api_password_user_Read}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to create service category.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service categories\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_S_Category_6\",\n\"alias\":\"I will not be created!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a service category (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to delete service category\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service categories\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (7)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service categories retrieved are listed with: name, alias and is_activated\", function() {\r",
+									"    // Check the number of service categories (7)\r",
+									"    pm.expect(responseJson.result.length).to.eql(7);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Ping\"}).\r",
+									"            and.to.include({alias:\"ping\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:\"Traffic\"}).\r",
+									"            and.to.include({alias:\"Traffic\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:\"Disk\"}).\r",
+									"            and.to.include({alias:\"Disk\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({name:\"Memory\"}).\r",
+									"            and.to.include({alias:\"Memory\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
+									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_4\"}).\r",
+									"            and.to.include({alias:\"I'm the fourth successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"    pm.expect(responseJson.result[6]).to.include({name:\"Test_S_Category_5\"}).\r",
+									"            and.to.include({alias:\"I'm the fifth successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Service Category by user Read Only with filters",
+			"item": [
+				{
+					"name": "ACL Resources filters",
+					"item": [
+						{
+							"name": "Login with admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+											"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+											"    pm.environment.set(\"token\", responseJson.security.token);\r",
+											"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+											"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableCookies": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete the service category of the ACL Resources",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The service category has been deleted of the ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"delfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceCategory3Name}}\"\n}\n"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add the new category to the ACL Resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The service category has been granted to ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"addfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceCategory5Name}}\"\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout from admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+											"    pm.environment.unset(\"token\");\r",
+											"    pm.environment.unset(\"currentUserName\");\r",
+											"    pm.environment.unset(\"currentUserID\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "{{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "X-AUTH-TOKEN",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/logout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"logout"
+									],
+									"variable": [
+										{
+											"key": "protocol",
+											"value": "{{protocol}}",
+											"description": "HTTP schema (This can only be one of http,https)"
+										},
+										{
+											"key": "server",
+											"value": "{{server}}",
+											"description": "IP address or hostname of Centreon server"
+										},
+										{
+											"key": "port",
+											"value": "{{port}}",
+											"description": "Port used by HTTP server"
+										},
+										{
+											"key": "version",
+											"value": "{{version}}",
+											"description": "Version of the API"
+										}
+									]
+								},
+								"description": "Entry point to delete an existing authentication token."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Login with Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Read_filters'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Read_filters}}\",\r\n      \"password\": \"{{api_password_user_Read_filters}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new service category (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to create service category.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service categories\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_S_Category_6\",\n\"alias\":\"I will not be created!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of service categories has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The service category retrieved are listed with: name, alias, is_activated and comments\", function() {\r",
+									"    // Check the number of service category (1)\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    // Check the properties of each service category\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Test_S_Category_5\"}).\r",
+									"            and.to.include({alias:\"I'm the fifth successful category!\"}).\r",
+									"            and.to.include({is_activated:true});\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a service category (error) Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to delete service category\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service categories\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Service Category By User with No Access",
+			"item": [
+				{
+					"name": "Login with user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Nothing'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Nothing}}\",\r\n      \"password\": \"{{api_password_user_Nothing}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available service category (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Service category not found\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access service categories\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Remise à 0",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of all service categories Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service Category\" + pm.collectionVariables.get(\"ServiceCategory3Name\") + \" has successfully been deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of all service categories Copy 2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service Category\" + pm.collectionVariables.get(\"ServiceCategory4Name\") + \" has successfully been deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of all service categories Copy 3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service Category\" + pm.collectionVariables.get(\"ServiceCategory5Name\") + \" has successfully been deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories",
+								"{{ServiceCategory5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RAZ Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ACLResources",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory3Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory3Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory3Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory4Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory4Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory4Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory5Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory5Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory5Id",
+			"value": ""
+		}
+	]
+}

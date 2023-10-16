@@ -1,0 +1,3726 @@
+{
+	"info": {
+		"_postman_id": "9a0e9fda-0dec-45f6-9dec-4550687f0cb7",
+		"name": "Host Templates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-9a0e9fda-0dec-45f6-9dec-4550687f0cb7?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host severity with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host severity has been successfully created, with name '\" + pm.collectionVariables.get(\"HostSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity1Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host severity\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostSeverity1Id\", response.id);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostSeverity1Name\", \"Test_H_Severity_1\");\r",
+									"pm.collectionVariables.set(\"HostSeverity1Alias\", \"I'm a host severity!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Severity_1\",\n    \"alias\":\"I'm a host severity!\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/severities",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"severities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host category with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host category has been successfully created, with name '\" + pm.collectionVariables.get(\"HostCategory1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostCategory1Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host category\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"HostCategory1Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostCategory1Name\", \"Test_H_Category_1\");\r",
+									"pm.collectionVariables.set(\"HostCategory1Alias\", \"I'm a host category!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Category_1\",\n    \"alias\":\"I'm a host category!\",\n    \"is_activated\": false,\n    \"comment\":\"Created by Admin\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a command",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"A command has been successfully created.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"CMD\",\n  \"values\": \"check-host-alive;check;$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve id of the command",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"A command has been successfully created.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"",
+									"    var response = pm.response.json();",
+									"    pm.collectionVariables.set(\"CommandId\", response.result[0].id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template with all properties defined",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostTemplate1Name\", \"host template 1\");\r",
+									"pm.collectionVariables.set(\"HostTemplate1Alias\", \"I'm the first host template created by admin\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate1Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host template\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"HostTemplate1Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"host template 1\",\r\n    \"alias\": \"I'm the first host template created by admin\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (31)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host templates has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates retrieved are listed with all parameters\", function() {\r",
+									"    // Check the number of host template (1)\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    // Check the properties of each host template\r",
+									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": \"host_template_1\",\r",
+									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-test\",\r",
+									"            \"timezone_id\": 1,\r",
+									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"max_check_attempts\": 3,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": 31,\r",
+									"            \"notification_interval\": 5,\r",
+									"            \"notification_timeperiod_id\": 2,\r",
+									"            \"add_inherited_contact_group\": true,\r",
+									"            \"add_inherited_contact\": true,\r",
+									"            \"first_notification_delay\": 2,\r",
+									"            \"recovery_notification_delay\": 1,\r",
+									"            \"acknowledgement_timeout\": 5,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 2,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 25,\r",
+									"            \"high_flap_threshold\": 75,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"note_url\": \"noteUrl-value\",\r",
+									"            \"note\": \"note-value\",\r",
+									"            \"action_url\": \"actionUrl-value\",\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"1, 2, 3\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[0].check_command_args[0]).to.include(\"OUTPUT\");\r",
+									"    pm.expect(responseJson.result[0].event_handler_command_args[0]).to.include(\"%d\");\r",
+									"    \r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=1&sort_by={\"id\":\"DESC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "1"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template with mandatory properties defined",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostTemplate2Name\", \"host template 2\");\r",
+									"pm.collectionVariables.set(\"HostTemplate2Alias\", \"I'm the second host template created by admin\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate2Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host template\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"HostTemplate2Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"name\": \"host template 2\",\r\n\"alias\": \"I'm the second host template created by admin\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (32)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host templates has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates retrieved are listed with all parameters\", function() {\r",
+									"    // Check the number of host template (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each host template\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate2Id\"),\r",
+									"            \"name\": \"host_template_2\",\r",
+									"            \"alias\": \"I'm the second host template created by admin\",\r",
+									"            \"snmp_version\": null,\r",
+									"            \"snmp_community\": null,\r",
+									"            \"timezone_id\": null,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": null,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": null,\r",
+									"            \"max_check_attempts\": null,\r",
+									"            \"normal_check_interval\": null,\r",
+									"            \"retry_check_interval\": null,\r",
+									"            \"active_check_enabled\": 2,\r",
+									"            \"passive_check_enabled\": 2,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 2,\r",
+									"            \"freshness_threshold\": null,\r",
+									"            \"flap_detection_enabled\": 2,\r",
+									"            \"low_flap_threshold\": null,\r",
+									"            \"high_flap_threshold\": null,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": null,\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": null,\r",
+									"            \"note\": null,\r",
+									"            \"action_url\": null,\r",
+									"            \"icon_id\": null,\r",
+									"            \"icon_alternative\": null,\r",
+									"            \"comment\": null,\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"    \r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": \"host_template_1\",\r",
+									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-test\",\r",
+									"            \"timezone_id\": 1,\r",
+									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"note_url\": \"noteUrl-value\",\r",
+									"            \"note\": \"note-value\",\r",
+									"            \"action_url\": \"actionUrl-value\",\r",
+									"            \"max_check_attempts\": 3,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": 31,\r",
+									"            \"notification_interval\": 5,\r",
+									"            \"notification_timeperiod_id\": 2,\r",
+									"            \"add_inherited_contact_group\": true,\r",
+									"            \"add_inherited_contact\": true,\r",
+									"            \"first_notification_delay\": 2,\r",
+									"            \"recovery_notification_delay\": 1,\r",
+									"            \"acknowledgement_timeout\": 5,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 2,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 25,\r",
+									"            \"high_flap_threshold\": 75,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"1, 2, 3\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].check_command_args[0]).to.include(\"OUTPUT\");\r",
+									"    pm.expect(responseJson.result[1].event_handler_command_args[0]).to.include(\"%d\");\r",
+									"    \r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=2&sort_by={\"id\":\"DESC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template without name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host template has not been created, because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"alias\": \"I'm the first host template created by admin\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template without alias",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host template has not been created, because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[alias] The property alias is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"host template 1\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template with empty name",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host template has not been created, because the name is empty.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[NewHostTemplate::name] The string is empty, but non empty string was expected\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"alias\": \"test vithout name\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template with empty alias",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host template has not been created, because the alias is empty.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[NewHostTemplate::alias] The string is empty, but non empty string was expected\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Test without alias\",\r\n    \"alias\": \"\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template with wrong type of value",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host template has not been created, because there are values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] Integer value found, but a string is required\\n[snmp_version] Boolean value found, but a null or a string is required\\n[snmp_version] Does not have a value in the enumeration [null,\\\"1\\\",\\\"2c\\\",\\\"3\\\"]\\n[snmp_community] Integer value found, but a null or a string is required\\n[timezone_id] String value found, but a null or an integer is required\\n[severity_id] String value found, but a null or an integer is required\\n[check_command_id] String value found, but a null or an integer is required\\n[check_command_args[0]] Boolean value found, but a string is required\\n[check_timeperiod_id] String value found, but a null or an integer is required\\n[max_check_attempts] String value found, but a null or an integer is required\\n[normal_check_interval] String value found, but a null or an integer is required\\n[retry_check_interval] String value found, but a null or an integer is required\\n[active_check_enabled] String value found, but a null or an integer is required\\n[active_check_enabled] Does not have a value in the enumeration [null,0,1,2]\\n[passive_check_enabled] String value found, but a null or an integer is required\\n[passive_check_enabled] Does not have a value in the enumeration [null,0,1,2]\\n[notification_enabled] String value found, but a null or an integer is required\\n[notification_enabled] Does not have a value in the enumeration [null,0,1,2]\\n[notification_options] String value found, but an integer or a null is required\\n[notification_interval] String value found, but a null or an integer is required\\n[notification_timeperiod_id] String value found, but a null or an integer is required\\n[add_inherited_contact_group] String value found, but a null or a boolean is required\\n[add_inherited_contact] String value found, but a null or a boolean is required\\n[first_notification_delay] String value found, but a null or an integer is required\\n[recovery_notification_delay] String value found, but a null or an integer is required\\n[acknowledgement_timeout] String value found, but a null or an integer is required\\n[freshness_checked] String value found, but a null or an integer is required\\n[freshness_checked] Does not have a value in the enumeration [null,0,1,2]\\n[freshness_threshold] String value found, but a null or an integer is required\\n[flap_detection_enabled] String value found, but a null or an integer is required\\n[flap_detection_enabled] Does not have a value in the enumeration [null,0,1,2]\\n[low_flap_threshold] String value found, but a null or an integer is required\\n[high_flap_threshold] String value found, but a null or an integer is required\\n[event_handler_enabled] String value found, but a null or an integer is required\\n[event_handler_enabled] Does not have a value in the enumeration [null,0,1,2]\\n[event_handler_command_id] String value found, but a null or an integer is required\\n[event_handler_command_args[0]] Integer value found, but a string is required\\n[note_url] Integer value found, but a null or a string is required\\n[note] Integer value found, but a null or a string is required\\n[action_url] Integer value found, but a null or a string is required\\n[icon_id] String value found, but a null or an integer is required\\n[icon_alternative] Integer value found, but a null or a string is required\\n[comment] Integer value found, but a null or a string is required\\n[categories[0]] String value found, but an integer is required\\n[templates[0]] String value found, but an integer is required\\n[macros[0].name] Boolean value found, but a string is required\\n[macros[0].value] Boolean value found, but a null or a string is required\\n[macros[0].is_password] String value found, but a boolean is required\\n[macros[0].description] Integer value found, but a null or a string is required\\n[macros[1].name] Integer value found, but a string is required\\n[macros[1].value] Integer value found, but a null or a string is required\\n[macros[1].is_password] Integer value found, but a boolean is required\\n[macros[1].description] Integer value found, but a null or a string is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": true,\r\n    \"alias\": 1,\r\n    \"snmp_version\": false,\r\n    \"snmp_community\": 1,\r\n    \"timezone_id\": \"1\",\r\n    \"severity_id\": \"{{HostSeverity1Id}}\",\r\n    \"check_command_id\": \"91\",\r\n    \"check_command_args\": [true],\r\n    \"check_timeperiod_id\": \"1\",\r\n    \"note_url\": 2,\r\n    \"note\": 0,\r\n    \"action_url\": 43,\r\n    \"max_check_attempts\": \"3\",\r\n    \"normal_check_interval\": \"5\",\r\n    \"retry_check_interval\": \"2\",\r\n    \"active_check_enabled\": \"1\",\r\n    \"passive_check_enabled\": \"0\",\r\n    \"notification_enabled\": \"2\",\r\n    \"notification_options\": \"31\",\r\n    \"notification_interval\": \"5\",\r\n    \"notification_timeperiod_id\": \"2\",\r\n    \"add_inherited_contact_group\": \"true\",\r\n    \"add_inherited_contact\": \"true\",\r\n    \"first_notification_delay\": \"2\",\r\n    \"recovery_notification_delay\": \"1\",\r\n    \"acknowledgement_timeout\": \"5\",\r\n    \"freshness_checked\": \"1\",\r\n    \"freshness_threshold\": \"2\",\r\n    \"flap_detection_enabled\": \"1\",\r\n    \"low_flap_threshold\": \"25\",\r\n    \"high_flap_threshold\": \"75\",\r\n    \"event_handler_enabled\": \"2\",\r\n    \"event_handler_command_id\": \"202\",\r\n    \"event_handler_command_args\": [1],\r\n    \"icon_id\": \"1\",\r\n    \"icon_alternative\": 0,\r\n    \"categories\": [ \"{{HostCategory1Id}}\" ],\r\n    \"templates\": [\"4\"],\r\n    \"comment\": 1,\r\n    \"macros\": [\r\n        {\r\n        \"name\": true,\r\n        \"value\": false,\r\n        \"is_password\": \"false\",\r\n        \"description\": 1\r\n        },\r\n        {\r\n        \"name\": 2,\r\n        \"value\": 1,\r\n        \"is_password\": 2,\r\n        \"description\": 1\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template with special characters defined",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostTemplate3Name\", \"hôst~templàte~3!\");\r",
+									"pm.collectionVariables.set(\"HostTemplate3Alias\", \"I'm the third host template créated by admin!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host template\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"HostTemplate3Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"hôst~templàte~3!\",\r\n    \"alias\": \"I'm the third host template créated by admin!\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": 91,\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (33)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host templates has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates retrieved are listed with all parameters\", function() {\r",
+									"    // Check the number of host template (3)\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    // Check the properties of each host template\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate3Id\"),\r",
+									"            \"name\": \"hôst~templàte~3!\",\r",
+									"            \"alias\": \"I'm the third host template créated by admin!\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
+									"            \"timezone_id\": 2,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"max_check_attempts\": 6,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 2,\r",
+									"            \"freshness_threshold\": null,\r",
+									"            \"flap_detection_enabled\": 2,\r",
+									"            \"low_flap_threshold\": null,\r",
+									"            \"high_flap_threshold\": null,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": \"noteUrl!!!!\",\r",
+									"            \"note\": \"notéé\",\r",
+									"            \"action_url\": \"actionUrl-ouêp\",\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"I am an other test\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate2Id\"),\r",
+									"            \"name\": \"host_template_2\",\r",
+									"            \"alias\": \"I'm the second host template created by admin\",\r",
+									"            \"snmp_version\": null,\r",
+									"            \"snmp_community\": null,\r",
+									"            \"timezone_id\": null,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": null,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": null,\r",
+									"            \"max_check_attempts\": null,\r",
+									"            \"normal_check_interval\": null,\r",
+									"            \"retry_check_interval\": null,\r",
+									"            \"active_check_enabled\": 2,\r",
+									"            \"passive_check_enabled\": 2,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 2,\r",
+									"            \"freshness_threshold\": null,\r",
+									"            \"flap_detection_enabled\": 2,\r",
+									"            \"low_flap_threshold\": null,\r",
+									"            \"high_flap_threshold\": null,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": null,\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": null,\r",
+									"            \"note\": null,\r",
+									"            \"action_url\": null,\r",
+									"            \"icon_id\": null,\r",
+									"            \"icon_alternative\": null,\r",
+									"            \"comment\": null,\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"    \r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": \"host_template_1\",\r",
+									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-test\",\r",
+									"            \"timezone_id\": 1,\r",
+									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"note_url\": \"noteUrl-value\",\r",
+									"            \"note\": \"note-value\",\r",
+									"            \"action_url\": \"actionUrl-value\",\r",
+									"            \"max_check_attempts\": 3,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": 31,\r",
+									"            \"notification_interval\": 5,\r",
+									"            \"notification_timeperiod_id\": 2,\r",
+									"            \"add_inherited_contact_group\": true,\r",
+									"            \"add_inherited_contact\": true,\r",
+									"            \"first_notification_delay\": 2,\r",
+									"            \"recovery_notification_delay\": 1,\r",
+									"            \"acknowledgement_timeout\": 5,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 2,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 25,\r",
+									"            \"high_flap_threshold\": 75,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"1, 2, 3\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2].check_command_args[0]).to.include(\"OUTPUT\");\r",
+									"    pm.expect(responseJson.result[2].event_handler_command_args[0]).to.include(\"%d\");\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=3&sort_by={\"id\":\"DESC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The host template with name '\" + pm.collectionVariables.get(\"HostTemplate2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate2Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostTemplate2Name\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate2Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate2Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate2Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The host template with name '\" + pm.collectionVariables.get(\"HostTemplate3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate3Alias\") + \"' has been successfully updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 50,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 33,\r\n    \"high_flap_threshold\": 66,\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"key_updated\",\r\n        \"value\": \"value_Updated\",\r\n        \"is_password\": false,\r\n        \"description\": \"I was updated\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate3Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (32)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host templates has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates retrieved are listed with all parameters\", function() {\r",
+									"    // Check the number of host template (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each host template\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate3Id\"),\r",
+									"            \"name\": \"hôst~templàte~3!\",\r",
+									"            \"alias\": \"I'm the third host template créated by admin!\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
+									"            \"timezone_id\": 2,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"max_check_attempts\": 6,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 50,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 33,\r",
+									"            \"high_flap_threshold\": 66,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": \"noteUrl!!!!\",\r",
+									"            \"note\": \"notéé\",\r",
+									"            \"action_url\": \"actionUrl-ouêp\",\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"I am an other test\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"    \r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": \"host_template_1\",\r",
+									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-test\",\r",
+									"            \"timezone_id\": 1,\r",
+									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"max_check_attempts\": 3,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": 31,\r",
+									"            \"notification_interval\": 5,\r",
+									"            \"notification_timeperiod_id\": 2,\r",
+									"            \"add_inherited_contact_group\": true,\r",
+									"            \"add_inherited_contact\": true,\r",
+									"            \"first_notification_delay\": 2,\r",
+									"            \"recovery_notification_delay\": 1,\r",
+									"            \"acknowledgement_timeout\": 5,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 2,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 25,\r",
+									"            \"high_flap_threshold\": 75,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"note_url\": \"noteUrl-value\",\r",
+									"            \"note\": \"note-value\",\r",
+									"            \"action_url\": \"actionUrl-value\",\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"1, 2, 3\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].check_command_args[0]).to.include(\"OUTPUT\");\r",
+									"    pm.expect(responseJson.result[1].event_handler_command_args[0]).to.include(\"%d\");\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=2&sort_by={\"id\":\"DESC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user with R/W rights",
+			"item": [
+				{
+					"name": "Login with Read/Write user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_RW'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW}}\",\r\n      \"password\": \"{{api_password_user_RW}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostTemplate4Name\", \"host-template4\");\r",
+									"pm.collectionVariables.set(\"HostTemplate4Alias\", \"I'm the fourth host template but I was created by user R/W\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate4Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host template\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"HostTemplate4Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"host-template4\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": 91,\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (33)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host templates has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates retrieved are listed with all parameters\", function() {\r",
+									"    // Check the number of host template (3)\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    // Check the properties of each host template\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate4Id\"),\r",
+									"            \"name\": \"host-template4\",\r",
+									"            \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r",
+									"            \"snmp_version\": \"1\",\r",
+									"            \"snmp_community\": null,\r",
+									"            \"timezone_id\": null,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": null,\r",
+									"            \"max_check_attempts\": null,\r",
+									"            \"normal_check_interval\": null,\r",
+									"            \"retry_check_interval\": null,\r",
+									"            \"active_check_enabled\": 2,\r",
+									"            \"passive_check_enabled\": 2,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 2,\r",
+									"            \"freshness_threshold\": null,\r",
+									"            \"flap_detection_enabled\": 2,\r",
+									"            \"low_flap_threshold\": null,\r",
+									"            \"high_flap_threshold\": null,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": null,\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": null,\r",
+									"            \"note\": null,\r",
+									"            \"action_url\": null,\r",
+									"            \"icon_id\": null,\r",
+									"            \"icon_alternative\": null,\r",
+									"            \"comment\": \"Blabloubli\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"    \r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate3Id\"),\r",
+									"            \"name\": \"hôst~templàte~3!\",\r",
+									"            \"alias\": \"I'm the third host template créated by admin!\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
+									"            \"timezone_id\": 2,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"max_check_attempts\": 6,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 50,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 33,\r",
+									"            \"high_flap_threshold\": 66,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": \"noteUrl!!!!\",\r",
+									"            \"note\": \"notéé\",\r",
+									"            \"action_url\": \"actionUrl-ouêp\",\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"I am an other test\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": \"host_template_1\",\r",
+									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-test\",\r",
+									"            \"timezone_id\": 1,\r",
+									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"note_url\": \"noteUrl-value\",\r",
+									"            \"note\": \"note-value\",\r",
+									"            \"action_url\": \"actionUrl-value\",\r",
+									"            \"max_check_attempts\": 3,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": 31,\r",
+									"            \"notification_interval\": 5,\r",
+									"            \"notification_timeperiod_id\": 2,\r",
+									"            \"add_inherited_contact_group\": true,\r",
+									"            \"add_inherited_contact\": true,\r",
+									"            \"first_notification_delay\": 2,\r",
+									"            \"recovery_notification_delay\": 1,\r",
+									"            \"acknowledgement_timeout\": 5,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 2,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 25,\r",
+									"            \"high_flap_threshold\": 75,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"1, 2, 3\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2].check_command_args[0]).to.include(\"OUTPUT\");\r",
+									"    pm.expect(responseJson.result[2].event_handler_command_args[0]).to.include(\"%d\");\r",
+									"    \r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=3&sort_by={\"id\":\"DESC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The host template with name '\" + pm.collectionVariables.get(\"HostTemplate3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate3Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostTemplate3Name\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate3Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate3Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate3Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host category with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host category has been successfully created, with name '\" + pm.collectionVariables.get(\"HostCategory2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostCategory2Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host category\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"HostCategory2Id\", response.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostCategory2Name\", \"Test_H_Category_2\");\r",
+									"pm.collectionVariables.set(\"HostCategory2Alias\", \"I'm a host category!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Category_2\",\n    \"alias\":\"I'm a host category!\",\n    \"is_activated\": true,\n    \"comment\":\"Created by user R/W\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The host template with name '\" + pm.collectionVariables.get(\"HostTemplate1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate1Alias\") + \"' has been successfully updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"timezone_id\": 3,\r\n    \"categories\": [ {{HostCategory2Id}} ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate1Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (32)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host templates has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates retrieved are listed with all parameters\", function() {\r",
+									"    // Check the number of host template (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each host template\r",
+									"    \r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate4Id\"),\r",
+									"            \"name\": \"host-template4\",\r",
+									"            \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r",
+									"            \"snmp_version\": \"1\",\r",
+									"            \"snmp_community\": null,\r",
+									"            \"timezone_id\": null,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": null,\r",
+									"            \"max_check_attempts\": null,\r",
+									"            \"normal_check_interval\": null,\r",
+									"            \"retry_check_interval\": null,\r",
+									"            \"active_check_enabled\": 2,\r",
+									"            \"passive_check_enabled\": 2,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 2,\r",
+									"            \"freshness_threshold\": null,\r",
+									"            \"flap_detection_enabled\": 2,\r",
+									"            \"low_flap_threshold\": null,\r",
+									"            \"high_flap_threshold\": null,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": null,\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": null,\r",
+									"            \"note\": null,\r",
+									"            \"action_url\": null,\r",
+									"            \"icon_id\": null,\r",
+									"            \"icon_alternative\": null,\r",
+									"            \"comment\": \"Blabloubli\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": \"host_template_1\",\r",
+									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-test\",\r",
+									"            \"timezone_id\": 3,\r",
+									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"note_url\": \"noteUrl-value\",\r",
+									"            \"note\": \"note-value\",\r",
+									"            \"action_url\": \"actionUrl-value\",\r",
+									"            \"max_check_attempts\": 3,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": 31,\r",
+									"            \"notification_interval\": 5,\r",
+									"            \"notification_timeperiod_id\": 2,\r",
+									"            \"add_inherited_contact_group\": true,\r",
+									"            \"add_inherited_contact\": true,\r",
+									"            \"first_notification_delay\": 2,\r",
+									"            \"recovery_notification_delay\": 1,\r",
+									"            \"acknowledgement_timeout\": 5,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 2,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 25,\r",
+									"            \"high_flap_threshold\": 75,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"1, 2, 3\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].check_command_args[0]).to.include(\"OUTPUT\");\r",
+									"    pm.expect(responseJson.result[1].event_handler_command_args[0]).to.include(\"%d\");\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=2&sort_by={\"id\":\"DESC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from R/W user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user with Read Only rights",
+			"item": [
+				{
+					"name": "Login with Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Read'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Read}}\",\r\n      \"password\": \"{{api_password_user_Read}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to create host template.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add host templates\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": 91,\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to delete host template.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete host templates\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate1Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host template.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write actions on host templates\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"timezone_id\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate4Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (32)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host templates has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates retrieved are listed with all parameters\", function() {\r",
+									"    // Check the number of host template (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each host template\r",
+									"    \r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate4Id\"),\r",
+									"            \"name\": \"host-template4\",\r",
+									"            \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r",
+									"            \"snmp_version\": \"1\",\r",
+									"            \"snmp_community\": null,\r",
+									"            \"timezone_id\": null,\r",
+									"            \"severity_id\": null,\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_command_args\": [],\r",
+									"            \"check_timeperiod_id\": null,\r",
+									"            \"max_check_attempts\": null,\r",
+									"            \"normal_check_interval\": null,\r",
+									"            \"retry_check_interval\": null,\r",
+									"            \"active_check_enabled\": 2,\r",
+									"            \"passive_check_enabled\": 2,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": null,\r",
+									"            \"notification_interval\": null,\r",
+									"            \"notification_timeperiod_id\": null,\r",
+									"            \"add_inherited_contact_group\": false,\r",
+									"            \"add_inherited_contact\": false,\r",
+									"            \"first_notification_delay\": null,\r",
+									"            \"recovery_notification_delay\": null,\r",
+									"            \"acknowledgement_timeout\": null,\r",
+									"            \"freshness_checked\": 2,\r",
+									"            \"freshness_threshold\": null,\r",
+									"            \"flap_detection_enabled\": 2,\r",
+									"            \"low_flap_threshold\": null,\r",
+									"            \"high_flap_threshold\": null,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": null,\r",
+									"            \"event_handler_command_args\": [],\r",
+									"            \"note_url\": null,\r",
+									"            \"note\": null,\r",
+									"            \"action_url\": null,\r",
+									"            \"icon_id\": null,\r",
+									"            \"icon_alternative\": null,\r",
+									"            \"comment\": \"Blabloubli\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": \"host_template_1\",\r",
+									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"snmp_version\": \"2c\",\r",
+									"            \"snmp_community\": \"snmpCommunity-test\",\r",
+									"            \"timezone_id\": 3,\r",
+									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"            \"check_command_id\": 91,\r",
+									"            \"check_timeperiod_id\": 1,\r",
+									"            \"note_url\": \"noteUrl-value\",\r",
+									"            \"note\": \"note-value\",\r",
+									"            \"action_url\": \"actionUrl-value\",\r",
+									"            \"max_check_attempts\": 3,\r",
+									"            \"normal_check_interval\": 5,\r",
+									"            \"retry_check_interval\": 2,\r",
+									"            \"active_check_enabled\": 1,\r",
+									"            \"passive_check_enabled\": 0,\r",
+									"            \"notification_enabled\": 2,\r",
+									"            \"notification_options\": 31,\r",
+									"            \"notification_interval\": 5,\r",
+									"            \"notification_timeperiod_id\": 2,\r",
+									"            \"add_inherited_contact_group\": true,\r",
+									"            \"add_inherited_contact\": true,\r",
+									"            \"first_notification_delay\": 2,\r",
+									"            \"recovery_notification_delay\": 1,\r",
+									"            \"acknowledgement_timeout\": 5,\r",
+									"            \"freshness_checked\": 1,\r",
+									"            \"freshness_threshold\": 2,\r",
+									"            \"flap_detection_enabled\": 1,\r",
+									"            \"low_flap_threshold\": 25,\r",
+									"            \"high_flap_threshold\": 75,\r",
+									"            \"event_handler_enabled\": 2,\r",
+									"            \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"            \"icon_id\": 1,\r",
+									"            \"icon_alternative\": \"3\",\r",
+									"            \"comment\": \"1, 2, 3\",\r",
+									"            \"is_locked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].check_command_args[0]).to.include(\"OUTPUT\");\r",
+									"    pm.expect(responseJson.result[1].event_handler_command_args[0]).to.include(\"%d\");\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=2&sort_by={\"id\":\"DESC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user with no rights",
+			"item": [
+				{
+					"name": "Login with user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Nothing'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Nothing}}\",\r\n      \"password\": \"{{api_password_user_Nothing}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host template",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to create host template.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add host templates\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": 91,\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to delete host template.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete host templates\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate1Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host template.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write actions on host templates\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"timezone_id\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate4Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host templates (32)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host templates have not been  listed, because the user does have the corrects rights\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host templates\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates?limit=50&sort_by=id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "sort_by",
+									"value": "id"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reset",
+			"item": [
+				{
+					"name": "Login with admin user Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The host template with name '\" + pm.collectionVariables.get(\"HostTemplate1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate1Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostTemplate1Name\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate1Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate1Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate1Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a host template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"The host template with name '\" + pm.collectionVariables.get(\"HostTemplate4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate4Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostTemplate4Name\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate4Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostTemplate4Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates/{{HostTemplate4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates",
+								"{{HostTemplate4Id}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "id",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host severity (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host severity with name '\" + pm.collectionVariables.get(\"HostSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity1Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostSeverity1Name\");\r",
+									"    pm.collectionVariables.unset(\"HostSeverity1Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostSeverity1Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/severities/{{HostSeverity1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"severities",
+								"{{HostSeverity1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host category (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host category with name '\" + pm.collectionVariables.get(\"HostCategory1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostCategory1Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostCategory1Name\");\r",
+									"    pm.collectionVariables.unset(\"HostCategory1Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostCategory1Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"categories",
+								"{{HostCategory1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host category (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host category with name '\" + pm.collectionVariables.get(\"HostCategory2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostCategory2Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostCategory2Name\");\r",
+									"    pm.collectionVariables.unset(\"HostCategory2Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostCategory2Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"categories",
+								"{{HostCategory2Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a command",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"A command has been successfully deleted.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"CMD\",\n  \"values\": \"check-host-alive\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "CommandId",
+			"value": ""
+		}
+	]
+}

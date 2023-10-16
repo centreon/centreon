@@ -1,0 +1,4478 @@
+{
+	"info": {
+		"_postman_id": "2982c69d-9454-430e-9cc7-0b09a7ccbe6a",
+		"name": "Host Group",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-2982c69d-9454-430e-9cc7-0b09a7ccbe6a?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "Host Group by Admin",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup1Id\", response.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup1Name\", \"Test_H_Group_1\");\r",
+									"pm.collectionVariables.set(\"HostGroup1Alias\", \"I should be successful !\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test_H_Group_1\",\n    \"alias\": \"I should be successful !\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (1)\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:\"Test_H_Group_1\"}).\r",
+									"            and.to.include({alias:\"I should be successful !\"}).\r",
+									"            and.to.include({notes:\"I am Groot\"}).\r",
+									"            and.to.include({notes_url:\"www.google.fr\"}).\r",
+									"            and.to.include({action_url:\"www.google.com\"}).\r",
+									"            and.to.include({icon_id:null}).\r",
+									"            and.to.include({icon_map_id:null}).\r",
+									"            and.to.include({rrd:3}).\r",
+									"            and.to.include({geo_coords:null}).\r",
+									"            and.to.include({comment:\"Hello world ! 1\"}).\r",
+									"            and.to.include({is_activated:false});\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with mandatory properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup2Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup2Id\", response.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup2Name\", \"Test_H_Group_2\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Group_2\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups (2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function () {\r",
+									"    // Check the number of host groups (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_1\" }).\r",
+									"        and.to.include({ alias: \"I should be successful !\" }).\r",
+									"        and.to.include({ notes: \"I am Groot\" }).\r",
+									"        and.to.include({ notes_url: \"www.google.fr\" }).\r",
+									"        and.to.include({ action_url: \"www.google.com\" }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: 3 }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"Hello world ! 1\" }).\r",
+									"        and.to.include({ is_activated: false });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group without name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has not been created, because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"alias\":\"Oh I'm your third group !\", \n\"comment\": \"Hello, I should not work !\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group without name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has not been created, because the name can't be empty.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[NewHostGroup::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"\",\n\"alias\":\"Hello, I'm your fourth group!\", \n\"comment\": \"Oh, I should not work too!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group without alias (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup3Name\") + \"' and no alias.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup3Id\", response.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup3Name\", \"Test_H_Group_3\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Group_3\",\n\"comment\": \"I'm blue!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with wrong type of value (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has not been created, because there are values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] Boolean value found, but a string or a null is required\\n[notes] Integer value found, but a string or a null is required\\n[notes_url] Boolean value found, but a string or a null is required\\n[action_url] Integer value found, but a string or a null is required\\n[icon_id] String value found, but an integer or a null is required\\n[icon_map_id] String value found, but an integer or a null is required\\n[rrd] Boolean value found, but an integer or a null is required\\n[geo_coords] Boolean value found, but a string or a null is required\\n[comment] Integer value found, but a string or a null is required\\n[is_activated] String value found, but a boolean is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":true,\n\"alias\":true,\n\"notes\": 0,\n\"notes_url\": false,\n\"action_url\": 1,\n\"icon_id\": \"8\",\n\"icon_map_id\": \"ç\",\n\"rrd\": true,\n\"geo_coords\": true,\n\"is_activated\":\"true\",\n\"comment\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with special characters (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup4Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup4Id\", response.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Grôup_4!\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Alias\", \"I want to break free !\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Grôup_4!\",\n\"alias\":\"I want to break free !\",\n\"comment\":\"   \"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups (4)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function () {\r",
+									"    // Check the number of host groups (4)\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_1\" }).\r",
+									"        and.to.include({ alias: \"I should be successful !\" }).\r",
+									"        and.to.include({ notes: \"I am Groot\" }).\r",
+									"        and.to.include({ notes_url: \"www.google.fr\" }).\r",
+									"        and.to.include({ action_url: \"www.google.com\" }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: 3 }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"Hello world ! 1\" }).\r",
+									"        and.to.include({ is_activated: false });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Group_3\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I'm blue!\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({ name: \"Test_H_Grôup_4!\" }).\r",
+									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host group has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.include({ name: \"Test_H_Group_3\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I'm blue!\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostGroup1Name\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup1Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup1Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully updated, with name '\" + pm.collectionVariables.get(\"HostGroup3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup3Name\", \"Test_Update_H_Group_3\");\r",
+									"pm.collectionVariables.set(\"HostGroup3Alias\", \"I'm a your third group but I changgeeeee!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_Update_H_Group_3\",\n    \"alias\":\"I'm a your third group but I changgeeeee!\",\n    \"is_activated\":false,\n    \"comment\":\"Transformmattiooonnnnnn!!!!!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups (3)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (3)\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Grôup_4!\" }).\r",
+									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_Update_H_Group_3\" }).\r",
+									"        and.to.include({ alias: \"I'm a your third group but I changgeeeee!\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"Transformmattiooonnnnnn!!!!!\" }).\r",
+									"        and.to.include({ is_activated: false });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Host Group by user R/W without filters",
+			"item": [
+				{
+					"name": "Login with Read/Write user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_RW'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW}}\",\r\n      \"password\": \"{{api_password_user_RW}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup5Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup5Id\", response.id);\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup5Name\", \"Test_H_Group_5\");\r",
+									"pm.collectionVariables.set(\"HostGroup5Alias\", \"I'm the fifth successful group !\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Group_5\",\n\"alias\":\"I'm the fifth successful group !\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (4)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (4)\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Grôup_4!\" }).\r",
+									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Group_5\" }).\r",
+									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.include({ name: \"Test_Update_H_Group_3\" }).\r",
+									"        and.to.include({ alias: \"I'm a your third group but I changgeeeee!\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"Transformmattiooonnnnnn!!!!!\" }).\r",
+									"        and.to.include({ is_activated: false });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: name, alias, is_activated and comments\", function() {\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.include({name:\"Test_H_Grôup_4!\"}).\r",
+									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group with name '\" + pm.collectionVariables.get(\"HostGroup3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup3Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostGroup3Name\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup3Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup3Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully updated, with name '\" + pm.collectionVariables.get(\"HostGroup4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup4Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Update_Group_4\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Alias\", \"So many changes\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Update_Group_4\",\n    \"alias\":\"So many changes\",\n    \"notes_url\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (3)\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_5\" }).\r",
+									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
+									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from R/W user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Host Group by user R/W with filters",
+			"item": [
+				{
+					"name": "ACL Resources",
+					"item": [
+						{
+							"name": "Login with admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+											"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+											"    pm.environment.set(\"token\", responseJson.security.token);\r",
+											"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+											"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableCookies": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show ACLResources",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"A list of ACL Resource has been fetched.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"",
+											"    var response = JSON.parse(responseBody);",
+											"    pm.collectionVariables.set(\"ACLResources\", response.result[1].name);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"show\",\n  \"object\": \"ACLRESOURCE\"\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Grant the new Host Group to new ACL Resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The host group has been granted to ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"addfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup4Name}}\"\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout from admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+											"    pm.environment.unset(\"token\");\r",
+											"    pm.environment.unset(\"currentUserName\");\r",
+											"    pm.environment.unset(\"currentUserID\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "{{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "X-AUTH-TOKEN",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/logout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"logout"
+									],
+									"variable": [
+										{
+											"key": "protocol",
+											"value": "{{protocol}}",
+											"description": "HTTP schema (This can only be one of http,https)"
+										},
+										{
+											"key": "server",
+											"value": "{{server}}",
+											"description": "IP address or hostname of Centreon server"
+										},
+										{
+											"key": "port",
+											"value": "{{port}}",
+											"description": "Port used by HTTP server"
+										},
+										{
+											"key": "version",
+											"value": "{{version}}",
+											"description": "Version of the API"
+										}
+									]
+								},
+								"description": "Entry point to delete an existing authentication token."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Login with Read/Write user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_RW_filters'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW_filters}}\",\r\n      \"password\": \"{{api_password_user_RW_filters}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with all properties defined (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup6Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup6Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup6Id\", response.id);\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup6Name\", \"Test_H_Group_6\");\r",
+									"pm.collectionVariables.set(\"HostGroup6Alias\", \"I'm the sixth successful group!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Group_6\",\n\"alias\":\"I'm the sixth successful group!\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_6\" }).\r",
+									"        and.to.include({ alias: \"I'm the sixth successful group!\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
+									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host group has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
+									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Host group not found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Host group not found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Host group not found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from R/W user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Host Group by user Read Only without filters",
+			"item": [
+				{
+					"name": "Login with Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Read'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Read}}\",\r\n      \"password\": \"{{api_password_user_Read}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to create host group.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Group_7\",\n\"alias\":\"I will not be created!\",\n\"comment\":\"My user can't create me\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to delete host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Group_5555\",\n    \"alias\":\"I'm the fiffftth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\" \"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (4)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (4)\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"        and.to.include({ alias: null }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_5\" }).\r",
+									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Group_6\" }).\r",
+									"        and.to.include({ alias: \"I'm the sixth successful group!\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"        \r",
+									"    pm.expect(responseJson.result[3]).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
+									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: null }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    \r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.include({ name: \"Test_H_Group_5\" }).\r",
+									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Host Group by user Read Only with filters",
+			"item": [
+				{
+					"name": "ACL Resources filters",
+					"item": [
+						{
+							"name": "Login with admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+											"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+											"    pm.environment.set(\"token\", responseJson.security.token);\r",
+											"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+											"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableCookies": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete the Host Group filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The host group has been deleted of the ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"delfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup4Name}}\"\n}\n"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete the Host Group filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The host group has been deleted of the ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"delfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup6Name}}\"\n}\n"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Grant a new Host Group to the ACL Resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The host group has been granted to ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"addfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup5Name}}\"\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{server}}"
+									],
+									"path": [
+										"centreon",
+										"api",
+										"index.php"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout from admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+											"    pm.environment.unset(\"token\");\r",
+											"    pm.environment.unset(\"currentUserName\");\r",
+											"    pm.environment.unset(\"currentUserID\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "{{token}}",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "X-AUTH-TOKEN",
+											"type": "string"
+										},
+										{
+											"key": "in",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/logout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"logout"
+									],
+									"variable": [
+										{
+											"key": "protocol",
+											"value": "{{protocol}}",
+											"description": "HTTP schema (This can only be one of http,https)"
+										},
+										{
+											"key": "server",
+											"value": "{{server}}",
+											"description": "IP address or hostname of Centreon server"
+										},
+										{
+											"key": "port",
+											"value": "{{port}}",
+											"description": "Port used by HTTP server"
+										},
+										{
+											"key": "version",
+											"value": "{{version}}",
+											"description": "Version of the API"
+										}
+									]
+								},
+								"description": "Entry point to delete an existing authentication token."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Login with Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Read_filters'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Read_filters}}\",\r\n      \"password\": \"{{api_password_user_Read_filters}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to create host group.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Group_7\",\n\"alias\":\"I will not be created!\",\n\"comment\":\"My user can't create me\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to delete host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host group has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host group (1)\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_5\" }).\r",
+									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.include({ name: \"Test_H_Group_5\" }).\r",
+									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"        and.to.include({ notes: null }).\r",
+									"        and.to.include({ notes_url: null }).\r",
+									"        and.to.include({ action_url: null }).\r",
+									"        and.to.include({ icon_id: null }).\r",
+									"        and.to.include({ icon_map_id: null }).\r",
+									"        and.to.include({ rrd: null }).\r",
+									"        and.to.include({ geo_coords: null }).\r",
+									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
+									"        and.to.include({ is_activated: true });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from Read Only user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Host Group By User with No Access",
+			"item": [
+				{
+					"name": "Login with user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Nothing'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Nothing}}\",\r\n      \"password\": \"{{api_password_user_Nothing}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has not been  created, because the user does have the corrects rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"Test_H_Group_1234567\",\n\"alias\":\"I will not be created !\",\n\"comment\":\"My user can't do anything\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to delete host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Group_55555\",\n    \"alias\":\"I'm the X successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to list host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to list host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user with no access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reset",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups for deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"\r",
+									"    let hostsGroupCreated = [];\r",
+									"    for(let count = 0; count < responseJson.result.length; count++){\r",
+									"        hostsGroupCreated.push(responseJson.result[count].id);\r",
+									"    }\r",
+									"\r",
+									"    pm.collectionVariables.set(\"hostsGroupCreated\", hostsGroupCreated);\r",
+									"    pm.collectionVariables.set(\"HostGroupTotal\", responseJson.meta.total);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of all hosts groups",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let hostsGroupCreated = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
+									"\r",
+									"let currentHostGroup = hostsGroupCreated.shift();\r",
+									"pm.collectionVariables.set(\"currentHostGroup\", currentHostGroup);\r",
+									"pm.collectionVariables.set(\"hostsGroupCreated\", hostsGroupCreated);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const hostGroups = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
+									"const HostGroupTotal = pm.collectionVariables.get(\"HostGroupTotal\");\r",
+									"\r",
+									"pm.test(\"Host Group\" + pm.collectionVariables.get(\"currentHostGroup\") + \" has successfully been deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"console.log(hostGroups.length);\r",
+									"if (hostGroups.length > 0) {\r",
+									"    postman.setNextRequest(\"Deletion of all hosts groups\");\r",
+									"} else if (HostGroupTotal > 0) {\r",
+									"    postman.setNextRequest(\"Show available host group for deletion\");\r",
+									"}\r",
+									"else {\r",
+									"    pm.collectionVariables.unset(\"currentHostGroup\");\r",
+									"    pm.collectionVariables.unset(\"hostsGroupCreated\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{currentHostGroup}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{currentHostGroup}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ACLResources",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup5Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup5Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup5Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup4Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup4Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup4Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup6Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup6Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup6Id",
+			"value": ""
+		},
+		{
+			"key": "hostsGroupCreated",
+			"value": ""
+		},
+		{
+			"key": "HostGroupTotal",
+			"value": ""
+		},
+		{
+			"key": "currentHostGroup",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup1Id",
+			"value": ""
+		}
+	]
+}
