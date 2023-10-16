@@ -34,13 +34,13 @@ on:
         required: true
       registry_password:
         required: true
-      CLIENT_ID :
+      client_id :
         required: true
-      CLIENT_SECRET:
+      client_secret:
         required: true
-      JIRA_USER: 
+      jira_user: 
         required: true
-      JIRA_TOKEN_TEST: 
+      jira_token_test: 
         required: true
 
 
