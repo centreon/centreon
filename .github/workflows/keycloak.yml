@@ -5,7 +5,12 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      speed_test:
+        type: boolean
+        description: "toggle speed test"
+        default: false
 
 jobs:
   test-pull:
@@ -29,16 +34,19 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+        if: ${{ inputs.speed_test }}
 
       - name: speedtest
         run: |
           npm install --global fast-cli
           fast -u
+        if: ${{ inputs.speed_test }}
 
       - name: Pull keycloak image
         run: |
-          docker pull docker.centreon.com/centreon/keycloak:23.10
+          time docker pull docker.centreon.com/centreon/keycloak:23.10
 
       - name: speedtest
         run: |
           fast -u
+        if: ${{ inputs.speed_test }}
