@@ -20,6 +20,7 @@ export const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'flex',
+    flexWrap: 'wrap',
     marginBottom: theme.spacing(1)
   },
   macros: {
@@ -51,13 +52,13 @@ const ToolbarPlugin = ({
       )}
       <Divider flexItem orientation="vertical" />
       <FormatButtons disabled={disabled} />
+      <AlignPicker disabled={disabled} />
       {displayMacrosButton && (
         <>
           <Divider flexItem orientation="vertical" />
           <MacrosButton disabled={disabled} />
         </>
       )}
-      <AlignPicker disabled={disabled} />
     </div>
   ) : null;
 };
