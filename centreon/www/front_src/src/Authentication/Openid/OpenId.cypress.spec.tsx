@@ -386,27 +386,14 @@ describe('Open ID', () => {
     [
       'contact template',
       '@getContactTemplates',
-      contactTemplatesEndpoint,
       labelContactTemplate,
       'Contact Template 2'
     ],
-    [
-      'access group',
-      '@getAccessGroups',
-      accessGroupsEndpoint,
-      labelAclAccessGroup,
-      'Access Group 2'
-    ],
-    [
-      'contact group',
-      '@getContactGroups',
-      contactGroupsEndpoint,
-      labelContactGroup,
-      'Contact Group 2'
-    ]
+    ['access group', '@getAccessGroups', labelAclAccessGroup, 'Access Group 2'],
+    ['contact group', '@getContactGroups', labelContactGroup, 'Contact Group 2']
   ];
 
-  testCases.forEach(([label, requestName, endpoint, inputLabel, value]) => {
+  testCases.forEach(([label, requestName, inputLabel, value]) => {
     it(`updates the ${label} field when an option is selected from the retrieved options`, () => {
       cy.waitForRequest('@getOpenidConfiguration');
 

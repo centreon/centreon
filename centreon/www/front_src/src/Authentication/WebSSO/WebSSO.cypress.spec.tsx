@@ -27,7 +27,7 @@ import {
 
 import WebSSOConfigurationForm from '.';
 
-const initialize = () => {
+const initialize = (): void => {
   cy.viewport('macbook-15');
 
   cy.interceptAPIRequest({

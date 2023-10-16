@@ -38,7 +38,6 @@ import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
 import {
   selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourceUuidAtom,
   selectedResourcesDetailsAtom
 } from './detailsAtoms';
 
@@ -206,7 +205,7 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const initialize = () => {
+const initialize = (): void => {
   cy.viewport('macbook-13');
 
   const store = createStore();

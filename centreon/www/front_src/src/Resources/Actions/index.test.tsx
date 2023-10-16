@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { createStore, Provider } from 'jotai';
 import mockDate from 'mockdate';
-import { equals, head, last, map, pick } from 'ramda';
+import { equals, last, map, pick } from 'ramda';
 
 import { SeverityCode, TestQueryProvider } from '@centreon/ui';
 import {
@@ -38,38 +38,25 @@ import {
   labelAcknowledgeServices,
   labelAddComment,
   labelCheck,
-  labelCritical,
   labelDisableAutorefresh,
   labelDisacknowledge,
   labelDisacknowledgeServices,
-  labelDown,
   labelDowntimeBy,
   labelDuration,
   labelEnableAutorefresh,
-  labelEndTime,
   labelFixed,
   labelForcedCheck,
   labelHostsDenied,
   labelMoreActions,
   labelNotify,
-  labelOk,
-  labelOutput,
-  labelPerformanceData,
   labelRefresh,
   labelSetDowntime,
   labelSetDowntimeOnServices,
-  labelStartTime,
-  labelSubmit,
-  labelSubmitStatus,
-  labelUnknown,
-  labelUnreachable,
-  labelUp,
-  labelWarning
+  labelSubmitStatus
 } from '../translatedLabels';
 
 import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
-import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
 
 import Actions from '.';
 

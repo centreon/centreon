@@ -74,7 +74,7 @@ const host = {
   type: 'host'
 };
 
-const initialize = () => {
+const initialize = (): ReturnType<typeof createStore> => {
   cy.clock(new Date(2020, 1, 1));
   cy.viewport('macbook-13');
 

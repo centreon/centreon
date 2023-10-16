@@ -1,4 +1,4 @@
-import { equals, fromPairs, startsWith, type } from 'ramda';
+import { fromPairs, startsWith } from 'ramda';
 
 import { QueryParameter } from '../models';
 

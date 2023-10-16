@@ -25,24 +25,8 @@ import {
 } from '@centreon/ui-context';
 
 import {
-  labelMore,
-  labelFrom,
-  labelTo,
-  labelAt,
   labelStatusInformation,
-  labelDowntimeDuration,
-  labelAcknowledgedBy,
-  labelTimezone,
-  labelCurrentStatusDuration,
-  labelLastStatusChange,
-  labelNextCheck,
-  labelCheckDuration,
-  labelLatency,
-  labelStatusChangePercentage,
-  labelLastNotification,
   labelLastCheck,
-  labelCurrentNotificationNumber,
-  labelPerformanceData,
   label7Days,
   label1Day,
   label31Days,
@@ -55,9 +39,6 @@ import {
   labelViewReport,
   labelCopyLink,
   labelServices,
-  labelFqdn,
-  labelAlias,
-  labelGroups,
   labelAcknowledgement,
   labelDowntime,
   labelDisplayEvents,
@@ -68,7 +49,6 @@ import {
   labelMax,
   labelAvg,
   labelCompactTimePeriod,
-  labelCheck,
   labelMonitoringServer,
   labelToday,
   labelYesterday,
@@ -77,10 +57,8 @@ import {
   labelLastMonth,
   labelLastYear,
   labelBeforeLastYear,
-  labelLastCheckWithOkStatus,
   labelGraph,
   labelNotificationStatus,
-  labelCategories,
   labelExportToCSV
 } from '../translatedLabels';
 import Context, { ResourceContext } from '../testUtils/Context';
