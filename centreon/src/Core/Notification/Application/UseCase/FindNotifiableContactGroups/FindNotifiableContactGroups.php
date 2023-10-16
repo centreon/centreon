@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response\NotifiableContactGroupDto;
@@ -35,13 +35,10 @@ final class FindNotifiableContactGroups
     use LoggerTrait;
 
     /**
-     * @param ContactInterface $user
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      */
-    public function __construct(
-        private readonly ContactInterface $user,
-        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
-    ) {
+    public function __construct(private readonly ReadContactGroupRepositoryInterface $contactGroupRepository)
+    {
     }
 
     /**
@@ -52,10 +49,15 @@ final class FindNotifiableContactGroups
         try {
             $this->info('Retrieving all contact groups.');
             $contactGroups = $this->contactGroupRepository->findAll();
-            $response = $this->createResponseDto($contactGroups);
+            if ([] === $contactGroups) {
+                $this->error('Contact Groups not found');
+                $response = new NotFoundResponse('Contact Groups');
+            } else {
+                $response = $this->createResponseDto($contactGroups);
+            }
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $response = new ErrorResponse('');
+            $response = new ErrorResponse(_('Error while retrieving contact groups'));
         }
 
         $presenter->presentResponse($response);
