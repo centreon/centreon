@@ -179,7 +179,7 @@ Cypress.Commands.add(
       .click();
 
     return cy
-      .get('.SnackbarContent-root > .MuiPaper-root')
+      .get('.notistack-Snackbar > .MuiAlert-message')
       .then(($snackbar) => {
         if ($snackbar.text().includes('Login succeeded')) {
           cy.wait('@getNavigationList');
