@@ -136,6 +136,7 @@ jobs:
           client_secret='296443a35f9c668c86c362f57d3b87ef9327d75825d3aa7f22426bcaf9e874cf'
 
           token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"$client_id\", \"client_secret\": \"$client_secret\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          echo "token_response: $token_response"
 
           if [[ -z "$token_response" ]]; then
             echo "Failed to retrieve Xray token"
