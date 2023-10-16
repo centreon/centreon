@@ -192,12 +192,9 @@ jobs:
           # Check the response
           if [ "$(echo "$response" | jq -r '.errorMessages[0]')" == "Issue does not exist or you do not have permission to see it." ]; then
               echo "The issue with ID $test_case_id does not exist or you do not have permission to see it."
-              # Handle the non-existence here
           else
               echo "The issue with ID $test_case_id exists."
-              # Proceed with your further actions
           fi
-
 
           test_case_id=$(echo "$test_case_id" | tr -cd '0-9')
           echo "$test_case_id"
@@ -206,7 +203,7 @@ jobs:
             "query": "mutation AddTestToTestExecution($issueId: String!, $testIssueIds: [String]) {addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
                 "issueId": "72317",
-                "testIssueIds": ["${test_case_id}"]
+                "testIssueIds": ["'${test_case_id}'"]
             }
           }'
           curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" -v "https://xray.cloud.getxray.app/api/v2/graphql"
