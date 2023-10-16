@@ -15,7 +15,7 @@ on:
 
 jobs:
   test-pull:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
 
     strategy:
       matrix:
