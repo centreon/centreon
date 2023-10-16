@@ -131,21 +131,30 @@ jobs:
     - name: Generate Xray Token
       id: generate-xray-token
       run: |
-          set -x
-          client_id='DB1C58D167BC4BE798DCFB8CA1C712B9'
-          client_secret='296443a35f9c668c86c362f57d3b87ef9327d75825d3aa7f22426bcaf9e874cf'
+        set -x
+        client_id='DB1C58D167BC4BE798DCFB8CA1C712B9'
+        client_secret='296443a35f9c668c86c362f57d3b87ef9327d75825d3aa7f22426bcaf9e874cf'
 
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"$client_id\", \"client_secret\": \"$client_secret\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
-          echo "token_response: $token_response"
+        # Capture the response in a file
+        response_file=$(mktemp)
+        curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"$client_id\", \"client_secret\": \"$client_secret\"}" "https://xray.cloud.getxray.app/api/v1/authenticate" > "$response_file"
 
-          if [[ -z "$token_response" ]]; then
-            echo "Failed to retrieve Xray token"
-            exit 1
-          fi
+        # Display the content of the response
+        response_content=$(cat "$response_file")
+        echo "Response content: $response_content"
 
-          xray_token=$(echo "$token_response" | sed -n 's/."\(.\)".*/\1/p')
-          echo "this is the xray token : $xray_token"
-          echo "xray_token=$xray_token" >> $GITHUB_ENV  # Stocke la variable dans l'environnement
+        if [[ -z "$response_content" ]]; then
+          echo "Failed to retrieve Xray token"
+          exit 1
+        fi
+
+        # Process the response
+        xray_token=$(echo "$response_content" | sed -n 's/."\(.\)".*/\1/p')
+        echo "This is the xray token: $xray_token"
+        echo "xray_token=$xray_token" >> $GITHUB_ENV
+
+        # Clean up the response file
+        rm -f "$response_file"
       shell: bash
     # - name: Import results to Xray
     #   uses: mikepenz/xray-action@v3.0.2
