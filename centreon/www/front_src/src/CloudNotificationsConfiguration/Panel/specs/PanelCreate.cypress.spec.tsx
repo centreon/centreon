@@ -21,9 +21,9 @@ import {
   labelSearchContacts
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
-import { contactGroupsEndpoint } from '../../../Authentication/api/endpoints';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
+  contactsGroupsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
@@ -91,7 +91,7 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'contactGroupsEndpoint',
     method: Method.GET,
-    path: `${contactGroupsEndpoint}**`,
+    path: `${contactsGroupsEndpoint}**`,
     response: contactGroupsResponse
   });
 
