@@ -15,7 +15,7 @@ on:
 
 jobs:
   test-pull:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -45,7 +45,8 @@ jobs:
 
       - name: Pull keycloak image
         run: |
-          time docker pull docker.centreon.com/centreon/keycloak:23.10
+          docker pull almalinux:9
+          #time docker pull docker.centreon.com/centreon/keycloak:23.10
 
       - name: speedtest
         run: |
