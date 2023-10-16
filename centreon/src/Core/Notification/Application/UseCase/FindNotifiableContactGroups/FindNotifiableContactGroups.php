@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Contact\Domain\Model\ContactGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Repository\ReadNotifiableContactGroupsRepositoryInterface;
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response\NotifiableContactGroupDto;
 
@@ -37,7 +37,7 @@ final class FindNotifiableContactGroups
 
     /**
      * @param ContactInterface $user
-     * @param ReadNotifiableContactGroupsRepositoryInterface $repository
+     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      */
     public function __construct(
         private readonly ContactInterface $user,
