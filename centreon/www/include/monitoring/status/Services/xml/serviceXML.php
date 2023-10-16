@@ -556,7 +556,7 @@ if (!$sqlError) {
         $obj->XML->writeElement("sc", $obj->colorService[$data["state"]]);
         $obj->XML->writeElement("cs", _($obj->statusService[$data["state"]]), false);
         $obj->XML->writeElement("ssc", $data["state"]);
-        $obj->XML->writeElement("po", htmlspecialchars(htmlspecialchars($pluginShortOuput)));
+        $obj->XML->writeElement("po", CentreonUtils::escapeSecure($pluginShortOuput));
         $obj->XML->writeElement(
             "ca",
             $data["current_attempt"] . "/" . $data["max_check_attempts"]
