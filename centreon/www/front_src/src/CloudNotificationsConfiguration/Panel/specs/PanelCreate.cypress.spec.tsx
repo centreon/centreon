@@ -23,7 +23,7 @@ import {
 import { panelWidthStorageAtom } from '../../atom';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
-  contactsGroupsEndpoint,
+  contactGroupsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
