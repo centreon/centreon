@@ -208,6 +208,7 @@ jobs:
               --header 'Accept: application/json')
               summary=$(echo "$response" | jq -r '.fields.summary')
               echo "Summary: $summary"
+              echo "$response"
 
           # Check the response
           if [ "$(echo "$response" | jq -r '.errorMessages[0]')" == "Issue does not exist or you do not have permission to see it." ]; then
