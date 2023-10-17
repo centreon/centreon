@@ -40,6 +40,7 @@ const ExternalProviders = ({
         <Button
           aria-label={`${t(labelLoginWith)} ${name}`}
           color="primary"
+          data-testid={`${labelLoginWith} ${name}`}
           href={authenticationUri}
           key={name}
           variant="contained"
