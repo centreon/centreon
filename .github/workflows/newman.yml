@@ -84,6 +84,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
+    - name: Remove pnpm lockfile
+      run: rm pnpm-lock.yaml
+
     - name: Install Dependencies for tests/rest_api
       run: pnpm install --frozen-lockfile
       shell: bash
