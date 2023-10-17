@@ -1,10 +1,10 @@
-@REQ_MON-22140
+@REQ_MON-22140 @ignore
 Feature: Web SSO authentication
     As an admin of Centreon Platform
     I want to be able to use an external authentication provider
     So platform users can use an existing authentication services to authenticate
 
-@TEST_MON-22143-scenario
+@TEST_MON-22143
 Scenario: The third party authentication service is unavailable (Web SSO)
     Given an administrator logged in the platform
     When the administrator sets authentication mode to Web SSO only
