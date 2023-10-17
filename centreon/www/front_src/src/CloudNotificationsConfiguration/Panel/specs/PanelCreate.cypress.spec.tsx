@@ -91,7 +91,7 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'contactGroupsEndpoint',
     method: Method.GET,
-    path: `${contactsGroupsEndpoint}**`,
+    path: `${contactGroupsEndpoint}**`,
     response: contactGroupsResponse
   });
 
