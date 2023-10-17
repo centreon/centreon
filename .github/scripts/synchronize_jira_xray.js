@@ -3,24 +3,25 @@ const fs = require("fs");
 const { execSync } = require("child_process");
 const os = require("os");
 
-function get_xray_token(client_id, client_secret) {
+async function get_xray_token(client_id, client_secret) {
   const data = {
     client_id: client_id,
     client_secret: client_secret,
   };
 
   try {
-    const response = execSync(
-      'curl -H "Content-Type: application/json" -X POST --data ' +
-        JSON.stringify(data) +
-        " https://xray.cloud.getxray.app/api/v1/authenticate",
-      { stdio: "pipe", encoding: "utf-8" }
+    const response = await axios.post(
+      "https://xray.cloud.getxray.app/api/v1/authenticate",
+      data,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
     );
     // Need a check
-    console.log("this is the response: ",response)
+    console.log("this is the response: ", response);
     const result = JSON.parse(response);
     console.log("Authentication successful");
-    console.log("this is the token: ",result)
+    console.log("this is the token: ", result);
     return result.token;
   } catch (error) {
     console.log("Authentication failed");
