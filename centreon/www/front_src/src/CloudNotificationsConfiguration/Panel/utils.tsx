@@ -14,6 +14,7 @@ const defaultEmailSubject =
   '{{NOTIFICATIONTYPE}} alert - {{NAME}} is {{STATE}}';
 
 const hostEvents = [EventsType.Up, EventsType.Down, EventsType.Unreachable];
+
 const serviceEvents = [
   EventsType.Ok,
   EventsType.Warning,
