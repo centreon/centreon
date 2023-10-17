@@ -231,7 +231,6 @@ describe('Login Page', () => {
     cy.contains('v. 21.10.1').should('be.visible');
 
     cy.findByTestId('Login with openid').should(
-
       'have.attr',
       'href',
       '/centreon/authentication/providers/configurations/openid'
