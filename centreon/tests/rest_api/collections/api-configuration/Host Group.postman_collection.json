@@ -2361,6 +2361,7 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The host group retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
 									"    // Check the number of host groups (1)\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
