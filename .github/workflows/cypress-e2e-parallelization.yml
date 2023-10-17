@@ -159,7 +159,7 @@ jobs:
 
   import-reports-to-xray:
     needs: [cypress-e2e-test-run,get-version]
-    if: always()
+    if: ${{ needs.get-version.outputs.stability != 'canary' }}  
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -235,7 +235,7 @@ jobs:
           testFormat: "cucumber"
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
-          testPlanKey: MON-22631
+          testPlanKey: "${{ steps.determine-testplan-key.outputs.testPlanKey }}"
           combineInSingleTestExec: true
           testExecKey:
         timeout-minutes: 10
