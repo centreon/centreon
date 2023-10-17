@@ -100,6 +100,10 @@ module.exports = {
     'import/resolver': {
       alias: {
         extensions: ['.ts', '.tsx', '.js', '.jsx'],
+        map: [
+          ['@centreon/ui', 'centreon-frontend/packages/centreon-ui'],
+          ['@centreon/ui-context', 'centreon-frontend/packages/ui-context'],
+        ],
       },
     },
   },

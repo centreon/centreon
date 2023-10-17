@@ -1,5 +1,9 @@
 module.exports = {
   moduleNameMapper: {
+    '@centreon/ui':
+      '<rootDir>/node_modules/centreon-frontend/packages/centreon-ui',
+    '@centreon/ui-context':
+      '<rootDir>/node_modules/centreon-frontend/packages/ui-context',
     '\\.(s?css|png|svg|jpg)$': 'identity-obj-proxy',
   },
   setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
@@ -9,6 +13,6 @@ module.exports = {
     '^.+\\.[jt]sx?$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(@centreon)).+\\.jsx?$',
+    '/node_modules/(?!centreon-frontend/packages/(centreon-ui|ui-context)).+\\.jsx?$',
   ],
 };

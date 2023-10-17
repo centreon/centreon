@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import { equals, find, isEmpty, map, not, pick, propEq } from 'ramda';
-import { closestCenter, DraggableSyntheticListeners } from '@dnd-kit/core';
-import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
+import { rectSortingStrategy } from '@dnd-kit/sortable';
 
 import {
   TableHead,
@@ -179,11 +179,11 @@ const ListingHeader = ({
           updateSortableItemsOnItemsChange
           Content={Content}
           additionalProps={[sortField, sortOrder]}
-          collisionDetection={closestCenter}
+          collisionDetection={rectIntersection}
           itemProps={['id']}
           items={visibleColumns}
           memoProps={memoProps}
-          sortingStrategy={horizontalListSortingStrategy}
+          sortingStrategy={rectSortingStrategy}
           onDragEnd={({ items }): void => {
             onSelectColumns?.(items);
           }}

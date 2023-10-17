@@ -36,7 +36,6 @@ export interface SelectEntry {
   id: number | string;
   inputValue?: string;
   name: string;
-  testId?: string;
   type?: 'header';
   url?: string;
 }
@@ -104,7 +103,7 @@ const SelectField = ({
       >
         {options
           .filter(({ id }) => id !== '')
-          .map(({ id, name, color, type, testId }) => {
+          .map(({ id, name, color, type }) => {
             const key = `${id}-${name}`;
             if (type === 'header') {
               return [
@@ -114,12 +113,7 @@ const SelectField = ({
             }
 
             return (
-              <MenuItem
-                data-testid={testId}
-                key={key}
-                style={{ backgroundColor: color }}
-                value={id}
-              >
+              <MenuItem key={key} style={{ backgroundColor: color }} value={id}>
                 <Option>{name}</Option>
               </MenuItem>
             );

@@ -1,3 +1,5 @@
+import { equals } from 'ramda';
+
 import { Theme, Chip, alpha, ChipProps } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';
@@ -80,12 +82,16 @@ const StatusChip = ({
   ...rest
 }: Props): JSX.Element => {
   const classes = useStyles({ label, severityCode });
+  const lowerLabel = (name: string): string =>
+    name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 
   return (
     <Chip
       className={classes.chip}
       clickable={clickable}
-      label={label}
+      label={
+        equals(typeof label, 'string') ? lowerLabel(label as string) : label
+      }
       size="small"
       {...rest}
     />

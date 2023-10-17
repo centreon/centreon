@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     height: '100%',
     overflow: 'auto',
-    padding: theme.spacing(0, 3, 1, 3),
+    padding: theme.spacing(2, 3, 1, 3),
   },
   form: {
     display: 'flex',

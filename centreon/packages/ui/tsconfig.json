@@ -1,5 +1,5 @@
 {
-  "extends": "../js-config/tsconfig/base",
+  "extends": "../frontend-config/tsconfig/base",
   "compilerOptions": {
     "baseUrl": "./src",
   }

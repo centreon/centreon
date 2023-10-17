@@ -1,7 +1,7 @@
 {
   "name": "@centreon/ui-context",
-  "version": "22.4.9",
-  "description": "Centreon UI shared context",
+  "version": "22.4.0",
+  "description": "Centreon UI shared context",
   "main": "src",
   "keywords": [],
   "author": "centreon@centreon.com",
@@ -11,7 +11,7 @@
     "eslint:fix": "npm run eslint -- --fix"
   },
   "devDependencies": {
-    "@centreon/js-config": "file:../js-config",
+    "@centreon/frontend-config": "file:../frontend-config",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",
     "babel-eslint": "^10.1.0",
@@ -32,8 +32,5 @@
     "eslint-plugin-typescript-sort-keys": "^2.1.0",
     "prettier": "^2.5.1",
     "typescript": "^4.5.5"
-  },
-  "dependencies": {
-    "jotai": "^1.9.1"
   }
 }

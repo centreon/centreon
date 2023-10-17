@@ -6,6 +6,7 @@ import { ActionsBarProps } from './models';
 const useStyles = makeStyles((theme) => ({
   container: {
     bottom: 0,
+    padding: theme.spacing(1, 3),
     position: 'sticky',
   },
   loader: {

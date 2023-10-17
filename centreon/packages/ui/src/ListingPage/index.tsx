@@ -16,7 +16,6 @@ const useStyles = makeStyles<Theme>((theme) => {
       zIndex: 4,
     },
     listing: {
-      height: '100%',
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
     },
