@@ -3,8 +3,8 @@
 		"_postman_id": "9a0e9fda-0dec-45f6-9dec-4550687f0cb7",
 		"name": "Host Templates",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-9a0e9fda-0dec-45f6-9dec-4550687f0cb7?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-9a0e9fda-0dec-45f6-9dec-4550687f0cb7?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -362,7 +362,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (31)",
+					"name": "Show available host templates (1)",
 					"event": [
 						{
 							"listen": "test",
@@ -539,7 +539,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (32)",
+					"name": "Show available host templates (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -1027,7 +1027,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (33)",
+					"name": "Show available host templates (3)",
 					"event": [
 						{
 							"listen": "test",
@@ -1357,7 +1357,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (32)",
+					"name": "Show available host templates (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -1704,7 +1704,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (33)",
+					"name": "Show available host templates (3)",
 					"event": [
 						{
 							"listen": "test",
@@ -2093,7 +2093,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (32)",
+					"name": "Show available host templates (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -2570,7 +2570,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (32)",
+					"name": "Show available host templates (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -3047,7 +3047,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (32)",
+					"name": "Show available host templates (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -3720,6 +3720,14 @@
 	"variable": [
 		{
 			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
 			"value": ""
 		}
 	]

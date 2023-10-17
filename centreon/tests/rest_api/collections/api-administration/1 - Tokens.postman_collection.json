@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "929b4617-1606-476e-a53d-19b9405fd497",
-		"name": "Tokens",
+		"name": "1 - Tokens",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-929b4617-1606-476e-a53d-19b9405fd497?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-929b4617-1606-476e-a53d-19b9405fd497?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -1917,6 +1917,14 @@
 		},
 		{
 			"key": "User_Nothing_Name",
+			"value": ""
+		},
+		{
+			"key": "Token4Name",
+			"value": ""
+		},
+		{
+			"key": "Token1Name",
 			"value": ""
 		}
 	]
