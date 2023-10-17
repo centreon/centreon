@@ -398,6 +398,10 @@ class CentreonCentbrokerCfg extends CentreonObject
                 $field['value'] = '';
             }
 
+            if ($field['group_name'] !== null) {
+                $field['fieldname'] = $field['group_name'] . '__' . $field['fieldname'];
+
+            }
             $defaultValues[$field['fieldname']] = $field['value'];
         }
 
