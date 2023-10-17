@@ -1,5 +1,5 @@
 @REQ_MON-23350
-Feature: This is just a test 
+Feature: This is just a test
 
 Background: This is the title of the background
     Given .....
