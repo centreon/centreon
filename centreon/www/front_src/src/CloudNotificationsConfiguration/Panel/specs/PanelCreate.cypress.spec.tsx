@@ -21,9 +21,9 @@ import {
   labelSearchContacts
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
-import { contactGroupsEndpoint } from '../../../Authentication/api/endpoints';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
+  contactGroupsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
