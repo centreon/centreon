@@ -159,13 +159,16 @@ jobs:
         for collection_file in "${collections[@]}"; do
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
-            xray_graphql_query='{
+
+          xray_graphql_query='{
               "query": "query GetTestExecution($issueId: String!) { getTestExecution(issueId: $issueId) { id summary } }",
               "variables": {
                 "issueId": "72317"
               }
             }'
-            response=($(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_query}" -s "https://xray.cloud.getxray.app/api/v2/graphql")
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_query}" -s "https://xray.cloud.getxray.app/api/v2/graphql")
+
+
             # Extract the test execution information from the response using jq
               test_execution_id=$(echo "$response" | jq -r '.data.getTestExecution.id')
               test_execution_summary=$(echo "$response" | jq -r '.data.getTestExecution.summary')
@@ -173,6 +176,8 @@ jobs:
               # Output the results
               echo "Test Execution ID: $test_execution_id"
               echo "Test Execution Summary: $test_execution_summary"
+
+
           # Create the test case and get its key
           test_case_id=$(curl --request POST \
             --url 'https://centreon.atlassian.net/rest/api/2/issue' \
