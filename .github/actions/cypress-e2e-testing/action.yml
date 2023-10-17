@@ -43,6 +43,8 @@ runs:
       shell: bash
       env:
         CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Cypress binary
       uses: nick-fields/retry@v2
@@ -52,6 +54,14 @@ runs:
         retry_wait_seconds: 30
         retry_on: error
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
+
+    - name: Install browser dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb xdg-utils libu2f-udev fonts-liberation libu2f-udev fonts-liberation xdg-utils
+        sudo wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_114.0.5735.90-1_amd64.deb
+        sudo apt-get install -y ./google-chrome-stable_114.0.5735.90-1_amd64.deb
+      shell: bash
 
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v6
