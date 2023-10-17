@@ -18,14 +18,23 @@ async function get_xray_token(client_id, client_secret) {
       }
     );
     // Need a check
-    console.log("this is the response: ", response);
-    const result = JSON.parse(response);
-    console.log("Authentication successful");
-    console.log("this is the token: ", result);
-    return result.token;
+    if (response.status === 200) {
+      const token = response.headers['x-access-token'];
+      if (token) {
+        console.log("Authentication successful");
+        console.log("this is the token: ", token);
+        return token;
+      } else {
+        console.log("Authentication failed. Token not found in the response headers.");
+        return null;
+      }
+    } else {
+      console.log("Authentication failed with status code: ", response.status);
+      return null;
+    }
   } catch (error) {
     console.log("Authentication failed");
-    console.error(error.stdout);
+    console.error(error);
     return null;
   }
 }
