@@ -3279,7 +3279,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host category with all properties defined (successful) Copy",
+					"name": "Creation of a new host category with all properties defined (successful)  ",
 					"event": [
 						{
 							"listen": "test",
@@ -4051,7 +4051,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host category with all properties defined (successful) Copy",
+					"name": "Creation of a new host category with all properties defined (successful)  ",
 					"event": [
 						{
 							"listen": "test",
