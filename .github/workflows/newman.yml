@@ -144,25 +144,12 @@ jobs:
     - name: Associate Test Cases with Test Execution
       run: |
         xray_graphql_getTestExec='{
-          "query": "query GetTestExecution($issueId: String!) {
-            getTestExecution(issueId: $issueId) {
-              issueId
-              tests(limit: 100) {
-                results {
-                  issueId
-                  unstructured
-                  testType {
-                    name
-                  }
-                }
-              }
-            }
-          }",
+          "query": "query GetTestExecution($issueId: String!) { getTestExecution(issueId: $issueId) {issueId tests(limit: 100) {results { issueId testType { name }}}}}",
           "variables": {
             "issueId": "72317"
           }
         }'
-        response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_getTestExec}" -s "https://xray.cloud.getxray.app/api/v2/graphql")
+        response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_getTestExec}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
           echo "Response from Get Test Execution:"
           echo "$response"
