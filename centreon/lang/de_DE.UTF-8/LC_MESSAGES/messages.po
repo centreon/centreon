@@ -16208,3 +16208,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Save as"
 # msgstr ""
+
+#  msgid "You are not allowed to add media"
+#  msgstr ""

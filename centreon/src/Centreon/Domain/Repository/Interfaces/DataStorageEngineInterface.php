@@ -33,11 +33,15 @@ interface DataStorageEngineInterface
      * Rollback the operations in the transaction
      *
      * @return bool
+     *
+     * @throws \Exception
      */
     public function rollbackTransaction(): bool;
 
     /**
      * Start a transaction
+     *
+     * @throws \Exception
      *
      * @return bool
      */
@@ -45,6 +49,8 @@ interface DataStorageEngineInterface
 
     /**
      * Commit the operations in the transaction
+     *
+     * @throws \Exception
      *
      * @return bool
      */

@@ -46,6 +46,7 @@
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-phar": "*",
+        "ext-zip":  "*",
         "friendsofsymfony/rest-bundle": "^3.0",
         "jms/serializer-bundle": "^4.0",
         "justinrainbow/json-schema": "^5.2",
@@ -87,7 +88,8 @@
         "symfony/yaml": "5.4.*",
         "psr/container": "1.1.1",
         "onelogin/php-saml": "^4.1",
-        "symfony/uid": "^6.2"
+        "symfony/uid": "^6.2",
+        "symfony/mime": "^6.1"
     },
     "autoload": {
         "psr-4": {

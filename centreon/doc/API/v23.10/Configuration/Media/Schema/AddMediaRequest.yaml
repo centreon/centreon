@@ -1,0 +1,12 @@
+type: object
+required: ['directory', 'data']
+properties:
+  directory:
+    type: string
+    nullable: false
+    description: "Directory where the file will be created"
+  data:
+    type: string
+    format: binary
+    nullable: false
+    description: "File content"

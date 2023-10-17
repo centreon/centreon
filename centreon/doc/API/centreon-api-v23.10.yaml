@@ -70,6 +70,7 @@ tags:
   - name: Meta service
   - name: Host severity
   - name: Host template
+  - name: Media
   - name: Monitoring server
   - name: Notification
   - name: Proxy
@@ -1019,6 +1020,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/medias:
+    $ref: './v23.10/Configuration/Media/AddMedia.yaml'
   /configuration/proxy:
     get:
       tags:

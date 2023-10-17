@@ -18293,3 +18293,9 @@ msgstr "Erreur lors de la récuparation d'une commande"
 
 msgid "Error while retrieving contact groups"
 msgstr "Erreur lors de la récupération des groupes de contacts"
+
+msgid "You are not allowed to add media"
+msgstr "Vous n'êtes pas autorisé à ajouter des médias"
+
+msgid "Error while adding a media"
+msgstr "Erreur lors de l'ajout d'un média"
