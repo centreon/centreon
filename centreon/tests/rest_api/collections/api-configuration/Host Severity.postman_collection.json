@@ -2422,12 +2422,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
 									"pm.test(\"The host severity has been successfully created, with name '\" + pm.collectionVariables.get(\"HostSeverity2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostSeverity2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host severity\r",
 									"    var response = pm.response.json();\r",
-									"    console.log(response);\r",
 									"    pm.collectionVariables.set(\"HostSeverity2Id\", response.id);\r",
 									"    \r",
 									"});\r",

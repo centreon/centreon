@@ -3098,6 +3098,8 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
 									"pm.test(\"The service template has not been created, because the name is empty.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",

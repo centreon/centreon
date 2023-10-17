@@ -2688,6 +2688,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
 									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
