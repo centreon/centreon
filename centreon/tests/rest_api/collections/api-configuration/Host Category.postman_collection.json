@@ -3845,15 +3845,9 @@
 									"raw": "{\n  \"action\": \"show\",\n  \"object\": \"ACLRESOURCE\"\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
-									"protocol": "{{protocol}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
-										"{{server}}"
-									],
-									"path": [
-										"centreon",
-										"api",
-										"index.php"
+										"{{baseUriCentreonCLAPI}}"
 									],
 									"query": [
 										{
@@ -3910,15 +3904,9 @@
 									"raw": "{\n  \"action\": \"addfilter_hostcategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostCategory4Name}}\"\n}\n"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
-									"protocol": "{{protocol}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
-										"{{server}}"
-									],
-									"path": [
-										"centreon",
-										"api",
-										"index.php"
+										"{{baseUriCentreonCLAPI}}"
 									],
 									"query": [
 										{
@@ -5035,15 +5023,9 @@
 									"raw": "{\n  \"action\": \"delfilter_hostcategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostCategory4Name}}\"\n}\n"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
-									"protocol": "{{protocol}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
-										"{{server}}"
-									],
-									"path": [
-										"centreon",
-										"api",
-										"index.php"
+										"{{baseUriCentreonCLAPI}}"
 									],
 									"query": [
 										{
@@ -5100,15 +5082,9 @@
 									"raw": "{\n  \"action\": \"addfilter_hostcategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostCategory5Name}}\"\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
-									"protocol": "{{protocol}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
-										"{{server}}"
-									],
-									"path": [
-										"centreon",
-										"api",
-										"index.php"
+										"{{baseUriCentreonCLAPI}}"
 									],
 									"query": [
 										{

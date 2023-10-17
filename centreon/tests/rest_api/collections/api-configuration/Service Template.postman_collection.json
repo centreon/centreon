@@ -3,8 +3,8 @@
 		"_postman_id": "c063f948-2969-4f00-88de-03f5809a5ee6",
 		"name": "Service Template",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "28117716",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-c063f948-2969-4f00-88de-03f5809a5ee6?action=share&source=collection_link&creator=28117716"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-c063f948-2969-4f00-88de-03f5809a5ee6?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -269,25 +269,9 @@
 							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"CMD\",\n  \"values\": \"check-host-alive;check;$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUriCentreonCLAPI}}",
 							"host": [
-								"{{server}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
+								"{{baseUriCentreonCLAPI}}"
 							]
 						}
 					},
@@ -337,25 +321,9 @@
 							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUriCentreonCLAPI}}",
 							"host": [
-								"{{server}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
+								"{{baseUriCentreonCLAPI}}"
 							]
 						}
 					},
@@ -3617,15 +3585,9 @@
 							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"CMD\",\n  \"values\": \"check-host-alive\"\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 							"host": [
-								"{{server}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
+								"{{baseUriCentreonCLAPI}}"
 							],
 							"query": [
 								{
