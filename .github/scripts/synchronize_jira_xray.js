@@ -238,7 +238,8 @@ async function main() {
   const response_data = await upload_feature_file_to_xray(
     FEATURE_FILE_PATH,
     XRAY_TOKEN
-  ).then(console.log("response data", response_data));
+  )
+  console.log("response data", response_data);
 
   // Set the target version based on the version_number
   const target_versions =
