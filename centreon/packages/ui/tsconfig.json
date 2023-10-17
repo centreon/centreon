@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "paths": {
-      "react": ["../../node_modules/@types/react"]
-    },
+    "jsx": "react"
   },
-  "extends": "../js-config/tsconfig/base",
+  "extends": "../frontend-config/tsconfig/base",
   "baseUrl": "./src",
 }

@@ -32,6 +32,7 @@
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-react": "^7.14.5",
     "@babel/preset-typescript": "^7.15.0",
+    "@centreon/frontend-config": "file:../frontend-config",
     "@storybook/addon-essentials": "^6.3.8",
     "@storybook/addon-storyshots": "^6.3.8",
     "@storybook/addon-storyshots-puppeteer": "^6.3.8",
@@ -80,8 +81,5 @@
     "webpack": "^5.55.1",
     "webpack-merge": "^5.8.0",
     "yup": "^0.32.9"
-  },
-  "dependencies": {
-    "react-refresh": "^0.14.0"
   }
 }

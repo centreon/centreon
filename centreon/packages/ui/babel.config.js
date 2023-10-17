@@ -1,3 +1,3 @@
 module.exports = {
-  extends: '../js-config/babel/typescript',
+  extends: '../frontend-config/babel/typescript',
 };

@@ -1,5 +1,5 @@
 {
-  "name": "@centreon/js-config",
+  "name": "@centreon/frontend-config",
   "description": "Centreon Frontend shared build configuration",
   "version": "21.10.0",
   "repository": {

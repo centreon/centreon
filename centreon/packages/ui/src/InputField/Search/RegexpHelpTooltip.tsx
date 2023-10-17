@@ -21,12 +21,10 @@ const RegexpHelpTooltipContent = ({
 }: ContentProps): JSX.Element => (
   <>
     <Box padding={1}>
-      <>
-        {description}
-        {labelExamples}
-        {examples}
-        {tips}
-      </>
+      {description}
+      {labelExamples}
+      {examples}
+      {tips}
     </Box>
   </>
 );
