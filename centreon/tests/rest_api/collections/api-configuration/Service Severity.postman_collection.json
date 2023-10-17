@@ -3159,6 +3159,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity4Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",

@@ -2688,9 +2688,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"\r",
 									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
@@ -2804,6 +2801,7 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 									"    // Check the number of hosts (1)\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
