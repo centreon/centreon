@@ -92,6 +92,7 @@ jobs:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: “1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: “true”
 
+
     - name: Login to registry
       uses: docker/login-action@v2
       with:
