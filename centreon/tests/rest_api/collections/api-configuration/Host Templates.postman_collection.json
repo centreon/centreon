@@ -2515,12 +2515,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
 									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host template\r",
 									"    var response = JSON.parse(responseBody);\r",
-									"    console.log(response);\r",
 									"    pm.collectionVariables.set(\"HostTemplate1Id\", response.id);\r",
 									"});"
 								],
@@ -2539,7 +2541,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -2587,7 +2589,7 @@
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"max_check_attempts\": 3,\r",
 									"            \"normal_check_interval\": 5,\r",
@@ -2805,7 +2807,7 @@
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"note_url\": \"noteUrl-value\",\r",
 									"            \"note\": \"note-value\",\r",
@@ -2931,7 +2933,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"alias\": \"I'm the first host template created by admin\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"alias\": \"I'm the first host template created by admin\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -2985,7 +2987,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host template 1\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host template 1\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3039,7 +3041,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"\",\r\n    \"alias\": \"test vithout name\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"alias\": \"test vithout name\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3093,7 +3095,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Test without alias\",\r\n    \"alias\": \"\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": 91,\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"Test without alias\",\r\n    \"alias\": \"\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3147,7 +3149,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": true,\r\n    \"alias\": 1,\r\n    \"snmp_version\": false,\r\n    \"snmp_community\": 1,\r\n    \"timezone_id\": \"1\",\r\n    \"severity_id\": \"{{HostSeverity1Id}}\",\r\n    \"check_command_id\": \"91\",\r\n    \"check_command_args\": [true],\r\n    \"check_timeperiod_id\": \"1\",\r\n    \"note_url\": 2,\r\n    \"note\": 0,\r\n    \"action_url\": 43,\r\n    \"max_check_attempts\": \"3\",\r\n    \"normal_check_interval\": \"5\",\r\n    \"retry_check_interval\": \"2\",\r\n    \"active_check_enabled\": \"1\",\r\n    \"passive_check_enabled\": \"0\",\r\n    \"notification_enabled\": \"2\",\r\n    \"notification_options\": \"31\",\r\n    \"notification_interval\": \"5\",\r\n    \"notification_timeperiod_id\": \"2\",\r\n    \"add_inherited_contact_group\": \"true\",\r\n    \"add_inherited_contact\": \"true\",\r\n    \"first_notification_delay\": \"2\",\r\n    \"recovery_notification_delay\": \"1\",\r\n    \"acknowledgement_timeout\": \"5\",\r\n    \"freshness_checked\": \"1\",\r\n    \"freshness_threshold\": \"2\",\r\n    \"flap_detection_enabled\": \"1\",\r\n    \"low_flap_threshold\": \"25\",\r\n    \"high_flap_threshold\": \"75\",\r\n    \"event_handler_enabled\": \"2\",\r\n    \"event_handler_command_id\": \"202\",\r\n    \"event_handler_command_args\": [1],\r\n    \"icon_id\": \"1\",\r\n    \"icon_alternative\": 0,\r\n    \"categories\": [ \"{{HostCategory1Id}}\" ],\r\n    \"templates\": [\"4\"],\r\n    \"comment\": 1,\r\n    \"macros\": [\r\n        {\r\n        \"name\": true,\r\n        \"value\": false,\r\n        \"is_password\": \"false\",\r\n        \"description\": 1\r\n        },\r\n        {\r\n        \"name\": 2,\r\n        \"value\": 1,\r\n        \"is_password\": 2,\r\n        \"description\": 1\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": true,\r\n    \"alias\": 1,\r\n    \"snmp_version\": false,\r\n    \"snmp_community\": 1,\r\n    \"timezone_id\": \"1\",\r\n    \"severity_id\": \"{{HostSeverity1Id}}\",\r\n    \"check_command_id\": \"{{CommandId}}\",\r\n    \"check_command_args\": [true],\r\n    \"check_timeperiod_id\": \"1\",\r\n    \"note_url\": 2,\r\n    \"note\": 0,\r\n    \"action_url\": 43,\r\n    \"max_check_attempts\": \"3\",\r\n    \"normal_check_interval\": \"5\",\r\n    \"retry_check_interval\": \"2\",\r\n    \"active_check_enabled\": \"1\",\r\n    \"passive_check_enabled\": \"0\",\r\n    \"notification_enabled\": \"2\",\r\n    \"notification_options\": \"31\",\r\n    \"notification_interval\": \"5\",\r\n    \"notification_timeperiod_id\": \"2\",\r\n    \"add_inherited_contact_group\": \"true\",\r\n    \"add_inherited_contact\": \"true\",\r\n    \"first_notification_delay\": \"2\",\r\n    \"recovery_notification_delay\": \"1\",\r\n    \"acknowledgement_timeout\": \"5\",\r\n    \"freshness_checked\": \"1\",\r\n    \"freshness_threshold\": \"2\",\r\n    \"flap_detection_enabled\": \"1\",\r\n    \"low_flap_threshold\": \"25\",\r\n    \"high_flap_threshold\": \"75\",\r\n    \"event_handler_enabled\": \"2\",\r\n    \"event_handler_command_id\": \"202\",\r\n    \"event_handler_command_args\": [1],\r\n    \"icon_id\": \"1\",\r\n    \"icon_alternative\": 0,\r\n    \"categories\": [ \"{{HostCategory1Id}}\" ],\r\n    \"templates\": [\"4\"],\r\n    \"comment\": 1,\r\n    \"macros\": [\r\n        {\r\n        \"name\": true,\r\n        \"value\": false,\r\n        \"is_password\": \"false\",\r\n        \"description\": 1\r\n        },\r\n        {\r\n        \"name\": 2,\r\n        \"value\": 1,\r\n        \"is_password\": 2,\r\n        \"description\": 1\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3204,7 +3206,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"hôst~templàte~3!\",\r\n    \"alias\": \"I'm the third host template créated by admin!\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": 91,\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"hôst~templàte~3!\",\r\n    \"alias\": \"I'm the third host template créated by admin!\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3251,7 +3253,7 @@
 									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
 									"            \"timezone_id\": 2,\r",
 									"            \"severity_id\": null,\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_command_args\": [],\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"max_check_attempts\": 6,\r",
@@ -3335,7 +3337,7 @@
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"note_url\": \"noteUrl-value\",\r",
 									"            \"note\": \"note-value\",\r",
@@ -3581,7 +3583,7 @@
 									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
 									"            \"timezone_id\": 2,\r",
 									"            \"severity_id\": null,\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_command_args\": [],\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"max_check_attempts\": 6,\r",
@@ -3623,7 +3625,7 @@
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"max_check_attempts\": 3,\r",
 									"            \"normal_check_interval\": 5,\r",
@@ -3881,7 +3883,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host-template4\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": 91,\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host-template4\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3929,7 +3931,7 @@
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
 									"            \"severity_id\": null,\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_command_args\": [],\r",
 									"            \"check_timeperiod_id\": null,\r",
 									"            \"max_check_attempts\": null,\r",
@@ -3971,7 +3973,7 @@
 									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
 									"            \"timezone_id\": 2,\r",
 									"            \"severity_id\": null,\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_command_args\": [],\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"max_check_attempts\": 6,\r",
@@ -4013,7 +4015,7 @@
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"note_url\": \"noteUrl-value\",\r",
 									"            \"note\": \"note-value\",\r",
@@ -4318,7 +4320,7 @@
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
 									"            \"severity_id\": null,\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_command_args\": [],\r",
 									"            \"check_timeperiod_id\": null,\r",
 									"            \"max_check_attempts\": null,\r",
@@ -4360,7 +4362,7 @@
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 3,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"note_url\": \"noteUrl-value\",\r",
 									"            \"note\": \"note-value\",\r",
@@ -4615,7 +4617,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": 91,\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -4795,7 +4797,7 @@
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
 									"            \"severity_id\": null,\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_command_args\": [],\r",
 									"            \"check_timeperiod_id\": null,\r",
 									"            \"max_check_attempts\": null,\r",
@@ -4837,7 +4839,7 @@
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 3,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": 91,\r",
+									"            \"check_command_id\": {{CommandId}},\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"note_url\": \"noteUrl-value\",\r",
 									"            \"note\": \"note-value\",\r",
@@ -5092,7 +5094,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": 91,\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
