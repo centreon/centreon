@@ -17,6 +17,7 @@ import {
   labelAvailable,
   labelDelete,
   labelMetrics,
+  labelSelectMetric,
   labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
@@ -26,7 +27,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSelectionAtom } from '../../../atoms';
 import { isAtLeastOneResourceFullfilled } from '../utils';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useMetrics from './useMetrics';
 
@@ -139,7 +140,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                   isOptionEqualToValue={(option, selectedValue) =>
                     equals(option?.id, selectedValue?.id)
                   }
-                  label={t(labelMetrics)}
+                  label={t(labelSelectMetric)}
                   options={getMetricsFromService(service.id)}
                   value={head(service.metrics) || undefined}
                   onChange={changeMetric(index)}
@@ -160,7 +161,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                   getOptionDisabled={getMetricOptionDisabled}
                   getOptionLabel={getOptionLabel}
                   getTagLabel={getOptionLabel}
-                  label={t(labelMetrics)}
+                  label={t(labelSelectMetric)}
                   limitTags={1}
                   options={getMetricsFromService(service.id)}
                   value={service.metrics || []}

@@ -87,7 +87,6 @@ beforeEach(function (): void {
 
     $this->inheritanceModeOption = new Option();
     $this->inheritanceModeOption->setName('inheritanceMode')->setValue('1');
-
 });
 
 it('should present a ForbiddenResponse when the user has insufficient rights', function (): void {
@@ -113,9 +112,9 @@ it('should present an ErrorResponse when the service name already exists', funct
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->user
-    ->expects($this->once())
-    ->method('isAdmin')
-    ->willReturn(true);
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->validation
         ->expects($this->once())
@@ -168,7 +167,7 @@ it('should present a ConflictResponse when the performance graph ID is not valid
     $request->severityId = 1;
     $request->graphTemplateId = 1;
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -196,7 +195,7 @@ it('should present a ConflictResponse when the service template ID is not valid'
     $request->graphTemplateId = 1;
     $request->serviceTemplateParentId = 1;
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -225,7 +224,7 @@ it('should present a ConflictResponse when the command ID is not valid', functio
     $request->serviceTemplateParentId = 1;
     $request->commandId = 1;
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -255,7 +254,7 @@ it('should present a ConflictResponse when the event handler ID is not valid', f
     $request->commandId = 1;
     $request->eventHandlerId = 12;
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -296,7 +295,7 @@ it('should present a ConflictResponse when the time period ID is not valid', fun
     $request->eventHandlerId = 12;
     $request->checkTimePeriodId = 13;
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -339,7 +338,7 @@ it('should present a ConflictResponse when the icon ID is not valid', function (
     $request->notificationTimePeriodId = 14;
     $request->iconId = 15;
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -383,7 +382,7 @@ it('should present a ConflictResponse when the host ID is not valid', function (
     $request->iconId = 15;
     $request->hostId = 2;
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -414,7 +413,7 @@ it('should present a ConflictResponse when the host ID is not valid', function (
         );
 });
 
-it('should present a ConflictResponse when the service category IDs are not valid', function () {
+it('should present a ConflictResponse when the service category IDs are not valid', function (): void {
     $request = new AddServiceRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -427,7 +426,7 @@ it('should present a ConflictResponse when the service category IDs are not vali
     $request->iconId = 15;
     $request->serviceCategories = [2, 3];
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -458,7 +457,7 @@ it('should present a ConflictResponse when the service category IDs are not vali
         );
 });
 
-it('should present a ConflictResponse when the service group IDs are not valid', function () {
+it('should present a ConflictResponse when the service group IDs are not valid', function (): void {
     $request = new AddServiceRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -472,7 +471,7 @@ it('should present a ConflictResponse when the service group IDs are not valid',
     $request->hostId = 4;
     $request->serviceGroups = [2, 3];
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -515,9 +514,8 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $request->notificationTimePeriodId = 14;
     $request->iconId = 15;
     $request->hostId = 4;
-    // $request->serviceGroups = [2, 3];
 
-   $this->user
+    $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
@@ -653,7 +651,7 @@ it('should present an AddServiceResponse when everything has gone well', functio
         ->method('add')
         ->willReturn($newServiceId);
 
-     $this->readServiceRepository
+    $this->readServiceRepository
         ->expects($this->once())
         ->method('findParents')
         ->willReturn($serviceTemplateInheritances);
@@ -702,9 +700,8 @@ it('should present an AddServiceResponse when everything has gone well', functio
         ->expects($this->once())
         ->method('findByService')
         ->willReturn([
-            ["relation" => $serviceGroupRelation,"serviceGroup" => $serviceGroup]
+            ['relation' => $serviceGroupRelation, 'serviceGroup' => $serviceGroup],
         ]);
-
 
     ($this->addUseCase)($request, $this->useCasePresenter);
 
@@ -757,16 +754,12 @@ it('should present an AddServiceResponse when everything has gone well', functio
             ->and($expectedMacro->description)->toBe('');
     }
     expect($dto->groups)->toBe(
-       [[
-        'id' => $serviceGroup->getId(),
-        'name' => $serviceGroup->getName(),
-       ]]
+       [['id' => $serviceGroup->getId(), 'name' => $serviceGroup->getName()]]
     );
     expect($dto->categories)->toBe(
        [
-        ['id' => $categoryA->getId(),'name' => $categoryA->getName()],
-        ['id' => $categoryB->getId(),'name' => $categoryB->getName()],
+           ['id' => $categoryA->getId(), 'name' => $categoryA->getName()],
+           ['id' => $categoryB->getId(), 'name' => $categoryB->getName()],
        ]
     );
-
 });

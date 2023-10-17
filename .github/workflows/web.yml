@@ -295,8 +295,12 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: Run of php-cs-fixer
-        run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
+      - name: Run of php-cs-fixer with strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+        working-directory: centreon
+
+      - name: Run of php-cs-fixer without strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
         working-directory: centreon
 
   package:

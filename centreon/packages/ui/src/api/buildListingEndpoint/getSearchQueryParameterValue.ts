@@ -21,7 +21,7 @@ import {
   GetConditionsSearchQueryParameterValueState
 } from './models';
 
-const getFoundFields = ({
+export const getFoundFields = ({
   value,
   fields
 }: RegexSearchParameter): Array<SearchMatch> => {
@@ -108,7 +108,7 @@ const getConditionsSearchQueryParameterValue = (
   };
 };
 
-const getSearchQueryParameterValue = (
+export const getSearchQueryParameterValue = (
   search: SearchParameter | undefined
 ): SearchQueryParameterValue => {
   if (search === undefined) {
@@ -134,5 +134,3 @@ const getSearchQueryParameterValue = (
 
   return { $and: result };
 };
-
-export default getSearchQueryParameterValue;

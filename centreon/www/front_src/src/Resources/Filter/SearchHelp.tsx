@@ -7,9 +7,9 @@ import { makeStyles } from 'tss-react/mui';
 import { Link, Box, Typography } from '@mui/material';
 
 import { PersistentTooltip, getDocsURL } from '@centreon/ui';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
-import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
 import {
   labelFindExplanationsAndExamples,
   labelHere,

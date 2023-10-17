@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
@@ -35,6 +36,15 @@ use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface
 use Core\HostCategory\Domain\Model\HostCategory;
 use Utility\SqlConcatenator;
 
+/**
+ * @phpstan-type _Category array{
+ *     hc_id:int,
+ *     hc_name:string,
+ *     hc_alias:string,
+ *     hc_activate:string,
+ *     hc_comment:string|null
+ * }
+ */
 class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements ReadHostCategoryRepositoryInterface
 {
     use LoggerTrait;
@@ -293,16 +303,20 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @throws AssertionFailedException
      */
     public function findById(int $hostCategoryId): ?HostCategory
     {
         $this->info('Get a host category with ID #' . $hostCategoryId);
 
-        $request = $this->translateDbName(
-            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
             FROM `:db`.hostcategories hc
-            WHERE hc.hc_id = :hostCategoryId'
+            WHERE hc.hc_id = :hostCategoryId
+            AND hc.level IS NULL
+            SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
@@ -314,8 +328,49 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             return null;
         }
 
-        /** @var array{hc_id:int,hc_name:string,hc_alias:string,hc_activate:'0'|'1',hc_comment:string|null} $result */
+        /** @var _Category $result */
         return $this->createHostCategoryFromArray($result);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws AssertionFailedException
+     */
+    public function findByIds(int ...$hostCategoryIds): array
+    {
+        if ($hostCategoryIds === []) {
+            return [];
+        }
+
+        $bindValues = [];
+        foreach ($hostCategoryIds as $index => $categoryId) {
+            $bindValues[':hct_' . $index] = $categoryId;
+        }
+
+        $hostCategoryIdsQuery = implode(', ',array_keys($bindValues));
+        $request = $this->translateDbName(<<<SQL
+            SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            FROM `:db`.hostcategories hc
+            WHERE hc.hc_id IN ({$hostCategoryIdsQuery})
+            AND hc.level IS NULL
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $bindKey => $categoryId) {
+            $statement->bindValue($bindKey, $categoryId, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $categories = [];
+        foreach ($statement as $result) {
+            /** @var _Category $result */
+            $categories[] = $this->createHostCategoryFromArray($result);
+        }
+
+        return $categories;
     }
 
     /**
@@ -438,7 +493,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * @param array{hc_id:int,hc_name:string,hc_alias:string,hc_activate:'0'|'1',hc_comment:string|null} $result
+     * @param _Category $result
      *
      * @return HostCategory
      */

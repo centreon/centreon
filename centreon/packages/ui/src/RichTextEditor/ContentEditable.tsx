@@ -16,9 +16,6 @@ interface StyleProps {
 const useStyles = makeStyles<StyleProps>()(
   (theme, { minInputHeight, editable, error }) => ({
     container: {
-      '& p': {
-        margin: 0
-      },
       backgroundColor: theme.palette.background.paper,
       border: error
         ? `1px solid ${theme.palette.error.main}`
@@ -38,9 +35,17 @@ const useStyles = makeStyles<StyleProps>()(
         ? `1px solid ${theme.palette.error.main}`
         : `1px solid ${theme.palette.primary.main}`
     },
+    notEditable: {
+      backgroundColor: 'transparent'
+    },
     placeholder: {
       color: theme.palette.grey[500],
       pointerEvents: 'none'
+    },
+    root: {
+      '& p,h1,h2,h3,h4,h5,h6,span': {
+        margin: 0
+      }
     }
   })
 );
@@ -121,11 +126,13 @@ const ContentEditable = ({
     const shouldResetEditorToInitialState =
       resetEditorToInitialStateCondition?.();
 
-    if (!shouldResetEditorToInitialState || isNil(initialEditorState)) {
+    if (!shouldResetEditorToInitialState) {
       return;
     }
 
-    const newEditorState = editor.parseEditorState(initialEditorState);
+    const newEditorState = editor.parseEditorState(
+      initialEditorState || defaultState
+    );
 
     editor.setEditorState(newEditorState);
   }, [editorState]);
@@ -156,7 +163,9 @@ const ContentEditable = ({
   return (
     <div
       className={cx(
-        classes.container,
+        classes.root,
+        editable && classes.container,
+        !isEditable && !disabled && classes.notEditable,
         className,
         isFocused && classes.inputFocused
       )}

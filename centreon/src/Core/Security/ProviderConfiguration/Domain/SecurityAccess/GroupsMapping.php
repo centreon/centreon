@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 
-use Centreon\Domain\Entity\ContactGroup;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;

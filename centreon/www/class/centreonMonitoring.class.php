@@ -84,7 +84,7 @@ class CentreonMonitoring
      */
     public function getServiceStatusCount($host_name, $objXMLBG, $o, $status, $obj)
     {
-            $rq = "SELECT count(distinct s.service_id) as count "
+            $rq = "SELECT count(distinct s.service_id) as count, 1 AS REALTIME "
                 . "FROM services s, hosts h " . (!$objXMLBG->is_admin ? ", centreon_acl " : "")
                 . "WHERE s.state = '" . $status . "' "
                 . "AND s.host_id = h.host_id "
@@ -132,6 +132,7 @@ class CentreonMonitoring
 
         $rq = <<<SQL
             SELECT
+                1 AS REALTIME,
                 h.name, s.description AS service_name, s.state, s.service_id,
                 (CASE s.state
                     WHEN 0 THEN 3

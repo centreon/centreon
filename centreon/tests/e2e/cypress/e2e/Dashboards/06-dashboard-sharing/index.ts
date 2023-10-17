@@ -142,7 +142,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@addContactToDashboardShareList');
-  cy.reload(); // TODO: Find a way to remove reloads
+  cy.waitUntilForDashboardRoles('share', 3);
 });
 
 Then(
@@ -246,7 +246,7 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
+    cy.waitUntilForDashboardRoles('share', 3);
   }
 );
 
@@ -346,7 +346,7 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
+    cy.waitUntilForDashboardRoles('share', 3);
   }
 );
 
@@ -456,7 +456,7 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
+    cy.waitUntilForDashboardRoles('share', 3);
   }
 );
 
@@ -563,7 +563,7 @@ Given(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactGroupToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
+    cy.waitUntilForDashboardRoles('share', 3);
   }
 );
 
@@ -591,7 +591,6 @@ When(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
@@ -682,7 +681,6 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@addContactToDashboardShareList');
-  cy.reload(); // TODO: Find a way to remove reloads
 });
 
 Then(
@@ -713,8 +711,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
-
+    cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
@@ -740,8 +737,7 @@ Then(
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
-    cy.reload(); // TODO: Find a way to remove reloads
-
+    cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)

@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 import type { SelectEntry } from '@centreon/ui';
 
 import { SortOrder } from '../../models';
@@ -43,13 +45,22 @@ import {
   buildServiceSeveritiesEndpoint
 } from '../api/endpoint';
 
+import { SearchableFields } from './searchQueryLanguage/models';
+
 export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];
 
 export interface Criteria {
   name: string;
   object_type: string | null;
+  search_data?: SearchData | null;
   type: string;
   value?: CriteriaValue;
+}
+
+export enum SearchType {
+  conditions = 'conditions',
+  lists = 'lists',
+  regex = 'regex'
 }
 
 const criteriaValueNameById = {
@@ -189,6 +200,18 @@ export interface CriteriaDisplayProps {
   options?: Array<SelectEntry>;
 }
 
+export interface SearchedDataValue {
+  id: string;
+  value: string;
+  valueId: number;
+}
+
+export interface SearchData {
+  field: SearchableFields;
+  id: string | null;
+  type: SearchType;
+  values: Array<SearchedDataValue> | null;
+}
 export interface CriteriaById {
   [criteria: string]: CriteriaDisplayProps;
 }
@@ -286,3 +309,13 @@ export {
   selectableStateTypes,
   hardStateType
 };
+
+export enum Action {
+  create = 'create',
+  update = 'update'
+}
+
+export interface PopoverData {
+  anchorEl: HTMLElement | undefined;
+  setAnchorEl: Dispatch<SetStateAction<HTMLElement | undefined>>;
+}

@@ -1,0 +1,40 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Command ID"
+    example: 1
+  name:
+    type: string
+    description: "Command name"
+    example: "check_host_alive"
+  type:
+    type: integer
+    description: |
+      Indicates the type of command
+
+      * `1` - NOTIFICATION
+      * `2` - CHECK
+      * `3` - MISCELLANEOUS
+      * `4` - DISCOVERY
+    example: 2
+  command_line:
+    type: string
+    description: "Command line to be executed by the poller"
+  is_shell:
+    type: boolean
+    description: |
+     Is required if your command requires shell features like pipes, redirections, globbing etc..
+
+      If you are using the monitoring engine this option cannot be disabled.
+
+      Note that commands that require shell features are slowing down the poller server.
+    example: true
+  is_locked:
+    type: boolean
+    description: "Indicates whether the command can be updated or not"
+    example: false
+  is_activated:
+    type: boolean
+    description: "Indicates whether the command is activated or not"
+    example: true

@@ -1,49 +1,64 @@
 import { ChangeEvent, KeyboardEvent } from 'react';
 
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { path, not, or } from 'ramda';
+import { equals, not, or, path, omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import * as Yup from 'yup';
 
 import { Dialog, TextField, useRequest } from '@centreon/ui';
 
 import {
-  labelSave,
   labelCancel,
   labelName,
   labelNewFilter,
-  labelRequired
+  labelRequired,
+  labelSave
 } from '../../translatedLabels';
-import { createFilter } from '../api';
+import { Action } from '../Criterias/models';
 import { Filter } from '../models';
 
 type InputChangeEvent = (event: ChangeEvent<HTMLInputElement>) => void;
 
 interface Props {
-  filter: Filter;
+  action?: Action;
+  callbackSuccess?: (data) => void;
   onCancel: () => void;
-  onCreate: (filter) => void;
   open: boolean;
+  payloadAction: Record<string, unknown>;
+  request;
 }
 
 const CreateFilterDialog = ({
-  filter,
-  onCreate,
+  payloadAction,
+  request,
+  callbackSuccess,
   open,
-  onCancel
+  onCancel,
+  action = Action.create
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const { sendRequest, sending } = useRequest<Filter>({
-    request: createFilter
+    request
   });
   const form = useFormik({
     initialValues: {
       name: ''
     },
     onSubmit: (values) => {
-      sendRequest({ criterias: filter.criterias, name: values.name })
-        .then(onCreate)
+      const payloadCreation = { ...payloadAction, name: values.name };
+      const filterPayloadAction = omit(['order'], payloadAction.filter);
+      const payloadUpdate = {
+        ...payloadAction,
+        filter: { ...filterPayloadAction, name: values.name }
+      };
+
+      const payload = equals(action, Action.create)
+        ? payloadCreation
+        : payloadUpdate;
+
+      sendRequest(payload)
+        .then(callbackSuccess)
         .catch((requestError) => {
           form.setFieldError(
             'name',
@@ -79,7 +94,7 @@ const CreateFilterDialog = ({
     >
       <TextField
         autoFocus
-        ariaLabel={t(labelName)}
+        ariaLabel={t(labelName) as string}
         error={form.errors.name}
         label={t(labelName)}
         value={form.values.name}

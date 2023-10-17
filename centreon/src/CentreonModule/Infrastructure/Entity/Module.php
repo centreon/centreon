@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,88 +25,57 @@ use CentreonModule\Infrastructure\Source\SourceDataInterface;
 
 class Module implements SourceDataInterface
 {
-    /**
-     * @var string
-     */
-    private $id;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $description;
-
-    /**
-     * @var array<int,string>
-     */
-    private $images = [];
-
-    /**
-     * @var string
-     */
-    private $author;
-
-    /**
-     * @var string
-     */
-    private $version;
-
-    /**
-     * @var string
-     */
-    private $versionCurrent;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * @var string
-     */
-    private $stability = 'stable';
-
-    /**
-     * @var string
-     */
-    private $keywords;
-
-    /**
-     * @var array<string,string|bool>
-     */
-    private $license;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $lastUpdate;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $releaseNote;
 
-    /**
-     * @var bool
-     */
+    /** @var string */
+    private $id;
+
+    /** @var string */
+    private $type;
+
+    /** @var string */
+    private $name;
+
+    /** @var string */
+    private $description;
+
+    /** @var array<int,string> */
+    private $images = [];
+
+    /** @var string */
+    private $author;
+
+    /** @var string */
+    private $version;
+
+    /** @var string */
+    private $versionCurrent;
+
+    /** @var string */
+    private $path;
+
+    /** @var string */
+    private $stability = 'stable';
+
+    /** @var string */
+    private $keywords;
+
+    /** @var array<string,string|bool> */
+    private $license;
+
+    /** @var bool */
     private $isInstalled = false;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isUpdated = false;
 
     /**
      * @var string[] names of the module's dependencies
+     *
      * @example ['centreon-license-manager']
      */
     private array $dependencies = [];
@@ -298,7 +267,7 @@ class Module implements SourceDataInterface
     /**
      * @param array<mixed>|null $license
      */
-    public function setLicense(array $license = null): void
+    public function setLicense(?array $license = null): void
     {
         $this->license = $license;
     }
@@ -345,6 +314,7 @@ class Module implements SourceDataInterface
 
     /**
      * @param bool $value
+     *
      * @return bool
      */
     public function setInstalled(bool $value): void
@@ -362,6 +332,7 @@ class Module implements SourceDataInterface
 
     /**
      * @param bool $value
+     *
      * @return bool
      */
     public function setUpdated(bool $value): void

@@ -11,10 +11,9 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { userAtom, featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
-import { featureFlagsDerivedAtom } from '../../Main/atoms/platformFeaturesAtom';
 import Actions from '../Actions';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import VisualizationActions from '../Actions/Visualization';
@@ -44,7 +43,11 @@ import {
   labelStatus
 } from '../translatedLabels';
 
-import { defaultSelectedColumnIds, getColumns } from './columns';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost,
+  getColumns
+} from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
@@ -189,6 +192,12 @@ const ResourceListing = (): JSX.Element => {
   const getId = ({ uuid }: Resource): string => uuid;
 
   const resetColumns = (): void => {
+    if (equals(visualization, Visualization.Host)) {
+      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
+
+      return;
+    }
+
     setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
@@ -268,6 +277,13 @@ const ResourceListing = (): JSX.Element => {
       selectedRows={selectedResources}
       sortField={sortField}
       sortOrder={sortOrder}
+      subItems={{
+        canCheckSubItems: true,
+        enable: true,
+        labelCollapse: 'Collapse',
+        labelExpand: 'Expand',
+        rowProperty: 'children'
+      }}
       totalRows={listing?.meta.total}
       viewerModeConfiguration={{
         disabled: isPending,

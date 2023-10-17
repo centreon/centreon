@@ -4,18 +4,19 @@ import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../e2e/Resources-status/common';
 import { apiActionV1 } from '../commons';
+import '../e2e/Dashboards/commands';
 
 Cypress.Commands.add(
   'getByLabel',
-  ({ tag = '', label }: GetByLabelProps): Cypress.Chainable => {
-    return cy.get(`${tag}[aria-label="${label}"]`);
+  ({ tag = '', patternInfo, label }: GetByLabelProps): Cypress.Chainable => {
+    return cy.get(`${tag}[aria-label${patternInfo || ''}="${label}"]`);
   }
 );
 
 Cypress.Commands.add(
   'getByTestId',
-  ({ tag = '', testId }: GetByTestIdProps): Cypress.Chainable => {
-    return cy.get(`${tag}[data-testid="${testId}"]`);
+  ({ tag = '', patternInfo, testId }: GetByTestIdProps): Cypress.Chainable => {
+    return cy.get(`${tag}[data-testid${patternInfo || ''}="${testId}"]`);
   }
 );
 
@@ -184,12 +185,20 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
+export enum patternInfo {
+  contains = '*',
+  endsWith = '$',
+  startsWith = '^'
+}
+
 interface GetByLabelProps {
   label: string;
+  patternInfo?: patternInfo;
   tag?: string;
 }
 
 interface GetByTestIdProps {
+  patternInfo?: patternInfo;
   tag?: string;
   testId: string;
 }
@@ -204,8 +213,16 @@ declare global {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
-      getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
-      getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
+      getByLabel: ({
+        patternInfo,
+        tag,
+        label
+      }: GetByLabelProps) => Cypress.Chainable;
+      getByTestId: ({
+        patternInfo,
+        tag,
+        testId
+      }: GetByTestIdProps) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => void;
