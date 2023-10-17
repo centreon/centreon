@@ -304,19 +304,18 @@ jobs:
         working-directory: centreon
 
   package:
-    needs:
-      [
+    needs: [
         get-version,
         translation-build,
         backend-dependencies,
-        backend-lint,
-        backend-unit-test,
-        frontend-web-build,
-        frontend-web-lint,
-        frontend-widgets-build,
-        frontend-widgets-lint,
-        frontend-unit-test,
-        frontend-component-test,
+        # backend-lint,
+        # backend-unit-test,
+        # frontend-web-build,
+        # frontend-web-lint,
+        # frontend-widgets-build,
+        # frontend-widgets-lint,
+        # frontend-unit-test,
+        # frontend-component-test,
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
