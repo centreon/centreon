@@ -202,7 +202,7 @@ async function update_jira_issues(
   }
 }
 
-function main() {
+async function main() {
   // Check for the correct number of command-line arguments
   if (process.argv.length !== 5) {
     console.log(
@@ -220,7 +220,7 @@ function main() {
   );
 
   // Upload the feature file to Xray
-  const response_data = upload_feature_file_to_xray(FEATURE_FILE_PATH);
+  const response_data = await upload_feature_file_to_xray(FEATURE_FILE_PATH);
   console.log("response data", response_data);
 
   // Set the target version based on the version_number
@@ -234,10 +234,10 @@ function main() {
   // Uploading the feature file to Xray succeed
   if (response_data) {
     // Getting the API and the Ids of the created issues ( tests )
-    const test_selfs = response_data.updatedOrCreatedTests.map(
+    const test_selfs = response_data.updatedOrCreatedTests?.map(
       (test) => test.self
     );
-    const test_ids = response_data.updatedOrCreatedTests.map((test) => test.id);
+    const test_ids = response_data.updatedOrCreatedTests?.map((test) => test.id);
 
     // Updating the Issues to match the target version and components
     // For now we have only centreon-web
