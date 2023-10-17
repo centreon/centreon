@@ -178,7 +178,7 @@ jobs:
                     }
                 }
             }' \
-            --max-time 10)
+            --max-time 20)
             # Check if the response is empty, indicating failure
             if [ -z "$response" ]; then
                 echo "Failed to create the test case within the specified time."
