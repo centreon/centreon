@@ -17,8 +17,10 @@ function get_xray_token(client_id, client_secret) {
       { stdio: "pipe", encoding: "utf-8" }
     );
     // Need a check
+    console.log("this is the response: ",response)
     const result = JSON.parse(response);
     console.log("Authentication successful");
+    console.log("this is the token: ",result)
     return result.token;
   } catch (error) {
     console.log("Authentication failed");
@@ -237,7 +239,9 @@ async function main() {
     const test_selfs = response_data.updatedOrCreatedTests?.map(
       (test) => test.self
     );
-    const test_ids = response_data.updatedOrCreatedTests?.map((test) => test.id);
+    const test_ids = response_data.updatedOrCreatedTests?.map(
+      (test) => test.id
+    );
 
     // Updating the Issues to match the target version and components
     // For now we have only centreon-web
