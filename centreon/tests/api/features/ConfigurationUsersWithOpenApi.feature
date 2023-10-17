@@ -43,7 +43,7 @@ Feature:
     """
 
   Scenario: Get and edit current user parameters
-    Given I am logged in as admin
+    Given I am logged in
     And the following CLAPI import data:
     """
     CONTACT;setparam;admin;timezone;Europe/Paris
