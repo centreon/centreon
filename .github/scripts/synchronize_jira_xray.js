@@ -46,8 +46,6 @@ const JIRA_TOKEN_TEST = process.env.JIRA_TOKEN_TEST;
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
-const XRAY_TOKEN = await get_xray_token(CLIENT_ID, CLIENT_SECRET);
-
 const XRAY_API_URL =
   "https://xray.cloud.getxray.app/api/v2/import/feature?projectKey=MON";
 const GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql";
@@ -111,7 +109,7 @@ async function get_jira_issue_id(test_set_key) {
   return null;
 }
 
-async function upload_feature_file_to_xray(feature_file_path) {
+async function upload_feature_file_to_xray(feature_file_path, XRAY_TOKEN) {
   try {
     const formData = new FormData();
     formData.append("file", fs.createReadStream(feature_file_path));
@@ -234,9 +232,12 @@ async function main() {
     `Running script for ${FEATURE_FILE_PATH} on branch ${branch_name}`
   );
 
+  const XRAY_TOKEN = await get_xray_token(CLIENT_ID, CLIENT_SECRET);
+
   // Upload the feature file to Xray
   const response_data = await upload_feature_file_to_xray(
-    FEATURE_FILE_PATH
+    FEATURE_FILE_PATH,
+    XRAY_TOKEN
   ).then(console.log("response data", response_data));
 
   // Set the target version based on the version_number
