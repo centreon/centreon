@@ -4,7 +4,7 @@
 		"name": "20 - Time period management - Centreon Web Refactored API Test Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22770334",
-		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-d595dcb2-b97a-45fe-9fc3-df43fc81aeba?action=share&creator=22770334&source=collection_link"
+		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-d595dcb2-b97a-45fe-9fc3-df43fc81aeba?action=share&source=collection_link&creator=22770334"
 	},
 	"item": [
 		{
@@ -120,8 +120,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -192,8 +193,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -281,8 +283,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -353,8 +356,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -429,8 +433,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -647,8 +652,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -719,8 +725,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -798,8 +805,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -865,8 +873,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1038,10 +1047,10 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2003-DEBUG] Delete time period with no name\"\r",
+									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
 									"pm.test(\"Time periods with empty names cannot be added.\", function () {\r",
-									"    const expectedResponseCode = 500\r",
+									"    const expectedResponseCode = 400\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"});"
@@ -1053,7 +1062,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									""
+									"pm.collectionVariables.set(\"timePeriodName\", \"TP-Test-API-2003\");"
 								],
 								"type": "text/javascript"
 							}
@@ -1063,38 +1072,27 @@
 						"method": "POST",
 						"header": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \";\"\n}"
+							"raw": "{\n    \"name\": \"\",\n    \"alias\": \"{{timePeriodName}}\",\n    \"days\": [\n        {\n            \"day\": 1,\n            \"time_range\": \"06:30-07:00\"\n        },\n        {\n            \"day\": 7,\n            \"time_range\": \"06:30-07:00,09:00-10:30\"\n        }\n    ],\n    \"templates\": [\n        1\n    ],\n    \"exceptions\": [\n        {\n            \"day_range\": \"monday 1\",\n            \"time_range\": \"06:00-07:00\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUrl}}/configuration/timeperiods",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
+								"configuration",
+								"timeperiods"
 							]
 						}
 					},
@@ -1108,7 +1106,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2003-DEBUG] Delete time period with no name\"\r",
+									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
 									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
 									"    const expectedResponseCode = 200\r",
@@ -1136,8 +1134,11 @@
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [
 							{
 								"key": "centreon-auth-token",
@@ -1147,7 +1148,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"show\",\r\n  \"object\": \"tp\"\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1155,90 +1156,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUrl}}/configuration/timeperiods",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2003-DEBUG] Delete time period with no name",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"[DEBUG] The time period with no name has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
+								"configuration",
+								"timeperiods"
 							]
 						}
 					},
@@ -1443,8 +1367,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1472,7 +1397,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2004-cleanup] Logout from admin user and clear collection variables\"\r",
+									"const nextRequestInCaseOfFailure = \"[2004-cleanup] Revert back parameters for 'workhours'\"\r",
 									"\r",
 									"pm.test(\"Parameter \" + pm.collectionVariables.get(\"currentParameter\") + \" was updated with \" + pm.collectionVariables.get(\"currentValue\") + \".\", function () {\r",
 									"    const expectedResponseCode = 200\r",
@@ -1482,7 +1407,7 @@
 									"    // Looping the request to update every parameter of the listOfParameters list\r",
 									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
 									"    if (parameters && parameters.length > 0) {\r",
-									"        postman.setNextRequest(\"[2004] Set parameters for default 'workhours' time period\");\r",
+									"        postman.setNextRequest(pm.info.requestName);\r",
 									"    } else {\r",
 									"        pm.collectionVariables.unset(\"currentParameter\");\r",
 									"        pm.collectionVariables.unset(\"currentValue\");\r",
@@ -1509,16 +1434,17 @@
 									"    parametersToCheck = [];\r",
 									"}\r",
 									"\r",
-									"let currentParameter = parameters.shift();\r",
-									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"if (!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    let currentParameter = parameters.shift()\r",
+									"    pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"    pm.collectionVariables.set(\"currentValue\", values.shift());\r",
+									"\r",
+									"    pm.collectionVariables.set(currentParameter, pm.collectionVariables.get(\"currentValue\"));\r",
+									"    parametersToCheck.push(currentParameter);\r",
+									"}\r",
+									"\r",
 									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
-									"let currentValue = values.shift();\r",
-									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
 									"pm.collectionVariables.set(\"listOfValues\", values);\r",
-									"\r",
-									"pm.collectionVariables.set(currentParameter, currentValue);\r",
-									"\r",
-									"parametersToCheck.push(currentParameter);\r",
 									"pm.collectionVariables.set(\"parametersToCheck\", parametersToCheck);"
 								],
 								"type": "text/javascript"
@@ -1545,8 +1471,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1631,8 +1558,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1659,29 +1587,26 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"[Cleanup] Parameter \" + pm.collectionVariables.get(\"currentParameter\") + \" was updated with \" + pm.collectionVariables.get(\"currentValue\"), function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
-									"if (pm.collectionVariables.get(\"name\") && pm.collectionVariables.get(\"name\") != pm.collectionVariables.get(\"timePeriodName\")) {\r",
-									"    pm.collectionVariables.set(\"timePeriodName\", pm.collectionVariables.get(\"name\"));\r",
-									"}\r",
+									"pm.test(\"[Cleanup] Parameter \" + pm.collectionVariables.get(\"currentParameter\") + \" was updated with \" + pm.collectionVariables.get(\"currentValue\") + \".\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"\r",
-									"if (pm.collectionVariables.get(\"alias\") && pm.collectionVariables.get(\"alias\") != pm.collectionVariables.get(\"timePeriodAlias\")) {\r",
-									"    pm.collectionVariables.set(\"timePeriodAlias\", pm.collectionVariables.get(\"alias\"));\r",
-									"}\r",
-									"\r",
-									"// Looping the request to update every parameter of the listOfParameters list\r",
-									"const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
-									"if (parameters && parameters.length > 0) {\r",
-									"    postman.setNextRequest(\"[2004-cleanup] Revert back parameters for 'workhours'\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"currentParameter\");\r",
-									"    pm.collectionVariables.unset(\"currentValue\");\r",
-									"    pm.collectionVariables.unset(\"listOfParameters\");\r",
-									"    pm.collectionVariables.unset(\"listOfValues\");\r",
-									"    postman.setNextRequest(\"[2004-cleanup] Show available time periods after 'workhours' updates are reverted\");\r",
-									"}"
+									"    // Looping the request to update every parameter of the listOfParameters list\r",
+									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"    if (parameters && parameters.length > 0) {\r",
+									"        postman.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentValue\");\r",
+									"        pm.collectionVariables.unset(\"listOfParameters\");\r",
+									"        pm.collectionVariables.unset(\"listOfValues\");\r",
+									"        postman.setNextRequest(\"[2004-cleanup] Show available time periods after 'workhours' updates are reverted\");    \r",
+									"    }    \r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -1700,16 +1625,17 @@
 									"    parametersToCheck = [];\r",
 									"}\r",
 									"\r",
-									"let currentParameter = parameters.shift();\r",
-									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"if (!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    let currentParameter = parameters.shift()\r",
+									"    pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"    pm.collectionVariables.set(\"currentValue\", values.shift());\r",
+									"\r",
+									"    pm.collectionVariables.set(currentParameter, pm.collectionVariables.get(\"currentValue\"));\r",
+									"    parametersToCheck.push(currentParameter);\r",
+									"}\r",
+									"\r",
 									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
-									"let currentValue = values.shift();\r",
-									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
 									"pm.collectionVariables.set(\"listOfValues\", values);\r",
-									"\r",
-									"pm.collectionVariables.set(currentParameter, currentValue);\r",
-									"\r",
-									"parametersToCheck.push(currentParameter);\r",
 									"pm.collectionVariables.set(\"parametersToCheck\", parametersToCheck);"
 								],
 								"type": "text/javascript"
@@ -1736,8 +1662,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1819,8 +1746,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2033,8 +1961,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2080,7 +2009,7 @@
 									"    // Looping the request to update every parameter of the listOfParameters list\r",
 									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
 									"    if (parameters && parameters.length > 0) {\r",
-									"        postman.setNextRequest(\"[2005] Set parameters for newly created time period\");\r",
+									"        postman.setNextRequest(pm.info.requestName);\r",
 									"    } else {\r",
 									"        pm.collectionVariables.unset(\"currentParameter\");\r",
 									"        pm.collectionVariables.unset(\"currentValue\");\r",
@@ -2109,16 +2038,17 @@
 									"    parametersToCheck = [];\r",
 									"}\r",
 									"\r",
-									"let currentParameter = parameters.shift();\r",
-									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"if (!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    let currentParameter = parameters.shift()\r",
+									"    pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"    pm.collectionVariables.set(\"currentValue\", values.shift());\r",
+									"\r",
+									"    pm.collectionVariables.set(currentParameter, pm.collectionVariables.get(\"currentValue\"));\r",
+									"    parametersToCheck.push(currentParameter);\r",
+									"}\r",
+									"\r",
 									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
-									"let currentValue = values.shift();\r",
-									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
 									"pm.collectionVariables.set(\"listOfValues\", values);\r",
-									"\r",
-									"pm.collectionVariables.set(currentParameter, currentValue);\r",
-									"\r",
-									"parametersToCheck.push(currentParameter);\r",
 									"pm.collectionVariables.set(\"parametersToCheck\", parametersToCheck);"
 								],
 								"type": "text/javascript"
@@ -2145,8 +2075,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2232,8 +2163,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2260,8 +2192,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"[Cleanup] The time period with name '\" + pm.collectionVariables.get(\"timePeriodName\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriodAlias\") + \"' has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"[Cleanup] The time period with name \\\"\" + pm.collectionVariables.get(\"timePeriodName\") + \"\\\" and alias \\\"\" + pm.collectionVariables.get(\"timePeriodAlias\") + \"\\\" has been successfully deleted.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"    pm.collectionVariables.unset(\"timePeriodName\");\r",
 									"    pm.collectionVariables.unset(\"timePeriodAlias\");\r",
 									"});"
@@ -2299,8 +2236,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2409,7 +2347,7 @@
 			]
 		},
 		{
-			"name": "2006 - Setting a parameter with a non-compliant format for a time period",
+			"name": "2006 - Setting non-compliant day parameters on new time period",
 			"item": [
 				{
 					"name": "[2006] Login with admin user",
@@ -2465,87 +2403,16 @@
 					"response": []
 				},
 				{
-					"name": "[2006] Add a new time period",
+					"name": "[2006] Add a new time period with non-compliant day parameter",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2006-cleanup] Logout from admin user and clear collection variables\"\r",
+									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
-									"pm.test(\"The time period has been successfully created, with name '\" + pm.collectionVariables.get(\"timePeriodName\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriodAlias\") + \"'.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"timePeriodName\", \"TP-Test-API-2006\");\r",
-									"pm.collectionVariables.set(\"timePeriodAlias\", \"Time period used for API tests\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2006] Set a non-compliant parameter for newly created time period",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2006-cleanup] Delete the new time period\"\r",
-									"\r",
-									"pm.test(\"Cannot update parameter with a non-compliant value.\", function () {\r",
+									"pm.test(\"The time period '\" + pm.collectionVariables.get(\"timePeriodName\") + \"' has not been created as there is a non-compliant parameter.\" , function () {\r",
 									"    const expectedResponseCode = 400\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
@@ -2558,7 +2425,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									""
+									"pm.collectionVariables.set(\"timePeriodName\", \"TP-Test-API-2006\");"
 								],
 								"type": "text/javascript"
 							}
@@ -2578,115 +2445,35 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\":\"setparam\",\n  \"object\":\"tp\",\n  \"values\": \"{{timePeriodName}};monday;non-compliant-parameter\"\n}"
+							"raw": "{\n    \"name\": \"{{timePeriodName}}\",\n    \"alias\": \"{{timePeriodName}}\",\n    \"days\": [\n        {\n            \"day\": 1,\n            \"time_range\": \"uncompliant parameter\"\n        }\n    ],\n    \"templates\": [\n        1\n    ],\n    \"exceptions\": [\n        {\n            \"day_range\": \"monday 1\",\n            \"time_range\": \"06:00-07:00\"\n        }\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUrl}}/configuration/timeperiods",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
+								"configuration",
+								"timeperiods"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "[2006] Check that non-compliant parameter has not been added",
+					"name": "[2006] Add a new time period with inconsistent time interval",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2006-cleanup] Delete the new time period\"\r",
+									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
-									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
+									"pm.test(\"The time period '\" + pm.collectionVariables.get(\"timePeriodName\") + \"' has not been created as there is a non-compliant parameter.\" , function () {\r",
+									"    const expectedResponseCode = 400\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});\r",
-									"\r",
-									"for (let count1 = 0; count1 < responseJson.result.length; count1++) {\r",
-									"    if(responseJson.result[count1].name == pm.collectionVariables.get(\"timePeriodName\")) {\r",
-									"        pm.test(\"The parameter 'monday' has not been updated with a non-compliant value.\", function() {\r",
-									"            pm.expect(responseJson.result[count1].monday).to.not.eql(\"non-compliant-parameter\");\r",
-									"        })\r",
-									"    }\r",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"show\",\r\n  \"object\": \"tp\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2006-cleanup] Delete the new time period",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"[Cleanup] The time period with name '\" + pm.collectionVariables.get(\"timePeriodName\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriodAlias\") + \"' has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.unset(\"timePeriodName\");\r",
-									"    pm.collectionVariables.unset(\"timePeriodAlias\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2696,7 +2483,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									""
+									"pm.collectionVariables.set(\"timePeriodName\", \"TP-Test-API-2006\");"
 								],
 								"type": "text/javascript"
 							}
@@ -2716,28 +2503,85 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
+							"raw": "{\n    \"name\": \"{{timePeriodName}}\",\n    \"alias\": \"{{timePeriodName}}\",\n    \"days\": [\n        {\n            \"day\": 1,\n            \"time_range\": \"08:00-07:00\"\n        }\n    ],\n    \"templates\": [\n        1\n    ],\n    \"exceptions\": [\n        {\n            \"day_range\": \"monday 1\",\n            \"time_range\": \"06:00-07:00\"\n        }\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUrl}}/configuration/timeperiods",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
+								"configuration",
+								"timeperiods"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2006] Show time periods after time period with non-compliant parameter creation attempt",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"A list of time periods has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"let tableOfTestPeriodNames = [];\r",
+									"for(let count = 0; count < responseJson.result.length; count++) {\r",
+									"    tableOfTestPeriodNames.push(responseJson.result[count].name);\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Only the four default time periods should be listed; the time period with an empty name should not have been added.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"    pm.expect(tableOfTestPeriodNames).to.contain(\"24x7\");\r",
+									"    pm.expect(tableOfTestPeriodNames).to.contain(\"none\");\r",
+									"    pm.expect(tableOfTestPeriodNames).to.contain(\"nonworkhours\");\r",
+									"    pm.expect(tableOfTestPeriodNames).to.contain(\"workhours\");\r",
+									"    pm.expect(tableOfTestPeriodNames).to.not.contain(pm.collectionVariables.get(\"timePeriodName\"));\r",
+									"    postman.setNextRequest(\"[2006-cleanup] Logout from admin user and clear collection variables\");\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods"
 							]
 						}
 					},
@@ -2935,8 +2779,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2973,7 +2818,7 @@
 									"\r",
 									"    const exceptionDates = pm.collectionVariables.get(\"listOfExceptionDates\");\r",
 									"    if (exceptionDates && exceptionDates.length > 0) {\r",
-									"        postman.setNextRequest(\"[2007] Set exceptions on newly created time period\");\r",
+									"        postman.setNextRequest(pm.info.requestName);\r",
 									"    } else {\r",
 									"        pm.collectionVariables.unset(\"currentExceptionDate\");\r",
 									"        pm.collectionVariables.unset(\"currentExceptionTimerange\");\r",
@@ -3005,17 +2850,19 @@
 									"}\r",
 									"\r",
 									"let currentDate = exceptionDates.shift();\r",
-									"pm.collectionVariables.set(\"currentExceptionDate\", currentDate);\r",
-									"pm.collectionVariables.set(\"listOfExceptionDates\", exceptionDates);\r",
-									"\r",
 									"let currentTimerange = exceptionTimeranges.shift();\r",
-									"pm.collectionVariables.set(\"currentExceptionTimerange\", currentTimerange);\r",
-									"pm.collectionVariables.set(\"listOfExceptionTimeranges\", exceptionTimeranges);\r",
 									"\r",
-									"pm.collectionVariables.set(\"exceptionDate\" + count, currentDate);\r",
-									"pm.collectionVariables.set(\"exceptionTimerange\" + count, currentTimerange);\r",
-									"count++;\r",
-									"pm.collectionVariables.set(\"count\", count);"
+									"if (!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    pm.collectionVariables.set(\"currentExceptionDate\", currentDate);\r",
+									"    pm.collectionVariables.set(\"currentExceptionTimerange\", currentTimerange);\r",
+									"    pm.collectionVariables.set(\"exceptionDate\" + count, currentDate);\r",
+									"    pm.collectionVariables.set(\"exceptionTimerange\" + count, currentTimerange);\r",
+									"    count++;\r",
+									"    pm.collectionVariables.set(\"count\", count);\r",
+									"}\r",
+									"\r",
+									"pm.collectionVariables.set(\"listOfExceptionDates\", exceptionDates);\r",
+									"pm.collectionVariables.set(\"listOfExceptionTimeranges\", exceptionTimeranges);"
 								],
 								"type": "text/javascript"
 							}
@@ -3041,8 +2888,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -3127,8 +2975,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -3194,8 +3043,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -3217,424 +3067,6 @@
 				},
 				{
 					"name": "[2007-cleanup] Logout from admin user and clear collection variables",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserLogin\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"    pm.collectionVariables.clear();\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "2008 - Setting an exception with a non-compliant format on new time period",
-			"item": [
-				{
-					"name": "[2008] Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2008-cleanup] Logout from admin user and clear collection variables\"\r",
-									"\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
-									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2008] Add a new time period",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2008-cleanup] Logout from admin user and clear collection variables\"\r",
-									"\r",
-									"pm.test(\"The time period has been successfully created, with name '\" + pm.collectionVariables.get(\"timePeriodName\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriodAlias\") + \"'.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"timePeriodName\", \"TP-Test-API-2008\");\r",
-									"pm.collectionVariables.set(\"timePeriodAlias\", \"Time period used for API tests\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};{{timePeriodAlias}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2008] Set a non-compliant exception on newly created time period",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2008-cleanup] Delete the time period\"\r",
-									"\r",
-									"pm.test(\"The non-compliant exception could not be set on the time period.\", function () {\r",
-									"    const expectedResponseCode = 500\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"setexception\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}};13th Month Day 01;Dark Hour\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2008] Get exceptions on newly created time period",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();",
-									"const nextRequestInCaseOfFailure = \"[2008-cleanup] Delete the time period\"",
-									"",
-									"pm.test(\"A list of exceptions has been fetched.\", function () {",
-									"    const expectedResponseCode = 200",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);",
-									"    pm.response.to.have.status(expectedResponseCode);",
-									"});",
-									"",
-									"pm.test(\"The list should not present any exception, since the exception with the non-compliant format should not have been set on this time period.\", function () {",
-									"    pm.expect(responseJson.result).to.be.empty;",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\":\"getexception\",\n  \"object\":\"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2008-cleanup] Delete the time period",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"[Cleanup] The time period with name '\" + pm.collectionVariables.get(\"timePeriodName\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriodAlias\") + \"' has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.unset(\"timePeriodName\");\r",
-									"    pm.collectionVariables.unset(\"timePeriodAlias\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"tp\",\n  \"values\": \"{{timePeriodName}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2008-cleanup] Logout from admin user and clear collection variables",
 					"event": [
 						{
 							"listen": "test",
@@ -3768,25 +3200,12 @@
 					"            postman.setNextRequest(nextRequestInCaseOfFailure);",
 					"        }",
 					"    } else {",
+					"        pm.collectionVariables.unset(\"requestTries\");",
 					"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
 					"    }",
 					"  }"
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "timePeriodName",
-			"value": ""
-		},
-		{
-			"key": "timePeriodAlias",
-			"value": ""
-		},
-		{
-			"key": "requestTries",
-			"value": ""
 		}
 	]
 }

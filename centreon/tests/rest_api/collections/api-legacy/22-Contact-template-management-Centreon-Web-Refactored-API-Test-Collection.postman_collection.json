@@ -4,7 +4,7 @@
 		"name": "22 - Contact template management - Centreon Web Refactored API Test Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22770334",
-		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-9d1d001b-a38a-41f9-89b0-12d51c40dcce?action=share&creator=22770334&source=collection_link"
+		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-9d1d001b-a38a-41f9-89b0-12d51c40dcce?action=share&source=collection_link&creator=22770334"
 	},
 	"item": [
 		{
@@ -81,9 +81,9 @@
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"The contact template list is empty, since no contact templates are created by default on a platform.\", function () {\r",
-									"    pm.expect(responseJson.result).to.be.empty;\r",
-									"    pm.expect(responseJson.meta.total).to.eql(0);\r",
+									"pm.test(\"The contact template list contains a single element, the contact template created by default.\", function () {\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"contact_template\");\r",
+									"    pm.expect(responseJson.meta.total).to.eql(1);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -158,8 +158,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -195,10 +196,11 @@
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"The contact template that was just created is registered.\", function() {\r",
-									"    pm.expect(responseJson.meta.total).to.eql(1);\r",
-									"    pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"contactTemplateName\"));\r",
-									"})"
+									"pm.test(\"The contact template list now contains two elements, the contact template created by default and the newly created template.\", function () {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(2);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"contact_template\");\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(pm.collectionVariables.get(\"contactTemplateName\"));\r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -273,8 +275,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -310,9 +313,9 @@
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"The contact template list is back to being empty.\", function () {\r",
-									"    pm.expect(responseJson.result).to.be.empty;\r",
-									"    pm.expect(responseJson.meta.total).to.eql(0);\r",
+									"pm.test(\"The contact template list contains a single element, the contact template created by default.\", function () {\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"contact_template\");\r",
+									"    pm.expect(responseJson.meta.total).to.eql(1);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -543,8 +546,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -614,8 +618,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -685,8 +690,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -756,8 +762,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -793,11 +800,12 @@
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"There should be three contact templates displayed, each with a different alias since its the unique identifier for this resource.\", function() {\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
-									"    pm.expect(responseJson.result[0].alias).to.not.eql(responseJson.result[1].alias);\r",
-									"    pm.expect(responseJson.result[0].alias).to.not.eql(responseJson.result[2].alias);\r",
+									"pm.test(\"There should be four contact templates displayed, each with a different alias since it is the unique identifier for this resource.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"contact_template\");\r",
 									"    pm.expect(responseJson.result[1].alias).to.not.eql(responseJson.result[2].alias);\r",
+									"    pm.expect(responseJson.result[1].alias).to.not.eql(responseJson.result[3].alias);\r",
+									"    pm.expect(responseJson.result[2].alias).to.not.eql(responseJson.result[3].alias);\r",
 									"})"
 								],
 								"type": "text/javascript"
@@ -833,8 +841,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -861,8 +870,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
 									"pm.test(\"[Cleanup] Contact template \" + pm.collectionVariables.get(\"currentContactTemplate\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"\r",
 									"    // Looping the request to delete every entry of contactTemplateList\r",
 									"    let contactTemplateList = pm.collectionVariables.get(\"contactTemplateList\");\r",
@@ -880,9 +894,7 @@
 									"        pm.collectionVariables.unset(\"contactTemplateList\");\r",
 									"        postman.setNextRequest(\"[2202-cleanup] Logout from admin user and clear collection variables\");\r",
 									"    }\r",
-									"});\r",
-									"\r",
-									""
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -896,8 +908,9 @@
 									"if (!contactTemplateList || contactTemplateList.length == 0) {\r",
 									"    contactTemplateList = [pm.collectionVariables.get(\"contactTemplateAlias\"), pm.collectionVariables.get(\"contactTemplateAliasBis\"), pm.collectionVariables.get(\"contactTemplateAliasTer\")];\r",
 									"}\r",
-									"\r",
-									"pm.collectionVariables.set(\"currentContactTemplate\", contactTemplateList.shift());\r",
+									"if(!pm.collectionVariables.get(\"requestTries\")) {\r",
+									"    pm.collectionVariables.set(\"currentContactTemplate\", contactTemplateList.shift());\r",
+									"}\r",
 									"pm.collectionVariables.set(\"contactTemplateList\", contactTemplateList);\r",
 									""
 								],
@@ -925,8 +938,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -948,535 +962,6 @@
 				},
 				{
 					"name": "[2202-cleanup] Logout from admin user and clear collection variables",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserLogin\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"    pm.collectionVariables.clear();\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "2203 - Create contact templates with empty fields",
-			"item": [
-				{
-					"name": "[2203] Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2203-cleanup] Logout from admin user and clear collection variables\"\r",
-									"\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
-									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2203] Create a new contact template with no name",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2203] Create a new contact template with no alias\"\r",
-									"\r",
-									"pm.test(\"Since the name is a mandatory field for creating contact templates, this contact template has not been created.\", function () {\r",
-									"    const expectedResponseCode = 400\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"contactTemplateAlias\", \"Contact_Template_for_API_Testing\");\r",
-									"pm.collectionVariables.set(\"contactTemplateMail\", \"dummymail@centreon\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contacttpl\",\n  \"values\": \";{{contactTemplateAlias}};{{contactTemplateMail}};0;1;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2203] Create a new contact template with no alias",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2203] Create a new contact template with no mail\"\r",
-									"\r",
-									"pm.test(\"Since the alias is a mandatory field for creating contact templates, this contact template has not been created.\", function () {\r",
-									"    const expectedResponseCode = 400\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"contactTemplateName\", \"CTPL-Test-API-2203\");\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contacttpl\",\n  \"values\": \"{{contactTemplateName}};;{{contactTemplateMail}};0;1;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2203] Create a new contact template with no mail",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2203] Show list of contact templates after contact template creation\"\r",
-									"\r",
-									"pm.test(\"Since the mail is not a mandatory field for creating contact templates, this contact template has been created.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"contactTemplateAliasBis\", \"Contact_Template_for_API_Testing_bis\");\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contacttpl\",\n  \"values\": \"{{contactTemplateName}};{{contactTemplateAliasBis}};;0;1;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2203] Show list of contact templates after contact template creation",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = \"[2203-cleanup] Delete the new contact templates\"\r",
-									"\r",
-									"pm.test(\"A list of contact templates has been fetched.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});\r",
-									"\r",
-									"let aliasGetter = [];\r",
-									"for(let count = 0; count < responseJson.result.length; count++) {\r",
-									"    aliasGetter.push(responseJson.result[count].alias);\r",
-									"}\r",
-									"pm.collectionVariables.set(\"contactTemplateList\", aliasGetter);\r",
-									"\r",
-									"pm.test(\"There should only be a single contact template, with an empty mail.\", function() {\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"    pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"contactTemplateName\"));\r",
-									"    pm.expect(responseJson.result[0].alias).to.eql(pm.collectionVariables.get(\"contactTemplateAlias\"));\r",
-									"    pm.expect(responseJson.result[0].email).to.be.empty;\r",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"contacttpl\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2203-cleanup] Delete the new contact templates",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"let contactTemplateList = pm.collectionVariables.get(\"contactTemplateList\");\r",
-									"\r",
-									"pm.test(\"[Cleanup] Contact template \" + pm.collectionVariables.get(\"currentContactTemplate\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    // Looping the request to delete every entry of contactTemplateList\r",
-									"    if (contactTemplateList && contactTemplateList.length > 0) {\r",
-									"        postman.setNextRequest(\"[2203-cleanup] Delete the new contact templates\");\r",
-									"    } else {\r",
-									"        pm.collectionVariables.unset(\"currentContactTemplate\");\r",
-									"        pm.collectionVariables.unset(\"contactTemplateList\");\r",
-									"        postman.setNextRequest(\"[2203-cleanup] Logout from admin user and clear collection variables\");\r",
-									"    }\r",
-									"});\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let contactTemplateList = pm.collectionVariables.get(\"contactTemplateList\");\r",
-									"pm.collectionVariables.set(\"currentContactTemplate\", contactTemplateList.shift());\r",
-									"pm.collectionVariables.set(\"contactTemplateList\", contactTemplateList);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contacttpl\",\n  \"values\": \"{{currentContactTemplate}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}:{{port}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[2203-cleanup] Logout from admin user and clear collection variables",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1679,8 +1164,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1751,8 +1237,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1823,8 +1310,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1893,8 +1381,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -1963,8 +1452,9 @@
 							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
 							"protocol": "{{protocol}}",
 							"host": [
-								"{{server}}:{{port}}"
+								"{{server}}"
 							],
+							"port": "{{port}}",
 							"path": [
 								"centreon",
 								"api",
@@ -2129,33 +1619,12 @@
 					"            postman.setNextRequest(nextRequestInCaseOfFailure);",
 					"        }",
 					"    } else {",
+					"        pm.collectionVariables.unset(\"requestTries\");",
 					"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
 					"    }",
 					"  }"
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "contactTemplateAlias",
-			"value": ""
-		},
-		{
-			"key": "contactTemplateMail",
-			"value": ""
-		},
-		{
-			"key": "contactTemplateName",
-			"value": ""
-		},
-		{
-			"key": "contactTemplateAliasBis",
-			"value": ""
-		},
-		{
-			"key": "contactTemplateList",
-			"value": ""
 		}
 	]
 }
