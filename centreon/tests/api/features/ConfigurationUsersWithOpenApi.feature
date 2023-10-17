@@ -43,7 +43,7 @@ Feature:
     """
 
   Scenario: Get and edit current user parameters
-    Given I am logged in
+    Given I am logged in as admin
     And the following CLAPI import data:
     """
     CONTACT;setparam;admin;timezone;Europe/Paris
@@ -67,6 +67,11 @@ Feature:
       "theme": "light",
       "user_interface_density": "compact",
       "default_page": null
+      "dashboard": {
+          "global_user_role": "administrator",
+          "view_dashboards": true,
+          "create_dashboards": true,
+          "administrate_dashboards": true
     }
     """
 
