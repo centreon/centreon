@@ -6306,51 +6306,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "HostCategory4Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory4Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory4Id",
-			"value": ""
-		},
-		{
-			"key": "HostCategory5Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory5Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory5Id",
-			"value": ""
-		},
-		{
-			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Id",
-			"value": ""
-		},
-		{
-			"key": "HostcategoryTotal",
-			"value": ""
-		}
 	]
 }
