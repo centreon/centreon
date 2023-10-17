@@ -160,48 +160,49 @@ jobs:
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-          xray_graphql_query='{
-              "query": "query GetTestExecution($issueId: String!) { getTestExecution(issueId: $issueId) { id summary } }",
-              "variables": {
-                "issueId": "72317"
-              }
-            }'
-            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_query}" -s "https://xray.cloud.getxray.app/api/v2/graphql")
 
-
-            # Extract the test execution information from the response using jq
-              test_execution_id=$(echo "$response" | jq -r '.data.getTestExecution.id')
-              test_execution_summary=$(echo "$response" | jq -r '.data.getTestExecution.summary')
-
-              # Output the results
-              echo "Test Execution ID: $test_execution_id"
-              echo "Test Execution Summary: $test_execution_summary"
-
-
-          # Create the test case and get its key
-          test_case_id=$(curl --request POST \
+          response=$(curl --request POST \
             --url 'https://centreon.atlassian.net/rest/api/2/issue' \
             --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
             --data '{
-              "fields": {
-                "project": {
-                  "key": "MON"
-                },
-                "summary": "'"$collection_name_sanitized"'",
-                "description": "Test case for '"$collection_name_sanitized"'",
-                "issuetype": {
-                  "name": "Test"
+                "fields": {
+                    "project": {
+                        "key": "MON"
+                    },
+                    "summary": "'"$collection_name_sanitized"'",
+                    "description": "Test case for '"$collection_name_sanitized"'",
+                    "issuetype": {
+                        "name": "Test"
+                    }
                 }
-              }
-            }'| jq -r '.id')
-          echo "Created test case: $collection_name_sanitized, Test Key: $test_case_id"
+            }' \
+            --max-time 10)
+            # Check if the response is empty, indicating failure
+            if [ -z "$response" ]; then
+                echo "Failed to create the test case within the specified time."
+            else
+                test_case_id=$(echo "$response" | jq -r '.id')
+                echo "Created test case: $collection_name_sanitized, Test Key: $test_case_id"
+            fi
+
+
+          test_case_id=$(echo "$test_case_id" | tr -cd '0-9')
+          echo "$test_case_id"
+          # Use the GraphQL mutation to associate the test case with the test execution
+          xray_graphql_mutation='{
+            "query": "mutation AddTestToTestExecution($issueId: String!, $testIssueIds: [String]) {addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
+            "variables": {
+                "issueId": "72317",
+                "testIssueIds": ["'${test_case_id}'"]
+            }
+          }'
+          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" -v "https://xray.cloud.getxray.app/api/v2/graphql"
+
 
 
           jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/${test_case_id}"
-
-          # Perform the GET request
           response=$(curl --request GET \
               --url "$jira_issue_url" \
               --user "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" \
@@ -216,19 +217,6 @@ jobs:
           else
               echo "The issue with ID $test_case_id exists."
           fi
-
-          test_case_id=$(echo "$test_case_id" | tr -cd '0-9')
-          echo "$test_case_id"
-          # Use the GraphQL mutation to associate the test case with the test execution
-          xray_graphql_mutation='{
-            "query": "mutation AddTestToTestExecution($issueId: String!, $testIssueIds: [String]) {addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
-            "variables": {
-                "issueId": "72317",
-                "testIssueIds": ["'${test_case_id}'"]
-            }
-          }'
-          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" -v "https://xray.cloud.getxray.app/api/v2/graphql"
-
 
         done
 
