@@ -85,7 +85,7 @@ jobs:
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install Dependencies for tests/rest_api
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
       shell: bash
       env:
         CYPRESS_INSTALL_BINARY: “0”
