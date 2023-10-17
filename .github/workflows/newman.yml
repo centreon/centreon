@@ -144,19 +144,7 @@ jobs:
     - name: Associate Test Cases with Test Execution
       run: |
             xray_graphql_getTestExec='{
-              "query": "query GetTestExecution($issueId: String!) {
-                getTestExecution(issueId: $issueId) {
-                  issueId
-                  tests(limit: 100) {
-                    results {
-                      issueId
-                      testType {
-                        name
-                      }
-                    }
-                  }
-                }
-              }",
+              "query": "query GetTestExecution($issueId: String!) {getTestExecution(issueId: $issueId) {issueIdtests(limit: 100) {results {issueId testType {name}}}}}",
               "variables": {
                 "issueId": "72317"
               }
