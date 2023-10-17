@@ -22,13 +22,18 @@ jobs:
         with:
           fetch-depth: 0 
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: pnpm/action-setup@v2
         with:
-          python-version: 3.x
+          version: 7
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
       - name: Install Dependencies
-        run: pip install requests
+        run: pnpm install axios
 
       - name: Get the latest commit hash
         run: |
@@ -48,10 +53,10 @@ jobs:
           echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            python .github/scripts/synchronize_jira_xray.py "$file" "${{ github.ref_name }}" "${{ needs.get-version.outputs.major_version }}"
+            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
           done
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
           JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET : ${{ secrets.CLIENT_SECRET }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
