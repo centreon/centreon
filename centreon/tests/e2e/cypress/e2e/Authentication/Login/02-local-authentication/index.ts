@@ -109,7 +109,9 @@ When(
       .get('div[role="tablist"] button')
       .eq(0)
       .contains('Password security policy');
-    cy.get('#Minimumpasswordlength').type('{selectall}{backspace}12');
+
+    cy.get('#Minimumpasswordlength').type('{selectall}{backspace}10');
+
     cy.get('#Passwordmustcontainlowercase').should(
       'have.class',
       'MuiButton-containedPrimary'
@@ -126,7 +128,8 @@ When(
       'have.class',
       'MuiButton-containedPrimary'
     );
-    cy.get('#Save').click({ force: true });
+
+    cy.get('#Save').should('be.enabled').click();
 
     cy.logout();
 
@@ -159,7 +162,7 @@ Then(
       .find('#tab1')
       .parent()
       .contains(
-        "Your password must be 12 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'."
+        "Your password must be 10 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'."
       );
 
     cy.logout();
@@ -192,7 +195,7 @@ When(
       .parent()
       .click();
     cy.get('ul li[data-value="2"]').click();
-    cy.get('#Save').click({ force: true });
+    cy.get('#Save').should('be.enabled').click();
 
     cy.get('@user1Id').then((idUser) => {
       cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
@@ -252,7 +255,7 @@ When(
       .parent()
       .click();
     cy.get('ul li[data-value="2"]').click();
-    cy.get('#Save').click({ force: true });
+    cy.get('#Save').should('be.enabled').click();
 
     cy.get('@user1Id').then((idUser) => {
       cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
@@ -379,7 +382,7 @@ When(
       .eq(-1)
       .find('input[type="checkbox"]')
       .check();
-    cy.get('#Save').click({ force: true });
+    cy.get('#Save').should('be.enabled').click();
 
     cy.get('@user2Id').then((idUser) => {
       cy.get('@user2CreationPasswordDate').then((userPasswordCreationDate) => {
@@ -455,7 +458,7 @@ When(
     cy.get('#Numberofattemptsbeforeuserisblocked').type(
       '{selectall}{backspace}2'
     );
-    cy.get('#Save').click({ force: true });
+    cy.get('#Save').should('be.enabled').click();
 
     cy.logout();
 

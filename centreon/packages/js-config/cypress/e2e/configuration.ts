@@ -51,7 +51,7 @@ export default ({
     },
     env: {
       ...env,
-      OPENID_IMAGE_VERSION: '23.04',
+      OPENID_IMAGE_VERSION: '23.10',
       WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion,
       dockerName: dockerName || 'centreon-dev'

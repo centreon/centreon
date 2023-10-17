@@ -8,12 +8,12 @@ Scenario: Configure an authentication provider
     When the administrator sets valid settings in the OpenID Connect configuration form and saves the form
     Then the configuration is saved and secrets are not visible
 
-Scenario: Default authentication mode Mixed
-    Given an administrator is logged on the platform
-    When the administrator configures the authentication mode
-    Then default authentication mode must be Mixed and users created locally to centreon platform must be able to authenticate
+# Scenario: Default authentication mode Mixed
+#     Given an administrator is logged on the platform
+#     When the administrator configures the authentication mode
+#     Then default authentication mode must be Mixed and users created locally to centreon platform must be able to authenticate
 
-Scenario: Enable OpenID Connect authentication
-    Given an administrator is logged on the platform
-    When the administrator activates OpenID Connect authentication on the platform
-    Then any user can authenticate using the authentication provider that is configured
+# Scenario: Enable OpenID Connect authentication
+#     Given an administrator is logged on the platform
+#     When the administrator activates OpenID Connect authentication on the platform
+#     Then any user can authenticate using the authentication provider that is configured

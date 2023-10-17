@@ -388,7 +388,9 @@ const configureACLGroups = (path: string): Cypress.Chainable => {
   cy.getByLabel({
     label: 'ACL access group',
     tag: 'input'
-  }).click({ force: true });
+  })
+    .should('be.visible')
+    .click();
 
   cy.wait('@getListAccessGroup');
 

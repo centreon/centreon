@@ -36,46 +36,40 @@ const removeContact = (): Cypress.Chainable => {
 };
 
 const configureOpenIDConnect = (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Base URL', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.baseUrl}`,
-    { force: true }
-  );
-  cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.authEndpoint}`,
-    { force: true }
-  );
-  cy.getByLabel({ label: 'Token endpoint', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.tokenEndpoint}`,
-    { force: true }
-  );
-  cy.getByLabel({ label: 'Client ID', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.clientID}`,
-    { force: true }
-  );
-  cy.getByLabel({ label: 'Client secret', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.clientSecret}`,
-    { force: true }
-  );
-  cy.getByLabel({ label: 'Scopes', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.scopes}`,
-    { force: true }
-  );
-  cy.getByLabel({ label: 'Login attribute path', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.loginAttrPath}`,
-    { force: true }
-  );
-  cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' }).type(
-    `{selectall}{backspace}${oidcConfigValues.introspectionTokenEndpoint}`,
-    { force: true }
-  );
+  // Identity provider section
+  cy.getByLabel({ label: 'Identity provider' }).click();
+  cy.getByLabel({ label: 'Base URL', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${oidcConfigValues.baseUrl}`);
+  cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${oidcConfigValues.authEndpoint}`);
+  cy.getByLabel({ label: 'Token endpoint', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${oidcConfigValues.tokenEndpoint}`);
+  cy.getByLabel({ label: 'Client ID', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${oidcConfigValues.clientID}`);
+  cy.getByLabel({ label: 'Client secret', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${oidcConfigValues.clientSecret}`);
+  cy.getByLabel({ label: 'Scopes', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${oidcConfigValues.scopes}`);
+  cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${oidcConfigValues.loginAttrPath}`);
+  cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' })
+    .should('be.visible')
+    .type(
+      `{selectall}{backspace}${oidcConfigValues.introspectionTokenEndpoint}`
+    );
   cy.getByLabel({
     label: 'Use basic authentication for token endpoint authentication',
     tag: 'input'
-  }).uncheck({ force: true });
+  }).uncheck();
 
-  return cy.getByLabel({ label: 'Disable verify peer', tag: 'input' }).check({
-    force: true
-  });
+  return cy.getByLabel({ label: 'Disable verify peer', tag: 'input' }).check();
 };
 
 export {
