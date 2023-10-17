@@ -17,15 +17,16 @@ async function get_xray_token(client_id, client_secret) {
         headers: { "Content-Type": "application/json" },
       }
     );
-    // Need a check
+
     if (response.status === 200) {
-      const token = response.headers['x-access-token'];
+      const token = response.headers["x-access-token"];
       if (token) {
         console.log("Authentication successful");
-        console.log("this is the token: ", token);
         return token;
       } else {
-        console.log("Authentication failed. Token not found in the response headers.");
+        console.log(
+          "Authentication failed. Token not found in the response headers."
+        );
         return null;
       }
     } else {
@@ -45,7 +46,7 @@ const JIRA_TOKEN_TEST = process.env.JIRA_TOKEN_TEST;
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
-const XRAY_TOKEN = get_xray_token(CLIENT_ID, CLIENT_SECRET);
+const XRAY_TOKEN = await get_xray_token(CLIENT_ID, CLIENT_SECRET);
 
 const XRAY_API_URL =
   "https://xray.cloud.getxray.app/api/v2/import/feature?projectKey=MON";
@@ -114,6 +115,8 @@ async function upload_feature_file_to_xray(feature_file_path) {
   try {
     const formData = new FormData();
     formData.append("file", fs.createReadStream(feature_file_path));
+
+    console.log("XRAY_TOKEN ", XRAY_TOKEN);
 
     const response = await axios.post(XRAY_API_URL, formData, {
       headers: {
@@ -232,8 +235,9 @@ async function main() {
   );
 
   // Upload the feature file to Xray
-  const response_data = await upload_feature_file_to_xray(FEATURE_FILE_PATH);
-  console.log("response data", response_data);
+  const response_data = await upload_feature_file_to_xray(
+    FEATURE_FILE_PATH
+  ).then(console.log("response data", response_data));
 
   // Set the target version based on the version_number
   const target_versions =
