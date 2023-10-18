@@ -77,7 +77,7 @@ jobs:
               }
             }'
 
-            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_getTestPlan}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_getTestPlan}"  "https://xray.cloud.getxray.app/api/v2/graphql")
 
             echo "Response from Get Test Plan:"
             echo "$response"
@@ -145,7 +145,7 @@ jobs:
                       "testIssueIds": ["'${test_case_id}'"]
                     }
                   }'
-                  curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_AddingTestsToTestPlan}" -v "https://xray.cloud.getxray.app/api/v2/graphql"
+                  curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_AddingTestsToTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql"
 
                   xray_graphql_mutation='{
                     "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: [\"key\"]) } } }",
@@ -160,7 +160,7 @@ jobs:
                   }'
 
                   # Exécution de la requête GraphQL pour créer un Test Execution
-                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql")
 
                   # Extraction de l'ID de la nouvelle exécution de test
                   test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
@@ -171,13 +171,13 @@ jobs:
                   xray_graphql_addTestExecutionsToTest='{
                     "query": "mutation AddTestExecutionsToTest($issueId: String!, $versionId: Int, $testExecIssueIds: [String]!) { addTestExecutionsToTest(issueId: $issueId, versionId: $versionId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
-                      "issueId": "["'${test_case_id}'"]",
-                      "testExecIssueIds": ["'${test_execution_id}'"]  # Liste des ID des exécutions de test à associer
+                      "issueId": ["'${test_execution_id}'"]
+                      "testExecIssueIds": "["'${test_case_id}'"]",
                     }
                   }'
 
                   # Exécutez la mutation pour associer les exécutions de test au test
-                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_addTestExecutionsToTest}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_addTestExecutionsToTest}" "https://xray.cloud.getxray.app/api/v2/graphql")
 
                   echo "Response from Add Test Executions to Test:"
                   echo "$response"
@@ -187,7 +187,7 @@ jobs:
                     "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
                       "issueId": "73215",  # ID du plan de test
-                      "testExecIssueIds": ["$test_execution_id"]  # Liste des ID des exécutions de test à associer
+                      "testExecIssueIds": ["'${test_execution_id}'"]
                     }
                   }'
 
