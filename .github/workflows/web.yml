@@ -540,7 +540,8 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
-    needs: [get-version, dockerize]
+    #needs: [get-version, dockerize]
+    needs: [get-version, changes]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
