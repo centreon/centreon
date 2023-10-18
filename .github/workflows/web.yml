@@ -565,7 +565,8 @@ jobs:
 
   performances-test:
     runs-on: ubuntu-22.04
-    needs: [get-version, dockerize]
+    #needs: [get-version, dockerize]
+    needs: [get-version, changes]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
