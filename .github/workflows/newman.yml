@@ -77,7 +77,7 @@ jobs:
               }
             }'
 
-            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_getTestPlan}" -v "https://xray.cloud.getxray.app/graphql")
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_getTestPlan}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
             echo "Response from Get Test Plan:"
             echo "$response"
@@ -156,7 +156,7 @@ jobs:
                   }'
 
                   # Exécution de la requête GraphQL pour ajouter le test au plan de test
-                  curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" -v "https://xray.cloud.getxray.app/graphql"
+                  curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" -v "https://xray.cloud.getxray.app/api/v2/graphql"
                 fi
               fi
             done
