@@ -90,6 +90,7 @@ $mandatoryPrivileges = [
     'CREATE TEMPORARY TABLES',
     'EVENT',
     'CREATE VIEW',
+    'SHOW VIEW',
     'REFERENCES'
 ];
 $privilegesQuery = implode(', ', $mandatoryPrivileges);
