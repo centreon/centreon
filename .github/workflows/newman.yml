@@ -171,7 +171,7 @@ jobs:
                   xray_graphql_addTestExecutionsToTest='{
                     "query": "mutation AddTestExecutionsToTest($issueId: String!, $versionId: Int, $testExecIssueIds: [String]!) { addTestExecutionsToTest(issueId: $issueId, versionId: $versionId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
-                      "issueId": ["'${test_execution_id}'"]
+                      "issueId": "$test_execution_id'
                       "testExecIssueIds": "["'${test_case_id}'"]",
                     }
                   }'
@@ -186,7 +186,7 @@ jobs:
                   xray_graphql_addTestExecutionsToTestPlan='{
                     "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
-                      "issueId": "73215",  # ID du plan de test
+                      "issueId": "73215",
                       "testExecIssueIds": ["'${test_execution_id}'"]
                     }
                   }'
