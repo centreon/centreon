@@ -111,7 +111,7 @@ jobs:
 
               # Vérifier si le test case existe déjà dans les tests d'exécution
               if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
-                echo "Le test case pour $collection_name_sanitized existe déjà dans les tests d'exécution."
+                echo "Le test case pour $collection_name_sanitized existe déjà dans le plan de test"
               else
                 # Adding a test case
                 response=$(curl --request POST \
@@ -139,18 +139,13 @@ jobs:
                   echo "Failed to create the test case within the specified time."
                 else
                   # Extraction de l'ID du test case depuis la réponse
-                  test_case_id=$(echo "$response" | jq -r '.data.createTest.issueId')
-                  echo "Created test case: $collection_name_sanitized, Test Key: $test_case_id"
-
-                  # Extraction des chiffres de l'ID du test case (si nécessaire)
-                  test_case_id=$(echo "$test_case_id" | tr -cd '0-9')
-                  echo "$test_case_id"
+                  test_case_id=$(echo "$response" | jq -r '.id')
 
                   # Construction de la requête GraphQL pour ajouter le test au plan de test
                   xray_graphql_mutation='{
                     "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                     "variables": {
-                      "issueId": "73215", # Remplacez par l'ID de votre plan de test
+                      "issueId": "73215",
                       "testIssueIds": ["'${test_case_id}'"]
                     }
                   }'
