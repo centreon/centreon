@@ -159,7 +159,6 @@ jobs:
 
   import-reports-to-xray:
     # needs: [cypress-e2e-test-run,get-version]
-    # if: ${{ needs.get-version.outputs.stability != 'canary' }}  
     needs: [cypress-e2e-test-run]
     if: always()
     runs-on: ubuntu-22.04
