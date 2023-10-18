@@ -194,6 +194,9 @@ jobs:
           stability="${{ needs.get-version.outputs.stability }}"
           major_version="${{ needs.get-version.outputs.major_version }}"
 
+          echo "stability of this branch is $stability"
+          echo "major version of this branch is $major_version"
+
           if [[ $stability == "unstable" ]]; then
             if [[ $major_version == "24.04" ]]; then
               testPlanKey="MON-23428"
