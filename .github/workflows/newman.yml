@@ -110,7 +110,7 @@ jobs:
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
               if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
-                echo "The test case for $collection_name_sanitized alreadu exists into the test plan"
+                echo "The test case for $collection_name_sanitized already exists in the test plan."
               else
                 # Adding a test case
                 response=$(curl --request POST \
