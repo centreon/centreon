@@ -243,7 +243,7 @@ jobs:
               fi
             fi
           done
-          }
+
 
     - name: Extract and Store Summaries
       if: failure()
