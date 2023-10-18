@@ -51,6 +51,11 @@ jobs:
   associate-test-cases:
             runs-on: ubuntu-22.04
             needs: [newman-test-list]
+            defaults:
+              run:
+                shell: bash
+                working-directory: centreon/tests/rest_api
+
             steps:
               - name: Checkout Repository
                 uses: actions/checkout@v4
