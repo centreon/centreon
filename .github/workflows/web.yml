@@ -495,7 +495,8 @@ jobs:
   #         key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [get-version, changes, dockerize]
+    #needs: [get-version, changes, dockerize]
+    needs: [get-version, changes]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
@@ -517,7 +518,8 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [get-version, changes, dockerize]
+    #needs: [get-version, changes, dockerize]
+    needs: [get-version, changes]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
