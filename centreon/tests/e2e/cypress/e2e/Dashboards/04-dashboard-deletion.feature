@@ -1,5 +1,5 @@
-@REQ_MON-22169
-Feature: Deleting an existing dashboard
+@REQ_MON-18494
+Feature: Manage dashboards (create/delete)
   As a Centreon User with dashboard update rights,
   I need to be able to delete a dashboard that has become obsolete or unnecessary,
   So that the dashboards library is not overburden

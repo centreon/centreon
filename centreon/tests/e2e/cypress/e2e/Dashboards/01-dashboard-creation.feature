@@ -1,5 +1,5 @@
-@REQ_MON-22157
-Feature: Creating a new dashboard
+@REQ_MON-18494
+Feature: Manage dashboards (create/delete)
   As a Centreon User with dashboard edition rights,
   I need to start creating a dashboard starting from an empty page on which I will place widgets
   So these dashboards can be consulted by myself and other users

@@ -1,5 +1,5 @@
-@REQ_MON-22161
-Feature: Navigating through the list of dashboards
+@REQ_MON-18489
+Feature: Navigate through list of dashboards (as cards)
   As a Centreon user with appropriate rights
   I need to navigate through the list of available dashboards
   In order to locate the one I want to display or edit

@@ -1,8 +1,8 @@
-@REQ_MON-22172
-Feature: Checking dashboard permissions
-  As a Centreon User with dashboard administration rights,
-  I need to list all dashboards and user/user group rights to each, and update access rights if needed
-  So I can provision accesses or re-direct ownership if a user is not supposed to use Centreon anymore
+@REQ_MON-18516
+Feature: Manage users/groups rights to a dashboard
+  As a Centreon User with dashboard edition rights,
+  I need to list users with whom a dashboard has been shared,
+  whether they can only read or also write, and update access rights if needed.
 
 @TEST_MON-22181
 Scenario: Accessing all dashboards as an admin user

@@ -1,5 +1,5 @@
-@REQ_MON-22183
-Feature: Sharing a dashboard
+@REQ_MON-18516
+Feature: Manage users/groups rights to a dashboard
   As a Centreon User with dashboard edition rights,
   I need to be able to share dashboards to other users with either read or write access,
   So that these users may in turn consult, update or share these dashboards

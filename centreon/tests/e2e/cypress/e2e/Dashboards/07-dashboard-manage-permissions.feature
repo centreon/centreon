@@ -1,8 +1,8 @@
-@REQ_MON-22191
-Feature: Managing dashboard permissions
-  As a Centreon User with dashboard administration rights,
-  I need to be able to manage the permissions any current user of a dashboard's sharelist has
-  So that these users may get promoted or demoted on the rights they have on the dashboard
+@REQ_MON-18519
+Feature: Configure user/user groups role for dashboards
+  As a Centreon User with rights to manage users,
+  I need to configure the roles assigned with regards to the dashboarding feature.
+  I can define whether users can manage access rights to dashboards (i.e. administrator right to the dashboarding capability).
 
 @TEST_MON-22193
 Scenario: Promote a viewer user to an editor on a dashboard
