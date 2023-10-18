@@ -31,7 +31,7 @@ import {
 import { hostEvents, serviceEvents } from '../utils';
 import {
   businessViewsEndpoint,
-  contactsGroupsEndpoint,
+  contactGroupsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
@@ -334,7 +334,7 @@ const useFormInputs = ({
           {
             connectedAutocomplete: {
               additionalConditionParameters: [],
-              endpoint: contactsGroupsEndpoint
+              endpoint: contactGroupsEndpoint
             },
             dataTestId: 'Search contact groups',
             fieldName: 'contactgroups',
