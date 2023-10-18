@@ -18287,3 +18287,6 @@ msgstr "Erreur lors de l'ajout d'une commande"
 
 msgid "Error while retrieving a command"
 msgstr "Erreur lors de la récuparation d'une commande"
+
+msgid "Error while retrieving contact groups"
+msgstr "Erreur lors de la récupération des groupes de contacts"
