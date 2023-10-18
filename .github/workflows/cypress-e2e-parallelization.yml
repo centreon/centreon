@@ -175,6 +175,8 @@ jobs:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.name }}-json-xray-reports
 
+      # dev-24.04.x => MON-23428
+      # release-24.04-next,hotfix-24.04-next => MON-23429
       # dev-23.10.x => MON-22631
       # release-23.10-next,hotfix-23.10-next => MON-23275
       # dev-23.04.x => MON-23278
@@ -193,7 +195,9 @@ jobs:
           major_version="${{ needs.get-version.outputs.major_version }}"
 
           if [[ $stability == "unstable" ]]; then
-            if [[ $major_version == "23.10" ]]; then
+            if [[ $major_version == "24.04" ]]; then
+              testPlanKey="MON-23428"
+            elif [[ $major_version == "23.10" ]]; then
               testPlanKey="MON-22631"
             elif [[ $major_version == "23.04" ]]; then
               testPlanKey="MON-23278"
@@ -207,7 +211,9 @@ jobs:
               testPlanKey="MON-UNKNOWN"  # Handle other cases
             fi
           elif [[ $stability == "testing" ]]; then
-            if [[ $major_version == "23.10" ]]; then
+            if [[ $major_version == "24.04" ]]; then
+              testPlanKey="MON-23429"
+            elif [[ $major_version == "23.10" ]]; then
               testPlanKey="MON-23275"
             elif [[ $major_version == "23.04" ]]; then
               testPlanKey="MON-23280"
@@ -223,7 +229,7 @@ jobs:
           else
             testPlanKey="MON-UNKNOWN"  # Handle other cases
           fi
-
+          echo "the testPlanKey is $testPlanKey"
           echo "testPlanKey=$testPlanKey" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -289,7 +295,7 @@ jobs:
 
       - name: Update the Test Environments of the TestExecution Issue
         run: |
-          xray_graphql_mutation'{
+          xray_graphql_mutation='{
             "query": "mutation addTestEnvironmentsToTestExecution($issueId: String!, $testEnvironments: [String]!) { addTestEnvironmentsToTestExecution(issueId: $issueId, testEnvironments: $testEnvironments) { associatedTestEnvironments createdTestEnvironments warning } }",
             "variables": {
               "issueId": "${{ steps.get-testExecution-id.outputs.testExecution_id }}", 
