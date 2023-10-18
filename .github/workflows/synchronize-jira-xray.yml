@@ -5,8 +5,7 @@ on:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
-      - MON-21965-Refactor-xray-synchronization-script-to-javascript
-        
+
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -21,7 +20,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v2
         with:
@@ -34,7 +33,9 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
-        run: pnpm install axios
+        run: |
+          pnpm install axios
+          pnpm install form-data
 
       - name: Get the latest commit hash
         run: |
