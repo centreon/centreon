@@ -151,7 +151,6 @@ jobs:
                    "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: [\"key\"]) } } }",
                     "variables": {
                       "testIssueIds": ["${test_case_id}"],
-                      "testEnvironments": ["android"],
                       "jira": {
                         "fields": {
                           "summary": "Test Execution for '"$collection_name_sanitized"'",
