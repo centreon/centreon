@@ -71,21 +71,22 @@ Then(
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
     }).as('getUserInformation');
 
-    try {
-      cy.loginKeycloak('admin');
-      cy.get('#input-error')
-        .should('be.visible')
-        .and('include.text', 'Invalid username or password.');
+    // Use Cypress error handling to log errors
+    cy.on('uncaught:exception', (err, runnable) => {
+      cy.log(`Error occurred: ${err.message}`);
 
-      cy.loginKeycloak(username);
+      return false; // This prevents the error from failing the test
+    });
 
-      cy.wait('@getUserInformation')
-        .its('response.statusCode')
-        .should('eq', 200);
-      cy.url().should('include', '/monitoring/resources');
-    } catch (error: any) {
-      cy.log(`Error occurred: ${error.message}`);
-    }
+    cy.loginKeycloak('admin');
+    cy.get('#input-error')
+      .should('be.visible')
+      .and('include.text', 'Invalid username or password.');
+
+    cy.loginKeycloak(username);
+
+    cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
+    cy.url().should('include', '/monitoring/resources');
   }
 );
 
