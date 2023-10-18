@@ -287,7 +287,7 @@ class MassiveChangeHostsContext extends CentreonContext
     }
 
     /**
-     * @When I have applied Massive Change operation to several hosts
+     * @When I have applied Mass Change operation to several hosts
      */
     public function iHaveAppliedMassiveChangeOperationToSeveralHosts()
     {
@@ -298,7 +298,7 @@ class MassiveChangeHostsContext extends CentreonContext
         $object = $this->currentPage->getEntry($this->host2['name']);
         $checkbox = $this->assertFind('css', 'input[type="checkbox"][name="select[' . $object['id'] . ']"]');
         $this->currentPage->checkCheckbox($checkbox);
-        $this->selectInList('select[name="o1"]', 'Massive Change');
+        $this->selectInList('select[name="o1"]', 'Mass Change');
 
 
 
