@@ -164,20 +164,9 @@ jobs:
                   response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_CreateTestExecution}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
                   # Extraction de l'ID de la nouvelle exécution de test
                   test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
-                  # Vérifier le statut de la réponse HTTP
-                        http_status=$(echo "$response" | grep -Eo 'HTTP/[0-9\.]+\s[0-9]+' | cut -d' ' -f2)
+                  http_status=$(echo "$response" | grep -Eo 'HTTP/[0-9\.]+\s[0-9]+' | cut -d' ' -f2)
+                  echo"$http_status"
 
-                        if [ "$http_status" -eq 200 ]; then
-                          # Extraction de l'ID de la nouvelle exécution de test
-                          test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
-                          if [ -n "$test_execution_id" ]; then
-                            echo "Created Test Execution with ID: $test_execution_id"
-                          else
-                            echo "Failed to extract Test Execution ID from the response."
-                          fi
-                        else
-                          echo "Failed to create Test Execution. HTTP status code: $http_status"
-                        fi
                 fi
               fi
             done
