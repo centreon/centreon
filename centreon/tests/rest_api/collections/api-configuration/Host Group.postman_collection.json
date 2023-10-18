@@ -2327,7 +2327,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test_H_Group_1\",\n    \"alias\": \"I should be successful !\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -2367,8 +2367,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({name:\"Test_H_Group_1\"}).\r",
-									"            and.to.include({alias:\"I should be successful !\"}).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"HostGroup1Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"HostGroup1Alias\")}).\r",
 									"            and.to.include({notes:\"I am Groot\"}).\r",
 									"            and.to.include({notes_url:\"www.google.fr\"}).\r",
 									"            and.to.include({action_url:\"www.google.com\"}).\r",
@@ -2463,7 +2463,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_H_Group_2\"\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup2Name}}\",\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -2502,8 +2502,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_1\" }).\r",
-									"        and.to.include({ alias: \"I should be successful !\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"HostGroup1Name\")}).\r",
+									"        and.to.include({alias:pm.collectionVariables.get(\"HostGroup1Alias\")}).\r",
 									"        and.to.include({ notes: \"I am Groot\" }).\r",
 									"        and.to.include({ notes_url: \"www.google.fr\" }).\r",
 									"        and.to.include({ action_url: \"www.google.com\" }).\r",
@@ -2514,7 +2514,7 @@
 									"        and.to.include({ comment: \"Hello world ! 1\" }).\r",
 									"        and.to.include({ is_activated: false });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"HostGroup2Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -2716,7 +2716,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_H_Group_3\",\n\"comment\": \"I'm blue!\"\n}"
+							"raw": "{\n\"name\": \"{{HostGroup3Name}}\",\n\"comment\": \"I'm blue!\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -2829,7 +2829,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_H_Grôup_4!\",\n\"alias\":\"I want to break free !\",\n\"comment\":\"   \"\n}"
+							"raw": "{\n\"name\": \"{{HostGroup4Name}}\",\n\"alias\": \"{{HostGroup4Alias}}\",\n\"comment\":\"   \"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -2868,8 +2868,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(4);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_1\" }).\r",
-									"        and.to.include({ alias: \"I should be successful !\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"HostGroup1Name\")}).\r",
+									"        and.to.include({alias:pm.collectionVariables.get(\"HostGroup1Alias\")}).\r",
 									"        and.to.include({ notes: \"I am Groot\" }).\r",
 									"        and.to.include({ notes_url: \"www.google.fr\" }).\r",
 									"        and.to.include({ action_url: \"www.google.com\" }).\r",
@@ -2880,7 +2880,7 @@
 									"        and.to.include({ comment: \"Hello world ! 1\" }).\r",
 									"        and.to.include({ is_activated: false });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"HostGroup2Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -2892,7 +2892,7 @@
 									"        and.to.include({ comment: null }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Group_3\" }).\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name:pm.collectionVariables.get(\"HostGroup3Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -2904,8 +2904,8 @@
 									"        and.to.include({ comment: \"I'm blue!\" }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[3]).to.include({ name: \"Test_H_Grôup_4!\" }).\r",
-									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"    pm.expect(responseJson.result[3]).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -2978,7 +2978,7 @@
 									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
 									"\r",
 									"    // Check the properties of the host group\r",
-									"    pm.expect(responseJson).to.include({ name: \"Test_H_Group_3\" }).\r",
+									"    pm.expect(responseJson).to.include({ name:pm.collectionVariables.get(\"HostGroup3Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -3122,7 +3122,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_Update_H_Group_3\",\n    \"alias\":\"I'm a your third group but I changgeeeee!\",\n    \"is_activated\":false,\n    \"comment\":\"Transformmattiooonnnnnn!!!!!\"\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup3Name}}\",\n    \"alias\": \"{{HostGroup3Alias}}\",\n    \"is_activated\":false,\n    \"comment\":\"Transformmattiooonnnnnn!!!!!\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
@@ -3162,7 +3162,7 @@
 									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"HostGroup2Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -3174,8 +3174,8 @@
 									"        and.to.include({ comment: null }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Grôup_4!\" }).\r",
-									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -3186,8 +3186,8 @@
 									"        and.to.include({ comment: null }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_Update_H_Group_3\" }).\r",
-									"        and.to.include({ alias: \"I'm a your third group but I changgeeeee!\" }).\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name:pm.collectionVariables.get(\"HostGroup3Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup3Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -3414,7 +3414,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_H_Group_5\",\n\"alias\":\"I'm the fifth successful group !\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
+							"raw": "{\n\"name\":\"{{HostGroup5Name}}\",\n\"alias\":\"{{HostGroup5Alias}}\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -3453,7 +3453,7 @@
 									"    pm.expect(responseJson.result.length).to.eql(4);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"HostGroup2Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -3465,8 +3465,8 @@
 									"        and.to.include({ comment: null }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Grôup_4!\" }).\r",
-									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -3477,8 +3477,8 @@
 									"        and.to.include({ comment: null }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Group_5\" }).\r",
-									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name:pm.collectionVariables.get(\"HostGroup5Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup5Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -3489,8 +3489,8 @@
 									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[3]).to.include({ name: \"Test_Update_H_Group_3\" }).\r",
-									"        and.to.include({ alias: \"I'm a your third group but I changgeeeee!\" }).\r",
+									"    pm.expect(responseJson.result[3]).to.include({ name:pm.collectionVariables.get(\"HostGroup3Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup3Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -3561,8 +3561,8 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host group retrieved is listed with: name, alias, is_activated and comments\", function() {\r",
 									"    // Check the properties of the host group\r",
-									"    pm.expect(responseJson).to.include({name:\"Test_H_Grôup_4!\"}).\r",
-									"        and.to.include({ alias: \"I want to break free !\" }).\r",
+									"    pm.expect(responseJson).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -3705,7 +3705,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_H_Update_Group_4\",\n    \"alias\":\"So many changes\",\n    \"notes_url\":\"I was created by the Read/Write user\"\n}"
+							"raw": "{\n    \"name\":\"{{HostGroup4Name}}\",\n    \"alias\":\"{{HostGroup4Alias}}\",\n    \"notes_url\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
@@ -3723,7 +3723,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host group (2)",
+					"name": "Show available host group (3)",
 					"event": [
 						{
 							"listen": "test",
@@ -3745,7 +3745,7 @@
 									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"HostGroup2Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -3757,8 +3757,8 @@
 									"        and.to.include({ comment: null }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_5\" }).\r",
-									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name:pm.collectionVariables.get(\"HostGroup5Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup5Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -3769,8 +3769,8 @@
 									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
-									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -4249,7 +4249,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_H_Group_6\",\n\"alias\":\"I'm the sixth successful group!\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
+							"raw": "{\n\"name\":\"{{HostGroup6Name}}\",\n\"alias\":\"{{HostGroup6Alias}}\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -4266,7 +4266,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host group (1)",
+					"name": "Show available host group (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -4288,8 +4288,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_6\" }).\r",
-									"        and.to.include({ alias: \"I'm the sixth successful group!\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name:pm.collectionVariables.get(\"HostGroup6Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup6Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -4300,8 +4300,8 @@
 									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
-									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -4373,8 +4373,8 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
 									"    // Check the properties of the host group\r",
-									"    pm.expect(responseJson).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
-									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"    pm.expect(responseJson).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -4903,7 +4903,7 @@
 									"    pm.expect(responseJson.result.length).to.eql(4);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_2\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name:pm.collectionVariables.get(\"HostGroup2Name\")}).\r",
 									"        and.to.include({ alias: null }).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
@@ -4915,8 +4915,8 @@
 									"        and.to.include({ comment: null }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({ name: \"Test_H_Group_5\" }).\r",
-									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"    pm.expect(responseJson.result[1]).to.include({ name:pm.collectionVariables.get(\"HostGroup5Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup5Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -4927,8 +4927,8 @@
 									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({ name: \"Test_H_Group_6\" }).\r",
-									"        and.to.include({ alias: \"I'm the sixth successful group!\" }).\r",
+									"    pm.expect(responseJson.result[2]).to.include({ name:pm.collectionVariables.get(\"HostGroup6Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup6Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -4939,8 +4939,8 @@
 									"        and.to.include({ comment: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ is_activated: true });\r",
 									"        \r",
-									"    pm.expect(responseJson.result[3]).to.include({ name: \"Test_H_Update_Group_4\" }).\r",
-									"        and.to.include({ alias: \"So many changes\" }).\r",
+									"    pm.expect(responseJson.result[3]).to.include({ name:pm.collectionVariables.get(\"HostGroup4Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup4Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: \"I was created by the Read/Write user\" }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -5012,8 +5012,8 @@
 									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
 									"    \r",
 									"    // Check the properties of the host group\r",
-									"    pm.expect(responseJson).to.include({ name: \"Test_H_Group_5\" }).\r",
-									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"    pm.expect(responseJson).to.include({ name:pm.collectionVariables.get(\"HostGroup5Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup5Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -5687,8 +5687,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
 									"    // Check the properties of each host group\r",
-									"    pm.expect(responseJson.result[0]).to.include({ name: \"Test_H_Group_5\" }).\r",
-									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"    pm.expect(responseJson.result[0]).to.include({ name:pm.collectionVariables.get(\"HostGroup5Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup5Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",
@@ -5761,8 +5761,8 @@
 									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
 									"\r",
 									"    // Check the properties of the host group\r",
-									"    pm.expect(responseJson).to.include({ name: \"Test_H_Group_5\" }).\r",
-									"        and.to.include({ alias: \"I'm the fifth successful group !\" }).\r",
+									"    pm.expect(responseJson).to.include({ name:pm.collectionVariables.get(\"HostGroup5Name\")}).\r",
+									"        and.to.include({ alias:pm.collectionVariables.get(\"HostGroup5Alias\")}).\r",
 									"        and.to.include({ notes: null }).\r",
 									"        and.to.include({ notes_url: null }).\r",
 									"        and.to.include({ action_url: null }).\r",

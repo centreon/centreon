@@ -2324,7 +2324,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_S_Severity_1\",\n    \"alias\":\"I'm a service severity!\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\":\"{{ServiceSeverity1Name}}\",\n    \"alias\":\"{{ServiceSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2380,7 +2380,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_S_Category_1\",\n    \"alias\":\"I'm a service category!\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\":\"{{ServiceCategory1Name}}\",\n    \"alias\":\"{{ServiceCategory1Alias}}\",\n    \"is_activated\": false\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -2436,7 +2436,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_S_Category_2\",\n    \"alias\":\"I'm a service category!\"\n}"
+							"raw": "{\n    \"name\":\"{{ServiceCategory2Name}}\",\n    \"alias\":\"{{ServiceCategory2Alias}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -2493,7 +2493,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test_S_Group_1\",\n    \"alias\": \"I should be successful !\",\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\": \"{{ServiceGroup1Name}}\",\n    \"alias\": \"{{ServiceGroup1Alias}}\",\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/groups",
@@ -2651,7 +2651,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host 001\",\r\n    \"alias\": \"I'm the first host created by admin\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-test\",\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-test\",\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -2707,7 +2707,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service template 1\",\r\n    \"alias\": \"I-m a super service\",\r\n    \"host_templates\": [3],\r\n    \"comment\": \"Kouroukoukou roukoukou stach stach\",\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 5,\r\n    \"normal_check_interval\": 3,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 1,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 19,\r\n    \"recovery_notification_delay\": 9,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 2,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 2,\r\n    \"low_flap_threshold\": 49,\r\n    \"high_flap_threshold\": 51,\r\n    \"event_handler_enabled\": 2,\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"note\",\r\n    \"note_url\": \"note_url\",\r\n    \"action_url\": \"action url\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Pourquoi\",\r\n            \"value\": \"ABCDEFG3\",\r\n            \"is_password\": false,\r\n            \"description\": \"2f86451\"\r\n        },\r\n        {\r\n            \"name\": \"TOTO\",\r\n            \"value\": \"cacahuètes\",\r\n            \"is_password\": true,\r\n            \"description\": null\r\n        }\r\n    ],\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ \r\n        {\r\n            \"service_group_id\": {{ServiceGroup1Id}},\r\n            \"host_template_id\": 3\r\n        }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"name\": \"{{ServiceTemplate1Name}}\",\r\n    \"alias\": \"{{ServiceTemplate1Alias}}\",\r\n    \"host_templates\": [3],\r\n    \"comment\": \"Kouroukoukou roukoukou stach stach\",\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 5,\r\n    \"normal_check_interval\": 3,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 1,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 19,\r\n    \"recovery_notification_delay\": 9,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 2,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 2,\r\n    \"low_flap_threshold\": 49,\r\n    \"high_flap_threshold\": 51,\r\n    \"event_handler_enabled\": 2,\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"note\",\r\n    \"note_url\": \"note_url\",\r\n    \"action_url\": \"action url\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Pourquoi\",\r\n            \"value\": \"ABCDEFG3\",\r\n            \"is_password\": false,\r\n            \"description\": \"2f86451\"\r\n        },\r\n        {\r\n            \"name\": \"TOTO\",\r\n            \"value\": \"cacahuètes\",\r\n            \"is_password\": true,\r\n            \"description\": null\r\n        }\r\n    ],\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ \r\n        {\r\n            \"service_group_id\": {{ServiceGroup1Id}},\r\n            \"host_template_id\": 3\r\n        }\r\n    ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/templates",
@@ -2763,7 +2763,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service 001\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"Holà\", \"Hello\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": true,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 36,\r\n    \"high_flap_threshold\": 87,\r\n    \"event_handler_enabled\": 0,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"Hi\", \"Bjour\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"MACROA\",\r\n        \"value\": \"A\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        },\r\n        {\r\n        \"name\": \"MACROB\",\r\n        \"value\": \"B\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service1Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"Holà\", \"Hello\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": true,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 36,\r\n    \"high_flap_threshold\": 87,\r\n    \"event_handler_enabled\": 0,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"Hi\", \"Bjour\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"MACROA\",\r\n        \"value\": \"A\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        },\r\n        {\r\n        \"name\": \"MACROB\",\r\n        \"value\": \"B\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -2920,7 +2920,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service 002\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}}\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service2Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}}\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -3094,7 +3094,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service 003\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}}\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service3Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}}\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -3339,7 +3339,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service 003\",\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"Holà\", \"Hello\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": true,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 36,\r\n    \"high_flap_threshold\": 87,\r\n    \"event_handler_enabled\": 0,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"Hi\", \"Bjour\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"MACROA\",\r\n        \"value\": \"A\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        },\r\n        {\r\n        \"name\": \"MACROB\",\r\n        \"value\": \"B\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+							"raw": "{\r\n    \"name\": \"service 333\",\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"Holà\", \"Hello\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": true,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 36,\r\n    \"high_flap_threshold\": 87,\r\n    \"event_handler_enabled\": 0,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"Hi\", \"Bjour\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"MACROA\",\r\n        \"value\": \"A\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        },\r\n        {\r\n        \"name\": \"MACROB\",\r\n        \"value\": \"B\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -3392,7 +3392,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service 003\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": true,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 36,\r\n    \"high_flap_threshold\": 87,\r\n    \"event_handler_enabled\": 0,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"Hi\", \"Bjour\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"MACROA\",\r\n        \"value\": \"A\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        },\r\n        {\r\n        \"name\": \"MACROB\",\r\n        \"value\": \"B\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+							"raw": "{\r\n    \"name\": \"service 333\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": true,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 36,\r\n    \"high_flap_threshold\": 87,\r\n    \"event_handler_enabled\": 0,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"Hi\", \"Bjour\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"MACROA\",\r\n        \"value\": \"A\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        },\r\n        {\r\n        \"name\": \"MACROB\",\r\n        \"value\": \"B\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -3500,7 +3500,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"sérvîcè-004\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service4Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"comment\": \"comment\",\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 0,\r\n    \"freshness_threshold\": 11,\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"Bloubloublou\",\r\n    \"note_url\": \"Hakuna Matata\",\r\n    \"action_url\": \"Chachacha\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"4\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"geo_coords\": \"12.34,23.5\",\r\n    \"is_activated\": true,\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -4126,7 +4126,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service 005\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service5Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -5019,7 +5019,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"service 006\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+									"raw": "{\r\n    \"name\": \"{{Service6Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/services",
@@ -6716,7 +6716,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"service 007\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+									"raw": "{\r\n    \"name\": \"{{Service7Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/services",
@@ -8049,7 +8049,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"service 008\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
+									"raw": "{\r\n    \"name\": \"{{Service8Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ {{ServiceGroup1Id}} ]\r\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/services",
@@ -9322,7 +9322,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"service 005\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}}\r\n}"
+							"raw": "{\r\n    \"name\": \"service 555\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}}\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",

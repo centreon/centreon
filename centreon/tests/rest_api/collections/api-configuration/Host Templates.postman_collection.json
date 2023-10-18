@@ -2324,7 +2324,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_H_Severity_1\",\n    \"alias\":\"I'm a host severity!\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
+							"raw": "{\n    \"name\":\"{{HostSeverity1Name}}\",\n    \"alias\":\"{{HostSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",
@@ -2380,7 +2380,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_H_Category_1\",\n    \"alias\":\"I'm a host category!\",\n    \"is_activated\": false,\n    \"comment\":\"Created by Admin\"\n}"
+							"raw": "{\n    \"name\":\"{{HostCategory1Name}}\",\n    \"alias\":\"{{HostCategory1Alias}}\",\n    \"is_activated\": false,\n    \"comment\":\"Created by Admin\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -2584,7 +2584,7 @@
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
-									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
@@ -2718,7 +2718,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"name\": \"host template 2\",\r\n\"alias\": \"I'm the second host template created by admin\"\r\n}\r\n"
+							"raw": "{\r\n\"name\": \"{{HostTemplate2Name}}\",\r\n\"alias\": \"{{HostTemplate2Alias}}\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -2760,7 +2760,7 @@
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate2Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate2Name\"),\r",
-									"            \"alias\": \"I'm the second host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate2Alias\"),\r",
 									"            \"snmp_version\": null,\r",
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
@@ -2802,7 +2802,7 @@
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
-									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
@@ -2933,7 +2933,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"alias\": \"I'm the first host template created by admin\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -2987,7 +2987,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host template 1\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host template 123\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3041,7 +3041,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"\",\r\n    \"alias\": \"test vithout name\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"alias\": \"test without name\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3206,7 +3206,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"hôst~templàte~3!\",\r\n    \"alias\": \"I'm the third host template créated by admin!\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{HostTemplate3Name}}\",\r\n    \"alias\": \"{{HostTemplate3Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3248,7 +3248,7 @@
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate3Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate3Name\"),\r",
-									"            \"alias\": \"I'm the third host template créated by admin!\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate3Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
 									"            \"timezone_id\": 2,\r",
@@ -3290,7 +3290,7 @@
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate2Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate2Name\"),\r",
-									"            \"alias\": \"I'm the second host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate2Alias\"),\r",
 									"            \"snmp_version\": null,\r",
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
@@ -3332,12 +3332,12 @@
 									"    pm.expect(responseJson.result[2]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
-									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
 									"            \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
-									"            \"check_command_id\": {{CommandId}},\r",
+									"            \"check_command_id\": pm.collectionVariables.get(\"CommandId\"),\r",
 									"            \"check_timeperiod_id\": 1,\r",
 									"            \"note_url\": \"noteUrl-value\",\r",
 									"            \"note\": \"note-value\",\r",
@@ -3578,7 +3578,7 @@
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate3Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate3Name\"),\r",
-									"            \"alias\": \"I'm the third host template créated by admin!\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate3Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
 									"            \"timezone_id\": 2,\r",
@@ -3620,7 +3620,7 @@
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
-									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
@@ -3883,7 +3883,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host-template4\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{HostTemplate4Name}}\",\r\n    \"alias\": \"{{HostTemplate4Alias}}\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3926,7 +3926,7 @@
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate4Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate4Name\"),\r",
-									"            \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate4Alias\"),\r",
 									"            \"snmp_version\": \"1\",\r",
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
@@ -3968,7 +3968,7 @@
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate3Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate3Name\"),\r",
-									"            \"alias\": \"I'm the third host template créated by admin!\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate3Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-tést\",\r",
 									"            \"timezone_id\": 2,\r",
@@ -4010,7 +4010,7 @@
 									"    pm.expect(responseJson.result[2]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
-									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 1,\r",
@@ -4209,7 +4209,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_H_Category_2\",\n    \"alias\":\"I'm a host category!\",\n    \"is_activated\": true,\n    \"comment\":\"Created by user R/W\"\n}"
+							"raw": "{\n    \"name\":\"{{HostCategory2Name}}\",\n    \"alias\":\"{{HostCategory2Alias}}\",\n    \"is_activated\": true,\n    \"comment\":\"Created by user R/W\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -4315,7 +4315,7 @@
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate4Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate4Name\"),\r",
-									"            \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate4Alias\"),\r",
 									"            \"snmp_version\": \"1\",\r",
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
@@ -4357,7 +4357,7 @@
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
-									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 3,\r",
@@ -4792,7 +4792,7 @@
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate4Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate4Name\"),\r",
-									"            \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate4Alias\"),\r",
 									"            \"snmp_version\": \"1\",\r",
 									"            \"snmp_community\": null,\r",
 									"            \"timezone_id\": null,\r",
@@ -4834,7 +4834,7 @@
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
-									"            \"alias\": \"I'm the first host template created by admin\",\r",
+									"            \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"            \"snmp_version\": \"2c\",\r",
 									"            \"snmp_community\": \"snmpCommunity-test\",\r",
 									"            \"timezone_id\": 3,\r",
@@ -5094,7 +5094,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host-template-665\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -5243,7 +5243,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available host templates (2)",
+					"name": "Show available host templates",
 					"event": [
 						{
 							"listen": "test",

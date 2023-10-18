@@ -2323,7 +2323,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_S_Category_1\",\n    \"alias\":\"I'm a service category!\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\":\"{{ServiceCategory1Name}}\",\n    \"alias\":\"{{ServiceCategory1Alias}}\",\n    \"is_activated\": false\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -2378,8 +2378,8 @@
 									"            and.to.include({alias:\"Memory\"}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_1\"}).\r",
-									"            and.to.include({alias:\"I'm a service category!\"}).\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:pm.collectionVariables.get(\"ServiceCategory1Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory1Alias\")}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
 									"})"
@@ -2463,7 +2463,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Category_2\",\n\"alias\":\"Oh I'm your second category!\"\n}"
+							"raw": "{\n\"name\":\"{{ServiceCategory2Name}}\",\n\"alias\":\"{{ServiceCategory2Alias}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -2518,12 +2518,12 @@
 									"            and.to.include({alias:\"Memory\"}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_1\"}).\r",
-									"            and.to.include({alias:\"I'm a service category!\"}).\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:pm.collectionVariables.get(\"ServiceCategory1Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory1Alias\")}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_2\"}).\r",
-									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:pm.collectionVariables.get(\"ServiceCategory2Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory2Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
 									"})"
@@ -2819,7 +2819,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Catégory_3!\",\n\"alias\":\"Finally, a third successful category!\"\n}"
+							"raw": "{\n\"name\":\"{{ServiceCategory3Name}}\",\n\"alias\":\"{{ServiceCategory3Alias}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -2874,16 +2874,16 @@
 									"            and.to.include({alias:\"Memory\"}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_1\"}).\r",
-									"            and.to.include({alias:\"I'm a service category!\"}).\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:pm.collectionVariables.get(\"ServiceCategory1Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory1Alias\")}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_2\"}).\r",
-									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:pm.collectionVariables.get(\"ServiceCategory2Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory2Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
-									"    pm.expect(responseJson.result[6]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
-									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"    pm.expect(responseJson.result[6]).to.include({name:pm.collectionVariables.get(\"ServiceCategory3Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory3Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
 									"})"
@@ -3020,12 +3020,12 @@
 									"            and.to.include({alias:\"Memory\"}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_2\"}).\r",
-									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:pm.collectionVariables.get(\"ServiceCategory2Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory2Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
-									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
-									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:pm.collectionVariables.get(\"ServiceCategory3Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory3Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"    \r",
 									"})"
@@ -3240,7 +3240,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Category_4\",\n\"alias\":\"I'm the fourth successful category!\"\n}"
+							"raw": "{\n\"name\":\"{{ServiceCategory4Name}}\",\n\"alias\":\"{{ServiceCategory4Alias}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -3295,16 +3295,16 @@
 									"            and.to.include({alias:\"Memory\"}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Category_2\"}).\r",
-									"            and.to.include({alias:\"Oh I'm your second category!\"}).\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:pm.collectionVariables.get(\"ServiceCategory2Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory2Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
-									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
-									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:pm.collectionVariables.get(\"ServiceCategory3Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory3Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
-									"    pm.expect(responseJson.result[6]).to.include({name:\"Test_S_Category_4\"}).\r",
-									"            and.to.include({alias:\"I'm the fourth successful category!\"}).\r",
+									"    pm.expect(responseJson.result[6]).to.include({name:pm.collectionVariables.get(\"ServiceCategory4Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory4Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
 									"})"
@@ -3441,12 +3441,12 @@
 									"            and.to.include({alias:\"Memory\"}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
-									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:pm.collectionVariables.get(\"ServiceCategory3Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory3Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
-									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_4\"}).\r",
-									"            and.to.include({alias:\"I'm the fourth successful category!\"}).\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:pm.collectionVariables.get(\"ServiceCategory4Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory4Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
 									"})"
@@ -3913,7 +3913,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Category_5\",\n\"alias\":\"I'm the fifth successful category!\"\n}"
+							"raw": "{\n\"name\":\"{{ServiceCategory5Name}}\",\n\"alias\":\"{{ServiceCategory5Alias}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -3952,8 +3952,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
 									"    // Check the properties of each service category\r",
-									"    pm.expect(responseJson.result[0]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
-									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"ServiceCategory3Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory3Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"    \r",
 									"})"
@@ -4326,16 +4326,16 @@
 									"            and.to.include({alias:\"Memory\"}).\r",
 									"            and.to.include({is_activated:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[4]).to.include({name:\"Test_S_Catégory_3!\"}).\r",
-									"            and.to.include({alias:\"Finally, a third successful category!\"}).\r",
+									"    pm.expect(responseJson.result[4]).to.include({name:pm.collectionVariables.get(\"ServiceCategory3Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory3Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
-									"    pm.expect(responseJson.result[5]).to.include({name:\"Test_S_Category_4\"}).\r",
-									"            and.to.include({alias:\"I'm the fourth successful category!\"}).\r",
+									"    pm.expect(responseJson.result[5]).to.include({name:pm.collectionVariables.get(\"ServiceCategory4Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory4Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
-									"    pm.expect(responseJson.result[6]).to.include({name:\"Test_S_Category_5\"}).\r",
-									"            and.to.include({alias:\"I'm the fifth successful category!\"}).\r",
+									"    pm.expect(responseJson.result[6]).to.include({name:pm.collectionVariables.get(\"ServiceCategory5Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory5Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"\r",
 									"})"
@@ -4835,8 +4835,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
 									"    // Check the properties of each service category\r",
-									"    pm.expect(responseJson.result[0]).to.include({name:\"Test_S_Category_5\"}).\r",
-									"            and.to.include({alias:\"I'm the fifth successful category!\"}).\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"ServiceCategory5Name\")}).\r",
+									"            and.to.include({alias:pm.collectionVariables.get(\"ServiceCategory5Alias\")}).\r",
 									"            and.to.include({is_activated:true});\r",
 									"    \r",
 									"})"
