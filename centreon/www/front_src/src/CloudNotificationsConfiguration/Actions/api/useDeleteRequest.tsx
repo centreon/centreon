@@ -107,7 +107,7 @@ const useDeleteRequest = ({
         }
 
         showSuccessMessage(message || t(labelSuccess));
-        queryClient.invalidateQueries(['notifications']);
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
       })
       .finally(() => {
         onSettled();

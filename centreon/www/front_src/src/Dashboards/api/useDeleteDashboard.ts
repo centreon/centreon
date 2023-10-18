@@ -29,7 +29,7 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
-  } = useMutationQuery<Dashboard>({
+  } = useMutationQuery<Dashboard, { id }>({
     getEndpoint: ({ id }) => getDashboardEndpoint(id),
     method: Method.DELETE
   });

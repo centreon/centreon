@@ -33,7 +33,7 @@ const useUpdateAccessRightsContact = (): UseUpdateAccessRightsContact => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
-  } = useMutationQuery<DashboardAccessRightsContact>({
+  } = useMutationQuery<DashboardAccessRightsContact, { dashboardId; id }>({
     getEndpoint: ({ id, dashboardId }) =>
       getDashboardAccessRightsContactEndpoint(dashboardId, id),
     method: Method.PATCH,

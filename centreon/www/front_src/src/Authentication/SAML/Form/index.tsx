@@ -47,7 +47,7 @@ const SAMLForm = ({
   ): Promise<void> =>
     mutateAsync(adaptSAMLConfigurationToAPI(formikValues))
       .then(() => {
-        queryClient.invalidateQueries([Provider.SAML]);
+        queryClient.invalidateQueries({ queryKey: [Provider.SAML] });
         loadConfiguration();
         showSuccessMessage(t(labelSAMLConfigurationSaved));
       })

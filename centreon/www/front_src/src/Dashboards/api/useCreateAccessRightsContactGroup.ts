@@ -36,7 +36,7 @@ const useCreateAccessRightsContactGroup =
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       mutate: omittedMutate,
       ...mutationData
-    } = useMutationQuery<DashboardAccessRightsContactGroup>({
+    } = useMutationQuery<DashboardAccessRightsContactGroup, { dashboardId }>({
       decoder: dashboardAccessRightsContactGroupDecoder,
       getEndpoint: ({ dashboardId }) =>
         getDashboardAccessRightsContactGroupsEndpoint(dashboardId),

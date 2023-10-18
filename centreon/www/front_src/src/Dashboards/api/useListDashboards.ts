@@ -1,56 +1,29 @@
-import {
-  QueryKey,
-  UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
-import {
-  buildListingEndpoint,
-  ResponseError,
-  useFetchQuery
-} from '@centreon/ui';
+import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
 import { Dashboard, resource } from './models';
 import { dashboardsEndpoint } from './endpoints';
 import { dashboardListDecoder } from './decoders';
-import { List, ListQueryParams } from './meta.models';
+import { List } from './meta.models';
 
-type UseListDashboardProps<
-  TQueryFnData extends List<Dashboard> = List<Dashboard>,
-  TError = ResponseError,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
-> = {
-  options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'queryFn' | 'initialData'
-  >;
-  params: ListQueryParams;
+type UseListDashboards = {
+  data?: List<Dashboard>;
+  isLoading: boolean;
 };
 
-type UseListDashboards<
-  TError = ResponseError,
-  TData extends List<Dashboard> = List<Dashboard>
-> = UseQueryResult<TData | TError, TError>;
-
-const useListDashboards = (
-  props?: UseListDashboardProps
-): UseListDashboards => {
-  const { params } = props || {};
-
-  const { data, ...queryData } = useFetchQuery<List<Dashboard>>({
+const useListDashboards = (): UseListDashboards => {
+  const { data, isLoading } = useFetchQuery<List<Omit<Dashboard, 'refresh'>>>({
     decoder: dashboardListDecoder,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: dashboardsEndpoint,
-        parameters: { ...params }
+        parameters: {}
       }),
     getQueryKey: () => [resource.dashboards]
   });
 
   return {
-    ...queryData,
-    data
+    data,
+    isLoading
   };
 };
 

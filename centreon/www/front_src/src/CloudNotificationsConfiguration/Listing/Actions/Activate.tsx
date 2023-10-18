@@ -55,7 +55,7 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
 
         return;
       }
-      queryClient.invalidateQueries(['notifications']);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     });
   };
 

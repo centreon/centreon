@@ -137,7 +137,7 @@
     "@mui/icons-material": "5.x",
     "@mui/material": "5.x",
     "@mui/styles": "5.x",
-    "@tanstack/react-query": "4.x",
+    "@tanstack/react-query": "5.x",
     "axios": "0.x",
     "dayjs": "1.x",
     "formik": "2.x",

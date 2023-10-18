@@ -72,7 +72,7 @@ const useForm = (): UseFormState => {
         showSuccessMessage(t(labelMessage));
         setPanelOpen(false);
 
-        queryClient.invalidateQueries(['notifications']);
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
       })
       .finally(() => setSubmitting(false));
   };
