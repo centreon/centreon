@@ -2776,8 +2776,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"ServiceCategory3Name\", \"Test_S_Grôup_3!\");\r",
-									"pm.collectionVariables.set(\"ServiceCategory3Alias\", \"I want to break free !\");\r",
+									"pm.collectionVariables.set(\"ServiceGroup3Name\", \"Test_S_Grôup_3!\");\r",
+									"pm.collectionVariables.set(\"ServiceGroup3Alias\", \"I want to break free !\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -2794,7 +2794,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"{{ServiceCategory3Name}}\",\n\"alias\":\"{{ServiceCategory3Alias}}\",\n\"comment\":\"   \"\n}"
+							"raw": "{\n\"name\":\"{{ServiceGroup3Name}}\",\n\"alias\":\"{{ServiceGroup3Alias}}\",\n\"comment\":\"   \"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/groups",
@@ -5588,92 +5588,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Name",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Id",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Name",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Alias",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup4Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup4Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup4Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup5Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup5Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup5Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup1Id",
-			"value": ""
 		}
 	]
 }

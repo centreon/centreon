@@ -5906,47 +5906,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "CommandId",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Name",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Id",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Id",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Id",
-			"value": ""
-		}
 	]
 }

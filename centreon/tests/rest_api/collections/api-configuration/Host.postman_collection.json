@@ -10490,19 +10490,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "HostSeverity1Name",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Id",
-			"value": ""
-		}
 	]
 }

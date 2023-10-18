@@ -6402,55 +6402,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Name",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Id",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity4Name",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity4Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity4Id",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity5Name",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity5Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity5Id",
-			"value": ""
-		},
-		{
-			"key": "HostSeverityy4Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverityTotal",
-			"value": ""
-		}
 	]
 }

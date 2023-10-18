@@ -3103,7 +3103,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"HostCategory3Name\")}).\r",
 									"            and.to.include({alias:pm.collectionVariables.get(\"HostCategory3Alias\")}).\r",
-									"            and.to.include({is_activated:true}).\r",
+									"            and.to.include({is_activated:false}).\r",
 									"            and.to.include({comment:\"\"});\r",
 									"    \r",
 									"})"
@@ -3369,7 +3369,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"HostCategory3Name\")}).\r",
 									"            and.to.include({alias:pm.collectionVariables.get(\"HostCategory3Alias\")}).\r",
-									"            and.to.include({is_activated:true}).\r",
+									"            and.to.include({is_activated:false}).\r",
 									"            and.to.include({comment:\"\"});\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.include({name:pm.collectionVariables.get(\"HostCategory4Name\")}).\r",

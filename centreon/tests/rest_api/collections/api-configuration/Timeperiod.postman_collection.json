@@ -6005,27 +6005,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "timePeriod2Name",
-			"value": ""
-		},
-		{
-			"key": "timePeriod2Alias",
-			"value": ""
-		},
-		{
-			"key": "timePeriod2Id",
-			"value": ""
-		},
-		{
-			"key": "timePeriodName",
-			"value": ""
-		},
-		{
-			"key": "timePeriodAlias",
-			"value": ""
-		}
 	]
 }

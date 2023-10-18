@@ -10626,27 +10626,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "ServiceSeverity1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceSeverity1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceSeverity1Id",
-			"value": ""
-		},
-		{
-			"key": "Service5Name",
-			"value": ""
-		},
-		{
-			"key": "ACLResources",
-			"value": ""
-		}
 	]
 }

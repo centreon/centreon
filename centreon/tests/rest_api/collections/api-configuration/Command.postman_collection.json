@@ -3823,15 +3823,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "Command1Id",
-			"value": ""
-		}
 	]
 }

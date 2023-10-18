@@ -5494,47 +5494,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory4Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory4Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory4Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory5Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory5Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory5Id",
-			"value": ""
-		}
 	]
 }
