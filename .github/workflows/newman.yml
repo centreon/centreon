@@ -70,7 +70,19 @@ jobs:
 
         - name: Associate Test Cases with Test plan
           run: |
-            # Parsing et traitement des IDs de problème
+            xray_graphql_getTestPlan='{
+              "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
+              "variables": {
+                "issueId": "73215"
+              }
+            }'
+
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_getTestPlan}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+
+            echo "Response from Get Test Plan:"
+            echo "$response"
+
+            echo "Parsing and processing issue IDs:"
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
             summaries=()
 
@@ -97,15 +109,14 @@ jobs:
               collection_name=$(basename "$collection_file" .postman_collection.json)
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-              # Condition pour ajouter le test uniquement si le nom de la collection est dans les summaries
               if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
                 echo "The test case for $collection_name_sanitized already exists in the test plan."
               else
-                # Ajout du test case
+                # Adding a test case
                 response=$(curl --request POST \
                   --url 'https://centreon.atlassian.net/rest/api/2/issue' \
                   --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
-                  --header 'Accept: application.json' \
+                  --header 'Accept: application/json' \
                   --header 'Content-Type: application/json' \
                   --data '{
                     "fields": {
@@ -122,7 +133,7 @@ jobs:
                   --max-time 20)
 
                 sleep 5
-                # Vérification de la réponse
+                # Checking response
                 if [ -z "$response" ]; then
                   echo "Failed to create the test case within the specified time."
                 else
@@ -141,7 +152,7 @@ jobs:
                     "variables": {
                       "jira": {
                         "fields": {
-                          "summary": "Test Execution for '"$collection_name_sanitized"'",
+                          "summary": "Test Execution for newman collection testplan",
                           "project": { "key": "MON" }
                         }
                       }
@@ -156,20 +167,35 @@ jobs:
 
                   echo "Created Test Execution with ID: $test_execution_id"
 
-                  # Définition de la mutation GraphQL pour ajouter des exécutions de test à un test
+                  # Définissez la mutation GraphQL pour ajouter des exécutions de test à un test
                   xray_graphql_addTestExecutionsToTest='{
                     "query": "mutation AddTestExecutionsToTest($issueId: String!, $versionId: Int, $testExecIssueIds: [String]!) { addTestExecutionsToTest(issueId: $issueId, versionId: $versionId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
-                      "issueId": "'${test_case_id}'",
-                      "versionId": null,  # Remplacez par l'ID de version si nécessaire
-                      "testExecIssueIds": ["'${test_execution_id}'"]
+                      "issueId": "["'${test_case_id}'"]",
+                      "testExecIssueIds": ["'${test_execution_id}'"]  # Liste des ID des exécutions de test à associer
                     }
                   }'
 
-                  # Exécution de la mutation pour associer les exécutions de test au test
-                  response=$(curl -X POST -H "Content-Type: application.json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_addTestExecutionsToTest}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+                  # Exécutez la mutation pour associer les exécutions de test au test
+                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_addTestExecutionsToTest}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
                   echo "Response from Add Test Executions to Test:"
+                  echo "$response"
+
+                  # Définissez la mutation GraphQL pour ajouter des exécutions de test à un plan de test
+                  xray_graphql_addTestExecutionsToTestPlan='{
+                    "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
+                    "variables": {
+                      "issueId": "73215",  # ID du plan de test
+                      "testExecIssueIds": ["'${test_execution_id}'"]  # Liste des ID des exécutions de test à associer
+                    }
+                  }'
+
+                  # Exécutez la mutation pour associer les exécutions de test au plan de test
+                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_addTestExecutionsToTestPlan}" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+
+                  # Affichez la réponse
+                  echo "Response from Add Test Executions to Test Plan:"
                   echo "$response"
                 fi
               fi
