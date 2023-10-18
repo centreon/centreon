@@ -1,6 +1,7 @@
 import { equals, isNil } from 'ramda';
 
 import { ChannelsEnum, ResourcesTypeEnum } from '../models';
+import { labelIncludeServicesForTheseHosts } from '../translatedLabels';
 
 import { EmailIcon } from './FormInputs/Channel/Icons';
 import { EventsType } from './models';
@@ -13,6 +14,7 @@ const defaultEmailSubject =
   '{{NOTIFICATIONTYPE}} alert - {{NAME}} is {{STATE}}';
 
 const hostEvents = [EventsType.Up, EventsType.Down, EventsType.Unreachable];
+
 const serviceEvents = [
   EventsType.Ok,
   EventsType.Warning,
@@ -51,7 +53,17 @@ const formatMessages = ({ messages, messageType }): object => {
   };
 };
 
-const formatResource = ({ resources, resourceType }): object => {
+interface FormatResourceType {
+  resourceType;
+  resources;
+  t?;
+}
+
+const formatResource = ({
+  resources,
+  resourceType,
+  t
+}: FormatResourceType): object => {
   const resource = resources.find((elm) => equals(elm.type, resourceType));
   const events = equals(resourceType, ResourcesTypeEnum.HG)
     ? hostEvents
@@ -67,7 +79,7 @@ const formatResource = ({ resources, resourceType }): object => {
       ),
       includeServices: {
         checked: !isNil(resource?.extra),
-        label: 'Include services for these hosts'
+        label: t?.(labelIncludeServicesForTheseHosts)
       }
     }
   };
