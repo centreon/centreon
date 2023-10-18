@@ -2,18 +2,23 @@ import { ReactElement, useCallback, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { equals } from 'ramda';
+import { useQueryClient } from '@tanstack/react-query';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 import { Button } from '@centreon/ui/components';
 
-import { DashboardPanel } from '../../../api/models';
-import { formatPanel } from '../../hooks/useDashboardDetails';
+import { Dashboard, DashboardPanel } from '../../../api/models';
+import { formatPanel, getPanels } from '../../hooks/useDashboardDetails';
 import useDashboardDirty from '../../hooks/useDashboardDirty';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
-import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  switchPanelsEditionModeDerivedAtom
+} from '../../atoms';
 import {
   labelEditDashboard,
   labelCancel,
@@ -32,12 +37,16 @@ const DashboardEditActions = ({
 }: DashboardEditActionsProps): ReactElement => {
   const { classes } = useDashboardEditActionsStyles();
   const { t } = useTranslation();
+  const { dashboardId } = useParams();
+
+  const queryClient = useQueryClient();
 
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const isEditing = useAtomValue(isEditingAtom);
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
   );
+  const setDashboard = useSetAtom(dashboardAtom);
 
   const { saveDashboard } = useSaveDashboard();
 
@@ -66,6 +75,23 @@ const DashboardEditActions = ({
       setSearchParams(searchParams);
     }
   }, [searchParams, setSearchParams]);
+
+  const cancel = useCallback(() => {
+    stopEditing();
+
+    const dashboard = queryClient.getQueryData<Dashboard>([
+      'dashboard',
+      dashboardId
+    ]);
+    const basePanels = getPanels(dashboard);
+
+    setDashboard({
+      layout:
+        basePanels.map((panel) => formatPanel({ federatedWidgets, panel })) ||
+        []
+    });
+    queryClient.getQueryData(['dashboard', dashboardId]);
+  }, []);
 
   useEffect(() => {
     if (equals(searchParams.get('edit'), 'true')) {
@@ -104,7 +130,7 @@ const DashboardEditActions = ({
         data-testid="cancel_dashboard"
         size="small"
         variant="ghost"
-        onClick={stopEditing}
+        onClick={cancel}
       >
         {t(labelCancel)}
       </Button>
