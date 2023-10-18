@@ -186,10 +186,18 @@ jobs:
             collection_name=$(basename "$collection_file" .postman_collection.json)
             collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-            if [[ "$summary" == "$collection_name_sanitized" ]]; then
-              echo "Collection already exists in the test execution: $collection_name_sanitized"
-            else
-              # Adding test case
+            collection_already_exists=false
+
+            for summary in "${summaries[@]}"; do
+              if [[ "$summary" == "$collection_name_sanitized" ]]; then
+                echo "Collection already exists in the test execution: $collection_name_sanitized"
+                collection_already_exists=true
+                break  # Sortir de la boucle une fois qu'une correspondance a été trouvée
+              fi
+            done
+
+            if [ "$collection_already_exists" = false ]; then
+              # Ajout du test case
               response=$(curl --request POST \
                   --url 'https://centreon.atlassian.net/rest/api/2/issue' \
                   --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
@@ -208,19 +216,22 @@ jobs:
                       }
                   }' \
                   --max-time 20)
+
+              # Pause de 10 secondes
               sleep 10
 
-              # Check if the response is empty, indicating failure
+              # Vérification de la réponse
               if [ -z "$response" ]; then
                   echo "Failed to create the test case within the specified time."
               else
                   test_case_id=$(echo "$response" | jq -r '.id')
                   echo "Created test case: $collection_name_sanitized, Test Key: $test_case_id"
 
-                  # Adding the test case into test execution
+                  # Ajout du test case dans le test execution
                   test_case_id=$(echo "$test_case_id" | tr -cd '0-9')
                   echo "$test_case_id"
-                  # Use the GraphQL mutation to associate the test case with the test execution
+
+                  # Utilisation de la mutation GraphQL pour associer le test case avec le test execution
                   xray_graphql_mutation='{
                       "query": "mutation AddTestToTestExecution($issueId: String!, $testIssueIds: [String]) {addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                       "variables": {
@@ -232,6 +243,7 @@ jobs:
               fi
             fi
           done
+          }
 
     - name: Extract and Store Summaries
       if: failure()
