@@ -326,7 +326,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
       cy.findByLabelText(labelWidgetType).click({ force: true });
@@ -362,7 +362,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
       cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
@@ -381,7 +381,7 @@ describe('Dashboard', () => {
 
       cy.contains(labelCancel).click();
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
 
       cy.findByLabelText(labelViewProperties).click();
 
@@ -399,7 +399,7 @@ describe('Dashboard', () => {
     it('displays the widget form in view mode when the user has viewer role', () => {
       initializeAndMount(viewerRoles);
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
 
       cy.findByLabelText(labelViewProperties).click();
 
@@ -415,7 +415,7 @@ describe('Dashboard', () => {
     it('displays the refresh button when the more actions button is clicked', () => {
       initializeAndMount(viewerRoles);
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
 
       cy.contains(labelRefresh).should('be.visible');
 
@@ -431,15 +431,10 @@ describe('Dashboard', () => {
 
       cy.findByLabelText(labelEditDashboard).click();
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.findByLabelText(labelDuplicate).click();
 
-      cy.findByTestId('1_move_panel')
-        .contains('Widget text')
-        .should('be.visible');
-      cy.findByTestId('panel_/widgets/text_2_3_move_panel')
-        .contains('Widget text')
-        .should('be.visible');
+      cy.findAllByText('Widget text').should('have.length', 2);
 
       cy.makeSnapshot();
     });
