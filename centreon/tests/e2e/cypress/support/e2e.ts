@@ -2,7 +2,7 @@ import 'cypress-wait-until';
 import './commands';
 
 before(() => {
-  Cypress.config('baseUrl', 'http://127.0.0.1:4000');
+  Cypress.config('baseUrl', 'http://0.0.0.0:4000');
 
   cy.intercept('/waiting-page', {
     headers: { 'content-type': 'text/html' },

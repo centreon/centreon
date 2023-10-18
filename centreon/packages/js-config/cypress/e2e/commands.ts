@@ -270,7 +270,7 @@ Cypress.Commands.add(
         portBindings: [{ destination: 4000, source: 80 }]
       })
       .then(() => {
-        const baseUrl = 'http://127.0.0.1:4000';
+        const baseUrl = 'http://0.0.0.0:4000';
 
         Cypress.config('baseUrl', baseUrl);
 

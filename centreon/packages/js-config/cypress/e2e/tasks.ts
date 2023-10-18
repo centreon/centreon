@@ -70,7 +70,7 @@ export default (on: Cypress.PluginEvents): void => {
           PortBindings: portBindings.reduce((accumulator, currentValue) => {
             accumulator[`${currentValue.source}/tcp`] = [
               {
-                HostIP: '127.0.0.1',
+                HostIP: '0.0.0.0',
                 HostPort: `${currentValue.destination}`
               }
             ];
