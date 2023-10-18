@@ -5,6 +5,7 @@ import { execSync } from 'child_process';
 
 import { defineConfig } from 'cypress';
 import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
+import { config as configDotenv } from 'dotenv';
 
 import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
@@ -14,6 +15,7 @@ interface ConfigurationOptions {
   cypressFolder?: string;
   dockerName?: string;
   env?: Record<string, unknown>;
+  envFile?: string;
   isDevelopment?: boolean;
   specPattern: string;
 }
@@ -23,8 +25,13 @@ export default ({
   cypressFolder,
   isDevelopment,
   dockerName,
-  env
+  env,
+  envFile
 }: ConfigurationOptions): Cypress.ConfigOptions => {
+  if (envFile) {
+    configDotenv({ path: envFile });
+  }
+
   const resultsFolder = `${cypressFolder || 'cypress'}/results`;
 
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
@@ -51,7 +58,7 @@ export default ({
     },
     env: {
       ...env,
-      OPENID_IMAGE_VERSION: '23.10',
+      OPENID_IMAGE_VERSION: process.env.MAJOR_VERSION || '24.04',
       WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion,
       dockerName: dockerName || 'centreon-dev'
