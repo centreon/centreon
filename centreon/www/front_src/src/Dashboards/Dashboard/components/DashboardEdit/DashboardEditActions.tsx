@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { equals } from 'ramda';
-import { useQueryClient } from '@tanstack/react-query';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
@@ -40,6 +40,9 @@ const DashboardEditActions = ({
   const { dashboardId } = useParams();
 
   const queryClient = useQueryClient();
+  const isFetchingDashboard = useIsFetching({
+    queryKey: ['dashboard', dashboardId]
+  });
 
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const isEditing = useAtomValue(isEditingAtom);
@@ -112,6 +115,7 @@ const DashboardEditActions = ({
       <Button
         aria-label={t(labelEditDashboard) as string}
         data-testid="edit_dashboard"
+        disabled={!!isFetchingDashboard}
         icon={<EditOutlinedIcon />}
         iconVariant="start"
         size="small"

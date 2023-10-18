@@ -481,4 +481,22 @@ describe('Dashboard', () => {
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
   });
+
+  it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+    cy.contains(labelDeleteWidget).click();
+
+    cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
+
+    cy.findByLabelText(labelDelete).click();
+
+    cy.findByLabelText(labelCancel).click();
+
+    cy.contains('Widget text').should('be.visible');
+    cy.contains('Generic text').should('be.visible');
+  });
 });
