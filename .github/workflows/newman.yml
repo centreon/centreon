@@ -187,7 +187,7 @@ jobs:
                     "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
                       "issueId": "73215",  # ID du plan de test
-                      "testExecIssueIds": ["'${test_execution_id}'"]  # Liste des ID des exécutions de test à associer
+                      "testExecIssueIds": ["$test_execution_id"]  # Liste des ID des exécutions de test à associer
                     }
                   }'
 
