@@ -254,11 +254,6 @@ jobs:
           echo "${json_info[$key]}"
         done
 
-    - name: Export collection results to xray
-      if: failure()
-      run: |
-
-
 
     - name: Generate and Display Summaries
       if: failure()
