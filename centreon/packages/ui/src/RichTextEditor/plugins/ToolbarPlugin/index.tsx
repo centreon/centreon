@@ -9,6 +9,7 @@ import BlockButtons from './BlockButtons';
 import AlignPicker from './AlignPicker';
 
 interface Props {
+  className?: string;
   disabled: boolean;
   displayBlockButtons: boolean;
   displayMacrosButton?: boolean;
@@ -20,7 +21,6 @@ export const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'flex',
-    flexWrap: 'wrap',
     marginBottom: theme.spacing(1)
   },
   macros: {
@@ -37,12 +37,13 @@ const ToolbarPlugin = ({
   editable,
   displayMacrosButton,
   disabled,
-  displayBlockButtons
+  displayBlockButtons,
+  className
 }: Props): JSX.Element | null => {
-  const { classes } = useStyles();
+  const { cx, classes } = useStyles();
 
   return editable ? (
-    <div className={classes.container}>
+    <div className={cx(classes.container, className)}>
       <UndoRedoButtons disabled={disabled} />
       {displayBlockButtons && (
         <>
