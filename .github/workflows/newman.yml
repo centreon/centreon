@@ -172,7 +172,6 @@ jobs:
                     "query": "mutation AddTestExecutionsToTest($issueId: String!, $versionId: Int, $testExecIssueIds: [String]!) { addTestExecutionsToTest(issueId: $issueId, versionId: $versionId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
                       "issueId": "'$test_execution_id'",
-                      "versionId": 1,
                       "testExecIssueIds": ["'${test_case_id}'"]
                     }
                   }'
@@ -188,7 +187,7 @@ jobs:
                     "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
                     "variables": {
                       "issueId": "73215",
-                      "testExecIssueIds": ["'${test_execution_id}'"]
+                      "testExecIssueIds": ["$test_execution_id"]
                     }
                   }'
 
