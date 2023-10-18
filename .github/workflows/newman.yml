@@ -50,7 +50,6 @@ jobs:
 
   associate-test-cases:
             runs-on: ubuntu-22.04
-            needs: [newman-test-list]
             defaults:
               run:
                 shell: bash
