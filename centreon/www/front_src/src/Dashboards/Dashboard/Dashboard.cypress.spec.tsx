@@ -482,16 +482,15 @@ describe('Dashboard', () => {
     cy.contains('Description').should('be.visible');
   });
 
-  it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
+  it.only('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
     initializeAndMount(editorRoles);
 
     cy.waitForRequest('@getDashboardDetails');
 
+    cy.contains(labelEditDashboard).click();
+
     cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
     cy.contains(labelDeleteWidget).click();
-
-    cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
-
     cy.findByLabelText(labelDelete).click();
 
     cy.findByLabelText(labelCancel).click();

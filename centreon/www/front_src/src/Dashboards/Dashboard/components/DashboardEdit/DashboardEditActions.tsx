@@ -2,7 +2,7 @@ import { ReactElement, useCallback, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { equals } from 'ramda';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 
@@ -11,7 +11,11 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Button } from '@centreon/ui/components';
 
 import { Dashboard, DashboardPanel } from '../../../api/models';
-import { formatPanel, getPanels } from '../../hooks/useDashboardDetails';
+import {
+  formatPanel,
+  getPanels,
+  routerParams
+} from '../../hooks/useDashboardDetails';
 import useDashboardDirty from '../../hooks/useDashboardDirty';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import {
@@ -37,7 +41,7 @@ const DashboardEditActions = ({
 }: DashboardEditActionsProps): ReactElement => {
   const { classes } = useDashboardEditActionsStyles();
   const { t } = useTranslation();
-  const { dashboardId } = useParams();
+  const { dashboardId } = routerParams.useParams();
 
   const queryClient = useQueryClient();
   const isFetchingDashboard = useIsFetching({
