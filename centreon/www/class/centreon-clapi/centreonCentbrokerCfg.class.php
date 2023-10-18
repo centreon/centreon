@@ -391,6 +391,9 @@ class CentreonCentbrokerCfg extends CentreonObject
 
         $defaultValues = array();
         foreach ($fields as $field) {
+            if ($field['required'] === 0) {
+                continue;
+            }
             if (is_null($field['value'])) {
                 $field['value'] = $this->brokerObj->getDefaults($field['id']);
             }

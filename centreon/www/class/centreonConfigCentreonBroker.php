@@ -625,7 +625,7 @@ class CentreonConfigCentreonBroker
                         SELECT cb_type_id
                         FROM cb_type type
                         INNER JOIN cb_module_relation module_rel
-                                ON module_rel.cb_module_id = type.cb_module_id
+                            ON module_rel.cb_module_id = type.cb_module_id
                             AND module_rel.inherit_config = 1
                             AND type.cb_module_id IN (
                                 SELECT module_depend_id
@@ -636,7 +636,7 @@ class CentreonConfigCentreonBroker
                                     AND type2.cb_type_id = :type_id
                             )
                     )
-                           )
+               )
             LEFT JOIN cb_fieldgroup field_grp
                 ON field_grp.cb_fieldgroup_id = field.cb_fieldgroup_id
                 AND field_grp.multiple = 1
