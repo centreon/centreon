@@ -184,7 +184,7 @@ jobs:
                 xray_graphql_mutation_variables="$xray_graphql_mutation"  # Copier la requête initiale
 
                 for issue_id in "${issue_ids[@]}"; do
-                  issue_id_str="$(echo "$issue_id" | jq -n --arg issue_id "$issue_id" '$issue_id')"
+                  issue_id_str="$(echo "$issue_id" | sed 's/"//g')"
                   echo "Adding Issue ID: $issue_id_str"
                   xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg issue_id "$issue_id_str" '.variables.testIssueIds += [$issue_id]')
                 done
