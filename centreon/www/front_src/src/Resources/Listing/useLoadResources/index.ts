@@ -66,6 +66,7 @@ export interface LoadResources {
 
 const secondSortField = 'last_status_change';
 const defaultSecondSortCriteria = { [secondSortField]: SortOrder.desc };
+const user = useAtomValue(userAtom);
 
 const useLoadResources = (): LoadResources => {
   const { t } = useTranslation();
@@ -277,12 +278,11 @@ const useLoadResources = (): LoadResources => {
   };
 
   useEffect(() => {
-    const user = useAtomValue(userAtom);
     if(!user.is_admin){
       return ;
     }
     initAutorefresh();
-  }, [enabledAutorefresh, selectedResourceDetails?.resourceId]);
+  }, [user, enabledAutorefresh, selectedResourceDetails?.resourceId]);
 
   useEffect(() => {
     return (): void => {
