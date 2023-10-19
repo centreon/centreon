@@ -71,6 +71,9 @@ jobs:
       - name: Setup docker
         uses: ./.github/actions/setup-docker
 
+      - name: Setup chrome
+        uses: ./.github/actions/setup-chrome
+
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         uses: actions/cache@v3

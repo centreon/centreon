@@ -1,0 +1,62 @@
+name: "setup docker"
+description: "Install docker and docker-compose"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install chrome dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          wget \
+          libgtk2.0-0 \
+          libgtk-3-0 \
+          libgbm-dev \
+          libnotify-dev \
+          libgconf-2-4 \
+          libnss3 \
+          libxss1 \
+          libasound2 \
+          libxtst6 \
+          xauth \
+          xvfb \
+          xdg-utils \
+          libu2f-udev \
+          fonts-liberation \
+          libu2f-udev \
+          fonts-liberation xdg-utils
+      shell: bash
+
+    - name: Install chrome
+      run: |
+        sudo wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        sudo apt install -y ./google-chrome-stable_current_amd64.deb
+      shell: bash
+
+    - name: Install chromedriver
+      run: |
+        # Parse Google Chrome version
+        FULL_CHROME_VERSION=$(google-chrome --product-version)
+        CHROME_VERSION=${FULL_CHROME_VERSION%.*}
+        echo "Chrome version is $FULL_CHROME_VERSION"
+
+        # Get chrome versions information
+        CHROME_PLATFORM="linux64"
+        CHROME_VERSIONS_URL="https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build-with-downloads.json"
+        CHROME_VERSIONS_JSON=$(curl -fsSL "${CHROME_VERSIONS_URL}")
+
+        # Download and unpack the latest release of chromedriver
+        CHROMEDRIVER_VERSION=$(echo "${CHROME_VERSIONS_JSON}" | jq -r '.builds["'"$CHROME_VERSION"'"].version')
+        CHROMEDRIVER_URL=$(echo "${CHROME_VERSIONS_JSON}" | jq -r '.builds["'"$CHROME_VERSION"'"].downloads.chromedriver[] | select(.platform=="'"${CHROME_PLATFORM}"'").url')
+        CHROMEDRIVER_ARCHIVE="chromedriver_linux64.zip"
+        CHROMEDRIVER_DIR="/usr/local/share/chromedriver-linux64"
+        CHROMEDRIVER_BIN="$CHROMEDRIVER_DIR/chromedriver"
+
+        echo "Installing chromedriver version $CHROMEDRIVER_VERSION"
+        sudo wget $CHROMEDRIVER_URL -O $CHROMEDRIVER_ARCHIVE
+        sudo unzip $CHROMEDRIVER_ARCHIVE -d /usr/local/share
+
+        sudo chmod +x $CHROMEDRIVER_BIN
+        sudo ln -s "$CHROMEDRIVER_BIN" /usr/bin/
+        sudo echo "CHROMEWEBDRIVER=$CHROMEDRIVER_DIR" | sudo tee -a /etc/environment
+      shell: bash

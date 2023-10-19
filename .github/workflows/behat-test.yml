@@ -69,6 +69,10 @@ jobs:
       - name: Setup docker
         uses: ./.github/actions/setup-docker
 
+      - if: ${{ inputs.install_browser == true }}
+        name: Setup chrome
+        uses: ./.github/actions/setup-chrome
+
       - name: Login to registry
         uses: docker/login-action@v2
         with:
@@ -84,18 +88,6 @@ jobs:
         env:
           COMPOSER_TOKEN: ${{ secrets.composer_token }}
           runner: self-hosted
-
-      - if: ${{ inputs.install_browser == true }}
-        name: Install chrome dependencies
-        run: |
-          sudo apt-get update
-          wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_114.0.5735.198-1_amd64.deb
-          sudo apt-get install -y ./google-chrome-stable_114.0.5735.198-1_amd64.deb
-        shell: bash
-
-      - if: ${{ inputs.install_browser == true }}
-        name: Install chomedriver
-        uses: nanasess/setup-chromedriver@v1
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
         uses: actions/setup-node@v3
