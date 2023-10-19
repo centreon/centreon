@@ -166,7 +166,7 @@ jobs:
                 done
 
 
-                  xray_graphql_mutation='{
+                xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
                   "variables": {
                     "testIssueIds": [],
@@ -186,13 +186,21 @@ jobs:
                   xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
                 done
 
-                # Exécuter la mutation GraphQL pour créer une exécution de test
                 response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_mutation_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
 
-                # Extraction de l'ID de la nouvelle exécution de test
-                test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
+                  # Afficher la réponse pour le débogage
+                  echo "Response from Create Test Execution:"
+                  echo "$response"
 
-                echo "Created Test Execution with ID: $test_execution_id"
+                  # Extraction de l'ID de la nouvelle exécution de test
+                  test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
+
+                  # Vérifier si l'ID est null ou non
+                  if [ "$test_execution_id" == "null" ]; then
+                    echo "Failed to create the Test Execution. Check the response for errors."
+                  else
+                    echo "Created Test Execution with ID: $test_execution_id"
+                  fi
 
 
 
