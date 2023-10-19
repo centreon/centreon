@@ -152,8 +152,7 @@ jobs:
                 done
 
 
-
-                # Mutation GraphQL pour ajouter des tests au plan de test
+                # Construire la requête GraphQL initiale pour ajouter des tests au plan de test
                 xray_graphql_AddingTestsToTestPlan='{
                   "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                   "variables": {
@@ -163,6 +162,8 @@ jobs:
                 }'
 
                 # Parcourir la liste des IDs de cas de test et les ajouter à la variable
+                xray_graphql_AddingTestsToTestPlan_variables="$xray_graphql_AddingTestsToTestPlan"  # Copier la requête initiale
+
                 for test_case_id in "${test_case_ids[@]}"; do
                   xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan_variables" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
                 done
@@ -173,7 +174,6 @@ jobs:
                 # Afficher la réponse
                 echo "Response from Add Tests to Test Plan:"
                 echo "$response"
-
 
 
                 # # Mutation GraphQL pour créer une exécution de test
