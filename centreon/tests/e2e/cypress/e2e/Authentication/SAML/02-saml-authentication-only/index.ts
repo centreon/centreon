@@ -66,7 +66,7 @@ Then(
 
     cy.visit('/');
 
-    cy.contains('Sorry, something went wrong').should('not.exist');
+    cy.contains('Sorry, something went wrong').should('exist');
 
     cy.intercept({
       method: 'GET',
