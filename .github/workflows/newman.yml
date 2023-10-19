@@ -170,7 +170,7 @@ jobs:
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
                   "variables": {
-                    "testIssueIds": ,
+                    "testIssueIds": [],
                     "jira": {
                       "fields": {
                         "summary": "Test Execution for newman collection testplan",
@@ -190,9 +190,9 @@ jobs:
 
                   # Créez une chaîne JSON à partir du tableau issue_ids_json
                   issue_ids_json_str=$(jq -n --argjson issue_ids_json "$issue_ids_json" '$issue_ids_json')
+
                   # Affichez la chaîne JSON à des fins de débogage
                   echo "issue_ids_json_str : $issue_ids_json_str"
-
                   xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --argjson test_issue_ids "$issue_ids_json_str" '.variables.testIssueIds = $issue_ids_json_str')
                   response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_mutation_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
 
