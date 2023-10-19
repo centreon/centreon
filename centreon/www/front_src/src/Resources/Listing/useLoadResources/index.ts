@@ -22,7 +22,7 @@ import {
   getUrlQueryParameters,
   useRequest
 } from '@centreon/ui';
-import { refreshIntervalAtom } from '@centreon/ui-context';
+import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
 import {
@@ -277,6 +277,11 @@ const useLoadResources = (): LoadResources => {
   };
 
   useEffect(() => {
+    console.log("hh")
+    const user = useAtomValue(userAtom);
+    if(!user.is_admin){
+      return ;
+    }
     initAutorefresh();
   }, [enabledAutorefresh, selectedResourceDetails?.resourceId]);
 
