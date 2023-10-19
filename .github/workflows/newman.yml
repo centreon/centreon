@@ -151,12 +151,19 @@ jobs:
                   fi
                 done
 
+                # Créez un tableau JSON à partir des ID de cas de test
+                test_case_ids_json=()
+                for id in "${test_case_ids[@]}"; do
+                  test_case_ids_json+=("$id")
+                done
+
+
                 # Mutation GraphQL pour ajouter des tests au plan de test
                 xray_graphql_AddingTestsToTestPlan='{
                   "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                   "variables": {
                     "issueId": "73215",
-                    "testIssueIds": ["'${test_case_ids[@]}'"]
+                    "testIssueIds": '"$(echo "${test_case_ids_json[@]}" | jq -R . | jq -s .)"'
                   }
                 }'
 
@@ -166,7 +173,7 @@ jobs:
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
                   "variables": {
-                    "testIssueIds": ["'${test_case_ids[@]}'"],
+                    "testIssueIds": '"$(echo "${test_case_ids_json[@]}" | jq -R . | jq -s .)"'
                     "testEnvironments": ["Test Environment 1", "Test Environment 2"],
                     "jira": {
                       "fields": {
@@ -190,7 +197,7 @@ jobs:
                   "query": "mutation AddTestsToTestExecution($issueId: String!, $testIssueIds: [String]) { addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                   "variables": {
                     "issueId": "'$test_execution_id'",
-                    "testIssueIds": ["'${test_case_ids[@]}'"]
+                    "testIssueIds": '"$(echo "${test_case_ids_json[@]}" | jq -R . | jq -s .)"'
                   }
                 }'
 
