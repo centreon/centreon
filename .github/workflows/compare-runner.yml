@@ -40,6 +40,8 @@ jobs:
 
       - name: docker version
         run: |
+          set -x
+
           repo_url="https://download.docker.com/linux/ubuntu"
           gpg_key="/usr/share/keyrings/docker.gpg"
           repo_path="/etc/apt/sources.list.d/docker.list"
