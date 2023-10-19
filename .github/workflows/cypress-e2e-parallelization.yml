@@ -190,7 +190,8 @@ jobs:
       - name: Determine testPlanKey
         id: determine-testplan-key
         run: |
-          stability="${{ needs.get-version.outputs.stability }}"
+          # stability="${{ needs.get-version.outputs.stability }}"
+          stability="unstable"
           major_version="${{ needs.get-version.outputs.major_version }}"
 
           echo "stability of this branch is $stability"
