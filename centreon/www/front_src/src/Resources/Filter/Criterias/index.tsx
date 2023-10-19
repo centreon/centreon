@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { SetStateAction, useAtomValue, useSetAtom } from 'jotai';
 import { isNil, pipe, reject, sortBy } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -35,7 +35,8 @@ import SaveActions from './SaveActions';
 import {
   CriteriaDisplayProps,
   Criteria as CriteriaModel,
-  PopoverData
+  PopoverData,
+  SearchDataPropsCriterias
 } from './models';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
@@ -56,9 +57,13 @@ const useStyles = makeStyles<Styles>()((theme, { display }) => ({
 
 interface Props {
   display?: boolean;
+  searchData: SearchDataPropsCriterias;
 }
 
-const CriteriasContent = ({ display = false }: Props): JSX.Element => {
+const CriteriasContent = ({
+  display = false,
+  searchData
+}: Props): JSX.Element => {
   const { classes } = useStyles({ display });
   const { t } = useTranslation();
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
@@ -176,6 +181,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
                 }
                 data={{
                   newSelectableCriterias,
+                  searchData,
                   selectableCriterias: getSelectableCriterias()
                 }}
               />
@@ -193,7 +199,11 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   );
 };
 
-const Criterias = (): JSX.Element => {
+interface Props {
+  searchData: SearchDataPropsCriterias;
+}
+
+const Criterias = ({ searchData }: Props): JSX.Element => {
   const filterWithParsedSearch = useAtomValue(
     filterWithParsedSearchDerivedAtom
   );
@@ -202,8 +212,14 @@ const Criterias = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterAtom);
 
   return useMemoComponent({
-    Component: <CriteriasContent display={display} />,
-    memoProps: [filterWithParsedSearch, display, customFilters, currentFilter]
+    Component: <CriteriasContent display={display} searchData={searchData} />,
+    memoProps: [
+      filterWithParsedSearch,
+      display,
+      customFilters,
+      currentFilter,
+      searchData.search
+    ]
   });
 };
 

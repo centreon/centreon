@@ -319,3 +319,8 @@ export interface PopoverData {
   anchorEl: HTMLElement | undefined;
   setAnchorEl: Dispatch<SetStateAction<HTMLElement | undefined>>;
 }
+
+export interface SearchDataPropsCriterias {
+  search: string;
+  setSearch;
+}

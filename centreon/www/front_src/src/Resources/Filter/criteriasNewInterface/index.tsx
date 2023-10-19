@@ -52,7 +52,11 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   const setDisplayInformationFilter = useSetAtom(displayInformationFilterAtom);
 
-  const { newSelectableCriterias: buildCriterias, selectableCriterias } = data;
+  const {
+    newSelectableCriterias: buildCriterias,
+    selectableCriterias,
+    searchData
+  } = data;
 
   const changeCriteria = ({
     updatedValue,
@@ -153,6 +157,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
             <SectionWrapper
               basicData={basicData}
               changeCriteria={changeCriteria}
+              searchData={searchData}
             />
           }
           state={

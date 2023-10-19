@@ -59,11 +59,18 @@ const useSearchWihSearchDataCriteria = ({
             const result = getFoundFields({ fields: [field], value: search });
             const formattedResult = `${result[0].field}:${result[0].value}`;
 
+            const valuesInSearchInput = result[0].value?.split(',');
+            const updatedValues = Array.from(
+              new Set([...valuesInSearchInput, ...content])
+            );
+
+            const newTarget = `${field}:${updatedValues.join(',')}`;
+
             const newSearch = updatedSearch || search;
 
             return {
               ...accumulator,
-              updatedSearch: newSearch?.replace(formattedResult, target)
+              updatedSearch: newSearch?.replace(formattedResult, newTarget)
             };
           }
 

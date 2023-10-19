@@ -10,7 +10,8 @@ import Section from './Section';
 
 const SectionWrapper = ({
   basicData,
-  changeCriteria
+  changeCriteria,
+  searchData
 }: MemoizedChild): JSX.Element => {
   const { classes } = useStyles();
   const sectionsType = Object.values(SectionType);
@@ -31,6 +32,7 @@ const SectionWrapper = ({
               <MemoizedSelectInput
                 basicData={basicData}
                 changeCriteria={changeCriteria}
+                searchData={searchData}
                 sectionType={sectionType}
               />
             }

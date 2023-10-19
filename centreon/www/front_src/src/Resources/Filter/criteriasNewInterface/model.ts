@@ -16,7 +16,8 @@ import {
   CriteriaById,
   CriteriaDisplayProps,
   CriteriaNames,
-  SearchData
+  SearchData,
+  SearchDataPropsCriterias
 } from '../Criterias/models';
 
 export enum BasicCriteria {
@@ -96,6 +97,7 @@ export interface DataByCategoryFilter {
 
 export interface Data {
   newSelectableCriterias: CriteriaById;
+  searchData: SearchDataPropsCriterias;
   selectableCriterias: Array<Criteria>;
 }
 
@@ -108,9 +110,11 @@ export interface ChangedCriteriaParams {
 export interface MemoizedChild {
   basicData: Array<Criteria & CriteriaDisplayProps>;
   changeCriteria: (data: ChangedCriteriaParams) => void;
+  searchData?: SearchDataPropsCriterias;
 }
 
 export interface MemoizedChildSectionWrapper extends MemoizedChild {
+  searchData?: SearchDataPropsCriterias;
   sectionType: SectionType;
 }
 

@@ -7,7 +7,8 @@ import SelectInput from '../SelectInput';
 const MemoizedSelectInput = ({
   sectionType,
   basicData,
-  changeCriteria
+  changeCriteria,
+  searchData
 }: MemoizedChildSectionWrapper): JSX.Element => {
   return useMemoComponent({
     Component: (
@@ -16,13 +17,15 @@ const MemoizedSelectInput = ({
         data={basicData}
         filterName={BasicCriteria.resourceTypes}
         resourceType={sectionType}
+        searchData={searchData}
       />
     ),
     memoProps: [
       findData({ data: basicData, filterName: BasicCriteria.resourceTypes })
         ?.value,
       findData({ data: basicData, filterName: BasicCriteria.resourceTypes })
-        ?.search_data?.values
+        ?.search_data?.values,
+      searchData?.search
     ]
   });
 };
