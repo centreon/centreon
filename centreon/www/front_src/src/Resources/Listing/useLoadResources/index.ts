@@ -277,7 +277,6 @@ const useLoadResources = (): LoadResources => {
   };
 
   useEffect(() => {
-    console.log("hh")
     const user = useAtomValue(userAtom);
     if(!user.is_admin){
       return ;
