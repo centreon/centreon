@@ -135,14 +135,14 @@ jobs:
                           }
                         }
                       }' \
-                      --max-time 70)
+                      )
 
-                    sleep 5
 
-                    # Vérifier la réponse
+                      # Vérifier la réponse
                       test_case_id=$(echo "$response" | jq -r '.id')
                       test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
                       echo "Created Test Case with ID: $test_case_id"
+                      sleep 5
 
 
                 done
