@@ -166,8 +166,8 @@ jobs:
                 done
 
                 test_issue_ids=("${issue_ids[@]}")
-                formatted_test_issue_ids_str=$(jq -n --argjson items "${test_issue_ids[*]}" '$items')
-
+                formatted_test_issue_ids_str="[$(IFS=,; echo "${issue_ids[*]}")]" # Formatage initial avec virgule finale
+                formatted_test_issue_ids_str=$(echo "$formatted_test_issue_ids_str" | sed 's/,$//') # Supprime la virgule finale
 
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
