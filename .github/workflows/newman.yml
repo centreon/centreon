@@ -121,7 +121,7 @@ jobs:
                     response=$(curl --request POST \
                       --url 'https://centreon.atlassian.net/rest/api/2/issue' \
                       --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
-                      --header 'Accept: application json' \
+                      --header 'Accept: application/json' \
                       --header 'Content-Type: application/json' \
                       --data '{
                         "fields": {
@@ -135,16 +135,20 @@ jobs:
                           }
                         }
                       }' \
-                      )
+                      --max-time 20)
 
+                    sleep 5
 
-                      # Vérifier la réponse
+                    # Vérifier la réponse
+                    if [ -z "$response" ]; then
+                      echo "Failed to create the test case within the specified time."
+                    else
                       test_case_id=$(echo "$response" | jq -r '.id')
                       test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
+
                       echo "Created Test Case with ID: $test_case_id"
-                      sleep 5
-
-
+                    fi
+                  fi
                 done
 
                 # Mutation GraphQL pour ajouter des tests au plan de test
