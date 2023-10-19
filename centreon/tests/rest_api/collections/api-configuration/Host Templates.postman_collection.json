@@ -2489,9 +2489,15 @@
 							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
+							"raw": "{{baseUriCentreonCLAPI}}?sort_by={\"id\":\"DESC\"}",
 							"host": [
 								"{{baseUriCentreonCLAPI}}"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
 							]
 						}
 					},

@@ -3089,9 +3089,15 @@
 							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
+							"raw": "{{baseUriCentreonCLAPI}}?sort_by={\"id\":\"DESC\"}",
 							"host": [
 								"{{baseUriCentreonCLAPI}}"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"DESC\"}"
+								}
 							]
 						}
 					},
@@ -10916,6 +10922,116 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "HostTotal",
+			"value": ""
+		},
+		{
+			"key": "HostGroupTotal",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "Host1Name",
+			"value": ""
+		},
+		{
+			"key": "Host1Alias",
+			"value": ""
+		},
+		{
+			"key": "Host3Name",
+			"value": ""
+		},
+		{
+			"key": "Host3Alias",
+			"value": ""
+		},
+		{
+			"key": "Host4Name",
+			"value": ""
+		},
+		{
+			"key": "Host4Alias",
+			"value": ""
+		},
+		{
+			"key": "Host5Name",
+			"value": ""
+		},
+		{
+			"key": "Host5Alias",
+			"value": ""
+		},
+		{
+			"key": "Host6Name",
+			"value": ""
+		},
+		{
+			"key": "Host6Alias",
+			"value": ""
+		},
+		{
+			"key": "Host7Name",
+			"value": ""
+		},
+		{
+			"key": "Host7Alias",
+			"value": ""
+		},
+		{
+			"key": "ACLResources",
+			"value": ""
 		}
 	]
 }
