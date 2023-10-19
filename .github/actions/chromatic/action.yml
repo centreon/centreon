@@ -13,9 +13,6 @@ inputs:
   pat:
     description: "The Github PAT"
     required: true
-  ignoreLastBuildOnBranch:
-    required: false
-    default: false
   autoAcceptChanges:
     required: false
     default: false
