@@ -183,6 +183,7 @@ jobs:
                 xray_graphql_mutation_variables="$xray_graphql_mutation"  # Copier la requête initiale
 
                 for test_case_id in "${test_case_ids[@]}"; do
+                 echo "Adding Test Case ID: $test_case_id"  # Ajout de cet écho de débogage
                   xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
                 done
                 echo "Test Case IDs: ${test_case_ids[@]}"
