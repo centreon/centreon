@@ -66,6 +66,9 @@ jobs:
 
           docker-compose -v
 
+          sudo systemctl stop docker.service
+          sudo systemctl start docker.service
+
           docker info
         shell: bash
 
