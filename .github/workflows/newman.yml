@@ -153,7 +153,7 @@ jobs:
 
 
 
-                # Mutation GraphQL pour ajouter des tests au plan de test
+                # Définir la mutation GraphQL pour ajouter des tests au plan de test
                 xray_graphql_AddingTestsToTestPlan='{
                   "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                   "variables": {
@@ -164,8 +164,13 @@ jobs:
 
                 # Parcourir la liste des IDs de cas de test et les ajouter à la mutation
                 for test_case_id in "${test_case_ids[@]}"; do
-                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan_variables" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
                 done
+
+                # Exécuter la mutation GraphQL pour ajouter les tests au plan de test
+                curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql"
+
+                # Le reste de votre code pour créer une exécution de test et ajouter des exécutions de test au plan de test
 
 
                 # Exécuter la mutation GraphQL pour ajouter les tests au plan de test
