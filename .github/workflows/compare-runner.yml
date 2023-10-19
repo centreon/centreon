@@ -11,6 +11,7 @@ jobs:
   test-pull:
 
     strategy:
+      fail-fast: false
       matrix:
         runner_type: ["ubuntu-22.04", "common"]
 
@@ -39,11 +40,14 @@ jobs:
 
       - name: docker version
         run: |
-          sudo apt list --installed | grep docker
           docker -v
+
           sudo apt-get update
-          sudo apt-get install -y docker
+          sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
+          sudo systemctl restart docker.service
+
           ls /etc/apt/sources.list.d
+
           docker -v
         shell: bash
 
