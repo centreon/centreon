@@ -2513,7 +2513,7 @@
 									"    pm.response.to.have.status(200);",
 									"",
 									"    var response = pm.response.json();",
-									"    pm.collectionVariables.set(\"CommandId\", response.result[0].id);",
+									"    pm.collectionVariables.set(\"CommandId\", response.result[response.result.length-1].id);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2546,15 +2546,9 @@
 							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}?sort_by={\"id\":\"DESC\"}",
+							"raw": "{{baseUriCentreonCLAPI}}",
 							"host": [
 								"{{baseUriCentreonCLAPI}}"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
-								}
 							]
 						}
 					},
