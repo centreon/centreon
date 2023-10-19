@@ -66,6 +66,7 @@ jobs:
 
           docker-compose -v
 
+          ps aux
           sudo systemctl stop docker.service
           sudo systemctl start docker.service
 
