@@ -28,12 +28,13 @@ runs:
       shell: bash
 
     - name: Restart docker daemon
+      continue-on-error: true
       run: |
         docker info
 
         sudo pkill dockerd || true
         sudo rm -f /var/run/docker.pid || true
-        sudo bash -c "/usr/bin/dockerd > /dev/null 2>&1" || true
+        sudo bash -c "/usr/bin/dockerd & > /dev/null 2>&1" || true
 
         docker info
       shell: bash
