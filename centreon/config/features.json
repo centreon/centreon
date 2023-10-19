@@ -1,6 +1,6 @@
 {
   "notification" : 2,
-  "dashboard": 0,
+  "dashboard": 3,
   "vault": 0,
   "ad_exclusion_periods": 0,
   "resource_status_tree_view": 3,

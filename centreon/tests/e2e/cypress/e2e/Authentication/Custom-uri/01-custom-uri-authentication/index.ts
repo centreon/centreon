@@ -20,6 +20,10 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
+    url: '/monitor/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+  cy.intercept({
+    method: 'GET',
     url: '/monitor/include/common/userTimezone.php'
   }).as('getTimeZone');
   cy.intercept({
@@ -48,6 +52,8 @@ Then('I can authenticate to the centreon platform', () => {
 Then(
   'the resource icons are displayed in configuration and monitoring pages',
   () => {
+    cy.wait('@getLastestUserFilters');
+
     cy.getByLabel({ label: 'State filter' }).click();
 
     cy.get('[data-value="all"]').click();
