@@ -166,8 +166,13 @@ jobs:
                 done
 
                 test_issue_ids=("${issue_ids[@]}")
-                formatted_test_issue_ids_str="[$(IFS=,; echo "${issue_ids[*]}")]" # Formatage initial avec virgule finale
-                formatted_test_issue_ids_str=$(echo "$formatted_test_issue_ids_str" | sed 's/,$//') # Supprime la virgule finale
+                formatted_test_issue_ids_str="["
+                for issue_id in "${issue_ids[@]}"; do
+                  formatted_test_issue_ids_str+="\"$issue_id\","
+                done
+                formatted_test_issue_ids_str="${formatted_test_issue_ids_str%,}" # Supprime la dernière virgule
+                formatted_test_issue_ids_str+="]"
+                echo "$formatted_test_issue_ids_str"
 
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
