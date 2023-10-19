@@ -151,11 +151,6 @@ jobs:
                   fi
                 done
 
-                # Créez un tableau JSON à partir des ID de cas de test
-                test_case_ids_json=()
-                for id in "${test_case_ids[@]}"; do
-                  test_case_ids_json+=("$id")
-                done
 
 
                 # Mutation GraphQL pour ajouter des tests au plan de test
@@ -163,17 +158,24 @@ jobs:
                   "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                   "variables": {
                     "issueId": "73215",
-                    "testIssueIds": '"$(echo "${test_case_ids_json[@]}" | jq -R . | jq -s .)"'
+                    "testIssueIds": []
                   }
                 }'
 
-                curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_AddingTestsToTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql"
+                # Parcourir la liste des IDs de cas de test et les ajouter à la mutation
+                for test_case_id in "${test_case_ids[@]}"; do
+                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+                done
+
+
+                # Exécuter la mutation GraphQL pour ajouter les tests au plan de test
+                curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql"
 
                 # Mutation GraphQL pour créer une exécution de test
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
                   "variables": {
-                    "testIssueIds": '"$(echo "${test_case_ids_json[@]}" | jq -R . | jq -s .)"'
+                    "testIssueIds": ["'${test_case_ids[@]}'"],
                     "testEnvironments": ["Test Environment 1", "Test Environment 2"],
                     "jira": {
                       "fields": {
@@ -197,7 +199,7 @@ jobs:
                   "query": "mutation AddTestsToTestExecution($issueId: String!, $testIssueIds: [String]) { addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
                   "variables": {
                     "issueId": "'$test_execution_id'",
-                    "testIssueIds": '"$(echo "${test_case_ids_json[@]}" | jq -R . | jq -s .)"'
+                    "testIssueIds": ["'${test_case_ids[@]}'"]
                   }
                 }'
 
