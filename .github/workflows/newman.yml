@@ -171,6 +171,7 @@ jobs:
                 for issue_id in "${test_issue_ids[@]}"; do
                   formatted_test_issue_ids+=("\"$issue_id\"")
                 done
+                formatted_test_issue_ids_str="[$(IFS=,; echo "${formatted_test_issue_ids[*]}")]"
 
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
