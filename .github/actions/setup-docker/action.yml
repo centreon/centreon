@@ -33,7 +33,7 @@ runs:
 
         sudo pkill dockerd || true
         sudo rm -f /var/run/docker.pid || true
-        sudo /usr/bin/dockerd & || true
+        sudo sh -c "/usr/bin/dockerd &" || true
 
         docker info
       shell: bash
