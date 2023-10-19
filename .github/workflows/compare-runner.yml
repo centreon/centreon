@@ -46,7 +46,7 @@ jobs:
           gpg_key="/usr/share/keyrings/docker.gpg"
           repo_path="/etc/apt/sources.list.d/docker.list"
           sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o $gpg_key
-          sudo sh -c 'echo "deb [arch=amd64 signed-by=$gpg_key] $repo_url $(lsb_release -cs) stable" > $repo_path'
+          sudo echo "deb [arch=amd64 signed-by=$gpg_key] $repo_url $(lsb_release -cs) stable" | sudo tee $repo_path'
 
           ls /etc/apt/sources.list.d
 
