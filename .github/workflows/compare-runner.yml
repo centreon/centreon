@@ -68,7 +68,7 @@ jobs:
 
           sudo pkill dockerd
           sudo rm -f /var/run/docker.pid
-          sudo /usr/bin/dockerd
+          sudo /usr/bin/dockerd &
 
           docker info
         shell: bash
