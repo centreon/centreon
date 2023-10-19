@@ -1,0 +1,48 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Graph template ID"
+    example: 1
+  name:
+    type: string
+    description: "Graph template name"
+    example: "CPU"
+  verticalAxisLabel:
+    type: string
+    description: "Graph vertical axis label"
+    example: "some axis label"
+  width:
+    type: integer
+    description: "OK"
+    example: 120
+  height:
+    type: integer
+    description: "OK"
+    example: 120
+  base:
+    type: integer
+    description: "Indicates the graph base value: 1000 or 1024"
+    example: 1024
+  gridLowerLimit:
+    type: float
+    nullable: true
+    description: "Lower limit of the grid"
+    example: 115
+  gridUpperLimit:
+    type: float
+    nullable: true
+    description: "Upper limit of the grid"
+    example: 115
+  isUpperLimitSizedToMax:
+    type: bool
+    description: "Set the upper limit of the grid to the maximum value"
+    example: false
+  isGraphScaled:
+    type: bool
+    description: "Enable auto scale of the graph"
+    example: true
+  isDefaultCentreonTemplate:
+    type: bool
+    description: "Set template as default template"
+    example: false
