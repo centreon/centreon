@@ -66,6 +66,8 @@ Then(
 
     cy.visit('/');
 
+    cy.contains('Sorry, something went wrong').should('not.exist');
+
     cy.intercept({
       method: 'GET',
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
