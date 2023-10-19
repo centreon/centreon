@@ -165,14 +165,11 @@ jobs:
                   fi
                 done
 
-                echo "issue_ids: ${issue_ids[@]}"
-                issue_ids_json_str=$(IFS=, ; echo "${issue_ids[*]}")
-                issue_ids_json_str="\"$issue_ids_json_str\""
-                issue_ids_json_str=$(echo "$issue_ids_json_str" | sed 's/,/","/g')
+
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
                   "variables": {
-                    "testIssueIds":['$issue_ids_json_str'] ,
+                    "testIssueIds":["'${issue_ids[@]}'"'] ,
                     "jira": {
                       "fields": {
                         "summary": "Test Execution for newman collection testplan",
