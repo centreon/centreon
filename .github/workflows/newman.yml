@@ -175,13 +175,13 @@ jobs:
             echo "$formatted_test_issue_ids_str"
 
             xray_graphql_mutation='{
-              "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
+              "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } warnings createdTestEnvironments } }",
               "variables": {
                 "testIssueIds": '"$formatted_test_issue_ids_str"',
                 "jira": {
                   "fields": {
                     "summary": "Test Execution for newman collection testplan",
-                    "project": { key: "MON" }
+                    "project": { "key": "MON" }
                   }
                 }
               }
