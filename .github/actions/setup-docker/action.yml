@@ -29,13 +29,11 @@ runs:
 
     - name: Restart docker daemon
       run: |
-        sleep 60
-
         docker info
 
-        sudo pkill dockerd
-        sudo rm -f /var/run/docker.pid
-        sudo /usr/bin/dockerd &
+        sudo pkill dockerd || true
+        sudo rm -f /var/run/docker.pid || true
+        sudo /usr/bin/dockerd & || true
 
         docker info
       shell: bash

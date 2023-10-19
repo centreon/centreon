@@ -55,9 +55,6 @@ runs:
         retry_on: error
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
-    - name: Setup docker
-      uses: ./.github/actions/setup-docker
-
     - name: Install browser dependencies
       run: |
         sudo apt-get update
