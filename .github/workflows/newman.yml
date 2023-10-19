@@ -182,20 +182,30 @@ jobs:
                   xray_graphql_mutation_variables="$xray_graphql_mutation"
 
 
+                  xray_graphql_mutation_variables="$xray_graphql_mutation"
 
+                  # Créer un tableau pour stocker les IDs des problèmes au format JSON
+                  issue_ids_json=()
+
+                  # Parcourir les IDs de problème et les ajouter au tableau
                   for issue_id in "${issue_ids[@]}"; do
                     issue_ids_json+=("\"$issue_id\"")
                   done
 
-                  xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --argjson test_issue_ids "[$(IFS=, ; echo "${issue_ids_json[*]}")]" '.variables.testIssueIds = $test_issue_ids')
+                  # Formater le tableau en une chaîne JSON
+                  issue_ids_json_str="[\"${issue_ids[*]// /\",\"}\"]"
 
+                  # Mettre à jour la requête GraphQL avec les testIssueIds correctement formatés
+                  xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg test_issue_ids "$issue_ids_json_str" '.variables.testIssueIds = $test_issue_ids')
+
+                  # Envoyer la requête GraphQL
                   response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_mutation_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
 
                   # Afficher la réponse pour le débogage
                   echo "Response from Create Test Execution:"
                   echo "$response"
 
-                  # Extraction de l'ID de la nouvelle exécution de test
+                  # Extraire l'ID de la nouvelle exécution de test
                   test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
 
                   # Vérifier si l'ID est null ou non
