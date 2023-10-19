@@ -166,12 +166,16 @@ jobs:
                 done
 
                 test_issue_ids=("${issue_ids[@]}")
-                formatted_test_issue_ids_str="[\"${test_issue_ids[*]// /\",\"}\"]"
+                # Formater le tableau en JSON avec des guillemets et des virgules
+                formatted_test_issue_ids_str="[$(IFS=,; printf "\"%s\"," "${test_issue_ids[@]}")]"
+
+                # Supprimer la virgule finale s'il y en a une
+                formatted_test_issue_ids_str="${formatted_test_issue_ids_str%,}]"
+
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
                   "variables": {
                     "testIssueIds": '"$formatted_test_issue_ids_str"',
-                    ,
                     "jira": {
                       "fields": {
                         "summary": "Test Execution for newman collection testplan",
