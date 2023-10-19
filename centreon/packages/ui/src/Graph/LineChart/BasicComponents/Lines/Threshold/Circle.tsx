@@ -1,7 +1,7 @@
 import { Shape } from '@visx/visx';
 import { isEmpty, isNil } from 'ramda';
 
-import { Circle } from './models';
+import { Circle as CircleModel } from './models';
 import useCoordinateCircle from './useCoordinateCircle';
 
 const Circle = ({
@@ -11,7 +11,7 @@ const Circle = ({
   timeSeries,
   getX,
   getCountDisplayedCircles
-}: Circle): JSX.Element | null => {
+}: CircleModel): JSX.Element | null => {
   const coordinates = useCoordinateCircle({
     getCountDisplayedCircles,
     getX,

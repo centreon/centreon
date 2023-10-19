@@ -7,9 +7,13 @@ const { merge } = require('webpack-merge');
 
 const getBaseConfiguration = require('./packages/js-config/webpack/base');
 
-module.exports = (jscTransformConfiguration) =>
+module.exports = (jscTransformConfiguration, enableCoverage = false) =>
   merge(
-    getBaseConfiguration({ jscTransformConfiguration, moduleName: 'centreon' }),
+    getBaseConfiguration({
+      enableCoverage,
+      jscTransformConfiguration,
+      moduleName: 'centreon'
+    }),
     {
       entry: ['./www/front_src/src/index.tsx'],
       output: {

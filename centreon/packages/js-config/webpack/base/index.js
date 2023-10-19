@@ -13,10 +13,11 @@ const {
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
-  jscTransformConfiguration
+  jscTransformConfiguration,
+  enableCoverage
 }) => ({
   cache,
-  module: getModuleConfiguration(jscTransformConfiguration),
+  module: getModuleConfiguration(jscTransformConfiguration, enableCoverage),
   optimization,
   output,
   plugins: [

@@ -2,7 +2,7 @@ import { Shape } from '@visx/visx';
 
 import { grey } from '@mui/material/colors';
 
-import { GuidingLines } from './models';
+import { GuidingLines as GuidingLinesModel } from './models';
 import useTickGraph from './useTickGraph';
 
 const GuidingLines = ({
@@ -10,7 +10,7 @@ const GuidingLines = ({
   xScale,
   graphHeight,
   graphWidth
-}: GuidingLines): JSX.Element | null => {
+}: GuidingLinesModel): JSX.Element | null => {
   const { positionX, positionY } = useTickGraph({
     timeSeries,
     xScale

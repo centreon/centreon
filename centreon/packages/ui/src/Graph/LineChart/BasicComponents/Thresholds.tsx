@@ -2,7 +2,7 @@ import { equals, isNil } from 'ramda';
 
 import { getUnits, getYScale } from '../../common/timeSeries';
 import { Line } from '../../common/timeSeries/models';
-import { Thresholds } from '../../common/models';
+import { Thresholds as ThresholdsModel } from '../../common/models';
 
 import { ThresholdLine } from './ThresholdLine';
 
@@ -13,7 +13,7 @@ interface Props {
   rightScale: (value: number) => number;
   showTooltip: (props) => void;
   thresholdUnit?: string;
-  thresholds: Thresholds;
+  thresholds: ThresholdsModel;
   width: number;
 }
 
