@@ -66,8 +66,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - run: sleep 60
-
       - name: Setup docker
         uses: ./.github/actions/setup-docker
 

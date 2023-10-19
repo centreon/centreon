@@ -29,6 +29,8 @@ runs:
 
     - name: Restart docker daemon
       run: |
+        sleep 60
+
         sudo pkill dockerd
         sudo rm -f /var/run/docker.pid
         sudo /usr/bin/dockerd &
