@@ -15,7 +15,11 @@ runs:
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 
-        docker -v
+        sudo pkill dockerd
+        sudo rm -f /var/run/docker.pid
+        sudo /usr/bin/dockerd &
+
+        docker info
       shell: bash
 
     - name: Install docker-compose
