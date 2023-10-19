@@ -153,7 +153,6 @@
 											"const hostGroup = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
 											"const HostGroupTotal = pm.collectionVariables.get(\"HostGroupTotal\");\r",
 											"\r",
-											"console.log(hostGroup.length);\r",
 											"if (hostGroup.length > 0) {\r",
 											"    postman.setNextRequest(\"Deletion of all host groups\");\r",
 											"} else {\r",
@@ -214,7 +213,7 @@
 											"console.log(hostGroup.length);\r",
 											"if (hostGroup.length > 0) {\r",
 											"    postman.setNextRequest(\"Deletion of all host groups\");\r",
-											"} else if (HostTotal > 0) {\r",
+											"} else if (HostGroupTotal > 0) {\r",
 											"    postman.setNextRequest(\"Check if there are any host groups left to delete\");\r",
 											"}\r",
 											"else {\r",
@@ -2642,6 +2641,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
 									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup2Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",

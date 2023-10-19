@@ -426,7 +426,7 @@
 											"console.log(hostGroup.length);\r",
 											"if (hostGroup.length > 0) {\r",
 											"    postman.setNextRequest(\"Deletion of all host groups\");\r",
-											"} else if (HostTotal > 0) {\r",
+											"} else if (HostGroupTotal > 0) {\r",
 											"    postman.setNextRequest(\"Check if there are any host groups left to delete\");\r",
 											"}\r",
 											"else {\r",
