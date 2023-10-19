@@ -65,6 +65,8 @@ jobs:
           sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
           docker-compose -v
+
+          docker info
         shell: bash
 
       - name: network settings
