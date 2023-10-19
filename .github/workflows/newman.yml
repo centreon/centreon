@@ -181,13 +181,14 @@ jobs:
                 }'
                   xray_graphql_mutation_variables="$xray_graphql_mutation"
 
-                  issue_ids_json_str=$(IFS=, ; echo "${issue_ids[*]}")
-                  issue_ids_json_str="\"$issue_ids_json_str\""
-                  issue_ids_json_str=$(echo "$issue_ids_json_str" | sed 's/,/","/g')
+                  # Créer un tableau JSON pour testIssueIds
+                  issue_ids_json=()
+                  for issue_id in "${issue_ids[@]}"; do
+                    issue_ids_json+=("$issue_id")
+                  done
 
-                  echo "Contenu de issue_ids_json_str : $issue_ids_json_str"
-
-                  xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg  test_issue_ids "$issue_ids_json_str" '.variables.testIssueIds = $[test_issue_ids]')
+                  # Créer la requête GraphQL avec le tableau JSON
+                  xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --argjson test_issue_ids '["'${issue_ids_json[*]}'"]' '.variables.testIssueIds = $test_issue_ids')
                   sleep 2
                   echo "Content of xray_graphql_mutation: $xray_graphql_mutation_variables"
                   # Envoyer la requête GraphQL
