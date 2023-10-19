@@ -163,7 +163,7 @@ jobs:
                 }'
 
                 # Parcourir la liste des IDs de cas de test et les ajouter à la mutation
-                for test_case_id in "${test_case_ids[@]}"; do
+                for test_case_id in "'${test_case_ids[@]}'"; do
                   xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan_variables" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
                 done
 
