@@ -80,8 +80,10 @@ runs:
         CHROMEDRIVER_BIN="$CHROMEDRIVER_DIR/chromedriver"
 
         echo "Installing chromedriver version $CHROMEDRIVER_VERSION"
-        sudo wget $CHROMEDRIVER_URL -o /tmp/$CHROMEDRIVER_ARCHIVE
-        sudo unzip -qq /tmp/$CHROMEDRIVER_ARCHIVE -d /usr/local/share
+        echo $CHROMEDRIVER_URL
+        sudo wget $CHROMEDRIVER_URL -o $CHROMEDRIVER_ARCHIVE
+        ls
+        sudo unzip $CHROMEDRIVER_ARCHIVE -d /usr/local/share
 
         sudo chmod +x $CHROMEDRIVER_BIN
         sudo ln -s "$CHROMEDRIVER_BIN" /usr/bin/
