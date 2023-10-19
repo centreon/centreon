@@ -190,7 +190,6 @@ jobs:
               }",
               "variables": {
                 "testIssueIds": '"$formatted_test_issue_ids_str"',
-                "testEnvironments": ["android"],  // Remplacez par vos environnements de test
                 "jira": {
                   "fields": {
                     "summary": "Test Execution for newman collection testplan",
