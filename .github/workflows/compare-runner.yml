@@ -67,6 +67,7 @@ jobs:
           docker-compose -v
 
           sudo pkill dockerd
+          sudo rm -f /var/run/docker.pid
           sudo /usr/bin/dockerd &
 
           docker info
