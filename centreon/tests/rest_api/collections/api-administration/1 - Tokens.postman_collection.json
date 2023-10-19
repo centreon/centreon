@@ -1821,7 +1821,7 @@
 									"\r",
 									"    // Check the properties of each token\r",
 									"    pm.expect(responseJson.result[0]).to.include({name:\"my-first-token-by-admin-for-admin\"}).\r",
-									"            and.to.include({expiration_date:\"2025-12-31T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"2025-12-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"\r",
 									"    pm.expect(responseJson.result[0].user).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
@@ -1831,7 +1831,7 @@
 									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.include({name:\"my-second-token-by-admin-for-user-with-menu\"}).\r",
-									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"\r",
 									"    pm.expect(responseJson.result[1].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Id\"))}).\r",
@@ -2126,7 +2126,7 @@
 									"\r",
 									"    // Check the properties of each token\r",
 									"    pm.expect(responseJson.result[0]).to.include({name:\"my-second-token-by-admin-for-user-with-menu\"}).\r",
-									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"    \r",
 									"    pm.expect(responseJson.result[0].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Id\"))}).\r",
@@ -2136,7 +2136,7 @@
 									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")})\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.include({name:\"my-third-token-by-user-menu-for-user-menu\"}).\r",
-									"            and.to.include({expiration_date:\"3051-06-02T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"3051-06-02T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"    \r",
 									"    pm.expect(responseJson.result[1].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Id\"))}).\r",
@@ -2300,7 +2300,7 @@
 									"\r",
 									"    // Check the properties of each token\r",
 									"    pm.expect(responseJson.result[0]).to.include({name:\"my-second-token-by-admin-for-user-with-menu\"}).\r",
-									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"    \r",
 									"    pm.expect(responseJson.result[0].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Id\"))}).\r",
@@ -2926,7 +2926,7 @@
 									"\r",
 									"    // Check the properties of each token\r",
 									"    pm.expect(responseJson.result[0]).to.include({name:\"my-first-token-by-admin-for-admin\"}).\r",
-									"            and.to.include({expiration_date:\"2025-12-31T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"2025-12-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"\r",
 									"    pm.expect(responseJson.result[0].user).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
@@ -2936,7 +2936,7 @@
 									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.include({name:\"my-second-token-by-admin-for-user-with-menu\"}).\r",
-									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"\r",
 									"    pm.expect(responseJson.result[1].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Id\"))}).\r",
@@ -2946,7 +2946,7 @@
 									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.include({name:\"my-fourth-token-by-user-menu-action-for-user-menu-action\"}).\r",
-									"            and.to.include({expiration_date:\"2024-08-31T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"2024-08-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"    \r",
 									"    pm.expect(responseJson.result[2].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\"))}).\r",
@@ -2956,7 +2956,7 @@
 									"            and.to.include({name:pm.collectionVariables.get(\"User_Menu_Action_Name\")});\r",
 									"\r",
 									"    pm.expect(responseJson.result[3]).to.include({name:\"my-fifth-token-by-user-menu-action-for-admin\"}).\r",
-									"            and.to.include({expiration_date:\"9999-12-02T00:00:00+00:00\"}).\r",
+									"            and.to.include({expiration_date:\"9999-12-02T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"\r",
 									"    pm.expect(responseJson.result[3].user).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
@@ -3341,6 +3341,18 @@
 		},
 		{
 			"key": "Token1Name",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_menu_action",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_menu_action",
+			"value": ""
+		},
+		{
+			"key": "Token2Name",
 			"value": ""
 		}
 	]

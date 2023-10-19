@@ -210,7 +210,6 @@
 											"const hostGroup = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
 											"const HostGroupTotal = pm.collectionVariables.get(\"HostGroupTotal\");\r",
 											"\r",
-											"console.log(hostGroup.length);\r",
 											"if (hostGroup.length > 0) {\r",
 											"    postman.setNextRequest(\"Deletion of all host groups\");\r",
 											"} else if (HostGroupTotal > 0) {\r",
@@ -2574,8 +2573,6 @@
 									"/*\r",
 									"/  Check body content\r",
 									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
 									"pm.test(\"The host group retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
 									"    // Check the number of host groups (1)\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
@@ -2641,9 +2638,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"\r",
 									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup2Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
@@ -2680,7 +2674,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup2Name}}\",\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup2Name}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
