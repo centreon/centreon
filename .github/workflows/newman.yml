@@ -100,6 +100,7 @@ jobs:
 
                   if [ "$(echo "$response" | jq -r '.errorMessages[0]')" == "Issue does not exist or you do not have permission to see it." ]; then
                     echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                    break  ;
                   else
                     echo "The issue with ID $issue_id exists."
                     summaries+=("$summary")
@@ -164,6 +165,27 @@ jobs:
                   fi
                 done
 
+
+                  xray_graphql_mutation='{
+                  "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
+                  "variables": {
+                    "testIssueIds": [],
+                    "testEnvironments": ["Test Environment 1", "Test Environment 2"],
+                    "jira": {
+                      "fields": {
+                        "summary": "Test Execution for newman collection testplan",
+                        "project": { "key": "MON" }
+                      }
+                    }
+                  }
+                }'
+
+                # Parcourir la liste des IDs de cas de test et les ajouter à la variable
+                xray_graphql_mutation_variables="$xray_graphql_mutation"  # Copier la requête initiale
+
+                for test_case_id in "${test_case_ids[@]}"; do
+                  xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+                done
 
                 # Exécuter la mutation GraphQL pour créer une exécution de test
                 response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_mutation_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
