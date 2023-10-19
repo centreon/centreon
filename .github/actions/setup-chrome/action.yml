@@ -1,5 +1,5 @@
-name: "setup docker"
-description: "Install docker and docker-compose"
+name: "setup chrome"
+description: "Install chrome and chromedriver"
 
 runs:
   using: "composite"
