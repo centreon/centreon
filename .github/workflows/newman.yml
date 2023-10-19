@@ -170,7 +170,6 @@ jobs:
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
                   "variables": {
                     "testIssueIds": [],
-                    "testEnvironments": ["Test Environment 1", "Test Environment 2"],
                     "jira": {
                       "fields": {
                         "summary": "Test Execution for newman collection testplan",
