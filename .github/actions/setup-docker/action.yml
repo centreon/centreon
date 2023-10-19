@@ -31,6 +31,8 @@ runs:
       run: |
         sleep 60
 
+        docker info
+
         sudo pkill dockerd
         sudo rm -f /var/run/docker.pid
         sudo /usr/bin/dockerd &
