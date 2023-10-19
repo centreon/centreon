@@ -38,7 +38,11 @@ jobs:
         shell: bash
 
       - name: docker version
-        run: docker -v
+        run: |
+          docker -v
+          sudo apt-get update
+          sudo apt-get install -y docker
+        shell: bash
 
       - name: network settings
         run: |
