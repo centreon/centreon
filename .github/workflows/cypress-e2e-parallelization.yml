@@ -158,8 +158,7 @@ jobs:
           retention-days: 1
 
   import-reports-to-xray:
-    # needs: [cypress-e2e-test-run,get-version]
-    needs: [cypress-e2e-test-run]
+    needs: [cypress-e2e-test-run,get-version]
     if: always()
     runs-on: ubuntu-22.04
     steps:
