@@ -185,6 +185,7 @@ jobs:
 
                 for issue_id in "${issue_ids[@]}"; do
                   issue_id_str="$issue_id"  # Convertir l'ID du problème en chaîne
+                  issue_id_str="\"$issue_id_str\""  # Encadrer l'ID du problème avec des guillemets
                   echo "Adding Issue ID: $issue_id_str"
                   xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg issue_id "$issue_id_str" '.variables.testIssueIds += [$issue_id]')
                 done
