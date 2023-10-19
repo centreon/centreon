@@ -1,6 +1,6 @@
 const axios = require("axios");
 const fs = require("fs");
-const FormData = require('form-data');
+const FormData = require("form-data");
 
 const JIRA_USER = process.env.JIRA_USER;
 const JIRA_TOKEN_TEST = process.env.JIRA_TOKEN_TEST;
@@ -11,7 +11,7 @@ const XRAY_API_URL =
   "https://xray.cloud.getxray.app/api/v2/import/feature?projectKey=MON";
 const GRAPHQL_URL = "https://xray.cloud.getxray.app/api/v2/graphql";
 
-async function get_xray_token(clientId, clientSecret) {
+async function getXrayToken(clientId, clientSecret) {
   const data = { client_id: clientId, client_secret: clientSecret };
   try {
     const response = await axios.post(
@@ -22,19 +22,20 @@ async function get_xray_token(clientId, clientSecret) {
       }
     );
 
-    if (response.status === 200) {
-      const token = response.headers["x-access-token"];
-      if (token) {
-        console.log("Authentication successful");
-        return token;
-      } else {
-        console.log(
-          "Authentication failed. Token not found in the response headers."
-        );
-      }
-    } else {
+    if (response.status !== 200) {
       console.log(`Authentication failed with status code: ${response.status}`);
+      return;
     }
+
+    const token = response.headers["x-access-token"];
+    if (!token) {
+      console.log(
+        "Authentication failed. Token not found in the response headers."
+      );
+      return;
+    }
+    console.log("Authentication successful");
+    return token;
   } catch (error) {
     console.log("Authentication failed");
     console.error(error);
@@ -42,20 +43,20 @@ async function get_xray_token(clientId, clientSecret) {
   return null;
 }
 
-function get_target_version(version_number) {
-  const target_version = `OnPrem - ${version_number}`;
-  console.log(`Target Versions: ${target_version}`);
-  return [target_version];
+function getTargetVersion(version_number) {
+  const targetVersion = `OnPrem - ${version_number}`;
+  console.log(`Target Versions: ${targetVersion}`);
+  return [targetVersion];
 }
 
-async function extract_data_from_feature_file(file_path) {
+async function extractDataFromFeatureFile(file_path) {
   try {
     const feature_file_content = fs.readFileSync(file_path, "utf-8");
     const match = feature_file_content.match(/#testSet:(.*?)$/ms);
 
     if (match) {
-      const test_set_key = match[1].trim();
-      return test_set_key;
+      const testSetKey = match[1].trim();
+      return testSetKey;
     }
   } catch (error) {
     console.log(`Error reading feature file: ${error}`);
@@ -63,15 +64,15 @@ async function extract_data_from_feature_file(file_path) {
   return null;
 }
 
-async function get_jira_issue_id(test_set_key) {
-  if (!test_set_key) {
+async function getJiraIssueId(testSetKey) {
+  if (!testSetKey) {
     console.log("No Test Set Indicated");
     return null;
   }
 
   try {
     const response = await axios.get(
-      `https://centreon.atlassian.net/rest/api/2/issue/${test_set_key}`,
+      `https://centreon.atlassian.net/rest/api/2/issue/${testSetKey}`,
       {
         headers: {
           Accept: "application/json",
@@ -83,15 +84,16 @@ async function get_jira_issue_id(test_set_key) {
       }
     );
 
-    if (response.status === 200) {
-      console.log(`The ID of the testSet is: ${response.data.id}`);
-      return response.data.id;
-    } else {
+    if (response.status !== 200) {
       console.log(
         `Jira API Request Failed with Status Code: ${response.status}`
       );
       console.log(response.data);
+      return;
     }
+
+    console.log(`The ID of the testSet is: ${response.data.id}`);
+    return response.data.id;
   } catch (error) {
     console.log(`Error fetching Jira issue: ${error}`);
   }
@@ -99,10 +101,10 @@ async function get_jira_issue_id(test_set_key) {
   return null;
 }
 
-async function upload_feature_file_to_xray(feature_file_path, XRAY_TOKEN) {
+async function uploadFeatureFileToXray(featureFilePath, XRAY_TOKEN) {
   try {
     const formData = new FormData();
-    formData.append("file", fs.createReadStream(feature_file_path));
+    formData.append("file", fs.createReadStream(featureFilePath));
 
     const response = await axios.post(XRAY_API_URL, formData, {
       headers: {
@@ -110,12 +112,16 @@ async function upload_feature_file_to_xray(feature_file_path, XRAY_TOKEN) {
         Authorization: `Bearer ${XRAY_TOKEN}`,
       },
     });
-
-    if (response.status === 200) {
-      console.log("Feature file uploaded successfully to Xray.");
+    if (response.status !== 200) {
+      console.log(
+        `Feature File Upload to Xray Failed with Status Code: ${response.status}`
+      );
       console.log(response.data);
-      return response.data;
+      return;
     }
+    console.log("Feature file uploaded successfully to Xray.");
+    console.log(response.data);
+    return response.data;
   } catch (error) {
     console.log(`Error uploading feature file to Xray: ${error}`);
   }
@@ -123,12 +129,8 @@ async function upload_feature_file_to_xray(feature_file_path, XRAY_TOKEN) {
   return null;
 }
 
-async function update_jira_issues(
-  test_selfs,
-  target_versions,
-  components_list
-) {
-  for (const api of test_selfs) {
+async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
+  for (const api of testSelfs) {
     try {
       // Get the existing issue data
       const response = await axios.get(api, {
@@ -141,65 +143,71 @@ async function update_jira_issues(
         },
       });
 
-      if (response.status === 200) {
-        const existing_issue_data = response.data;
-        const existing_customfield_10901 =
-          existing_issue_data.fields.customfield_10901 || [];
-
-        // Extract the existing values or initialize as an empty list if null
-        const existing_values = existing_customfield_10901
-          ? existing_customfield_10901.map((item) => item.value)
-          : [];
-        console.log("Existing values of version: ", existing_values);
-
-        for (const target_version of target_versions) {
-          if (!existing_values.includes(target_version)) {
-            existing_values.push(target_version);
-          }
-        }
-        console.log("the new target versions are: ", existing_values);
-
-        const issue_update_payload = {
-          fields: {
-            customfield_10901: existing_values.map((value) => ({
-              value: value,
-            })),
-          },
-        };
+      if (response.status !== 200) {
         console.log(
-          "the issue update for",
-          api,
-          " is : ",
-          JSON.stringify(issue_update_payload)
+          `Jira Issue Update Failed with Status Code: ${response.status}`
         );
+        console.log(response.data);
+        return;
+      }
 
-        if (components_list) {
-          issue_update_payload.fields.components = components_list.map(
-            (component) => ({ name: component })
-          );
-        } else {
-          console.log("No component mentioned");
-        }
+      const existingIssueData = response.data;
+      const existingCustomField10901 =
+        existingIssueData.fields.customfield_10901 || [];
+      const existingValues = existingCustomField10901
+        ? existingCustomField10901.map((item) => item.value)
+        : [];
 
-        const jira_response = await axios.put(api, issue_update_payload, {
-          headers: {
-            Accept: "application/json",
-          },
-          auth: {
-            username: JIRA_USER,
-            password: JIRA_TOKEN_TEST,
-          },
-        });
+      console.log("Existing values of version: ", existingValues);
 
-        if (jira_response.status === 204) {
-          console.log(`Issue ${api} updated successfully in Jira.`);
-        } else {
-          console.log(
-            `Error updating issue ${api} in Jira. Status code: ${jira_response.status}`
-          );
-          console.log(jira_response.data);
+      for (const targetVersion of targetVersions) {
+        if (!existingValues.includes(targetVersion)) {
+          existingValues.push(targetVersion);
         }
       }
+      console.log("the new target versions are: ", existingValues);
+
+      const issueUpdatePayload = {
+        fields: {
+          customfield_10901: existingValues.map((value) => ({
+            value: value,
+          })),
+        },
+      };
+      console.log(
+        "the issue update for",
+        api,
+        " is : ",
+        JSON.stringify(issueUpdatePayload)
+      );
+
+      if (componentsList) {
+        issueUpdatePayload.fields.components = componentsList.map(
+          (component) => ({ name: component })
+        );
+      } else {
+        console.log("No component mentioned");
+      }
+
+      const jira_response = await axios.put(api, issueUpdatePayload, {
+        headers: {
+          Accept: "application/json",
+        },
+        auth: {
+          username: JIRA_USER,
+          password: JIRA_TOKEN_TEST,
+        },
+      });
+
+      if (jira_response.status !== 204) {
+        console.log(
+          `Error updating issue ${api} in Jira. Status code: ${jira_response.status}`
+        );
+        console.log(jira_response.data);
+        return;
+      }
+
+      console.log(`Issue ${api} updated successfully in Jira.`);
     } catch (error) {
       console.log(`Error updating Jira issue: ${error}`);
     }
@@ -223,96 +231,89 @@ async function main() {
     `Running script for ${FEATURE_FILE_PATH} on branch ${branch_name}`
   );
 
-  const XRAY_TOKEN = await get_xray_token(CLIENT_ID, CLIENT_SECRET);
+  const XRAY_TOKEN = await getXrayToken(CLIENT_ID, CLIENT_SECRET);
 
-  // Upload the feature file to Xray
-  const response_data = await upload_feature_file_to_xray(
+  const responseData = await uploadFeatureFileToXray(
     FEATURE_FILE_PATH,
     XRAY_TOKEN
   );
-  console.log("response data", response_data);
+  if (!responseData) {
+    return;
+  }
 
-  // Set the target version based on the version_number
-  const target_versions =
+  const targetVersions =
     branch_name === "develop"
-      ? get_target_version(version_number).concat("Cloud")
-      : get_target_version(version_number);
+      ? getTargetVersion(version_number).concat("Cloud")
+      : getTargetVersion(version_number);
 
-  const test_set_key = await extract_data_from_feature_file(FEATURE_FILE_PATH);
+  const testSelfs = responseData.updatedOrCreatedTests?.map(
+    (test) => test.self
+  );
 
-  // Uploading the feature file to Xray succeed
-  if (response_data) {
-    // Getting the API and the Ids of the created issues ( tests )
-    const test_selfs = response_data.updatedOrCreatedTests?.map(
-      (test) => test.self
-    );
-    const test_ids = response_data.updatedOrCreatedTests?.map(
-      (test) => test.id
-    );
+  // Updating the Issues to match the target version and components
+  // For now we have only centreon-web
+  await updateJiraIssues(testSelfs, targetVersions, ["centreon-web"]);
 
-    // Updating the Issues to match the target version and components
-    // For now we have only centreon-web
-    await update_jira_issues(test_selfs, target_versions, ["centreon-web"]);
+  const testSetKey = await extractDataFromFeatureFile(FEATURE_FILE_PATH);
+  if (!testSetKey) {
+    console.log("No test set mentioned");
+    return;
+  }
 
-    if (test_set_key) {
-      console.log("Adding tests to the testSet: ", test_set_key);
-      const test_set_id = await get_jira_issue_id(test_set_key);
-      if (test_set_id) {
-        const variables = {
-          test_set_id: test_set_id,
-          test_ids: test_ids,
-        };
+  console.log("Adding tests to the testSet: ", testSetKey);
 
-        const headers = {
-          Authorization: `Bearer ${XRAY_TOKEN}`,
-          "Content-Type": "application/json",
-        };
+  const testSetId = await getJiraIssueId(testSetKey);
+  if (!testSetId) {
+    console.log(`No test set found having this key: ${testSetKey}`);
+    return;
+  }
 
-        const graphql_request = {
-          query: `
-                        mutation AddTestsToTestSet ($test_set_id: String!, $test_ids: [String!]!) {
-                            addTestsToTestSet(
-                                issueId: $test_set_id,
-                                testIssueIds: $test_ids
-                            ) {
-                                addedTests
-                                warning
-                            }
-                        }
-                    `,
-          variables: variables,
-        };
+  const testIds = responseData.updatedOrCreatedTests?.map((test) => test.id);
+  const variables = {
+    testSetId: testSetId,
+    testIds: testIds,
+  };
 
-        await axios
-          .post(GRAPHQL_URL, graphql_request, {
-            headers: headers,
-          })
-          .then((response) => {
-            if (response.status === 200) {
-              console.log("Response Data:");
-              console.log(JSON.stringify(response.data, null, 2));
-            } else {
-              console.log(
-                `GraphQL Request Failed with Status Code: ${response.status}`
-              );
-              console.log("Error Data:");
-              console.log(JSON.stringify(response.data, null, 2));
+  const headers = {
+    Authorization: `Bearer ${XRAY_TOKEN}`,
+    "Content-Type": "application/json",
+  };
+
+  const graphql_request = {
+    query: `
+          mutation AddTestsToTestSet ($testSetId: String!, $testIds: [String!]!) {
+            addTestsToTestSet(
+                issueId: $testSetId,
+                testIssueIds: $testIds
+            ) {
+                addedTests
+                warning
+              }
             }
-          })
-          .catch((error) => {
-            console.log(`GraphQL Request Failed: ${error}`);
-          });
-      } else {
-        console.log(`No test set found having this key : ${test_set_key}`);
+          `,
+    variables: variables,
+  };
+
+  await axios
+    .post(GRAPHQL_URL, graphql_request, {
+      headers: headers,
+    })
+    .then((response) => {
+      if (response.status !== 200) {
+        console.log(
+          `GraphQL Request Failed with Status Code: ${response.status}`
+        );
+        console.log("Error Data:");
+        console.log(JSON.stringify(response.data, null, 2));
+        return;
       }
-    } else {
-      console.log("No test set mentioned");
-    }
-  }
-  // Uploading the feature file to Xray failed
-  else {
-    console.log("Upload feature file to Xray Failed !");
-  }
+
+      console.log("Response Data:");
+      console.log(JSON.stringify(response.data, null, 2));
+    })
+    .catch((error) => {
+      console.log(`GraphQL Request Failed: ${error}`);
+    });
 }
 
 if (require.main === module) {
