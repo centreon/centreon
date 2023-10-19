@@ -61,7 +61,6 @@ jobs:
           docker-compose -v
 
           # Install docker compose v2 from releases
-          URL=$(get_github_package_download_url "docker/compose" "contains(\"compose-linux-x86_64\")")
           sudo curl -fsSL https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/libexec/docker/cli-plugins/docker-compose
           sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
