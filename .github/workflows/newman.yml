@@ -182,6 +182,7 @@ jobs:
                   xray_graphql_mutation_variables="$xray_graphql_mutation"
 
                   issue_ids_json_str=$(IFS=, ; echo "${issue_ids[*]}")
+                  issue_ids_json_str="\"$issue_ids_json_str\""
                   issue_ids_json_str=$(echo "$issue_ids_json_str" | sed 's/,/","/g')
 
                   echo "Contenu de issue_ids_json_str : $issue_ids_json_str"
