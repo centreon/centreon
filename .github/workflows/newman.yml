@@ -135,7 +135,7 @@ jobs:
                         }
                       }
                     }' \
-                    )
+                    --max-time 60)
 
                   sleep 5
 
