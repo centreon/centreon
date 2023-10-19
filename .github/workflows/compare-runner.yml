@@ -32,21 +32,21 @@ jobs:
         with:
           node-version: 18
 
-      - name: speedtest
-        run: |
-          npm install --global fast-cli
-          fast -u
-        shell: bash
+      # - name: speedtest
+      #   run: |
+      #     npm install --global fast-cli
+      #     fast -u
+      #   shell: bash
 
       - name: docker version
         run: |
+          ls /etc/apt/sources.list.d
+
           docker -v
 
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
           sudo systemctl restart docker.service
-
-          ls /etc/apt/sources.list.d
 
           docker -v
         shell: bash
@@ -63,9 +63,9 @@ jobs:
         run: docker pull docker.centreon.com/centreon/keycloak:23.10
         shell: bash
 
-      - name: speedtest
-        run: fast -u
-        shell: bash
+      # - name: speedtest
+      #   run: fast -u
+      #   shell: bash
 
       - name: traceroute
         run: |
