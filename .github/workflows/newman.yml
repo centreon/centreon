@@ -194,6 +194,7 @@ jobs:
 
                   # Formater le tableau en une chaîne JSON
                   issue_ids_json_str="[\"${issue_ids[*]// /\",\"}\"]"
+                  echo "Contenu de issue_ids_json_str : $issue_ids_json_str"
 
                   # Mettre à jour la requête GraphQL avec les testIssueIds correctement formatés
                   xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg test_issue_ids "$issue_ids_json_str" '.variables.testIssueIds = $test_issue_ids')
