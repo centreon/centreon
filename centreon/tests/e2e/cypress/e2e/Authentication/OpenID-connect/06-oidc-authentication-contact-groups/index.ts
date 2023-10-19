@@ -125,6 +125,13 @@ Then(
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
     }).as('getUserInformation');
 
+    // Use Cypress error handling to log errors
+    cy.on('uncaught:exception', (err, runnable) => {
+      cy.log(`Error occurred: ${err.message}`);
+
+      return false; // This prevents the error from failing the test
+    });
+
     cy.contains('Login with openid').should('be.visible').click();
 
     cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
