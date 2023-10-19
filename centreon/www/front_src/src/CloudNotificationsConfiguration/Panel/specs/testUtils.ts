@@ -235,7 +235,6 @@ const emailBodyText = [
   'Centreon notification',
   'Notification Type: {{NOTIFICATIONTYPE}}',
   'Resource: {{NAME}}',
-  'ID: {{ID}}',
   'State: {{STATE}}',
   'Date/Time: {{SHORTDATETIME}}',
   'Additional Info: {{OUTPUT}}'
