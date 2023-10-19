@@ -22,7 +22,7 @@ import {
   getUrlQueryParameters,
   useRequest
 } from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
 import {
@@ -66,7 +66,6 @@ export interface LoadResources {
 
 const secondSortField = 'last_status_change';
 const defaultSecondSortCriteria = { [secondSortField]: SortOrder.desc };
-const user = useAtomValue(userAtom);
 
 const useLoadResources = (): LoadResources => {
   const { t } = useTranslation();
@@ -278,11 +277,8 @@ const useLoadResources = (): LoadResources => {
   };
 
   useEffect(() => {
-    if(!user.is_admin){
-      return ;
-    }
     initAutorefresh();
-  }, [user, enabledAutorefresh, selectedResourceDetails?.resourceId]);
+  }, [enabledAutorefresh, selectedResourceDetails?.resourceId]);
 
   useEffect(() => {
     return (): void => {
