@@ -165,6 +165,7 @@ jobs:
                   fi
                 done
 
+                echo "issue_ids: ${issue_ids[@]}"
 
                 xray_graphql_mutation='{
                   "query": "mutation CreateTestExecution($testIssueIds: [String], $testEnvironments: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, testEnvironments: $testEnvironments, jira: $jira) { testExecution { issueId jira(fields: ["key"]) } } }",
@@ -182,12 +183,10 @@ jobs:
                 # Parcourir la liste des IDs de cas de test et les ajouter à la variable
                 xray_graphql_mutation_variables="$xray_graphql_mutation"  # Copier la requête initiale
 
-                for test_case_id in "${test_case_ids[@]}"; do
-                 echo "Adding Test Case ID: $test_case_id"  # Ajout de cet écho de débogage
-                  xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+                for issue_id in "${issue_ids[@]}"; do
+                  echo "Adding Issue ID: $issue_id"  # Ajout de cet écho de débogage
+                  xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg issue_id "$issue_id" '.variables.testIssueIds += [$issue_id]')
                 done
-                echo "Test Case IDs: ${test_case_ids[@]}"
-
                 response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_mutation_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
 
                   # Afficher la réponse pour le débogage
