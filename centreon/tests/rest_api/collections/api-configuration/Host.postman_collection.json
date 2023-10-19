@@ -11,259 +11,479 @@
 			"name": "Log in as Admin  ",
 			"item": [
 				{
-					"name": "Login with admin user",
-					"event": [
+					"name": "Delete existing hosts",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
+							"name": "Login with admin user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+											"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+											"    pm.environment.set(\"token\", responseJson.security.token);\r",
+											"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+											"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
 								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
 							],
-							"path": [
-								"login"
-							]
+							"protocolProfileBehavior": {
+								"disableCookies": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show available host for deletion",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/*\r",
+											"/  Check code status\r",
+											"*/\r",
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"A list of host has been successfully fetched.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"\r",
+											"    let hostsCreated = [];\r",
+											"    for(let count = 0; count < responseJson.result.length; count++){\r",
+											"        hostsCreated.push(responseJson.result[count].id);\r",
+											"    }\r",
+											"\r",
+											"    pm.collectionVariables.set(\"hostsCreated\", hostsCreated);\r",
+											"    pm.collectionVariables.set(\"HostTotal\", responseJson.meta.total);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deletion of all hosts",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"let hostsCreated = pm.collectionVariables.get(\"hostsCreated\");\r",
+											"\r",
+											"let currentHost = hostsCreated.shift();\r",
+											"pm.collectionVariables.set(\"currentHost\", currentHost);\r",
+											"pm.collectionVariables.set(\"hostsCreated\", hostsCreated);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Host \" + pm.collectionVariables.get(\"currentHost\") + \" has successfully been deleted.\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
+											"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
+											"\r",
+											"console.log(host.length);\r",
+											"if (host.length > 0) {\r",
+											"    postman.setNextRequest(\"Deletion of all hosts\");\r",
+											"} else {\r",
+											"    postman.setNextRequest(\"Check if there are any host left to delete\");\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts/{{currentHost}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts",
+										"{{currentHost}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check if there are any host left to delete",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/*\r",
+											"/  Check code status\r",
+											"*/\r",
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"A list of host has been successfully fetched.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"\r",
+											"    let hostsCreated = [];\r",
+											"    for(let count = 0; count < responseJson.result.length; count++){\r",
+											"        hostsCreated.push(responseJson.result[count].id);\r",
+											"    }\r",
+											"\r",
+											"    pm.collectionVariables.set(\"hostsCreated\", hostsCreated);\r",
+											"    pm.collectionVariables.set(\"HostTotal\", responseJson.meta.total);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
+											"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
+											"\r",
+											"console.log(host.length);\r",
+											"if (host.length > 0) {\r",
+											"    postman.setNextRequest(\"Deletion of all hosts\");\r",
+											"} else if (HostTotal > 0) {\r",
+											"    postman.setNextRequest(\"Check if there are any host left to delete\");\r",
+											"}\r",
+											"else {\r",
+											"    pm.collectionVariables.unset(\"currentHost\");\r",
+											"    pm.collectionVariables.unset(\"hostsCreated\");\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
-					"name": "Show available host for deletion",
-					"event": [
+					"name": "Delete existing host groups",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"A list of host has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"\r",
-									"    let hostsCreated = [];\r",
-									"    for(let count = 0; count < responseJson.result.length; count++){\r",
-									"        hostsCreated.push(responseJson.result[count].id);\r",
-									"    }\r",
-									"\r",
-									"    pm.collectionVariables.set(\"hostsCreated\", hostsCreated);\r",
-									"    pm.collectionVariables.set(\"HostTotal\", responseJson.meta.total);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
+							"name": "Show available host groups for deletion",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/*\r",
+											"/  Check code status\r",
+											"*/\r",
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"\r",
+											"    let hostsGroupCreated = [];\r",
+											"    for(let count = 0; count < responseJson.result.length; count++){\r",
+											"        hostsGroupCreated.push(responseJson.result[count].id);\r",
+											"    }\r",
+											"\r",
+											"    pm.collectionVariables.set(\"hostsGroupCreated\", hostsGroupCreated);\r",
+											"    pm.collectionVariables.set(\"HostGroupTotal\", responseJson.meta.total);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
 								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts",
-							"host": [
-								"{{baseUrl}}"
 							],
-							"path": [
-								"configuration",
-								"hosts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all hosts",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let hostsCreated = pm.collectionVariables.get(\"hostsCreated\");\r",
-									"\r",
-									"let currentHost = hostsCreated.shift();\r",
-									"pm.collectionVariables.set(\"currentHost\", currentHost);\r",
-									"pm.collectionVariables.set(\"hostsCreated\", hostsCreated);"
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}",
+										"type": "text"
+									}
 								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Host \" + pm.collectionVariables.get(\"currentHost\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
-									"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
-									"\r",
-									"console.log(host.length);\r",
-									"if (host.length > 0) {\r",
-									"    postman.setNextRequest(\"Deletion of all hosts\");\r",
-									"} else {\r",
-									"    postman.setNextRequest(\"Check if there are any host left to delete\");\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/{{currentHost}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts",
-								"{{currentHost}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Check if there are any host left to delete",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"A list of host has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"\r",
-									"    let hostsCreated = [];\r",
-									"    for(let count = 0; count < responseJson.result.length; count++){\r",
-									"        hostsCreated.push(responseJson.result[count].id);\r",
-									"    }\r",
-									"\r",
-									"    pm.collectionVariables.set(\"hostsCreated\", hostsCreated);\r",
-									"    pm.collectionVariables.set(\"HostTotal\", responseJson.meta.total);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
-									"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
-									"\r",
-									"console.log(host.length);\r",
-									"if (host.length > 0) {\r",
-									"    postman.setNextRequest(\"Deletion of all hosts\");\r",
-									"} else if (HostcategoryTotal > 0) {\r",
-									"    postman.setNextRequest(\"Check if there are any host left to delete\");\r",
-									"}\r",
-									"else {\r",
-									"    pm.collectionVariables.unset(\"currentHost\");\r",
-									"    pm.collectionVariables.unset(\"hostsCreated\");\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts/groups",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts",
+										"groups"
+									]
 								}
-							}
+							},
+							"response": []
 						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts",
-							"host": [
-								"{{baseUrl}}"
+						{
+							"name": "Deletion of all host groups",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"let hostsGroupCreated = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
+											"\r",
+											"let currentHostGroup = hostsGroupCreated.shift();\r",
+											"pm.collectionVariables.set(\"currentHostGroup\", currentHostGroup);\r",
+											"pm.collectionVariables.set(\"hostsGroupCreated\", hostsGroupCreated);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Host Group \" + pm.collectionVariables.get(\"currentHostGroup\") + \" has successfully been deleted.\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"const hostGroup = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
+											"const HostGroupTotal = pm.collectionVariables.get(\"HostGroupTotal\");\r",
+											"\r",
+											"console.log(hostGroup.length);\r",
+											"if (hostGroup.length > 0) {\r",
+											"    postman.setNextRequest(\"Deletion of all host groups\");\r",
+											"} else {\r",
+											"    postman.setNextRequest(\"Check if there are any host groups left to delete\");\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
 							],
-							"path": [
-								"configuration",
-								"hosts"
-							]
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts/groups/{{currentHostGroup}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts",
+										"groups",
+										"{{currentHostGroup}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check if there are any host groups left to delete",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/*\r",
+											"/  Check code status\r",
+											"*/\r",
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"\r",
+											"\r",
+											"    let hostsGroupCreated = [];\r",
+											"    for(let count = 0; count < responseJson.result.length; count++){\r",
+											"        hostsGroupCreated.push(responseJson.result[count].id);\r",
+											"    }\r",
+											"\r",
+											"    pm.collectionVariables.set(\"hostsGroupCreated\", hostsGroupCreated);\r",
+											"    pm.collectionVariables.set(\"HostGroupTotal\", responseJson.meta.total);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"const hostGroup = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
+											"const HostGroupTotal = pm.collectionVariables.get(\"HostGroupTotal\");\r",
+											"\r",
+											"console.log(hostGroup.length);\r",
+											"if (hostGroup.length > 0) {\r",
+											"    postman.setNextRequest(\"Deletion of all host groups\");\r",
+											"} else if (HostTotal > 0) {\r",
+											"    postman.setNextRequest(\"Check if there are any host groups left to delete\");\r",
+											"}\r",
+											"else {\r",
+											"    pm.collectionVariables.unset(\"currentHostGroup\");\r",
+											"    pm.collectionVariables.unset(\"hostsGroupCreated\");\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts/groups",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts",
+										"groups"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				}
 			]
 		},
