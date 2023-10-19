@@ -1,0 +1,64 @@
+name: compare-runner
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+jobs:
+  test-pull:
+
+    strategy:
+      matrix:
+        runner_type: ["ubuntu-22.04", "common"]
+
+    runs-on: ${{ matrix.runner_type }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: speedtest
+        run: |
+          npm install --global fast-cli
+          fast -u
+        shell: bash
+
+      - name: docker version
+        run: docker -v
+
+      - name: network settings
+        run: |
+          sudo cat /etc/resolv.conf
+          sudo cat /etc/hosts
+          sudo cat /etc/group
+          sudo ip addr
+        shell: bash
+
+      - name: Pull keycloak image
+        run: docker pull docker.centreon.com/centreon/keycloak:23.10
+        shell: bash
+
+      - name: speedtest
+        run: fast -u
+        shell: bash
+
+      - name: traceroute
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y traceroute
+          sudo traceroute docker.centreon.com
+        shell: bash
