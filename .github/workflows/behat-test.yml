@@ -82,6 +82,9 @@ jobs:
           COMPOSER_TOKEN: ${{ secrets.composer_token }}
           runner: self-hosted
 
+      - name: Setup docker
+        uses: ./.github/actions/setup-docker
+
       - if: ${{ inputs.install_browser == true }}
         name: Install chrome dependencies
         run: |
@@ -90,21 +93,9 @@ jobs:
           sudo apt-get install -y ./google-chrome-stable_114.0.5735.198-1_amd64.deb
         shell: bash
 
-      - name: Update docker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker
-          docker -v
-        shell: bash
-
       - if: ${{ inputs.install_browser == true }}
         name: Install chomedriver
         uses: nanasess/setup-chromedriver@v1
-
-      - name: Setup docker compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
         uses: actions/setup-node@v3

@@ -1,0 +1,28 @@
+name: "setup docker"
+description: "Install docker and docker-compose"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install docker
+      run: |
+        repo_url="https://download.docker.com/linux/ubuntu"
+        gpg_key="/usr/share/keyrings/docker.gpg"
+        repo_path="/etc/apt/sources.list.d/docker.list"
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o $gpg_key
+        sudo echo "deb [arch=amd64 signed-by=$gpg_key] $repo_url $(lsb_release -cs) stable" | sudo tee $repo_path
+
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
+
+        docker -v
+      shell: bash
+
+    - name: Install docker-compose
+      run: |
+        # Install docker compose v2 from releases
+        sudo curl -fsSL https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/libexec/docker/cli-plugins/docker-compose
+        sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+
+        docker-compose -v
+      shell: bash
