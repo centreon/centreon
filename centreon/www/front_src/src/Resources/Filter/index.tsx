@@ -591,7 +591,7 @@ const Filter = (): JSX.Element => {
                     />
                   }
                 >
-                  <Criterias />
+                  <Criterias searchData={{ search, setSearch }} />
                 </Suspense>
                 <SearchHelp />
               </Box>

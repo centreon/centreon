@@ -1,12 +1,18 @@
+import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { SelectEntry, SingleConnectedAutocompleteField } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  SelectEntry,
+  getFoundFields
+} from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
 import {
   Criteria,
   CriteriaDisplayProps,
   SearchData,
+  SearchDataPropsCriterias,
   SearchedDataValue
 } from '../../Criterias/models';
 import { ChangedCriteriaParams, SectionType } from '../model';
@@ -21,13 +27,15 @@ interface Props {
   data: Array<Criteria & CriteriaDisplayProps>;
   filterName: string;
   resourceType: SectionType;
+  searchData?: SearchDataPropsCriterias;
 }
 
 const SelectInput = ({
   data,
   filterName,
   resourceType,
-  changeCriteria
+  changeCriteria,
+  searchData
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
@@ -37,8 +45,13 @@ const SelectInput = ({
     resourceType
   });
 
-  const { value, setValue } = useInputCurrentValues({
-    content: { id: valueSearchData?.valueId, name: valueSearchData?.value },
+  const content = valueSearchData?.map((item) => ({
+    id: item?.valueId,
+    name: item?.value
+  }));
+
+  const { value } = useInputCurrentValues({
+    content,
     data: valueSearchData
   });
 
@@ -48,20 +61,22 @@ const SelectInput = ({
 
   const handleSearchData = (updatedValue): SearchData | undefined => {
     const values = dataByFilterName?.search_data?.values;
-    const currentValue = {
-      id: resourceType,
-      value: updatedValue.name,
-      valueId: updatedValue.id
-    };
 
-    const searchedValues = removeDuplicateFromObjectArray({
-      array: values ? [...values, currentValue] : [currentValue],
-      byFields: ['id']
+    const formattedUpdatedValues = updatedValue.map((item) => {
+      return { id: resourceType, value: item.name, valueId: item?.id };
     });
+
+    const filteredFormattedUpdatedValues = values?.filter(
+      (item) => item?.id !== resourceType
+    );
+
+    const result = filteredFormattedUpdatedValues
+      ? [...filteredFormattedUpdatedValues, ...formattedUpdatedValues]
+      : formattedUpdatedValues;
 
     return {
       ...dataByFilterName?.search_data,
-      values: searchedValues as Array<SearchedDataValue>
+      values: result as Array<SearchedDataValue>
     } as SearchData;
   };
 
@@ -85,7 +100,7 @@ const SelectInput = ({
     }) as Array<SelectEntry>;
   };
 
-  const handleChange = (updatedValue): void => {
+  const handleChange = (_, updatedValue): void => {
     const search_data = handleSearchData(updatedValue);
     const selectedValues = handleValues();
 
@@ -94,38 +109,6 @@ const SelectInput = ({
       search_data,
       updatedValue: selectedValues
     });
-  };
-
-  const initializeInput = (): void => {
-    const initializedSearchedData =
-      dataByFilterName?.search_data?.values.filter(
-        (item) => item?.id !== resourceType
-      );
-
-    const updatedValue = dataByFilterName?.value?.filter(
-      (item) => item?.id !== resourceType
-    );
-
-    setValue([]);
-    changeCriteria({
-      filterName,
-      search_data: {
-        ...dataByFilterName?.search_data,
-        values: initializedSearchedData
-      },
-      updatedValue
-    });
-  };
-
-  const onInputChange = (event, valueInput): void => {
-    if (!event) {
-      return;
-    }
-    if (valueInput) {
-      return;
-    }
-
-    initializeInput();
   };
 
   const getEndpoint = ({ search, page }): string => {
@@ -137,15 +120,70 @@ const SelectInput = ({
     });
   };
 
+  const getUniqueOptions = (
+    options: Array<SelectEntry>
+  ): Array<SelectEntry> => {
+    return removeDuplicateFromObjectArray({
+      array: options,
+      byFields: ['id']
+    }) as Array<SelectEntry>;
+  };
+
+  const isOptionEqualToValue = (option, selectedValue): boolean => {
+    return isNil(option)
+      ? false
+      : equals(option.name.toString(), selectedValue.name.toString());
+  };
+
+  const onDelete = (_, option): void => {
+    const field = dataByFilterName.search_data?.field as string;
+    const values = dataByFilterName.search_data?.values;
+
+    const search = searchData?.search;
+    const setSearch = searchData?.setSearch;
+
+    const result = getFoundFields({
+      fields: [field],
+      value: search
+    });
+    const oldFormattedValue = `${result[0].field}:${result[0].value}`;
+
+    const newValues = result[0]?.value
+      ?.split(',')
+      ?.filter((item) => item !== option?.name);
+
+    const newFormattedValue = `${field}:${newValues.join(',')}`;
+
+    const newSearch = search?.replace(oldFormattedValue, newFormattedValue);
+
+    setSearch(newSearch);
+
+    const search_data = {
+      ...dataByFilterName.search_data,
+      values: values?.filter((item) => item.value !== option.name)
+    } as SearchData;
+
+    changeCriteria({
+      filterName,
+      search_data,
+      updatedValue: dataByFilterName.value
+    });
+  };
+
   return (
-    <SingleConnectedAutocompleteField
+    <MultiConnectedAutocompleteField
+      chipProps={{
+        onDelete
+      }}
       field="name"
+      filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
+      isOptionEqualToValue={isOptionEqualToValue}
       label={t(resourceType) as string}
       placeholder={dataByFilterName.label}
+      search={dataByFilterName?.autocompleteSearch}
       value={value}
-      onChange={(_, updatedValue): void => handleChange(updatedValue)}
-      onInputChange={onInputChange}
+      onChange={handleChange}
     />
   );
 };
