@@ -58,34 +58,12 @@ jobs:
 
           docker -v
 
-          get_github_package_download_url() {
-            local REPO_ORG=$1
-            local FILTER=$2
-            local VERSION=$3
-            local SEARCH_IN_COUNT="100"
-
-            json=$(curl -fsSL "https://api.github.com/repos/${REPO_ORG}/releases?per_page=${SEARCH_IN_COUNT}")
-
-            if [ -n "$VERSION" ]; then
-                tagName=$(echo $json | jq -r '.[] | select(.prerelease==false).tag_name' | sort --unique --version-sort | egrep -v ".*-[a-z]|beta" | egrep "\w*${VERSION}" | tail -1)
-            else
-                tagName=$(echo $json | jq -r '.[] | select((.prerelease==false) and (.assets | length > 0)).tag_name' | sort --unique --version-sort | egrep -v ".*-[a-z]|beta" | tail -1)
-            fi
-
-            downloadUrl=$(echo $json | jq -r ".[] | select(.tag_name==\"${tagName}\").assets[].browser_download_url | select(${FILTER})" | head -n 1)
-            if [ -z "$downloadUrl" ]; then
-                echo "Failed to parse a download url for the '${tagName}' tag using '${FILTER}' filter"
-                exit 1
-            fi
-            echo $downloadUrl
-          }
-
           docker-compose -v
 
           # Install docker compose v2 from releases
           URL=$(get_github_package_download_url "docker/compose" "contains(\"compose-linux-x86_64\")")
-          curl -fsSL $URL -o /usr/libexec/docker/cli-plugins/docker-compose
-          chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+          sudo curl -fsSL https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/libexec/docker/cli-plugins/docker-compose
+          sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
           docker-compose -v
         shell: bash
