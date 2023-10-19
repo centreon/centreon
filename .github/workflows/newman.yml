@@ -195,6 +195,7 @@ jobs:
                   echo "Contenu de issue_ids_json_str : $issue_ids_json_str"
 
                   xray_graphql_mutation_variables=$(echo "$xray_graphql_mutation_variables" | jq --arg test_issue_ids "$issue_ids_json_str" '.variables.testIssueIds = $test_issue_ids')
+                  sleep 2
                   echo "Content of xray_graphql_mutation: $xray_graphql_mutation_variables"
 
                   # Envoyer la requête GraphQL
