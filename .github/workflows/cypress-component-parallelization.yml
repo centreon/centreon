@@ -103,7 +103,7 @@ jobs:
         uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          title: Code coverage report for ${{ inputs.name }} 🚀
+          title: Code coverage report for ${{ inputs.module_name }} ${{ inputs.name }} 🚀
 
       - name: Archive HTML code coverage
         uses: actions/upload-artifact@v3
