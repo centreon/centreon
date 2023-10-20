@@ -94,9 +94,7 @@ jobs:
         shell: bash
 
       - name: Generate lcov coverage report
-        run: |
-          pnpx nyc report --reporter=lcov
-          pnpx nyc report --reporter=html
+        run: pnpx nyc report --reporter=lcov --reporter html
         shell: bash
 
       - name: Format title
