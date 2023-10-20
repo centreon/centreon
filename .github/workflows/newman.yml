@@ -84,7 +84,7 @@ jobs:
             for id in "${testIssueIds[@]}"; do
               jsonArray+=("\"$id\"")
             done
-            testIssueIds='['$(IFS=, ; echo "${jsonArray[*]}")']'
+            testIssueIds=$(IFS=, ; echo "${jsonArray[*]}")
             echo "$testIssueIds"
 
             xray_graphql_getTestRunIDs='{
