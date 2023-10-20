@@ -47,6 +47,7 @@ runs:
             "https-proxy": "",
             "no-proxy": "*",
           },
+          { "exec-opts": ["native.cgroupdriver=cgroupfs"], "cgroup-parent": "/actions_job" }
         }
         EOF'
 
