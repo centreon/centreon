@@ -194,7 +194,7 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
             $request .= 'instances.instance_id IN (' . implode(', ', $instanceIds) . ')';
         }
 
-        $request .= $whereCondition ? ' AND deleted = 0' : ' WHERE deleted = 0';
+        $request .= ($whereCondition ? ' AND ' : ' WHERE ') . 'deleted = 0';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
