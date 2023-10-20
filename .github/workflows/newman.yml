@@ -258,13 +258,14 @@ jobs:
 
               # Itérer sur les IDs des tests runner et exécuter la mutation pour chaque ID
               for testRunId in "${testRunIds[@]}"; do
-                # Construire la requête GraphQL avec l'ID du test runner et le nouveau statut
                 graphqlMutation='mutation {
                   updateTestRunStatus(id: "'"$testRunId"'", status: "'"$newStatus"'")
                 }'
 
+                echo "$graphqlMutation"  # Ajoutez cette ligne pour déboguer
+
                 # Utiliser curl pour envoyer la requête GraphQL
-                curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphqlMutation" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+                curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphqlMutation" -v "https://xray.cloud.getxray.app/api/v2/graphql"
 
                 # Ajouter des vérifications pour traiter la réponse si nécessaire
               done
