@@ -226,7 +226,7 @@ jobs:
               echo "$responseGestTestExecID"
 
               # Extraire la liste des IDs des tests issue
-              testIssueIds=($(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[].tests.results[].issueId'))
+              testExecutionIssueIds=($(echo "$responseGetTestExecID" | jq -r '.data.getTestExecution.tests.results[].issueId'))
               testIssueIds='['
               for id in "${testExecutionIssueIds[@]}"; do
                 testIssueIds+='{"issueId":"'${id}'"},'
