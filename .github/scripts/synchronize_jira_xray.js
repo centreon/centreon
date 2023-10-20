@@ -175,9 +175,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         },
       };
       console.log(
-        "the issue update for",
-        api,
-        " is : ",
+        `the issue update for ${api} is: `,
         JSON.stringify(issueUpdatePayload)
       );
 
