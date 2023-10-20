@@ -32,6 +32,16 @@ runs:
       run: |
         docker info
 
+        cat /etc/docker/daemon.json
+
+        cat <<EOF >>/etc/docker/daemon.json
+        {
+          "mtu": 1450
+        }
+        EOF
+
+        cat /etc/docker/daemon.json
+
         sleep 60
 
         sudo pkill dockerd || true
