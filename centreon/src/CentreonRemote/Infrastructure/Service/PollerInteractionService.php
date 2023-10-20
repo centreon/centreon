@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,11 +31,8 @@ class PollerInteractionService
     /** @var \CentreonDB */
     private $db;
 
-    /**
-     * @var \Centreon
-     */
+    /** @var \Centreon */
     private $centreon;
-
 
     public function __construct(Container $di)
     {
@@ -48,7 +45,6 @@ class PollerInteractionService
 
         $this->centreon = $centreon;
     }
-
 
     /**
      * @param int[] $pollers
@@ -63,8 +59,9 @@ class PollerInteractionService
     }
 
     /**
-     * @throws \Exception
      * @param int[] $pollerIDs
+     *
+     * @throws \Exception
      */
     private function generateConfiguration(array $pollerIDs): void
     {
@@ -92,8 +89,9 @@ class PollerInteractionService
     }
 
     /**
-     * @throws \Exception
      * @param int[] $pollerIDs
+     *
+     * @throws \Exception
      */
     private function moveConfigurationFiles(array $pollerIDs): void
     {
@@ -107,25 +105,25 @@ class PollerInteractionService
 
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
-            'fields'     => ['name', 'id', 'localhost'],
-            'order'      => ['name'],
+            'fields' => ['name', 'id', 'localhost'],
+            'order' => ['name'],
             'conditions' => ['ns_activate' => '1'],
-            'keys'       => ['id']
+            'keys' => ['id'],
         ]);
 
         foreach ($tabs as $tab) {
             if (in_array($tab['id'], $pollerIDs)) {
                 $tabServer[$tab['id']] = [
-                    'id'        => $tab['id'],
-                    'name'      => $tab['name'],
-                    'localhost' => $tab['localhost']
+                    'id' => $tab['id'],
+                    'name' => $tab['name'],
+                    'localhost' => $tab['localhost'],
                 ];
             }
         }
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                $listBrokerFile = glob($centreonBrokerPath . $host['id'] . "/*.{xml,cfg,sql}", GLOB_BRACE);
+                $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,cfg,sql}', GLOB_BRACE);
 
                 passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
 
@@ -134,7 +132,7 @@ class PollerInteractionService
                 }
 
                 if (count($listBrokerFile) > 0) {
-                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> $centCorePipe", $return);
+                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> {$centCorePipe}", $return);
 
                     if ($return) {
                         throw new \Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
@@ -145,8 +143,9 @@ class PollerInteractionService
     }
 
     /**
-     * @throws \Exception
      * @param int[] $pollerIDs
+     *
+     * @throws \Exception
      */
     private function restartPoller(array $pollerIDs): void
     {
@@ -159,10 +158,10 @@ class PollerInteractionService
         }
 
         $tabs = $this->centreon->user->access->getPollerAclConf([
-            'fields'     => ['name', 'id', 'localhost', 'engine_restart_command'],
-            'order'      => ['name'],
+            'fields' => ['name', 'id', 'localhost', 'engine_restart_command'],
+            'order' => ['name'],
             'conditions' => ['ns_activate' => '1'],
-            'keys'       => ['id']
+            'keys' => ['id'],
         ]);
 
         $broker = new \CentreonBroker($this->db);
@@ -171,10 +170,10 @@ class PollerInteractionService
         foreach ($tabs as $tab) {
             if (in_array($tab['id'], $pollerIDs)) {
                 $tabServers[$tab['id']] = [
-                    'id'          => $tab['id'],
-                    'name'        => $tab['name'],
-                    'localhost'   => $tab['localhost'],
-                    'engine_restart_command' => $tab['engine_restart_command']
+                    'id' => $tab['id'],
+                    'name' => $tab['name'],
+                    'localhost' => $tab['localhost'],
+                    'engine_restart_command' => $tab['engine_restart_command'],
                 ];
             }
         }

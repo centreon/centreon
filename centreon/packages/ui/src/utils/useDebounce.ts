@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 interface Props {
   functionToDebounce: (...args) => void;
@@ -12,6 +12,11 @@ export const useDebounce = ({
   memoProps = []
 }: Props): ((...args) => void) => {
   const timeoutRef = useRef<number | null>(null);
+  const ref = useRef();
+
+  useEffect(() => {
+    ref.current = functionToDebounce;
+  }, [functionToDebounce]);
 
   return useCallback((...args): void => {
     if (timeoutRef.current) {
@@ -19,7 +24,7 @@ export const useDebounce = ({
     }
 
     timeoutRef.current = setTimeout(() => {
-      functionToDebounce(...args);
+      ref.current?.(...args);
     }, wait);
   }, memoProps);
 };

@@ -1,6 +1,6 @@
 import { Formik } from 'formik';
 
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelBottom,
   labelDisplay,

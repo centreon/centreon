@@ -17,9 +17,9 @@ import {
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { areResourcesFullfilled } from '../utils';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -32,7 +32,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleResourceTypeSelection = useAtomValue(
+    singleResourceTypeSelectionAtom
+  );
 
   const {
     value,
@@ -43,7 +45,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     changeResources,
     getResourceResourceBaseEndpoint,
     getSearchField,
-    error
+    error,
+    getOptionDisabled
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -75,12 +78,14 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               className={classes.resourceType}
               dataTestId={labelResourceType}
               disabled={!canEditField}
-              label={t(labelResourceType) as string}
+              label={t(labelSelectAResource) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}
             />
             <MultiConnectedAutocompleteField
+              allowUniqOption
+              get
               chipProps={{
                 color: 'primary'
               }}
@@ -90,6 +95,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               getEndpoint={getResourceResourceBaseEndpoint(
                 resource.resourceType
               )}
+              getOptionDisabled={getOptionDisabled(index)}
               label={t(labelSelectAResource)}
               limitTags={2}
               queryKey={`${resource.resourceType}-${index}`}
@@ -99,7 +105,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           </ItemComposition.Item>
         ))}
       </ItemComposition>
-      {singleMetricSection && (
+      {singleResourceTypeSelection && (
         <Typography sx={{ color: 'action.disabled' }}>
           {t(labelYouCanChooseOnResourcePerResourceType)}
         </Typography>

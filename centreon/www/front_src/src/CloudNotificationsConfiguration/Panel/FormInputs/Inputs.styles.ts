@@ -20,17 +20,10 @@ export const useStyles = makeStyles<StyleProps>()(
       paddingBottom: theme.spacing(1),
       paddingTop: theme.spacing(3)
     },
-    divider: {
-      background: theme.palette.divider,
-      height: theme.spacing(0.125)
-    },
     emailTemplateTitle: {
       fontWeight: theme.typography.fontWeightBold
     },
     grid: {
-      '& > div:nth-child(3)': {
-        marginTop: theme.spacing(4)
-      },
       rowGap: theme.spacing(1)
     },
     hostInput: {

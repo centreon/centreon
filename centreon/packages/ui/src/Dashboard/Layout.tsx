@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 
-import { Responsive } from '@visx/visx';
 import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 
-import { Responsive as ResponsiveHeight, useMemoComponent } from '..';
+import {
+  Responsive as ResponsiveHeight,
+  ParentSize,
+  useMemoComponent
+} from '..';
 
 import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
@@ -46,7 +49,7 @@ const Layout = <T extends Layout>({
   return useMemoComponent({
     Component: (
       <ResponsiveHeight margin={40}>
-        <Responsive.ParentSize>
+        <ParentSize>
           {({ width, height }): JSX.Element => (
             <div className={classes.container}>
               {displayGrid && (
@@ -66,10 +69,10 @@ const Layout = <T extends Layout>({
               </ReactGridLayout>
             </div>
           )}
-        </Responsive.ParentSize>
+        </ParentSize>
       </ResponsiveHeight>
     ),
-    memoProps: [columns, layout, displayGrid]
+    memoProps: [columns, layout, displayGrid, isStatic]
   });
 };
 

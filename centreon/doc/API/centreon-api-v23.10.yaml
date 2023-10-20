@@ -9,12 +9,15 @@ info:
     + Added notification endpoints (POST, PATCH)
     + Added service templates endpoints (GET, POST, DELETE, PATCH)
     + Added host template endpoints (POST, DELETE, PATCH)
-    + Added service endpoints (POST, DELETE)
+    + Added service endpoints (POST, DELETE, GET)
     + Added host endpoints (POST, DELETE)
     + Added token endpoints (GET, POST, DELETE)
+    + Added resources by parent endpoint (GET)
+    + Added command endpoint (ADD)
     +
     # Updated features
     + Updated host template endpoint (GET)
+    + Updated JSON API returned keys for /monitoring/resources endpoint (GET)
     +
     # Information
     All dates are in **ISO 8601** format
@@ -252,7 +255,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/commands:
-    $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
+    $ref: "./v23.10/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
   /configuration/notifications/_delete:
@@ -270,7 +273,7 @@ paths:
   /configuration/hosts/templates/{host_template_id}:
     $ref: './v23.10/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
   /configuration/hosts:
-    $ref: './v23.10/Configuration/Host/AddHost.yaml'
+    $ref: './v23.10/Configuration/Host/AddAndFindHosts.yaml'
   /configuration/hosts/categories:
     get:
       tags:
@@ -478,7 +481,7 @@ paths:
   /configuration/services/{service_id}:
     $ref: "v23.10/Configuration/Service/DeleteService.yaml"
   /configuration/services:
-    $ref: "v23.10/Configuration/Service/AddService.yaml"
+    $ref: "v23.10/Configuration/Service/AddServiceAndFindServices.yaml"
   /monitoring/services/categories:
     get:
       tags:
@@ -2248,10 +2251,13 @@ paths:
 
         The available parameters to **search** / **sort_by** are:
 
+        * id
+        * name
         * host.id
         * host.name
         * host.alias
         * host.address
+        * host.display_name
         * host.state
         * poller.id
         * service.display_name
@@ -2294,6 +2300,16 @@ paths:
 
         * id
         * name
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.display_name
+        * host.state
+        * poller.id
+        * service.display_name
+        * host_group.id
+
       parameters:
         - $ref: '#/components/parameters/ShowService'
         - $ref: '#/components/parameters/ShowHost'
@@ -7598,6 +7614,7 @@ components:
           example: 12
         service_id:
           type: integer
+          nullable: true
           format: int32
           description: "ID of the service behind the resource"
           example: 12
@@ -7674,11 +7691,11 @@ components:
               $ref: '#/components/schemas/Monitoring.ResourceStatus'
         status:
           $ref: '#/components/schemas/Monitoring.ResourceStatus'
-        in_downtime:
+        is_in_downtime:
           type: boolean
           description: "Indicates whether resource is in downtime"
           example: false
-        acknowledged:
+        is_acknowledged:
           type: boolean
           description: "Indicates whether resource is acknowledged"
           example: false
@@ -7712,12 +7729,12 @@ components:
           nullable: true
           description: "Output of the resource"
           example: "OK - Ping is ok"
-        active_checks:
+        has_active_checks_enabled:
           type: boolean
           nullable: true
           description: "Indicates whether active checks are enabled"
           example: true
-        passive_checks:
+        has_passive_checks_enabled:
           type: boolean
           nullable: true
           description: "Indicates whether passive checks are enabled"
@@ -7727,7 +7744,7 @@ components:
           nullable: true
           description: "Performance data result of the check sent"
           example: "rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100 "
-        notification_enabled:
+        is_notification_enabled:
           type: boolean
           description: "Indicates if notifications are enabled for the resource"
           example: false

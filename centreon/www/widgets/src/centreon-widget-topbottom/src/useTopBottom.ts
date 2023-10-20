@@ -2,23 +2,21 @@ import { equals, isEmpty, pluck } from 'ramda';
 
 import {
   buildListingEndpoint,
+  resourceTypeQueryParameter,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
 
+import { GlobalRefreshInterval, Metric } from '../../models';
+
 import { metricsTopEndpoint } from './api/endpoint';
-import {
-  Metric,
-  MetricsTop,
-  TopBottomSettings,
-  WidgetDataResource,
-  WidgetResourceType
-} from './models';
+import { MetricsTop, TopBottomSettings, WidgetDataResource } from './models';
 import { metricsTopDecoder } from './api/decoder';
 
 interface UseTopBottomProps {
-  globalRefreshInterval?: number;
-  metric: Metric;
+  globalRefreshInterval: GlobalRefreshInterval;
+  metrics: Array<Metric>;
+  refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<WidgetDataResource>;
@@ -29,13 +27,6 @@ interface UseTopBottomState {
   isLoading: boolean;
   metricsTop?: MetricsTop;
 }
-
-const resourceTypeQueryParameter = {
-  [WidgetResourceType.host]: 'host.id',
-  [WidgetResourceType.hostCategory]: 'hostcategory.id',
-  [WidgetResourceType.hostGroup]: 'hostgroup.id',
-  [WidgetResourceType.service]: 'service.name'
-};
 
 export const areResourcesFullfilled = (
   value: Array<WidgetDataResource>
@@ -49,15 +40,18 @@ const useTopBottom = ({
   globalRefreshInterval,
   refreshInterval,
   refreshIntervalCustom,
-  metric,
+  metrics,
   topBottomSettings,
-  resources
+  resources,
+  refreshCount
 }: UseTopBottomProps): UseTopBottomState => {
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval,
     refreshIntervalCustom
   });
+
+  const metricName = metrics?.[0]?.name;
 
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
@@ -80,16 +74,18 @@ const useTopBottom = ({
               : 'ASC'
           }
         }
-      })}&metric_name=${metric?.name}`,
+      })}&metric_name=${metricName}`,
     getQueryKey: () => [
       'topbottom',
-      metric?.name,
+      metricName,
       JSON.stringify(resources),
       topBottomSettings.numberOfValues,
-      topBottomSettings.order
+      topBottomSettings.order,
+      refreshCount
     ],
     queryOptions: {
-      enabled: areResourcesFullfilled(resources) && !!metric?.name,
+      enabled: areResourcesFullfilled(resources) && !!metricName,
+      keepPreviousData: true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }

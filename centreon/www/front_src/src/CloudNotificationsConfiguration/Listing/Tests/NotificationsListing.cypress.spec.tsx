@@ -21,7 +21,7 @@ import {
   labelThisNameAlreadyExists
 } from '../../translatedLabels';
 import { notificationEndpoint } from '../../Panel/api/endpoints';
-import { getNotificationResponse } from '../../Panel/Tests/testUtils';
+import { getNotificationResponse } from '../../Panel/specs/testUtils';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
 import { buildNotificationsEndpoint } from '../api/endpoints';
@@ -40,17 +40,19 @@ const store = createStore();
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <Provider store={store}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <>
-            <Listing />
-            <DeleteConfirmationDialog />
-            <DuplicationForm />
-          </>
-        </SnackbarProvider>
-      </TestQueryProvider>
-    </Provider>
+    <div style={{ height: '100vh' }}>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <>
+              <Listing />
+              <DeleteConfirmationDialog />
+              <DuplicationForm />
+            </>
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
+    </div>
   );
 };
 

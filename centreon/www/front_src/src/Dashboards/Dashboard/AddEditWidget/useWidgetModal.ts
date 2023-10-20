@@ -16,11 +16,12 @@ import {
   labelYourWidgetHasBeenCreated,
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
-import { editProperties } from '../useCanEditDashboard';
+import { editProperties } from '../hooks/useCanEditDashboard';
 
 import {
   customBaseColorAtom,
-  singleMetricSectionAtom,
+  singleMetricSelectionAtom,
+  singleResourceTypeSelectionAtom,
   widgetFormInitialDataAtom,
   widgetPropertiesAtom
 } from './atoms';
@@ -53,7 +54,10 @@ const useWidgetModal = (): useWidgetModalState => {
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
-  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
+  const setSingleResourceTypeSelection = useSetAtom(
+    singleResourceTypeSelectionAtom
+  );
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { showSuccessMessage } = useSnackbar();
@@ -75,6 +79,7 @@ const useWidgetModal = (): useWidgetModalState => {
       setWidgetProperties(null);
       setAskingBeforeCloseModal(false);
       setSingleMetricSection(undefined);
+      setSingleResourceTypeSelection(undefined);
       setCustomBaseColor(undefined);
     });
 
@@ -83,11 +88,9 @@ const useWidgetModal = (): useWidgetModalState => {
 
     addPanel({
       data: values.data || undefined,
-      height: panelConfiguration.panelMinHeight,
       moduleName: values.moduleName || '',
       options: values.options,
-      panelConfiguration,
-      width: panelConfiguration.panelMinWidth
+      panelConfiguration
     });
     showSuccessMessage(t(labelYourWidgetHasBeenCreated));
     closeModal();
@@ -102,11 +105,9 @@ const useWidgetModal = (): useWidgetModalState => {
       addPanel({
         data: values.data || undefined,
         fixedId: widgetFormInitialData?.id || undefined,
-        height: panelConfiguration.panelMinHeight,
         moduleName: values.moduleName || '',
         options: values.options,
-        panelConfiguration,
-        width: panelConfiguration.panelMinWidth
+        panelConfiguration
       });
       showSuccessMessage(t(labelYourWidgetHasBeenModified));
       closeModal();

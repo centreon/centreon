@@ -1,6 +1,6 @@
 {
-  "title": "Generic Top/Bottom",
-  "description": "Top/Bottom widget description (TBD)",
+  "title": "Top/bottom",
+  "description": "Displays the top or bottom x hosts, for a selected metric.",
   "options": {
     "topBottomSettings": {
       "type": "top-bottom-settings",
@@ -39,12 +39,12 @@
       "type": "resources",
       "defaultValue": []
     },
-    "metric": {
+    "metrics": {
       "type": "metrics-only",
-      "defaultValue": null
+      "defaultValue": []
     }
   },
-  "singleMetricSelection": false,
+  "singleMetricSelection": true,
   "customBaseColor": false,
   "moduleName": "centreon-widget-topbottom"
 }

@@ -5,6 +5,7 @@ import {
   equals,
   filter,
   flatten,
+  has,
   head,
   length,
   pipe,
@@ -26,7 +27,7 @@ import {
   labelDefault,
   labelDefaultValueIsDefinedByFirstMetricUsed,
   labelNone,
-  labelThreshold,
+  labelThresholds,
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { WidgetTextField } from '..';
@@ -63,10 +64,8 @@ interface UseThresholdState {
 
 const getMetricThreshold = (
   thresholdType: string
-): ((metrics: Array<ServiceMetric>) => number | null) =>
+): ((metrics: Array<Metric>) => number | null) =>
   pipe(
-    pluck('metrics'),
-    flatten,
     pluck(thresholdType),
     filter((threshold) => !!threshold),
     head
@@ -110,23 +109,34 @@ const useThreshold = ({
   const criticalType = getThresholdType('critical');
   const criticalCustom = getThresholdCustom('Critical');
 
-  const metrics = useMemo<Array<ServiceMetric> | undefined>(
+  const metrics = useMemo<Array<ServiceMetric> | Array<Metric> | undefined>(
     () => getDataProperty({ obj: values, propertyName: 'metrics' }),
     [getDataProperty({ obj: values, propertyName: 'metrics' })]
   );
 
-  const isMaxSelectedUnitReached = pipe(
-    pluck('metrics'),
-    flatten,
-    pluck('unit'),
-    uniq,
-    length,
-    equals(2)
-  )(metrics || []);
+  const isServiceMetric = has('metrics', metrics?.[0]);
 
-  const metric = pipe(pluck('metrics'), flatten, head)(metrics || []) as
-    | Metric
-    | undefined;
+  const isMaxSelectedUnitReached = isServiceMetric
+    ? pipe(
+        pluck('metrics'),
+        flatten,
+        pluck('unit'),
+        uniq,
+        length,
+        equals(2)
+      )((metrics as Array<ServiceMetric>) || [])
+    : pipe(
+        pluck('unit'),
+        uniq,
+        length,
+        equals(2)
+      )((metrics as Array<Metric>) || []);
+
+  const formattedMetrics = isServiceMetric
+    ? pipe(pluck('metrics'), flatten)((metrics as Array<ServiceMetric>) || [])
+    : (metrics as Array<Metric>) || [];
+
+  const metric = head(formattedMetrics as Array<Metric>);
 
   const formatThreshold = (threshold: number | null): string => {
     if (!threshold) {
@@ -142,19 +152,19 @@ const useThreshold = ({
   };
 
   const firstWarningHighThreshold = getMetricThreshold('warningHighThreshold')(
-    metrics || []
+    formattedMetrics
   );
 
   const firstWarningLowThreshold = getMetricThreshold('warningLowThreshold')(
-    metrics || []
+    formattedMetrics
   );
 
   const firstCriticalHighThreshold = getMetricThreshold(
     'criticalHighThreshold'
-  )(metrics || []);
+  )(formattedMetrics);
 
   const firstCriticalLowThreshold = getMetricThreshold('criticalLowThreshold')(
-    metrics || []
+    formattedMetrics
   );
 
   const warningDefaultThresholdLabel = firstWarningLowThreshold
@@ -195,7 +205,7 @@ const useThreshold = ({
               {!isDefault(warningType) && (
                 <>
                   <WidgetTextField
-                    label={t(labelThreshold)}
+                    label={t(labelThresholds)}
                     propertyName={`${propertyName}.customWarning`}
                     text={{
                       autoSize: true,
@@ -246,7 +256,7 @@ const useThreshold = ({
               {!isDefault(criticalType) && (
                 <>
                   <WidgetTextField
-                    label={t(labelThreshold)}
+                    label={t(labelThresholds)}
                     propertyName={`${propertyName}.customCritical`}
                     text={{
                       autoSize: true,

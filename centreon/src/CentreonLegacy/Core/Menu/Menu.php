@@ -1,33 +1,19 @@
 <?php
-/**
- * Copyright 2005-2018 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+
+/*
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -37,21 +23,17 @@ namespace CentreonLegacy\Core\Menu;
 
 class Menu
 {
-    /**
-     * @var CentreonDB The configuration database connection
-     */
+    /** @var CentreonDB The configuration database connection */
     protected $db;
-    /**
-     * @var string The query filter for ACL
-     */
+
+    /** @var string The query filter for ACL */
     protected $acl = null;
-    /**
-     * @var int The current topology page
-     */
+
+    /** @var int The current topology page */
     protected $currentPage = null;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param CentreonDB $db The configuration database connection
      * @param CentreonUser $user The current user
@@ -59,17 +41,16 @@ class Menu
     public function __construct($db, $user = null)
     {
         $this->db = $db;
-        if (!is_null($user)) {
+        if (! is_null($user)) {
             $this->currentPage = $user->getCurrentPage();
-            if (!$user->access->admin) {
+            if (! $user->access->admin) {
                 $this->acl = ' AND topology_page IN (' . $user->access->getTopologyString() . ') ';
             }
         }
     }
 
     /**
-     * Get all menu (level 1 to 3)
-     *
+     * Get all menu (level 1 to 3).
      *
      * array(
      *   "p1" => array(
@@ -108,7 +89,7 @@ class Menu
             . 'WHERE topology_show = "1" '
             . 'AND topology_page IS NOT NULL';
 
-        if (!is_null($this->acl)) {
+        if (! is_null($this->acl)) {
             $query .= $this->acl;
         }
 
@@ -120,7 +101,7 @@ class Menu
         $currentLevelOne = null;
         $currentLevelTwo = null;
         $currentLevelThree = null;
-        if (!is_null($this->currentPage)) {
+        if (! is_null($this->currentPage)) {
             $currentLevelOne = substr($this->currentPage, 0, 1);
             $currentLevelTwo = substr($this->currentPage, 1, 2);
             $currentLevelThree = substr($this->currentPage, 2, 2);
@@ -130,21 +111,21 @@ class Menu
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $active = false;
             if (preg_match('/^(\d)$/', $row['topology_page'], $matches)) { // level 1
-                if (!is_null($currentLevelOne) && $currentLevelOne == $row['topology_page']) {
+                if (! is_null($currentLevelOne) && $currentLevelOne == $row['topology_page']) {
                     $active = true;
                 }
                 $menu['p' . $row['topology_page']] = [
-                    'label'    => _($row['topology_name']),
-                    'menu_id'  => $row['topology_name'],
-                    'url'      => $row['topology_url'],
-                    'active'   => $active,
-                    'color'    => $this->getColor($row['topology_page']),
+                    'label' => _($row['topology_name']),
+                    'menu_id' => $row['topology_name'],
+                    'url' => $row['topology_url'],
+                    'active' => $active,
+                    'color' => $this->getColor($row['topology_page']),
                     'children' => [],
-                    'options'  => $row['topology_url_opt'],
-                    'is_react' => $row['is_react']
+                    'options' => $row['topology_url_opt'],
+                    'is_react' => $row['is_react'],
                 ];
             } elseif (preg_match('/^(\d)(\d\d)$/', $row['topology_page'], $matches)) { // level 2
-                if (!is_null($currentLevelTwo) && $currentLevelTwo == $row['topology_page']) {
+                if (! is_null($currentLevelTwo) && $currentLevelTwo == $row['topology_page']) {
                     $active = true;
                 }
                 /**
@@ -153,54 +134,49 @@ class Menu
                  * This prefix will be remove by front-end.
                  */
                 $menu['p' . $matches[1]]['children']['_' . $row['topology_page']] = [
-                    'label'    => _($row['topology_name']),
-                    'url'      => $row['topology_url'],
-                    'active'   => $active,
+                    'label' => _($row['topology_name']),
+                    'url' => $row['topology_url'],
+                    'active' => $active,
                     'children' => [],
-                    'options'  => $row['topology_url_opt'],
-                    'is_react' => $row['is_react']
+                    'options' => $row['topology_url_opt'],
+                    'is_react' => $row['is_react'],
                 ];
             } elseif (preg_match('/^(\d)(\d\d)(\d\d)$/', $row['topology_page'], $matches)) { // level 3
-                if (!is_null($currentLevelThree) && $currentLevelThree == $row['topology_page']) {
+                if (! is_null($currentLevelThree) && $currentLevelThree == $row['topology_page']) {
                     $active = true;
                 }
                 $levelTwo = $matches[1] . $matches[2];
                 $levelThree = [
-                    'label'    => _($row['topology_name']),
-                    'url'      => $row['topology_url'],
-                    'active'   => $active,
-                    'options'  => $row['topology_url_opt'],
-                    'is_react' => $row['is_react']
+                    'label' => _($row['topology_name']),
+                    'url' => $row['topology_url'],
+                    'active' => $active,
+                    'options' => $row['topology_url_opt'],
+                    'is_react' => $row['is_react'],
                 ];
-                if (!is_null($row['topology_group']) && isset($groups[$levelTwo][$row['topology_group']])) {
+                if (! is_null($row['topology_group']) && isset($groups[$levelTwo][$row['topology_group']])) {
                     /**
                      * Add prefix '_' to prevent json list to be reordered by
                      * the browser and to keep menu in order.
                      * This prefix will be remove by front-end.
                      */
-                    $menu
-                        ['p' . $matches[1]]['children']
-                        ['_' . $levelTwo]['children']
-                        [$groups[$levelTwo][$row['topology_group']]]['_' . $row['topology_page']] = $levelThree;
+                    $menu['p' . $matches[1]]['children']['_' . $levelTwo]['children'][$groups[$levelTwo][$row['topology_group']]]['_' . $row['topology_page']] = $levelThree;
                 } else {
                     /**
                      * Add prefix '_' to prevent json list to be reordered by
                      * the browser and to keep menu in order.
                      * This prefix will be remove by front-end.
                      */
-                    $menu
-                        ['p' . $matches[1]]['children']
-                        ['_' . $levelTwo]['children']
-                        ['Main Menu']['_' . $row['topology_page']] = $levelThree;
+                    $menu['p' . $matches[1]]['children']['_' . $levelTwo]['children']['Main Menu']['_' . $row['topology_page']] = $levelThree;
                 }
             }
         }
         $stmt->closeCursor();
+
         return $menu;
     }
 
     /**
-     * Get the list of groups
+     * Get the list of groups.
      *
      * @return array The list of groups
      */
@@ -212,7 +188,7 @@ class Menu
             . 'ORDER BY topology_group, topology_order';
         $result = $this->db->query($query);
 
-        $groups = array();
+        $groups = [];
         while ($row = $result->fetch(\PDO::FETCH_ASSOC)) {
             $groups[$row['topology_parent']][$row['topology_group']] = _($row['topology_name']);
         }
@@ -223,9 +199,10 @@ class Menu
     }
 
     /**
-     * Get menu color
+     * Get menu color.
      *
      * @param int $pageId The page id
+     *
      * @return string color
      */
     public function getColor($pageId)

@@ -229,7 +229,18 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
-    return cy.task('startContainer', { image, name, portBindings });
+    return cy.task(
+      'startContainer',
+      { image, name, portBindings },
+      { timeout: 600000 } // 10 minutes because docker pull can be very slow
+    );
+  }
+);
+
+Cypress.Commands.add(
+  'createDirectory',
+  (directoryPath: string): Cypress.Chainable => {
+    return cy.task('createDirectory', directoryPath);
   }
 );
 
@@ -292,7 +303,7 @@ Cypress.Commands.add(
 
     return cy
       .visitEmptyPage()
-      .exec(`mkdir -p "${logDirectory}"`)
+      .createDirectory(logDirectory)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
         name,
@@ -463,6 +474,7 @@ declare global {
         props: CopyToContainerProps,
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
+      createDirectory: (directoryPath: string) => Cypress.Chainable;
       execInContainer: ({
         command,
         name

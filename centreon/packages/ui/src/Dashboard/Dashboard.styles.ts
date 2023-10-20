@@ -69,7 +69,14 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
 export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
   (theme, { hasHeader }) => ({
     widgetContainer: {
+      '&[data-padding="false"]': {
+        padding: 0
+      },
+      background: theme.palette.background.widget,
+      border: 'none',
+      borderRadius: theme.spacing(1),
       height: '100%',
+      paddingBottom: theme.spacing(2),
       width: '100%'
     },
     widgetContent: {
@@ -89,7 +96,7 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
     },
     widgetPadding: {
       overflowX: 'auto',
-      padding: hasHeader ? theme.spacing(1, 2, 2) : theme.spacing(1, 2)
+      padding: hasHeader ? theme.spacing(1, 2, 0) : theme.spacing(1, 2)
     }
   })
 );

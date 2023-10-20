@@ -17,6 +17,7 @@ import {
   labelAvailable,
   labelDelete,
   labelMetrics,
+  labelSelectMetric,
   labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
@@ -24,18 +25,18 @@ import {
 import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleMetricSelectionAtom } from '../../../atoms';
 import { isAtLeastOneResourceFullfilled } from '../utils';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useMetrics from './useMetrics';
 
 const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
-  const { classes } = useResourceStyles();
+  const { classes, cx } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleMetricSection = useAtomValue(singleMetricSelectionAtom);
 
   const {
     hasNoResources,
@@ -55,7 +56,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     getOptionLabel,
     hasReachedTheLimitOfUnits,
     addButtonHidden,
-    resources
+    resources,
+    hasOnlyOneService
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -103,24 +105,29 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         >
           {value.map((service, index) => (
             <ItemComposition.Item
-              className={classes.resourceCompositionItem}
+              className={cx({
+                [classes.resourceCompositionItem]: !hasOnlyOneService
+              })}
               deleteButtonHidden={!canEditField || addButtonHidden}
               key={`${index}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteMetric(index)}
             >
-              <SelectField
-                ariaLabel={t(labelServiceName) as string}
-                className={classes.resourceType}
-                dataTestId={labelServiceName}
-                disabled={!canEditField || isLoadingMetrics}
-                label={t(labelServiceName) as string}
-                options={serviceOptions}
-                selectedOptionId={service.id}
-                onChange={changeService(index)}
-              />
+              {!hasOnlyOneService && (
+                <SelectField
+                  ariaLabel={t(labelServiceName) as string}
+                  className={classes.resourceType}
+                  dataTestId={labelServiceName}
+                  disabled={!canEditField || isLoadingMetrics}
+                  label={t(labelServiceName) as string}
+                  options={serviceOptions}
+                  selectedOptionId={service.id}
+                  onChange={changeService(index)}
+                />
+              )}
               {singleMetricSection ? (
                 <SingleAutocompleteField
+                  fullWidth
                   className={classes.resources}
                   disabled={
                     !canEditField ||
@@ -133,13 +140,14 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                   isOptionEqualToValue={(option, selectedValue) =>
                     equals(option?.id, selectedValue?.id)
                   }
-                  label={t(labelMetrics)}
+                  label={t(labelSelectMetric)}
                   options={getMetricsFromService(service.id)}
                   value={head(service.metrics) || undefined}
                   onChange={changeMetric(index)}
                 />
               ) : (
                 <MultiAutocompleteField
+                  fullWidth
                   chipProps={{
                     color: 'primary'
                   }}
@@ -153,7 +161,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                   getOptionDisabled={getMetricOptionDisabled}
                   getOptionLabel={getOptionLabel}
                   getTagLabel={getOptionLabel}
-                  label={t(labelMetrics)}
+                  label={t(labelSelectMetric)}
                   limitTags={1}
                   options={getMetricsFromService(service.id)}
                   value={service.metrics || []}

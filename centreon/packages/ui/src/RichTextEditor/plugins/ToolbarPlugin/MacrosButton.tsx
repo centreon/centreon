@@ -22,8 +22,7 @@ export const standardMacros = [
   '{{ID}}',
   '{{NAME}}',
   '{{OUTPUT}}',
-  '{{STATE}}',
-  '{{STATETYPE}}'
+  '{{STATE}}'
 ];
 
 const MacrosButton = ({ disabled }: Props): JSX.Element => {

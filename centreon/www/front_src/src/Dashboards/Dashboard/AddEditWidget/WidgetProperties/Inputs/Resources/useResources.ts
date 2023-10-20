@@ -16,10 +16,12 @@ import {
   labelHostCategory,
   labelHostGroup,
   labelPleaseSelectAResource,
-  labelService
+  labelService,
+  labelServiceCategory,
+  labelServiceGroup
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
@@ -57,6 +59,14 @@ const resourceTypeOptions = [
     name: labelHost
   },
   {
+    id: WidgetResourceType.serviceGroup,
+    name: labelServiceGroup
+  },
+  {
+    id: WidgetResourceType.serviceCategory,
+    name: labelServiceCategory
+  },
+  {
     id: WidgetResourceType.service,
     name: labelService
   }
@@ -66,7 +76,9 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/hosts',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
-  [WidgetResourceType.service]: '/resources'
+  [WidgetResourceType.service]: '/resources',
+  [WidgetResourceType.serviceCategory]: '/services/categories',
+  [WidgetResourceType.serviceGroup]: '/servicegroups'
 };
 
 const resourceQueryParameters = [
@@ -88,7 +100,9 @@ const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleResourceTypeSelection = useAtomValue(
+    singleResourceTypeSelectionAtom
+  );
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -149,7 +163,10 @@ const useResources = (propertyName: string): UseResourcesState => {
         customQueryParameters: equals(resourceType, WidgetResourceType.service)
           ? resourceQueryParameters
           : undefined,
-        parameters
+        parameters: {
+          ...parameters,
+          limit: 30
+        }
       });
     };
 
@@ -164,18 +181,18 @@ const useResources = (propertyName: string): UseResourcesState => {
     (option): boolean | undefined => {
       const resources = value?.[index].resources;
 
-      if (singleMetricSection && isEmpty(resources)) {
+      if (singleResourceTypeSelection && isEmpty(resources)) {
         return false;
       }
 
       return (
-        singleMetricSection &&
+        singleResourceTypeSelection &&
         !pluck('name', resources || []).includes(option.name)
       );
     };
 
   useEffect(() => {
-    if (!singleMetricSection || !isEmpty(value)) {
+    if (!singleResourceTypeSelection || !isEmpty(value)) {
       return;
     }
 
@@ -185,7 +202,7 @@ const useResources = (propertyName: string): UseResourcesState => {
         resources: []
       }
     ]);
-  }, [singleMetricSection]);
+  }, [singleResourceTypeSelection]);
 
   return {
     addResource,

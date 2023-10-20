@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
-import { slice } from 'ramda';
+import { prop, slice, sortBy } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { Box, alpha, useTheme } from '@mui/material';
@@ -58,9 +58,11 @@ const MainLegend = ({
     xScale
   });
 
+  const sortedData = sortBy(prop('metric_id'), lines);
+
   const displayedLines = limitLegendRows
-    ? slice(0, maxLinesDisplayedLegend, lines)
-    : lines;
+    ? slice(0, maxLinesDisplayedLegend, sortedData)
+    : sortedData;
 
   const getMetricValue = ({ value, unit }: GetMetricValueProps): string =>
     formatMetricValue({
@@ -69,25 +71,25 @@ const MainLegend = ({
       value
     }) || 'N/A';
 
-  const selectMetric = ({ event, metric }): void => {
+  const selectMetric = ({ event, metric_id }): void => {
     if (!toggable) {
       return;
     }
 
     if (event.ctrlKey || event.metaKey) {
-      toggleMetricLine(metric);
+      toggleMetricLine(metric_id);
 
       return;
     }
 
-    selectMetricLine(metric);
+    selectMetricLine(metric_id);
   };
 
   return (
     <div className={classes.legend}>
       <div className={classes.items}>
         {displayedLines.map((line) => {
-          const { color, name, display, metric, highlight } = line;
+          const { color, display, highlight, metric_id } = line;
 
           const markerColor = display
             ? color
@@ -119,9 +121,9 @@ const MainLegend = ({
                 highlight ? classes.highlight : classes.normal,
                 toggable && classes.toggable
               )}
-              key={name}
-              onClick={(event): void => selectMetric({ event, metric })}
-              onMouseEnter={(): void => highlightLine(metric)}
+              key={metric_id}
+              onClick={(event): void => selectMetric({ event, metric_id })}
+              onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
             >
               <LegendMarker color={markerColor} disabled={!display} />

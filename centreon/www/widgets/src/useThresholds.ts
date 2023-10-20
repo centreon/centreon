@@ -101,9 +101,13 @@ const useThresholds = ({
     };
   });
 
+  const hasThresholds = [...warningThresholds, ...criticalThresholds].some(
+    (threshold) => threshold
+  );
+
   return {
     critical: formattedCriticalThresholds,
-    enabled: thresholds.enabled,
+    enabled: thresholds.enabled && hasThresholds,
     warning: formattedWarningThresholds
   };
 };

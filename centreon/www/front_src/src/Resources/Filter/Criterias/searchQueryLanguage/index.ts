@@ -1,5 +1,8 @@
+import pluralize from 'pluralize';
 import {
+  __,
   allPass,
+  compose,
   concat,
   endsWith,
   filter,
@@ -25,32 +28,29 @@ import {
   split,
   startsWith,
   trim,
-  without,
-  __,
-  compose
+  without
 } from 'ramda';
-import pluralize from 'pluralize';
 
-import type { SelectEntry } from '@centreon/ui';
+import { type SelectEntry } from '@centreon/ui';
 
+import getDefaultCriterias from '../default';
 import {
   Criteria,
   CriteriaDisplayProps,
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
-import getDefaultCriterias from '../default';
 
 import {
-  CriteriaId,
-  criteriaNameToQueryLanguageName,
-  criteriaNameSortOrder,
-  CriteriaValueSuggestionsProps,
-  searchableFields,
   AutocompleteSuggestionProps,
-  staticCriteriaNames,
+  CriteriaId,
+  criteriaNameSortOrder,
+  criteriaNameToQueryLanguageName,
+  CriteriaValueSuggestionsProps,
+  dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
-  dynamicCriteriaValuesByName
+  searchableFields,
+  staticCriteriaNames
 } from './models';
 
 const singular = pluralize.singular as (string) => string;
@@ -78,12 +78,14 @@ const isFilledCriteria = pipe(endsWith(':'), not);
 
 interface ParametersParse {
   criteriaName?: Record<string, string>;
+  currentFilter?: Array<Criteria>;
   search: string;
 }
 
 const parse = ({
   search,
-  criteriaName = criteriaValueNameById
+  criteriaName = criteriaValueNameById,
+  currentFilter
 }: ParametersParse): Array<Criteria> => {
   const [criteriaParts, rawSearchParts] = partition(
     allPass([includes(':'), isCriteriaPart, isFilledCriteria]),
@@ -101,10 +103,15 @@ const parse = ({
     );
 
     const objectType = defaultCriteria?.object_type || null;
+    const target = currentFilter?.find(
+      ({ name }) => name === defaultCriteria?.name
+    );
+    const search_data = target?.search_data;
 
-    return {
+    const result = {
       name: pluralizedKey,
       object_type: objectType,
+      search_data,
       type: 'multi_select',
       value: values?.split(',').map((value) => {
         const isStaticCriteria = isNil(objectType);
@@ -124,6 +131,12 @@ const parse = ({
         };
       })
     };
+
+    if (!search_data) {
+      return { ...result, search_data: null };
+    }
+
+    return { ...result, search_data };
   });
 
   const criteriasWithSearch = [
@@ -361,10 +374,10 @@ const getAutocompleteSuggestions = ({
 };
 
 export {
-  parse,
   build,
+  DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
-  searchableFields,
-  DynamicCriteriaParametersAndValues
+  parse,
+  searchableFields
 };

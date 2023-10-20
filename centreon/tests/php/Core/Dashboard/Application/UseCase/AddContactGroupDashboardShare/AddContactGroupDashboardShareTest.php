@@ -23,23 +23,26 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Contact\Domain\Model\ContactGroup;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Dashboard\Domain\Model\Refresh;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardShare;
 use Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardShareRequest;
 use Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardShareResponse;
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
-use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Tests\Core\Dashboard\Application\UseCase\AddContactGroupDashboardShare\AddContactGroupDashboardSharePresenterStub;
 
 beforeEach(function (): void {
     $this->presenter = new AddContactGroupDashboardSharePresenterStub();
@@ -60,6 +63,7 @@ beforeEach(function (): void {
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
+        new Refresh(RefreshType::Global, null),
     );
 
     $this->testedContactGroup = $this->createMock(ContactGroup::class);

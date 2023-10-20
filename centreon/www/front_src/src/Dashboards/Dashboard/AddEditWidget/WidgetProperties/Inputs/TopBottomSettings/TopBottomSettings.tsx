@@ -15,7 +15,7 @@ import {
   labelShowValueLabels,
   labelNumberOfValues
 } from '../../../../translatedLabels';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
 import WidgetSwitch from '../Switch';
 
