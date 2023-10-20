@@ -19,6 +19,9 @@ on:
       major_version:
         required: true
         type: string
+      stability:
+        required: true
+        type: string
       package_cache_key:
         required: false
         type: string
@@ -45,11 +48,6 @@ on:
 
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
-
   cypress-e2e-test-list:
     runs-on: ubuntu-22.04
     outputs:
@@ -158,8 +156,8 @@ jobs:
           retention-days: 1
 
   import-reports-to-xray:
-    needs: [cypress-e2e-test-run,get-version]
-    if: ${{ needs.get-version.outputs.stability != 'canary' }}
+    needs: [cypress-e2e-test-run]
+    if: ${{ inputs.stability != 'canary' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -190,8 +188,8 @@ jobs:
       - name: Determine testPlanKey
         id: determine-testplan-key
         run: |
-          stability="${{ needs.get-version.outputs.stability }}"
-          major_version="${{ needs.get-version.outputs.major_version }}"
+          stability="${{ inputs.stability }}"
+          major_version="${{ inputs.major_version }}"
 
           echo "stability of this branch is $stability"
           echo "major version of this branch is $major_version"
