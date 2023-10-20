@@ -103,7 +103,7 @@ jobs:
           path: .nyc_output/${{ inputs.name }}-out.json
 
       - name: Merge coverage reports
-        run: pnpx nyc merge .nyc_output/ --out coverage.json
+        run: pnpx nyc merge .nyc_output/ --out out.json
         shell: bash
 
       - name: Generate text coverage report

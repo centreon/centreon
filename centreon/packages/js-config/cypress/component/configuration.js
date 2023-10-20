@@ -40,11 +40,11 @@ module.exports = ({
       supportFile: `${mainCypressFolder}/support/component.tsx`
     },
     env: {
-      ...env,
       baseUrl: 'http://localhost:9092',
       codeCoverage: {
         exclude: ['cypress/**/*.*', 'packages/**', 'node_modules', '**/*.js']
-      }
+      },
+      ...env
     },
     reporter: 'mochawesome',
     reporterOptions: {
