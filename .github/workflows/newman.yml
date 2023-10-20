@@ -141,9 +141,6 @@ jobs:
                       "issuetype": {
                         "name": "Test"
                       },
-                      "priority": {
-                        "name": "Lowest"
-                      },
                     }
                   }' \
                   --max-time 20)
