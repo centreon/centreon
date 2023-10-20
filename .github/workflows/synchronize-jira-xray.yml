@@ -23,37 +23,42 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Dependencies and Execute Script
-        uses: actions/github-script@v6
+      - uses: pnpm/action-setup@v2
         with:
-          script: |
-            // Install Node.js dependencies
-            const actionsExec = require('@actions/exec');
-            await actionsExec.exec('pnpm', ['install', 'axios@1.5.1', 'form-data@4.0.0']);
+          version: 7
+          run_install: false
 
-            // Get the latest commit hash
-            const latest_commit = await github.context.payload.after;
-            process.env.LATEST_COMMIT = latest_commit;
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-            // Find Changed Feature Files
-            const { stdout } = await actionsExec.exec('git', ['show', '--name-only', latest_commit]);
-            const changed_files = stdout.split('\n').filter(file => file.endsWith('.feature'));
-            process.env.CHANGED_FILES = changed_files.join(',');
+      - name: Install Dependencies
+        run: |
+          pnpm install axios@1.5.1
+          pnpm install form-data@4.0.0
+          pnpm install @actions/core
 
-            // Run Script on Changed Feature Files
-            if (process.env.CHANGED_FILES) {
-              const major_version = await octokit.rest.actions.getWorkflowRun({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: context.runId
-              }).data.outputs.major_version;
+      - name: Get the latest commit hash
+        run: |
+          latest_commit=$(git log -1 --format="%H")
+          echo "LATEST_COMMIT=$latest_commit" >> $GITHUB_ENV
 
-              const files = process.env.CHANGED_FILES.split(',');
-              for (const file of files) {
-                console.log(`Running script for ${file} on branch ${github.ref}`);
-                await actionsExec.exec('node', ['.github/scripts/synchronize_jira_xray.js', file, github.ref, major_version]);
-              }
-            }
+      - name: Find Changed Feature Files
+        id: find_changed_files
+        run: |
+          mapfile -t CHANGED_FILES <<< "$(git show --name-only $LATEST_COMMIT | grep '\.feature$')"
+          echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${CHANGED_FILES[@]}"
+
+      - name: Run Script on Changed Feature Files
+        if: env.CHANGED_FILES != ''
+        run: |
+          echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
+          for file in $CHANGED_FILES; do
+            echo "Running script for $file on branch ${{ github.ref_name }}"
+            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
+          done
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
           JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
