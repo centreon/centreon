@@ -1,5 +1,5 @@
 @REQ_MON-18495
-Feature: Edit dashboard properties
+Feature: Editing dashboard properties
   As a Centreon User with dashboard update rights
   I need to edit the properties of a dashboard
   In order to set parameters that will prescribe the behavior of this dashboard

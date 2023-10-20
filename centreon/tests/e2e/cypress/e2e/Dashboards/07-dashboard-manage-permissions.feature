@@ -1,5 +1,5 @@
 @REQ_MON-18519
-Feature: Configure user/user groups role for dashboards
+Feature: Managing dashboard permissions
   As a Centreon User with rights to manage users,
   I need to configure the roles assigned with regards to the dashboarding feature.
   I can define whether users can manage access rights to dashboards (i.e. administrator right to the dashboarding capability).

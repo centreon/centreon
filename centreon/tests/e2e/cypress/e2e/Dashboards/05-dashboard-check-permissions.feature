@@ -1,5 +1,5 @@
 @REQ_MON-18516
-Feature: Manage users/groups rights to a dashboard
+Feature: Checking dashboard permissions
   As a Centreon User with dashboard edition rights,
   I need to list users with whom a dashboard has been shared,
   whether they can only read or also write, and update access rights if needed.
