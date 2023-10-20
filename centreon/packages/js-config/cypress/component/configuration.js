@@ -42,7 +42,9 @@ module.exports = ({
     env: {
       ...env,
       baseUrl: 'http://localhost:9092',
-      codeCoverageTasksRegistered: true
+      codeCoverage: {
+        exclude: ['cypress/**/*.*', 'packages/**', 'node_modules', '**/*.js']
+      }
     },
     reporter: 'mochawesome',
     reporterOptions: {
