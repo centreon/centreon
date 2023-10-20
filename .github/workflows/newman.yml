@@ -254,13 +254,14 @@ jobs:
               testRunIds=($(echo "$response_getTestRun" | jq -r '.data.getTestRuns.results[].id'))
               echo "IDs des tests runner : ${testRunIds[@]}"
 
+
+              # Itérer sur les IDs des tests runner et exécuter la mutation pour chaque ID
               newStatus="PASSED"
 
               # Itérer sur les IDs des tests runner et exécuter la mutation pour chaque ID
               for testRunId in "${testRunIds[@]}"; do
-                graphqlMutation='mutation {
-                  updateTestRunStatus(id: "'"$testRunId"'", status: "'"$newStatus"'")
-                }'
+                # Utilisez la syntaxe de chaîne JSON en Bash pour construire la requête GraphQL
+                graphqlMutation="{\"query\": \"mutation { updateTestRunStatus(id: \\\"$testRunId\\\", status: \\\"$newStatus\\\") }\"}"
 
                 echo "$graphqlMutation"  # Ajoutez cette ligne pour déboguer
 
