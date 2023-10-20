@@ -43,18 +43,19 @@ runs:
           ],
           "ip": "0.0.0.0",
           "ip-forward": true,
-          "mtu": 0
+          "mtu": 0,
+          "proxies": {
+            "http-proxy": "",
+            "https-proxy": "",
+            "no-proxy": "*"
+          }
         }
         EOF'
 
         #"exec-opts": ["native.cgroupdriver=cgroupfs"],
         #"cgroup-parent": "/actions_job"
         #
-        #   "proxies": {
-        #    "http-proxy": "",
-        #    "https-proxy": "",
-        #    "no-proxy": "*"
-        #  }
+        #
 
         cat /etc/docker/daemon.json
 
