@@ -32,6 +32,8 @@ runs:
       run: |
         docker info
 
+        ip addr
+
         cat /etc/docker/daemon.json
 
         sudo cat <<EOF >>/etc/docker/daemon.json
@@ -57,4 +59,6 @@ runs:
         sudo bash -c "/usr/bin/dockerd & > /dev/null 2>&1" || true
 
         docker info
+
+        ip addr
       shell: bash
