@@ -58,6 +58,13 @@ jobs:
           path: centreon/cypress/results/*.json
           retention-days: 1
 
+      - name: Archive test coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-coverage
+          path: ${{ inputs.module_name }}/.nyc_output/out.json
+          retention-days: 1
+
   cypress-component-test-report:
     needs: [cypress-component-test-run]
     if: failure()
@@ -88,3 +95,36 @@ jobs:
           path: mochawesome.json
           format: cypress
           urlFilePrefix: centreon
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-coverage
+          path: .nyc_output/${{ inputs.name }}-out.json
+
+      - name: Merge coverage reports
+        run: pnpx nyc merge .nyc_output/ --out coverage.json
+        shell: bash
+
+      - name: Generate text coverage report
+        run: |
+          pnpx nyc report --reporter=text > coverage.txt
+          pnpx nyc report --reporter=json-summary
+        shell: bash
+
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v1
+        id: component-coverage
+        with:
+          textReportPath: './coverage.txt'
+          srcBasePath: './www'
+
+      - name: Add coverage report to the job summary
+        run: |
+          echo "## Cypress component code coverage" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.component-coverage.outputs.markdownReport }}" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Report NYC coverage to PR
+        uses: sidx1024/report-nyc-coverage-github-action@v1
+        with:
+          coverage_file: "coverage/coverage-summary.json"
