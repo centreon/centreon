@@ -140,3 +140,7 @@ export const removeDuplicateFromObjectArray = ({
 };
 
 export const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
+
+export const escapeRegExpSpecialChars = (input: string): string => {
+  return input.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+};

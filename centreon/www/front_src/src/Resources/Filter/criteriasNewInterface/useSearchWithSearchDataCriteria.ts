@@ -8,6 +8,8 @@ import { getFoundFields } from '@centreon/ui';
 import { Criteria } from '../Criterias/models';
 import { currentFilterAtom, searchAtom } from '../filterAtoms';
 
+import { escapeRegExpSpecialChars } from './utils';
+
 interface Parameters {
   selectableCriterias: Array<Criteria>;
 }
@@ -49,19 +51,22 @@ const useSearchWihSearchDataCriteria = ({
       (accumulator, currentValue) => {
         const { content } = currentValue;
         const { field } = currentValue;
-        const target = `${field}:${content?.join(',')}`;
+        const customContent = content.map((item) =>
+          escapeRegExpSpecialChars(item)
+        );
+        const target = `${field}:${customContent?.join(',')}`;
 
         const fieldInSearchInput = `${field}:`;
         const { updatedSearch } = accumulator;
 
-        if (!isEmpty(content)) {
+        if (!isEmpty(customContent)) {
           if (search?.includes(fieldInSearchInput)) {
             const result = getFoundFields({ fields: [field], value: search });
             const formattedResult = `${result[0].field}:${result[0].value}`;
 
             const valuesInSearchInput = result[0].value?.split(',');
             const updatedValues = Array.from(
-              new Set([...valuesInSearchInput, ...content])
+              new Set([...valuesInSearchInput, ...customContent])
             );
 
             const newTarget = `${field}:${updatedValues.join(',')}`;

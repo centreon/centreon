@@ -66,7 +66,11 @@ const SelectInput = ({
 
   const handleSearchData = (updatedValue): SearchData | undefined => {
     const formattedUpdatedValues = updatedValue.map((item) => {
-      return { id: resourceType, value: item.name, valueId: item?.id };
+      return {
+        id: resourceType,
+        value: item.name,
+        valueId: item?.id
+      };
     });
 
     const filteredFormattedUpdatedValues = searchDataValues?.filter(
@@ -124,7 +128,7 @@ const SelectInput = ({
       fields: [field],
       value: search as string
     });
-    const oldFormattedValue = `${result[0].field}:${result[0].value}`;
+    const oldFormattedValue = `${result[0]?.field}:${result[0]?.value}`;
 
     const newValues = result[0]?.value
       ?.split(',')
