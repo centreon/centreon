@@ -93,28 +93,15 @@ jobs:
           mv coverage.json .nyc_output/out.json
         shell: bash
 
-      - name: Generate text coverage report
+      - name: Generate lcov coverage report
         run: |
-          pnpx nyc report --reporter=text > coverage.txt
-          pnpx nyc report --reporter=json-summary
+          pnpx nyc report --reporter=lcov
         shell: bash
-
-      - name: Prepare coverage report in markdown
-        uses: fingerprintjs/action-coverage-report-md@v1
-        id: component-coverage
-        with:
-          textReportPath: './coverage.txt'
-          srcBasePath: './www'
-
-      - name: Add coverage report to the job summary
-        run: |
-          echo "## Cypress component code coverage" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.component-coverage.outputs.markdownReport }}" >> $GITHUB_STEP_SUMMARY
       
       - name: Report NYC coverage to PR
-        uses: sidx1024/report-nyc-coverage-github-action@v1
+        uses: romeovs/lcov-reporter-action@v0.2.16
         with:
-          coverage_file: "coverage/coverage-summary.json"
+          working-directory: ${{ inputs.module_name }}
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
