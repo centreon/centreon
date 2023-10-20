@@ -72,7 +72,7 @@ jobs:
           run: |
             xray_graphql_getTestExecID='{
               "query": "{
-                getTestExecutions(jql: \"project = 'MON'\", limit: 1) {
+                getTestExecutions(jql: "project = '\''MON'\''", limit: 10) {
                   total
                   start
                   limit
