@@ -36,7 +36,7 @@ runs:
 
         cat /etc/docker/daemon.json
 
-        sudo bash -c 'cat <<EOF >>/etc/docker/daemon.json
+        sudo bash -c 'cat <<EOF >/etc/docker/daemon.json
         {
           "registry-mirrors": [
             "https://docker.centreon.com"
