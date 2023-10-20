@@ -2,30 +2,36 @@ version: "3.2"
 services:
   web:
     image: "@WEB_IMAGE@"
-    ports: ["127.0.0.1:80", "127.0.0.1:3306"]
+    ports: ["80", "3306"]
     profiles: ["web"]
 
   web-fresh:
     image: "@WEB_FRESH_IMAGE@"
-    ports: ["127.0.0.1:80", "127.0.0.1:3306"]
+    ports: ["80", "3306"]
     profiles: ["web-fresh"]
 
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest
-    ports: ["127.0.0.1:389"]
+    ports: ["389"]
     profiles: ["openldap"]
 
   squid-simple:
     image: docker.centreon.com/centreon/mon-squid-simple:latest
-    ports: ["127.0.0.1:3128"]
+    ports: ["3128"]
     profiles: ["squid-simple"]
 
   squid-basic-auth:
     image: docker.centreon.com/centreon/mon-squid-basic-auth:latest
-    ports: ["127.0.0.1:3128"]
+    ports: ["3128"]
     profiles: ["squid-basic-auth"]
 
   mediawiki:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
-    ports: ["127.0.0.1:80"]
+    ports: ["80"]
     profiles: ["mediawiki"]
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
