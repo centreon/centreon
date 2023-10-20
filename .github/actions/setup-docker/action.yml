@@ -45,7 +45,7 @@ runs:
           "proxies": {
             "http-proxy": "",
             "https-proxy": "",
-            "no-proxy": "*",
+            "no-proxy": "*"
           },
           "exec-opts": ["native.cgroupdriver=cgroupfs"],
           "cgroup-parent": "/actions_job"
