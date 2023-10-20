@@ -105,7 +105,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           title: Code coverage report for ${{ inputs.module_name }} ${{ inputs.name }} 🚀
           delete-old-comments: true
-          filter-changed-files: true
 
       - name: Archive HTML code coverage
         uses: actions/upload-artifact@v3
