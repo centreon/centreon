@@ -96,12 +96,21 @@ jobs:
       - name: Generate lcov coverage report
         run: |
           pnpx nyc report --reporter=lcov
+          pnpx nyc report --reporter=html
         shell: bash
       
-      - name: Report NYC coverage to PR
+      - name: Publish code coverage to PR
         uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          title: Code coverage report for ${{ inputs.name }} 🚀
+
+      - name: Archive HTML code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.module_name }}-${{ inputs.name }}-code-coverage
+          path: ${{ inputs.module_name }}/coverage
+          retention-days: 1
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
