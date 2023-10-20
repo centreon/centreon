@@ -661,8 +661,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByText(labelNotificationDuplicated);
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed duplication request', () => {
