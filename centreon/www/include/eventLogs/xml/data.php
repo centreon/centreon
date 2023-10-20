@@ -726,6 +726,7 @@ if (isset($req) && $req) {
         }
     }
     $stmt->execute();
+    $rows = $stmt->rowCount();
 
     if (!($stmt->rowCount()) && ($num != 0)) {
         if ($export !== "1") {
@@ -735,9 +736,10 @@ if (isset($req) && $req) {
         $stmt->execute();
     }
 
-    $logs = $stmt->fetchAll();
+    if (!$logs = $stmt->fetchAll()){
+        return "no logs avaible in this host group";
+    }
     $stmt->closeCursor();
-    $rows = $stmt->rowCount();
 
     $buffer->startElement("selectLimit");
     for ($i = 10; $i <= 100; $i = $i + 10) {
@@ -750,11 +752,14 @@ if (isset($req) && $req) {
     require_once './PaginationRenderer.php';
     // generate pages for navigation
     $paginator = new Paginator($num, $rows, $limit);
-    $pages = $paginator->generatePages();
+    if ($rows > $limit){
+        $pages = $paginator->generatePages();
+        $paginationRenderer = new PaginationRenderer($buffer);
+        $paginationRenderer->render($pages);
+    }
 
     // add generated pages into xml
-    $paginationRenderer = new PaginationRenderer($buffer);
-    $paginationRenderer->render($pages);
+
 
     /*
      * Full Request
