@@ -4,6 +4,12 @@ on:
       collection_path:
         required: true
         type: string
+      image_name:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
       container_name:
         required: true
         type: string
@@ -58,6 +64,8 @@ jobs:
       shell: bash
       working-directory: centreon/tests/rest_api
    env:
+    IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+    SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
     CONTAINER_NAME: ${{ inputs.container_name }}
     CENTREON_URL: ${{ inputs.centreon_url }}
     CENTREON_IMAGE: ${{ inputs.centreon_image }}
@@ -91,6 +99,24 @@ jobs:
         registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
         username: ${{ secrets.registry_username }}
         password: ${{ secrets.registry_password }}
+
+    - name: Restore standard slim image from cache
+      id: cache-docker-slim
+      uses: actions/cache/restore@v3
+      continue-on-error: true
+      timeout-minutes: 6
+      with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+      env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+    - name: Load standard slim image
+      if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+      run: |
+          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      shell: bash
 
     - name: Start Centreon Web Container
       run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
