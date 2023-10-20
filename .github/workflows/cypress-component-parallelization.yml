@@ -71,6 +71,7 @@ jobs:
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
+    if: always()
     runs-on: ubuntu-22.04
 
     steps:
