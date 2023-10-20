@@ -71,8 +71,7 @@ jobs:
         - name: Associate Test Cases with Test plan
           run: |
             xray_graphql_getTestExecID='{
-              "query": "{
-                getTestExecutions(jql: \"project = MON\", limit: 1) {
+              "query": "{ getTestExecutions(jql: \"project = MON\", limit: 1) {
                   total
                   start
                   limit
