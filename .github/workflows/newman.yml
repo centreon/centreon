@@ -110,7 +110,7 @@ jobs:
             test_case_ids=()
 
             xray_graphql_AddingTestsToTestPlan='{
-              "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning }",
+              "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
               "variables": {
                 "issueId": "73215",
                 "testIssueIds": []
@@ -168,6 +168,7 @@ jobs:
             response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
             issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
 
+
             test_issue_ids=("${issue_list_ids[@]}")
             formatted_test_issue_ids_str="["
             for issue_id in "${issue_list_ids[@]}"; do
@@ -202,37 +203,18 @@ jobs:
             if [ "$test_execution_id" == "null" ]; then
               echo "Failed to create the Test Execution. Check the response for errors."
             else
-              echo "Created Test Execution with ID: $test_execution
+              echo "Created Test Execution with ID: $test_execution_id"
+            fi
 
-              xray_graphql_getTestExecID='{ "query": "{ getTestExecutions(jql: \"project = MON\", limit: 1) { total start limit results { issueId tests(limit: 100) { total start limit results { issueId testType { name } } } } } }" }'
+            xray_graphql_addTestExecutionsToTestPlan='{
+              "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
+              "variables": {
+                "issueId": "73215",
+                "testExecIssueIds": ["'$test_execution_id'"]
+              }
+            }'
 
-              responseGestTestExecID=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestExecID" -v "https://xray.cloud.getxray.app/api/v2/graphql")
-              echo "$responseGestTestExecID"
-
-              # Extraire l'ID de l'exécution de test
-              testExecId=$(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[0].issueId')
-
-              # Extraire la liste des IDs des tests issue
-              testIssueIds=($(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[].tests.results[].issueId'))
-              jsonArray=()
-              for id in "${testIssueIds[@]}"; do
-                jsonArray+=("\"$id\"")
-              done
-              testIssueIds='['$(IFS=, ; echo "${jsonArray[*]}")']'
-              echo "$testIssueIds"
-
-              xray_graphql_getTestRunIDs='{
-                "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
-                "variables": {
-                  "testIssueId": '"$testIssueIds"',
-                  "testExecIssueId": ["'"$testExecId"'"],
-                  "limit": 100
-                }
-              }'
-
-              echo "$xray_graphql_getTestRunIDs"
-              response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
-              echo "$response_getTestRun"
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_addTestExecutionsToTestPlan" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
 
   newman-test-run:
