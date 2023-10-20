@@ -70,7 +70,7 @@ jobs:
 
         - name: Associate Test Cases with Test plan
           run: |
-            xray_graphql_getTestExecID='{ "query": "{ getTestExecutions(jql: \"project = MON\", limit: 1) { total start limit results { issueId tests(limit: 1) { total start limit results { issueId testType { name } } } } } }" }'
+            xray_graphql_getTestExecID='{ "query": "{ getTestExecutions(jql: \"project = MON\", limit: 1) { total start limit results { issueId tests(limit: 100) { total start limit results { issueId testType { name } } } } } }" }'
 
             responseGestTestExecID=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestExecID" -v "https://xray.cloud.getxray.app/api/v2/graphql")
             echo "$responseGestTestExecID"
@@ -86,8 +86,8 @@ jobs:
             xray_graphql_getTestRunIDs='{
               "query": "query GetTestRun($testIssueId: [String], $testExecIssueId: String) { getTestRun(testIssueId: $testIssueId, testExecIssueId: $testExecIssueId) { id } }",
               "variables": {
-                "testIssueId": '"$testIssueIds"',   # Utiliser le tableau JSON des IDs des tests issue
-                "testExecIssueId": "'"$testExecId"'"  # Utiliser l'ID de l'exécution de test
+                "testIssueId": '"$testIssueIds"',
+                "testExecIssueId": "'"$testExecId"'"
               }
             }'
             echo "$xray_graphql_getTestRunIDs"
