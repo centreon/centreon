@@ -606,8 +606,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByText(labelDuplicate).should('be.disabled');
     cy.findByText(labelDiscard).click();
 
-    cy.get('#panel-content').scrollTo('top');
-
     cy.makeSnapshot();
   });
 
@@ -626,8 +624,6 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
-    cy.get('#panel-content').scrollTo('top');
-
     cy.makeSnapshot();
   });
 
@@ -642,8 +638,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByTestId('Confirm').should('be.disabled');
 
     cy.findByText(labelDiscard).click();
-
-    cy.get('#panel-content').scrollTo('top');
 
     cy.makeSnapshot();
   });
@@ -660,7 +654,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.findByText(labelNotificationDuplicated);
 
-    cy.get('#panel-content').scrollTo('top');
+    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed duplication request', () => {
