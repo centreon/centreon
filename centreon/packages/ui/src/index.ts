@@ -75,7 +75,10 @@ export { default as useCancelTokenSource } from './api/useCancelTokenSource';
 export { getData, patchData, postData, putData, deleteData } from './api';
 export { default as useRequest } from './api/useRequest';
 export { default as buildListingEndpoint } from './api/buildListingEndpoint';
-export { default as getSearchQueryParameterValue } from './api/buildListingEndpoint/getSearchQueryParameterValue';
+export {
+  getSearchQueryParameterValue,
+  getFoundFields
+} from './api/buildListingEndpoint/getSearchQueryParameterValue';
 export type {
   Parameters as ListingParameters,
   BuildListingEndpointParameters,
@@ -140,7 +143,12 @@ export * from './TopCounterElements';
 export { default as Image, ImageVariant } from './Image/Image';
 export { default as WallpaperPage } from './WallpaperPage';
 export { RichTextEditor } from './RichTextEditor';
-export { default as ActionsList } from './ActionsList';
+export {
+  default as ActionsList,
+  ActionsListActionDivider
+} from './ActionsList';
+export type { ActionsListActions } from './ActionsList';
+export type { ActionVariants } from './ActionsList/models';
 
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
 

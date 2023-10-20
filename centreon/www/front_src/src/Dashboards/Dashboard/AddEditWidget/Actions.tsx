@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import { Modal } from '@centreon/ui/components';
 
 import { labelCancel, labelSave } from '../translatedLabels';
-import { editProperties } from '../useCanEditDashboard';
+import { editProperties } from '../hooks/useCanEditDashboard';
 
 interface Props {
   closeModal: (shouldAskForClosingConfirmation: boolean) => void;

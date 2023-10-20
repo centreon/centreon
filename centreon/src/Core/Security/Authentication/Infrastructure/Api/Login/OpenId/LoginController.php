@@ -35,11 +35,12 @@ use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
 use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Exception\ConflictingHeadersException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class LoginController extends AbstractController
+final class LoginController extends AbstractController
 {
     use HttpUrlTrait;
 
@@ -50,56 +51,59 @@ class LoginController extends AbstractController
      * @param SessionInterface $session
      *
      * @throws AuthenticationException
+     * @throws ConflictingHeadersException
      *
-     * @return object
+     * @return View|Response|null
      */
     public function __invoke(
         Request $request,
         Login $useCase,
         LoginPresenter $presenter,
         SessionInterface $session
-    ): object {
-        $request = LoginRequest::createForOpenId(
+    ): null|View|Response {
+        $loginRequest = LoginRequest::createForOpenId(
             $request->getClientIp() ?: '',
             $request->query->get('code', '')
         );
 
-        $useCase($request, $presenter);
+        $useCase($loginRequest, $presenter);
+
+        $response = $presenter->getResponseStatus() ?? $presenter->getPresentedData();
 
         switch (true) {
-            case is_a($presenter->getResponseStatus(), PasswordExpiredResponse::class)
-                || is_a($presenter->getResponseStatus(), UnauthorizedResponse::class)
-                || is_a($presenter->getResponseStatus(), ErrorResponse::class):
+            case $response instanceof PasswordExpiredResponse:
+            case $response instanceof UnauthorizedResponse:
+            case $response instanceof ErrorResponse:
                 return View::createRedirect(
-                    $this->getBaseUrl() . '/login?authenticationError=' . $presenter->getResponseStatus()->getMessage()
+                    $this->getBaseUrl() . '/login?' . http_build_query([
+                        'authenticationError' => $response->getMessage(),
+                    ]),
                 );
-            case is_a($presenter->getResponseStatus(), ErrorAclConditionsResponse::class):
-            case is_a($presenter->getResponseStatus(), ErrorAuthenticationConditionsResponse::class):
-                return View::createRedirect(
-                    $this->getBaseUrl() . '/authentication-denied'
-                );
-            default:
-                /**
-                 * @var LoginResponse $response
-                 */
-                $response = $presenter->getPresentedData();
 
+            case $response instanceof ErrorAclConditionsResponse:
+            case $response instanceof ErrorAuthenticationConditionsResponse:
+                return View::createRedirect(
+                    $this->getBaseUrl() . '/authentication-denied',
+                );
+
+            case $response instanceof LoginResponse:
                 if ($response->redirectIsReact()) {
                     return View::createRedirect(
                         $this->getBaseUrl() . $response->getRedirectUri(),
-                        Response::HTTP_FOUND,
-                        ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                        headers: ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
                     );
                 }
 
                 return View::createRedirect(
                     $this->getBaseUrl() . '/login',
-                    Response::HTTP_FOUND,
-                    [
-                        'Set-Cookie' => 'PHPSESSID=' . $session->getId(),
-                        'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri()
-                            . ';Max-Age=10',
-                    ]
+                    headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
+                );
+
+            default:
+                return View::createRedirect(
+                    $this->getBaseUrl() . '/login?' . http_build_query([
+                        'authenticationError' => 'Unknown error',
+                    ]),
                 );
         }
     }

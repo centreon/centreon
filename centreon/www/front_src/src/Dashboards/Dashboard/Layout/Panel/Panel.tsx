@@ -10,8 +10,8 @@ import {
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
-import { editProperties } from '../../useCanEditDashboard';
-import useSaveDashboard from '../../useSaveDashboard';
+import { editProperties } from '../../hooks/useCanEditDashboard';
+import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
@@ -22,7 +22,7 @@ interface Props {
 }
 
 const Panel = ({ id, refreshCount }: Props): JSX.Element => {
-  const { classes } = usePanelHeaderStyles();
+  const { classes, cx } = usePanelHeaderStyles();
 
   const getPanelOptionsAndData = useAtomValue(
     getPanelOptionsAndDataDerivedAtom
@@ -50,12 +50,15 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
     panelOptionsAndData.options?.description?.content &&
     !isRichTextEditorEmpty(panelOptionsAndData.options?.description?.content);
 
+  const isGenericTextPanel = isGenericText(panelConfigurations.path);
+
   return useMemoComponent({
     Component: (
       <>
         {displayDescription && (
           <RichTextEditor
             disabled
+            contentClassName={cx(isGenericTextPanel && classes.description)}
             editable={false}
             editorState={
               panelOptionsAndData.options?.description?.enabled

@@ -30,6 +30,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -40,7 +41,6 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
-use Core\Host\Domain\Model\SimpleEntity;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\Host\Domain\Model\TinyHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -426,8 +426,6 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                             ON aclrgr_sev.acl_res_id = aclr_sev.acl_res_id
                             AND aclrgr_sev.acl_group_id IN ({$accessGroupIdsQuery})
                         WHERE sev.level IS NOT NULL
-                        ORDER BY sev.level ASC
-                        LIMIT 1
                     )
                     SQL;
             }

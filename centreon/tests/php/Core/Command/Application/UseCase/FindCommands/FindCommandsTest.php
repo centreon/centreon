@@ -21,19 +21,20 @@
 
 declare(strict_types=1);
 
+namespace Tests\Core\Command\Application\UseCase\FindCommands;
+
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Command\Domain\Model\Command;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Application\UseCase\FindCommands\FindCommands;
 use Core\Command\Application\UseCase\FindCommands\FindCommandsResponse;
+use Core\Command\Domain\Model\Command;
 use Core\Command\Domain\Model\CommandType;
-use Core\Command\Infrastructure\Model\CommandTypeConverter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Tests\Core\Command\Infrastructure\API\FindCommands\FindCommandsPresenterStub;
 
@@ -135,7 +136,15 @@ it(
             ->method('isAdmin')
             ->willReturn(true);
 
-        $command = new Command(1, 'fake', 'line', CommandType::Check, true, true, true);
+        $command = new Command(
+            id: 1,
+            name: 'fake',
+            commandLine: 'line',
+            type: CommandType::Check,
+            isShellEnabled: true,
+            isActivated: true,
+            isLocked: true
+        );
 
         $this->readCommandRepository
             ->expects($this->once())

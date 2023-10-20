@@ -8,7 +8,7 @@ Feature: Deleting an existing dashboard
 Scenario: Delete a dashboard on the dashboards library
   Given a user with dashboard update rights on the dashboards library
   When the user clicks on the delete button for a dashboard featured in the library
-  Then a confirmation pop-up appears
+  Then a confirmation poppin appears
   When the user confirms the choice to delete the dashboard
   Then the dashboard is not listed anymore in the dashboards library
 
