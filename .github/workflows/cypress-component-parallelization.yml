@@ -65,37 +65,11 @@ jobs:
           path: ${{ inputs.module_name }}/.nyc_output/out.json
           retention-days: 1
 
-  cypress-component-test-report:
+  cypress-component-coverage-report:
     needs: [cypress-component-test-run]
-    if: failure()
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.name }}-test-reports
-          path: ${{ inputs.name }}-json-reports
-
-      - name: Merge reports
-        run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
-        shell: bash
-
-      - name: Publish report
-        uses: ./.github/actions/publish-report
-        with:
-          check_name: ${{ inputs.name }}-report
-          path: mochawesome.json
-          format: cypress
-          urlFilePrefix: centreon
-
       - name: Download coverage reports
         uses: actions/download-artifact@v3
         with:
@@ -128,3 +102,34 @@ jobs:
         uses: sidx1024/report-nyc-coverage-github-action@v1
         with:
           coverage_file: "coverage/coverage-summary.json"
+
+  cypress-component-test-report:
+    needs: [cypress-component-test-run]
+    if: failure()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-reports
+          path: ${{ inputs.name }}-json-reports
+
+      - name: Merge reports
+        run: |
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        shell: bash
+
+      - name: Publish report
+        uses: ./.github/actions/publish-report
+        with:
+          check_name: ${{ inputs.name }}-report
+          path: mochawesome.json
+          format: cypress
+          urlFilePrefix: centreon
