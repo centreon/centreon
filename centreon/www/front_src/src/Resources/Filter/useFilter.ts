@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
 
+import { useAtomValue, useSetAtom } from 'jotai';
 import { omit } from 'ramda';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
-  useRequest,
+  getUrlQueryParameters,
   setUrlQueryParameters,
-  getUrlQueryParameters
+  useRequest
 } from '@centreon/ui';
 
+import { CriteriaValue } from './Criterias/models';
+import { build } from './Criterias/searchQueryLanguage';
 import { listCustomFilters } from './api';
 import { listCustomFiltersDecoder } from './api/decoders';
-import { Filter } from './models';
-import { build } from './Criterias/searchQueryLanguage';
 import {
   applyFilterDerivedAtom,
   currentFilterAtom,
@@ -24,7 +24,7 @@ import {
   sendingFilterAtom,
   storedFilterAtom
 } from './filterAtoms';
-import { CriteriaValue } from './Criterias/models';
+import { Filter } from './models';
 
 export interface FilterState {
   applyCurrentFilter?: () => void;
@@ -49,8 +49,8 @@ const useFilter = (): void => {
     filterWithParsedSearchDerivedAtom
   );
   const getDefaultFilter = useAtomValue(getDefaultFilterDerivedAtom);
-  const setCustomFilters = useSetAtom(customFiltersAtom);
   const setSearch = useSetAtom(searchAtom);
+  const setCustomFilters = useSetAtom(customFiltersAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const storeFilter = useSetAtom(storedFilterAtom);
   const setSendingFilter = useSetAtom(sendingFilterAtom);

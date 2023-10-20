@@ -30,6 +30,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -40,7 +41,6 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
-use Core\Host\Domain\Model\SimpleEntity;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\Host\Domain\Model\TinyHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -103,7 +103,7 @@ use Utility\SqlConcatenator;
  *     check_timeperiod_name: string|null,
  *     notification_timeperiod_id: int|null,
  *     notification_timeperiod_name: string|null,
- *     severity_id: int|null,
+ *     severity_id: string|null,
  *     severity_name: string|null,
  *     monitoring_server_id: int,
  *     monitoring_server_name: string,
@@ -459,8 +459,8 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 ctime.tp_name AS check_timeperiod_name,
                 ntime.tp_id AS notification_timeperiod_id,
                 ntime.tp_name AS notification_timeperiod_name,
-                GROUP_CONCAT(DISTINCT sev.hc_id) AS severity_id,
-                GROUP_CONCAT(DISTINCT sev.hc_name) AS severity_name,
+                GROUP_CONCAT(sev.hc_id ORDER BY sev.level ASC LIMIT 1)  AS severity_id,
+                GROUP_CONCAT(sev.hc_name ORDER BY sev.level ASC LIMIT 1)  AS severity_name,
                 ns.id AS monitoring_server_id,
                 ns.name AS monitoring_server_name,
                 GROUP_CONCAT(DISTINCT hc.hc_id) AS category_ids,
@@ -477,7 +477,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 AND hc.level IS NULL {$hostCategoriesAcl}
             LEFT JOIN `:db`.hostgroup_relation hgr
                 ON hgr.host_host_id = h.host_id {$hostGroupAcl}
-            INNER JOIN `:db`.hostgroup hg
+            LEFT JOIN `:db`.hostgroup hg
                 ON hg.hg_id = hgr.hostgroup_hg_id
             LEFT JOIN `:db`.ns_host_relation nsr
                 ON nsr.host_host_id = h.host_id

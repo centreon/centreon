@@ -27,7 +27,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSelectionAtom } from '../../../atoms';
 import { isAtLeastOneResourceFullfilled } from '../utils';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useMetrics from './useMetrics';
 

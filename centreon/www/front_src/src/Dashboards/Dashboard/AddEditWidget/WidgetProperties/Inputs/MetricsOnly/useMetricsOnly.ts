@@ -28,20 +28,12 @@ import {
   Metric,
   ServiceMetric,
   Widget,
-  WidgetDataResource,
-  WidgetResourceType
+  WidgetDataResource
 } from '../../../models';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
-import { getDataProperty } from '../utils';
+import { getDataProperty, resourceTypeQueryParameter } from '../utils';
 import { labelIncludesXHost } from '../../../../translatedLabels';
-
-const resourceTypeQueryParameter = {
-  [WidgetResourceType.host]: 'host.id',
-  [WidgetResourceType.hostCategory]: 'hostcategory.id',
-  [WidgetResourceType.hostGroup]: 'hostgroup.id',
-  [WidgetResourceType.service]: 'service.name'
-};
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;

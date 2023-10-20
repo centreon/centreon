@@ -8,7 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import { useGraphTypeStyles } from './SingleMetricGraphType.styles';
 

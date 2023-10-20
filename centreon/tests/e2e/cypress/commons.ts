@@ -318,7 +318,7 @@ const checkIfConfigurationIsExported = ({
 };
 
 const getUserContactId = (userName: string): Cypress.Chainable => {
-  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}';`;
+  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}'`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
@@ -337,7 +337,7 @@ const getUserContactId = (userName: string): Cypress.Chainable => {
 };
 
 const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
-  const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}';`;
+  const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}'`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
@@ -351,8 +351,55 @@ const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
         return cy.wrap(accessGroupid || '0');
       }
 
-      return cy.log(`Can't execute command on database.`);
+      return cy.log(`Cannot execute command on database.`);
     });
+};
+
+const configureProviderAcls = (): Cypress.Chainable => {
+  return cy
+    .fixture('resources/clapi/config-ACL/provider-acl.json')
+    .then((fixture: Array<ActionClapi>) => {
+      fixture.forEach((action) =>
+        cy.executeActionViaClapi({ bodyContent: action })
+      );
+    });
+};
+
+const configureACLGroups = (path: string): Cypress.Chainable => {
+  cy.getByLabel({ label: 'Roles mapping' }).click();
+
+  cy.getByLabel({
+    label: 'Enable automatic management',
+    tag: 'input'
+  })
+    .eq(0)
+    .check();
+
+  cy.getByLabel({
+    label: 'Roles attribute path',
+    tag: 'input'
+  }).type(`{selectAll}{backspace}${path}`);
+
+  cy.getByLabel({
+    label: 'Role value',
+    tag: 'input'
+  }).type('{selectAll}{backspace}centreon-editor');
+
+  cy.getByLabel({
+    label: 'ACL access group',
+    tag: 'input'
+  }).click({ force: true });
+
+  cy.wait('@getListAccessGroup');
+
+  cy.get('div[role="presentation"] ul li').contains('ACL Group test').click();
+
+  return cy
+    .getByLabel({
+      label: 'ACL access group',
+      tag: 'input'
+    })
+    .should('have.value', 'ACL Group test');
 };
 
 export {
@@ -373,5 +420,7 @@ export {
   logout,
   checkIfConfigurationIsExported,
   getUserContactId,
-  getAccessGroupId
+  getAccessGroupId,
+  configureProviderAcls,
+  configureACLGroups
 };

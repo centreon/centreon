@@ -63,7 +63,7 @@ $indds = array("" => sprintf("%s%s", _("Host list"), "&nbsp;&nbsp;&nbsp;"));
 $mx_l = strlen($indds[""]);
 
 try {
-    $dbindd = $pearDBO->query("SELECT DISTINCT host_id, host_name FROM index_data;");
+    $dbindd = $pearDBO->query("SELECT DISTINCT 1 AS REALTIME, host_id, host_name FROM index_data;");
 } catch (\PDOException $e) {
     print "DB Error : " . $e->getMessage() . "<br />";
 }

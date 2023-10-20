@@ -118,9 +118,12 @@ export const addPanelDerivedAtom = atom(
 
     const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
 
+    const widgetHeight =
+      height || Math.max(panelConfiguration?.panelMinHeight || 1, 3);
+
     const basePanelLayout = {
       data,
-      h: height || panelConfiguration?.panelMinHeight || 3,
+      h: widgetHeight,
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
@@ -181,8 +184,6 @@ export const addPanelDerivedAtom = atom(
     setAtom(panelsLengthAtom, increasedPanelsLength);
   }
 );
-
-export const askDeletePanelAtom = atom<string | null>(null);
 
 export const removePanelDerivedAtom = atom(
   null,
@@ -293,3 +294,11 @@ export const quitWithoutSavedDashboardAtom =
     'centreon-quit-without-saved-dashboard',
     null
   );
+
+export const resetDashboardDerivedAtom = atom(null, (_, setAtom) => {
+  setAtom(dashboardAtom, {
+    layout: []
+  });
+  setAtom(dashboardRefreshIntervalAtom, undefined);
+  setAtom(panelsLengthAtom, 0);
+});

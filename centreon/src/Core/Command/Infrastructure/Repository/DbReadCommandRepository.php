@@ -30,9 +30,14 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Argument;
 use Core\Command\Domain\Model\Command;
 use Core\Command\Domain\Model\CommandType;
 use Core\Command\Infrastructure\Model\CommandTypeConverter;
+use Core\CommandMacro\Domain\Model\CommandMacro;
+use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Common\Domain\SimpleEntity;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToIntegerNormalizer;
 use Utility\SqlConcatenator;
@@ -42,10 +47,15 @@ use Utility\SqlConcatenator;
  *     command_id: int,
  *     command_name: string,
  *     command_line: string,
+ *     command_example?: string|null,
  *     command_type: int,
  *     enable_shell: int,
  *     command_activate: string,
- *     command_locked: int
+ *     command_locked: int,
+ *     connector_id?: int|null,
+ *     connector_name?: string|null,
+ *     graph_template_id?: int|null,
+ *     graph_template_name?: string|null,
  * }
  */
 class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadCommandRepositoryInterface
@@ -113,6 +123,69 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
     /**
      * @inheritDoc
      */
+    public function existsByName(TrimmedString $name): bool
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.command
+                WHERE command_name = :commandName
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':commandName', $name->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $commandId): ?Command
+    {
+        $request = <<<'SQL'
+            SELECT
+                command.command_id,
+                command.command_name,
+                command.command_line,
+                command.command_example,
+                command.command_type,
+                command.enable_shell,
+                command.command_activate,
+                command.command_locked,
+                command.connector_id,
+                connector.name as connector_name,
+                command.graph_id as graph_template_id,
+                giv_graphs_template.name as graph_template_name
+            FROM `:db`.command
+            LEFT JOIN `:db`.connector
+                ON command.connector_id = connector.id
+            LEFT JOIN `:db`.giv_graphs_template
+                ON command.graph_id = giv_graphs_template.graph_id
+            WHERE command.command_id = :commandId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':commandId', $commandId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (! ($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+
+            return null;
+        }
+
+        /** @var _Command $result */
+        $command = $this->createCommand($result);
+        $command->setArguments($this->findArgumentsByCommandId($commandId));
+        $command->setMacros($this->findMacrosByCommandId($commandId));
+
+        return $command;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameterAndTypes(
         RequestParametersInterface $requestParameters,
         array $commandTypes
@@ -158,7 +231,6 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
             \PDO::PARAM_INT
         );
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
-        $rs = (string) $sqlConcatenator;
         $statement = $this->db->prepare($this->translateDbName((string) $sqlConcatenator));
         $sqlTranslator->bindSearchValues($statement);
         $sqlConcatenator->bindValuesToStatement($statement);
@@ -183,13 +255,104 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
     private function createCommand(array $data): Command
     {
         return new Command(
-            (int) $data['command_id'],
-            $data['command_name'],
-            html_entity_decode($data['command_line']),
-            CommandTypeConverter::fromInt((int) $data['command_type']),
-            (bool) $data['enable_shell'],
-            $data['command_activate'] === '1',
-            (bool) $data['command_locked'],
+            id: (int) $data['command_id'],
+            name: $data['command_name'],
+            commandLine: html_entity_decode($data['command_line']),
+            type: CommandTypeConverter::fromInt((int) $data['command_type']),
+            isShellEnabled: (bool) $data['enable_shell'],
+            isActivated: $data['command_activate'] === '1',
+            isLocked: (bool) $data['command_locked'],
+            argumentExample: $data['command_example'] ?? '',
+            connector: isset($data['connector_id']) && isset($data['connector_name'])
+                ? new SimpleEntity(
+                    id: $data['connector_id'],
+                    name: new TrimmedString($data['connector_name']),
+                    objectName: 'Connector'
+                )
+                : null,
+            graphTemplate: isset($data['graph_template_id']) && isset($data['graph_template_name'])
+                ? new SimpleEntity(
+                    id: $data['graph_template_id'],
+                    name: new TrimmedString($data['graph_template_name']),
+                    objectName: 'GraphTemplate'
+                )
+                : null,
         );
+    }
+
+    /**
+     * @param int $commandId
+     *
+     * @throws \Throwable
+     *
+     * @return Argument[]
+     */
+    private function findArgumentsByCommandId(int $commandId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT macro_name, macro_description
+                FROM command_arg_description
+                WHERE cmd_id = :commandId
+                SQL
+        ));
+        $statement->bindValue(':commandId', $commandId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $arguments = [];
+        /** @var array{
+         *      macro_name: string,
+         *      macro_description: string|null
+         *  } $result
+         */
+        foreach ($statement as $result) {
+            $arguments[] = new Argument(
+                name: new TrimmedString($result['macro_name']),
+                description: new TrimmedString($result['macro_description'] ?? '')
+            );
+        }
+
+        return $arguments;
+    }
+
+    /**
+     * @param int $commandId
+     *
+     * @throws \Throwable
+     *
+     * @return CommandMacro[]
+     */
+    private function findMacrosByCommandId(int $commandId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT command_macro_name, command_macro_desciption, command_macro_type
+                FROM on_demand_macro_command
+                WHERE command_command_id = :commandId
+                SQL
+        ));
+        $statement->bindValue(':commandId', $commandId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $macros = [];
+        /** @var array{
+         *      command_macro_name: string,
+         *      command_macro_desciption: string|null,
+         *      command_macro_type: string
+         *  } $result
+         */
+        foreach ($statement as $result) {
+            $macro = new CommandMacro(
+                commandId: $commandId,
+                type: CommandMacroType::from($result['command_macro_type']),
+                name: $result['command_macro_name']
+            );
+            $macro->setDescription($result['command_macro_desciption'] ?? '');
+            $macros[] = $macro;
+        }
+
+        return $macros;
     }
 }

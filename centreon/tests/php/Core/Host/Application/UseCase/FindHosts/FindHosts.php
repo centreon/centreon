@@ -35,7 +35,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\UseCase\FindHosts\FindHosts;
 use Core\Host\Application\UseCase\FindHosts\FindHostsResponse;
 use Core\Host\Domain\Model\TinyHost;
-use Core\Host\Domain\Model\SimpleEntity;
+use Core\Common\Domain\SimpleEntity;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;

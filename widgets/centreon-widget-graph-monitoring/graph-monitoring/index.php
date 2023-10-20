@@ -101,11 +101,15 @@ $template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
 
 $acl = 1;
 if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
-    $sql = "SELECT host_id
+    $sql = <<<'SQL'
+        SELECT
+            1 AS REALTIME,
+            host_id
         FROM centreon_acl
         WHERE host_id = :hostId
         AND service_id = :serviceId
-        AND group_id IN (:groupList)";
+        AND group_id IN (:groupList)
+        SQL;
 
     $res = $dbAcl->prepare($sql);
     $res->bindValue(':hostId', $tab[0], PDO::PARAM_INT);

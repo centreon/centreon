@@ -5,12 +5,13 @@ import {
   initializeSAMLUser,
   navigateToSAMLConfigPage
 } from '../common';
-import { getAccessGroupId } from '../../../../commons';
+import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()
     .startOpenIdProviderContainer()
     .then(() => {
+      configureProviderAcls();
       initializeSAMLUser();
     });
 });
@@ -88,7 +89,7 @@ When(
 
     cy.wait('@getListAccessGroup');
 
-    cy.get('div[role="presentation"] ul li').click();
+    cy.get('div[role="presentation"] ul li').contains('ALL').click();
 
     cy.getByLabel({
       label: 'ACL access group',
