@@ -41,7 +41,9 @@ runs:
           "registry-mirrors": [
             "https://docker.centreon.com"
           ],
-          "mtu": 1200,
+          "ip": "0.0.0.0",
+          "ip-forward": true,
+          "mtu": 0,
           "proxies": {
             "http-proxy": "",
             "https-proxy": "",

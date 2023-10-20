@@ -29,9 +29,3 @@ services:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
-
-networks:
-  default:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1200
