@@ -59,7 +59,7 @@ jobs:
           retention-days: 1
 
       - name: Change coverage report name
-        run: mv ${{ inputs.module_name }}/.nyc_output/out.json ${{ inputs.module_name }}.nyc_output/${{ matrix.spec }}-out.json
+        run: mv ${{ inputs.module_name }}/.nyc_output/out.json ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
         shell: bash
 
       - name: Archive test coverage
