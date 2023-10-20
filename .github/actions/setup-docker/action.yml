@@ -41,7 +41,8 @@ runs:
           "registry-mirrors": [
             "https://docker.centreon.com"
           ],
-          "ip": "0.0.0.0"
+          "ip": "0.0.0.0",
+          "ip-forward": true
         }
         EOF'
 
@@ -53,7 +54,6 @@ runs:
         #    "https-proxy": "",
         #    "no-proxy": "*"
         #  }
-        # "ip-forward": true
 
         cat /etc/docker/daemon.json
 
