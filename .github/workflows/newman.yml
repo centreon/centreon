@@ -70,35 +70,39 @@ jobs:
 
         - name: Associate Test Cases with Test plan
           run: |
-            xray_graphql_getTestExecID='{ "query": "{ getTestExecutions(jql: \"project = MON\", limit: 1) { total start limit results { issueId tests(limit: 100) { total start limit results { issueId testType { name } } } } } }" }'
+           xray_graphql_getTestPlan='{
+            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
+                variables": {
+                "issueId": "73215"
+                }
+            }'
 
-            responseGestTestExecID=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestExecID" -v "https://xray.cloud.getxray.app/api/v2/graphql")
-            echo "$responseGestTestExecID"
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+            issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
 
-            # Extraire l'ID de l'exécution de test
-            testExecId=$(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[0].issueId')
-
-            # Extraire la liste des IDs des tests issue
-            testIssueIds=($(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[].tests.results[].issueId'))
-            jsonArray=()
-            for id in "${testIssueIds[@]}"; do
-              jsonArray+=("\"$id\"")
-            done
             testIssueIds='['$(IFS=, ; echo "${jsonArray[*]}")']'
             echo "$testIssueIds"
 
-            xray_graphql_getTestRunIDs='{
-              "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
-              "variables": {
-                "testIssueId": '"$testIssueIds"',
-                "testExecIssueId": ["'"$testExecId"'"],
-                "limit": 10
-              }
-            }'
+            xray_graphql_getTestRunIDs='{"query":"query GetTestExecution($testExecutionIssueId: String) { getTestExecution(issueId: $testExecutionIssueId) { issueId tests(limit: 100) { total start limit results { issueId testType { name } } } } }","variables":{"testExecutionIssueId":'"$testIssueIds"'}}'
 
-            echo "$xray_graphql_getTestRunIDs"
-            response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
-            echo "$response_getTestRun"
+
+
+
+
+
+
+            # xray_graphql_getTestRunIDs='{
+            #   "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
+            #   "variables": {
+            #     "testIssueId": '"$testIssueIds"',
+            #     "testExecIssueId": ["'"$testExecId"'"],
+            #     "limit": 10
+            #   }
+            # }'
+
+            # echo "$xray_graphql_getTestRunIDs"
+            # response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+            # echo "$response_getTestRun"
 
         # xray_graphql_getTestPlan='{
   #             "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
