@@ -226,6 +226,7 @@ jobs:
               echo "$responseGestTestExecID"
 
               # Extraire la liste des IDs des tests issue
+              testIssueIds=($(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[].tests.results[].issueId'))
               testIssueIds='['
               for id in "${testExecutionIssueIds[@]}"; do
                 testIssueIds+='{"issueId":"'${id}'"},'
@@ -233,8 +234,6 @@ jobs:
               testIssueIds=${testIssueIds%,} # Supprime la virgule finale
               testIssueIds+=']'
 
-              # Affiche le tableau JSON
-              echo "$testIssueIds"
               xray_graphql_getTestRunIDs='{
                 "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
                 "variables": {
