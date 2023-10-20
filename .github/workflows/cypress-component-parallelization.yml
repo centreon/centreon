@@ -58,11 +58,15 @@ jobs:
           path: centreon/cypress/results/*.json
           retention-days: 1
 
+      - name: Change coverage report name
+        run: mv .nyc_output/out.json .nyc_output/${{ inputs.name }}-out.json
+        shell: bash
+
       - name: Archive test coverage
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-coverage
-          path: ${{ inputs.module_name }}/.nyc_output/out.json
+          path: ${{ inputs.module_name }}/.nyc_output/${{ inputs.name }}-out.json
           retention-days: 1
 
   cypress-component-coverage-report:
@@ -70,6 +74,12 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Download coverage reports
         uses: actions/download-artifact@v3
         with:
