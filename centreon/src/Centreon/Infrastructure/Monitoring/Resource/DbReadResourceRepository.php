@@ -76,7 +76,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements Resource
         'status_severity_code' => 'resources.status_ordered',
         'action_url' => 'resources.action_url',
         'parent_name' => 'resources.parent_name',
-        'parent_alias' => 'parent_resource.alias',
+        'parent_alias' => 'CASE WHEN resources.type = 1 THEN resources.alias ELSE parent_resource.alias END',
         'parent_status' => 'parent_status',
         'severity_level' => 'severity_level',
         'in_downtime' => 'resources.in_downtime',
