@@ -79,8 +79,9 @@ jobs:
             testExecId=$(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[0].issueId')
 
             # Extraire la liste des IDs des tests issue
-            testIssueIds=($(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[].issueId'))
-            testIssueIds='["'$(echo "$testIssueIds" | tr ' ' '","')'"]'
+            testIssueIds=($(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[].tests.results[].issueId'))
+
+            testIssueIds='['$(IFS=, ; echo "${testIssueIds[*]}")']'
             echo "$testIssueIds"
 
             xray_graphql_getTestRunIDs='{
