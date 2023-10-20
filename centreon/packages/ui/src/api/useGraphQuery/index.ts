@@ -1,9 +1,11 @@
-import { equals, flatten, has, isEmpty, join, pipe, pluck } from 'ramda';
+import { useRef } from 'react';
+
+import { equals, has, isEmpty, pluck } from 'ramda';
 import dayjs from 'dayjs';
 
-import { LineChartData, useFetchQuery } from '../..';
+import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
 
-import { ServiceMetric } from './models';
+import { Resource, WidgetResourceType } from './models';
 
 interface CustomTimePeriod {
   end: string;
@@ -12,8 +14,10 @@ interface CustomTimePeriod {
 
 interface UseMetricsQueryProps {
   baseEndpoint: string;
-  metrics: Array<ServiceMetric>;
+  metrics: Array<string>;
+  refreshCount?: number;
   refreshInterval?: number | false;
+  resources?: Array<Resource>;
   timePeriod?: {
     end?: string | null;
     start?: string | null;
@@ -25,7 +29,7 @@ interface UseMetricsQueryState {
   end: string;
   graphData: LineChartData | undefined;
   isGraphLoading: boolean;
-  isMetricIdsEmpty: boolean;
+  isMetricsEmpty: boolean;
   start: string;
 }
 
@@ -51,21 +55,31 @@ interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
   base: number;
 }
 
+export const resourceTypeQueryParameter = {
+  [WidgetResourceType.host]: 'host.id',
+  [WidgetResourceType.hostCategory]: 'hostcategory.id',
+  [WidgetResourceType.hostGroup]: 'hostgroup.id',
+  [WidgetResourceType.serviceCategory]: 'servicecategory.id',
+  [WidgetResourceType.serviceGroup]: 'servicegroup.id',
+  [WidgetResourceType.service]: 'service.name'
+};
+
+const areResourcesFullfilled = (value: Array<Resource>): boolean =>
+  value?.every(
+    ({ resourceType, resources }) =>
+      !isEmpty(resourceType) && !isEmpty(resources)
+  );
+
 const useGraphQuery = ({
   metrics,
+  resources = [],
   baseEndpoint,
   timePeriod = {
     timePeriodType: 1
   },
-  refreshInterval = false
+  refreshInterval = false,
+  refreshCount
 }: UseMetricsQueryProps): UseMetricsQueryState => {
-  const metricIds = pipe(
-    pluck('metrics'),
-    flatten,
-    pluck('id'),
-    join(',')
-  )(metrics);
-
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
         end: timePeriod.end,
@@ -73,40 +87,63 @@ const useGraphQuery = ({
       }
     : timePeriod?.timePeriodType;
 
+  const startAndEnd = isCustomTimePeriod(timePeriodToUse)
+    ? (timePeriodToUse as CustomTimePeriod)
+    : getStartEndFromTimePeriod(timePeriodToUse as number);
+
+  const definedMetrics = metrics.filter((metric) => metric);
+
   const {
     data: graphData,
     isFetching,
     isLoading
   } = useFetchQuery<PerformanceGraphData>({
     getEndpoint: () => {
-      if (isCustomTimePeriod(timePeriodToUse)) {
-        return `${baseEndpoint}?metricIds=[${metricIds}]&start=${
-          (timePeriodToUse as CustomTimePeriod).start
-        }&end=${(timePeriodToUse as CustomTimePeriod).end}`;
-      }
+      const endpoint = buildListingEndpoint({
+        baseEndpoint,
+        parameters: {
+          search: {
+            lists: resources.map((resource) => ({
+              field: resourceTypeQueryParameter[resource.resourceType],
+              values: equals(resource.resourceType, 'service')
+                ? pluck('name', resource.resources)
+                : pluck('id', resource.resources)
+            }))
+          }
+        }
+      });
 
-      const { end, start } = getStartEndFromTimePeriod(
-        timePeriodToUse as number
-      );
-
-      return `${baseEndpoint}?metricIds=[${metricIds}]&start=${start}&end=${end}`;
+      return `${endpoint}&start=${startAndEnd.start}&end=${
+        startAndEnd.end
+      }&metric_names=[${definedMetrics.join(',')}]`;
     },
-    getQueryKey: () => ['graph', metricIds, timePeriod],
+    getQueryKey: () => [
+      'graph',
+      JSON.stringify(definedMetrics),
+      JSON.stringify(resources),
+      timePeriod,
+      refreshCount || 0
+    ],
     queryOptions: {
-      enabled: !isEmpty(metricIds),
+      enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
       refetchInterval: refreshInterval,
       suspense: false
     }
   });
 
-  const formattedGraphData = graphData
+  const data = useRef<PerformanceGraphData | undefined>(undefined);
+  if (graphData) {
+    data.current = graphData;
+  }
+
+  const formattedGraphData = data.current
     ? {
         global: {
-          base: graphData.base,
+          base: data.current.base,
           title: ''
         },
-        metrics: graphData.metrics,
-        times: graphData.times
+        metrics: data.current.metrics,
+        times: data.current.times
       }
     : undefined;
 
@@ -117,8 +154,8 @@ const useGraphQuery = ({
   return {
     end,
     graphData: formattedGraphData,
-    isGraphLoading: isFetching || (isLoading && !isEmpty(metricIds)),
-    isMetricIdsEmpty: isEmpty(metricIds),
+    isGraphLoading: isFetching || (isLoading && !isEmpty(definedMetrics)),
+    isMetricsEmpty: isEmpty(definedMetrics),
     start
   };
 };

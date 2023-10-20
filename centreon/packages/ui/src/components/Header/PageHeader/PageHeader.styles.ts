@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme) => ({
     borderBottom: `1px solid ${theme.palette.header.page.border}`,
     display: 'flex',
     gap: theme.spacing(4),
-    paddingBottom: theme.spacing(2)
+    paddingBottom: theme.spacing(1.5)
   },
   pageHeaderActions: {
     '& > button': {

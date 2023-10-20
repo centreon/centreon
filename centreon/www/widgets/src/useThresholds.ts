@@ -65,7 +65,7 @@ const useThresholds = ({
     const formattedThreshold = formatMetricValueWithUnit({
       isRaw: displayAsRaw,
       unit: metric?.unit || '',
-      value: threshold || null
+      value: threshold || 0
     });
 
     return {
@@ -77,7 +77,7 @@ const useThresholds = ({
         : `${t(labelWarningThreshold)}: ${formattedThreshold}. ${t(
             labelCustomValue
           )}`,
-      value: threshold || null
+      value: threshold || 0
     };
   });
 
@@ -85,7 +85,7 @@ const useThresholds = ({
     const formattedThreshold = formatMetricValueWithUnit({
       isRaw: displayAsRaw,
       unit: metric?.unit || '',
-      value: threshold || null
+      value: threshold || 0
     });
 
     return {
@@ -97,13 +97,17 @@ const useThresholds = ({
         : `${t(labelCriticalThreshold)}: ${formattedThreshold}. ${t(
             labelCustomValue
           )}`,
-      value: threshold || null
+      value: threshold || 0
     };
   });
 
+  const hasThresholds = [...warningThresholds, ...criticalThresholds].some(
+    (threshold) => threshold
+  );
+
   return {
     critical: formattedCriticalThresholds,
-    enabled: thresholds.enabled,
+    enabled: thresholds.enabled && hasThresholds,
     warning: formattedWarningThresholds
   };
 };

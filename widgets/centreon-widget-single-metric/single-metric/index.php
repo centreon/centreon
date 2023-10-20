@@ -106,6 +106,7 @@ if (! isset($preferences['service']) || $preferences['service'] === "") {
     if ($isAdmin || ! empty($accessGroups)) {
         $query =
             "SELECT
+                1 AS REALTIME,
                 i.host_name AS host_name,
                 i.service_description AS service_description,
                 i.service_id AS service_id,

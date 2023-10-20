@@ -1,3 +1,3 @@
-import Notifications from './NotificationsPage';
+import Notifications from './Page';
 
 export default Notifications;

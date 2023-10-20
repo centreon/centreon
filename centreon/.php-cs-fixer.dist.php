@@ -29,9 +29,13 @@ $finder = Finder::create()
         __DIR__ . '/src/Core',
     ]);
 
-$rules = PhpCsFixerRuleSet::getRules();
-
+/**
+ * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
+ * 👉️ We use the other php-cs-fixer config file for this legacy code.
+ *
+ * @see .php-cs-fixer.unstrict.php
+ */
 return (new Config())
     ->setFinder($finder)
     ->setRiskyAllowed(true)
-    ->setRules($rules);
+    ->setRules(PhpCsFixerRuleSet::getRules());

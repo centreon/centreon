@@ -60,7 +60,6 @@ use OneLogin\Saml2\Error;
 use OneLogin\Saml2\Utils;
 use OneLogin\Saml2\ValidationError;
 use Pimple\Container;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Throwable;
 
 class SAML implements ProviderAuthenticationInterface
@@ -91,7 +90,6 @@ class SAML implements ProviderAuthenticationInterface
      * @param RolesMapping $rolesMapping
      * @param GroupsMappingSecurityAccess $groupsMapping
      * @param SettingsFormatterInterface $formatter
-     * @param SessionInterface $session
      */
     public function __construct(
         private readonly Container $dependencyInjector,
@@ -102,7 +100,6 @@ class SAML implements ProviderAuthenticationInterface
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly SettingsFormatterInterface $formatter,
-        private readonly SessionInterface $session,
     ) {
     }
 
@@ -125,7 +122,7 @@ class SAML implements ProviderAuthenticationInterface
         $errors = $this->auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
-            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => $errors]);
+            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors)]);
 
             throw $ex;
         }
@@ -148,7 +145,7 @@ class SAML implements ProviderAuthenticationInterface
         }
 
         $this->loginLogger->info(
-            Provider::SAML , 
+            Provider::SAML,
             'User information: ' . json_encode($this->auth->getAttributes())
         );
         $this->info('User information: ', $this->auth->getAttributes());
@@ -267,9 +264,6 @@ class SAML implements ProviderAuthenticationInterface
         $pearDB = $this->dependencyInjector['configuration_db'];
 
         $user = $this->findUserOrFail();
-        if ($user === null) {
-            throw new Exception("can't initialize legacy session, user does not exist");
-        }
 
         $sessionUserInfos = [
             'contact_id' => $user->getId(),
@@ -416,14 +410,14 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
-     * @throws Error
+     * @param string $returnTo
      *
-     * @return string
+     * @throws Error
      */
-    public function login(): void
+    public function login(string $returnTo = ''): void
     {
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        $auth->login();
+        $auth->login($returnTo ?: null);
     }
 
     /**
@@ -453,9 +447,8 @@ class SAML implements ProviderAuthenticationInterface
     {
         $this->info('SAML SLS invoked');
 
-        /** @var SAML $provider */
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        if (isset($_SESSION, $_SESSION['LogoutRequestID'])  ) {
+        if (isset($_SESSION, $_SESSION['LogoutRequestID'])) {
             $requestID = $_SESSION['LogoutRequestID'];
         } else {
             $requestID = null;
@@ -485,6 +478,7 @@ class SAML implements ProviderAuthenticationInterface
      */
     private function createUser(): void
     {
+        /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
         $this->info('Auto import starting...', ['user' => $this->username]);
         $this->loginLogger->info(

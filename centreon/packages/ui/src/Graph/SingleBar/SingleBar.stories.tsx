@@ -161,8 +161,44 @@ export const RawValue: Story = {
   args: {
     data: dataLastWeek,
     displayAsRaw: true,
-    thresholdTooltipLabels: ['Warning', 'Critical'],
-    thresholds: [0.5, 1.5]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: false,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: Template
+};
+
+export const Small: Story = {
+  args: {
+    data: dataLastWeek,
+    size: 'small',
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
   },
   render: Template
 };

@@ -5,7 +5,7 @@ import { Box, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { labelRefreshInterval } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useRefreshInterval from './useRefreshInterval';
 

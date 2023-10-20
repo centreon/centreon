@@ -56,19 +56,18 @@ When(
   }
 );
 
-Then('a confirmation pop-up appears', () => {
+Then('a confirmation poppin appears', () => {
   const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
 
-  cy.contains('Delete dashboard').should('be.visible');
+  cy.contains('Delete').should('be.visible');
+  cy.getByLabel({ label: 'Cancel', tag: 'li' }).should('be.visible');
   cy.contains(
     `Are you sure you want to delete ${dashboardToDelete.name} ?`
   ).should('be.visible');
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).should('be.enabled');
-  cy.getByLabel({ label: 'Cancel', tag: 'button' }).should('be.enabled');
 });
 
 When('the user confirms the choice to delete the dashboard', () => {
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
   cy.wait('@listAllDashboards');
 });
 
@@ -103,7 +102,7 @@ Given(
 );
 
 When('the user cancels their choice', () => {
-  cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Cancel', tag: 'li' }).click();
 });
 
 Then('the dashboard is still listed in the dashboards library', () => {

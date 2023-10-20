@@ -8,7 +8,8 @@ import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleMetricSectionAtom,
+  singleMetricSelectionAtom,
+  singleResourceTypeSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
 
@@ -21,7 +22,9 @@ import {
   WidgetTextField,
   WidgetThreshold,
   WidgetValueFormat,
-  WidgetTimePeriod
+  WidgetTimePeriod,
+  WidgetTopBottomSettings,
+  WidgetMetric
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -49,7 +52,9 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.singleMetricGraphType]:
     WidgetSingleMetricGraphType,
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
-  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod
+  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
+  [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
+  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
@@ -63,7 +68,10 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
+  const setSingleResourceTypeSelection = useSetAtom(
+    singleResourceTypeSelectionAtom
+  );
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const selectedWidget = find(
@@ -110,6 +118,7 @@ export const useWidgetInputs = (
     }
 
     setSingleMetricSection(selectedWidget.singleMetricSelection);
+    setSingleResourceTypeSelection(selectedWidget.singleResourceTypeSelection);
     setCustomBaseColor(selectedWidget.customBaseColor);
   }, useDeepCompare([selectedWidget]));
 

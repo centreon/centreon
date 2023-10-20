@@ -1,33 +1,19 @@
 <?php
-/**
- * Copyright 2005-2019 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+
+/*
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -35,66 +21,58 @@
 
 namespace CentreonLegacy\Core\Module;
 
-use Psr\Container\ContainerInterface;
 use CentreonLegacy\ServiceProvider;
 use DateTime;
-use CentreonLegacy\Core\Module\Exception;
+use Psr\Container\ContainerInterface;
 
 /**
- * Check module requirements and health
+ * Check module requirements and health.
  */
 class Healthcheck
 {
-
-    /**
-     * @var string Path to the module
-     */
+    /** @var string Path to the module */
     protected $modulePath;
 
-    /**
-     * @var array Collect error messages after check
-     */
+    /** @var array Collect error messages after check */
     protected $messages;
 
-    /**
-     * @var array Collect a custom action after check
-     */
+    /** @var array Collect a custom action after check */
     protected $customAction;
 
-    /**
-     * @var \DateTime Collect date and time of a license expiration
-     */
+    /** @var \DateTime Collect date and time of a license expiration */
     protected $licenseExpiration;
 
     /**
-     * Construct
+     * Construct.
      *
      * @param \Psr\Container\ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
         $this->modulePath = $services->get(ServiceProvider::CONFIGURATION)
-            ->getModulePath()
-        ;
+            ->getModulePath();
     }
 
     /**
-     * Check module requirements and health
+     * Check module requirements and health.
      *
      * @param string $module
-     * @return bool|null
+     *
      * @throws Exception\HealthcheckNotFoundException
      * @throws Exception\HealthcheckCriticalException
      * @throws Exception\HealthcheckWarningException
+     *
+     * @return bool|null
      */
     public function check($module): ?bool
     {
         // reset messages stack
         $this->reset();
 
-        if (!preg_match('/^(?!\.)/', $module)) {
+        if (! preg_match('/^(?!\.)/', $module)) {
             throw new Exception\HealthcheckNotFoundException("Incorrect module name {$module}");
-        } elseif (!is_dir($this->modulePath . $module)) {
+        }
+        if (! is_dir($this->modulePath . $module)) {
             throw new Exception\HealthcheckNotFoundException("Module did not exist {$this->modulePath} {$module}");
         }
 
@@ -110,11 +88,11 @@ class Healthcheck
             $this->getRequirements($checklistDir, $message, $customAction, $warning, $critical, $licenseExpiration);
 
             // Necessary to implement the expiration date column in list modules page
-            if (!empty($licenseExpiration)) {
+            if (! empty($licenseExpiration)) {
                 $this->licenseExpiration = new DateTime(date(DateTime::W3C, $licenseExpiration));
             }
 
-            if (!$critical && !$warning) {
+            if (! $critical && ! $warning) {
                 $this->setCustomAction($customAction);
 
                 return true;
@@ -124,7 +102,8 @@ class Healthcheck
 
             if ($critical) {
                 throw new Exception\HealthcheckCriticalException();
-            } elseif ($warning) {
+            }
+            if ($warning) {
                 throw new Exception\HealthcheckWarningException();
             }
         }
@@ -133,32 +112,10 @@ class Healthcheck
     }
 
     /**
-     * Load a file with requirements
-     *
-     * @codeCoverageIgnore
-     * @param string $checklistDir
-     * @param array $message
-     * @param array $customAction
-     * @param bool $warning
-     * @param bool $critical
-     * @param int $licenseExpiration
-     */
-    protected function getRequirements(
-        $checklistDir,
-        &$message,
-        &$customAction,
-        &$warning,
-        &$critical,
-        &$licenseExpiration
-    ) {
-        global $centreon_path;
-        require_once $checklistDir . 'requirements.php';
-    }
-
-    /**
-     * Made the check method compatible with moduleDependenciesValidator
+     * Made the check method compatible with moduleDependenciesValidator.
      *
      * @param string $module
+     *
      * @return array|null
      */
     public function checkPrepareResponse($module): ?array
@@ -217,7 +174,7 @@ class Healthcheck
     }
 
     /**
-     * Reset collected data after check
+     * Reset collected data after check.
      */
     public function reset()
     {
@@ -241,6 +198,30 @@ class Healthcheck
         return $this->licenseExpiration;
     }
 
+    /**
+     * Load a file with requirements.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string $checklistDir
+     * @param array $message
+     * @param array $customAction
+     * @param bool $warning
+     * @param bool $critical
+     * @param int $licenseExpiration
+     */
+    protected function getRequirements(
+        $checklistDir,
+        &$message,
+        &$customAction,
+        &$warning,
+        &$critical,
+        &$licenseExpiration
+    ) {
+        global $centreon_path;
+        require_once $checklistDir . 'requirements.php';
+    }
+
     protected function setMessages(array $messages)
     {
         foreach ($messages as $errorMessage) {
@@ -251,7 +232,7 @@ class Healthcheck
         }
     }
 
-    protected function setCustomAction(array $customAction = null)
+    protected function setCustomAction(?array $customAction = null)
     {
         if ($customAction !== null) {
             $this->customAction = [

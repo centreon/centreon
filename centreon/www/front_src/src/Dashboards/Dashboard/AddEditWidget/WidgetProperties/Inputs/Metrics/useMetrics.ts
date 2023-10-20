@@ -30,14 +30,13 @@ import {
   ServiceMetric,
   Widget,
   WidgetDataMetric,
-  WidgetDataResource,
-  WidgetResourceType
+  WidgetDataResource
 } from '../../../models';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { labelPleaseSelectAMetric } from '../../../../translatedLabels';
-import { singleMetricSectionAtom } from '../../../atoms';
-import { getDataProperty } from '../utils';
+import { singleMetricSelectionAtom } from '../../../atoms';
+import { getDataProperty, resourceTypeQueryParameter } from '../utils';
 
 interface UseMetricsState {
   addButtonHidden?: boolean;
@@ -51,6 +50,7 @@ interface UseMetricsState {
   getMetricsFromService: (serviceId: number) => Array<SelectEntry>;
   getOptionLabel: (metric) => string;
   hasNoResources: () => boolean;
+  hasOnlyOneService: boolean;
   hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
@@ -60,18 +60,11 @@ interface UseMetricsState {
   value: Array<WidgetDataMetric>;
 }
 
-const resourceTypeQueryParameter = {
-  [WidgetResourceType.host]: 'host.id',
-  [WidgetResourceType.hostCategory]: 'hostcategory.id',
-  [WidgetResourceType.hostGroup]: 'hostgroup.id',
-  [WidgetResourceType.service]: 'service.name'
-};
-
 const useMetrics = (propertyName: string): UseMetricsState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleMetricSection = useAtomValue(singleMetricSelectionAtom);
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
@@ -138,6 +131,10 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   )(value || []);
 
   const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
+
+  const hasOnlyOneService = servicesMetrics
+    ? equals(length(servicesMetrics.result || []), 1)
+    : false;
 
   const hasNoResources = (): boolean => {
     if (!resources.length) {
@@ -237,6 +234,22 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       return;
     }
 
+    if (
+      equals(servicesMetrics.result.length, 1) &&
+      isEmpty(value?.[0].id) &&
+      isEmpty(value?.[0].metrics)
+    ) {
+      setFieldValue(`data.${propertyName}`, [
+        {
+          id: servicesMetrics.result[0].id,
+          metrics: [],
+          name: servicesMetrics.result[0].name
+        }
+      ]);
+
+      return;
+    }
+
     const baseServiceIds = pluck('id', servicesMetrics?.result || []);
 
     const intersectionBetweenServicesIdsAndValues = innerJoin(
@@ -312,6 +325,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     getMetricsFromService,
     getOptionLabel,
     hasNoResources,
+    hasOnlyOneService,
     hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,

@@ -25,16 +25,12 @@ namespace Tests\Core\Service\Application\UseCase\AddService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
-use Core\Common\Domain\TrimmedString;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\UseCase\AddService\AddServiceRequest;
 use Core\Service\Application\UseCase\AddService\AddServiceValidation;
-use Core\Service\Application\UseCase\AddService\ServiceGroupDto;
-use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceNamesByHost;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
@@ -44,7 +40,6 @@ use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
-
     $this->validation = new AddServiceValidation(
         $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
         $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class),
@@ -58,11 +53,9 @@ beforeEach(function (): void {
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
     );
-
 });
 
 it('throws an exception when service name already exists for associated host', function (): void {
-
     $this->readServiceRepository
         ->expects($this->once())
         ->method('findServiceNamesByHost')
@@ -102,7 +95,6 @@ it('throws an exception when command ID does not exist', function (): void {
 );
 
 it('throws an exception when command ID and service template are not defined', function (): void {
-
     $this->validation->assertIsValidCommandForOnPremPlatform(null, null);
 })->throws(
     ServiceException::class,
@@ -207,10 +199,10 @@ it('throws an exception when category ID does not exist with admin user', functi
         ->method('findAllExistingIds')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceCategories([1,3]);
+    $this->validation->assertIsValidServiceCategories([1, 3]);
 })->throws(
     ServiceException::class,
-    ServiceException::idsDoNotExist('service_categories', [1,3])->getMessage()
+    ServiceException::idsDoNotExist('service_categories', [1, 3])->getMessage()
 );
 
 it('throws an exception when category ID does not exist with non-admin user', function (): void {
@@ -223,13 +215,11 @@ it('throws an exception when category ID does not exist with non-admin user', fu
         ->method('findAllExistingIdsByAccessGroups')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceCategories([1,3]);
+    $this->validation->assertIsValidServiceCategories([1, 3]);
 })->throws(
     ServiceException::class,
-    ServiceException::idsDoNotExist('service_categories', [1,3])->getMessage()
+    ServiceException::idsDoNotExist('service_categories', [1, 3])->getMessage()
 );
-
-
 
 it('throws an exception when group ID does not exist with admin user', function (): void {
     $this->user

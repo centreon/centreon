@@ -11,7 +11,9 @@ export const useStyles = makeStyles()((theme) => ({
       display: 'flex',
       gap: theme.spacing(0.5)
     },
-
+    '&[data-row-reverse="true"]': {
+      flexDirection: 'row-reverse'
+    },
     display: 'flex',
     justifyContent: 'space-between',
     paddingBottom: theme.spacing(2.5)
@@ -23,18 +25,17 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateRows: 'min-content',
     overflow: 'hidden',
-    padding: theme.spacing(3, 3, 5)
+    padding: theme.spacing(1.5, 3, 5)
   },
   pageLayoutHeader: {
     '[data-variant="fixed-header"] &': {
       backgroundColor: theme.palette.layout.header.background,
       borderBottom: `1px solid ${theme.palette.layout.header.border}`,
-      padding: theme.spacing(5, 4, 2),
+      padding: theme.spacing(3, 4, 2),
       position: 'sticky',
       top: 0,
       zIndex: `calc(${theme.zIndex.mobileStepper} - 100)`
     },
-
-    padding: theme.spacing(5, 3, 0)
+    padding: theme.spacing(3, 3, 0)
   }
 }));

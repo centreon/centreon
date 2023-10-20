@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,7 @@ namespace CentreonLegacy\Core\Module;
 class Upgrader extends Module
 {
     /**
-     *
-     * @return boolean
+     * @return bool
      */
     public function upgrade()
     {
@@ -37,23 +36,23 @@ class Upgrader extends Module
         // Entry name should be a version.
         $upgradesPath = $this->getModulePath($this->moduleName) . '/upgrade/';
         $upgrades = $this->services->get('finder')->directories()->depth('== 0')->in($upgradesPath);
-        $orderedUpgrades = array();
+        $orderedUpgrades = [];
         foreach ($upgrades as $upgrade) {
             $orderedUpgrades[] = $upgrade->getBasename();
         }
         usort($orderedUpgrades, 'version_compare');
         foreach ($orderedUpgrades as $upgradeName) {
             $upgradePath = $upgradesPath . $upgradeName;
-            if (!preg_match('/^(\d+\.\d+\.\d+)/', $upgradeName, $matches)) {
+            if (! preg_match('/^(\d+\.\d+\.\d+)/', $upgradeName, $matches)) {
                 continue;
             }
 
-            if (version_compare($moduleInstalledInformation["mod_release"], $upgradeName) >= 0) {
+            if (version_compare($moduleInstalledInformation['mod_release'], $upgradeName) >= 0) {
                 continue;
             }
 
             $this->upgradeVersion($upgradeName);
-            $moduleInstalledInformation["mod_release"] = $upgradeName;
+            $moduleInstalledInformation['mod_release'] = $upgradeName;
 
             $this->upgradePhpFiles($upgradePath, true);
             $this->upgradeSqlFiles($upgradePath);
@@ -67,27 +66,28 @@ class Upgrader extends Module
     }
 
     /**
-     * Upgrade module information except version
+     * Upgrade module information except version.
+     *
+     * @throws \Exception
      *
      * @return mixed
-     * @throws \Exception
      */
     private function upgradeModuleConfiguration()
     {
         $configurationFile = $this->getModulePath($this->moduleName) . '/conf.php';
-        if (!$this->services->get('filesystem')->exists($configurationFile)) {
+        if (! $this->services->get('filesystem')->exists($configurationFile)) {
             throw new \Exception('Module configuration file not found.');
         }
 
-        $query = 'UPDATE modules_informations SET ' .
-            '`name` = :name , ' .
-            '`rname` = :rname , ' .
-            '`is_removeable` = :is_removeable , ' .
-            '`infos` = :infos , ' .
-            '`author` = :author , ' .
-            '`svc_tools` = :svc_tools , ' .
-            '`host_tools` = :host_tools ' .
-            'WHERE id = :id';
+        $query = 'UPDATE modules_informations SET '
+            . '`name` = :name , '
+            . '`rname` = :rname , '
+            . '`is_removeable` = :is_removeable , '
+            . '`infos` = :infos , '
+            . '`author` = :author , '
+            . '`svc_tools` = :svc_tools , '
+            . '`host_tools` = :host_tools '
+            . 'WHERE id = :id';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 
@@ -106,15 +106,15 @@ class Upgrader extends Module
     }
 
     /**
-     *
      * @param string $version
+     *
      * @return int
      */
     private function upgradeVersion($version)
     {
-        $query = 'UPDATE modules_informations SET ' .
-            '`mod_release` = :mod_release ' .
-            'WHERE id = :id';
+        $query = 'UPDATE modules_informations SET '
+            . '`mod_release` = :mod_release '
+            . 'WHERE id = :id';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 
@@ -127,9 +127,9 @@ class Upgrader extends Module
     }
 
     /**
-     *
      * @param string $path
-     * @return boolean
+     *
+     * @return bool
      */
     private function upgradeSqlFiles($path)
     {
@@ -145,10 +145,10 @@ class Upgrader extends Module
     }
 
     /**
-     *
      * @param string $path
-     * @param boolean $pre
-     * @return boolean
+     * @param bool $pre
+     *
+     * @return bool
      */
     private function upgradePhpFiles($path, $pre = false)
     {

@@ -1,8 +1,20 @@
-import { pipe, split, head, propOr, T, equals } from 'ramda';
+import {
+  pipe,
+  split,
+  head,
+  propOr,
+  T,
+  equals,
+  insert,
+  map,
+  propEq,
+  reject
+} from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { ColumnType } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
+import { FeatureFlags } from '@centreon/ui-context';
 
 import {
   labelResource,
@@ -24,7 +36,8 @@ import {
   labelSeverity,
   labelParentAlias,
   labelService,
-  labelHost
+  labelHost,
+  labelServices
 } from '../../translatedLabels';
 import truncate from '../../truncate';
 import { Visualization } from '../../models';
@@ -40,6 +53,7 @@ import ParentResourceColumn from './Parent';
 import NotificationColumn from './Notification';
 import ChecksColumn from './Checks';
 import ParentAliasColumn from './ParentAlias';
+import SubItem from './ServiceSubItemColumn/SubItem';
 
 interface StyleProps {
   isHovered: boolean;
@@ -70,6 +84,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
 
 export interface ColumnProps {
   actions;
+  featureFlags?: FeatureFlags | null;
   t: (value: string) => string;
   visualization?: Visualization;
 }
@@ -85,9 +100,21 @@ export const defaultSelectedColumnIds = [
   'tries'
 ];
 
+export const defaultSelectedColumnIdsforViewByHost = [
+  'resource',
+  'services',
+  'state',
+  'graph',
+  'duration',
+  'last_check',
+  'information',
+  'tries'
+];
+
 export const getColumns = ({
   actions,
   visualization = Visualization.All,
+  featureFlags,
   t
 }: ColumnProps): Array<Column> => {
   const columns = [
@@ -210,7 +237,7 @@ export const getColumns = ({
       getRenderComponentOnRowUpdateCondition: T,
       id: 'state',
       label: t(labelState),
-      rowMemoProps: ['in_downtime', 'acknowledged', 'name', 'links'],
+      rowMemoProps: ['is_in_downtime', 'is_acknowledged', 'name', 'links'],
       sortable: false,
       type: ColumnType.component,
       width: 'max-content'
@@ -251,40 +278,73 @@ export const getColumns = ({
       type: ColumnType.string,
       width: 'max-content'
     },
-    {
-      Component: NotificationColumn,
-      getRenderComponentOnRowUpdateCondition: T,
-      id: 'notification',
-      label: t(labelNotification),
-      rowMemoProps: ['notification_enabled'],
-      shortLabel: 'Notif',
-      type: ColumnType.component
-    },
+    ...(featureFlags?.notification
+      ? []
+      : [
+          {
+            Component: NotificationColumn,
+            getRenderComponentOnRowUpdateCondition: T,
+            id: 'notification',
+            label: t(labelNotification),
+            rowMemoProps: ['is_notification_enabled'],
+            shortLabel: 'Notif',
+            type: ColumnType.component
+          }
+        ]),
     {
       Component: ChecksColumn,
       getRenderComponentOnRowUpdateCondition: T,
       id: 'checks',
       label: t(labelCheck),
-      rowMemoProps: ['passive_checks', 'active_checks'],
+      rowMemoProps: ['has_passive_checks_enabled', 'has_active_checks_enabled'],
       shortLabel: 'C',
       type: ColumnType.component
     }
   ];
 
   if (equals(visualization, Visualization.Service)) {
-    const columnsForVisualizationByService = columns
-      .map((column) =>
-        equals(column.label, t(labelResource))
-          ? { ...column, label: t(labelService) }
-          : column
-      )
-      .map((column) =>
-        equals(column.label, t(labelParent))
-          ? { ...column, label: t(labelHost) }
-          : column
-      );
+    const changeResourceLabel = (column: Column): Column =>
+      equals(column.label, labelResource)
+        ? { ...column, label: t(labelService) }
+        : column;
+
+    const changeParentLabel = (column: Column): Column =>
+      equals(column.label, labelParent)
+        ? { ...column, label: t(labelHost) }
+        : column;
+
+    const columnsForVisualizationByService = pipe(
+      map(changeResourceLabel),
+      map(changeParentLabel)
+    )(columns);
 
     return columnsForVisualizationByService;
+  }
+
+  if (equals(visualization, Visualization.Host)) {
+    const subItemColumn = {
+      Component: SubItem,
+      displaySubItemsCaret: true,
+      id: 'services',
+      label: t(labelServices),
+      type: ColumnType.component,
+      width: 'max-content'
+    };
+
+    const changeResourceLabel = (column: Column): Column =>
+      equals(column.label, labelResource)
+        ? { ...column, label: t(labelHost) }
+        : column;
+
+    const columnsForVisualizationByHost = pipe(
+      reject(propEq('id', 'status')),
+      reject(propEq('id', 'parent_resource')),
+      reject(propEq('id', 'parent_alias')),
+      insert(1, subItemColumn),
+      map(changeResourceLabel)
+    )(columns) as Array<Column>;
+
+    return columnsForVisualizationByHost;
   }
 
   return columns;

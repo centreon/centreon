@@ -120,3 +120,44 @@ modes.forEach((mode) => {
     });
   });
 });
+
+describe.only('Navigation with additional label', () => {
+  beforeEach(() => {
+    cy.fixture('menuDataWithAdditionalLabel').then((data) => {
+      const store = createStore();
+      store.set(userAtom, {
+        alias: 'admin',
+        defaultPage: '/monitoring/resources',
+        isExportButtonEnabled: true,
+        locale: 'en',
+        name: 'admin',
+        themeMode: ThemeMode.light,
+        timezone: 'Europe/Paris',
+        useDeprecatedPages: false
+      });
+
+      return cy.mount({
+        Component: (
+          <Provider store={store}>
+            <Router>
+              <SideBar navigationData={data.result} />
+            </Router>
+          </Provider>
+        )
+      });
+    });
+
+    const { result } = renderHook(() => useAtom(selectedNavigationItemsAtom));
+
+    act(() => {
+      result.current[1](null);
+    });
+  });
+
+  it('renders the menu item with additional label', () => {
+    cy.get('li').eq(0).trigger('mouseover');
+
+    cy.contains('Resources Status').should('be.visible');
+    cy.contains('BETA').should('be.visible');
+  });
+});

@@ -77,7 +77,7 @@ export interface InputProps {
   label: string;
   radio?: {
     options?: Array<{
-      label: string;
+      label: string | JSX.Element;
       value: boolean | string;
     }>;
     row?: boolean;

@@ -25,20 +25,21 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\Monitoring\Service;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
+use Core\Metric\Domain\Model\MetricInformation\GeneralInformation;
+use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsData;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequest;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
-use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
-use Core\Metric\Domain\Model\MetricInformation\GeneralInformation;
-use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
-use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
@@ -47,14 +48,16 @@ beforeEach(function () {
     $this->rights = $this->createMock(DashboardRights::class);
     $this->metricRepositoryLegacy = $this->createMock(MetricRepositoryInterface::class);
     $this->metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
+    $this->requestParameters = $this->createMock(RequestParametersInterface::class);
 });
 
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta"];
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
+        $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
@@ -77,9 +80,10 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
 it('should present an ErrorResponse when an error occurs', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta","pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
+        $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
@@ -93,7 +97,7 @@ it('should present an ErrorResponse when an error occurs', function () {
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIdsAndAccessGroups')
+        ->method('findServicesByMetricNamesAndAccessGroupsAndRequestParameters')
         ->willThrowException(new \Exception());
 
     $useCase($presenter, $request);
@@ -106,9 +110,10 @@ it('should present an ErrorResponse when an error occurs', function () {
 it('should get the metrics with access group management when the user is not admin', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta","pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
+        $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
@@ -122,7 +127,7 @@ it('should get the metrics with access group management when the user is not adm
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIdsAndAccessGroups');
+        ->method('findServicesByMetricNamesAndAccessGroupsAndRequestParameters');
 
     $useCase($presenter, $request);
 });
@@ -130,9 +135,10 @@ it('should get the metrics with access group management when the user is not adm
 it('should get the metrics without access group management when the user is admin', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,2,3];
+    $request->metricNames = ["rta","pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
+        $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
@@ -146,7 +152,7 @@ it('should get the metrics without access group management when the user is admi
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIds');
+        ->method('findServicesByMetricNamesAndRequestParameters');
 
     $useCase($presenter, $request);
 });
@@ -154,9 +160,10 @@ it('should get the metrics without access group management when the user is admi
 it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function () {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
     $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricIds = [1,3];
+    $request->metricNames = ["pl"];
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
+        $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
@@ -165,7 +172,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
     $service = (new Service())
         ->setId(1)
         ->setHost(
-            (new Host())->setId(2)
+            (new Host())->setId(2)->setName('myHost')
         );
 
     $this->rights
@@ -175,7 +182,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
 
     $this->metricRepository
         ->expects($this->once())
-        ->method('findServicesByMetricIds')
+        ->method('findServicesByMetricNamesAndRequestParameters')
         ->willReturn([$service]);
 
     $this->metricRepositoryLegacy
@@ -190,7 +197,8 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
         ->willReturn(
             [
                 'global' => [
-                    'base' => 1000
+                    'base' => 1000,
+                    'title' => 'Ping graph on myHost'
                 ],
                 'metrics' => [
                     [

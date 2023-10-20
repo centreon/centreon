@@ -2,13 +2,13 @@ import { createStore } from 'jotai';
 
 import { Method } from '@centreon/ui';
 
-import { Data, FormThreshold } from './models';
+import { Data, FormThreshold, ValueFormat } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { graphEndpoint } from './api/endpoints';
 
 import Widget from '.';
 
-const serviceMetrics: Data = {
+const panelData: Data = {
   metrics: [
     {
       id: 1,
@@ -37,10 +37,21 @@ const serviceMetrics: Data = {
       ],
       name: 'Cpu'
     }
+  ],
+  resources: [
+    {
+      resourceType: 'host-group',
+      resources: [
+        {
+          id: 1,
+          name: 'HG1'
+        }
+      ]
+    }
   ]
 };
 
-const diskUsedMetric: Data = {
+const diskUsedMetricData: Data = {
   metrics: [
     {
       id: 1,
@@ -52,6 +63,17 @@ const diskUsedMetric: Data = {
         }
       ],
       name: 'Disk'
+    }
+  ],
+  resources: [
+    {
+      resourceType: 'host-group',
+      resources: [
+        {
+          id: 1,
+          name: 'HG1'
+        }
+      ]
     }
   ]
 };
@@ -89,22 +111,26 @@ const warningThreshold: FormThreshold = {
 };
 
 const emptyServiceMetrics: Data = {
-  metrics: []
+  metrics: [],
+  resources: []
 };
 
 interface Props {
   data?: Data;
   fixture?: string;
   options?: {
+    refreshInterval: 'default' | 'custom';
+    refreshIntervalCustom?: number;
     singleMetricGraphType: 'text' | 'gauge' | 'bar';
     threshold: FormThreshold;
-    valueFormat: 'human' | 'raw';
+    valueFormat: ValueFormat;
   };
 }
 
 const initializeComponent = ({
-  data = serviceMetrics,
+  data = panelData,
   options = {
+    refreshInterval: 'default',
     singleMetricGraphType: 'text',
     threshold: defaultThreshold,
     valueFormat: 'human'
@@ -127,7 +153,20 @@ const initializeComponent = ({
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Widget panelData={data} panelOptions={options} store={store} />
+        <Widget
+          globalRefreshInterval={{
+            interval: null,
+            type: 'global'
+          }}
+          panelData={data}
+          panelOptions={{
+            ...options,
+            refreshInterval: 'default',
+            refreshIntervalCustom: 15
+          }}
+          refreshCount={0}
+          store={store}
+        />
       </div>
     )
   });
@@ -236,7 +275,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as human readable', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'text',
@@ -250,7 +289,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as raw', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'text',
@@ -277,22 +316,22 @@ describe('Single metric Widget', () => {
 
       cy.findByTestId('warning-line-65-tooltip').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 65%. Value defined by the {{metric}} metric'
+        'Warning threshold: 65%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('warning-line-70-tooltip').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 70%. Value defined by the {{metric}} metric'
+        'Warning threshold: 70%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('critical-line-85-tooltip').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 85%. Value defined by the {{metric}} metric'
+        'Critical threshold: 85%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('critical-line-90-tooltip').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 90%. Value defined by the {{metric}} metric'
+        'Critical threshold: 90%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();
@@ -325,6 +364,11 @@ describe('Single metric Widget', () => {
 
       cy.contains('34%').should('have.css', 'fill', 'rgb(253, 155, 39)');
       cy.findByTestId('34-bar-#FD9B27').should('be.visible');
+      cy.findByTestId('34-bar-#FD9B27').should(
+        'have.css',
+        'width',
+        '465.69696044921875px'
+      );
 
       cy.makeSnapshot();
     });
@@ -339,6 +383,7 @@ describe('Single metric Widget', () => {
 
       cy.contains('34%').should('have.css', 'fill', 'rgb(255, 74, 74)');
       cy.findByTestId('34-bar-#FF4A4A').should('be.visible');
+      cy.findByTestId('34-bar-#FF4A4A').should('have.css', 'width', '1356px');
 
       cy.findByTestId('warning-line-10-tooltip').trigger('mouseover');
       cy.contains('Warning threshold: 10%. Custom value').should('be.visible');
@@ -351,7 +396,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as human readable', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'bar',
@@ -365,7 +410,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as raw', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'bar',
@@ -394,19 +439,19 @@ describe('Single metric Widget', () => {
 
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseover');
       cy.contains(
-        'Warning threshold: 65%. Value defined by the {{metric}} metric'
+        'Warning threshold: 65%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Warning threshold: 70%. Value defined by the {{metric}} metric'
+        'Warning threshold: 70%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseleave');
 
       cy.findAllByTestId('5-arc').eq(1).trigger('mouseover');
       cy.contains(
-        'Critical threshold: 85%. Value defined by the {{metric}} metric'
+        'Critical threshold: 85%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Critical threshold: 90%. Value defined by the {{metric}} metric'
+        'Critical threshold: 90%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();
@@ -461,7 +506,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as human readable', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'gauge',
@@ -475,7 +520,7 @@ describe('Single metric Widget', () => {
 
     it('display the metric value as raw', () => {
       initializeComponent({
-        data: diskUsedMetric,
+        data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
           singleMetricGraphType: 'gauge',

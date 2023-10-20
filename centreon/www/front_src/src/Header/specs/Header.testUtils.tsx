@@ -205,7 +205,7 @@ export const submenuShouldBeClosed = (label: string): void => {
     .should('have.attr', 'aria-expanded', 'false');
 
   cy.get('@button').within(() => {
-    cy.findByTestId('ExpandLessIcon').should('be.visible');
+    cy.findByTestId('ExpandMoreIcon').should('be.visible');
   });
   cy.get(`#${label}-menu`).should('not.be.visible').should('exist');
 };
@@ -223,7 +223,7 @@ export const submenuShouldBeOpened = (label: string): void => {
     .should('have.attr', 'aria-expanded', 'true');
 
   cy.get('@button').within(() => {
-    cy.findByTestId('ExpandMoreIcon').should('be.visible');
+    cy.findByTestId('ExpandLessIcon').should('be.visible');
   });
   cy.get(`#${label}-menu`).should('be.visible').should('exist');
 };
