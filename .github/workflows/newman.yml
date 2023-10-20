@@ -264,7 +264,7 @@ jobs:
                 }'
 
                 # Utiliser curl pour envoyer la requête GraphQL
-                curl -X POST -H "Content-Type: application/json" -d "$graphqlMutation" "https://votre-url-de-l-api-graphql"
+                curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphqlMutation" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
                 # Ajouter des vérifications pour traiter la réponse si nécessaire
               done
