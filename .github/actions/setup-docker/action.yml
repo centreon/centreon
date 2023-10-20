@@ -39,7 +39,7 @@ runs:
           "registry-mirrors": [
             "https://docker.centreon.com"
           ],
-          "mtu": 1450
+          "mtu": 1200
         }
         EOF
 
