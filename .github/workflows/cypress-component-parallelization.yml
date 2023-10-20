@@ -85,10 +85,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}-coverage
-          path: .nyc_output/${{ inputs.name }}-out.json
+          path: .nyc_output/
 
       - name: Merge coverage reports
-        run: pnpx nyc merge .nyc_output/ --out out.json
+        run: |
+          pnpx nyc merge .nyc_output
+          mv coverage.json .nyc_output/out.json
         shell: bash
 
       - name: Generate text coverage report
