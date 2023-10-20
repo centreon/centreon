@@ -99,9 +99,10 @@ jobs:
         shell: bash
       
       - name: Report NYC coverage to PR
-        uses: romeovs/lcov-reporter-action@v0.2.16
+        uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
         with:
-          working-directory: ${{ inputs.module_name }}
+          github-token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          working_directory: ${{ inputs.module_name }}
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
