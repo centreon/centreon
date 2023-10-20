@@ -34,8 +34,11 @@ runs:
 
         cat /etc/docker/daemon.json
 
-        cat <<EOF >>/etc/docker/daemon.json
+        sudo cat <<EOF >>/etc/docker/daemon.json
         {
+          "registry-mirrors": [
+            "https://docker.centreon.com"
+          ],
           "mtu": 1450
         }
         EOF
