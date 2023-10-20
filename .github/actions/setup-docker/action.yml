@@ -41,19 +41,19 @@ runs:
           "registry-mirrors": [
             "https://docker.centreon.com"
           ],
-          "ip": "0.0.0.0",
-          "ip-forward": true,
-          "mtu": 0,
-          "proxies": {
-            "http-proxy": "",
-            "https-proxy": "",
-            "no-proxy": "*"
-          }
+          "ip": "0.0.0.0"
         }
         EOF'
 
         #"exec-opts": ["native.cgroupdriver=cgroupfs"],
         #"cgroup-parent": "/actions_job"
+        #"mtu": 0,
+        #   "proxies": {
+        #    "http-proxy": "",
+        #    "https-proxy": "",
+        #    "no-proxy": "*"
+        #  }
+        # "ip-forward": true
 
         cat /etc/docker/daemon.json
 
