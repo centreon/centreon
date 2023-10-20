@@ -71,6 +71,10 @@ jobs:
           sudo /usr/bin/dockerd &
 
           docker info
+
+          ip addr
+
+          cat /etc/docker/daemon.json
         shell: bash
 
       - name: network settings
