@@ -84,14 +84,15 @@ jobs:
             for id in "${testIssueIds[@]}"; do
               jsonArray+=("\"$id\"")
             done
-            testIssueIds=$(IFS=, ; echo "${jsonArray[*]}")
+            testIssueIds='['$(IFS=, ; echo "${jsonArray[*]}")']'
             echo "$testIssueIds"
 
             xray_graphql_getTestRunIDs='{
-              "query": "query GetTestRun($testIssueId: [String], $testExecIssueId: String) { getTestRun(testIssueId: $testIssueId, testExecIssueId: $testExecIssueId) { id } }",
+              "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
               "variables": {
                 "testIssueId": '"$testIssueIds"',
-                "testExecIssueId": "'"$testExecId"'"
+                "testExecIssueId": ["'"$testExecIssueIds"'"]
+                "limit": 100
               }
             }'
             echo "$xray_graphql_getTestRunIDs"
