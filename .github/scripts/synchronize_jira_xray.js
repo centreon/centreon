@@ -35,7 +35,7 @@ async function getXrayToken(clientId, clientSecret) {
       );
       return;
     }
-    core.debug("Authentication successful");
+    core.info("Authentication successful");
     return token;
   } catch (error) {
     core.error(`Error Authentication: ${error}`);
@@ -45,7 +45,7 @@ async function getXrayToken(clientId, clientSecret) {
 
 function getTargetVersion(version_number) {
   const targetVersion = `OnPrem - ${version_number}`;
-  core.debug(`Target Versions: ${targetVersion}`);
+  core.info(`Target Versions: ${targetVersion}`);
   return [targetVersion];
 }
 
@@ -88,11 +88,11 @@ async function getJiraIssueId(testSetKey) {
       core.error(
         `Jira API Request Failed with Status Code: ${response.status}`
       );
-      core.debug(response.data);
+      core.info(response.data);
       return;
     }
 
-    core.debug(`The ID of the testSet is: ${response.data.id}`);
+    core.info(`The ID of the testSet is: ${response.data.id}`);
     return response.data.id;
   } catch (error) {
     core.error(`Error fetching Jira issue: ${error}`);
@@ -116,11 +116,11 @@ async function uploadFeatureFileToXray(featureFilePath, XRAY_TOKEN) {
       core.error(
         `Feature File Upload to Xray Failed with Status Code: ${response.status}`
       );
-      core.debug(response.data);
+      core.info(response.data);
       return;
     }
-    core.debug("Feature file uploaded successfully to Xray.");
-    core.debug(response.data);
+    core.info("Feature file uploaded successfully to Xray.");
+    core.info(response.data);
     return response.data;
   } catch (error) {
     core.error(`Error uploading feature file to Xray: ${error}`);
@@ -147,7 +147,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         core.error(
           `Jira Issue Update Failed with Status Code: ${response.status}`
         );
-        core.debug(response.data);
+        core.info(response.data);
         return;
       }
 
@@ -158,14 +158,14 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         ? existingCustomField10901.map((item) => item.value)
         : [];
 
-      core.debug("Existing values of version: ", existingValues);
+      core.info("Existing values of version: ", existingValues);
 
       for (const targetVersion of targetVersions) {
         if (!existingValues.includes(targetVersion)) {
           existingValues.push(targetVersion);
         }
       }
-      core.debug("the new target versions are: ", existingValues);
+      core.info("the new target versions are: ", existingValues);
 
       const issueUpdatePayload = {
         fields: {
@@ -174,7 +174,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
           })),
         },
       };
-      core.debug(
+      core.info(
         `the issue update for ${api} is: `,
         JSON.stringify(issueUpdatePayload)
       );
@@ -201,11 +201,11 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         core.error(
           `Error updating issue ${api} in Jira. Status code: ${jira_response.status}`
         );
-        core.debug(jira_response.data);
+        core.info(jira_response.data);
         return;
       }
 
-      core.debug(`Issue ${api} updated successfully in Jira.`);
+      core.info(`Issue ${api} updated successfully in Jira.`);
     } catch (error) {
       core.error(`Error updating Jira issue: ${error}`);
     }
@@ -225,7 +225,7 @@ async function main() {
   const branch_name = process.argv[3];
   const version_number = process.argv[4];
 
-  core.debug(
+  core.info(
     `Running script for ${FEATURE_FILE_PATH} on branch ${branch_name}`
   );
 
@@ -258,7 +258,7 @@ async function main() {
     return;
   }
 
-  core.debug("Adding tests to the testSet: ", testSetKey);
+  core.info("Adding tests to the testSet: ", testSetKey);
 
   const testSetId = await getJiraIssueId(testSetKey);
   if (!testSetId) {
@@ -301,11 +301,11 @@ async function main() {
         core.error(
           `GraphQL Request Failed with Status Code: ${response.status}`
         );
-        core.debug("Error Data: ", JSON.stringify(response.data, null, 2));
+        core.info("Error Data: ", JSON.stringify(response.data, null, 2));
         return;
       }
 
-      core.debug("Response Data: ", JSON.stringify(response.data, null, 2));
+      core.info("Response Data: ", JSON.stringify(response.data, null, 2));
     })
     .catch((error) => {
       core.error(`GraphQL Request Failed: ${error}`);
