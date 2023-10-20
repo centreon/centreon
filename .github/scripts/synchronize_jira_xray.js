@@ -1,6 +1,7 @@
 const axios = require("axios");
 const fs = require("fs");
 const FormData = require("form-data");
+const core = require("@actions/core");
 
 const JIRA_USER = process.env.JIRA_USER;
 const JIRA_TOKEN_TEST = process.env.JIRA_TOKEN_TEST;
@@ -23,29 +24,28 @@ async function getXrayToken(clientId, clientSecret) {
     );
 
     if (response.status !== 200) {
-      console.log(`Authentication failed with status code: ${response.status}`);
+      core.error(`Authentication failed with status code: ${response.status}`);
       return;
     }
 
     const token = response.headers["x-access-token"];
     if (!token) {
-      console.log(
+      core.error(
         "Authentication failed. Token not found in the response headers."
       );
       return;
     }
-    console.log("Authentication successful");
+    core.debug("Authentication successful");
     return token;
   } catch (error) {
-    console.log("Authentication failed");
-    console.error(error);
+    core.error(`Error Authentication: ${error}`);
   }
   return null;
 }
 
 function getTargetVersion(version_number) {
   const targetVersion = `OnPrem - ${version_number}`;
-  console.log(`Target Versions: ${targetVersion}`);
+  core.debug(`Target Versions: ${targetVersion}`);
   return [targetVersion];
 }
 
@@ -59,14 +59,14 @@ async function extractDataFromFeatureFile(file_path) {
       return testSetKey;
     }
   } catch (error) {
-    console.log(`Error reading feature file: ${error}`);
+    core.error(`Error reading feature file: ${error}`);
   }
   return null;
 }
 
 async function getJiraIssueId(testSetKey) {
   if (!testSetKey) {
-    console.log("No Test Set Indicated");
+    core.warning("No Test Set Indicated");
     return null;
   }
 
@@ -85,17 +85,17 @@ async function getJiraIssueId(testSetKey) {
     );
 
     if (response.status !== 200) {
-      console.log(
+      core.error(
         `Jira API Request Failed with Status Code: ${response.status}`
       );
-      console.log(response.data);
+      core.debug(response.data);
       return;
     }
 
-    console.log(`The ID of the testSet is: ${response.data.id}`);
+    core.debug(`The ID of the testSet is: ${response.data.id}`);
     return response.data.id;
   } catch (error) {
-    console.log(`Error fetching Jira issue: ${error}`);
+    core.error(`Error fetching Jira issue: ${error}`);
   }
 
   return null;
@@ -113,17 +113,17 @@ async function uploadFeatureFileToXray(featureFilePath, XRAY_TOKEN) {
       },
     });
     if (response.status !== 200) {
-      console.log(
+      core.error(
         `Feature File Upload to Xray Failed with Status Code: ${response.status}`
       );
-      console.log(response.data);
+      core.debug(response.data);
       return;
     }
-    console.log("Feature file uploaded successfully to Xray.");
-    console.log(response.data);
+    core.debug("Feature file uploaded successfully to Xray.");
+    core.debug(response.data);
     return response.data;
   } catch (error) {
-    console.log(`Error uploading feature file to Xray: ${error}`);
+    core.error(`Error uploading feature file to Xray: ${error}`);
   }
 
   return null;
@@ -144,10 +144,10 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
       });
 
       if (response.status !== 200) {
-        console.log(
+        core.error(
           `Jira Issue Update Failed with Status Code: ${response.status}`
         );
-        console.log(response.data);
+        core.debug(response.data);
         return;
       }
 
@@ -158,14 +158,14 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         ? existingCustomField10901.map((item) => item.value)
         : [];
 
-      console.log("Existing values of version: ", existingValues);
+      core.debug("Existing values of version: ", existingValues);
 
       for (const targetVersion of targetVersions) {
         if (!existingValues.includes(targetVersion)) {
           existingValues.push(targetVersion);
         }
       }
-      console.log("the new target versions are: ", existingValues);
+      core.debug("the new target versions are: ", existingValues);
 
       const issueUpdatePayload = {
         fields: {
@@ -174,10 +174,8 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
           })),
         },
       };
-      console.log(
-        "the issue update for",
-        api,
-        " is : ",
+      core.debug(
+        `the issue update for ${api} is: `,
         JSON.stringify(issueUpdatePayload)
       );
 
@@ -186,7 +184,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
           (component) => ({ name: component })
         );
       } else {
-        console.log("No component mentioned");
+        core.warning("No component mentioned");
       }
 
       const jira_response = await axios.put(api, issueUpdatePayload, {
@@ -200,16 +198,16 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
       });
 
       if (jira_response.status !== 204) {
-        console.log(
+        core.error(
           `Error updating issue ${api} in Jira. Status code: ${jira_response.status}`
         );
-        console.log(jira_response.data);
+        core.debug(jira_response.data);
         return;
       }
 
-      console.log(`Issue ${api} updated successfully in Jira.`);
+      core.debug(`Issue ${api} updated successfully in Jira.`);
     } catch (error) {
-      console.log(`Error updating Jira issue: ${error}`);
+      core.error(`Error updating Jira issue: ${error}`);
     }
   }
 }
@@ -217,8 +215,8 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
 async function main() {
   // Check for the correct number of command-line arguments
   if (process.argv.length !== 5) {
-    console.log(
-      "Usage: node test_creation_xray.js <feature_file> <branch_ref> <version_number>"
+    core.error(
+      "Usage: node synchronize_jira_xray.js <feature_file> <branch_ref> <version_number>"
     );
     process.exit(1);
   }
@@ -227,7 +225,7 @@ async function main() {
   const branch_name = process.argv[3];
   const version_number = process.argv[4];
 
-  console.log(
+  core.debug(
     `Running script for ${FEATURE_FILE_PATH} on branch ${branch_name}`
   );
 
@@ -256,15 +254,15 @@ async function main() {
 
   const testSetKey = await extractDataFromFeatureFile(FEATURE_FILE_PATH);
   if (!testSetKey) {
-    console.log("No test set mentioned");
+    core.warning("No test set mentioned");
     return;
   }
 
-  console.log("Adding tests to the testSet: ", testSetKey);
+  core.debug("Adding tests to the testSet: ", testSetKey);
 
   const testSetId = await getJiraIssueId(testSetKey);
   if (!testSetId) {
-    console.log(`No test set found having this key: ${testSetKey}`);
+    core.error(`No test set found having this key: ${testSetKey}`);
     return;
   }
 
@@ -300,19 +298,17 @@ async function main() {
     })
     .then((response) => {
       if (response.status !== 200) {
-        console.log(
+        core.error(
           `GraphQL Request Failed with Status Code: ${response.status}`
         );
-        console.log("Error Data:");
-        console.log(JSON.stringify(response.data, null, 2));
+        core.debug("Error Data: ", JSON.stringify(response.data, null, 2));
         return;
       }
 
-      console.log("Response Data:");
-      console.log(JSON.stringify(response.data, null, 2));
+      core.debug("Response Data: ", JSON.stringify(response.data, null, 2));
     })
     .catch((error) => {
-      console.log(`GraphQL Request Failed: ${error}`);
+      core.error(`GraphQL Request Failed: ${error}`);
     });
 }
 
