@@ -2,7 +2,7 @@
 @REQ_MON-23611
 Feature: This is just a test
 
-Scenario: Logging in test
+Scenario: Logging in test 
   When I enter my credentials on the login page
   Then I am redirected to the default page
 
