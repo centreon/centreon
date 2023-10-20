@@ -515,7 +515,6 @@ function secure_mariadb_setup() {
 function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
-	$PKG_MGR -q clean all
 
     get_os_information
 
@@ -529,12 +528,7 @@ function install_centreon_repo() {
 	esac
 
 	if [ $? -ne 0 ]; then
-		$PKG_MGR -q install -y $RELEASE_RPM_URL
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install Centreon repository"
-		fi
-	else
-		log "INFO" "Centreon repository seems to be already installed"
+		error_and_exit "Could not install Centreon repository"
 	fi
 }
 #========= end of function install_centreon_repo()
