@@ -28,15 +28,15 @@ jobs:
         with:
           script: |
             // Install Node.js dependencies
-            const exec = require('@actions/exec');
-            await exec.exec('pnpm', ['install', 'axios@1.5.1', 'form-data@4.0.0']);
+            const actionsExec = require('@actions/exec');
+            await actionsExec.exec('pnpm', ['install', 'axios@1.5.1', 'form-data@4.0.0']);
 
             // Get the latest commit hash
             const latest_commit = await github.context.payload.after;
             process.env.LATEST_COMMIT = latest_commit;
 
             // Find Changed Feature Files
-            const { stdout } = await exec.exec('git', ['show', '--name-only', latest_commit]);
+            const { stdout } = await actionsExec.exec('git', ['show', '--name-only', latest_commit]);
             const changed_files = stdout.split('\n').filter(file => file.endsWith('.feature'));
             process.env.CHANGED_FILES = changed_files.join(',');
 
@@ -51,7 +51,7 @@ jobs:
               const files = process.env.CHANGED_FILES.split(',');
               for (const file of files) {
                 console.log(`Running script for ${file} on branch ${github.ref}`);
-                await exec.exec('node', ['.github/scripts/synchronize_jira_xray.js', file, github.ref, major_version]);
+                await actionsExec.exec('node', ['.github/scripts/synchronize_jira_xray.js', file, github.ref, major_version]);
               }
             }
         env:
