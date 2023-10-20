@@ -102,7 +102,6 @@ jobs:
         uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: ${{ inputs.module_name }}
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
