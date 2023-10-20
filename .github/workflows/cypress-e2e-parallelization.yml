@@ -159,7 +159,7 @@ jobs:
 
   import-reports-to-xray:
     needs: [cypress-e2e-test-run,get-version]
-    if: always()
+    if: ${{ needs.get-version.outputs.stability != 'canary' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -190,8 +190,7 @@ jobs:
       - name: Determine testPlanKey
         id: determine-testplan-key
         run: |
-          # stability="${{ needs.get-version.outputs.stability }}"
-          stability="unstable"
+          stability="${{ needs.get-version.outputs.stability }}"
           major_version="${{ needs.get-version.outputs.major_version }}"
 
           echo "stability of this branch is $stability"
