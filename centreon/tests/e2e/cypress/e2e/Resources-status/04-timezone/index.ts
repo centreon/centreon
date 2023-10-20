@@ -19,6 +19,7 @@ const convert12hFormatToDate = (timeString: string): Date => {
   const dateString = currentDate.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
+    timeZone: chosenTZ,
     year: 'numeric'
   });
 
