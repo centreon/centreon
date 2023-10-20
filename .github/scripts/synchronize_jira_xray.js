@@ -88,7 +88,7 @@ async function getJiraIssueId(testSetKey) {
       core.error(
         `Jira API Request Failed with Status Code: ${response.status}`
       );
-      core.info(response.data);
+      core.info(`${response.data}`);
       return;
     }
 
@@ -116,11 +116,11 @@ async function uploadFeatureFileToXray(featureFilePath, XRAY_TOKEN) {
       core.error(
         `Feature File Upload to Xray Failed with Status Code: ${response.status}`
       );
-      core.info(response.data);
+      core.info(`${response.data}`);
       return;
     }
     core.info("Feature file uploaded successfully to Xray.");
-    core.info(response.data);
+    core.info(`${response.data}`);
     return response.data;
   } catch (error) {
     core.error(`Error uploading feature file to Xray: ${error}`);
@@ -147,7 +147,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         core.error(
           `Jira Issue Update Failed with Status Code: ${response.status}`
         );
-        core.info(response.data);
+        core.info(`${response.data}`);
         return;
       }
 
@@ -158,14 +158,14 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         ? existingCustomField10901.map((item) => item.value)
         : [];
 
-      core.info("Existing values of version: ", existingValues);
+      core.info(`Existing values of version: ${existingValues}`);
 
       for (const targetVersion of targetVersions) {
         if (!existingValues.includes(targetVersion)) {
           existingValues.push(targetVersion);
         }
       }
-      core.info("the new target versions are: ", existingValues);
+      core.info(`The new target versions are: ${existingValues}`);
 
       const issueUpdatePayload = {
         fields: {
@@ -175,8 +175,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         },
       };
       core.info(
-        `the issue update for ${api} is: `,
-        JSON.stringify(issueUpdatePayload)
+        `The issue update for ${api} is: ${JSON.stringify(issueUpdatePayload)}`
       );
 
       if (componentsList) {
@@ -201,7 +200,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         core.error(
           `Error updating issue ${api} in Jira. Status code: ${jira_response.status}`
         );
-        core.info(jira_response.data);
+        core.info(`${jira_response.data}`);
         return;
       }
 
@@ -225,9 +224,7 @@ async function main() {
   const branch_name = process.argv[3];
   const version_number = process.argv[4];
 
-  core.info(
-    `Running script for ${FEATURE_FILE_PATH} on branch ${branch_name}`
-  );
+  core.info(`Running script for ${FEATURE_FILE_PATH} on branch ${branch_name}`);
 
   const XRAY_TOKEN = await getXrayToken(CLIENT_ID, CLIENT_SECRET);
 
@@ -258,7 +255,7 @@ async function main() {
     return;
   }
 
-  core.info("Adding tests to the testSet: ", testSetKey);
+  core.info(`Adding tests to the testSet: ${testSetKey}`);
 
   const testSetId = await getJiraIssueId(testSetKey);
   if (!testSetId) {
@@ -301,11 +298,11 @@ async function main() {
         core.error(
           `GraphQL Request Failed with Status Code: ${response.status}`
         );
-        core.info("Error Data: ", JSON.stringify(response.data, null, 2));
+        core.info(`Error Data: ${JSON.stringify(response.data, null, 2)}`);
         return;
       }
 
-      core.info("Response Data: ", JSON.stringify(response.data, null, 2));
+      core.info(`Response Data: ${JSON.stringify(response.data, null, 2)}`);
     })
     .catch((error) => {
       core.error(`GraphQL Request Failed: ${error}`);

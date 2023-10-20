@@ -1,6 +1,6 @@
 #testSet:MON-23612
 @REQ_MON-23611
-Feature: This is just a test
+Feature: This is just a test in a feature file
 
 Scenario: Logging in test 
   When I enter my credentials on the login page
