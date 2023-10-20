@@ -62,7 +62,7 @@ export const routerParams = {
   useParams
 };
 
-const getPanels = (dashboard?: Dashboard): Array<DashboardPanel> =>
+export const getPanels = (dashboard?: Dashboard): Array<DashboardPanel> =>
   propOr([] as Array<DashboardPanel>, 'panels', dashboard);
 
 type UseDashboardDetailsProps = {
@@ -108,7 +108,6 @@ const useDashboardDetails = ({
 
   useEffect(() => {
     return () => {
-      setHasEditPermission(false);
       setIsEditing(false);
       setDashboardRefreshInterval(undefined);
     };
