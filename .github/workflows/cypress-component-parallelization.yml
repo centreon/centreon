@@ -104,12 +104,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           title: Code coverage report for ${{ inputs.module_name }} ${{ inputs.name }} 🚀
+          delete-old-comments: true
+          filter-changed-files: true
 
       - name: Archive HTML code coverage
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.module_name }}-${{ inputs.name }}-code-coverage
-          path: ${{ inputs.module_name }}/coverage
+          path: coverage
           retention-days: 1
 
   cypress-component-test-report:
