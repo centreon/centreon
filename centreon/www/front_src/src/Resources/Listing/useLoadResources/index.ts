@@ -149,6 +149,7 @@ const useLoadResources = (): LoadResources => {
 
   const getSearch = (): Search | undefined => {
     const searchCriteria = getCriteriaValue('search');
+
     if (!searchCriteria) {
       return undefined;
     }
@@ -160,11 +161,24 @@ const useLoadResources = (): LoadResources => {
 
     if (!isEmpty(fieldMatches)) {
       const matches = fieldMatches.map((item) => {
-        return { field: item.field, values: item.value?.split(',') };
+        const field = item?.field;
+        const values = item.value?.split(',')?.join('|');
+
+        return { field, value: `${field}:${values}` };
+      });
+
+      const formattedValue = matches.reduce((accumulator, previousValue) => {
+        return {
+          ...accumulator,
+          value: `${accumulator.value} ${previousValue.value}`
+        };
       });
 
       return {
-        lists: matches.filter((item) => item.values)
+        regex: {
+          fields: matches.map(({ field }) => field),
+          value: formattedValue.value
+        }
       };
     }
 
