@@ -17,5 +17,6 @@ Feature: Creating a notification rule
     Then a success message is displayed and the created notification rule is displayed in the listing
 
     When changes occur in the configured statuses for the selected resources
+    And the hard state is reached
     And the notification refresh_delay has been reached
     Then an email is sent to the configured contacts and contact groups with the configured format
