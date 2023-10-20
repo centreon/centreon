@@ -223,7 +223,7 @@ jobs:
               }'
 
               responseGestTestExecID=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestExecution}" "https://xray.cloud.getxray.app/api/v2/graphql")
-              echo "$response"
+              echo "$responseGestTestExecID"
 
               # Extraire la liste des IDs des tests issue
               testIssueIds=($(echo "$responseGestTestExecID" | jq -r '.data.getTestExecutions.results[].tests.results[].issueId'))
