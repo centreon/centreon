@@ -70,7 +70,6 @@ jobs:
 
         - name: Associate Test Cases with Test plan
           run: |
-            # Récupérer le plan de test
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
@@ -83,7 +82,7 @@ jobs:
             echo "Response from Get Test Plan:"
             echo "$response"
 
-            # Parser et traiter les IDs de problème
+            # Parsing and processing tests id
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
             summaries=()
 
@@ -107,7 +106,6 @@ jobs:
               fi
             done
 
-            # Traiter les collections de test
             collections=($(find ./collections -type f -name "*.postman_collection.json"))
             test_case_ids=()
 
@@ -148,7 +146,6 @@ jobs:
 
                 sleep 5
 
-                # Vérifier la réponse
                 if [ -z "$response" ]; then
                   echo "Failed to create the test case within the specified time."
                 else
@@ -156,25 +153,29 @@ jobs:
                   test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
 
                   echo "Created Test Case with ID: $test_case_id"
-                  # Mettre à jour la requête GraphQL pour ajouter ce test au plan de test
+                  # Update GraphQL query to add this test to the test plan
                   xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
 
-                  # Exécuter la mutation GraphQL pour ajouter les tests au plan de test
+                  # Execute GraphQL mutation to add tests to the test plan
                   response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
                 fi
               fi
             done
 
-            test_issue_ids=("${issue_ids[@]}")
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+            issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+
+
+            test_issue_ids=("${issue_list_ids[@]}")
             formatted_test_issue_ids_str="["
-            for issue_id in "${issue_ids[@]}"; do
+            for issue_id in "${issue_list_ids[@]}"; do
               formatted_test_issue_ids_str+="\"$issue_id\","
             done
             formatted_test_issue_ids_str="${formatted_test_issue_ids_str%,}" # Supprime la dernière virgule
             formatted_test_issue_ids_str+="]"
             echo "$formatted_test_issue_ids_str"
 
-            xray_graphql_mutation='{
+            xray_graphql_createTestExecution='{
               "query": "mutation CreateTestExecution($testIssueIds: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, jira: $jira) { testExecution { issueId jira(fields: [\"key\"]) } warnings createdTestEnvironments } }",
               "variables": {
                 "testIssueIds": '"$formatted_test_issue_ids_str"',
@@ -187,16 +188,15 @@ jobs:
               }
             }'
 
-            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_mutation" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_createTestExecution" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
-            # Afficher la réponse pour le débogage
             echo "Response from Create Test Execution:"
             echo "$response"
 
-            # Extraire l'ID de la nouvelle exécution de test
+            # Extract the ID of the new test run
             test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
 
-            # Vérifier si l'ID est null ou non
+            # Check if ID is null or not
             if [ "$test_execution_id" == "null" ]; then
               echo "Failed to create the Test Execution. Check the response for errors."
             else
