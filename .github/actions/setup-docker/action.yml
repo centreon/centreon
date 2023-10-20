@@ -42,13 +42,14 @@ runs:
             "https://docker.centreon.com"
           ],
           "ip": "0.0.0.0",
-          "ip-forward": true
+          "ip-forward": true,
+          "mtu": 0
         }
         EOF'
 
         #"exec-opts": ["native.cgroupdriver=cgroupfs"],
         #"cgroup-parent": "/actions_job"
-        #"mtu": 0,
+        #
         #   "proxies": {
         #    "http-proxy": "",
         #    "https-proxy": "",
