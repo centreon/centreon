@@ -42,7 +42,13 @@ module.exports = ({
     env: {
       baseUrl: 'http://localhost:9092',
       codeCoverage: {
-        exclude: ['cypress/**/*.*', 'packages/**', 'node_modules', '**/*.js']
+        exclude: [
+          'cypress/**/*.*',
+          'packages/**',
+          'node_modules',
+          '**/*.js',
+          '**/*.spec.tsx'
+        ]
       },
       ...env
     },
