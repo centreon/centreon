@@ -106,6 +106,7 @@ jobs:
           pattern: '/'
           string: ${{ inputs.module_name }}
           replace-with: '-'
+          flags: 'g'
       
       - name: Publish code coverage to PR
         uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
