@@ -139,7 +139,6 @@ jobs:
                       "description": "Test case for '"$collection_name_sanitized"'",
                       "issuetype": {
                         "name": "Test"
-                        "testType":"64f86e8845949b72c906df75"
                       }
                     }
                   }' \
