@@ -27,7 +27,7 @@ const getBaseArtifact = async () => {
   await new Promise((resolve, reject) => {
     download.body.pipe(fileStream);
     download.body.on("error", reject);
-    download.on("finish", resolve);
+    fileStream.on("finish", resolve);
   });
 
   execSync('ls', {
