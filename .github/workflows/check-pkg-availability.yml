@@ -33,7 +33,7 @@ jobs:
           # Set version
           #MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
           #echo "MAJOR_VERSION=${{ inputs.version }}" >> GITHUB_ENV
-          #MAJOR_VERSION="22.10"
+          MAJOR_VERSION="22.10"
           echo "MAJOR_VERSION=22.10" >> GITHUB_ENV
 
           # Handle valid MAJOR_VERSION:DISTRIB combination or return 1 for invalid combination
