@@ -23,18 +23,18 @@ const getBaseArtifact = async () => {
   const lighthouseReport = response.data.artifacts.find(({ workflow_run }) => workflow_run.head_branch === baseBranch);
 
   const download = await fetch(lighthouseReport.archive_download_url);
-  const fileStream = createWriteStream('report');
+  const fileStream = createWriteStream('baseReport');
   await new Promise((resolve, reject) => {
     download.body.pipe(fileStream);
     download.body.on("error", reject);
     fileStream.on("finish", resolve);
   });
 
-  execSync('ls', {
+  execSync('ls baseReport', {
     stdio: 'inherit'
   })
 
-  execSync('ls report', {
+  execSync('ls baseReport/report', {
     stdio: 'inherit'
   })
 }
