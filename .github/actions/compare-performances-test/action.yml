@@ -1,0 +1,13 @@
+name: Compare performances tests
+
+inputs:
+  base_branch:
+    description: The branch to retrieve lighthouse report
+    required: true
+  pat:
+    description: The PAT token
+    required: true
+
+runs:
+  using: 'node16'
+  main: 'index.js'

@@ -596,8 +596,32 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: lighthouse-report
-          path: centreon/lighthouse/report/lighthouseci-index.html
+          path: centreon/lighthouse/report
           retention-days: 1
+
+  compare-performances-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install action dependencies
+        run: pnpm install
+        working-directory: ./.github/actions/compare-performances-test
+        shell: bash
+
+      - uses: ./.github/actions/compare-performances-test
+        with:
+          base_branch: dev-23.10.x
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-sources:
     runs-on: [self-hosted, common]

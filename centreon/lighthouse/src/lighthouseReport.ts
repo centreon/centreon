@@ -2,7 +2,7 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 
 import puppeteer from 'puppeteer';
-import { startFlow } from 'lighthouse';
+import { UserFlow, startFlow } from 'lighthouse';
 
 import { generateReportForLoginPage } from './pages/login';
 import { generateReportForResourceStatusPage } from './pages/resourceStatus';
@@ -12,7 +12,7 @@ import type { NavigateProps } from './models';
 import { generateReportForDashboardsPage } from './pages/dashboards';
 import { generateReportForNotificationsPage } from './pages/notifications';
 
-const createReportFile = async (report): Promise<void> => {
+const createHTMLReportFile = async (report): Promise<void> => {
   const lighthouseFolderExists = fs.existsSync('report');
 
   if (!lighthouseFolderExists) {
@@ -21,6 +21,10 @@ const createReportFile = async (report): Promise<void> => {
 
   fs.writeFileSync('report/lighthouseci-index.html', await report);
 };
+
+const createJSONReportFile = async (flow: UserFlow): Promise<void> => {
+  fs.writeFileSync('report/flow-result.json', JSON.stringify(await flow.createFlowResult(), null, 2));
+}
 
 const captureReport = async (): Promise<void> => {
   const browser = await puppeteer.launch({
@@ -93,7 +97,8 @@ const captureReport = async (): Promise<void> => {
 
   await browser.close();
 
-  createReportFile(flow.generateReport());
+  createHTMLReportFile(flow.generateReport());
+  createJSONReportFile(flow);
 };
 
 captureReport();
