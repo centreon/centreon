@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const { Octokit } = require('octokit');
+const { execSync } = require('child_process');
 const fetch = require('node-fetch');
 
 const pat = core.getInput('pat');
