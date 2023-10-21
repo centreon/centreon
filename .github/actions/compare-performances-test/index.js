@@ -23,7 +23,9 @@ const getBaseArtifact = async () => {
 
   await fetch(lighthouseReport.archive_download_url);
 
-  execSync('ls')
+  execSync('ls', {
+    stdio: 'inherit'
+  })
 }
 
 getBaseArtifact();
