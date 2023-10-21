@@ -13,14 +13,12 @@ const octokitClient = new Octokit({
 });
 
 const getBaseArtifact = async () => {
-  const artifacts = await octokitClient.request('GET /repos/centreon/centreon/actions/artifacts?name=lighthouse-report', {
+  const response = await octokitClient.request('GET /repos/centreon/centreon/actions/artifacts?name=lighthouse-report', {
     owner: 'centreon',
     repo: 'centreon',
   });
 
-  console.log(artifacts)
-
-  const lighthouseBaseBranch = artifacts.artifacts.find(({ workflow_run }) => workflow_run.head_branch === baseBranch);
+  const lighthouseBaseBranch = response.data.artifacts.find(({ workflow_run }) => workflow_run.head_branch === baseBranch);
 
   console.log(lighthouseBaseBranch)
 }
