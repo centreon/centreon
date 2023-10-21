@@ -18,11 +18,11 @@ const getBaseArtifact = async () => {
     repo: 'centreon',
   });
 
-  console.log(response.data.artifacts)
+  const lighthouseReport = response.data.artifacts.find(({ workflow_run }) => workflow_run.head_branch === baseBranch);
 
-  const lighthouseBaseBranch = response.data.artifacts.find(({ workflow_run }) => workflow_run.head_branch === baseBranch);
+  await fetch(lighthouseReport.archive_download_url);
 
-  console.log(lighthouseBaseBranch)
+  execSync('ls')
 }
 
 getBaseArtifact();
