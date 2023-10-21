@@ -30,7 +30,7 @@ jobs:
           set -x
           # Set version
           #MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
-          VERSION="23.04"
+          MAJOR_VERSION="23.04"
 
           # Set repo based on distrib
           case ${{ inputs.image }} in
