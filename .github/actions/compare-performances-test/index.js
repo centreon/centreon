@@ -30,6 +30,10 @@ const getBaseArtifact = async () => {
     fileStream.on("finish", resolve);
   });
 
+  execSync('cat baseReport.zip', {
+    stdio: 'inherit'
+  })
+
   execSync('unzip baseReport.zip', {
     stdio: 'inherit'
   })
