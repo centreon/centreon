@@ -18,6 +18,8 @@ const getBaseArtifact = async () => {
     repo: 'centreon',
   });
 
+  console.log(response.data.artifacts)
+
   const lighthouseBaseBranch = response.data.artifacts.find(({ workflow_run }) => workflow_run.head_branch === baseBranch);
 
   console.log(lighthouseBaseBranch)
