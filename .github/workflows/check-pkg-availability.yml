@@ -30,7 +30,22 @@ jobs:
           set -x
           # Set version
           #MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
-          MAJOR_VERSION="23.04"
+          MAJOR_VERSION="22.10"
+          PHP_REPO=""
+
+          # Set php version
+          case ${MAJOR_VERSION} in
+            23.10 | 23.04 | 22.10)
+              PHP_REPO="remi-8.1"
+              ;;
+            22.04)
+              PHP_REPO="remi-8.0"
+              ;;
+            *)
+              echo "Version ${MAJOR_VERSION} is not a valid supported MAJOR VERSION."
+              exit 1
+              ;;
+          esac
 
           # Set repo based on distrib
           case ${{ inputs.image }} in
@@ -38,11 +53,12 @@ jobs:
               dnf install -y epel-release
               dnf install -y dnf-plugins-core
               dnf config-manager --set-enabled powertools
+              dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
               dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el8/centreon-${MAJOR_VERSION}.repo
               dnf config-manager --set-enabled centreon-${MAJOR_VERSION}-testing*
               dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
               dnf module reset -y php
-              dnf module install -y php:remi-8.1
+              dnf module install -y php:${PHP_REPO}
               dnf install -y curl sudo
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
                 | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
@@ -63,7 +79,7 @@ jobs:
               dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
               dnf config-manager --set-enabled centreon-${MAJOR_VERSION}-testing*
               dnf module reset -y php
-              dnf module install -y php:8.1
+              dnf module install -y php:${PHP_REPO}
               dnf install -y --allowerasing sudo curl
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
                 | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
