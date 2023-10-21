@@ -36,8 +36,9 @@ jobs:
           #MAJOR_VERSION="22.10"
           echo "MAJOR_VERSION=22.10" >> GITHUB_ENV
 
-          # Handle valid MAJOR_VERSION:DISTRIB combination or return 1
-          #COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
+          # Handle valid MAJOR_VERSION:DISTRIB combination or return 1 for invalid combination
+          COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
+          echo "::notice Combination detected: $COMBINATION"
           case ${COMBINATION} in
             almalinux:8:23.10 | almalinux:8:23.04 | almalinux:8:22.10 | almalinux:8:22.04)
               echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> GITHUB_ENV
@@ -68,13 +69,14 @@ jobs:
               PHP_REPO="remi-8.0"
               ;;
             *)
-              echo "Version ${{ env.MAJOR_VERSION }} is not a valid supported MAJOR VERSION."
+              echo "::notice Version ${{ env.MAJOR_VERSION }} is not a valid supported MAJOR VERSION."
               exit 1
               ;;
           esac
 
           # Set repo based on distrib
-          case ${COMBINATION} in
+          echo "::notice Checking if stable packages are available for ${{ env.COMBINATION }}"
+          case ${{ env.COMBINATION }} in
             almalinux:8:23.10 | almalinux:8:23.04 | almalinux:8:22.10 | almalinux:8:22.04)
               dnf install -y epel-release
               dnf install -y dnf-plugins-core
