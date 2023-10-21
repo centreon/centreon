@@ -30,7 +30,9 @@ jobs:
           set -x
           # Set version
           VERSION=${{ inputs.version }}
+          VERSION=$(cut -d "." -f 1,2 <<< $VERSION)
           #VERSION="23.04"
+
           # Set repo based on distrib
           case ${{ inputs.image }} in
             almalinux:8)
