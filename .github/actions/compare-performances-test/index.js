@@ -1,11 +1,15 @@
 const core = require('@actions/core');
 const { Octokit } = require('octokit');
+const fetch = require('node-fetch');
 
 const pat = core.getInput('pat');
 const baseBranch = core.getInput('base_branch');
 
 const octokitClient = new Octokit({
-  auth: pat
+  auth: pat,
+  request: {
+    fetch
+  }
 });
 
 const getBaseArtifact = async () => {
