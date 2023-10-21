@@ -26,18 +26,27 @@ jobs:
       image: ${{ inputs.image }}
 
     steps:
-      - run: |
-          set -x
+      - name: Check version and distrib combination
+        run: |
+          set -eux
+
           # Set version
           #MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
-          MAJOR_VERSION="22.10"
-          PHP_REPO=""
+          #echo "MAJOR_VERSION=${{ inputs.version }}" >> GITHUB_ENV
+          #MAJOR_VERSION="22.10"
+          echo "MAJOR_VERSION=22.10" >> GITHUB_ENV
 
           # Handle MAJOR_VERSION:DISTRIB combination
-          COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
+          #COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
+          echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> GITHUB_ENV
+
+      - name: Checking stable package availability
+        run: |
+          set -eux
 
           # Set php version
-          case ${MAJOR_VERSION} in
+          PHP_REPO=""
+          case "${{ env.MAJOR_VERSION }}" in
             23.10 | 23.04 | 22.10)
               PHP_REPO="remi-8.1"
               ;;
@@ -45,7 +54,7 @@ jobs:
               PHP_REPO="remi-8.0"
               ;;
             *)
-              echo "Version ${MAJOR_VERSION} is not a valid supported MAJOR VERSION."
+              echo "Version ${{ env.MAJOR_VERSION }} is not a valid supported MAJOR VERSION."
               exit 1
               ;;
           esac
@@ -57,8 +66,8 @@ jobs:
               dnf install -y dnf-plugins-core
               dnf config-manager --set-enabled powertools
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-              dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el8/centreon-${MAJOR_VERSION}.repo
-              dnf config-manager --set-enabled centreon-${MAJOR_VERSION}-testing*
+              dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${{ env.MAJOR_VERSION }}/el8/centreon-${{ env.MAJOR_VERSION }}.repo
+              dnf config-manager --set-enabled centreon-${{ env.MAJOR_VERSION }}-testing*
               dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
               dnf module reset -y php
               dnf module install -y php:${PHP_REPO}
@@ -79,8 +88,8 @@ jobs:
               dnf install -y epel-release
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
               dnf config-manager --set-enabled crb
-              dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
-              dnf config-manager --set-enabled centreon-${MAJOR_VERSION}-testing*
+              dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${{ env.MAJOR_VERSION }}/el9/centreon-${{ env.MAJOR_VERSION }}.repo
+              dnf config-manager --set-enabled centreon-${{ env.MAJOR_VERSION }}-testing*
               dnf module reset -y php
               dnf module install -y php:${PHP_REPO}
               dnf install -y --allowerasing sudo curl
@@ -102,7 +111,7 @@ jobs:
               wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
               apt update
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
-              echo "deb https://packages.centreon.com/apt-standard-${MAJOR_VERSION}-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon.list
+              echo "deb https://packages.centreon.com/apt-standard-${{ env.MAJOR_VERSION }}-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon.list
               echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list
               wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
               apt update
