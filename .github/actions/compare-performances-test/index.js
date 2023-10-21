@@ -34,7 +34,7 @@ const getBaseArtifact = async () => {
     stdio: 'inherit'
   })
 
-  execSync('ls baseReport/report', {
+  execSync('ls baseReport/baseReport', {
     stdio: 'inherit'
   })
 }
