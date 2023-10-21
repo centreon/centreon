@@ -33,6 +33,9 @@ jobs:
           MAJOR_VERSION="22.10"
           PHP_REPO=""
 
+          # Handle MAJOR_VERSION:DISTRIB combination
+          COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
+
           # Set php version
           case ${MAJOR_VERSION} in
             23.10 | 23.04 | 22.10)
@@ -48,8 +51,8 @@ jobs:
           esac
 
           # Set repo based on distrib
-          case ${{ inputs.image }} in
-            almalinux:8)
+          case ${COMBINATION} in
+            almalinux:8:23.10 | almalinux:8:23.04 | almalinux:8:22.10 | almalinux:8:22.04)
               dnf install -y epel-release
               dnf install -y dnf-plugins-core
               dnf config-manager --set-enabled powertools
@@ -71,7 +74,7 @@ jobs:
                 dnf download --resolve -y centreon-${{ inputs.module }}
               fi
             ;;
-            almalinux:9)
+            almalinux:9:23.10 | almalinux:8:23.04)
               dnf install -y dnf-plugins-core
               dnf install -y epel-release
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
@@ -92,7 +95,7 @@ jobs:
                 dnf download --resolve -y centreon-${{ inputs.module }}
               fi
             ;;
-            debian:bullseye)
+            debian:bullseye:23.10 | debian:bullseye:23.04 | debian:bullseye:22.10 | debian:bullseye:22.04)
               apt update && apt upgrade -y
               apt update && apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
               echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
