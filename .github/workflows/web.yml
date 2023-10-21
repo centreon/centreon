@@ -620,7 +620,7 @@ jobs:
 
       - uses: ./.github/actions/compare-performances-test
         with:
-          base_branch: dev-23.10.x
+          base_branch: dev-22.04.x
           pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-sources:

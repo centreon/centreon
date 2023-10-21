@@ -13,7 +13,7 @@ const octokitClient = new Octokit({
 });
 
 const getBaseArtifact = async () => {
-  const response = await octokitClient.request('GET /repos/centreon/centreon/actions/artifacts?name=lighthouse-report', {
+  const response = await octokitClient.request('GET /repos/centreon/centreon/actions/artifacts?name=lighthouse-report&per_page=100', {
     owner: 'centreon',
     repo: 'centreon',
   });
