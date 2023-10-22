@@ -121,7 +121,6 @@ jobs:
               }
             }'
             for collection_file in "${collections[@]}"; do
-              echo "Collection File: $collection_file"
               collection_name=$(basename "$collection_file" .postman_collection.json)
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
@@ -157,6 +156,9 @@ jobs:
                   test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
 
                   echo "Created Test Case with ID: $test_case_id"
+                  # Ajouter le nom du cas de test à la liste des résumés
+                  summaries+=("$collection_name_sanitized")
+
                   # Update GraphQL query to add this test to the test plan
                   xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
 
