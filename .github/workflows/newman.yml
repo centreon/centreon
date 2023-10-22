@@ -77,7 +77,7 @@ jobs:
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-                "issueId": "73215"
+                "issueId": "73560"
               }
             }'
 
@@ -116,7 +116,7 @@ jobs:
             xray_graphql_AddingTestsToTestPlan='{
               "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
               "variables": {
-                "issueId": "73215",
+                "issueId": "73560",
                 "testIssueIds": []
               }
             }'
@@ -211,7 +211,7 @@ jobs:
             xray_graphql_addTestExecutionsToTestPlan='{
               "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
               "variables": {
-                "issueId": "73215",
+                "issueId": "73560",
                 "testExecIssueIds": ["'$test_execution_id'"]
               }
             }'
@@ -320,67 +320,77 @@ jobs:
 
     - name: Change test execution status
       run: |
-          xray_graphql_getTestPlan='{
-            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
-            "variables": {
-              "issueId": "73215"
-            }
-          }'
+        test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
+        echo "test_execution_id: $test_execution_id"
+        for summary_file in ./postman_summaries/*.json; do
+          collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+          failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
+          failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
+          failures=$(jq -r '.Run.Failures' "$summary_file")
 
-          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+          # Parcourir les résumés des problèmes et comparer avec le nom de la collection
+          for ((i = 0; i < ${#issue_ids[@]}; i++)); do
+            issue_id="${issue_ids[i]}"
+            summary="${summaries[i]}"
 
-          echo "Response from Get Test Plan:"
-          echo "$response"
-
-          # Parsing and processing tests id and summary
-          issue_data=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | .issueId, (.testType.name // "Unknown")'))
-
-          # Initialize arrays for issue IDs and summaries
-          issue_ids=()
-          summaries=()
-
-          # Process the data
-          for ((i = 0; i < ${#issue_data[@]}; i += 2)); do
-            issue_id="${issue_data[i]}"
-            test_type="${issue_data[i+1]}"
-            echo "Processing issue ID: $issue_id"
-
-            jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
-
-            response=$(curl --request GET \
-              --url "$jira_issue_url" \
-              --user "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" \
-              --header 'Accept: application/json')
-
-            if [ "$(echo "$response" | jq -r '.errorMessages[0]')" == "Issue does not exist or you do not have permission to see it." ]; then
-              echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
-              continue
-            else
-              echo "The issue with ID $issue_id exists."
-              summary=$(echo "$response" | jq -r '.fields.summary')
-              summaries+=("$summary")
-            fi
-
-            issue_ids+=("$issue_id")
-          done
-          for summary_file in ./postman_summaries/*.json; do
-              collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
-              failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
-              failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
-              failures=$(jq -r '.Run.Failures' "$summary_file")
-
-            # Parcourir les résumés des problèmes et comparer avec le nom de la collection
-            for ((i = 0; i < ${#issue_ids[@]}; i++)); do
-              issue_id="${issue_ids[i]}"
-              summary="${summaries[i]}"
-
-              # Comparer le résumé avec le nom de la collection
-              if [ "$summary" == "$collection_name" ]; then
-                echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
-
+            # Comparer le résumé avec le nom de la collection
+            if [ "$summary" == "$collection_name" ]; then
+              echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
+              if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                newStatus="FAIL"
+              else
+                newStatus="PASSED"
               fi
-            done
+
+              responseGetTestExecID=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestExecution}" "https://xray.cloud.getxray.app/api/v2/graphql")
+              echo "$responseGetTestExecID"
+
+              # Extract the list of test run IDs
+              testExecutionIssueIds=($(echo "$responseGetTestExecID" | jq -r '.data.getTestExecution.tests.results[].issueId'))
+
+              # Creation of a JSON array from IDs
+              testIssueIds='['
+              for id in "${testExecutionIssueIds[@]}"; do
+                testIssueIds+='"'${id}'",'
+              done
+              testIssueIds=${testIssueIds%,}
+              testIssueIds+=']'
+
+              xray_graphql_getTestRunIDs='{
+                "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
+                "variables": {
+                  "testIssueIds": '"$testIssueIds"',
+                  "testExecIssueIds": ["$test_execution_id"],
+                  "limit": 100
+                }
+              }'
+              echo "$xray_graphql_getTestRunIDs"
+              response_getTestRun=$(curl -X POST -H "Content-Type: application.json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+              echo "$response_getTestRun"
+
+              # Analyser la réponse JSON pour extraire le test run ID correspondant à l'issue ID
+              test_run_id=""
+              if [ -n "$issue_id" ]; then
+                test_run_id=$(echo "$response_getTestRun" | jq -r ".data.getTestRuns.results[] | select(.test.issueId == \"$issue_id\") | .id")
+              fi
+
+              # Vérifiez si un testRunId correspondant a été trouvé
+              if [ -n "$test_run_id" ]; then
+                echo "Found Test Run ID $test_run_id for Issue ID $issue_id and Collection Name $collection_name"
+
+                # Utilisez le test_run_id pour exécuter la mutation
+                graphqlMutation="{\"query\": \"mutation { updateTestRunStatus(id: \\\"$test_run_id\\\", status: \\\"$newStatus\\\") }\"}"
+                echo "$graphqlMutation"
+                curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphqlMutation" -v "https://xray.cloud.getxray.app/api/v2/graphql"
+
+                # Vous pouvez ajouter des vérifications pour traiter la réponse si nécessaire.
+              else
+                echo "Test Run ID not found for Issue ID $issue_id and Collection Name $collection_name."
+              fi
+            fi
           done
+        done
+
 
 
     - name: Generate and Display Summaries
