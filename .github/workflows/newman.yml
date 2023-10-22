@@ -363,7 +363,9 @@ jobs:
               fi
             done
             for ((i = 0; i < ${#issue_ids[@]}; i++)); do
-              issue_id="${issue_ids[i]}"
+              issue_id="${issue_ids[i]}
+              summary="${summaries[i]}"
+
               if [ "$summary" == "$collection_name" ]; then
                 echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
                 if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
