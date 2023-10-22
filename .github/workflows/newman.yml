@@ -205,8 +205,8 @@ jobs:
               echo "Failed to create the Test Execution. Check the response for errors."
             else
               echo "Created Test Execution with ID: $test_execution_id"
-              echo  "$test_execution_id"  >> $GITHUB_OUTPUT
-            fi
+              echo "'$test_execution_id'" >> $GITHUB_OUTPUT
+              fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
               "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
@@ -237,7 +237,6 @@ jobs:
     CONTAINER_NAME: ${{ inputs.container_name }}
     CENTREON_URL: ${{ inputs.centreon_url }}
     CENTREON_IMAGE: ${{ inputs.centreon_image }}
-
    steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -318,21 +317,6 @@ jobs:
           echo "Summary info for $key:"
           echo "${json_info[$key]}"
         done
-
-
-    - name: xray
-      run: |
-        # response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
-
-        # xray_graphql_updateTestRunStepStatus = {
-        #   "query": "mutation UpdateTestRunStepStatus($testRunId: String, $stepId: String, $status: String) { updateTestRunStepStatus(testRunId: $testRunId, stepId: $stepId, status: $status) { warnings } }",
-        #   "variables": {
-        #     "testRunId": "5e8489c05f200f3cd45bbaf0",
-        #     "stepId": "316eb258-10bb-40c0-ae40-ab76004cc505",
-        #     "status": "PASSED"
-        #   }
-        # }
-        # response_updateTestRunStepStatus=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_updateTestRunStepStatus" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
     - name: Generate and Display Summaries
       if: failure()
