@@ -363,7 +363,7 @@ jobs:
               fi
             done
             for ((i = 0; i < ${#issue_ids[@]}; i++)); do
-              issue_id="${issue_ids[i]}
+              issue_id="${issue_ids[i]}""
               summary="${summaries[i]}"
 
               if [ "$summary" == "$collection_name" ]; then
