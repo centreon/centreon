@@ -320,8 +320,8 @@ jobs:
           echo "${json_info[$key]}"
         done
 
-        - name: Change test execution status
-        run: |
+    - name: Change test execution status
+      run: |
           test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
           for summary_file in ./postman_summaries/*.json; do
             collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
