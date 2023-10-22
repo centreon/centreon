@@ -322,14 +322,15 @@ jobs:
 
     - name: Change test execution status
       run: |
-          for summary_file in ./postman_summaries/*.json; do
+        # test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
+        for summary_file in ./postman_summaries/*.json; do
             collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
             failures=$(jq -r '.Run.Failures' "$summary_file")
 
             # Parcourir les résumés des problèmes et comparer avec le nom de la collection
-            for ((i = 0; i < ${#issue_ids[@]}; i++)); do
+          for ((i = 0; i < ${#issue_ids[@]}; i++)); do
               issue_id="${issue_ids[i]}"
               summary="${summaries[i]}"
 
@@ -389,7 +390,7 @@ jobs:
                 fi
               fi
             done
-          done
+        done
 
 
     - name: Generate and Display Summaries
