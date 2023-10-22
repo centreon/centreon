@@ -89,8 +89,18 @@ jobs:
             # Parsing and processing tests id
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
             summaries=()
+            processed_issue_ids=()  # Liste pour suivre les IDs d'issues déjà traités
 
             for issue_id in "${issue_ids[@]}"; do
+              # Vérifiez si cet issue_id a déjà été traité
+              if [[ " ${processed_issue_ids[@]} " =~ " $issue_id " ]]; then
+                echo "Skipping duplicate issue ID: $issue_id"
+                continue
+              fi
+
+              # Ajoutez l'issue_id à la liste des IDs d'issues déjà traités
+              processed_issue_ids+=("$issue_id")
+
               echo "Processing issue ID: $issue_id"
               jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
