@@ -120,7 +120,6 @@ jobs:
                 "testIssueIds": []
               }
             }'
-
             for collection_file in "${collections[@]}"; do
               echo "Collection File: $collection_file"
               collection_name=$(basename "$collection_file" .postman_collection.json)
