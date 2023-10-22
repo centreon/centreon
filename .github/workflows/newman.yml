@@ -205,7 +205,7 @@ jobs:
               echo "Failed to create the Test Execution. Check the response for errors."
             else
               echo "Created Test Execution with ID: $test_execution_id"
-              echo "'$test_execution_id'" >> $GITHUB_OUTPUT
+              echo "$test_execution_id" >> $GITHUB_OUTPUT
               fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
