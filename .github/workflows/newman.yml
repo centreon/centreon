@@ -51,7 +51,7 @@ jobs:
   associate-test-cases:
       runs-on: ubuntu-22.04
       outputs:
-        test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
+        test_exec: ${{ steps.xray-newman.outputs.test_exec }}
 
       defaults:
        run:
@@ -205,7 +205,7 @@ jobs:
               echo "Failed to create the Test Execution. Check the response for errors."
             else
               echo "Created Test Execution with ID: $test_execution_id"
-              echo "'$test_execution_id'" >> $GITHUB_OUTPUT
+              echo "test_exec=$test_execution_id" >> $GITHUB_OUTPUT
               fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
@@ -254,7 +254,7 @@ jobs:
 
     - name: Install Dependencies for tests/rest_api
       run: |
-         test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
+         test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
          echo "test_execution_id: $test_execution_id"
 
     - name: Install Dependencies for tests/rest_api
