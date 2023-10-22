@@ -328,7 +328,7 @@ jobs:
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
             failures=$(jq -r '.Run.Failures' "$summary_file")
-            for (i = 0; i < ${#issue_ids[@]}; i++); do
+            for ((i = 0; i < ${#issue_ids[@]}; i++)); do
               issue_id="${issue_ids[i]}"
               summary="${summaries[i]}"
               if [ "$summary" == "$collection_name" ]; then
