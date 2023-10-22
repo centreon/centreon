@@ -343,9 +343,27 @@ jobs:
             # Parsing and processing tests id
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
             summaries=()
+            for issue_id in "${issue_ids[@]}"; do
+              echo "Processing issue ID: $issue_id"
+              jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+
+              response=$(curl --request GET \
+                --url "$jira_issue_url" \
+                --user "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" \
+                --header 'Accept: application/json')
+
+              summary=$(echo "$response" | jq -r '.fields.summary')
+
+              if [ "$(echo "$response" | jq -r '.errorMessages[0]')" == "Issue does not exist or you do not have permission to see it." ]; then
+                echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                break
+              else
+                echo "The issue with ID $issue_id exists."
+                summaries+=("$summary")
+              fi
+            done
             for ((i = 0; i < ${#issue_ids[@]}; i++)); do
               issue_id="${issue_ids[i]}"
-              summary="${summaries[i]}"
               if [ "$summary" == "$collection_name" ]; then
                 echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
                 if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
