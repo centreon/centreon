@@ -342,7 +342,7 @@ jobs:
 
             # Parsing and processing tests id
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
-
+            summaries=()
             for ((i = 0; i < ${#issue_ids[@]}; i++)); do
                 issue_id="${issue_ids[i]}"
                 summary="${summaries[i]}"
