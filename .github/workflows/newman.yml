@@ -127,7 +127,6 @@ jobs:
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
               if [[ ! " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
-                # La collection n'existe pas, ajoutez-la
                 response=$(curl --request POST \
                   --url 'https://centreon.atlassian.net/rest/api/2/issue' \
                   --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
