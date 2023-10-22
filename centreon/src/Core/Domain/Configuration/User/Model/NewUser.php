@@ -276,15 +276,18 @@ class NewUser
         return $this;
     }
 
-    /** @return bool  */
+    /**
+     * @return bool
+     */
     public function canReachFrontend(): bool
     {
         return $this->canReachFrontend;
     }
 
     /**
-     * @param bool $canReachFrontend 
-     * @return self 
+     * @param bool $canReachFrontend
+     *
+     * @return self
      */
     public function setCanReachFrontend(bool $canReachFrontend): self
     {
