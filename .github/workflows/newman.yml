@@ -89,18 +89,8 @@ jobs:
             # Parsing and processing tests id
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
             summaries=()
-            processed_issue_ids=()  # Liste pour suivre les IDs d'issues déjà traités
 
             for issue_id in "${issue_ids[@]}"; do
-              # Vérifiez si cet issue_id a déjà été traité
-              if [[ " ${processed_issue_ids[@]} " =~ " $issue_id " ]]; then
-                echo "Skipping duplicate issue ID: $issue_id"
-                continue
-              fi
-
-              # Ajoutez l'issue_id à la liste des IDs d'issues déjà traités
-              processed_issue_ids+=("$issue_id")
-
               echo "Processing issue ID: $issue_id"
               jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
@@ -138,43 +128,52 @@ jobs:
               if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
                 echo "The test case for $collection_name_sanitized already exists in the test plan."
               else
-                # Ajouter un cas de test
-                response=$(curl --request POST \
-                  --url 'https://centreon.atlassian.net/rest/api/2/issue' \
-                  --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
-                  --header 'Accept: application/json' \
-                  --header 'Content-Type: application/json' \
-                  --data '{
-                    "fields": {
-                      "project": {
-                        "key": "MON"
-                      },
-                      "summary": "'"$collection_name_sanitized"'",
-                      "description": "Test case for '"$collection_name_sanitized"'",
-                      "issuetype": {
-                        "name": "Test"
-                      }
-                    }
-                  }' \
-                  --max-time 20)
+                # Vérifier si le test case existe déjà dans Jira
+                jira_test_case_id=$(getTestCaseIdByName "$collection_name_sanitized")
 
-                sleep 5
-
-                if [ -z "$response" ]; then
-                  echo "Failed to create the test case within the specified time."
+                if [ -n "$jira_test_case_id" ]; then
+                  echo "The test case for $collection_name_sanitized already exists in Jira."
                 else
-                  test_case_id=$(echo "$response" | jq -r '.id')
-                  test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
+                  # Créer un nouveau cas de test dans Jira
+                  response=$(curl --request POST \
+                    --url 'https://centreon.atlassian.net/rest/api/2/issue' \
+                    --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
+                    --header 'Accept: application json' \
+                    --header 'Content-Type: application/json' \
+                    --data '{
+                      "fields": {
+                        "project": {
+                          "key": "MON"
+                        },
+                        "summary": "'"$collection_name_sanitized"'",
+                        "description": "Test case for '"$collection_name_sanitized"'",
+                        "issuetype": {
+                          "name": "Test"
+                        }
+                      }
+                    }' \
+                    --max-time 20)
 
-                  echo "Created Test Case with ID: $test_case_id"
-                  # Update GraphQL query to add this test to the test plan
-                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+                  sleep 5
 
-                  # Execute GraphQL mutation to add tests to the test plan
-                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+                  if [ -z "$response" ]; then
+                    echo "Failed to create the test case within the specified time."
+                  else
+                    test_case_id=$(echo "$response" | jq -r '.id')
+                    test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
+
+                    echo "Created Test Case with ID: $test_case_id"
+                    # Update GraphQL query to add this test to the test plan
+                    xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+
+                    # Exécuter la mutation GraphQL pour ajouter les tests au test plan
+                    response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+                  fi
                 fi
               fi
             done
+
+
 
             response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
             issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
