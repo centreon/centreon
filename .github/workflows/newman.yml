@@ -50,6 +50,9 @@ jobs:
 
   associate-test-cases:
       runs-on: ubuntu-22.04
+      outputs:
+        test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
+
       defaults:
        run:
         shell: bash
@@ -202,6 +205,7 @@ jobs:
               echo "Failed to create the Test Execution. Check the response for errors."
             else
               echo "Created Test Execution with ID: $test_execution_id"
+              echo  "$test_execution_id"  >> $GITHUB_OUTPUT
             fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
@@ -214,7 +218,7 @@ jobs:
             response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_addTestExecutionsToTestPlan" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
   newman-test-run:
-   needs: [newman-test-list]
+   needs: [newman-test-list,associate-test-cases]
    runs-on: ubuntu-22.04
    continue-on-error: true
 
@@ -248,6 +252,11 @@ jobs:
           node-version: 18
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+
+    - name: Install Dependencies for tests/rest_api
+      run: |
+         test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
+         echo "test_execution_id: $test_execution_id"
 
     - name: Install Dependencies for tests/rest_api
       run: pnpm install --frozen-lockfile
