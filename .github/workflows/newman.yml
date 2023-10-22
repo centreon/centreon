@@ -123,15 +123,14 @@ jobs:
             }'
 
             for collection_file in "${collections[@]}"; do
-                collection_name=$(basename "$collection_file" .postman_collection.json)
-                collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
+              collection_name=$(basename "$collection_file" .postman_collection.json)
+              collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
-                if [[ "${summaries[@]}" =~ "${collection_name_sanitized}" ]]; then
-                    echo "The test case for $collection_name_sanitized already exists in the test plan."
-                    continue
-                fi
-
-                # Ajouter un cas de test
+              if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
+                echo "The test case for $collection_name_sanitized already exists in the test plan."
+                break
+              else
+                # Add a test case
                 response=$(curl --request POST \
                   --url 'https://centreon.atlassian.net/rest/api/2/issue' \
                   --user '${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}' \
@@ -154,18 +153,19 @@ jobs:
                 sleep 5
 
                 if [ -z "$response" ]; then
-                    echo "Failed to create the test case within the specified time."
+                  echo "Failed to create the test case within the specified time."
                 else
-                    test_case_id=$(echo "$response" | jq -r '.id')
-                    test_case_ids+=("$test_case_id")  # Add the test case ID to the list
+                  test_case_id=$(echo "$response" | jq -r '.id')
+                  test_case_ids+=("$test_case_id")  # Add the test case ID to the list
 
-                    echo "Created Test Case with ID: $test_case_id"
-                    # Update GraphQL query to add this test to the test plan
-                    xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+                  echo "Created Test Case with ID: $test_case_id"
+                  # Update GraphQL query to add this test to the test plan
+                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
 
-                    # Execute GraphQL mutation to add tests to the test plan
-                    response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+                  # Execute GraphQL mutation to add tests to the test plan
+                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
                 fi
+              fi
             done
 
             response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
