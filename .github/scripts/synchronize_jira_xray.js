@@ -238,8 +238,8 @@ async function main() {
 
   const targetVersions =
     branchName === "develop"
-      ? getTargetVersion(version_number).concat("Cloud")
-      : getTargetVersion(version_number);
+      ? getTargetVersion(versionNumber).concat("Cloud")
+      : getTargetVersion(versionNumber);
 
   const testSelfs = responseData.updatedOrCreatedTests?.map(
     (test) => test.self
