@@ -8,52 +8,34 @@ Cypress : https://docs.cypress.io/guides/references/best-practices.html
 
 - docker + docker-compose
 - npm >= 5.2 (to use npx included)
+- pnpm >= 7.0
 
-## Infos
+### General infos
 
-Docker-compose is configured to expose HTTP Port (80) to the **localhost:3400**
-
-Cypress is configured for tests to be performed on the basis of the exposed port of the dockers: 3400
-
-Plugins added in the environment
-
-- cypress-cucumber-preprocessor
-
-This allows to manage scenarios written in .feature format (Gerkhin syntax).
-
-> https://github.com/TheBrainFamily/cypress-cucumber-preprocessor
+All the tests should run fine, except some of them like "SAML, openid.." they need a small change in the config file to be able to function for windows/mac users.
 
 ## Step by Step
 
-### Create the Centreon Docker testing environment
+### Installing the dependencies
 
-> npm run cypress:build:docker
+This will install all the dependencies that are required in the entire project to be able to run the tests.
 
-optional parameters :
+Assuming you are in the base root of the project "centreon".
 
-1. Version centreon [default = the last of master]
-2. Image docker name [default = ‘mon-web’]
-3. distribution [default = alma9]
+> cd centron/tests/e2e
 
-### Start and Stop dockers testing environment
+> pnpm install
 
-> npm run cypress:env:start or npm run cypress:env:stop
+### Running the tests
 
-These 2 commands allow to launch the scripts to start or stop the Dockers built by the previous command
+After the dependencies has been installed, to be able to run cypress in GUI mode:
 
-## Open the Cypress dashboard or Run by CLI
+> pnpm cypress:open
 
-> npm run cypress:open
+Then you'll be able to view all the E2E specs that you can run.
 
-This command allows to open a Cypress UI to manipulate and execute the tests manually.
+NB: All the tests should run fine except for some of them that require small changes in the config file (Ex: SAML/OPENID provider...).
 
-> npm run cypress:run
+For linux it should be fine but for windows/mac users need to make a small changes in "common.ts" file of the test case.
 
-This command allows to execute the tests automatically with several possible parameters.
-
-Here the documentation: https://docs.cypress.io/guides/guides/command-line.html#Commands
-
-## Troubleshooting
-
-Example command :
-> DEBUG=cypress:* npx cypress run --config-file cypress.dev.json --browser chrome --spec ./cypress/integration/Resources-status/02-actions.feature 1> ./cypress/results/stdout.txt 2> .cypress/results/logs.txt
+EX: For Openid in the "common.ts" file that is located in "OpenID-connect" folder change the ip "172.17.0.3" by "localhost:8080".
