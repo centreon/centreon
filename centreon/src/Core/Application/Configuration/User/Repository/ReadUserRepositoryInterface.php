@@ -36,9 +36,10 @@ interface ReadUserRepositoryInterface
     public function findAllUsers(): array;
 
     /**
-     * Find configured users by their contactgroup ids
+     * Find configured users by their contactgroup ids.
      *
      * @param list<int> $contactGroupIds
+     *
      * @return User[]
      */
     public function findByContactGroupIds(array $contactGroupIds): array;

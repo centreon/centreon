@@ -124,7 +124,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     public function findByContactGroupIds(array $contactGroupIds): array
     {
         $bindContactGroups = [];
-        foreach($contactGroupIds as $contactGroupId) {
+        foreach ($contactGroupIds as $contactGroupId) {
             $bindContactGroups[':contactgroup_' . $contactGroupId] = $contactGroupId;
         }
         $contactGroupIdString = implode(', ', array_keys($bindContactGroups));
@@ -146,7 +146,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
         $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
-        $request .= "cg.contactgroup_cg_id IN ($contactGroupIdString) AND contact_register = 1";
+        $request .= "cg.contactgroup_cg_id IN ({$contactGroupIdString}) AND contact_register = 1";
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();

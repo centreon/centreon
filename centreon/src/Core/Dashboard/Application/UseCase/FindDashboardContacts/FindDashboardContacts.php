@@ -60,9 +60,10 @@ final class FindDashboardContacts
                     $users = [];
                     $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
                     if ([] !== $contactGroups) {
-                        $contactGroupsIds = array_map(function (ContactGroup $contactGroup): int {
-                            return $contactGroup->getId();
-                        }, $contactGroups);
+                        $contactGroupsIds = array_map(
+                            fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+                            $contactGroups
+                        );
                         $users = $this->readUserRepository->findByContactGroupIds($contactGroupsIds);
                     }
                 }
