@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8373c43b46d69a38788e738d6d144395",
+    "content-hash": "08e7ace2744e10c8c53259df10f80db6",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6875,16 +6875,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "dev-update-chrome-preferences",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "e3e671d724a06947ef07b47099a8e0e90c1e5851"
+                "reference": "8b25553f6fb344c5939958cba1a81144252d6b34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/e3e671d724a06947ef07b47099a8e0e90c1e5851",
-                "reference": "e3e671d724a06947ef07b47099a8e0e90c1e5851",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/8b25553f6fb344c5939958cba1a81144252d6b34",
+                "reference": "8b25553f6fb344c5939958cba1a81144252d6b34",
                 "shasum": ""
             },
             "require": {
@@ -6909,7 +6909,6 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -6934,9 +6933,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/update-chrome-preferences"
             },
-            "time": "2023-09-21T11:32:21+00:00"
+            "time": "2023-10-23T13:25:22+00:00"
         },
         {
             "name": "composer/pcre",
@@ -7347,16 +7346,16 @@
         },
         {
             "name": "friends-of-behat/mink-extension",
-            "version": "v2.7.2",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfBehat/MinkExtension.git",
-                "reference": "ffc5ee88aa8e5b430f0c417adb3f0c943ffeafed"
+                "reference": "18d5a53dff3e2c8934c53e2db8b02b7ea345fe85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfBehat/MinkExtension/zipball/ffc5ee88aa8e5b430f0c417adb3f0c943ffeafed",
-                "reference": "ffc5ee88aa8e5b430f0c417adb3f0c943ffeafed",
+                "url": "https://api.github.com/repos/FriendsOfBehat/MinkExtension/zipball/18d5a53dff3e2c8934c53e2db8b02b7ea345fe85",
+                "reference": "18d5a53dff3e2c8934c53e2db8b02b7ea345fe85",
                 "shasum": ""
             },
             "require": {
@@ -7406,9 +7405,9 @@
                 "web"
             ],
             "support": {
-                "source": "https://github.com/FriendsOfBehat/MinkExtension/tree/v2.7.2"
+                "source": "https://github.com/FriendsOfBehat/MinkExtension/tree/v2.7.4"
             },
-            "time": "2022-10-17T07:23:22+00:00"
+            "time": "2023-10-03T13:15:12+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
