@@ -36,6 +36,14 @@ interface ReadUserRepositoryInterface
     public function findAllUsers(): array;
 
     /**
+     * Find configured users by their contactgroup ids
+     *
+     * @param list<int> $contactGroupIds
+     * @return User[]
+     */
+    public function findByContactGroupIds(array $contactGroupIds): array;
+
+    /**
      * Find user ids from a list of alias.
      *
      * @param string[] $userAliases

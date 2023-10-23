@@ -29,6 +29,8 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
@@ -42,9 +44,9 @@ final class FindDashboardContacts
         private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
-    )
-    {
+        private readonly ContactInterface $contact,
+        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository
+    ) {
     }
 
     public function __invoke(FindDashboardContactsPresenterInterface $presenter): void
@@ -52,7 +54,18 @@ final class FindDashboardContacts
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->readUserRepository->findAllUsers();
+                $users = [];
+                if ($this->contact->isAdmin()) {
+                    $users = $this->readUserRepository->findAllUsers();
+                } else {
+                    $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
+                    if ([] !== $contactGroups) {
+                        $contactGroupsIds = array_map(function (ContactGroup $contactGroup): int {
+                            return $contactGroup->getId();
+                        }, $contactGroups);
+                        $users = $this->readUserRepository->findByContactGroupIds($contactGroupsIds);
+                    }
+                }
                 $presenter->presentResponse($this->createResponse($users));
             } else {
                 $this->error(
