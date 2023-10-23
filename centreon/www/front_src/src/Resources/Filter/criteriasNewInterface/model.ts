@@ -119,6 +119,10 @@ export interface MemoizedChildSectionWrapper extends MemoizedChild {
   sectionType: SectionType;
 }
 
+export interface DeactivateProps {
+  isDeactivated?: boolean;
+}
+
 export interface FindData {
   data: Array<Criteria & CriteriaDisplayProps>;
   filterName: string;

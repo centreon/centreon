@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { MemoizedChildSectionWrapper } from '../../model';
+import { DeactivateProps, MemoizedChildSectionWrapper } from '../../model';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import { findData } from '../../utils';
 import CheckBoxSection from '../checkBox';
@@ -11,8 +11,9 @@ const MemoizedStatus = ({
   changeCriteria,
   basicData,
   sectionType,
-  filterName
-}: MemoizedChildSectionWrapper): JSX.Element => {
+  filterName,
+  isDeactivated
+}: MemoizedChildSectionWrapper & DeactivateProps): JSX.Element => {
   const selectedStatusByResourceType = useAtomValue(
     selectedStatusByResourceTypeAtom
   );
@@ -23,6 +24,7 @@ const MemoizedStatus = ({
         changeCriteria={changeCriteria}
         data={basicData}
         filterName={filterName}
+        isDeactivated={isDeactivated}
         resourceType={sectionType}
       />
     ),
@@ -31,7 +33,8 @@ const MemoizedStatus = ({
       findData({
         data: basicData,
         filterName
-      })?.value
+      })?.value,
+      isDeactivated
     ]
   });
 };

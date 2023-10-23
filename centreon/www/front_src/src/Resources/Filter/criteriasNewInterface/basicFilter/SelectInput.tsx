@@ -7,6 +7,7 @@ import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import {
   ChangedCriteriaParams,
+  DeactivateProps,
   ExtendedCriteriaResourceType,
   SectionType
 } from '../model';
@@ -37,8 +38,9 @@ const SelectInput = ({
   data,
   filterName,
   resourceType,
-  changeCriteria
-}: Props): JSX.Element | null => {
+  changeCriteria,
+  isDeactivated
+}: Props & DeactivateProps): JSX.Element | null => {
   const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { dataByFilterName } = useInputData({
@@ -55,7 +57,7 @@ const SelectInput = ({
     name: item?.name
   })) as Array<SelectEntry>;
 
-  if (!dataByFilterName) {
+  if (!dataByFilterName || isDeactivated) {
     return null;
   }
 

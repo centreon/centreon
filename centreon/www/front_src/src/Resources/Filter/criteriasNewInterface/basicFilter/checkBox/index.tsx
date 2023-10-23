@@ -9,6 +9,7 @@ import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
 import {
   ChangedCriteriaParams,
+  DeactivateProps,
   SectionType,
   SelectedResourceType
 } from '../../model';
@@ -31,8 +32,9 @@ const CheckBoxSection = ({
   data,
   filterName,
   changeCriteria,
-  resourceType
-}: Props): JSX.Element | null => {
+  resourceType,
+  isDeactivated
+}: Props & DeactivateProps): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -60,7 +62,7 @@ const CheckBoxSection = ({
     setSelectedStatusByResourceType
   });
 
-  if (!dataByFilterName) {
+  if (!dataByFilterName || isDeactivated) {
     return null;
   }
 
