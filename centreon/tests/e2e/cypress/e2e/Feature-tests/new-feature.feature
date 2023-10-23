@@ -1,5 +1,5 @@
 @REQ_MON-23826
-Feature: this is just a test
+Feature: this is just a test 
 
 Scenario: Logging in test
   When I enter my credentials on the login page
