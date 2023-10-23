@@ -369,7 +369,6 @@ jobs:
                   # Create a JSON array from IDs
                   testIssueIds=($issue_id)
                   echo "Contenu de testIssueIds : ${testIssueIds[@]}"
-
                   xray_graphql_getTestRunIDs='{
                     "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
                     "variables": {
