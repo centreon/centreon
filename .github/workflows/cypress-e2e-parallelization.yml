@@ -188,8 +188,7 @@ jobs:
       - name: Determine testPlanKey
         id: determine-testplan-key
         run: |
-          # stability="${{ inputs.stability }}"
-          stability = "unstable"
+          stability="unstable"
           major_version="${{ inputs.major_version }}"
 
           echo "stability of this branch is $stability"
