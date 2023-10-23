@@ -205,6 +205,34 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
       }
 
       core.info(`Issue ${api} updated successfully in Jira.`);
+
+      // Update status of the test
+      const issueStatusPayload = { transition: { id: "5" } };
+      const statusAPI = `https://centreon.atlassian.net/rest/api/2/issue/${existingIssueData.key}/transitions?expand=transitions.fields`;
+
+      const jiraStatusResponse = await axios.post(
+        statusAPI,
+        issueStatusPayload,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          auth: {
+            username: JIRA_USER,
+            password: JIRA_TOKEN_TEST,
+          },
+        }
+      );
+
+      if (jiraStatusResponse.status !== 204) {
+        core.error(
+          `Error updating issue's status ${api} in Jira. Status code: ${jiraStatusResponse.status}`
+        );
+        core.info(`${jiraStatusResponse.data}`);
+        return;
+      }
+
+      core.info(`Issue's status ${api} updated successfully in Jira.`);
     } catch (error) {
       core.error(`Error updating Jira issue: ${error}`);
     }
