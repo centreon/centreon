@@ -377,7 +377,7 @@ jobs:
 
                 # Creation of a JSON array from IDs
                 testIssueIds='['
-                for id in "${#issue_ids[@]}"; do
+                for id in "${issue_id]}"; do
                   testIssueIds+='"'${id}'",'
                 done
                 testIssueIds=${testIssueIds%,}
