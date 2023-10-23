@@ -53,7 +53,7 @@ jobs:
 
   cypress-e2e-test-run:
     needs: [cypress-e2e-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       fail-fast: false
       matrix:
@@ -67,6 +67,12 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Setup docker
+        uses: ./.github/actions/setup-docker
+
+      - name: Setup chrome
+        uses: ./.github/actions/setup-chrome
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -113,7 +119,8 @@ jobs:
         with:
           name: ${{ inputs.name }}
           web_image_os: ${{ inputs.os }}
-          web_image_version: ${{ github.head_ref || github.ref_name }}
+          #web_image_version: ${{ github.head_ref || github.ref_name }}
+          web_image_version: develop
           openid_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}

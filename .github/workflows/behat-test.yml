@@ -20,6 +20,10 @@ on:
         required: false
         type: string
         default: behat.yml
+      install_browser:
+        type: boolean
+        required: false
+        default: true
     secrets:
       registry_username:
         required: true
@@ -46,7 +50,7 @@ jobs:
 
   behat-test-run:
     needs: [behat-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     strategy:
       fail-fast: false
       matrix:
@@ -54,12 +58,20 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+      #IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+      IMAGE_TAG: develop
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Setup docker
+        uses: ./.github/actions/setup-docker
+
+      - if: ${{ inputs.install_browser == true }}
+        name: Setup chrome
+        uses: ./.github/actions/setup-chrome
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -75,12 +87,7 @@ jobs:
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.composer_token }}
-          runner: ubuntu-22.04
-
-      - name: Setup docker compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+          runner: self-hosted
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
         uses: actions/setup-node@v3
