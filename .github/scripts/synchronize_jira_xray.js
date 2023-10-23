@@ -237,7 +237,7 @@ async function main() {
   }
 
   const targetVersions =
-    branch_name === "develop"
+    branchName === "develop"
       ? getTargetVersion(version_number).concat("Cloud")
       : getTargetVersion(version_number);
 
