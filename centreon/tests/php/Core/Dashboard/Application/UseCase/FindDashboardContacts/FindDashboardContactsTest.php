@@ -28,6 +28,8 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContacts;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContactsResponse;
@@ -40,6 +42,7 @@ beforeEach(function (): void {
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class)
     );
 });
 
@@ -70,8 +73,23 @@ it(
 it(
     'should present a FindDashboardContactsResponse if the contact is allowed',
     function (): void {
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
         $this->readUserRepository->expects($this->once())->method('findAllUsers')->willReturn([]);
+
+        ($this->useCase)($this->presenter);
+
+        expect($this->presenter->data)->toBeInstanceOf(FindDashboardContactsResponse::class);
+    }
+);
+
+it(
+    'should present a FindDashboardContactsResponse if the contact is allowed and non admin',
+    function (): void {
+        $this->contactGroupRepository->expects($this->once())->method('findAllByUserId')->willReturn([new ContactGroup(1, 'contactgroup')]);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
+        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->readUserRepository->expects($this->once())->method('findByContactGroupIds')->willReturn([]);
 
         ($this->useCase)($this->presenter);
 
