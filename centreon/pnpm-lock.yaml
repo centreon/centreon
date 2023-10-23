@@ -551,16 +551,12 @@ importers:
       newman: ^5.3.2
       newman-reporter-htmlextra: ^1.22.11
       newman-reporter-json-summary: ^1.0.14
-      newman-reporter-junitfull: ^1.1.1
-      newman-reporter-junitxray: ^1.0.3
       newman-reporter-text: ^0.0.31
       wait-on: ^7.0.1
     devDependencies:
       newman: 5.3.2
       newman-reporter-htmlextra: 1.22.11_newman@5.3.2
       newman-reporter-json-summary: 1.0.14
-      newman-reporter-junitfull: 1.1.1_newman@5.3.2
-      newman-reporter-junitxray: 1.0.3_newman@5.3.2
       newman-reporter-text: 0.0.31
       wait-on: 7.0.1
 
@@ -16181,10 +16177,6 @@ packages:
     resolution: {integrity: sha512-r0RwvdCv8id9TUblb/O7rYPwVy6lerCbcawrfdo9iC/1t1wsNMJknO79WNBgwkH0hIeJ08jmvvESbFpNb4jH0Q==}
     dev: true
 
-  /lodash/4.17.19:
-    resolution: {integrity: sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==}
-    dev: true
-
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
@@ -16997,10 +16989,6 @@ packages:
       moment: 2.29.4
     dev: true
 
-  /moment/2.24.0:
-    resolution: {integrity: sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==}
-    dev: true
-
   /moment/2.29.4:
     resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
     dev: true
@@ -17159,30 +17147,6 @@ packages:
     dependencies:
       lodash: 4.17.21
       newman: 5.3.2
-    dev: true
-
-  /newman-reporter-junitfull/1.1.1_newman@5.3.2:
-    resolution: {integrity: sha512-ET5rU1qkeJ5yvFxcKQFkqGxWia50kdnufm1uzyeNYlUg6T+k07AvOS0mfp/Ejr0njnsiPfFLb9kC48F8pafq9A==}
-    engines: {node: '>=6'}
-    peerDependencies:
-      newman: '>=4'
-    dependencies:
-      lodash: 4.17.21
-      moment: 2.29.4
-      newman: 5.3.2
-      xmlbuilder: 10.1.1
-    dev: true
-
-  /newman-reporter-junitxray/1.0.3_newman@5.3.2:
-    resolution: {integrity: sha512-zz/ve7sh+P3+zdSuJrryp5ufn3zf3gob8UF6+FC8BAU5o0XrzMJa7r/b9wUdoD5zTLEUXuFavWWgHe2rR/HU2w==}
-    engines: {node: '>=6'}
-    peerDependencies:
-      newman: '>=4'
-    dependencies:
-      lodash: 4.17.19
-      moment: 2.24.0
-      newman: 5.3.2
-      xmlbuilder: 11.0.1
     dev: true
 
   /newman-reporter-text/0.0.31:
@@ -22334,16 +22298,6 @@ packages:
 
   /xml/1.0.1:
     resolution: {integrity: sha512-huCv9IH9Tcf95zuYCsQraZtWnJvBtLVE0QHMOs8bWyZAFZNDcYjsPq1nEx8jKA9y+Beo9v+7OBPRisQTjinQMw==}
-    dev: true
-
-  /xmlbuilder/10.1.1:
-    resolution: {integrity: sha512-OyzrcFLL/nb6fMGHbiRDuPup9ljBycsdCypwuyg5AAHvyWzGfChJpCXMG88AGTIMFhGZ9RccFN1e6lhg3hkwKg==}
-    engines: {node: '>=4.0'}
-    dev: true
-
-  /xmlbuilder/11.0.1:
-    resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
-    engines: {node: '>=4.0'}
     dev: true
 
   /xmlbuilder/15.1.1:
