@@ -71,7 +71,7 @@ detected_os_version=
 # Variables will be defined later according to the target system OS
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
-RELEASE_RPM_URL=
+RELEASE_REPO_FILE=
 OS_SPEC_SERVICES=
 PKG_MGR=
 has_systemd=
@@ -317,9 +317,9 @@ function set_required_prerequisite() {
             BASE_PACKAGES=(oraclelinux-release-el7)
             ;;
         esac
-        RELEASE_RPM_URL="http://yum.centreon.com/standard/$CENTREON_MAJOR_VERSION/el7/stable/noarch/RPMS/centreon-release-$CENTREON_RELEASE_VERSION.el7.centos.noarch.rpm"
+        RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard/$CENTREON_MAJOR_VERSION/el7/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
-        log "INFO" "Install Centreon from ${RELEASE_RPM_URL}"
+        log "INFO" "Install Centreon from ${RELEASE_REPO_FILE}"
         OS_SPEC_SERVICES="php-fpm httpd24-httpd"
         PKG_MGR="yum"
 
@@ -338,7 +338,7 @@ function set_required_prerequisite() {
     8*)
         log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_RPM_URL="http://yum.centreon.com/standard/$CENTREON_MAJOR_VERSION/el8/stable/noarch/RPMS/centreon-release-$CENTREON_RELEASE_VERSION.el8.noarch.rpm"
+        RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard/$CENTREON_MAJOR_VERSION/el8/centreon-$CENTREON_MAJOR_VERSION.repo"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
         OS_SPEC_SERVICES="php-fpm httpd"
         PKG_MGR="dnf"
@@ -508,16 +508,20 @@ function secure_mariadb_setup() {
 function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
-	$PKG_MGR -q clean all
 
-	rpm -q centreon-release-$CENTREON_MAJOR_VERSION >/dev/null 2>&1
+	get_os_information
+
+    case "$detected_os_version" in
+    7*)
+        yum-config-manager --add-repo $RELEASE_REPO_FILE
+	    ;;
+	*)
+	    $PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
+	    ;;
+	esac
+
 	if [ $? -ne 0 ]; then
-		$PKG_MGR -q install -y $RELEASE_RPM_URL
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install Centreon repository"
-		fi
-	else
-		log "INFO" "Centreon repository seems to be already installed"
+		error_and_exit "Could not install Centreon repository"
 	fi
 }
 #========= end of function install_centreon_repo()
