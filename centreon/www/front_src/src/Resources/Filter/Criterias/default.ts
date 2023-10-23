@@ -2,8 +2,7 @@ import type { SelectEntry } from '@centreon/ui';
 
 import { SortOrder } from '../../models';
 
-import { Criteria, SearchType } from './models';
-import { SearchableFields } from './searchQueryLanguage/models';
+import { Criteria } from './models';
 
 interface DefaultCriteriaValues {
   hostCategories?: Array<SelectEntry>;
@@ -12,6 +11,8 @@ interface DefaultCriteriaValues {
   hostSeverityLevels?: Array<SelectEntry>;
   information?: string;
   monitoringServers?: Array<SelectEntry>;
+  name?: Array<SelectEntry>;
+  parentName?: Array<SelectEntry>;
   resourceTypes?: Array<SelectEntry>;
   serviceCategories?: Array<SelectEntry>;
   serviceGroups?: Array<SelectEntry>;
@@ -39,7 +40,9 @@ const getDefaultCriterias = (
     monitoringServers = [],
     statusTypes = [],
     hostCategories = [],
-    serviceCategories = []
+    serviceCategories = [],
+    name = [],
+    parentName = []
   }: DefaultCriteriaValues = {
     hostCategories: [],
     hostGroups: [],
@@ -47,6 +50,8 @@ const getDefaultCriterias = (
     hostSeverityLevels: [],
     information: '',
     monitoringServers: [],
+    name: [],
+    parentName: [],
     resourceTypes: [],
     serviceCategories: [],
     serviceGroups: [],
@@ -61,14 +66,23 @@ const getDefaultCriterias = (
     {
       name: 'resource_types',
       object_type: null,
-      search_data: {
-        field: SearchableFields.name,
-        id: 'resources_types',
-        type: SearchType.lists,
-        values: []
-      },
+      search_data: null,
       type: 'multi_select',
       value: resourceTypes
+    },
+    {
+      name: 'names',
+      object_type: 'names',
+      search_data: null,
+      type: 'multi_select',
+      value: name
+    },
+    {
+      name: 'parent_names',
+      object_type: 'parent_names',
+      search_data: null,
+      type: 'multi_select',
+      value: parentName
     },
     {
       name: 'states',

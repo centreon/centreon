@@ -28,7 +28,8 @@ import {
   pipe,
   pluck,
   propEq,
-  remove
+  remove,
+  uniq
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -89,6 +90,7 @@ import {
 } from './models';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
+import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 
 const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -182,6 +184,8 @@ const Filter = (): JSX.Element => {
     selectedStatusByResourceTypeAtom
   );
 
+  console.log('current filter', currentFilter);
+
   useBackToVisualizationByAll();
 
   const open = Boolean(autocompleteAnchor);
@@ -205,7 +209,7 @@ const Filter = (): JSX.Element => {
 
     const lastValue = last(values);
 
-    const selectedValues = remove(-1, 1, values);
+    const selectedValues = remove(-1, 1, values).map(escapeRegExpSpecialChars);
 
     sendDynamicCriteriaValueRequests({
       endpoint: buildAutocompleteEndpoint({
@@ -223,7 +227,7 @@ const Filter = (): JSX.Element => {
           ],
           regex: {
             fields: ['name'],
-            value: lastValue
+            value: escapeRegExpSpecialChars(lastValue || '')
           }
         }
       })
@@ -232,7 +236,7 @@ const Filter = (): JSX.Element => {
         ? pluck('level', result)
         : pluck('name', result);
 
-      const formattedResult = results.map((item) => item.toString());
+      const formattedResult = uniq(results.map((item) => item.toString()));
 
       const lastValueEqualsToAResult = find(equals(lastValue), formattedResult);
 

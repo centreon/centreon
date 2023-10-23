@@ -173,7 +173,7 @@ const SelectInput = ({
   ): Array<SelectEntry> => {
     return removeDuplicateFromObjectArray({
       array: options,
-      byFields: ['id']
+      byFields: ['name']
     }) as Array<SelectEntry>;
   };
 

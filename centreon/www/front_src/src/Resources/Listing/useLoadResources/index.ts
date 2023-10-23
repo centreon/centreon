@@ -7,10 +7,13 @@ import {
   ifElse,
   isEmpty,
   isNil,
+  length,
   map,
+  mergeRight,
   not,
   pathEq,
   pathOr,
+  pipe,
   prop
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +60,7 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
+import { escapeRegExpSpecialChars } from '../../Filter/criteriasNewInterface/utils';
 
 import { Search } from './models';
 
@@ -206,7 +210,7 @@ const useLoadResources = (): LoadResources => {
         | Array<SelectEntry>
         | undefined;
 
-      return criteriaValue?.map(prop('name')) as Array<string>;
+      return (criteriaValue || []).map(prop('name')) as Array<string>;
     };
 
     const getCriteriaLevels = (name: string): Array<number> => {
@@ -223,6 +227,11 @@ const useLoadResources = (): LoadResources => {
       return;
     }
 
+    const names = getCriteriaNames('names');
+    const parentNames = getCriteriaNames('parent_names');
+    const hasName = !isEmpty(names);
+    const hasParentNames = !isEmpty(parentNames);
+
     sendRequest({
       endpoint: resourcesEndpoint,
       hostCategories: getCriteriaNames('host_categories'),
@@ -233,7 +242,22 @@ const useLoadResources = (): LoadResources => {
       monitoringServers: getCriteriaNames('monitoring_servers'),
       page,
       resourceTypes: getCriteriaIds('resource_types'),
-      search: getSearch(),
+      search: mergeRight(getSearch() || {}, {
+        conditions: [
+          ...names.map((name) => ({
+            field: 'name',
+            values: {
+              $rg: name
+            }
+          })),
+          ...parentNames.map((name) => ({
+            field: 'parent_name',
+            values: {
+              $rg: name
+            }
+          }))
+        ]
+      }),
       serviceCategories: getCriteriaNames('service_categories'),
       serviceGroups: getCriteriaNames('service_groups'),
       serviceSeverities: getCriteriaNames('service_severities'),

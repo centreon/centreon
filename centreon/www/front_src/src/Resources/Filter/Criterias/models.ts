@@ -33,7 +33,10 @@ import {
   labelHostSeverity,
   labelHostSeverityLevel,
   labelServiceSeverityLevel,
-  labelAnomalyDetection
+  labelAnomalyDetection,
+  labelName,
+  labelParent,
+  labelParentName
 } from '../../translatedLabels';
 import {
   buildHostGroupsEndpoint,
@@ -42,7 +45,9 @@ import {
   buildMonitoringServersEndpoint,
   buildServiceGroupsEndpoint,
   buildHostServeritiesEndpoint,
-  buildServiceSeveritiesEndpoint
+  buildServiceSeveritiesEndpoint,
+  buildServicesEndpoint,
+  buildHostsEndpoint
 } from '../api/endpoint';
 
 import { SearchableFields } from './searchQueryLanguage/models';
@@ -222,6 +227,8 @@ export enum CriteriaNames {
   hostSeverities = 'host_severities',
   hostSeverityLevels = 'host_severity_levels',
   monitoringServers = 'monitoring_servers',
+  names = 'names',
+  parentNames = 'parent_names',
   resourceTypes = 'resource_types',
   serviceCategories = 'service_categories',
   serviceGroups = 'service_groups',
@@ -236,6 +243,14 @@ const selectableCriterias: CriteriaById = {
   [CriteriaNames.resourceTypes]: {
     label: labelType,
     options: selectableResourceTypes
+  },
+  [CriteriaNames.names]: {
+    buildAutocompleteEndpoint: buildServicesEndpoint,
+    label: labelName
+  },
+  [CriteriaNames.parentNames]: {
+    buildAutocompleteEndpoint: buildHostsEndpoint,
+    label: labelParentName
   },
   [CriteriaNames.states]: {
     label: labelState,

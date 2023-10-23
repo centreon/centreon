@@ -193,6 +193,7 @@ export const labelDisplayEvents = 'Display events';
 export const labelExportToPng = 'Export to png';
 export const labelPerformancePage = 'Go to performance page';
 export const labelParent = 'Parent';
+export const labelParentName = 'Parent name';
 export const labelSelectCriterias = 'Select criterias';
 export const labelForward = 'Forward';
 export const labelBackward = 'Backward';
