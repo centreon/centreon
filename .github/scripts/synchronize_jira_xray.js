@@ -274,7 +274,7 @@ async function main() {
     "Content-Type": "application/json",
   };
 
-  const graphql_request = {
+  const graphqlRequest = {
     query: `
           mutation AddTestsToTestSet ($testSetId: String!, $testIds: [String!]!) {
             addTestsToTestSet(
