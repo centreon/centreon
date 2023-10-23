@@ -221,8 +221,8 @@ async function main() {
   }
 
   const FEATURE_FILE_PATH = process.argv[2];
-  const branch_name = process.argv[3];
-  const version_number = process.argv[4];
+  const branchName = process.argv[3];
+  const versionNumber = process.argv[4];
 
   core.info(`Running script for ${FEATURE_FILE_PATH} on branch ${branchName}`);
 
