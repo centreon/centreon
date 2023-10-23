@@ -322,7 +322,7 @@ jobs:
 
     - name: Change test execution status
       run: |
-          for summary_file in ./postman_summaries/*.json; do
+        for summary_file in ./postman_summaries/*.json; do
              test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
             filename=$(basename "$summary_file")  # Obtient le nom du fichier
             collection_name="${filename%-summary.json}"  # Supprime le suffixe -summary.json
@@ -374,7 +374,7 @@ jobs:
                     "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
                     "variables": {
                       "testIssueIds": ["'${testIssueIds[*]}'"],
-                      "testExecIssueIds": ["$test_execution_id"],
+                      "testExecIssueIds": ["'"$test_execution_id"'"]
                       "limit": 100
                     }
                   }'
