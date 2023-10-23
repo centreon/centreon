@@ -5,7 +5,7 @@ import {
   configureACLGroups,
   configureProviderAcls,
   getUserContactId
-} from '../../../../../commons';
+} from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()

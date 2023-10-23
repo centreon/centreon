@@ -1,4 +1,4 @@
-import { ActionClapi } from '../../../../commons';
+import { ActionClapi } from '../../../commons';
 
 /* eslint-disable cypress/unsafe-to-chain-command */
 const keycloakURL = `${Cypress.env('OPENID_IMAGE_URL')}/realms/Centreon_SSO`;

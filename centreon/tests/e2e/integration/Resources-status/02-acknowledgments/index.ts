@@ -3,7 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
-} from '../../../../commons';
+} from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfNotificationsAreNotBeingSent,

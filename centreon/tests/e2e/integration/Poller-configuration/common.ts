@@ -1,5 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-import { insertFixture } from '../../../commons';
+import { insertFixture } from '../../commons';
 
 const waitToExport = 10000;
 const waitPollerListToLoad = 3000;

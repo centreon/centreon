@@ -5,7 +5,7 @@ import {
   When
 } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../../commons';
+import { checkServicesAreMonitored } from '../../../commons';
 import { actionBackgroundColors } from '../common';
 
 const serviceInDtName = 'service_downtime_1';

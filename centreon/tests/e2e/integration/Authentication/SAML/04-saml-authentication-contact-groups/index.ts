@@ -5,7 +5,7 @@ import {
   initializeSAMLUser,
   navigateToSAMLConfigPage
 } from '../common';
-import { configureProviderAcls, getUserContactId } from '../../../../../commons';
+import { configureProviderAcls, getUserContactId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()

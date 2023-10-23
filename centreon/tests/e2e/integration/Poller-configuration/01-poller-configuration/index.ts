@@ -12,7 +12,7 @@ import {
   testHostName,
   waitPollerListToLoad
 } from '../common';
-import { checkIfConfigurationIsExported } from '../../../../commons';
+import { checkIfConfigurationIsExported } from '../../../commons';
 
 let dateBeforeLogin: Date;
 

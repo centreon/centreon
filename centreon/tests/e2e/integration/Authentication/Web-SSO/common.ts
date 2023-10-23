@@ -1,4 +1,4 @@
-import { ActionClapi } from '../../../../commons';
+import { ActionClapi } from '../../../commons';
 
 const injectWebSSOScriptsIntoContainer = (): Cypress.Chainable => {
   return cy

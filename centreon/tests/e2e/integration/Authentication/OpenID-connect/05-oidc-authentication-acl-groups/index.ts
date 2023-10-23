@@ -4,7 +4,7 @@ import {
   configureOpenIDConnect,
   initializeOIDCUserAndGetLoginPage
 } from '../common';
-import { configureProviderAcls, getAccessGroupId } from '../../../../../commons';
+import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()

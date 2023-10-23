@@ -1,6 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
-import { ActionClapi } from '../../../../commons';
+import { ActionClapi } from '../../../commons';
 
 const oidcConfigValues = {
   authEndpoint: '/auth',

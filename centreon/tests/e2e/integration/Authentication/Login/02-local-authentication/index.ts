@@ -7,7 +7,7 @@ import {
   millisecondsValueForFourHour,
   checkDefaultsValueForm
 } from '../common';
-import { getUserContactId } from '../../../../../commons';
+import { getUserContactId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer();

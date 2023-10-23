@@ -6,7 +6,7 @@ import {
   initializeSAMLUser,
   navigateToSAMLConfigPage
 } from '../common';
-import { configureProviderAcls } from '../../../../../commons';
+import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()

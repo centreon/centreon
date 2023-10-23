@@ -3,7 +3,7 @@ import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
-} from '../../../../../commons';
+} from '../../../../commons';
 import { reloadWebServer, updateWebServerConfig } from '../common';
 
 const service = 'Ping';
