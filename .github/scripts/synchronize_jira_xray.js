@@ -224,7 +224,7 @@ async function main() {
   const branch_name = process.argv[3];
   const version_number = process.argv[4];
 
-  core.info(`Running script for ${FEATURE_FILE_PATH} on branch ${branch_name}`);
+  core.info(`Running script for ${FEATURE_FILE_PATH} on branch ${branchName}`);
 
   const XRAY_TOKEN = await getXrayToken(CLIENT_ID, CLIENT_SECRET);
 
