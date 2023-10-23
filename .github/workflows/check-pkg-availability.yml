@@ -54,6 +54,7 @@ jobs:
               echo "COMBINATION=1" >> $GITHUB_OUTPUT
               ;;
           esac
+        shell: bash
 
       - name: Checking stable package availability
         if: ${{ steps.combination-check.outputs.COMBINATION != '1' }}
