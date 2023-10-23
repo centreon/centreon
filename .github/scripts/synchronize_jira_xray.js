@@ -290,7 +290,7 @@ async function main() {
   };
 
   await axios
-    .post(GRAPHQL_URL, graphql_request, {
+    .post(GRAPHQL_URL, graphqlRequest, {
       headers: headers,
     })
     .then((response) => {
