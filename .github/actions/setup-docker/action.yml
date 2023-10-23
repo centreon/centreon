@@ -16,11 +16,11 @@ runs:
         sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 
         #sudo systemctl stop apparmor
-        sudo apt install policycoreutils selinux-basics selinux-utils -y
-        sudo selinux-activate
-        sudo setenforce 1
-        sudo setsebool container_manage_cgroup 1
-        sudo getenforce
+        #sudo apt install policycoreutils selinux-basics selinux-utils -y
+        #sudo selinux-activate
+        #sudo setenforce 1
+        #sudo setsebool container_manage_cgroup 1
+        #sudo getenforce
 
         docker info
       shell: bash
