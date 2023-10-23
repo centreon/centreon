@@ -1,0 +1,130 @@
+[2023-06-09T16:55:07.836+00:00] [process] [info] [380] Centreon Engine 23.10.0 starting ... (PID=380)
+[2023-06-09T16:55:07.836+00:00] [process] [info] [380] Local time is Fri Jun  9 16:55:07 2023
+[2023-06-09T16:55:07.836+00:00] [process] [info] [380] LOG VERSION: 2.0
+[2023-06-09T16:55:07.844+00:00] [events] [info] [380] Event broker module '/usr/lib64/centreon-engine/externalcmd.so' initialized successfully
+[2023-06-09T16:55:07.849+00:00] [external_command] [info] [380] start command_file_worker_thread
+[2023-06-09T16:55:07.882+00:00] [events] [info] [380] Event broker module '/usr/lib64/nagios/cbmod.so' initialized successfully
+[2023-06-09T16:55:07.882+00:00] [events] [info] [380] INITIAL HOST STATE: Centreon-Server;UP;HARD;1;
+[2023-06-09T16:55:07.882+00:00] [events] [info] [380] INITIAL SERVICE STATE: Centreon-Server;Disk-/;OK;HARD;1;
+[2023-06-09T16:55:07.882+00:00] [events] [info] [380] INITIAL SERVICE STATE: Centreon-Server;Load;OK;HARD;1;
+[2023-06-09T16:55:07.882+00:00] [events] [info] [380] INITIAL SERVICE STATE: Centreon-Server;Memory;OK;HARD;1;
+[2023-06-09T16:55:07.882+00:00] [events] [info] [380] INITIAL SERVICE STATE: Centreon-Server;Ping;OK;HARD;1;
+[2023-06-09T16:55:07.883+00:00] [configuration] [info] [380] Event loop start at Fri Jun  9 16:55:07 2023
+[2023-06-09T16:55:07.883+00:00] [process] [info] [380] Configuration loaded, main loop starting.
+[2023-06-09T16:55:18.008+00:00] [process] [info] [380] Need reload.
+[2023-06-09T16:55:18.008+00:00] [process] [info] [380] Reloading...
+[2023-06-09T16:55:18.010+00:00] [process] [info] [380] Starting to reload configuration.
+[2023-06-09T16:55:18.011+00:00] [configuration] [info] [380] Reading main configuration file '/etc/centreon-engine/centengine.cfg'.
+[2023-06-09T16:55:18.012+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/hostTemplates.cfg'
+[2023-06-09T16:55:18.013+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/hosts.cfg'
+[2023-06-09T16:55:18.013+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/serviceTemplates.cfg'
+[2023-06-09T16:55:18.014+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/services.cfg'
+[2023-06-09T16:55:18.015+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/commands.cfg'
+[2023-06-09T16:55:18.016+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/contactgroups.cfg'
+[2023-06-09T16:55:18.016+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/contacts.cfg'
+[2023-06-09T16:55:18.017+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/hostgroups.cfg'
+[2023-06-09T16:55:18.017+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/servicegroups.cfg'
+[2023-06-09T16:55:18.018+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/timeperiods.cfg'
+[2023-06-09T16:55:18.018+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/escalations.cfg'
+[2023-06-09T16:55:18.018+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/dependencies.cfg'
+[2023-06-09T16:55:18.019+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/connectors.cfg'
+[2023-06-09T16:55:18.019+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/meta_commands.cfg'
+[2023-06-09T16:55:18.020+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/meta_timeperiod.cfg'
+[2023-06-09T16:55:18.020+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/meta_host.cfg'
+[2023-06-09T16:55:18.021+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/meta_services.cfg'
+[2023-06-09T16:55:18.021+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/tags.cfg'
+[2023-06-09T16:55:18.021+00:00] [configuration] [info] [380] Processing object config file '/etc/centreon-engine/severities.cfg'
+[2023-06-09T16:55:18.022+00:00] [configuration] [info] [380] Reading resource file '/etc/centreon-engine/resource.cfg'
+[2023-06-09T16:55:18.023+00:00] [process] [info] [380] Configuration reloaded, main loop continuing.
+[2023-06-09T16:55:18.023+00:00] [process] [info] [380] Reload configuration finished.
+[2023-06-09T16:55:19.619+00:00] [process] [info] [380] Caught SIG TERM, shutting down ...
+[2023-06-09T16:55:19.621+00:00] [process] [info] [380] Successfully shutdown ... (PID=380)
+[2023-06-09T16:55:20.118+00:00] [external_command] [info] [380] end command_file_worker_thread
+[2023-06-09T16:55:20.120+00:00] [events] [info] [380] Event broker module '/usr/lib64/centreon-engine/externalcmd.so' deinitialized successfully
+[2023-06-09T16:55:20.535+00:00] [events] [info] [380] Event broker module '/usr/lib64/nagios/cbmod.so' deinitialized successfully
+[2023-06-11T17:11:25.087+00:00] [process] [info] [396] Centreon Engine 23.10.0 starting ... (PID=396)
+[2023-06-11T17:11:25.087+00:00] [process] [info] [396] Local time is Sun Jun 11 17:11:25 2023
+[2023-06-11T17:11:25.087+00:00] [process] [info] [396] LOG VERSION: 2.0
+[2023-06-11T17:11:25.094+00:00] [events] [info] [396] Event broker module '/usr/lib64/centreon-engine/externalcmd.so' initialized successfully
+[2023-06-11T17:11:25.094+00:00] [external_command] [info] [396] start command_file_worker_thread
+[2023-06-11T17:11:25.129+00:00] [events] [info] [396] Event broker module '/usr/lib64/nagios/cbmod.so' initialized successfully
+[2023-06-11T17:11:25.129+00:00] [events] [info] [396] INITIAL HOST STATE: Centreon-Server;UP;HARD;1;OK - 127.0.0.1 rta 0.368ms lost 0%
+[2023-06-11T17:11:25.129+00:00] [events] [info] [396] INITIAL SERVICE STATE: Centreon-Server;Disk-/;OK;HARD;1;
+[2023-06-11T17:11:25.129+00:00] [events] [info] [396] INITIAL SERVICE STATE: Centreon-Server;Load;OK;HARD;1;
+[2023-06-11T17:11:25.129+00:00] [events] [info] [396] INITIAL SERVICE STATE: Centreon-Server;Memory;OK;HARD;1;
+[2023-06-11T17:11:25.129+00:00] [events] [info] [396] INITIAL SERVICE STATE: Centreon-Server;Ping;OK;HARD;1;
+[2023-06-11T17:11:25.134+00:00] [configuration] [info] [396] Event loop start at Sun Jun 11 17:11:25 2023
+[2023-06-11T17:11:25.134+00:00] [process] [info] [396] Configuration loaded, main loop starting.
+[2023-06-11T17:13:55.183+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:14:00.184+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Memory;UNKNOWN;SOFT;1;(Execute command failed)
+[2023-06-11T17:14:55.201+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:15:00.203+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Memory;UNKNOWN;SOFT;2;(Execute command failed)
+[2023-06-11T17:15:10.205+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:15:15.207+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Load;UNKNOWN;SOFT;1;(Execute command failed)
+[2023-06-11T17:15:55.220+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:16:00.221+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Memory;UNKNOWN;HARD;3;(Execute command failed)
+[2023-06-11T17:16:10.223+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:16:15.225+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Load;UNKNOWN;SOFT;2;(Execute command failed)
+[2023-06-11T17:16:25.232+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:16:30.233+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Disk-/;UNKNOWN;SOFT;1;(Execute command failed)
+[2023-06-11T17:17:10.244+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:17:15.245+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Load;UNKNOWN;HARD;3;(Execute command failed)
+[2023-06-11T17:17:25.252+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:17:30.253+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Disk-/;UNKNOWN;SOFT;2;(Execute command failed)
+[2023-06-11T17:18:25.270+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:18:30.271+00:00] [events] [info] [396] SERVICE ALERT: Centreon-Server;Disk-/;UNKNOWN;HARD;3;(Execute command failed)
+[2023-06-11T17:20:55.314+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:22:10.336+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:23:25.363+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:25:55.410+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:27:10.433+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:28:25.459+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:30:55.503+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:32:10.025+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:33:25.051+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:35:55.099+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:37:10.122+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:38:25.147+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:40:55.190+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:42:10.213+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:43:25.239+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:45:55.284+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:47:10.306+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:48:25.331+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:50:55.374+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:52:10.397+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:53:25.425+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:55:55.469+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_memory': No such file or directory
+[2023-06-11T17:57:10.495+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_loadaverage': No such file or directory
+[2023-06-11T17:58:25.026+00:00] [runtime] [warning] [396] Error: Service check command execution failed: could not create process '/usr/lib64/nagios/plugins/check_centreon_snmp_remote_storage': No such file or directory
+[2023-06-11T17:58:27.527+00:00] [process] [info] [396] Need reload.
+[2023-06-11T17:58:27.527+00:00] [process] [info] [396] Reloading...
+[2023-06-11T17:58:27.620+00:00] [process] [info] [396] Starting to reload configuration.
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Reading main configuration file '/etc/centreon-engine/centengine.cfg'.
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/hostTemplates.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/hosts.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/serviceTemplates.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/services.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/commands.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/contactgroups.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/contacts.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/hostgroups.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/servicegroups.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/timeperiods.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/escalations.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/dependencies.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/connectors.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/meta_commands.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/meta_timeperiod.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/meta_host.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/meta_services.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/tags.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Processing object config file '/etc/centreon-engine/severities.cfg'
+[2023-06-11T17:58:27.620+00:00] [configuration] [info] [396] Reading resource file '/etc/centreon-engine/resource.cfg'
+[2023-06-11T17:58:27.621+00:00] [events] [info] [396] INITIAL HOST STATE: test_host;UP;HARD;1;
+[2023-06-11T17:58:27.621+00:00] [events] [info] [396] INITIAL SERVICE STATE: test_host;service_test_ack;OK;HARD;1;
+[2023-06-11T17:58:27.621+00:00] [events] [info] [396] INITIAL SERVICE STATE: test_host;service_test_dt;OK;HARD;1;
+[2023-06-11T17:58:27.621+00:00] [events] [info] [396] INITIAL SERVICE STATE: test_host;service_test_ok;OK;HARD;1;
+[2023-06-11T17:58:27.621+00:00] [events] [info] [396] INITIAL SERVICE STATE: test_host;service_test_dt_2;OK;HARD;1;
+[2023-06-11T17:58:27.621+00:00] [process] [info] [396] Configuration reloaded, main loop continuing.
+[2023-06-11T17:58:27.621+00:00] [process] [info] [396] Reload configuration finished.
