@@ -3,9 +3,11 @@ import { useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Divider, Typography } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
+import { Divider } from '@mui/material';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+
+import { Button } from '@centreon/ui/components';
 
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
@@ -30,7 +32,10 @@ import {
   ExtendedCriteria
 } from './model';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
-import { advancedModeLabel } from './translatedLabels';
+import {
+  labelCloseMoreFilters,
+  labelOpenMoreFilters
+} from './translatedLabels';
 
 export { CheckboxGroup } from '@centreon/ui';
 
@@ -70,12 +75,15 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
     setCriteriaAndNewFilter(parameters);
   };
 
-  const controlFilterInterface = (event): void => {
-    setOpen(event.target.checked);
-    if (!event.target.checked) {
-      return;
-    }
-    setDisplayInformationFilter(false);
+  const controlFilterInterface = (): void => {
+    setOpen((currentOpen) => {
+      const newState = !currentOpen;
+      if (newState) {
+        setDisplayInformationFilter(false);
+      }
+
+      return newState;
+    });
   };
 
   const buildDataByCategoryFilter = ({
@@ -142,6 +150,17 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   return (
     <>
+      <div className={classes.moreFiltersButton}>
+        <Button
+          icon={open ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
+          iconVariant="end"
+          size="small"
+          variant="ghost"
+          onClick={controlFilterInterface}
+        >
+          {t(open ? labelCloseMoreFilters : labelOpenMoreFilters)}
+        </Button>
+      </div>
       <div className={cx(classes.small, { [classes.extended]: open })}>
         <BasicFilter
           poller={
@@ -184,22 +203,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
       <Divider className={classes.footer} />
 
       {displayActions && (
-        <div className={classes.formControlContainer}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={open}
-                inputProps={{ 'aria-label': 'controlled' }}
-                size="small"
-                onChange={controlFilterInterface}
-              />
-            }
-            label={
-              <Typography variant="body2">{t(advancedModeLabel)}</Typography>
-            }
-          />
-          {actions}
-        </div>
+        <div className={classes.formControlContainer}>{actions}</div>
       )}
     </>
   );
