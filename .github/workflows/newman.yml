@@ -142,7 +142,12 @@ jobs:
                       "description": "Test case for '"$collection_name_sanitized"'",
                       "issuetype": {
                         "name": "Test"
-                      }
+                      },
+                      "priority": {
+                        "iconUrl": "https://centreon.atlassian.net/images/icons/priorities/medium.svg",
+                        "id": "5",
+                        "name":"Lowest"
+                      },
                     }
                   }' \
                   --max-time 20)
