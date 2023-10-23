@@ -17,9 +17,9 @@ runs:
 
         #sudo systemctl stop apparmor
         sudo apt install policycoreutils selinux-basics selinux-utils -y
+        sudo selinux-activate
         sudo setenforce 1
         sudo setsebool container_manage_cgroup 1
-        sudo selinux-activate
         sudo getenforce
 
         docker info
