@@ -7,7 +7,6 @@ import {
   ifElse,
   isEmpty,
   isNil,
-  length,
   map,
   mergeRight,
   not,
@@ -210,7 +209,9 @@ const useLoadResources = (): LoadResources => {
         | Array<SelectEntry>
         | undefined;
 
-      return (criteriaValue || []).map(prop('name')) as Array<string>;
+      return (criteriaValue || []).map(
+        pipe(prop('name'), escapeRegExpSpecialChars)
+      ) as Array<string>;
     };
 
     const getCriteriaLevels = (name: string): Array<number> => {
@@ -229,8 +230,6 @@ const useLoadResources = (): LoadResources => {
 
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
-    const hasName = !isEmpty(names);
-    const hasParentNames = !isEmpty(parentNames);
 
     sendRequest({
       endpoint: resourcesEndpoint,

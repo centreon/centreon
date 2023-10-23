@@ -16,7 +16,6 @@ import {
   CriteriaById,
   CriteriaDisplayProps,
   CriteriaNames,
-  SearchData,
   SearchDataPropsCriterias
 } from '../Criterias/models';
 
@@ -26,7 +25,9 @@ export enum BasicCriteria {
   serviceGroups = CriteriaNames.serviceGroups,
   states = CriteriaNames.states,
   statues = CriteriaNames.statuses,
-  monitoringServers = CriteriaNames.monitoringServers
+  monitoringServers = CriteriaNames.monitoringServers,
+  names = CriteriaNames.names,
+  parentNames = CriteriaNames.parentNames
 }
 
 export enum ExtendedCriteria {
@@ -80,17 +81,17 @@ export type MergeArraysByField = {
 };
 
 export interface DataFilter {
-  buildedCriteria: CriteriaDisplayProps;
+  builtCriteria: CriteriaDisplayProps;
   selectableCriteria: Array<Criteria>;
 }
 export interface BuildDataByCategoryFilter {
   CriteriaType: Array<BasicCriteria> | Array<ExtendedCriteria>;
-  buildedCriteria: CriteriaById;
+  builtCriteria: CriteriaById;
   selectableCriteria: Array<Criteria>;
 }
 
 export interface DataByCategoryFilter {
-  buildedCriteria: CriteriaById;
+  builtCriteria: CriteriaById;
   categoryFilter: CategoryFilter;
   selectableCriteria: Array<Criteria>;
 }
@@ -103,7 +104,6 @@ export interface Data {
 
 export interface ChangedCriteriaParams {
   filterName: string;
-  search_data?: SearchData;
   updatedValue: unknown;
 }
 
@@ -114,6 +114,7 @@ export interface MemoizedChild {
 }
 
 export interface MemoizedChildSectionWrapper extends MemoizedChild {
+  filterName: string;
   searchData?: SearchDataPropsCriterias;
   sectionType: SectionType;
 }

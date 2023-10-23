@@ -60,17 +60,14 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   const changeCriteria = ({
     updatedValue,
-    filterName,
-    search_data
+    filterName
   }: ChangedCriteriaParams): void => {
     const parameters = {
       name: filterName,
       value: updatedValue
     };
 
-    setCriteriaAndNewFilter(
-      search_data ? { ...parameters, search_data } : parameters
-    );
+    setCriteriaAndNewFilter(parameters);
   };
 
   const controlFilterInterface = (event): void => {
@@ -84,13 +81,13 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
   const buildDataByCategoryFilter = ({
     CriteriaType,
     selectableCriteria,
-    buildedCriteria
+    builtCriteria
   }: BuildDataByCategoryFilter): Array<CriteriaDisplayProps & Criteria> => {
     const dataInteraction = selectableCriteria.filter((item) =>
       Object.values(CriteriaType).includes(item.name)
     );
 
-    const dataOfBuild = Object.keys(buildedCriteria).map((item) => {
+    const dataOfBuild = Object.keys(builtCriteria).map((item) => {
       if (!Object.values(CriteriaType).includes(item)) {
         return null;
       }
@@ -108,7 +105,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
   const getDataByCategoryFilter = ({
     categoryFilter,
     selectableCriteria,
-    buildedCriteria
+    builtCriteria
   }: DataByCategoryFilter): Array<Criteria & CriteriaDisplayProps> => {
     const criteriaType =
       categoryFilter === CategoryFilter.BasicFilter
@@ -116,7 +113,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         : Object.values(ExtendedCriteria);
     const dataByCategory = buildDataByCategoryFilter({
       CriteriaType: criteriaType,
-      buildedCriteria,
+      builtCriteria,
       selectableCriteria
     });
 
@@ -129,7 +126,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   const basicData = useMemo(() => {
     return getDataByCategoryFilter({
-      buildedCriteria: buildCriterias,
+      builtCriteria: buildCriterias,
       categoryFilter: CategoryFilter.BasicFilter,
       selectableCriteria: selectableCriterias
     });
@@ -137,7 +134,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   const extendedData = useMemo(() => {
     return getDataByCategoryFilter({
-      buildedCriteria: buildCriterias,
+      builtCriteria: buildCriterias,
       categoryFilter: CategoryFilter.ExtendedFilter,
       selectableCriteria: selectableCriterias
     });

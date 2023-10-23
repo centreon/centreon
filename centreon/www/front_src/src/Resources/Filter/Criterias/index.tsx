@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { SetStateAction, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil, pipe, reject, sortBy } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -20,7 +20,6 @@ import {
   displayActionsAtom,
   selectedStatusByResourceTypeAtom
 } from '../criteriasNewInterface/basicFilter/atoms';
-import useSearchWihSearchDataCriteria from '../criteriasNewInterface/useSearchWithSearchDataCriteria';
 import {
   applyCurrentFilterDerivedAtom,
   clearFilterDerivedAtom,
@@ -112,10 +111,6 @@ const CriteriasContent = ({
       isNil
     )(criteria);
   };
-
-  useSearchWihSearchDataCriteria({
-    selectableCriterias: getSelectableCriterias() ?? []
-  });
 
   const clearFilters = (): void => {
     clearFilter();

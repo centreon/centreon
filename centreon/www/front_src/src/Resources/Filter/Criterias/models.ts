@@ -35,7 +35,6 @@ import {
   labelServiceSeverityLevel,
   labelAnomalyDetection,
   labelName,
-  labelParent,
   labelParentName
 } from '../../translatedLabels';
 import {
@@ -57,7 +56,6 @@ export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];
 export interface Criteria {
   name: string;
   object_type: string | null;
-  search_data?: SearchData | null;
   type: string;
   value?: CriteriaValue;
 }

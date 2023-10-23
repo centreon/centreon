@@ -33,7 +33,6 @@ const entityDecoder = JsonDecoder.object<Filter>(
         {
           name: JsonDecoder.string,
           object_type: JsonDecoder.nullable(JsonDecoder.string),
-          search_data: JsonDecoder.optional(searchDataDecoder),
           type: JsonDecoder.string,
           value: JsonDecoder.optional(
             JsonDecoder.oneOf<

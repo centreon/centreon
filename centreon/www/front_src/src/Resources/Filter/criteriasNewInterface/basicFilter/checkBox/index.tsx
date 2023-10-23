@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, propEq, reject } from 'ramda';
 
 import { Variant } from '@mui/material/styles/createTypography';
 
@@ -105,12 +105,15 @@ const CheckBoxSection = ({
 
     const currentItem = { ...item, checked: false, resourceType };
 
-    const result = removeDuplicateFromObjectArray({
-      array: selectedStatusByResourceType
-        ? [...selectedStatusByResourceType, currentItem]
-        : [currentItem],
-      byFields: ['id', 'resourceType']
-    });
+    const result = reject(
+      propEq('id', item?.id),
+      removeDuplicateFromObjectArray({
+        array: selectedStatusByResourceType
+          ? [...selectedStatusByResourceType, currentItem]
+          : [currentItem],
+        byFields: ['id', 'resourceType']
+      })
+    );
     setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
   };
 
@@ -122,7 +125,7 @@ const CheckBoxSection = ({
       labelProps={labelProps}
       options={transformData(translatedOptions) || []}
       values={transformData(translatedValues) || []}
-      onChange={(event) => handleChangeStatus(event)}
+      onChange={handleChangeStatus}
     />
   );
 };

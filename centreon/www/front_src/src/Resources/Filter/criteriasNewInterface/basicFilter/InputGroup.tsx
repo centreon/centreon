@@ -1,9 +1,8 @@
-import { equals, isNil } from 'ramda';
+import { equals, isNil, propEq, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
-import useInputCurrentValues from '../useInputCurrentValues';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
@@ -39,10 +38,7 @@ const InputGroup = ({
     filterName
   });
 
-  const { value } = useInputCurrentValues({
-    content: dataByFilterName?.value,
-    data: dataByFilterName?.value
-  });
+  const value = dataByFilterName?.value as Array<SelectEntry>;
 
   if (!dataByFilterName) {
     return null;
@@ -76,8 +72,20 @@ const InputGroup = ({
     });
   };
 
+  const onDelete = (_, option): void => {
+    const updatedValue = reject(propEq('name', option.name), value);
+
+    changeCriteria({
+      filterName,
+      updatedValue
+    });
+  };
+
   return (
     <MultiConnectedAutocompleteField
+      chipProps={{
+        onDelete
+      }}
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}

@@ -10,7 +10,8 @@ import CheckBoxSection from '../checkBox';
 const MemoizedStatus = ({
   changeCriteria,
   basicData,
-  sectionType
+  sectionType,
+  filterName
 }: MemoizedChildSectionWrapper): JSX.Element => {
   const selectedStatusByResourceType = useAtomValue(
     selectedStatusByResourceTypeAtom
@@ -21,7 +22,7 @@ const MemoizedStatus = ({
       <CheckBoxSection
         changeCriteria={changeCriteria}
         data={basicData}
-        filterName={BasicCriteria.statues}
+        filterName={filterName}
         resourceType={sectionType}
       />
     ),
@@ -29,7 +30,7 @@ const MemoizedStatus = ({
       selectedStatusByResourceType,
       findData({
         data: basicData,
-        filterName: BasicCriteria.statues
+        filterName
       })?.value
     ]
   });

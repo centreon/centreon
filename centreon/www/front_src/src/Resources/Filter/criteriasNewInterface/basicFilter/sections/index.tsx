@@ -1,6 +1,8 @@
+import { equals } from 'ramda';
+
 import { Divider } from '@mui/material';
 
-import { MemoizedChild, SectionType } from '../../model';
+import { BasicCriteria, MemoizedChild, SectionType } from '../../model';
 
 import { useStyles } from './sections.style';
 import MemoizedInputGroup from './MemoizedInputGroup';
@@ -25,6 +27,11 @@ const SectionWrapper = ({
               <MemoizedInputGroup
                 basicData={basicData}
                 changeCriteria={changeCriteria}
+                filterName={
+                  equals(sectionType, SectionType.host)
+                    ? BasicCriteria.hostGroups
+                    : BasicCriteria.serviceGroups
+                }
                 sectionType={sectionType}
               />
             }
@@ -32,6 +39,11 @@ const SectionWrapper = ({
               <MemoizedSelectInput
                 basicData={basicData}
                 changeCriteria={changeCriteria}
+                filterName={
+                  equals(sectionType, SectionType.host)
+                    ? BasicCriteria.parentNames
+                    : BasicCriteria.names
+                }
                 searchData={searchData}
                 sectionType={sectionType}
               />
@@ -40,6 +52,7 @@ const SectionWrapper = ({
               <MemoizedStatus
                 basicData={basicData}
                 changeCriteria={changeCriteria}
+                filterName={BasicCriteria.statues}
                 sectionType={sectionType}
               />
             }
