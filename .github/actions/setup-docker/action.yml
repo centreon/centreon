@@ -13,9 +13,7 @@ runs:
         sudo echo "deb [arch=amd64 signed-by=$gpg_key] $repo_url $(lsb_release -cs) stable" | sudo tee $repo_path
 
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin container-selinux
-
-        setsebool container_manage_cgroup 1
+        sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 
         docker info
       shell: bash
