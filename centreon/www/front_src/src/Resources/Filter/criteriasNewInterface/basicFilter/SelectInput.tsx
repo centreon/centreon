@@ -62,6 +62,10 @@ const SelectInput = ({
   }
 
   const updateResourceType = (updatedValue): void => {
+    if (isNil(resourceTypesCriteria)) {
+      return;
+    }
+
     if (isEmpty(updatedValue)) {
       changeCriteria({
         filterName: 'resource_types',

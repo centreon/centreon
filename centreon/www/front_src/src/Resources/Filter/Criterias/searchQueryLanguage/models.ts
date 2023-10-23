@@ -94,7 +94,8 @@ export const dynamicCriteriaValuesByName = [
   CriteriaNames.hostSeverityLevels,
   CriteriaNames.serviceSeverityLevels,
   CriteriaNames.names,
-  CriteriaNames.parentNames
+  CriteriaNames.parentNames,
+  CriteriaNames.metaServices
 ];
 
 export const getSelectableCriteriasByName = (

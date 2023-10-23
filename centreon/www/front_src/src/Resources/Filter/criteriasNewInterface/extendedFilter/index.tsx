@@ -1,13 +1,18 @@
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { Divider } from '@mui/material';
 
-import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
+import {
+  Criteria,
+  CriteriaDisplayProps,
+  CriteriaNames
+} from '../../Criterias/models';
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
 import { displayInformationFilterAtom } from '../basicFilter/atoms';
 import { useStyles } from '../criterias.style';
-import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
+import { ChangedCriteriaParams } from '../model';
 import { informationLabel } from '../translatedLabels';
 
 import FilterSearch from './FilterSearch';
@@ -24,7 +29,7 @@ interface Props {
 const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
+  const { inputGroupsData, statusTypes } = useExtendedFilter({
     data
   });
 
@@ -34,24 +39,22 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
     <div className={classes.containerFilter}>
       {inputGroupsData?.map((item) => (
         <>
-          <MemoizedInputGroup
-            changeCriteria={changeCriteria}
-            data={data}
-            filterName={item.name}
-            key={item.name}
-          />
-          <Divider className={classes.dividerInputs} />
-        </>
-      ))}
-      {resourceTypes?.map((item) => (
-        <>
-          <MemoizedSelectInput
-            changeCriteria={changeCriteria}
-            data={data}
-            filterName={ExtendedCriteria.resourceTypes}
-            key={item.name}
-            resourceType={item.id}
-          />
+          {equals(item.name, CriteriaNames.metaServices) ? (
+            <MemoizedSelectInput
+              changeCriteria={changeCriteria}
+              data={data}
+              filterName={item.name}
+              key={item.name}
+              resourceType={item.object_type}
+            />
+          ) : (
+            <MemoizedInputGroup
+              changeCriteria={changeCriteria}
+              data={data}
+              filterName={item.name}
+              key={item.name}
+            />
+          )}
           <Divider className={classes.dividerInputs} />
         </>
       ))}

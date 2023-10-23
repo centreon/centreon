@@ -31,11 +31,12 @@ export enum BasicCriteria {
 }
 
 export enum ExtendedCriteria {
+  resourceTypes = CriteriaNames.resourceTypes,
   hostSeverities = CriteriaNames.hostSeverities,
   hostCategories = CriteriaNames.hostCategories,
   serviceSeverities = CriteriaNames.serviceSeverities,
   serviceCategories = CriteriaNames.serviceCategories,
-  resourceTypes = CriteriaNames.resourceTypes,
+  metaServices = CriteriaNames.metaServices,
   statusTypes = CriteriaNames.statusTypes,
   serviceSeverityLevels = CriteriaNames.serviceSeverityLevels,
   hostSeverityLevels = CriteriaNames.hostSeverityLevels

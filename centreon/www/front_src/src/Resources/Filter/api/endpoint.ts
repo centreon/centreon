@@ -30,6 +30,13 @@ const buildServicesEndpoint = (parameters: ListingParameters): string => {
     parameters
   });
 };
+const buildMetaServicesEndpoint = (parameters: ListingParameters): string => {
+  return buildListingEndpoint({
+    baseEndpoint: resourcesEndpoint,
+    customQueryParameters: [{ name: 'types', value: ['metaservice'] }],
+    parameters
+  });
+};
 
 const buildHostGroupsEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
@@ -96,5 +103,6 @@ export {
   buildHostServeritiesEndpoint,
   buildServiceSeveritiesEndpoint,
   buildHostsEndpoint,
-  buildServicesEndpoint
+  buildServicesEndpoint,
+  buildMetaServicesEndpoint
 };

@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 
+import { move, equals } from 'ramda';
+
 import { SelectEntry } from '@centreon/ui';
 
-import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
+import {
+  Criteria,
+  CriteriaDisplayProps,
+  CriteriaNames
+} from '../../Criterias/models';
 import { ExtendedCriteria } from '../model';
-import { findData, sortByNameCaseInsensitive } from '../utils';
+import { sortByNameCaseInsensitive } from '../utils';
 
 interface Parameters {
   data: Array<Criteria & CriteriaDisplayProps>;
@@ -17,21 +23,15 @@ interface UseExtendedFilter {
 }
 
 const useExtendedFilter = ({ data }: Parameters): UseExtendedFilter => {
-  const [resourceTypes, setResourceTypes] = useState<Array<SelectEntry>>();
   const [statusTypes, setStatusTypes] =
     useState<Array<Criteria & CriteriaDisplayProps>>();
   const [inputGroupsData, setInputGroupsData] =
     useState<Array<Criteria & CriteriaDisplayProps>>();
+
   useEffect(() => {
     if (!data) {
       return;
     }
-
-    const types = findData({
-      data,
-      filterName: ExtendedCriteria.resourceTypes
-    });
-    setResourceTypes(types?.options);
 
     const status = data?.filter(
       (item) => item.name === ExtendedCriteria.statusTypes
@@ -41,13 +41,17 @@ const useExtendedFilter = ({ data }: Parameters): UseExtendedFilter => {
     const arrayInputGroup = data?.filter(
       (item) => item?.buildAutocompleteEndpoint
     );
-    const inputGroups = sortByNameCaseInsensitive(arrayInputGroup)?.filter(
-      (item) => !item.name.includes('level')
+    const sortedInputGroups = sortByNameCaseInsensitive(
+      arrayInputGroup
+    )?.filter((item) => !item.name.includes('level'));
+    const metaServiceIndex = sortedInputGroups.findIndex(({ name }) =>
+      equals(name, CriteriaNames.metaServices)
     );
-    setInputGroupsData(inputGroups);
+    const finalInputGroups = move(metaServiceIndex, -1, sortedInputGroups);
+    setInputGroupsData(finalInputGroups);
   }, [data]);
 
-  return { inputGroupsData, resourceTypes, statusTypes };
+  return { inputGroupsData, statusTypes };
 };
 
 export default useExtendedFilter;

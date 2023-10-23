@@ -230,6 +230,7 @@ const useLoadResources = (): LoadResources => {
 
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
+    const metaServices = getCriteriaNames('meta_services');
 
     sendRequest({
       endpoint: resourcesEndpoint,
@@ -251,6 +252,12 @@ const useLoadResources = (): LoadResources => {
           })),
           ...parentNames.map((name) => ({
             field: 'parent_name',
+            values: {
+              $rg: name
+            }
+          })),
+          ...metaServices.map((name) => ({
+            field: 'meta_service',
             values: {
               $rg: name
             }
