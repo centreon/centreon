@@ -15,7 +15,7 @@ runs:
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 
-        sudo systemctl stop apparmor
+        #sudo systemctl stop apparmor
         sudo apt install policycoreutils selinux-basics selinux-utils -y
         sudo setenforce 1
         sudo setsebool container_manage_cgroup 1
