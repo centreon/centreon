@@ -111,7 +111,7 @@ jobs:
 
       - name: Behat acceptance testing
         env:
-          PANTHER_CHROME_BINARY: chrome
+          PANTHER_CHROME_BINARY: chromium
         run: |
           WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
           rm -rf acceptance-logs && mkdir acceptance-logs

@@ -6879,12 +6879,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "c47edfea6c1bd15cb0325feec9f1f0bd02ca4d9d"
+                "reference": "b89039b957f9c403b0efe0a70516e08606a3e967"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/c47edfea6c1bd15cb0325feec9f1f0bd02ca4d9d",
-                "reference": "c47edfea6c1bd15cb0325feec9f1f0bd02ca4d9d",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/b89039b957f9c403b0efe0a70516e08606a3e967",
+                "reference": "b89039b957f9c403b0efe0a70516e08606a3e967",
                 "shasum": ""
             },
             "require": {
@@ -6935,7 +6935,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/update-chrome-preferences"
             },
-            "time": "2023-10-23T13:29:44+00:00"
+            "time": "2023-10-23T13:58:41+00:00"
         },
         {
             "name": "composer/pcre",
