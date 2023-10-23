@@ -1,3 +1,4 @@
+@REQ_MON-22199
 Feature: Add an acknowledgement on a resource with a problem
   As a user
   I would like to be able to add an acknowledgement on a problematic resource
@@ -8,6 +9,7 @@ Feature: Add an acknowledgement on a resource with a problem
     And the user has the necessary rights to acknowledge & disacknowledge
     And there are at least two resources of each type with a problem and notifications enabled for the user
 
+  @TEST_MON-22202
   Scenario: Acknowledge a single resource configured with default settings
     Given a single resource selected on Resources Status with the "Resource Problems" filter enabled
     And acknowledgment column is enabled in Resource Status
@@ -19,6 +21,7 @@ Feature: Add an acknowledgement on a resource with a problem
     And the previously selected resource is marked as acknowledged in the listing with the acknowledgement icon
     And the tooltip on acknowledgement icon contains the information related to the acknowledgment
 
+  @TEST_MON-22203
   Scenario: Acknowledge multiple resources with default settings
     Given multiple resources selected on Resources Status with the "Resource Problems" filter enabled
     And acknowledgment column is enabled in Resource Status
@@ -30,6 +33,7 @@ Feature: Add an acknowledgement on a resource with a problem
     And the previously selected resources is marked as acknowledged in the listing with the acknowledgement icon
     And the tooltip on acknowledgement icon for each resource contains the information related to the acknowledgment
 
+  @TEST_MON-22204
   Scenario Outline: Acknowledge a resource with sticky only on a host
     Given the "Resource Problems" filter enabled
     And criteria is 'type:host'
@@ -46,6 +50,7 @@ Feature: Add an acknowledgement on a resource with a problem
       | down           | unreachable    |
       | unreachable    | up             |
 
+  @TEST_MON-22201
   Scenario Outline: Acknowledge a resource with sticky only on a service
     Given the "Resource Problems" filter enabled
     And criteria is 'type:service'
@@ -63,6 +68,7 @@ Feature: Add an acknowledgement on a resource with a problem
       | critical       | unknown        |
       | unknown        | warning        |
 
+  @TEST_MON-22200
   Scenario: Disacknowledge a resource
     Given a single resource selected on Resources Status with the criteria "state: acknowledged"
     And a resource marked as acknowledged is selected

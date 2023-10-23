@@ -1,6 +1,8 @@
 @execTimeout(300000)
+@REQ_MON-22196
 Feature: Upgrade platform from major version A to major version B
 
+@TEST_MON-22198
 Scenario Outline: Administrator performs a platform update procedure
   Given a running platform in major '<major_from>' with '<version_from>' version
   When administrator updates packages to current version
