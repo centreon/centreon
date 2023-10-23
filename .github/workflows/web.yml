@@ -70,10 +70,10 @@ jobs:
   #             - '**/doc/API/**'
   #         token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # get-version:
-  #   uses: ./.github/workflows/get-version.yml
-  #   with:
-  #     version_file: centreon/www/install/insertBaseConf.sql
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
 
   # veracode-analysis:
   #   needs: [get-version]
