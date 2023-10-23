@@ -355,7 +355,8 @@ jobs:
               else
                 echo "The issue with ID $issue_id exists."
                 summary=$(echo "$response" | jq -r '.fields.summary')
-
+                echo "Summary: $summary"
+                echo "Collection Name: $collection_name"
                 if [ "$summary" == "$collection_name" ]; then
                   echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
                   if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
@@ -363,7 +364,6 @@ jobs:
                   else
                     newStatus="PASSED"
                   fi
-
                   # Create a JSON array from IDs
                   testIssueIds=($issue_id)
                   echo "Contenu de testIssueIds : ${testIssueIds[@]}"
