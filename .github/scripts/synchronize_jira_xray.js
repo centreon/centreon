@@ -200,7 +200,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         core.error(
           `Error updating issue ${api} in Jira. Status code: ${jira_response.status}`
         );
-        core.info(`${jira_response.data}`);
+        core.info(`${jiraResponse.data}`);
         return;
       }
 
