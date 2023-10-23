@@ -42,7 +42,7 @@ export const formatPanel = ({
   );
 
   return {
-    data: panel.widgetSettings.data,
+    data: panel.widgetSettings.data || null,
     h: panel.layout.height,
     i: `${panel.id}`,
     minH: panel.layout.minHeight,
