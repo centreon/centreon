@@ -52,7 +52,7 @@ function getTargetVersion(versionNumber) {
 async function extractDataFromFeatureFile(filePath) {
   try {
     const featureFileContent = fs.readFileSync(filePath, "utf-8");
-    const match = feature_file_content.match(/#testSet:(.*?)$/ms);
+    const match = featureFileContent.match(/#testSet:(.*?)$/ms);
 
     if (match) {
       const testSetKey = match[1].trim();
