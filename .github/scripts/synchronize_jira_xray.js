@@ -207,12 +207,14 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
       core.info(`Issue ${api} updated successfully in Jira.`);
 
       // Update status of the test
-      const issueStatusPayload = { transition: { id: "5" } };
       const statusAPI = `https://centreon.atlassian.net/rest/api/2/issue/${existingIssueData.key}/transitions?expand=transitions.fields`;
 
-      const jiraStatusResponse = await axios.post(
+      const issueStatusPayloadToReadyForImplementation = {
+        transition: { id: "61" },
+      };
+      const jiraStatusToReadyForImplementationResponse = await axios.post(
         statusAPI,
-        issueStatusPayload,
+        issueStatusPayloadToReadyForImplementation,
         {
           headers: {
             Accept: "application/json",
@@ -223,12 +225,77 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
           },
         }
       );
-
-      if (jiraStatusResponse.status !== 204) {
+      if (jiraStatusToReadyForImplementationResponse.status !== 204) {
         core.error(
-          `Error updating issue's status ${api} in Jira. Status code: ${jiraStatusResponse.status}`
+          `Error updating issue's status ${api} in Jira. Status code: ${jiraStatusToReadyForImplementationResponse.status}`
         );
-        core.info(`${jiraStatusResponse.data}`);
+        core.info(`${jiraStatusToReadyForImplementationResponse.data}`);
+        return;
+      }
+
+      const issueStatusPayloadToStart = { transition: { id: "81" } };
+      const jiraStatusToStartResponse = await axios.post(
+        statusAPI,
+        issueStatusPayloadToStart,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          auth: {
+            username: JIRA_USER,
+            password: JIRA_TOKEN_TEST,
+          },
+        }
+      );
+      if (jiraStatusToStartResponse.status !== 204) {
+        core.error(
+          `Error updating issue's status ${api} in Jira. Status code: ${jiraStatusToStartResponse.status}`
+        );
+        core.info(`${jiraStatusToStartResponse.data}`);
+        return;
+      }
+
+      const issueStatusPayloadToReadyForReview = { transition: { id: "21" } };
+      const jiraStatusToReadyForReviewResponse = await axios.post(
+        statusAPI,
+        issueStatusPayloadToReadyForReview,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          auth: {
+            username: JIRA_USER,
+            password: JIRA_TOKEN_TEST,
+          },
+        }
+      );
+      if (jiraStatusToReadyForReviewResponse.status !== 204) {
+        core.error(
+          `Error updating issue's status ${api} in Jira. Status code: ${jiraStatusToReadyForReviewResponse.status}`
+        );
+        core.info(`${jiraStatusToReadyForReviewResponse.data}`);
+        return;
+      }
+
+      const issueStatusPayloadToResolved = { transition: { id: "31" } };
+      const jiraStatusToResolvedResponse = await axios.post(
+        statusAPI,
+        issueStatusPayloadToResolved,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          auth: {
+            username: JIRA_USER,
+            password: JIRA_TOKEN_TEST,
+          },
+        }
+      );
+      if (jiraStatusToResolvedResponse.status !== 204) {
+        core.error(
+          `Error updating issue's status ${api} in Jira. Status code: ${jiraStatusToResolvedResponse.status}`
+        );
+        core.info(`${jiraStatusToResolvedResponse.data}`);
         return;
       }
 
