@@ -143,11 +143,6 @@ jobs:
                       "issuetype": {
                         "name": "Test"
                       },
-                      "priority": {
-                        "iconUrl": "https://centreon.atlassian.net/images/icons/priorities/medium.svg",
-                        "id": "5",
-                        "name":"Lowest"
-                      },
                     }
                   }' \
                   --max-time 20)
