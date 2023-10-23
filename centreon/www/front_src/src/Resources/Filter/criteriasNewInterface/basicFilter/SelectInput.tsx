@@ -68,16 +68,16 @@ const SelectInput = ({
     });
   };
 
-  const handleChange = (event, updatedValue): void => {
-    const newValue = updatedValue.map((value) => {
-      if (equals(type(value), 'String')) {
+  const handleChange = (_, updatedValue): void => {
+    const newValue = updatedValue.map((currentValue) => {
+      if (equals(type(currentValue), 'String')) {
         return {
           id: 0,
-          name: value
+          name: currentValue
         };
       }
 
-      return value;
+      return currentValue;
     });
 
     updateResourceType(updatedValue);

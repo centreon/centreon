@@ -184,8 +184,6 @@ const Filter = (): JSX.Element => {
     selectedStatusByResourceTypeAtom
   );
 
-  console.log('current filter', currentFilter);
-
   useBackToVisualizationByAll();
 
   const open = Boolean(autocompleteAnchor);

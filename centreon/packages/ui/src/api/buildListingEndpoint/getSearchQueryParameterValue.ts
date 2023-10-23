@@ -5,8 +5,6 @@ import {
   prop,
   head,
   toPairs,
-  pipe,
-  map,
   flatten,
   pluck,
   uniq,

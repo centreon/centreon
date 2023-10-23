@@ -8,7 +8,6 @@ import {
   SearchedDataValue as SearchedDataValueModel
 } from '../Criterias/models';
 
-import { ExtendedCriteria, SectionType } from './model';
 import { findData } from './utils';
 import {
   displayActionsAtom,

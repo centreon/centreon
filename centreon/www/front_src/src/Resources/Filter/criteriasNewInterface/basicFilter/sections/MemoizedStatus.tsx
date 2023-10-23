@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { BasicCriteria, MemoizedChildSectionWrapper } from '../../model';
+import { MemoizedChildSectionWrapper } from '../../model';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import { findData } from '../../utils';
 import CheckBoxSection from '../checkBox';
