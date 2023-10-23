@@ -56,7 +56,6 @@ jobs:
       defaults:
        run:
         shell: bash
-        working-directory: centreon/tests/rest_api
 
       steps:
         - name: Checkout Repository
@@ -71,8 +70,7 @@ jobs:
           shell: bash
 
         - name: Associate Test Cases with Test plan
-          run: |
-           ./.github/scripts/newman-xray.sh
+          uses : ./.github/actions/cypress-e2e-testing
 
 
   newman-test-run:
