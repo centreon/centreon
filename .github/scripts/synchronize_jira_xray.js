@@ -51,7 +51,7 @@ function getTargetVersion(versionNumber) {
 
 async function extractDataFromFeatureFile(filePath) {
   try {
-    const feature_file_content = fs.readFileSync(file_path, "utf-8");
+    const featureFileContent = fs.readFileSync(filePath, "utf-8");
     const match = feature_file_content.match(/#testSet:(.*?)$/ms);
 
     if (match) {
