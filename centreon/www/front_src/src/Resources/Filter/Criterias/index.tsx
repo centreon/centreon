@@ -26,7 +26,8 @@ import {
   currentFilterAtom,
   customFiltersAtom,
   filterByInstalledModulesWithParsedSearchDerivedAtom,
-  filterWithParsedSearchDerivedAtom
+  filterWithParsedSearchDerivedAtom,
+  isCriteriasPanelOpenAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
 
@@ -87,6 +88,7 @@ const CriteriasContent = ({
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const setIsCriteriasPanelOpen = useSetAtom(isCriteriasPanelOpenAtom);
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({
@@ -133,6 +135,15 @@ const CriteriasContent = ({
     setDisplayActions(false);
   };
 
+  const open = (): void => {
+    setIsCriteriasPanelOpen(true);
+  };
+
+  const close = (): void => {
+    applyCurrentFilter();
+    setIsCriteriasPanelOpen(false);
+  };
+
   return (
     <>
       <PopoverMenu
@@ -142,7 +153,8 @@ const CriteriasContent = ({
         icon={<TuneIcon fontSize="small" />}
         popperPlacement="bottom-start"
         title={t(labelSearchOptions) as string}
-        onClose={applyCurrentFilter}
+        onClose={close}
+        onOpen={open}
       >
         {({ close }): JSX.Element => {
           const closePopover = (): void => {

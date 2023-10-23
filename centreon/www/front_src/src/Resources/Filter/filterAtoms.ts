@@ -37,6 +37,8 @@ import { getStoredOrDefaultFilter } from './storedFilter';
 
 export const filterKey = `${baseKey}filter`;
 
+export const isCriteriasPanelOpenAtom = atom(false);
+
 export const storedFilterAtom = atomWithStorage<Filter>(
   filterKey,
   unhandledProblemsFilter

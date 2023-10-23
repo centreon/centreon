@@ -78,6 +78,7 @@ import {
   clearFilterDerivedAtom,
   currentFilterAtom,
   customFiltersAtom,
+  isCriteriasPanelOpenAtom,
   searchAtom,
   sendingFilterAtom,
   setNewFilterDerivedAtom
@@ -176,6 +177,7 @@ const Filter = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterAtom);
   const sendingFilter = useAtomValue(sendingFilterAtom);
   const user = useAtomValue(userAtom);
+  const isCriteriasPanelOpen = useAtomValue(isCriteriasPanelOpenAtom);
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
@@ -560,7 +562,8 @@ const Filter = (): JSX.Element => {
     currentFilter,
     isDynamicCriteria,
     sendingDynamicCriteriaValueRequests,
-    user
+    user,
+    isCriteriasPanelOpen
   ];
 
   return (
@@ -573,6 +576,7 @@ const Filter = (): JSX.Element => {
                 <SearchField
                   fullWidth
                   EndAdornment={renderEndAdornmentFilter(clearFilters)}
+                  disabled={isCriteriasPanelOpen}
                   inputRef={searchRef as RefObject<HTMLInputElement>}
                   placeholder={t(labelSearch) as string}
                   value={search}
