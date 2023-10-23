@@ -373,7 +373,7 @@ jobs:
                   xray_graphql_getTestRunIDs='{
                     "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
                     "variables": {
-                      "testIssueIds": ["$issue_id"],
+                      "testIssueIds": ['"${testIssueIds[@]}"'],
                       "testExecIssueIds": ["$test_execution_id"],
                       "limit": 100
                     }
