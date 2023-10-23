@@ -54,10 +54,10 @@ final class FindDashboardContacts
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $users = [];
                 if ($this->contact->isAdmin()) {
                     $users = $this->readUserRepository->findAllUsers();
                 } else {
+                    $users = [];
                     $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
                     if ([] !== $contactGroups) {
                         $contactGroupsIds = array_map(function (ContactGroup $contactGroup): int {
