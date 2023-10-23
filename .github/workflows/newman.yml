@@ -324,7 +324,9 @@ jobs:
       run: |
           test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
           for summary_file in ./postman_summaries/*.json; do
-            collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+            filename=$(basename "$summary_file")  # Obtient le nom du fichier
+            collection_name="${filename%.json}"  # Supprime l'extension .json
+            echo "Contenu de collection_name : $collection_name"
             echo "Contenu de collection_name : $collection_name"
             failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
             failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
