@@ -5,9 +5,18 @@ import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
-import { ChangedCriteriaParams, SectionType } from '../model';
+import {
+  ChangedCriteriaParams,
+  ExtendedCriteriaResourceType,
+  SectionType
+} from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
+import {
+  labelHost,
+  labelMetaService,
+  labelService
+} from '../../../translatedLabels';
 
 import useSectionsData from './sections/useSections';
 
@@ -17,6 +26,12 @@ interface Props {
   filterName: string;
   resourceType: SectionType;
 }
+
+const label = {
+  [SectionType.host]: labelHost,
+  [SectionType.service]: labelService,
+  [ExtendedCriteriaResourceType.metaservice]: labelMetaService
+};
 
 const SelectInput = ({
   data,
@@ -133,7 +148,7 @@ const SelectInput = ({
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
       isOptionEqualToValue={isOptionEqualToValue}
-      label={t(resourceType) as string}
+      label={t(label[resourceType]) as string}
       placeholder={dataByFilterName.label}
       search={dataByFilterName?.autocompleteSearch}
       value={value}
