@@ -186,7 +186,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
         core.warning("No component mentioned");
       }
 
-      const jira_response = await axios.put(api, issueUpdatePayload, {
+      const jiraResponse = await axios.put(api, issueUpdatePayload, {
         headers: {
           Accept: "application/json",
         },
