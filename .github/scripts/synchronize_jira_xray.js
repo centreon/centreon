@@ -43,7 +43,7 @@ async function getXrayToken(clientId, clientSecret) {
   return null;
 }
 
-function getTargetVersion(version_number) {
+function getTargetVersion(versionNumber) {
   const targetVersion = `OnPrem - ${version_number}`;
   core.info(`Target Versions: ${targetVersion}`);
   return [targetVersion];
