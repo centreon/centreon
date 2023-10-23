@@ -49,7 +49,7 @@ function getTargetVersion(versionNumber) {
   return [targetVersion];
 }
 
-async function extractDataFromFeatureFile(file_path) {
+async function extractDataFromFeatureFile(filePath) {
   try {
     const feature_file_content = fs.readFileSync(file_path, "utf-8");
     const match = feature_file_content.match(/#testSet:(.*?)$/ms);
