@@ -139,7 +139,7 @@ const CriteriasContent = ({
     setIsCriteriasPanelOpen(true);
   };
 
-  const close = (): void => {
+  const onClose = (): void => {
     applyCurrentFilter();
     setIsCriteriasPanelOpen(false);
   };
@@ -153,7 +153,7 @@ const CriteriasContent = ({
         icon={<TuneIcon fontSize="small" />}
         popperPlacement="bottom-start"
         title={t(labelSearchOptions) as string}
-        onClose={close}
+        onClose={onClose}
         onOpen={open}
       >
         {({ close }): JSX.Element => {
