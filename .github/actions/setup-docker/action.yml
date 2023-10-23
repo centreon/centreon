@@ -13,7 +13,7 @@ runs:
         sudo echo "deb [arch=amd64 signed-by=$gpg_key] $repo_url $(lsb_release -cs) stable" | sudo tee $repo_path
 
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin
+        sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin container-selinux
 
         docker info
       shell: bash
@@ -48,7 +48,8 @@ runs:
             "http-proxy": "",
             "https-proxy": "",
             "no-proxy": "*"
-          }
+          },
+          "selinux-enabled": true
         }
         EOF'
 
