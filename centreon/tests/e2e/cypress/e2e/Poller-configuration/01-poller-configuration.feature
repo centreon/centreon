@@ -1,3 +1,4 @@
+@REQ_MON-22134
 Feature: Generate poller configuration
   As a Centreon user
   I want to generate the poller configuration
@@ -10,6 +11,7 @@ Background:
   And some pollers are created
   And some post-generation commands are configured for each poller
 
+  @TEST_MON-22135
   Scenario: Generate the configuration on multiple pollers
     When I visit the export configuration page
     Then there is an indication that the configuration have changed on the listed pollers
@@ -28,6 +30,7 @@ Background:
       | Reload    | reloaded      |
       | Restart   | restarted     |
 
+  @TEST_MON-22136
   Scenario: Generate the configuration with no poller selected
     When I visit the export configuration page
     And I click on the Export configuration button
@@ -36,11 +39,13 @@ Background:
     When I click on the export button
     Then an error message is displayed to inform that no poller is selected
 
+  @TEST_MON-22138
   Scenario: Generate the configuration to all pollers quickly
     When I click on the export configuration action and confirm
     Then a success message is displayed
     And the configuration is generated on all pollers
 
+  @TEST_MON-22137
   Scenario: Generate the configuration with broken pollers
     Given broken pollers
     When I visit the export configuration page
