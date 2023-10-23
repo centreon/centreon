@@ -198,7 +198,7 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
 
       if (jiraResponse.status !== 204) {
         core.error(
-          `Error updating issue ${api} in Jira. Status code: ${jira_response.status}`
+          `Error updating issue ${api} in Jira. Status code: ${jiraResponse.status}`
         );
         core.info(`${jiraResponse.data}`);
         return;
