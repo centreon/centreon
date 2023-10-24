@@ -171,65 +171,77 @@ jobs:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.name }}-json-xray-reports
 
-      # dev-24.04.x => MON-23428
-      # release-24.04-next,hotfix-24.04-next => MON-23429
-      # dev-23.10.x => MON-22631
-      # release-23.10-next,hotfix-23.10-next => MON-23275
-      # dev-23.04.x => MON-23278
-      # release-23.04-next,hotfix-23.04-next => MON-23280
-      # dev-22.10.x => MON-23281
-      # release-22.10-next,hotfix-22.10-next => MON-23282
-      # dev-22.04.x => MON-23283
-      # release-22.04-next,hotfix-22.04-next => MON-23284
-      # dev-21.10.x => MON-23285
-      # release-21.10-next,hotfix-21.10-next => MON-23287
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
 
+      # NIGHTLY <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., NIGHTLY OSS 23.10)
+      # RT <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., RT OSS 23.10)
       - name: Determine testPlanKey
         id: determine-testplan-key
         run: |
-          stability="${{ inputs.stability }}"
-          major_version="${{ inputs.major_version }}"
+          is_nightly=$([[ ${{ github.event_name }} == 'schedule' ]] && echo "NIGHTLY" || echo "RT")
 
-          echo "stability of this branch is $stability"
-          echo "major version of this branch is $major_version"
+          # Use a GraphQL query to get all test plans matching the JQL
+          graphql_query='{
+            getTestPlans(jql: "project = 'MON'", limit: 100) {
+              total
+              results {
+                issueId
+                jira(fields: ["summary", "key"])
+              }
+            }
+          }'
 
-          if [[ $stability == "unstable" ]]; then
-            if [[ $major_version == "24.04" ]]; then
-              testPlanKey="MON-23428"
-            elif [[ $major_version == "23.10" ]]; then
-              testPlanKey="MON-22631"
-            elif [[ $major_version == "23.04" ]]; then
-              testPlanKey="MON-23278"
-            elif [[ $major_version == "22.10" ]]; then
-              testPlanKey="MON-23281"
-            elif [[ $major_version == "22.04" ]]; then
-              testPlanKey="MON-23283"
-            elif [[ $major_version == "21.10" ]]; then
-              testPlanKey="MON-23285"
-            else
-              testPlanKey="MON-UNKNOWN"  # Handle other cases
+          # Execute the GraphQL query and parse the results
+          test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" -d "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
+          echo"$test_plans"
+          test_plan_key=""
+
+          # Loop through the results to find a matching test plan
+          for test_plan in $(echo "$test_plans" | jq -c '.data.getTestPlans.results[]'); do
+            summary=$(echo "$test_plan" | jq -r '.jira.fields.summary')
+            key=$(echo "$test_plan" | jq -r '.jira.fields.key')
+            # Check if the summary matches your desired pattern
+            if [[ "$summary" == "$is_nightly OSS ${{ inputs.major_version }}"]]; then
+              test_plan_key=$key
+              echo"The test_plan_key is $test_plan_key"
+              break
             fi
-          elif [[ $stability == "testing" ]]; then
-            if [[ $major_version == "24.04" ]]; then
-              testPlanKey="MON-23429"
-            elif [[ $major_version == "23.10" ]]; then
-              testPlanKey="MON-23275"
-            elif [[ $major_version == "23.04" ]]; then
-              testPlanKey="MON-23280"
-            elif [[ $major_version == "22.10" ]]; then
-              testPlanKey="MON-23282"
-            elif [[ $major_version == "22.04" ]]; then
-              testPlanKey="MON-23284"
-            elif [[ $major_version == "21.10" ]]; then
-              testPlanKey="MON-23287"
-            else
-              testPlanKey="MON-UNKNOWN"  # Handle other cases
-            fi
-          else
-            testPlanKey="MON-UNKNOWN"  # Handle other cases
+          done
+
+          # If no matching test plan was found, create one
+          if [ -z "$test_plan_key" ]; then
+            echo"TestPlan doesn't exist yet"
+
+            # Create the test plan using a GraphQL mutation
+            create_test_plan_mutation='{
+              "query": "mutation CreateTestPlan($testIssueIds: [String], $jira: XrayIssueInput!) { createTestPlan(testIssueIds: $testIssueIds, jira: $jira) { testPlan { issueId jira(fields: [\\"key\\"]) } warnings } }",
+              "variables": {
+                "testIssueIds": [],
+                "jira": {
+                  "fields": {
+                    "summary": "'"$is_nightly"' OSS ${{ inputs.major_version }}",
+                    "project": { "key": "MON" }
+                  }
+                }
+              }
+            }'
+            create_result=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" -d "$create_test_plan_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
+            
+            echo "creation of the testPlan: $create_result "
+
+            # Extract the key of the created test plan
+            test_plan_key=$(echo "$create_result" | jq -r '.data.createTestPlan.testPlan.jira.fields.key')
+            echo "the test_plan_key for the new testPlan is: $test_plan_key"
           fi
-          echo "the testPlanKey is $testPlanKey"
-          echo "testPlanKey=$testPlanKey" >> $GITHUB_OUTPUT
+          
+          # Set the testPlanKey as an output
+          echo "testPlanKey=$test_plan_key" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Import results to xray
@@ -245,14 +257,6 @@ jobs:
           combineInSingleTestExec: true
           testExecKey:
         timeout-minutes: 10
-
-      - name: Generate Xray Token
-        id: generate-xray-token
-        run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
-          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
-          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Get TestExecution ID
         id: get-testExecution-id
