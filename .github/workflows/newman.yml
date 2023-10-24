@@ -21,7 +21,7 @@ on:
         required: true
       registry_password:
         required: true
-      client_id:
+      client_id :
         required: true
       client_secret:
         required: true
@@ -144,13 +144,15 @@ jobs:
                       }
                     }
                   }' \
-                  --max-time 30)
-                  sleep 2
+                  --max-time 20)
+
+                sleep 5
+
                 if [ -z "$response" ]; then
                   echo "Failed to create the test case within the specified time."
                 else
                   test_case_id=$(echo "$response" | jq -r '.id')
-                  test_case_ids+=("$test_case_id")
+                  test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
 
                   echo "Created Test Case with ID: $test_case_id"
                   # Ajouter le nom du cas de test à la liste des résumés
@@ -164,6 +166,10 @@ jobs:
                 fi
               fi
             done
+
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+            issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+
 
             test_issue_ids=("${issue_list_ids[@]}")
             formatted_test_issue_ids_str="["
@@ -201,7 +207,7 @@ jobs:
             else
               echo "Created Test Execution with ID: $test_execution_id"
               echo "test_exec=$test_execution_id" >> $GITHUB_OUTPUT
-            fi
+              fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
               "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
