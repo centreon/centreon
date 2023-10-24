@@ -182,5 +182,5 @@ jobs:
     with:
       image: ${{ matrix.image }}
       distrib: ${{ matrix.distrib }}
-      module: awie
+      module: dsm
       version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
