@@ -44,6 +44,7 @@ include_once "../../../../config/centreon.config.php";
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once realpath(__DIR__ . "/../../../../bootstrap.php");
+require_once "PaginationRenderer.php";
 
 // Connect to DB
 $pearDB = $dependencyInjector['configuration_db'];
@@ -726,7 +727,7 @@ if (isset($req) && $req) {
         }
     }
     $stmt->execute();
-
+    $rows = $stmt->rowCount();
     if (!($stmt->rowCount()) && ($num != 0)) {
         if ($export !== "1") {
             $offset = floor($rows / $limit) * $limit;
@@ -735,9 +736,8 @@ if (isset($req) && $req) {
         $stmt->execute();
     }
 
-    $logs = $stmt->fetchAll();
+    $logs = $stmt->fetchAll() ?? [];
     $stmt->closeCursor();
-    $rows = $stmt->rowCount();
 
     $buffer->startElement("selectLimit");
     for ($i = 10; $i <= 100; $i = $i + 10) {
@@ -746,15 +746,16 @@ if (isset($req) && $req) {
     $buffer->writeElement("limit", $limit);
     $buffer->endElement();
 
+    if ($rows > $limit)
+    {
+        // generate pages for navigation
+        $paginator = new Paginator($num, $rows, $limit);
+        $pages = $paginator->generatePages();
 
-    require_once './PaginationRenderer.php';
-    // generate pages for navigation
-    $paginator = new Paginator($num, $rows, $limit);
-    $pages = $paginator->generatePages();
-
-    // add generated pages into xml
-    $paginationRenderer = new PaginationRenderer($buffer);
-    $paginationRenderer->render($pages);
+        // add generated pages into xml
+        $paginationRenderer = new PaginationRenderer($buffer);
+        $paginationRenderer->render($pages);
+    }
 
     /*
      * Full Request
@@ -847,7 +848,7 @@ if (isset($req) && $req) {
 
             $serviceTimelineRedirectionUri = $useDeprecatedPages
                 ? 'main.php?p=20201&amp;o=svcd&amp;host_name=' . $log['host_name'] . '&amp;service_description='
-                    . $log['service_description']
+                . $log['service_description']
                 : $resourceController->buildServiceUri(
                     $log['host_id'],
                     $log['service_id'],
