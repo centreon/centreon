@@ -32,28 +32,26 @@ jobs:
           set -eux
 
           # Set version
-          #MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
-          #echo "MAJOR_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
-          MAJOR_VERSION="22.10"
-          echo "MAJOR_VERSION=22.10" >> $GITHUB_ENV
+          MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
+          echo "MAJOR_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
 
           # Handle valid MAJOR_VERSION:DISTRIB combination or return 1 for invalid combination
           COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
           echo "Combination detected: $COMBINATION"
-          case ${COMBINATION} in
-            almalinux:8:23.10 | almalinux:8:23.04 | almalinux:8:22.10 | almalinux:8:22.04)
-              echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> $GITHUB_ENV
-              ;;
-            almalinux:9:23.10 | almalinux:8:23.04)
-              echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> $GITHUB_ENV
-              ;;
-            debian:bullseye:23.10 | debian:bullseye:23.04 | debian:bullseye:22.10 | debian:bullseye:22.04)
-              echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> $GITHUB_ENV
-              ;;
-            *)
-              echo "COMBINATION=1" >> $GITHUB_OUTPUT
-              ;;
-          esac
+          # case ${COMBINATION} in
+          #   almalinux:8:23.10 | almalinux:8:23.04 | almalinux:8:22.10 | almalinux:8:22.04)
+          #     echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> $GITHUB_ENV
+          #     ;;
+          #   almalinux:9:23.10 | almalinux:8:23.04)
+          #     echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> $GITHUB_ENV
+          #     ;;
+          #   debian:bullseye:23.10 | debian:bullseye:23.04 | debian:bullseye:22.10 | debian:bullseye:22.04)
+          #     echo "COMBINATION=${{ inputs.image }}:$MAJOR_VERSION" >> $GITHUB_ENV
+          #     ;;
+          #   *)
+          #     echo "COMBINATION=1" >> $GITHUB_OUTPUT
+          #     ;;
+          # esac
         shell: bash
 
       - name: Checking stable package availability
