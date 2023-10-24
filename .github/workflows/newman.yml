@@ -427,41 +427,26 @@ jobs:
             # Parsing and processing tests id
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
 
-            # Convert issue_ids to a JSON array
-            issue_ids_json=$(echo "$issue_ids" | jq -nR '[inputs|split("\n")|select(.!="")|split(" ")|select(.!="")|to_entries|{"issueId": .}]')
+            # Boucler sur les `issueId` et effectuer des transitions Jira pour chacun
+            for test_issue_id in "${issue_ids[@]}"; do
+              jira_transition_url="https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields"
 
-            # IDs des transitions
-            transition_ids=("61" "81" "21" "31")
+              # Effectuer la transition Jira en utilisant les données spécifiques
+              # Par exemple, ici, nous utilisons l'ID de transition "31".
+              jira_transition_payload='{
+                "transition": { "id": "31" }
+              }'
 
-            # URL de la requête POST pour effectuer les transitions.
-            jira_transition_base_url="https://centreon.atlassian.net/rest/api/2/issue/"
+              # Effectuer la requête POST pour la transition Jira
+              # Utilisez curl ou tout autre outil que vous préférez.
+              # Assurez-vous d'inclure l'URL et les données de payload.
 
-            for issue in "${issue_ids_json[@]}"; do
-              test_issue_id="$(echo "$issue" | jq -r '.issueId')"
-
-              for transition_id in "${transition_ids[@]}"; do
-                # Construisez l'URL de la requête POST pour effectuer la transition sur l'issue actuelle
-                jira_transition_url="${jira_transition_base_url}${test_issue_id}/transitions?expand=transitions.fields"
-
-                # Corps de la requête POST au format JSON avec la transition actuelle.
-                transition_data='{
-                  "transition": {
-                    "id": "'"$transition_id"'"
-                  }
-                }'
-
-                # Utilisation de curl pour envoyer la requête POST.
-                response=$(curl -X POST -H "Content-Type: application/json" -u "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" --data "$transition_data" "$jira_transition_url")
-
-                # Vérifiez la réponse ou effectuez des vérifications supplémentaires au besoin.
-                if [ -z "$response" ]; then
-                  echo "Failed to perform the Jira transition (ID: $transition_id) for Issue ID: $test_issue_id within the specified time."
-                else
-                  echo "Jira transition (ID: $transition_id) performed successfully for Issue ID: $test_issue_id."
-                fi
-              done
+              # Votre code pour effectuer la transition Jira ici.
+              echo "Processing issue ID: $test_issue_id"
+              echo "Performing Jira transition..."
             done
       shell: bash
+
     - name: Generate and Display Summaries
       if: failure()
       run: |
