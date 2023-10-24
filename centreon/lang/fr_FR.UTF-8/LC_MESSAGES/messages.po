@@ -18299,3 +18299,9 @@ msgstr "Vous n'êtes pas autorisé à ajouter des médias"
 
 msgid "Error while adding a media"
 msgstr "Erreur lors de l'ajout d'un média"
+
+msgid "Extension file not authorised"
+msgstr "Fichier d'extension non autorisé"
+
+msgid "Media already exists"
+msgstr "Le média existe déjà"

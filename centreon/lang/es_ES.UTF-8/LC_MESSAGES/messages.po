@@ -16544,3 +16544,12 @@ msgstr "Modo avanzado"
 
 #  msgid "You are not allowed to add media"
 #  msgstr ""
+
+#  msgid "Error while adding a media"
+#  msgstr ""
+
+#  msgid "Extension file not authorised"
+#  msgstr ""
+
+#  msgid "Media already exists"
+#  msgstr ""

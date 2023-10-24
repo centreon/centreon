@@ -35,24 +35,26 @@ use Core\Media\Application\Exception\MediaException;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Media\Domain\Model\NewMedia;
+use enshrined\svgSanitize\Sanitizer;
+use Symfony\Component\Mime\MimeTypes;
 
 /**
- * @phpstan-type _MediaRecorded array<array{
- *      id: int,
- *      filename: string,
- *      directory: string,
- *      md5: string,
- *  }>
+ * @phpstan-import-type _MediaRecorded from AddMediaResponse
+ * @phpstan-import-type _Errors from AddMediaResponse
  */
 class AddMedia
 {
     use LoggerTrait;
+
+    /** @var list<string> */
+    private array $fileExtensionsAllowed;
 
     public function __construct(
         readonly private WriteMediaRepositoryInterface $writeMediaRepository,
         readonly private ReadMediaRepositoryInterface $readMediaRepository,
         readonly private DataStorageEngineInterface $dataStorageEngine,
         readonly private ContactInterface $user,
+        readonly private Sanitizer $svgSanitizer,
     ) {
     }
 
@@ -73,9 +75,9 @@ class AddMedia
 
                 return;
             }
-
-            $mediasRecorded = $this->addMedias($this->createMedias($request));
-            $presenter->presentResponse($this->createResponse($mediasRecorded));
+            $this->addMimeTypeFilter('image/png', 'image/gif', 'image/jpeg', 'image/svg+xml');
+            [$mediasRecorded, $errors] = $this->addMedias($this->createMedias($request));
+            $presenter->presentResponse($this->createResponse($mediasRecorded, $errors));
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -86,46 +88,71 @@ class AddMedia
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
+    
+    /**
+     * @param string $mimeType
+     */
+    private function addFileExtensions(string $mimeType): void
+    {
+        foreach (MimeTypes::getDefault()->getExtensions($mimeType) as $oneMimeType) {
+            $this->fileExtensionsAllowed[] = $oneMimeType;
+        }
+    }
+    
+    private function addMimeTypeFilter(string ...$mimeTypes): void
+    {
+        foreach ($mimeTypes as $mimeType) {
+            $this->addFileExtensions($mimeType);
+        }
+    }
 
     /**
-     * @param \Generator<NewMedia> $medias
+     * @param \Iterator<int, NewMedia> $medias
      *
      * @throws \Throwable
      *
-     * @return _MediaRecorded
+     * @return array{0: list<_MediaRecorded>, 1: list<_Errors>}
      */
-    private function addMedias(\Generator $medias): array
+    private function addMedias(\Iterator $medias): array
     {
-        /**
-         * @var _MediaRecorded $mediaRecorded
-         */
         $mediaRecorded = [];
+        $errors = [];
         try {
             $this->dataStorageEngine->startTransaction();
             foreach ($medias as $media) {
+
+                $fileInfo = pathinfo($media->getFilename());
+                if (! in_array($fileInfo['extension'] ?? '', $this->fileExtensionsAllowed, true)) {
+                    $errors[] = $this->createMediaError($media, MediaException::extensionFileNotAuthorised()->getMessage());
+                    continue;
+                }
+
                 /** @var NewMedia $media */
                 if (! $this->readMediaRepository->existsByPath(
-                        $media->getFilepath() . DIRECTORY_SEPARATOR . $media->getFilename()
+                        $media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename()
                     )
                 ) {
+                    $fileContent = $media->getData();
+                    if (array_key_exists('extension',$fileInfo) && $fileInfo['extension'] === 'svg') {
+                        $fileContent = $this->svgSanitizer->sanitize($fileContent);
+                    }
                     $md5 = md5($media->getData());
                     $this->info('Add media', [
                         'filename' => $media->getFilename(),
-                        'directory' => $media->getFilepath(),
+                        'directory' => $media->getDirectory(),
                         'md5' => $md5,
                     ]);
                     $mediaRecorded[] = [
-                        'id' => $this->writeMediaRepository->add($media),
+                        'id' => $this->writeMediaRepository->add(
+                            new NewMedia($media->getFilename(),$media->getDirectory(), $fileContent)
+                        ),
                         'filename' => $media->getFilename(),
-                        'directory' => $media->getFilepath(),
+                        'directory' => $media->getDirectory(),
                         'md5' => $md5,
                     ];
 
                 } else {
-                    $this->info('Media already exists', [
-                        'filename' => $media->getFilename(),
-                        'directory' => $media->getFilepath(),
-                    ]);
+                    $errors[] = $this->createMediaError($media, MediaException::mediaAlreadyExists()->getMessage());
                 }
             }
             $this->dataStorageEngine->commitTransaction();
@@ -135,32 +162,93 @@ class AddMedia
             throw $ex;
         }
 
-        return $mediaRecorded;
+        return [$mediaRecorded, $errors];
+    }
+
+    /**
+     * @param NewMedia $newMedia
+     * @param string $reason
+     *
+     * @return _Errors
+     */
+    private function createMediaError(NewMedia $newMedia, string $reason): array
+    {
+        $this->info('Media already exists', [
+            'filename' => $newMedia->getFilename(),
+            'directory' => $newMedia->getDirectory(),
+        ]);
+
+        return [
+            'filename' => $newMedia->getFilename(),
+            'directory' => $newMedia->getDirectory(),
+            'reason' => $reason,
+        ];
     }
 
     /**
      * @param AddMediaRequest $request
      *
-     * @throws AssertionFailedException
-     *
-     * @return \Generator<NewMedia>
+     * @return \Iterator<int, NewMedia>
      */
-    private function createMedias(AddMediaRequest $request): \Generator
+    private function createMedias(AddMediaRequest $request): \Iterator
     {
-        foreach ($request->medias as $dto) {
-            yield new NewMedia($dto->filename, $request->directory, $dto->data);
-        }
+        return new class($request->medias, $request->directory) implements \Iterator {
+            private int $position = 0;
+
+            /**
+             * @param \Iterator<string, string> $medias
+             * @param string $directory
+             */
+            public function __construct(readonly private \Iterator $medias, readonly private string $directory)
+            {
+            }
+
+            public function current(): NewMedia
+            {
+                $data = $this->medias->current(); // 'current' method must be called before the 'key' method
+
+                return new NewMedia(
+                    $this->medias->key(),
+                    $this->directory,
+                    $data
+                );
+            }
+
+            public function next(): void
+            {
+                $this->position++;
+                $this->medias->next();
+            }
+
+            public function key(): int
+            {
+                return $this->position;
+            }
+
+            public function valid(): bool
+            {
+                return $this->medias->valid();
+            }
+
+            public function rewind(): void
+            {
+                $this->position = 0;
+                $this->medias->rewind();
+            }
+        };
     }
 
     /**
-     * @param _MediaRecorded $mediasRecorded
+     * @param list<_MediaRecorded> $mediasRecorded
+     * @param list<_Errors> $errors
      *
      * @return AddMediaResponse
      */
-    private function createResponse(array $mediasRecorded): AddMediaResponse
+    private function createResponse(array $mediasRecorded, array $errors): AddMediaResponse
     {
         $response = new AddMediaResponse();
         $response->mediasRecorded = $mediasRecorded;
+        $response->errors = $errors;
 
         return $response;
     }

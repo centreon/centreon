@@ -32,19 +32,19 @@ class NewMedia
 
     /**
      * @param string $filename
-     * @param string $filepath
+     * @param string $directory
      * @param string $data
      *
      * @throws AssertionFailedException
      */
-    public function __construct(private string $filename, private string $filepath, readonly private string $data)
+    public function __construct(private string $filename, private string $directory, readonly private string $data)
     {
         $this->filename = trim($this->filename);
         Assertion::notEmptyString($this->filename, 'Media::filename');
         $this->filename = str_replace(' ', '_', $this->filename);
-        $this->filepath = str_replace(' ', '', $this->filepath);
-        Assertion::notEmptyString($this->filepath, 'Media::filepath');
-        Assertion::regex($this->filepath, '/^[a-zA-Z0-9_-]+$/', 'Media::filepath');
+        $this->directory = str_replace(' ', '', $this->directory);
+        Assertion::notEmptyString($this->directory, 'Media::directory');
+        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', 'Media::directory');
         Assertion::notEmptyString($this->data, 'Media::data');
     }
 
@@ -53,9 +53,9 @@ class NewMedia
         return $this->filename;
     }
 
-    public function getFilepath(): string
+    public function getDirectory(): string
     {
-        return $this->filepath;
+        return $this->directory;
     }
 
     public function getData(): string

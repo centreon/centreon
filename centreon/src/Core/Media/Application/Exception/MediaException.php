@@ -40,4 +40,20 @@ class MediaException extends \Exception
     {
         return new self(_('Error while adding a media'));
     }
+
+    /**
+     * @return self
+     */
+    public static function extensionFileNotAuthorised(): self
+    {
+        return new self(_('Extension file not authorised'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function mediaAlreadyExists(): self
+    {
+        return new self(_('Media already exists'));
+    }
 }

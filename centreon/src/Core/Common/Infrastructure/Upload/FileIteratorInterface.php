@@ -21,11 +21,33 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\UseCase\AddMedia;
+namespace Core\Common\Infrastructure\Upload;
 
-class MediaDto
+/**
+ * @extends \Iterator<string, string>
+ */
+interface FileIteratorInterface extends \Iterator
 {
-    public function __construct(readonly public string $filename, readonly public string $data)
-    {
-    }
+    /**
+     * @return int Returns the number of files
+     */
+    public function count(): int;
+
+    /**
+     * @throws \Exception
+     *
+     * @return string Returns the file content
+     */
+    public function current(): string;
+
+    public function next(): void;
+
+    /**
+     * @return string Returns the filename
+     */
+    public function key(): string;
+
+    public function valid(): bool;
+
+    public function rewind(): void;
 }

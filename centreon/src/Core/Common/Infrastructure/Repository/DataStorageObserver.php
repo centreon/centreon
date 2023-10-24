@@ -38,7 +38,7 @@ class DataStorageObserver implements DataStorageEngineInterface
      */
     public function __construct(DataStorageEngineInterface ...$dataStorageEngines)
     {
-        $this->engines = array_values(array_unique($dataStorageEngines));
+        $this->engines = array_values($dataStorageEngines);
     }
 
     /**

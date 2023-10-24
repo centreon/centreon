@@ -35,7 +35,19 @@ class AddMediaPresenter extends AbstractPresenter implements AddMediaPresenterIn
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            $this->present($response->mediasRecorded);
+            $this->present([
+                'result' => array_map(fn(array $media) => [
+                    'id' => $media['id'],
+                    'filename' => $media['filename'],
+                    'directory' => $media['directory'],
+                    'md5' => $media['md5'],
+                ], $response->mediasRecorded),
+                'errors' => array_map(fn(array $errors) => [
+                    'filename' => $errors['filename'],
+                    'directory' => $errors['directory'],
+                    'reason' => $errors['reason'],
+                ], $response->errors),
+            ]);
         }
     }
 }

@@ -34,7 +34,7 @@ function createMedia(array $arguments = []): NewMedia
 {
     return new NewMedia(...[
         'filename' => 'filename',
-        'filepath' => 'path',
+        'directory' => 'directory',
         'data' => 'data',
         ...$arguments
     ]);
@@ -48,10 +48,10 @@ it('should throw an exception when the filename property is empty', function(): 
 );
 
 it('should throw an exception when the directory property is empty', function(): void {
-    createMedia(['filepath' => '']);
+    createMedia(['directory' => '']);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('Media::filepath')->getMessage()
+    AssertionException::notEmptyString('Media::directory')->getMessage()
 );
 
 it('should throw an exception when the data property is empty', function(): void {
@@ -67,6 +67,6 @@ it('should replace space characters by \'_\' in the filename property', function
 });
 
 it('should remove the space characters in the path property', function(): void {
-    $newMedia = createMedia(['filepath' => ' new path ']);
-    expect($newMedia->getFilepath())->toBe('newpath');
+    $newMedia = createMedia(['directory' => ' new path ']);
+    expect($newMedia->getDirectory())->toBe('newpath');
 });

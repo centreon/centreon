@@ -23,14 +23,24 @@ declare(strict_types = 1);
 
 namespace Core\Media\Application\UseCase\AddMedia;
 
+/**
+ * @phpstan-type _MediaRecorded array{
+ *     id: int,
+ *     filename: string,
+ *     directory: string,
+ *     md5: string,
+ * }
+ * @phpstan-type _Errors array{
+ *     filename: string,
+ *     directory: string,
+ *     reason: string,
+ *  }
+ */
 class AddMediaResponse
 {
-    /**
-     * @var array<array{
-     *        id: int,
-     *        filename: string,
-     *        md5: string,
-     *    }> $mediasRecorded
-     */
+    /** @var list<_MediaRecorded> */
     public array $mediasRecorded;
+
+    /** @var list<_Errors> */
+    public array $errors;
 }

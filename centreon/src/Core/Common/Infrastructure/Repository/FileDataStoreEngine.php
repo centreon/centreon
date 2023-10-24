@@ -129,7 +129,7 @@ class FileDataStoreEngine implements DataStorageEngineInterface
         $absolutePathName = $this->workingDirectory . DIRECTORY_SEPARATOR . $pathname;
         $filePath = pathinfo($absolutePathName);
         if (empty($filePath['dirname'])) {
-            throw new \Exception('The directory destination cannot be the root');
+            throw new \Exception('The destination directory cannot be the root');
         }
         if (! is_dir($filePath['dirname'])) {
             $this->createDirectory($filePath['dirname']);
@@ -154,7 +154,7 @@ class FileDataStoreEngine implements DataStorageEngineInterface
     {
         try {
             $fromDirIterator = new \RecursiveDirectoryIterator($this->workingDirectory, \FilesystemIterator::SKIP_DOTS);
-            /** @var list<\SplFileInfo> $files */
+            /** @var iterable<\SplFileInfo> $files */
             $files = new \RecursiveIteratorIterator($fromDirIterator, \RecursiveIteratorIterator::CHILD_FIRST);
             foreach ($files as $file) {
                 $destDirectory = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $fromDirIterator->getFilename();

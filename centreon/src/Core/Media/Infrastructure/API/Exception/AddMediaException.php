@@ -32,7 +32,7 @@ class AddMediaException extends \Exception
      */
     public static function wrongFileType(string $propertyName): self
     {
-        return new self(sprintf(_('[%s] The property does not content the file'), $propertyName));
+        return new self(sprintf(_('[%s] The property does not contain the file'), $propertyName));
     }
 
     /**

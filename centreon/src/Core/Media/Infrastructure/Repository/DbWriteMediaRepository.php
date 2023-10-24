@@ -49,8 +49,8 @@ class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMedia
         }
         try {
             $mediaId = $this->addMedia($media);
-            $directoryId = $this->findDirectoryByName($media->getFilepath())
-                ?? $this->addDirectory($media->getFilepath());
+            $directoryId = $this->findDirectoryByName($media->getDirectory())
+                ?? $this->addDirectory($media->getDirectory());
             $this->linkMediaToDirectory($mediaId, $directoryId);
         } catch (\Throwable $ex) {
             if (! $alreadyInTransaction) {

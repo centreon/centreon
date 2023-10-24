@@ -26,9 +26,9 @@ namespace Core\Media\Infrastructure\API\AddMedia;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Infrastructure\Upload\FileIterator;
 use Core\Media\Application\UseCase\AddMedia\AddMedia;
 use Core\Media\Application\UseCase\AddMedia\AddMediaRequest;
-use Core\Media\Application\UseCase\AddMedia\MediaDto;
 use Core\Media\Infrastructure\API\Exception\AddMediaException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,20 +42,29 @@ class AddMediaController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $uploadedFile = '';
+        $filesToDeleteAfterProcessing = [];
         try {
             $assertion = new AddMediaValidator($request);
-            $assertion->assertFileSent();
+            $assertion->assertFilesSent();
             $assertion->assertDirectory();
 
-            /** @var UploadedFile $file */
-            $file = $request->files->get('data');
-            $uploadedFile = $file->getFilename();
-            $fileManager = new UploadMediaFileManager($file);
-            $addMediaRequest = new AddMediaRequest($this->createDto($fileManager));
+            $fileIterator = new FileIterator();
+
+            /** @var UploadedFile|list<UploadedFile> $files */
+            $files = $request->files->get('data');
+            if (is_array($files)) {
+                foreach ($files as $file) {
+                    $fileIterator->addFile($file);
+                    $filesToDeleteAfterProcessing[] = $file->getPathname();
+                }
+            } else {
+                $fileIterator->addFile($files);
+                $filesToDeleteAfterProcessing[] = $files->getPathname();
+            }
+            $addMediaRequest = new AddMediaRequest($fileIterator->getFiles());
             $addMediaRequest->directory = (string) $request->request->get('directory');
 
             $useCase($addMediaRequest, $presenter);
-            unlink($file->getPathname());
         } catch (AddMediaException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -66,25 +75,15 @@ class AddMediaController extends AbstractController
                     AddMediaException::errorUploadingFile($uploadedFile)->getMessage()
                 )
             );
+        } finally {
+            foreach ($filesToDeleteAfterProcessing as $fileToDelete) {
+                if (is_file($fileToDelete)) {
+                    unlink($fileToDelete);
+                    $this->debug('Deleting the uploaded file', ['filename' => $fileToDelete]);
+                }
+            }
         }
 
         return $presenter->show();
-    }
-
-    /**
-     * @param UploadMediaFileManager $manager
-     *
-     * @throws \Exception
-     *
-     * @return \Generator<MediaDto>
-     */
-    private function createDto(UploadMediaFileManager $manager): \Generator
-    {
-        $manager->addMimeTypeFilter('image/png', 'image/gif', 'image/jpeg', 'image/svg+xml');
-        foreach ($manager->getFiles() as $fileInfo) {
-            [$fileName, $rawData] = $fileInfo;
-
-            yield new MediaDto($fileName, $rawData);
-        }
     }
 }

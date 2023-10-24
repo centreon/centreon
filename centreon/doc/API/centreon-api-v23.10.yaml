@@ -15,11 +15,12 @@ info:
     + Added resources by parent endpoint (GET)
     + Added command endpoint (ADD)
     + Added notifiable contact group endpoint (GET)
-    +
+    + Added media endpoint (POST)
+
     # Updated features
     + Updated host template endpoint (GET)
     + Updated JSON API returned keys for /monitoring/resources endpoint (GET)
-    +
+
     # Information
     All dates are in **ISO 8601** format
     # Authentication

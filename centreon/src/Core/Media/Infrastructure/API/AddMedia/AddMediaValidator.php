@@ -34,20 +34,23 @@ class AddMediaValidator
 
     public function __construct(readonly private Request $request)
     {
-        $this->allProperties = array_merge($this->request->request->keys(), $this->request->files->keys());
+        $this->allProperties = array_unique(
+            array_merge($this->request->request->keys(), $this->request->files->keys())
+        );
     }
 
     /**
      * @throws AddMediaException
      */
-    public function assertFileSent(): void
+    public function assertFilesSent(): void
     {
         if (! in_array('data', $this->allProperties, true)) {
             throw AddMediaException::propertyNotPresent('data');
         }
-        $file = $this->request->files->get('data');
-        if (! $file instanceof UploadedFile) {
-            throw AddMediaException::wrongFileType('data');
+        $files = $this->request->files->get('data');
+        // The presence of an array means that it contains files.
+        if (! is_array($files)) {
+            $this->assertUploadedFile($files);
         }
     }
 
@@ -63,6 +66,18 @@ class AddMediaValidator
         $value = $this->request->get('directory');
         if (empty($value)) {
             AddMediaException::stringPropertyCanNotBeEmpty('directory');
+        }
+    }
+
+    /**
+     * @param mixed $file
+     *
+     * @throws AddMediaException
+     */
+    private function assertUploadedFile(mixed $file): void
+    {
+        if (! $file instanceof UploadedFile) {
+            throw AddMediaException::wrongFileType('data');
         }
     }
 }

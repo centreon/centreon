@@ -23,27 +23,32 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\Repository;
 
+use Core\Common\Infrastructure\Repository\FileDataStoreEngine;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Media\Domain\Model\NewMedia;
 
-class FileProxyWriteMediaRepository implements WriteMediaRepositoryInterface
+class FileWriteMediaRepository implements WriteMediaRepositoryInterface
 {
-    public function __construct(
-        readonly private DbWriteMediaRepository $dbWriteMediaRepository,
-        readonly private FileWriteMediaRepository $fileWriteMediaRepository,
-    ) {
+    public function __construct(readonly private FileDataStoreEngine $engine)
+    {
+        $this->engine->throwsException(true);
     }
 
     /**
-     * Creates the file in the directory after it has been saved in the databases.
-     *
      * {@inheritDoc}
+     *
+     * @return int Returns the bytes written
      */
     public function add(NewMedia $media): int
     {
-        $mediaId = $this->dbWriteMediaRepository->add($media);
-        $this->fileWriteMediaRepository->add($media);
+        $status = $this->engine->addFile(
+            $media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename(),
+            $media->getData()
+        );
+        if ($status === false) {
+            throw new \Exception($this->engine->getLastError());
+        }
 
-        return $mediaId;
+        return $status;
     }
 }

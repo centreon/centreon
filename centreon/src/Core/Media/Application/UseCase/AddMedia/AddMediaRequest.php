@@ -27,14 +27,10 @@ class AddMediaRequest
 {
     public string $directory = '';
 
-    /** @var \Generator<MediaDto> */
-    public \Generator $medias;
-
     /**
-     * @param \Generator<MediaDto> $medias
+     * @param \Iterator<string, string> $medias
      */
-    public function __construct(\Generator $medias)
+    public function __construct(public \Iterator $medias)
     {
-        $this->medias = $medias;
     }
 }
