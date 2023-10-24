@@ -76,4 +76,10 @@ jobs:
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
 
+  check-stable-packages:
+    needs: [get-version]
 
+    uses: ./.github/workflows/check-pkg-availability.yml
+    with:
+      module: widget-ntopng-listing
+      version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
