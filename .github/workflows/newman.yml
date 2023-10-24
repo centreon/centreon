@@ -323,6 +323,7 @@ jobs:
         done
 
     - name: Change test execution status
+      if: always()
       run: |
         for summary_file in ./postman_summaries/*.json; do
             test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
