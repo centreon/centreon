@@ -76,3 +76,21 @@ jobs:
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
 
+  check-stable-packages:
+    needs: [get-version]
+    strategy:
+      matrix:
+        include:
+        - image: 'almalinux:8'
+          distrib: el8
+        - image: 'almalinux:9'
+          distrib: el9
+        - image: 'debian:bullseye'
+          distrib: bullseye
+
+    uses: ./.github/workflows/check-pkg-availability.yml
+    with:
+      image: ${{ matrix.image }}
+      distrib: ${{ matrix.distrib }}
+      module: widget-live-top10-cpu-usage
+      version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
