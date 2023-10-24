@@ -29,8 +29,6 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
 use Core\Dashboard\Domain\Model\DashboardRights;

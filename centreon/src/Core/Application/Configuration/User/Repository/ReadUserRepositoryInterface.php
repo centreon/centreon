@@ -39,7 +39,7 @@ interface ReadUserRepositoryInterface
     /**
      * Find configured users by their contactgroup ids.
      *
-     * @param list<int> $contactGroupIds
+     * @param ContactInterface $contact
      *
      * @return User[]
      */

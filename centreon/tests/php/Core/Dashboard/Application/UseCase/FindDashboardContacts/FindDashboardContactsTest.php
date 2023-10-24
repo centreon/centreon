@@ -41,8 +41,7 @@ beforeEach(function (): void {
         $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class),
-        $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class)
+        $this->contact = $this->createMock(ContactInterface::class)
     );
 });
 
@@ -86,10 +85,9 @@ it(
 it(
     'should present a FindDashboardContactsResponse if the contact is allowed and non admin',
     function (): void {
-        $this->contactGroupRepository->expects($this->once())->method('findAllByUserId')->willReturn([new ContactGroup(1, 'contactgroup')]);
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-        $this->readUserRepository->expects($this->once())->method('findByContactGroupIds')->willReturn([]);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
+        $this->readUserRepository->expects($this->once())->method('findByContactGroups')->willReturn([]);
 
         ($this->useCase)($this->presenter);
 
