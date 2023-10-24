@@ -186,7 +186,9 @@ jobs:
                 "jira": {
                   "fields": {
                     "summary": "Test Execution for newman collection testplan",
-                    "project": { "key": "MON" }
+                    "project": { "key": "MON" },
+                    "components": [{"name": "centreon-web"}]
+
                   }
                 }
               }
@@ -449,7 +451,7 @@ jobs:
             --header 'Content-Type: application/json' \
             --data '{
               "transition": {
-                "id": "701"
+                "id": "3"
               }
             }'
 
