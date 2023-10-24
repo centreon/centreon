@@ -31,10 +31,14 @@ runs:
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
+    - uses: actions/checkout@v4
+      with:
+        repository: centreon/centreon-injector
+        path: centreon-injector
+        ref: d395e17d7a6d5aa1a3b3d2096b4f519c1efeadd5
+
     - name: Setup and run centreon-injector
       run: |
-        rm -rf centreon-injector
-        git clone https://github.com/centreon/centreon-injector.git
         cd centreon-injector
         composer install
         cd ..
