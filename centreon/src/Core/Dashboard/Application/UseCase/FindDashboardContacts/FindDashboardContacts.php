@@ -44,8 +44,7 @@ final class FindDashboardContacts
         private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact,
-        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository
+        private readonly ContactInterface $contact
     ) {
     }
 
@@ -54,19 +53,9 @@ final class FindDashboardContacts
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                if ($this->contact->isAdmin()) {
-                    $users = $this->readUserRepository->findAllUsers();
-                } else {
-                    $users = [];
-                    $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
-                    if ([] !== $contactGroups) {
-                        $contactGroupsIds = array_map(
-                            fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
-                            $contactGroups
-                        );
-                        $users = $this->readUserRepository->findByContactGroupIds($contactGroupsIds);
-                    }
-                }
+                $this->contact->isAdmin()
+                    ? $users = $this->readUserRepository->findAllUsers()
+                    : $users = $this->readUserRepository->findByContactGroups($this->contact);
                 $presenter->presentResponse($this->createResponse($users));
             } else {
                 $this->error(

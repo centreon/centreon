@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Infrastructure\Configuration\User\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -121,13 +122,8 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     /**
      * @inheritDoc
      */
-    public function findByContactGroupIds(array $contactGroupIds): array
+    public function findByContactGroups(ContactInterface $contact): array
     {
-        $bindContactGroups = [];
-        foreach ($contactGroupIds as $contactGroupId) {
-            $bindContactGroups[':contactgroup_' . $contactGroupId] = $contactGroupId;
-        }
-        $contactGroupIdString = implode(', ', array_keys($bindContactGroups));
 
         $request = <<<'SQL'
             SELECT SQL_CALC_FOUND_ROWS DISTINCT
@@ -146,7 +142,8 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
         $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
-        $request .= "cg.contactgroup_cg_id IN ({$contactGroupIdString}) AND contact_register = 1";
+        $request .= "cg.contactgroup_cg_id IN (SELECT contactgroup_cg_id FROM `:db`.contactgroup_contact_relation "
+            . "WHERE contact_contact_id = :contactId) AND contact_register = 1";
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
@@ -167,9 +164,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
             }
         }
 
-        foreach ($bindContactGroups as $token => $contactGroupId) {
-            $statement->bindValue($token, $contactGroupId, \PDO::PARAM_INT);
-        }
+        $statement->bindValue(':contactId', $contact->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
 

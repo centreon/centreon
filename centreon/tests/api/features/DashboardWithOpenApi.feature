@@ -1568,6 +1568,8 @@ Feature:
 
     Given the following CLAPI import data:
     """
+    CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
+    CONTACT;setparam;usr-admin;reach_api;1
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
@@ -1575,6 +1577,9 @@ Feature:
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
+    CG;add;GC-Name;alias-admin-CG;
+    CG;addcontact;GC-Name;usr-admin;
+    CG;addcontact;GC-Name;usr-viewer;
     """
     Given I am logged in with "usr-viewer"/"Centreon@2023"
     And a feature flag "dashboard" of bitmask 3
@@ -1586,8 +1591,12 @@ Feature:
     {
         "result": [
             {
-                "id": 1,
-                "name": "admin admin"
+                "id": 20,
+                "name": "usr-admin"
+            },
+            {
+                "id": 21,
+                "name": "usr-viewer"
             }
         ],
         "meta": {
