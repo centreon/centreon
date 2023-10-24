@@ -1602,7 +1602,7 @@ Feature:
         "meta": {
             "page": 1,
             "limit": 10,
-            "search": { "$and": { "name": { "$lk": "%admin%" } } },
+            "search": { "$and": { "name": { "$lk": "%usr%" } } },
             "sort_by": {},
             "total": 1
         }
