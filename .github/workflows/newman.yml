@@ -150,7 +150,7 @@ jobs:
                   echo "Failed to create the test case within the specified time."
                 else
                   test_case_id=$(echo "$response" | jq -r '.id')
-                  test_case_ids+=("$test_case_id")  # Ajouter l'ID du cas de test à la liste
+                  test_case_ids+=("$test_case_id")
 
                   echo "Created Test Case with ID: $test_case_id"
                   # Ajouter le nom du cas de test à la liste des résumés
@@ -201,7 +201,7 @@ jobs:
             else
               echo "Created Test Execution with ID: $test_execution_id"
               echo "test_exec=$test_execution_id" >> $GITHUB_OUTPUT
-              fi
+            fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
               "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
