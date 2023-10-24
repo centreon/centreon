@@ -434,23 +434,22 @@ jobs:
             # Boucler sur les `issueId` et effectuer des transitions Jira pour chacun
             for test_issue_id in "${issue_ids[@]}"; do
               for transition_id in "${transition_ids[@]}"; do
-                jira_transition_url="https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields"
-
-                # Effectuer la transition Jira en utilisant les données spécifiques
-                jira_transition_payload='{
-                  "transition": { "id": "'"$transition_id"'" }
+                curl --request POST \
+                --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
+                --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                --header 'Accept: application/json' \
+                --header 'Content-Type: application/json' \
+                --data '{
+                  "transition": {
+                    "id": "'"$transition_id"'"
+                  }
                 }'
-
-                # Effectuer la requête POST pour la transition Jira
-                # Utilisez curl ou tout autre outil que vous préférez.
-                # Assurez-vous d'inclure l'URL et les données de payload.
-
-                # Votre code pour effectuer la transition Jira ici.
                 echo "Processing issue ID: $test_issue_id"
                 echo "Performing Jira transition with transition ID: $transition_id..."
               done
             done
       shell: bash
+
     - name: Generate and Display Summaries
       if: failure()
       run: |
