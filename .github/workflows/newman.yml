@@ -144,7 +144,7 @@ jobs:
                       }
                     }
                   }' \
-                  --max-time 20)
+                  --max-time 30)
 
                 if [ -z "$response" ]; then
                   echo "Failed to create the test case within the specified time."
@@ -365,7 +365,7 @@ jobs:
                 if [ "$summary" == "$collection_name" ]; then
                   echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
                   if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
-                    newStatus="FAIL"
+                    newStatus="FAILED"
                   else
                     newStatus="PASSED"
                   fi
