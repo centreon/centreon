@@ -48,7 +48,7 @@ class DataStorageObserver implements DataStorageEngineInterface
     {
         $status = true;
         foreach ($this->engines as $engine) {
-            $status = $status && $engine->rollbackTransaction();
+            $status = $engine->rollbackTransaction() && $status;
         }
 
         return $status;
@@ -65,7 +65,7 @@ class DataStorageObserver implements DataStorageEngineInterface
         );
         $status = true;
         foreach ($this->engines as $engine) {
-            $status = $status && $engine->startTransaction();
+            $status = $engine->startTransaction() && $status;
         }
 
         return $status;
@@ -78,7 +78,7 @@ class DataStorageObserver implements DataStorageEngineInterface
     {
         $status = true;
         foreach ($this->engines as $engine) {
-            $status = $status && $engine->commitTransaction();
+            $status = $engine->commitTransaction() && $status;
         }
 
         return $status;
@@ -91,7 +91,7 @@ class DataStorageObserver implements DataStorageEngineInterface
     {
         $status = true;
         foreach ($this->engines as $engine) {
-            $status = $status && $engine->isAlreadyinTransaction();
+            $status = $engine->isAlreadyinTransaction() && $status;
         }
 
         return $status;

@@ -85,7 +85,7 @@ class FileDataStoreEngine implements DataStorageEngineInterface
         if ($this->inTransaction) {
             return false;
         }
-        $tempDirectory = str_replace(DIRECTORY_SEPARATOR, '-', Encryption::generateRandomString(32));
+        $tempDirectory = str_replace('/', '-', Encryption::generateRandomString(32));
         $this->workingDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempDirectory;
         if (! mkdir($this->workingDirectory)) {
             throw new \Exception(
@@ -122,9 +122,9 @@ class FileDataStoreEngine implements DataStorageEngineInterface
      *
      * @throws \Exception
      *
-     * @return int|bool
+     * @return int|false
      */
-    public function addFile(string $pathname, string $data, int $flags = 0): int|bool
+    public function addFile(string $pathname, string $data, int $flags = 0): int|false
     {
         $absolutePathName = $this->workingDirectory . DIRECTORY_SEPARATOR . $pathname;
         $filePath = pathinfo($absolutePathName);
