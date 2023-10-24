@@ -37,15 +37,14 @@ on:
         required: true
       registry_password:
         required: true
-      client_id :
+      client_id:
         required: true
       client_secret:
         required: true
-      jira_user: 
+      jira_user:
         required: true
-      jira_token_test: 
+      jira_token_test:
         required: true
-
 
 jobs:
   cypress-e2e-test-list:
@@ -259,7 +258,7 @@ jobs:
         id: get-testExecution-id
         run: |
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
-      
+
           testExecution_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testExecution ID : $testExecution_id"
           echo "testExecution_id=$testExecution_id" >> $GITHUB_OUTPUT
@@ -269,13 +268,13 @@ jobs:
         id: get-testPlan-id
         run: |
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.determine-testplan-key.outputs.testPlanKey }}"
-      
+
           testPlan_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testPlan ID : $testPlan_id"
           echo "testPlan_id=$testPlan_id" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Update the component and the summary of the TestExecution Issue
+      - name: Update the component, priority and the summary of the TestExecution Issue
         run: |
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
 
@@ -283,7 +282,8 @@ jobs:
           {
             "fields": {
               "summary": "${{ github.run_id}} E2E Tests",
-              "components": [{"name": "centreon-web"}]
+              "components": [{"name": "centreon-web"}],
+              "priority":{"name":"Low"}
             }
           }'
 
@@ -314,8 +314,6 @@ jobs:
             }
           }'
           curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
-
-
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
