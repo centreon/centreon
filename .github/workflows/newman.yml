@@ -127,7 +127,7 @@ jobs:
               if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
                 echo "The test case for $collection_name_sanitized already exists in the test plan."
               else
-                # Ajouter un cas de test
+                # Adding new test case
                 response=$(curl --request POST \
                   --url 'https://centreon.atlassian.net/rest/api/2/issue' \
                   --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' \
@@ -140,7 +140,7 @@ jobs:
                       },
                       "summary": "'"$collection_name_sanitized"'",
                       "components": [{"name": "centreon-web"}],
-                      "priority":{"name":"Low"}
+                      "priority":{"name":"Low"},
                       "description": "Test case for '"$collection_name_sanitized"'",
                       "issuetype": {
                         "name": "Test"
