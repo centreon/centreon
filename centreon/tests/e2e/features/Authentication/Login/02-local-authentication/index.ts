@@ -374,7 +374,6 @@ When(
       .contains('Password security policy');
 
     cy.get('div[name="excludedUsers"]').click();
-    cy.wait('@getListContact');
     cy.get('div[role="presentation"] ul li')
       .eq(-1)
       .find('input[type="checkbox"]')

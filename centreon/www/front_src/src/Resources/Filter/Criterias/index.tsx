@@ -20,14 +20,14 @@ import {
   displayActionsAtom,
   selectedStatusByResourceTypeAtom
 } from '../criteriasNewInterface/basicFilter/atoms';
-import useSearchWihSearchDataCriteria from '../criteriasNewInterface/useSearchWithSearchDataCriteria';
 import {
   applyCurrentFilterDerivedAtom,
   clearFilterDerivedAtom,
   currentFilterAtom,
   customFiltersAtom,
   filterByInstalledModulesWithParsedSearchDerivedAtom,
-  filterWithParsedSearchDerivedAtom
+  filterWithParsedSearchDerivedAtom,
+  isCriteriasPanelOpenAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
 
@@ -35,7 +35,8 @@ import SaveActions from './SaveActions';
 import {
   CriteriaDisplayProps,
   Criteria as CriteriaModel,
-  PopoverData
+  PopoverData,
+  SearchDataPropsCriterias
 } from './models';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
@@ -56,9 +57,13 @@ const useStyles = makeStyles<Styles>()((theme, { display }) => ({
 
 interface Props {
   display?: boolean;
+  searchData: SearchDataPropsCriterias;
 }
 
-const CriteriasContent = ({ display = false }: Props): JSX.Element => {
+const CriteriasContent = ({
+  display = false,
+  searchData
+}: Props): JSX.Element => {
   const { classes } = useStyles({ display });
   const { t } = useTranslation();
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
@@ -83,6 +88,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const setIsCriteriasPanelOpen = useSetAtom(isCriteriasPanelOpenAtom);
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({
@@ -108,10 +114,6 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
     )(criteria);
   };
 
-  useSearchWihSearchDataCriteria({
-    selectableCriterias: getSelectableCriterias() ?? []
-  });
-
   const clearFilters = (): void => {
     clearFilter();
     setSelectedStatusByResourceType(null);
@@ -133,6 +135,15 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
     setDisplayActions(false);
   };
 
+  const open = (): void => {
+    setIsCriteriasPanelOpen(true);
+  };
+
+  const onClose = (): void => {
+    applyCurrentFilter();
+    setIsCriteriasPanelOpen(false);
+  };
+
   return (
     <>
       <PopoverMenu
@@ -142,7 +153,8 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
         icon={<TuneIcon fontSize="small" />}
         popperPlacement="bottom-start"
         title={t(labelSearchOptions) as string}
-        onClose={applyCurrentFilter}
+        onClose={onClose}
+        onOpen={open}
       >
         {({ close }): JSX.Element => {
           const closePopover = (): void => {
@@ -176,6 +188,7 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
                 }
                 data={{
                   newSelectableCriterias,
+                  searchData,
                   selectableCriterias: getSelectableCriterias()
                 }}
               />
@@ -193,7 +206,11 @@ const CriteriasContent = ({ display = false }: Props): JSX.Element => {
   );
 };
 
-const Criterias = (): JSX.Element => {
+interface Props {
+  searchData: SearchDataPropsCriterias;
+}
+
+const Criterias = ({ searchData }: Props): JSX.Element => {
   const filterWithParsedSearch = useAtomValue(
     filterWithParsedSearchDerivedAtom
   );
@@ -202,8 +219,14 @@ const Criterias = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterAtom);
 
   return useMemoComponent({
-    Component: <CriteriasContent display={display} />,
-    memoProps: [filterWithParsedSearch, display, customFilters, currentFilter]
+    Component: <CriteriasContent display={display} searchData={searchData} />,
+    memoProps: [
+      filterWithParsedSearch,
+      display,
+      customFilters,
+      currentFilter,
+      searchData.search
+    ]
   });
 };
 

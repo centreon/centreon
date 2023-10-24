@@ -12631,7 +12631,7 @@ msgid "You don't have access to this resource"
 msgstr "Sie haben keinen Zugriff auf diese Ressource"
 
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:172
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Meta-Service"
 
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:187

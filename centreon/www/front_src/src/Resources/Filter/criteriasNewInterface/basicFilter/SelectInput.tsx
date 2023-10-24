@@ -1,18 +1,23 @@
+import { equals, find, isEmpty, isNil, propEq, reject, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { SelectEntry, SingleConnectedAutocompleteField } from '@centreon/ui';
+import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
+import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import {
-  Criteria,
-  CriteriaDisplayProps,
-  SearchData,
-  SearchedDataValue
-} from '../../Criterias/models';
-import { ChangedCriteriaParams, SectionType } from '../model';
-import useInputCurrentValues from '../useInputCurrentValues';
+  ChangedCriteriaParams,
+  DeactivateProps,
+  ExtendedCriteriaResourceType,
+  SectionType
+} from '../model';
 import useInputData from '../useInputsData';
-import { findData, removeDuplicateFromObjectArray } from '../utils';
+import { removeDuplicateFromObjectArray } from '../utils';
+import {
+  labelHost,
+  labelMetaService,
+  labelService
+} from '../../../translatedLabels';
 
 import useSectionsData from './sections/useSections';
 
@@ -23,109 +28,96 @@ interface Props {
   resourceType: SectionType;
 }
 
+const label = {
+  [SectionType.host]: labelHost,
+  [SectionType.service]: labelService,
+  [ExtendedCriteriaResourceType.metaservice]: labelMetaService
+};
+
 const SelectInput = ({
   data,
   filterName,
   resourceType,
-  changeCriteria
-}: Props): JSX.Element | null => {
+  changeCriteria,
+  isDeactivated
+}: Props & DeactivateProps): JSX.Element | null => {
   const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
-  const { dataByFilterName, valueSearchData } = useInputData({
+  const { dataByFilterName } = useInputData({
     data: sectionData,
-    filterName,
-    resourceType
+    filterName
   });
 
-  const { value, setValue } = useInputCurrentValues({
-    content: { id: valueSearchData?.valueId, name: valueSearchData?.value },
-    data: valueSearchData
-  });
+  const resourceTypesCriteria = data.find(({ name }) =>
+    equals(name, 'resource_types')
+  )?.value as Array<SelectEntry>;
 
-  if (!dataByFilterName) {
+  const value = dataByFilterName?.value?.map((item) => ({
+    id: item?.valueId,
+    name: item?.name
+  })) as Array<SelectEntry>;
+
+  if (!dataByFilterName || isDeactivated) {
     return null;
   }
 
-  const handleSearchData = (updatedValue): SearchData | undefined => {
-    const values = dataByFilterName?.search_data?.values;
-    const currentValue = {
-      id: resourceType,
-      value: updatedValue.name,
-      valueId: updatedValue.id
-    };
+  const updateResourceType = (updatedValue): void => {
+    if (isNil(resourceTypesCriteria)) {
+      return;
+    }
 
-    const searchedValues = removeDuplicateFromObjectArray({
-      array: values ? [...values, currentValue] : [currentValue],
-      byFields: ['id']
-    });
+    if (isEmpty(updatedValue)) {
+      changeCriteria({
+        filterName: 'resource_types',
+        updatedValue: reject(propEq('id', resourceType), resourceTypesCriteria)
+      });
+    }
 
-    return {
-      ...dataByFilterName?.search_data,
-      values: searchedValues as Array<SearchedDataValue>
-    } as SearchData;
-  };
-
-  const handleValues = (): Array<SelectEntry> | [] => {
-    const selectedValue = {
-      id: resourceType,
-      name: findData({
-        data: dataByFilterName?.options,
-        filterName: resourceType,
-        findBy: 'id'
-      })?.name
-    };
-
-    const dataByFilterNameValue = dataByFilterName?.value;
-
-    return removeDuplicateFromObjectArray({
-      array: dataByFilterNameValue
-        ? [...dataByFilterNameValue, selectedValue]
-        : [selectedValue],
-      byFields: ['id']
-    }) as Array<SelectEntry>;
-  };
-
-  const handleChange = (updatedValue): void => {
-    const search_data = handleSearchData(updatedValue);
-    const selectedValues = handleValues();
+    if (find(propEq('id', resourceType), resourceTypesCriteria)) {
+      return;
+    }
 
     changeCriteria({
-      filterName,
-      search_data,
-      updatedValue: selectedValues
+      filterName: 'resource_types',
+      updatedValue: [
+        ...resourceTypesCriteria,
+        {
+          id: resourceType,
+          name: resourceType
+        }
+      ]
     });
   };
 
-  const initializeInput = (): void => {
-    const initializedSearchedData =
-      dataByFilterName?.search_data?.values.filter(
-        (item) => item?.id !== resourceType
-      );
+  const handleChange = (_, updatedValue): void => {
+    const newValue = updatedValue.map((currentValue) => {
+      if (equals(type(currentValue), 'String')) {
+        return {
+          id: 0,
+          name: currentValue
+        };
+      }
 
-    const updatedValue = dataByFilterName?.value?.filter(
-      (item) => item?.id !== resourceType
-    );
+      return currentValue;
+    });
 
-    setValue([]);
+    updateResourceType(updatedValue);
+
     changeCriteria({
       filterName,
-      search_data: {
-        ...dataByFilterName?.search_data,
-        values: initializedSearchedData
-      },
+      updatedValue: newValue
+    });
+  };
+
+  const onDelete = (_, option): void => {
+    const updatedValue = reject(propEq('name', option.name), value);
+
+    updateResourceType(updatedValue);
+
+    changeCriteria({
+      filterName,
       updatedValue
     });
-  };
-
-  const onInputChange = (event, valueInput): void => {
-    if (!event) {
-      return;
-    }
-    if (valueInput) {
-      return;
-    }
-
-    initializeInput();
   };
 
   const getEndpoint = ({ search, page }): string => {
@@ -137,15 +129,36 @@ const SelectInput = ({
     });
   };
 
+  const getUniqueOptions = (
+    options: Array<SelectEntry>
+  ): Array<SelectEntry> => {
+    return removeDuplicateFromObjectArray({
+      array: options,
+      byFields: ['name']
+    }) as Array<SelectEntry>;
+  };
+
+  const isOptionEqualToValue = (option, selectedValue): boolean => {
+    return isNil(option)
+      ? false
+      : equals(option.name.toString(), selectedValue.name.toString());
+  };
+
   return (
-    <SingleConnectedAutocompleteField
+    <MultiConnectedAutocompleteField
+      freeSolo
+      chipProps={{
+        onDelete
+      }}
       field="name"
+      filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
-      label={t(resourceType) as string}
-      placeholder={dataByFilterName.label}
+      isOptionEqualToValue={isOptionEqualToValue}
+      label={t(label[resourceType]) as string}
+      placeholder={t(label[resourceType]) as string}
+      search={dataByFilterName?.autocompleteSearch}
       value={value}
-      onChange={(_, updatedValue): void => handleChange(updatedValue)}
-      onInputChange={onInputChange}
+      onChange={handleChange}
     />
   );
 };
