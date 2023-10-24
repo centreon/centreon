@@ -24,7 +24,7 @@ Assuming you are in the base root of the project "centreon".
 
 > cd centron/tests/e2e
 
-> pnpm install
+> pnpm install --frozen-lockfile
 
 ### Running the tests
 

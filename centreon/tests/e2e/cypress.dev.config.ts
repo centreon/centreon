@@ -5,5 +5,5 @@ export default configuration({
     OPENID_IMAGE_URL: 'http://localhost:8080'
   },
   isDevelopment: true,
-  specPattern: 'integration/**/*.feature'
+  specPattern: 'features/**/*.feature'
 });
