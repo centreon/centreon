@@ -156,7 +156,7 @@ jobs:
 
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ inputs.stability != 'canary' }}
+    if: always()
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
