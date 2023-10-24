@@ -47,7 +47,7 @@ import {
 import {
   IconButton,
   LoadingSkeleton,
-  MemoizedFilter,
+  Filter as MemoizedFilter,
   SearchField,
   SelectEntry,
   getData,
@@ -413,7 +413,6 @@ const Filter = (): JSX.Element => {
     const expressionToShiftToTheEnd = expressionBeforeCursor.includes(':')
       ? expressionBeforeCursor + completedWord
       : acceptedSuggestion;
-
     setSearch(
       [
         searchWithAcceptedSuggestion
@@ -552,6 +551,7 @@ const Filter = (): JSX.Element => {
   const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
 
   const memoProps = [
+    currentFilter,
     customFilters,
     sendingFilter,
     search,

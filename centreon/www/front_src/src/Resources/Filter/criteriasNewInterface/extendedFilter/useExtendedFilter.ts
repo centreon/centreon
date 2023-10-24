@@ -1,14 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { move, equals } from 'ramda';
-
 import { SelectEntry } from '@centreon/ui';
 
-import {
-  Criteria,
-  CriteriaDisplayProps,
-  CriteriaNames
-} from '../../Criterias/models';
+import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { ExtendedCriteria } from '../model';
 import { sortByNameCaseInsensitive } from '../utils';
 
@@ -44,11 +38,8 @@ const useExtendedFilter = ({ data }: Parameters): UseExtendedFilter => {
     const sortedInputGroups = sortByNameCaseInsensitive(
       arrayInputGroup
     )?.filter((item) => !item.name.includes('level'));
-    const metaServiceIndex = sortedInputGroups.findIndex(({ name }) =>
-      equals(name, CriteriaNames.metaServices)
-    );
-    const finalInputGroups = move(metaServiceIndex, -1, sortedInputGroups);
-    setInputGroupsData(finalInputGroups);
+
+    setInputGroupsData(sortedInputGroups);
   }, [data]);
 
   return { inputGroupsData, statusTypes };

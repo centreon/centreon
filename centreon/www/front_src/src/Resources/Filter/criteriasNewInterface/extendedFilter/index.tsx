@@ -1,14 +1,9 @@
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
 
 import { Divider } from '@mui/material';
 
-import {
-  Criteria,
-  CriteriaDisplayProps,
-  CriteriaNames
-} from '../../Criterias/models';
+import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
 import { displayInformationFilterAtom } from '../basicFilter/atoms';
 import { useStyles } from '../criterias.style';
@@ -18,7 +13,6 @@ import { informationLabel } from '../translatedLabels';
 import FilterSearch from './FilterSearch';
 import MemoizedCheckBoxWrapper from './MemoizedCheckBoxWrapper';
 import MemoizedInputGroup from './MemoizedInputGroup';
-import MemoizedSelectInput from './MemoizedSelectInput';
 import useExtendedFilter from './useExtendedFilter';
 
 interface Props {
@@ -39,22 +33,12 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
     <div className={classes.containerFilter}>
       {inputGroupsData?.map((item) => (
         <>
-          {equals(item.name, CriteriaNames.metaServices) ? (
-            <MemoizedSelectInput
-              changeCriteria={changeCriteria}
-              data={data}
-              filterName={item.name}
-              key={item.name}
-              resourceType={item.object_type}
-            />
-          ) : (
-            <MemoizedInputGroup
-              changeCriteria={changeCriteria}
-              data={data}
-              filterName={item.name}
-              key={item.name}
-            />
-          )}
+          <MemoizedInputGroup
+            changeCriteria={changeCriteria}
+            data={data}
+            filterName={item.name}
+            key={item.name}
+          />
           <Divider className={classes.dividerInputs} />
         </>
       ))}

@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { renderHook } from '@testing-library/react-hooks/dom';
-import { useAtomValue } from 'jotai';
+import { Provider, createStore, useAtomValue } from 'jotai';
 import * as Ramda from 'ramda';
 import { equals, isEmpty } from 'ramda';
 
 import { Method, TestQueryProvider, getFoundFields } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { labelPoller } from '../../Header/Poller/translatedLabels';
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
 import { Search } from '../Listing/useLoadResources/models';
 import {
-  EndpointParams,
   defaultStatuses,
   getListingEndpoint,
   searchableFields
@@ -24,6 +22,7 @@ import {
   labelHostCategory,
   labelHostGroup,
   labelHostSeverity,
+  labelMonitoringServer,
   labelOk,
   labelSearch,
   labelSearchOptions,
@@ -33,40 +32,13 @@ import {
   labelStatus,
   labelUp
 } from '../translatedLabels';
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import { Visualization } from '../models';
 
-import { BasicCriteriaResourceType } from './criteriasNewInterface/model';
-import { advancedModeLabel } from './criteriasNewInterface/translatedLabels';
+import { labelOpenMoreFilters } from './criteriasNewInterface/translatedLabels';
 import useFilter from './useFilter';
 
 import Filter from '.';
-
-const getSearch = (searchedValue?: string): Search | undefined => {
-  if (!searchedValue) {
-    return undefined;
-  }
-
-  const fieldMatches = getFoundFields({
-    fields: searchableFields,
-    value: searchedValue
-  });
-
-  if (!isEmpty(fieldMatches)) {
-    const matches = fieldMatches.map((item) => {
-      return { field: item.field, values: item.value?.split(',') };
-    });
-
-    return {
-      lists: matches.filter((item) => item.values)
-    };
-  }
-
-  return {
-    regex: {
-      fields: searchableFields,
-      value: searchedValue
-    }
-  };
-};
 
 const emptyListData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
@@ -284,61 +256,58 @@ const BasicCriteriasParams = [
     'Basic criterias',
     [
       {
-        criteria: BasicCriteriaResourceType.host,
-        endpointParam: {
-          resourceTypes: ['host'],
-          search: getSearch(`name:${resourcesByHostType.name}`)
-        },
+        criteria: 'Host',
         requestToWait: '@GetResourcesByHostType',
+        searchValue: `parent_name:${resourcesByHostType.name} type:host `,
         type: Type.select,
         value: resourcesByHostType.name
       },
       {
-        criteria: BasicCriteriaResourceType.service,
-        endpointParam: {
-          resourceTypes: ['service'],
-          search: getSearch(`name:${resourcesByServiceType.name}`)
-        },
+        criteria: 'Service',
         requestToWait: '@GetResourcesByServiceType',
+        searchValue: `name:${resourcesByServiceType.name} type:service `,
         type: Type.select,
         value: resourcesByServiceType.name
       },
       {
         criteria: labelState,
         endpointParam: { states: ['acknowledged'] },
+        searchValue: 'state:acknowledged ',
         type: Type.checkbox,
         value: labelAcknowledged
       },
       {
         criteria: labelStatus,
         endpointParam: { statuses: ['OK'] },
+        searchValue: 'status:ok ',
         type: Type.checkbox,
         value: labelOk
       },
       {
         criteria: labelStatus,
         endpointParam: { statuses: ['Up'] },
+        searchValue: 'status:up ',
         type: Type.checkbox,
         value: labelUp
       },
       {
         criteria: labelHostGroup,
-        endpointParam: { hostGroups: [linuxServersHostGroup.name] },
         requestToWait: '@hostgroupsRequest',
+        searchValue: `host_group:${linuxServersHostGroup.name} `,
         type: Type.select,
         value: linuxServersHostGroup.name
       },
       {
         criteria: labelServiceGroup,
-        endpointParam: { serviceGroups: [webAccessServiceGroup.name] },
         requestToWait: '@serviceGroupsRequest',
+        searchValue: `service_group:${webAccessServiceGroup.name} `,
         type: Type.select,
         value: webAccessServiceGroup.name
       },
       {
-        criteria: labelPoller,
-        endpointParam: { monitoringServers: [pollersData.name] },
+        criteria: labelMonitoringServer,
         requestToWait: '@pollersRequest',
+        searchValue: `monitoring_server:${pollersData.name} `,
         type: Type.select,
         value: pollersData.name
       }
@@ -349,15 +318,15 @@ const BasicCriteriasParams = [
     [
       {
         criteria: labelHostCategory,
-        endpointParam: { hostCategories: [hostCategoryData.name] },
         requestToWait: '@hostCategoryRequest',
+        searchValue: `host_category:${hostCategoryData.name} `,
         type: Type.select,
         value: hostCategoryData.name
       },
       {
         criteria: labelHostSeverity,
-        endpointParam: { hostSeverities: [hostSeverityData.name] },
         requestToWait: '@hostSeverityRequest',
+        searchValue: `host_severity:${hostSeverityData.name} `,
         type: Type.select,
         value: hostSeverityData.name
       }
@@ -373,7 +342,8 @@ const customFilters = [
       states: [],
       statusTypes: [],
       statuses: []
-    }
+    },
+    ''
   ],
   [
     labelAllAlerts,
@@ -382,53 +352,25 @@ const customFilters = [
       states: [],
       statusTypes: [],
       statuses: defaultStatuses
-    }
+    },
+    'status:warning,down,critical,unknown '
   ]
 ];
 
-interface Query {
-  name: string;
-  value: string;
-}
-interface Request {
-  criteria: string;
-  endpointParam: unknown;
-  query?: Query;
-  searchValue?: string;
-}
-
-const prepareRequest = ({
-  searchValue,
-  endpointParam,
-  criteria,
-  query
-}: Request): void => {
-  const endpoint = getListingEndpoint({
-    resourceTypes: [],
-    search: searchValue ? getSearch(searchValue) : undefined,
-    states: [],
-    statusTypes: [],
-    statuses: [],
-    ...endpointParam
-  });
-  const body = {
-    alias: `request/${criteria}`,
-    method: Method.GET,
-    path: endpoint
-  };
-
-  cy.interceptAPIRequest(query ? { ...body, query } : body);
-};
-
+const store = createStore();
 const FilterWithLoading = (): JSX.Element => {
   useLoadResources();
 
-  return <Filter />;
+  return (
+    <Provider store={store}>
+      <Filter />
+    </Provider>
+  );
 };
 
 const FilterTest = (): JSX.Element | null => {
-  useFilter();
   useListing();
+  useFilter();
 
   return <FilterWithLoading />;
 };
@@ -446,122 +388,6 @@ before(() => {
   userData.result.current.locale = 'en_US';
 });
 
-describe('Filter', () => {
-  beforeEach(() => {
-    cy.interceptAPIRequest({
-      alias: 'filterRequest',
-      method: Method.GET,
-      path: '**/events-view*',
-      response: emptyListData
-    });
-
-    const DefaultEndpoint = getListingEndpoint({});
-
-    cy.interceptAPIRequest({
-      alias: `defaultRequest`,
-      method: Method.GET,
-      path: Ramda.replace('./api/latest/monitoring', '**', DefaultEndpoint),
-      response: emptyListData
-    });
-
-    const searchValue = 'foobar';
-
-    const endpointWithSearchValue = getListingEndpoint({
-      resourceTypes: [],
-      search: getSearch(searchValue),
-      states: [],
-      statusTypes: [],
-      statuses: []
-    });
-
-    cy.interceptAPIRequest({
-      alias: `getListRequest`,
-      method: Method.GET,
-      path: Ramda.replace(
-        './api/latest/monitoring',
-        '**',
-        endpointWithSearchValue
-      ),
-      response: emptyListData
-    });
-
-    searchableFields.forEach((searchableField) => {
-      const search = 'foobar';
-      const fieldSearchValue = `${searchableField}:${search}`;
-      const endpoint = getListingEndpoint({
-        resourceTypes: [],
-        search: getSearch(fieldSearchValue),
-        states: [],
-        statusTypes: [],
-        statuses: []
-      });
-      cy.interceptAPIRequest({
-        alias: `request/${searchableField}`,
-        method: Method.GET,
-        path: Ramda.replace('./api/latest/monitoring', '**', endpoint)
-      });
-    });
-
-    cy.mount({
-      Component: <FilterWithProvider />
-    });
-
-    cy.viewport(1200, 1000);
-  });
-
-  it('executes a listing request with "Unhandled alerts" filter by default', () => {
-    cy.waitForRequest('@defaultRequest');
-
-    cy.makeSnapshot();
-  });
-
-  searchableFields.forEach((searchableField) => {
-    it(`executes a listing request with an "$and" search param containing ${searchableField} when ${searchableField} is typed in the search field`, () => {
-      cy.waitForRequest('@filterRequest');
-
-      const search = 'foobar';
-      const fieldSearchValue = `${searchableField}:${search}`;
-
-      cy.findByPlaceholderText(labelSearch).clear();
-      cy.findByPlaceholderText(labelSearch).type(fieldSearchValue);
-      cy.findByLabelText(labelSearchOptions).click();
-      cy.findByText(labelSearch).click();
-
-      cy.waitForRequest(`@request/${searchableField}`);
-
-      cy.makeSnapshot();
-    });
-  });
-
-  it('executes a listing request with an "$or" search param containing all searchable fields when a string that does not correspond to any searchable field is typed in the search field', () => {
-    const searchValue = 'foobar';
-
-    const searchableFieldExpressions = searchableFields.map(
-      (searchableField) => `{"${searchableField}":{"$rg":"${searchValue}"}}`
-    );
-
-    cy.findByPlaceholderText(labelSearch).clear();
-
-    cy.findByPlaceholderText(labelSearch).type(searchValue);
-
-    cy.findByLabelText(labelSearchOptions).click();
-
-    cy.findByText(labelSearch).click();
-
-    cy.waitForRequest('@getListRequest').then(({ request }) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(
-        Ramda.includes(
-          `search={"$or":[${searchableFieldExpressions}]}`,
-          decodeURIComponent(request.url.search)
-        )
-      ).to.be.true;
-    });
-
-    cy.makeSnapshot();
-  });
-});
-
 describe('Custom filters', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
@@ -571,16 +397,6 @@ describe('Custom filters', () => {
       response: emptyListData
     });
 
-    customFilters.forEach(([filterGroup, criterias]) => {
-      const endpoint = getListingEndpoint(criterias as EndpointParams);
-
-      cy.interceptAPIRequest({
-        alias: `request/${filterGroup}`,
-        method: Method.GET,
-        path: Ramda.replace('./api/latest/monitoring', '**', endpoint)
-      });
-    });
-
     cy.mount({
       Component: <FilterWithProvider />
     });
@@ -588,7 +404,7 @@ describe('Custom filters', () => {
     cy.viewport(1200, 1000);
   });
 
-  customFilters.forEach(([filterGroup, criterias]) => {
+  customFilters.forEach(([filterGroup, criterias, search]) => {
     it(`executes a listing request with ${filterGroup} parameters when ${JSON.stringify(
       criterias
     )} filter is set`, () => {
@@ -598,13 +414,14 @@ describe('Custom filters', () => {
 
       cy.findByText(filterGroup).click();
 
-      cy.waitForRequest(`@request/${filterGroup}`);
+      cy.findByPlaceholderText(labelSearch).should('have.value', search);
+
       cy.makeSnapshot();
     });
   });
 });
 
-describe.only('Criterias', () => {
+describe('Criterias', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
       alias: 'filterRequest',
@@ -714,54 +531,81 @@ describe.only('Criterias', () => {
     cy.viewport(1200, 1000);
   });
 
-  it(` Basic criterias interface`, () => {
+  it(`displays the basic criterias interface`, () => {
+    cy.waitForRequest('@filterRequest');
+
     cy.findByPlaceholderText(labelSearch).clear();
     cy.findByLabelText(labelSearchOptions).click();
 
     cy.makeSnapshot();
+
+    cy.findByLabelText(labelSearchOptions).click();
   });
-  it(`Extended criterias interface`, () => {
+  it(`displays more criterias interface when the corresponding button is clicked`, () => {
+    cy.waitForRequest('@filterRequest');
+
     cy.findByPlaceholderText(labelSearch).clear();
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByText(advancedModeLabel).click();
+    cy.findByText(labelOpenMoreFilters).click();
+
     cy.makeSnapshot();
+
+    cy.findByLabelText(labelSearchOptions).click();
+  });
+
+  it('does not display the host select and host statuses when the view by host is enabled', () => {
+    store.set(selectedVisualizationAtom, Visualization.Host);
+
+    cy.findByPlaceholderText(labelSearch).clear();
+    cy.findByLabelText(labelSearchOptions).click();
+
+    cy.findByLabelText('Host').should('not.exist');
+    cy.contains(labelUp).should('not.exist');
+
+    cy.makeSnapshot();
+
+    cy.findByLabelText(labelSearchOptions).click();
   });
 
   BasicCriteriasParams.forEach(([label, data]) => {
-    const searchValue = 'foobar';
-
     data.forEach((element) => {
-      const { criteria, value, type, endpointParam, requestToWait } = element;
+      const { criteria, value, type, requestToWait, searchValue } = element;
 
       it(`executes a listing request with current search and selected ${criteria} criteria value when ${label} has changed`, () => {
         cy.findByPlaceholderText(labelSearch).clear();
-        cy.findByPlaceholderText(labelSearch).type(searchValue);
         cy.get('[data-testid="Filter options"]').click();
 
         if (equals(label, 'Extended criterias')) {
-          cy.findByText(advancedModeLabel).click();
+          cy.findByText(labelOpenMoreFilters).click();
         }
 
         if (equals(type, Type.select)) {
           cy.findByLabelText(criteria).click();
           cy.waitForRequest(requestToWait);
           cy.findByText(value).click();
-          prepareRequest({ criteria, endpointParam, searchValue });
-          cy.findByText(labelSearch).click();
-          cy.waitForRequest(`@request/${criteria}`);
+          cy.findByPlaceholderText(labelSearch).should(
+            'have.value',
+            searchValue
+          );
 
           cy.makeSnapshot();
+
+          cy.findByLabelText(labelSearchOptions).click();
 
           return;
         }
         if (equals(type, Type.checkbox)) {
           cy.findByText(value).click();
-          prepareRequest({ criteria, endpointParam, searchValue });
-          cy.findByText(labelSearch).click();
-          cy.waitForRequest(`@request/${criteria}`);
+          cy.findByPlaceholderText(labelSearch).should(
+            'have.value',
+            searchValue
+          );
           cy.makeSnapshot();
+
           cy.findByText(value).click();
+
+          cy.findByLabelText(labelSearchOptions).click();
         }
       });
     });

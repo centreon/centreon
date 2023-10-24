@@ -46,8 +46,7 @@ import {
   buildHostServeritiesEndpoint,
   buildServiceSeveritiesEndpoint,
   buildServicesEndpoint,
-  buildHostsEndpoint,
-  buildMetaServicesEndpoint
+  buildHostsEndpoint
 } from '../api/endpoint';
 
 import { SearchableFields } from './searchQueryLanguage/models';
@@ -225,7 +224,6 @@ export enum CriteriaNames {
   hostGroups = 'host_groups',
   hostSeverities = 'host_severities',
   hostSeverityLevels = 'host_severity_levels',
-  metaServices = 'meta_services',
   monitoringServers = 'monitoring_servers',
   names = 'names',
   parentNames = 'parent_names',
@@ -251,10 +249,6 @@ const selectableCriterias: CriteriaById = {
   [CriteriaNames.parentNames]: {
     buildAutocompleteEndpoint: buildHostsEndpoint,
     label: labelParentName
-  },
-  [CriteriaNames.metaServices]: {
-    buildAutocompleteEndpoint: buildMetaServicesEndpoint,
-    label: labelMetaService
   },
   [CriteriaNames.states]: {
     label: labelState,

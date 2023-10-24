@@ -36,7 +36,6 @@ export enum ExtendedCriteria {
   hostCategories = CriteriaNames.hostCategories,
   serviceSeverities = CriteriaNames.serviceSeverities,
   serviceCategories = CriteriaNames.serviceCategories,
-  metaServices = CriteriaNames.metaServices,
   statusTypes = CriteriaNames.statusTypes,
   serviceSeverityLevels = CriteriaNames.serviceSeverityLevels,
   hostSeverityLevels = CriteriaNames.hostSeverityLevels
