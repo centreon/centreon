@@ -1,20 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { Provider, createStore, useAtomValue } from 'jotai';
-import * as Ramda from 'ramda';
-import { equals, isEmpty } from 'ramda';
+import { equals } from 'ramda';
 
-import { Method, TestQueryProvider, getFoundFields } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
-import { Search } from '../Listing/useLoadResources/models';
-import {
-  defaultStatuses,
-  getListingEndpoint,
-  searchableFields
-} from '../testUtils';
+import { defaultStatuses, getListingEndpoint } from '../testUtils';
 import {
   labelAcknowledged,
   labelAll,
