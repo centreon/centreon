@@ -161,7 +161,7 @@ jobs:
                   test_issue_ids_str="[$(printf "\"%s\"," "${test_case_ids_created[@]}")]"
 
                   # Update GraphQL query to add this test to the test plan
-                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq ".variables.testIssueIds = $test_issue_ids_str")
                   echo "Contenu de xray_graphql_AddingTestsToTestPlan_variables : $xray_graphql_AddingTestsToTestPlan_variables"
 
                   # Execute GraphQL mutation to add tests to the test plan
