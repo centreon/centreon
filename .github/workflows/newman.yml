@@ -119,7 +119,6 @@ jobs:
                 "testIssueIds": []
               }
             }'
-            test_case_ids_created=()
 
             for collection_file in "${collections[@]}"; do
               collection_name=$(basename "$collection_file" .postman_collection.json)
@@ -140,6 +139,8 @@ jobs:
                         "key": "MON"
                       },
                       "summary": "'"$collection_name_sanitized"'",
+                      "components": [{"name": "centreon-web"}],
+                      "priority":{"name":"Low"}
                       "description": "Test case for '"$collection_name_sanitized"'",
                       "issuetype": {
                         "name": "Test"
@@ -147,7 +148,7 @@ jobs:
                     }
                   }' \
                   --max-time 20)
-
+                sleep 2
                 if [ -z "$response" ]; then
                   echo "Failed to create the test case within the specified time."
                 else
