@@ -135,7 +135,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/
+          path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
       - name: Upload test reports
@@ -143,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/reports/*.json
+          path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
       - name: Upload xray reports

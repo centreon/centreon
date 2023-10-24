@@ -222,7 +222,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .copyToContainer({
       destination: '/tmp/packages-update-centreon',
-      source: './cypress/fixtures/packages'
+      source: './fixtures/packages'
     })
     .getWebVersion()
     .then(({ major_version }) => {
