@@ -1,47 +1,38 @@
 on:
   workflow_call:
     inputs:
+      distrib:
+        type: string
+        description: The OS distribution
+        required: true
+      image:
+        type: string
+        description: The image name
+        required: true
       module:
         type: string
         description: The module name
         required: true
-      major_version:
+      version:
         type: string
         description: The version
-        required: true
-    secrets:
-      registry_username:
-        required: true
-      registry_password:
         required: true
 
 jobs:
   check-stable-packages:
-    name: check-stable-packages ${{ matrix.distrib }}
-    runs-on: [ubuntu-22.04]
+    name: check-stable-packages ${{ inputs.distrib }}
+    runs-on: ubuntu-22.04
     container:
-      image: ${{ vars.DOCKER_PROXY_REGISTRY_URL }}/${{ matrix.image }}
-      credentials:
-        username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password }}
-    strategy:
-      matrix:
-        include:
-        - image: 'almalinux:8'
-          distrib: el8
-        - image: 'almalinux:9'
-          distrib: el9
-        - image: 'debian:bullseye'
-          distrib: bullseye
+      image: ${{ inputs.image }}
 
     steps:
       - name: Checking stable package availability
         run: |
           set -eux
 
-          # Set major version
-          MAJOR_VERSION=${{ inputs.major_version }}
-          COMBINATION="${{ matrix.image }}:$MAJOR_VERSION"
+          # Set version
+          MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
+          COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
 
           # Set php version
           PHP_REPO=""
@@ -67,7 +58,7 @@ jobs:
               dnf config-manager --set-enabled powertools
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
               dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/$MAJOR_VERSION/el8/centreon-$MAJOR_VERSION.repo
-              dnf config-manager --set-enabled centreon-$MAJOR_VERSION-stable
+              dnf config-manager --set-enabled centreon-$MAJOR_VERSION-testing*
               dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
               dnf module reset -y php
               dnf module install -y php:${PHP_REPO}
@@ -77,19 +68,19 @@ jobs:
               dnf install -y mariadb-server mariadb
 
               if [[ "${{ inputs.module }}" == "web" ]];then
-                dnf download --resolve -y centreon-${{ inputs.module }}
+                dnf download --resolve -y ${{ inputs.module }}
               else
                 dnf download --resolve -y centreon
                 dnf download --resolve -y centreon-${{ inputs.module }}
               fi
             ;;
-            almalinux:9:23.10 | almalinux:9:23.04)
+            almalinux:9:23.10 | almalinux:8:23.04)
               dnf install -y dnf-plugins-core
               dnf install -y epel-release
               dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
               dnf config-manager --set-enabled crb
               dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/$MAJOR_VERSION/el9/centreon-$MAJOR_VERSION.repo
-              dnf config-manager --set-enabled centreon-$MAJOR_VERSION-stable*
+              dnf config-manager --set-enabled centreon-$MAJOR_VERSION-testing*
               dnf module reset -y php
               dnf module install -y php:$(cut -d '-' -f 2 <<< ${PHP_REPO})
               dnf install -y --allowerasing sudo curl
@@ -98,26 +89,26 @@ jobs:
               dnf install -y mariadb-server mariadb
 
               if [[ "${{ inputs.module }}" == "web" ]];then
-                dnf download --resolve -y centreon-${{ inputs.module }}
+                dnf download --resolve -y ${{ inputs.module }}
               else
                 dnf download --resolve -y centreon
                 dnf download --resolve -y centreon-${{ inputs.module }}
               fi
             ;;
             debian:bullseye:23.10 | debian:bullseye:23.04 | debian:bullseye:22.10 | debian:bullseye:22.04)
-              apt update
+              apt update && apt upgrade -y
               apt update && apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
               echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
               wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
               apt update
               curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
-              echo "deb https://packages.centreon.com/apt-standard-$MAJOR_VERSION-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon.list
+              echo "deb https://packages.centreon.com/apt-standard-$MAJOR_VERSION-testing/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon.list
               echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list
               wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
               apt update
 
               if [[ "${{ inputs.module }}" == "web" ]];then
-                apt-get install --download-only -y centreon-${{ inputs.module }}
+                apt-get install --download-only -y ${{ inputs.module }}
               else
                 apt-get install --download-only -y centreon
                 apt-get install --download-only -y centreon-${{ inputs.module }}
