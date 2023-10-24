@@ -97,6 +97,11 @@
     {
         "action": "ADDCONTACT",
         "object": "CG",
+        "values": "contactgroupdashboard;user-dashboard-administrator"
+    },
+    {
+        "action": "ADDCONTACT",
+        "object": "CG",
         "values": "contactgroupdashboard;user-dashboard-viewer"
     },
     {
