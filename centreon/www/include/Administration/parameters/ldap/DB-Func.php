@@ -58,6 +58,5 @@ function minimalValue(int $value): bool
  */
 function checkLdapFilterSyntax(string $filterValue): bool
 {
-    return preg_match('/=%s\)/', $filterValue)
-        && preg_match('/.*/', $filterValue);
+    return preg_match('/=%s\)/', $filterValue);
 }
