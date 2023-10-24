@@ -1,14 +1,6 @@
 on:
   workflow_call:
     inputs:
-      distrib:
-        type: string
-        description: The OS distribution
-        required: true
-      image:
-        type: string
-        description: The image name
-        required: true
       module:
         type: string
         description: The module name
@@ -20,10 +12,19 @@ on:
 
 jobs:
   check-stable-packages:
-    name: check-stable-packages ${{ inputs.distrib }}
+    name: check-stable-packages ${{ matrix.distrib }}
     runs-on: ubuntu-22.04
     container:
-      image: ${{ inputs.image }}
+      image: ${{ matrix.image }}
+    strategy:
+      matrix:
+        include:
+        - image: 'almalinux:8'
+          distrib: el8
+        - image: 'almalinux:9'
+          distrib: el9
+        - image: 'debian:bullseye'
+          distrib: bullseye
 
     steps:
       - name: Checking stable package availability
@@ -32,7 +33,7 @@ jobs:
 
           # Set version
           MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
-          COMBINATION="${{ inputs.image }}:$MAJOR_VERSION"
+          COMBINATION="${{ matrix.image }}:$MAJOR_VERSION"
 
           # Set php version
           PHP_REPO=""
