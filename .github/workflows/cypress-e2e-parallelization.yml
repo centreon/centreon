@@ -188,20 +188,8 @@ jobs:
 
           # Use a GraphQL query to get all test plans matching the JQL
           graphql_query='{
-            "query":"query GetTestPlans($jql: String, $limit: Int) {
-              getTestPlans(jql: $jql, limit: $limit) {
-                total
-                results {
-                  issueId
-                  jira(fields: ["summary", "key"])
-                }
-              }
-            }",
-            "variables":{
-              "jql": "project = MON",
-              "limit": 100
-            }
-          }'
+            "query":"query GetTestPlans($jql: String, $limit: Int!) { getTestPlans(jql: $jql, limit: $limit) { total results { issueId jira(fields: [\"summary\", \"key\"]) } } }",
+            "variables":{"jql": "project = MON","limit": 100}}'
 
           # Execute the GraphQL query and parse the results
           test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
@@ -210,8 +198,8 @@ jobs:
 
           # Loop through the results to find a matching test plan
           for test_plan in $(echo "$test_plans" | jq -c '.data.getTestPlans.results[]'); do
-            summary=$(echo "$test_plan" | jq -r '.jira.fields.summary')
-            key=$(echo "$test_plan" | jq -r '.jira.fields.key')
+            summary=$(echo "$test_plan" | jq -r '.jira.summary')
+            key=$(echo "$test_plan" | jq -r '.jira.key')
             # Check if the summary matches your desired pattern
             if [[ "$summary" == "$is_nightly OSS ${{ inputs.major_version }}"]]; then
               test_plan_key=$key
