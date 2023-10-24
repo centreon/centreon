@@ -8,15 +8,23 @@ import '../e2e/Dashboards/commands';
 
 Cypress.Commands.add(
   'getByLabel',
-  ({ tag = '', patternInfo, label }: GetByLabelProps): Cypress.Chainable => {
-    return cy.get(`${tag}[aria-label${patternInfo || ''}="${label}"]`);
+  ({
+    tag = '',
+    patternInfo = PatternInfo.equals,
+    label
+  }: GetByLabelProps): Cypress.Chainable => {
+    return cy.get(`${tag}[aria-label${patternInfo}="${label}"]`);
   }
 );
 
 Cypress.Commands.add(
   'getByTestId',
-  ({ tag = '', patternInfo, testId }: GetByTestIdProps): Cypress.Chainable => {
-    return cy.get(`${tag}[data-testid${patternInfo || ''}="${testId}"]`);
+  ({
+    tag = '',
+    patternInfo = PatternInfo.equals,
+    testId
+  }: GetByTestIdProps): Cypress.Chainable => {
+    return cy.get(`${tag}[data-testid${patternInfo}="${testId}"]`);
   }
 );
 
@@ -185,20 +193,21 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
-export enum patternInfo {
+export enum PatternInfo {
   contains = '*',
   endsWith = '$',
+  equals = '',
   startsWith = '^'
 }
 
 interface GetByLabelProps {
   label: string;
-  patternInfo?: patternInfo;
+  patternInfo?: PatternInfo;
   tag?: string;
 }
 
 interface GetByTestIdProps {
-  patternInfo?: patternInfo;
+  patternInfo?: PatternInfo;
   tag?: string;
   testId: string;
 }

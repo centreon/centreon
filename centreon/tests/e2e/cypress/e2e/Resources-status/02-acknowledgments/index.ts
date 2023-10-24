@@ -528,7 +528,10 @@ Given(
   () => {
     cy.getByLabel({ label: 'More actions' }).click();
 
-    cy.getByTestId({ tag: 'li', testId: 'Multiple Disacknowledge' }).click();
+    // forced click because More actions tooltip is on top of Disacknowledge text
+    cy.getByTestId({ tag: 'li', testId: 'Multiple Disacknowledge' }).click({
+      force: true
+    });
 
     cy.getByLabel({ label: 'Disacknowledge' }).click();
   }

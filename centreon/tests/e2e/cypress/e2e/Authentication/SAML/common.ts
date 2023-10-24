@@ -13,7 +13,7 @@ const SAMLConfigValues = {
 };
 
 const configureSAML = (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Identity provider' }).click();
+  cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
   cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
     .should('be.visible')
     .type(SAMLConfigValues.remoteLoginURL);
@@ -55,9 +55,7 @@ const navigateToSAMLConfigPage = (): Cypress.Chainable => {
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
 
-  cy.wait('@getSAMLProvider');
-
-  return cy.getByLabel({ label: 'Identity provider' }).click();
+  return cy.wait('@getSAMLProvider');
 };
 
 const initializeSAMLUser = (): Cypress.Chainable => {
