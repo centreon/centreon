@@ -1,4 +1,4 @@
-import { sortBy, prop, compose, toLower } from 'ramda';
+import { sortBy, prop, compose, toLower, uniqBy, pick } from 'ramda';
 
 import { ResourceType } from '../../models';
 import {
@@ -121,22 +121,10 @@ export const replaceValueFromSearchInput = ({
 export const removeDuplicateFromObjectArray = ({
   array,
   byFields
-}: ParametersRemoveDuplicate): Array<unknown> => {
-  return [
-    ...new Map(
-      array.map((item) => {
-        const key = byFields.reduce((accu, currentValue) => {
-          return `${item[accu]?.toString()}${item[currentValue]?.toString()}`;
-        });
-
-        if (byFields.length <= 1) {
-          return [item[key]?.toString(), item];
-        }
-
-        return [key, item];
-      })
-    ).values()
-  ];
-};
+}: ParametersRemoveDuplicate): Array<unknown> => uniqBy(pick(byFields), array);
 
 export const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
+
+export const escapeRegExpSpecialChars = (input: string): string => {
+  return input.replace(/[.*+?^${}()|[\]\\|\\/]/g, '\\$&');
+};

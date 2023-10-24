@@ -1,5 +1,3 @@
-import { Divider } from '@mui/material';
-
 import { useStyles } from './sections.style';
 
 interface Section {
@@ -12,13 +10,11 @@ const Section = ({ status, inputGroup, selectInput }: Section): JSX.Element => {
   const { classes } = useStyles();
 
   return (
-    <>
+    <div className={classes.basicInputs}>
       {selectInput}
-      <Divider className={classes.dividerInputs} />
       {status}
-      <Divider className={classes.dividerInputs} />
       {inputGroup}
-    </>
+    </div>
   );
 };
 
