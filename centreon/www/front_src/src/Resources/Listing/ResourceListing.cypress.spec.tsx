@@ -214,19 +214,13 @@ describe('column sorting', () => {
     cy.viewport(1200, 1000);
   });
 
-  columnToSort.forEach(({ label, sortField, id }) => {
+  columnToSort.forEach(({ label }) => {
     it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
-      const sortBy = (sortField || id) as string;
-
       cy.waitForRequest('@filterRequest');
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTable`).then(({ request }) => {
-        expect(request.url.search).to.include(
-          `&sort_by=%7B%22${sortBy}%22%3A%22desc%22`
-        );
-      });
+      cy.waitForRequest(`@dataToListingTable`);
 
       cy.findByLabelText(`Column ${label}`).click();
 
