@@ -160,7 +160,7 @@ jobs:
             xray_graphql_AddingTestsToTestPlan='{
               "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
               "variables": {
-                "issueId": "73560",
+                "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}",
                 "testIssueIds": []
               }
             }'
@@ -258,7 +258,7 @@ jobs:
             xray_graphql_addTestExecutionsToTestPlan='{
               "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
               "variables": {
-                "issueId": "73560",
+                "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}",
                 "testExecIssueIds": ["'$test_execution_id'"]
               }
             }'
@@ -380,7 +380,7 @@ jobs:
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-                "issueId": "73560"
+                "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}"
               }
             }'
 
@@ -456,7 +456,7 @@ jobs:
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-                "issueId": "73560"
+                "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}"
               }
             }'
 
