@@ -193,11 +193,14 @@ jobs:
 
           # Execute the GraphQL query and parse the results
           test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
-          echo"$test_plans"
           test_plan_key=""
 
+          results=$(echo "$test_plans" | jq -c '.data.getTestPlans.results')
+
+          echo"$results"
+
           # Loop through the results to find a matching test plan
-          for test_plan in $(echo "$test_plans" | jq -c '.data.getTestPlans.results[]'); do
+          for test_plan in $(echo "$results" | jq -c '.[]'); do
             summary=$(echo "$test_plan" | jq -r '.jira.summary')
             key=$(echo "$test_plan" | jq -r '.jira.key')
             # Check if the summary matches your desired pattern
