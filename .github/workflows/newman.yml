@@ -79,45 +79,31 @@ jobs:
         - name: Determine testPlanKey
           id: determine-testplan-key
           run: |
+            declare -A testPlanKeys
+            testPlanKeys["unstable","24.04"]="MON-23956"
+            testPlanKeys["unstable","23.10"]="MON-23955"
+            testPlanKeys["unstable","23.04"]="MON-23957"
+            testPlanKeys["unstable","22.10"]="MON-23958"
+            testPlanKeys["unstable","22.04"]="MON-23959"
+            testPlanKeys["unstable","21.10"]="MON-23960"
+            testPlanKeys["canary","24.04"]="MON-23962"
+            testPlanKeys["canary","23.10"]="MON-23963"
+            testPlanKeys["canary","23.04"]="MON-23964"
+            testPlanKeys["canary","22.10"]="MON-23965"
+            testPlanKeys["canary","22.04"]="MON-23966"
+            testPlanKeys["canary","21.10"]="MON-23966"
+
             stability="${{ inputs.stability }}"
             major_version="${{ inputs.major_version }}"
             echo "stability of this branch is $stability"
             echo "major version of this branch is $major_version"
-            if [[ $stability == "unstable" ]]; then
-              if [[ $major_version == "24.04" ]]; then
-                testPlanKey="MON-23956"
-              elif [[ $major_version == "23.10" ]]; then
-                testPlanKey="MON-23955"
-              elif [[ $major_version == "23.04" ]]; then
-                testPlanKey="MON-23957"
-              elif [[ $major_version == "22.10" ]]; then
-                testPlanKey="MON-23958"
-              elif [[ $major_version == "22.04" ]]; then
-                testPlanKey="MON-23959"
-              elif [[ $major_version == "21.10" ]]; then
-                testPlanKey="MON-23960"
-              else
-                testPlanKey="MON-UNKNOWN"  # Handle other cases
-              fi
-            elif [[ $stability == "canary" ]]; then
-              if [[ $major_version == "24.04" ]]; then
-                testPlanKey="MON-23962"
-              elif [[ $major_version == "23.10" ]]; then
-                testPlanKey="MON-23963"
-              elif [[ $major_version == "23.04" ]]; then
-                testPlanKey="MON-23964"
-              elif [[ $major_version == "22.10" ]]; then
-                testPlanKey="MON-23965"
-              elif [[ $major_version == "22.04" ]]; then
-                testPlanKey="MON-23966"
-              elif [[ $major_version == "21.10" ]]; then
-                testPlanKey="MON-23966"
-              else
-                testPlanKey="MON-UNKNOWN"  # Handle other cases
-              fi
+
+            if [[ -n "${testPlanKeys[$stability,$major_version]}" ]]; then
+              testPlanKey="${testPlanKeys[$stability,$major_version]}"
             else
-              testPlanKey="MON-UNKNOWN"  # Handle other cases
+              testPlanKey="MON-UNKNOWN"
             fi
+
             echo "the testPlanKey is $testPlanKey"
             echo "testPlanKey=$testPlanKey" >> $GITHUB_OUTPUT
 
