@@ -22,7 +22,7 @@ This will install all the dependencies that are required in the entire project t
 
 Assuming you are in the base root of the project "centreon".
 
-> cd centron/tests/e2e
+> cd centreon/tests/e2e
 
 > pnpm install --frozen-lockfile
 
@@ -36,6 +36,6 @@ Then you'll be able to view all the E2E specs that you can run.
 
 NB: All the tests should run fine except for some of them that require small changes in the config file (Ex: SAML/OPENID provider...).
 
-For linux it should be fine but for windows/mac users need to make a small changes in "common.ts" file of the test case.
+For linux it should be fine but for windows/mac users need to make small changes in "common.ts" file of the test case.
 
 EX: For Openid in the "common.ts" file that is located in "OpenID-connect" folder change the ip "172.17.0.3" by "localhost:8080".
