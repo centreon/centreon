@@ -20,7 +20,6 @@ import {
   labelAll,
   labelViewByHost
 } from '../translatedLabels';
-import { getListingEndpoint, defaultSecondSortCriteria } from '../testUtils';
 import useDetails from '../Details/useDetails';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
@@ -45,8 +44,8 @@ import { selectedColumnIdsAtom } from './listingAtoms';
 import Listing from '.';
 
 const ListingTest = (): JSX.Element => {
-  useLoadDetails();
   useFilter();
+  useLoadDetails();
   useDetails();
 
   return (
@@ -188,36 +187,11 @@ describe('Resource Listing', () => {
 
 describe('column sorting', () => {
   beforeEach(() => {
-    columnToSort.forEach(({ id, label, sortField }) => {
-      const sortBy = (sortField || id) as string;
-      const secondSortCriteria =
-        Ramda.not(Ramda.equals(sortField, 'last_status_change')) &&
-        defaultSecondSortCriteria;
-
-      const requestUrlDesc = getListingEndpoint({
-        sort: {
-          [sortBy]: 'desc',
-          ...secondSortCriteria
-        }
-      });
-
+    columnToSort.forEach(() => {
       cy.interceptAPIRequest({
-        alias: `dataToListingTableDesc${label}`,
+        alias: `dataToListingTable`,
         method: Method.GET,
-        path: Ramda.replace('./api/latest/monitoring', '**', requestUrlDesc),
-        response: retrievedListing
-      });
-
-      const requestUrlAsc = getListingEndpoint({
-        sort: {
-          [sortBy]: 'asc',
-          ...secondSortCriteria
-        }
-      });
-      cy.interceptAPIRequest({
-        alias: `dataToListingTableAsc${label}`,
-        method: Method.GET,
-        path: Ramda.replace('./api/latest/monitoring', '**', requestUrlAsc),
+        path: './api/latest/monitoring**',
         response: retrievedListing
       });
     });
@@ -240,17 +214,23 @@ describe('column sorting', () => {
     cy.viewport(1200, 1000);
   });
 
-  columnToSort.forEach(({ label }) => {
+  columnToSort.forEach(({ label, sortField, id }) => {
     it(`executes a listing request with sort_by param and stores the order parameter in the URL when ${label} column is clicked`, () => {
+      const sortBy = (sortField || id) as string;
+
       cy.waitForRequest('@filterRequest');
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTableDesc${label}`);
+      cy.waitForRequest(`@dataToListingTable`).then(({ request }) => {
+        expect(request.url.search).to.include(
+          `&sort_by=%7B%22${sortBy}%22%3A%22desc%22`
+        );
+      });
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTableAsc${label}`);
+      cy.waitForRequest(`@dataToListingTable`);
 
       cy.makeSnapshot();
     });
