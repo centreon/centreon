@@ -39,20 +39,9 @@ $alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
 };
 
 try {
-    // Transactional queries
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
-    }
-
     $errorMessage = 'Impossible to add column topology_feature_flag to topology table';
     $alterTopologyForFeatureFlag($pearDB);
-
-    $pearDB->commit();
 } catch (\Exception $e) {
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
-    }
-
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage

@@ -67,13 +67,13 @@ try {
     $errorMessage = 'Impossible to remove nagios_path_img column from options table.';
     $removeNagiosPathImg($pearDB);
 
+    $pearDB->commit();
+
     $errorMessage = 'Impossible to add column topology_feature_flag to topology table';
     $alterTopologyForFeatureFlag($pearDB);
 
     $errorMessage = 'Impossible to add column topology_url_substitute to topology table';
     $alterTopologyForTopologyUrlSubstitue($pearDB);
-
-    $pearDB->commit();
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
