@@ -382,7 +382,7 @@ jobs:
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-                "issueId": '"$test_plan_id"'
+                "issueId": "'"$test_plan_id"'"
               }
             }'
 
@@ -459,7 +459,7 @@ jobs:
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-               "issueId": '"$test_plan_id"'
+               "issueId": "'"$test_plan_id"'"
               }
             }'
 
