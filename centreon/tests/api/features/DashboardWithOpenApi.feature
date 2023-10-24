@@ -1584,7 +1584,7 @@ Feature:
     Given I am logged in with "usr-viewer"/"Centreon@2023"
     And a feature flag "dashboard" of bitmask 3
 
-    When I send a GET request to '/api/latest/configuration/dashboards/contacts?search={"name":{"$lk":"%25admin%25"}}'
+    When I send a GET request to '/api/latest/configuration/dashboards/contacts?search={"name":{"$lk":"%25usr%25"}}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
