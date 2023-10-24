@@ -99,7 +99,7 @@ jobs:
               else
                 testPlanKey="MON-UNKNOWN"  # Handle other cases
               fi
-            elif [[ $stability == "testing" ]]; then
+            elif [[ $stability == "canary" ]]; then
               if [[ $major_version == "24.04" ]]; then
                 testPlanKey="MON-23962"
               elif [[ $major_version == "23.10" ]]; then
