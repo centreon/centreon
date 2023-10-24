@@ -37,7 +37,10 @@ const removeContact = (): Cypress.Chainable => {
 
 const configureOpenIDConnect = (): Cypress.Chainable => {
   // Identity provider section
-  cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
+  cy.getByLabel({ label: 'Identity provider', tag: 'div' })
+    .eq(0)
+    .contains('Identity provider')
+    .click();
   cy.getByLabel({ label: 'Base URL', tag: 'input' })
     .should('be.visible')
     .type(`{selectall}{backspace}${oidcConfigValues.baseUrl}`);

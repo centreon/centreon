@@ -123,6 +123,7 @@ Then('the selected poller names are displayed', () => {
 });
 
 When('I select all action checkboxes', () => {
+  // forced check because legacy checkbox are hidden
   cy.getIframeBody()
     .find('form input[name="gen"]')
     .eq(0)

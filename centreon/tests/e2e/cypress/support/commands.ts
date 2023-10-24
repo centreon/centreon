@@ -10,10 +10,10 @@ Cypress.Commands.add(
   'getByLabel',
   ({
     tag = '',
-    patternInfo = PatternInfo.equals,
+    patternType = PatternType.equals,
     label
   }: GetByLabelProps): Cypress.Chainable => {
-    return cy.get(`${tag}[aria-label${patternInfo}="${label}"]`);
+    return cy.get(`${tag}[aria-label${patternType}="${label}"]`);
   }
 );
 
@@ -21,10 +21,10 @@ Cypress.Commands.add(
   'getByTestId',
   ({
     tag = '',
-    patternInfo = PatternInfo.equals,
+    patternType = PatternType.equals,
     testId
   }: GetByTestIdProps): Cypress.Chainable => {
-    return cy.get(`${tag}[data-testid${patternInfo}="${testId}"]`);
+    return cy.get(`${tag}[data-testid${patternType}="${testId}"]`);
   }
 );
 
@@ -193,7 +193,7 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
-export enum PatternInfo {
+export enum PatternType {
   contains = '*',
   endsWith = '$',
   equals = '',
@@ -202,12 +202,12 @@ export enum PatternInfo {
 
 interface GetByLabelProps {
   label: string;
-  patternInfo?: PatternInfo;
+  patternType?: PatternType;
   tag?: string;
 }
 
 interface GetByTestIdProps {
-  patternInfo?: PatternInfo;
+  patternType?: PatternType;
   tag?: string;
   testId: string;
 }
@@ -223,12 +223,12 @@ declare global {
       disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({
-        patternInfo,
+        patternType,
         tag,
         label
       }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({
-        patternInfo,
+        patternType,
         tag,
         testId
       }: GetByTestIdProps) => Cypress.Chainable;
