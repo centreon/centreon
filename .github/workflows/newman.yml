@@ -119,8 +119,6 @@ jobs:
                 "testIssueIds": []
               }
             }'
-            newly_created_test_ids=()
-
             for collection_file in "${collections[@]}"; do
               collection_name=$(basename "$collection_file" .postman_collection.json)
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
@@ -157,23 +155,18 @@ jobs:
                   echo "Created Test Case with ID: $test_case_id"
                   # Ajouter le nom du cas de test à la liste des résumés
                   summaries+=("$collection_name_sanitized")
-                  newly_created_test_ids+=("$test_case_id")
+
+                  # Update GraphQL query to add this test to the test plan
+                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+
+                  # Execute GraphQL mutation to add tests to the test plan
+                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
                 fi
               fi
             done
 
-            newly_created_test_ids_str="["
-            for test_id in "${newly_created_test_ids[@]}"; do
-              newly_created_test_ids_str+="\"$test_id\","
-            done
-            newly_created_test_ids_str="${newly_created_test_ids_str%,}" # Supprime la dernière virgule
-            newly_created_test_ids_str+="]"
-
-            # Mise à jour de la requête GraphQL pour ajouter tous les tests créés au plan de test
-            xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_ids "$newly_created_test_ids_str" '.variables.testIssueIds = $test_case_ids')
-            echo "Contenu de xray_graphql_AddingTestsToTestPlan_variables : $xray_graphql_AddingTestsToTestPlan_variables"
-            # Exécution de la requête GraphQL pour ajouter les tests au plan de test
-            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+            issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
 
 
             test_issue_ids=("${issue_list_ids[@]}")
@@ -330,7 +323,6 @@ jobs:
         done
 
     - name: Change test execution status
-      if: always()
       run: |
         for summary_file in ./postman_summaries/*.json; do
             test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
