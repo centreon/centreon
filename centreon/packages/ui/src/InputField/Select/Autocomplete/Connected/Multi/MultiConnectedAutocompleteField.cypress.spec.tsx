@@ -149,7 +149,5 @@ describe('Multi connected autocomplete', () => {
         });
       });
     });
-
-    cy.makeSnapshot();
   });
 });
