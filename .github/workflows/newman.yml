@@ -407,15 +407,12 @@ jobs:
                 fi
               fi
             done
-
           done
 
     - name: Perform Jira Transitions
       run: |
-            # Transition IDs spécifiques
             transition_ids=("61" "81" "21" "31")
 
-            # Requête GraphQL pour obtenir les `issueId`
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
@@ -428,10 +425,8 @@ jobs:
             echo "Response from Get Test Plan:"
             echo "$response"
 
-            # Parsing and processing tests id
             issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
 
-            # Boucler sur les `issueId` et effectuer des transitions Jira pour chacun
             for test_issue_id in "${issue_ids[@]}"; do
               for transition_id in "${transition_ids[@]}"; do
                 curl --request POST \
@@ -446,8 +441,21 @@ jobs:
                 }'
                 echo "Processing issue ID: $test_issue_id"
                 echo "Performing Jira transition with transition ID: $transition_id..."
+                test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
+                curl --request POST \
+                --url "https://centreon.atlassian.net/rest/api/2/issue/${test_execution_id}/transitions?expand=transitions.fields" \
+                --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                --header 'Accept: application/json' \
+                --header 'Content-Type: application/json' \
+                --data '{
+                  "transition": {
+                    "id": "'"$transition_id"'"
+                  }
+                }'
               done
             done
+
+
       shell: bash
 
     - name: Generate and Display Summaries
