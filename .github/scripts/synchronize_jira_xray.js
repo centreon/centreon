@@ -129,6 +129,38 @@ async function uploadFeatureFileToXray(featureFilePath, XRAY_TOKEN) {
   return null;
 }
 
+async function postIssueStatus(api, statusPayload) {
+  try {
+    const response = await axios.post(api, statusPayload, {
+      headers: {
+        Accept: "application/json",
+      },
+      auth: {
+        username: JIRA_USER,
+        password: JIRA_TOKEN_TEST,
+      },
+    });
+
+    if (response.status !== 204) {
+      core.error(
+        `Error updating issue's status ${api} in Jira of ${statusPayload.transition.id}. Status code: ${response.status}`
+      );
+      core.info(`${response.data}`);
+      return false;
+    }
+
+    core.info(
+      `Issue's status ${api} of ${statusPayload.transition.id} updated successfully in Jira.`
+    );
+    return true;
+  } catch (error) {
+    core.error(
+      `Error updating issue status of ${statusPayload.transition.id}: ${error}`
+    );
+    return false;
+  }
+}
+
 async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
   for (const api of testSelfs) {
     try {
@@ -205,8 +237,42 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
       }
 
       core.info(`Issue ${api} updated successfully in Jira.`);
+
+      // Update status of the test
+      const statusAPI = `https://centreon.atlassian.net/rest/api/2/issue/${existingIssueData.key}/transitions?expand=transitions.fields`;
+
+      const issueStatusPayloadToReadyForImplementation = {
+        transition: { id: "61" },
+      };
+      if (
+        !(await postIssueStatus(
+          statusAPI,
+          issueStatusPayloadToReadyForImplementation
+        ))
+      ) {
+        return;
+      }
+
+      const issueStatusPayloadToStart = { transition: { id: "81" } };
+      if (!(await postIssueStatus(statusAPI, issueStatusPayloadToStart))) {
+        return;
+      }
+
+      const issueStatusPayloadToReadyForReview = { transition: { id: "21" } };
+      if (
+        !(await postIssueStatus(statusAPI, issueStatusPayloadToReadyForReview))
+      ) {
+        return;
+      }
+
+      const issueStatusPayloadToResolved = { transition: { id: "31" } };
+      if (!(await postIssueStatus(statusAPI, issueStatusPayloadToResolved))) {
+        return;
+      }
+
+      core.info(`Issue's status ${api} full updated successfully in Jira.`);
     } catch (error) {
-      core.error(`Error updating Jira issue: ${error}`);
+      core.error(`Error full updating Jira issue: ${error}`);
     }
   }
 }
