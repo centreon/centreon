@@ -1604,7 +1604,7 @@ Feature:
             "limit": 10,
             "search": { "$and": { "name": { "$lk": "%usr%" } } },
             "sort_by": {},
-            "total": 1
+            "total": 2
         }
     }
     """
