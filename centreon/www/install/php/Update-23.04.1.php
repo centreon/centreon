@@ -45,7 +45,7 @@ $removeNagiosPathImg = function(CentreonDB $pearDB) {
     }
 };
 
-$alterTopologyForTopologyUrlSubstitue = function(CentreonDB $pearDB) {
+$alterTopologyForTopologyUrlSubstitue = function(CentreonDB $pearDB): void {
     if(!$pearDB->isColumnExist('topology', 'topology_url_substitute')) {
         $pearDB->query(
             <<<'SQL'
