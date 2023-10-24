@@ -97,10 +97,8 @@ describe('Multi connected autocomplete', () => {
 
     cy.waitForRequest('@getSearchedOption');
 
-    cy.fixture('inputField/searchedOption').then((optionData) => {
-      cy.get('@listOptions')
-        .find('li')
-        .should('have.length', optionData.result.length);
+    cy.fixture('inputField/searchedOption').then(() => {
+      cy.get('@listOptions').find('li').should('have.length', 5);
     });
 
     cy.get('@listOptions').within(() => {
@@ -125,13 +123,11 @@ describe('Multi connected autocomplete', () => {
 
     cy.waitForRequest('@getSearchedOption');
 
-    cy.fixture('inputField/searchedOption').then((optionData) => {
-      cy.get('@listOptions')
-        .find('li')
-        .should('have.length', optionData.result.length);
+    cy.fixture('inputField/searchedOption').then(() => {
+      cy.get('@listOptions').find('li').should('have.length', 5);
     });
 
-    cy.get('[type="checkbox"]').check();
+    cy.get('[type="checkbox"]').eq(0).check();
     cy.get('@input')
       .parent()
       .within(() => {
