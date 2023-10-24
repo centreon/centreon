@@ -29,7 +29,8 @@ export const useStyles = makeStyles()((theme) => ({
     paddingLeft: theme.spacing(1)
   },
   inputInformation: {
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
+    minWidth: theme.spacing(35)
   },
   small: {
     display: 'flex',
