@@ -21,7 +21,7 @@ on:
         required: true
       registry_password:
         required: true
-      client_id :
+      client_id:
         required: true
       client_secret:
         required: true
@@ -145,8 +145,6 @@ jobs:
                     }
                   }' \
                   --max-time 20)
-
-                sleep 5
 
                 if [ -z "$response" ]; then
                   echo "Failed to create the test case within the specified time."
@@ -306,8 +304,8 @@ jobs:
       if: failure()
       uses: actions/upload-artifact@v3
       with:
-          name: postman-html-reports
-          path: centreon/tests/rest_api/newman/
+        name: postman-html-reports
+        path: centreon/tests/rest_api/newman/
 
     - name: Extract and Store Summaries
       run: |
