@@ -153,22 +153,19 @@ jobs:
                 else
                   test_case_id=$(echo "$response" | jq -r '.id')
                   test_case_ids+=("$test_case_id")
-                  test_case_ids_created+=("$test_case_id")
+
                   echo "Created Test Case with ID: $test_case_id"
-                  # Add test case name to summary list
                   summaries+=("$collection_name_sanitized")
 
-                  test_issue_ids_str="[$(printf "\"%s\"," "${test_case_ids_created[@]}")]"
-
                   # Update GraphQL query to add this test to the test plan
-                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq ".variables.testIssueIds = $test_issue_ids_str")
-                  echo "Contenu de xray_graphql_AddingTestsToTestPlan_variables : $xray_graphql_AddingTestsToTestPlan_variables"
+                  xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
 
                   # Execute GraphQL mutation to add tests to the test plan
-                  response_Adding_muration=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+                  response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
                 fi
               fi
             done
+
 
             response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
             issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
