@@ -466,7 +466,7 @@ jobs:
 
             test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
             for transition_ids_test_exec in "${transition_ids[@]}"; do
-              echo "Performing Jira transition with transition ID: $transition_id"
+              echo "Performing Jira transition with transition ID: $transition_ids_test_exec"
 
               # Construire la requête avec l'ID de transition actuel
               curl --request POST \
@@ -475,8 +475,8 @@ jobs:
                 --header 'Accept: application/json' \
                 --header 'Content-Type: application/json' \
                 --data "{
-                  \"transition\": {
-                    \"id\": \"$transition_id\"
+                  "transition": {
+                    "id": "'"$transition_id"'"
                   }
                 }"
             done
