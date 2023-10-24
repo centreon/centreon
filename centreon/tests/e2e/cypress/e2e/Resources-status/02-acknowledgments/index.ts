@@ -528,9 +528,7 @@ Given(
   () => {
     cy.getByLabel({ label: 'More actions' }).click();
 
-    cy.getByTestId({ tag: 'li', testId: 'Multiple Disacknowledge' }).click({
-      force: true
-    });
+    cy.getByTestId({ tag: 'li', testId: 'Multiple Disacknowledge' }).click();
 
     cy.getByLabel({ label: 'Disacknowledge' }).click();
   }

@@ -50,7 +50,7 @@ When('the administrator sets authentication mode to Web SSO only', () => {
   cy.getByLabel({ label: 'Login header attribute name', tag: 'input' }).type(
     '{selectall}{backspace}REMOTE_USER'
   );
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click({ force: true });
+  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
   cy.wait('@updateWebSSOProvider')
     .its('response.statusCode')
     .should('eq', 204)

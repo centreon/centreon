@@ -34,10 +34,12 @@ Given('an administrator is logged in the platform', () => {
 });
 
 When('the administrator activates autologin on the platform', () => {
+  // forced check because legacy checkbox are hidden
   cy.getIframeBody().find('#Form #enableAutoLogin').check({ force: true });
+
   cy.getIframeBody().find('#Form #enableAutoLogin').should('be.checked');
 
-  cy.getIframeBody().find('#submitGeneralOptionsForm').click({ force: true });
+  cy.getIframeBody().find('#submitGeneralOptionsForm').click();
 
   cy.get('iframe#main-content')
     .its('0.contentDocument.body')

@@ -85,7 +85,7 @@ When(
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
-    }).click({ force: true });
+    }).click();
 
     cy.wait('@getListAccessGroup');
 

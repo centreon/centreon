@@ -56,14 +56,11 @@ When(
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
     }).check();
-    cy.getByLabel({ label: 'Identity provider' })
-      .eq(0)
-      .contains('Identity provider')
-      .click({ force: true });
+
     configureOpenIDConnect();
-    cy.getByLabel({ label: 'Authentication conditions' }).click({
-      force: true
-    });
+
+    // authentication conditions section
+    cy.getByLabel({ label: 'Authentication conditions' }).click();
     cy.getByLabel({ label: 'Blacklist client addresses' }).type(
       '{selectall}{backspace}127.0.0.1{enter}'
     );
@@ -85,6 +82,7 @@ When(
       label: 'Condition value',
       tag: 'input'
     }).type('{selectall}{backspace}oidc');
+
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
     cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
 
