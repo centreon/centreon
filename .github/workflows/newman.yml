@@ -58,6 +58,7 @@ jobs:
       runs-on: ubuntu-22.04
       outputs:
         test_exec: ${{ steps.xray-newman.outputs.test_exec }}
+        test_plan_id: ${{ steps.get-testPlan-id.outputs.testPlan_id }}
 
       defaults:
        run:
@@ -369,6 +370,7 @@ jobs:
       run: |
         for summary_file in ./postman_summaries/*.json; do
             test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
+            test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
             filename=$(basename "$summary_file")
             collection_name="${filename%-summary.json}"
             collection_name="${collection_name//-/_}"
@@ -380,7 +382,7 @@ jobs:
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-                "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}"
+                "issueId": ["'"$test_plan_id"'"]
               }
             }'
 
@@ -451,12 +453,13 @@ jobs:
     - name: Perform Jira Transitions
       if: always()
       run: |
+            test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
             transition_ids=("61" "81" "21" "31")
 
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-                "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}"
+                "issueId": ["'"$test_plan_id"'"]
               }
             }'
 
