@@ -46,10 +46,10 @@ jobs:
 
           echo "this is my test_plans: $test_plans"
 
-          result_array= '[{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]'
+          result_array='[{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]'
           echo "this is the result_array $result_array"
 
-          for item in $(echo "$api_input" | jq -c '.[]'); do
+          for item in $(echo "$result_array" | jq -c '.[]'); do
             echo "Item: $item"
 
             # You can access specific fields like this
