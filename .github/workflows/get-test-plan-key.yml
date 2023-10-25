@@ -4,6 +4,11 @@ on:
       test_plan_key:
         description: "the test plan key"
         value: ${{ jobs.get-test-plan-key.outputs.test_plan_key }}
+    secrets:
+      client_id:
+        required: true
+      client_secret:
+        required: true
 
 jobs:
   get-version:

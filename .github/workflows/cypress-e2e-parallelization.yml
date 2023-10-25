@@ -186,6 +186,9 @@ jobs:
       - name: Determine testPlanKey
         id: determine-test-plan-key
         uses: ./.github/workflows/get-test-plan-key.yml
+        with:
+          client_id: ${{ secrets.CLIENT_ID }}
+          client_secret: ${{ secrets.CLIENT_SECRET }}
 
       - name: Import results to xray
         id: import-reports
