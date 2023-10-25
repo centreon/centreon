@@ -729,6 +729,7 @@ if (isset($req) && $req) {
     $stmt->execute();
     $rows = $stmt->rowCount();
     if (!($stmt->rowCount()) && ($num != 0)) {
+        $offset = 0;
         if ($export !== "1") {
             $offset = floor($rows / $limit) * $limit;
         }

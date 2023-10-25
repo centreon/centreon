@@ -36,10 +36,8 @@ class PaginationRenderer
      */
     public function render(array $pages): void
     {
-        if (count($pages) <= 1) {
-            return;
-        }
 
+        // Always include the previous and next buttons
         $previousBtnText = array_key_exists('previous', $pages) ? $pages['previous']['num'] : null;
         $this->addNavigation('prev', (string) $previousBtnText);
 
@@ -49,6 +47,7 @@ class PaginationRenderer
             }
         }
 
+        // Always include the next button
         $nextBtnText = array_key_exists('next', $pages) ? $pages['next']['num'] : null;
         $this->addNavigation('next', (string) $nextBtnText);
     }
