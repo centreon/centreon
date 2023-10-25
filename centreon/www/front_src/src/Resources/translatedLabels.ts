@@ -146,6 +146,7 @@ export const labelSaveFilter = 'Save filter';
 export const labelSaveAsNew = 'Save as new';
 export const labelSave = 'Save';
 export const labelNewFilter = 'New filter';
+export const labelUpdateFilter = 'Update filter';
 export const labelName = 'Name';
 export const labelFilterCreated = 'Filter created';
 export const labelFilterSaved = 'Filter saved';

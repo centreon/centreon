@@ -86,6 +86,26 @@
     },
     {
         "action": "ADD",
+        "object": "CG",
+        "values": "contactgroupdashboard;contactgroupdashboard"
+    },
+    {
+        "action": "ADDCONTACT",
+        "object": "CG",
+        "values": "contactgroupdashboard;user-dashboard-creator"
+    },
+    {
+        "action": "ADDCONTACT",
+        "object": "CG",
+        "values": "contactgroupdashboard;user-dashboard-administrator"
+    },
+    {
+        "action": "ADDCONTACT",
+        "object": "CG",
+        "values": "contactgroupdashboard;user-dashboard-viewer"
+    },
+    {
+        "action": "ADD",
         "object": "ACLMENU",
         "values": "name-viewer-ACLMENU;alias-viewer-ACLMENU"
     },
