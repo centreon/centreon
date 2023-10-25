@@ -246,14 +246,14 @@ jobs:
             echo "$response"
 
             # Extract the ID of the new test run
-            test-execution-id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
+            test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
 
             # Check if ID is null or not
-            if [ "$test-execution-id" == "null" ]; then
+            if [ "$test_execution_id" == "null" ]; then
               echo "Failed to create the Test Execution. Check the response for errors."
             else
-              echo "Created Test Execution with ID: $test-execution-id"
-              echo "test_execution_id=$test-execution-id" >> $GITHUB_OUTPUT
+              echo "Created Test Execution with ID:  $test_execution_id"
+              echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
               fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
