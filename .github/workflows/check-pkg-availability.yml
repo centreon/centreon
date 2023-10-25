@@ -9,13 +9,21 @@ on:
         type: string
         description: The version
         required: true
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
 
 jobs:
   check-stable-packages:
     name: check-stable-packages ${{ matrix.distrib }}
     runs-on: ubuntu-22.04
     container:
-      image: ${{ matrix.image }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}
+      credentials:
+        username: ${{ secrets.registry_username }}
+        password: ${{ secrets.registry_password }}
     strategy:
       matrix:
         include:
