@@ -1,7 +1,7 @@
 import { ChangeEvent, KeyboardEvent } from 'react';
 
 import { useFormik } from 'formik';
-import { equals, not, or, path, omit } from 'ramda';
+import { equals, not, path, omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 
@@ -67,6 +67,7 @@ const CreateFilterDialog = ({
           );
         });
     },
+    validateOnMount: true,
     validationSchema: Yup.object().shape({
       name: Yup.string().required(labelRequired)
     })
