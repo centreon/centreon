@@ -154,6 +154,7 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
+  # This action is only for NIGHTLY tests
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: always()
@@ -180,11 +181,10 @@ jobs:
         shell: bash
 
       # NIGHTLY <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., NIGHTLY OSS 23.10)
-      # RT <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., RT OSS 23.10)
       - name: Determine testPlanKey
         id: determine-testplan-key
         run: |
-          is_nightly=$([[ ${{ github.event_name }} == 'schedule' ]] && echo "NIGHTLY" || echo "RT")
+          # is_nightly=$([[ ${{ github.event_name }} == 'schedule' ]] && echo "NIGHTLY" || echo "RT")
 
           # Use a GraphQL query to get all test plans matching the JQL
           graphql_query='{
@@ -195,17 +195,15 @@ jobs:
           test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
           test_plan_key=""
 
-          results=$(echo "$test_plans" | jq -c '.data.getTestPlans.results')
-
-          echo"this is the result : $results"
+          echo "$test_plans" | jq -c '.data.getTestPlans.results[]'
 
           # Loop through the results to find a matching test plan
-          for test_plan in $results; do
+          for test_plan in $(echo "$test_plans" | jq -c '.data.getTestPlans.results[]'); do
             echo ("this is the test plan : $test_plan")
             summary=$(echo "$test_plan" | jq -c '.jira.summary')
             key=$(echo "$test_plan" | jq -c '.jira.key')
             # Check if the summary matches your desired pattern
-            if [[ "$summary" == "$is_nightly OSS ${{ inputs.major_version }}"]]; then
+            if [[ "$summary" == "NIGHTLY OSS ${{ inputs.major_version }}"]]; then
               test_plan_key=$key
               echo"The test_plan_key is $test_plan_key"
               break
