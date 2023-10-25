@@ -19,6 +19,9 @@ on:
       major_version:
         required: true
         type: string
+      minor_version:
+        required: true
+        type: string
       stability:
         required: true
         type: string
@@ -281,7 +284,7 @@ jobs:
           jira_payload='
           {
             "fields": {
-              "summary": "${{ github.run_id}} E2E Tests",
+              "summary": "RT OSS ${{ inputs.major_version }}.${{ inputs.minor_version }} ",
               "components": [{"name": "centreon-web"}],
               "priority":{"name":"Low"}
             }
