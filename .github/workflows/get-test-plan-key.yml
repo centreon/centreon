@@ -35,8 +35,6 @@ jobs:
       - name: Get the TestPlanKey
         id: get_test_plan_key
         run: |
-          # is_nightly=$([[ ${{ github.event_name }} == 'schedule' ]] && echo "NIGHTLY" || echo "RT")
-
           # Use a GraphQL query to get all test plans matching the JQL
           graphql_query='{
             "query":"query GetTestPlans($jql: String, $limit: Int!) { getTestPlans(jql: $jql, limit: $limit) { total results { issueId jira(fields: [\"summary\", \"key\"]) } } }",
@@ -48,10 +46,11 @@ jobs:
 
           echo "this is my test_plans: $test_plans"
 
-          result=$(echo "$test_plans" | jq -c '.data.getTestPlans.results[]')
+          result="{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}}
+          {"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}}"
           echo "this is the result $result"
 
-          result_array=$(echo "$test_plans" | jq -c '.data.getTestPlans.results')
+          result_array= [{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]
           echo "this is the result_array $result_array"
 
           # Loop through the results to find a matching test plan
@@ -73,7 +72,7 @@ jobs:
 
           # Use grep to extract the JSON array from the test_plans variable
           json_array=$(echo "$test_plans" | grep -oP '"results":\[\K[^]]+')
-
+          echo "this is the json array $json_array"
           # Loop through the results to find a matching test plan
           while read -r test_plan; do
             echo "this is the test plan : $test_plan"
