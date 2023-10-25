@@ -62,7 +62,7 @@ jobs:
 
   associate-test-cases:
       runs-on: ubuntu-22.04
-      # if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+      if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
       outputs:
         test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
         test_plan_id: ${{ steps.get-test-plan-id.outputs.test_plan_id }}
@@ -94,12 +94,12 @@ jobs:
             testPlanKeys["unstable","22.10"]="MON-23958"
             testPlanKeys["unstable","22.04"]="MON-23959"
             testPlanKeys["unstable","21.10"]="MON-23960"
-            testPlanKeys["canary","24.04"]="MON-23962"
-            testPlanKeys["canary","23.10"]="MON-23963"
-            testPlanKeys["canary","23.04"]="MON-23964"
-            testPlanKeys["canary","22.10"]="MON-23965"
-            testPlanKeys["canary","22.04"]="MON-23966"
-            testPlanKeys["canary","21.10"]="MON-23966"
+            testPlanKeys["testing","24.04"]="MON-23962"
+            testPlanKeys["testing","23.10"]="MON-23963"
+            testPlanKeys["testing","23.04"]="MON-23964"
+            testPlanKeys["testing","22.10"]="MON-23965"
+            testPlanKeys["testing","22.04"]="MON-23966"
+            testPlanKeys["testing","21.10"]="MON-23966"
 
             stability="${{ inputs.stability }}"
             major_version="${{ inputs.major_version }}"
@@ -394,7 +394,7 @@ jobs:
         done
 
     - name: Change test execution status
-      # if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+      if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
       run: |
         for summary_file in ./postman_summaries/*.json; do
             test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
@@ -476,7 +476,7 @@ jobs:
           done
 
     - name: Perform Jira Transitions
-      # if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+      if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
       run: |
             test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
             transition_ids=("61" "81" "21" "31")

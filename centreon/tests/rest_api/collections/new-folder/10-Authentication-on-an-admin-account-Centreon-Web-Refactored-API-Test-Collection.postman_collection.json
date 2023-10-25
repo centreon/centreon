@@ -64,7 +64,6 @@
 						}
 					},
 					"response": []
-
 				},
 				{
 					"name": "[1001] Logout from admin user and clear collection variables",
