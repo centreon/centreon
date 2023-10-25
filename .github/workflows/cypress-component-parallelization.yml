@@ -59,7 +59,7 @@ jobs:
   #         retention-days: 1
 
   cypress-component-test-run:
-    needs: [cypress-component-test-list]
+    # needs: [cypress-component-test-list]
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
