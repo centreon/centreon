@@ -1,3 +1,2 @@
 rules:
-  document-start:
-    present: false
+  document-start: disable
