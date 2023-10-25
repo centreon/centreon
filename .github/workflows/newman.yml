@@ -57,7 +57,7 @@ jobs:
   associate-test-cases:
       runs-on: ubuntu-22.04
       outputs:
-        test_execution_id: ${{ steps.xray-newman.outputs.test_execution-id }}
+        test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
         test_plan_id: ${{ steps.get-test-plan-id.outputs.test_plan_id }}
 
       defaults:
