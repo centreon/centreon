@@ -195,7 +195,6 @@ describe('Resource Listing: Visualization by Service', () => {
     cy.findByLabelText(labelViewByService).click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      console.log(request.url);
       expect(JSON.parse(request?.url?.searchParams.get('types'))).to.deep.equal(
         ['service', 'metaservice']
       );
