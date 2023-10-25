@@ -112,7 +112,7 @@ jobs:
           id: get-test-plan-id
           run: |
               jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.determine-testplan-key.outputs.testPlanKey }}"
-              testPlan_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
+              testPlan_id=$(curl -u "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" -X GET -s "$jira_url" | jq -r '.id')
               echo "this is the testPlan ID : $testPlan_id"
               echo "test_plan_id=$testPlan_id" >> $GITHUB_OUTPUT
 
