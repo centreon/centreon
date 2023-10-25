@@ -73,7 +73,7 @@ class Paginator
     {
         return [
             'url_page' => sprintf('&num=%d&limit=%d', $pageNb, $this->nbResultsPerPage),
-            'label_page' => ($pageNb + 1),
+            'label_page' => ($pageNb),
             'num' => $pageNb,
             'active' => $pageNb === $this->currentPageNb,
         ];
