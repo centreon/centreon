@@ -50,4 +50,4 @@ jobs:
 
       - name: Lint YAML files
         run: |
-          yamllint ./.github
+          yamllint -c ./.github/yamllint_rules.yaml ./.github
