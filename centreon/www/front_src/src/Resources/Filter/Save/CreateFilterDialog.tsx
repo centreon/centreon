@@ -12,7 +12,8 @@ import {
   labelName,
   labelNewFilter,
   labelRequired,
-  labelSave
+  labelSave,
+  labelUpdateFilter
 } from '../../translatedLabels';
 import { Action } from '../Criterias/models';
 import { Filter } from '../models';
@@ -43,7 +44,7 @@ const CreateFilterDialog = ({
   });
   const form = useFormik({
     initialValues: {
-      name: ''
+      name: payloadAction?.filter?.name || ''
     },
     onSubmit: (values) => {
       const payloadCreation = { ...payloadAction, name: values.name };
@@ -79,14 +80,16 @@ const CreateFilterDialog = ({
     }
   };
 
-  const confirmDisabled = or(not(form.isValid), not(form.dirty));
+  const isUpdatingFilter = !!payloadAction?.filter?.name;
+
+  const confirmDisabled = not(form.isValid);
 
   return (
     <Dialog
       confirmDisabled={confirmDisabled}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelSave)}
-      labelTitle={t(labelNewFilter)}
+      labelTitle={t(isUpdatingFilter ? labelUpdateFilter : labelNewFilter)}
       open={open}
       submitting={sending}
       onCancel={onCancel}
@@ -95,6 +98,7 @@ const CreateFilterDialog = ({
       <TextField
         autoFocus
         ariaLabel={t(labelName) as string}
+        disabled={isUpdatingFilter}
         error={form.errors.name}
         label={t(labelName)}
         value={form.values.name}
