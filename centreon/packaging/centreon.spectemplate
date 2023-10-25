@@ -705,6 +705,7 @@ systemctl try-restart php-fpm || :
 
 %posttrans web
 
+# Change right for Centreon Engine and Centreon Broker configuration files
 if [ -d /etc/centreon-broker ] && [ "$(getent passwd centreon-broker)" ]; then
     chown centreon-broker:centreon /etc/centreon-broker/*
 fi
