@@ -1,2 +1,3 @@
 rules:
-  missing-document-start: false
+  document-start:
+    present: false
