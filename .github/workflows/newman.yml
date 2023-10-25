@@ -27,7 +27,7 @@ on:
         required: true
       registry_password:
         required: true
-      client_id :
+      client_id:
         required: true
       client_secret:
         required: true
@@ -501,8 +501,6 @@ jobs:
                 echo "Performing Jira transition with transition ID: $transition_id..."
               done
             done
-
-
       shell: bash
 
     - name: Generate and Display Summaries
