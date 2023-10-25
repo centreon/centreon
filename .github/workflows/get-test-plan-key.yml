@@ -41,9 +41,9 @@ jobs:
             "variables":{"jql": "project = MON","limit": 100}}'
 
           # Execute the GraphQL query and parse the results
-          test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
-          test_plan_key=""
+          response=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
 
+          test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results')
           echo "this is my test_plans: $test_plans"
 
           # api_input='[{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]'
@@ -51,6 +51,7 @@ jobs:
 
           node - <<EOF
           const data = JSON.parse('$test_plans');
+          console.log("this is the data:",data)
           let test_plan_key = '';
           data.forEach(item => {
               console.log("Item:", item);
