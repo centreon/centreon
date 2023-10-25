@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security;
@@ -26,30 +27,34 @@ use Security\Interfaces\EncryptionInterface;
 
 class Encryption implements EncryptionInterface
 {
-    /**
-     * @var string|null First secure key
-     */
+    /** @var string|null First secure key */
     private $firstKey;
 
-    /**
-     * @var string|null Second secure key
-     */
+    /** @var string|null Second secure key */
     private $secondKey;
 
-    /**
-     * @var string Encryption method use to encrypt/decrypt data
-     */
+    /** @var string Encryption method use to encrypt/decrypt data */
     private $encryptionMethod;
 
-    /**
-     * @var string Hashing method use to hash/unhash data during
-     */
+    /** @var string Hashing method use to hash/unhash data during */
     private $hashingAlgorithm;
 
     public function __construct(string $encryptionMethod = 'aes-256-cbc', string $hashingAlgorithm = 'sha3-512')
     {
         $this->encryptionMethod = $encryptionMethod;
         $this->hashingAlgorithm = $hashingAlgorithm;
+    }
+
+    /**
+     * For more security, we modify the references of the first and second keys.
+     *
+     * @see Encryption::$firstKey
+     * @see Encryption::$secondKey
+     */
+    public function __destruct()
+    {
+        $this->firstKey = null;
+        $this->secondKey = null;
     }
 
     /**
@@ -78,6 +83,7 @@ class Encryption implements EncryptionInterface
             throw new \Exception('Error on the encrypted string', 12);
         }
         $encryptedSecondPart = hash_hmac($this->hashingAlgorithm, $encryptedFirstPart, $this->secondKey, true);
+
         return base64_encode($iv . $encryptedSecondPart . $encryptedFirstPart);
     }
 
@@ -122,6 +128,7 @@ class Encryption implements EncryptionInterface
                 return $data;
             }
         }
+
         return null;
     }
 
@@ -131,6 +138,7 @@ class Encryption implements EncryptionInterface
     public function setSecondKey(string $secondKey): EncryptionInterface
     {
         $this->secondKey = base64_decode($secondKey);
+
         return $this;
     }
 
@@ -140,6 +148,7 @@ class Encryption implements EncryptionInterface
     public function setFirstKey(string $firstKey): EncryptionInterface
     {
         $this->firstKey = base64_decode($firstKey);
+
         return $this;
     }
 
@@ -153,18 +162,7 @@ class Encryption implements EncryptionInterface
             throw new \Exception('Error when generating random bytes', 30);
         }
         $encodedRandomBytes = base64_encode($randomBytes);
-        return substr($encodedRandomBytes, 0, $length);
-    }
 
-    /**
-     * For more security, we modify the references of the first and second keys.
-     *
-     * @see Encryption::$firstKey
-     * @see Encryption::$secondKey
-     */
-    public function __destruct()
-    {
-        $this->firstKey = null;
-        $this->secondKey = null;
+        return substr($encodedRandomBytes, 0, $length);
     }
 }

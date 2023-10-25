@@ -1,0 +1,81 @@
+type: object
+required: ["name", "type", "command_line"]
+properties:
+  name:
+    type: string
+    description: "Command name"
+    example: "check_host_alive"
+  type:
+    type: integer
+    description: |
+      Indicates the type of command
+
+      * `1` - NOTIFICATION
+      * `2` - CHECK
+      * `3` - MISCELLANEOUS
+      * `4` - DISCOVERY
+    example: 2
+  command_line:
+    type: string
+    description: "Command line to be executed by the poller"
+  is_shell:
+    type: boolean
+    description: |
+      Is required if your command requires shell features like pipes, redirections, globbing etc.
+
+      If you are using the monitoring engine this option cannot be disabled.
+
+      Note that commands that require shell features are slowing down the poller server.
+    example: true
+  argument_example:
+    type: string
+    nullable: true
+    description: "Example of command argument values"
+    example: "!80!90"
+  arguments:
+    type: array
+    description: "descriptions of arguments used in the command line"
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the argument"
+          example: "argument-name"
+        description:
+          type: string
+          nullable: true
+          description: "Description of the argument"
+          example: "argument-description"
+  macros:
+    type: array
+    description: "descriptions of macros used in the command line"
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the macro"
+          example: "macro-name"
+        type:
+          type: integer
+          description: |
+            Indicates the type of macro
+
+            * `1` - HOST
+            * `2` - SERVICE
+          example: 1
+        description:
+          type: string
+          nullable: true
+          description: "Description of the macro"
+          example: "macro-description"
+  connector_id:
+    type: integer
+    nullable: true
+    description: |
+      A connector is run in the background and executes specific commands without the need to execute a binary.
+  graph_template_id:
+    type: integer
+    nullable: true
+    description: "Graph template for the command"

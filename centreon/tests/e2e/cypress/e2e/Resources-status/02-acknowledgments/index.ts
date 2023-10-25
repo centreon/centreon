@@ -497,7 +497,7 @@ Given(
 );
 
 Given('a resource marked as acknowledged is selected', () => {
-  typeToSearchInput('type:host h.name:^test_host$ state:acknowledged');
+  typeToSearchInput('type:host h.name:test_host state:acknowledged');
 
   cy.waitUntil(
     () => {
@@ -537,7 +537,7 @@ Given(
 );
 
 Then('the acknowledgement is removed', () => {
-  typeToSearchInput('type:host h.name:^test_host$');
+  typeToSearchInput('type:host h.name:test_host');
   cy.waitUntil(
     () => {
       return cy

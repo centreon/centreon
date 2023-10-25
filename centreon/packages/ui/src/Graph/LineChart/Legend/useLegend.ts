@@ -8,10 +8,8 @@ import {
   isNil,
   map,
   pipe,
-  prop,
   propEq,
-  reject,
-  sortBy
+  reject
 } from 'ramda';
 
 import { Line } from '../../common/timeSeries/models';
@@ -49,9 +47,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
       { ...getLineByMetric(metric_id), highlight: true }
     ];
 
-    const sortedData = sortBy(prop('metric_id'), data);
-
-    setLinesGraph(sortedData);
+    setLinesGraph(data);
   };
 
   const clearHighlight = (): void => {

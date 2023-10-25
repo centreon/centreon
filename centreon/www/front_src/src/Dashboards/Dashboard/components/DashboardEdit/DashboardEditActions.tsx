@@ -3,15 +3,16 @@ import { ReactElement, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
+import { equals } from 'ramda';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 import { Button } from '@centreon/ui/components';
 
 import { DashboardPanel } from '../../../api/models';
-import { formatPanel } from '../../useDashboardDetails';
-import useDashboardDirty from '../../useDashboardDirty';
-import useSaveDashboard from '../../useSaveDashboard';
+import { formatPanel } from '../../hooks/useDashboardDetails';
+import useDashboardDirty from '../../hooks/useDashboardDirty';
+import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import {
   labelEditDashboard,
@@ -20,6 +21,8 @@ import {
 } from '../../translatedLabels';
 import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
 
+import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
+
 interface DashboardEditActionsProps {
   panels?: Array<DashboardPanel>;
 }
@@ -27,6 +30,7 @@ interface DashboardEditActionsProps {
 const DashboardEditActions = ({
   panels
 }: DashboardEditActionsProps): ReactElement => {
+  const { classes } = useDashboardEditActionsStyles();
   const { t } = useTranslation();
 
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
@@ -43,7 +47,9 @@ const DashboardEditActions = ({
     )
   );
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
 
   const startEditing = useCallback(() => {
     switchPanelsEditionMode(true);
@@ -62,13 +68,17 @@ const DashboardEditActions = ({
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (searchParams.get('edit') === 'true') startEditing();
-    if (searchParams.get('edit') === null) stopEditing();
-  }, [searchParams]);
+    if (equals(searchParams.get('edit'), 'true')) {
+      startEditing();
+
+      return;
+    }
+    stopEditing();
+  }, []);
 
   const saveAndProceed = (): void => {
     saveDashboard();
-    switchPanelsEditionMode(false);
+    stopEditing();
   };
 
   if (!isEditing) {
@@ -88,7 +98,7 @@ const DashboardEditActions = ({
   }
 
   return (
-    <>
+    <div className={classes.root}>
       <Button
         aria-label={t(labelCancel) as string}
         data-testid="cancel_dashboard"
@@ -103,12 +113,12 @@ const DashboardEditActions = ({
         data-testid="save_dashboard"
         disabled={!dirty}
         size="small"
-        variant="ghost"
+        variant="primary"
         onClick={saveAndProceed}
       >
         {t(labelSave)}
       </Button>
-    </>
+    </div>
   );
 };
 

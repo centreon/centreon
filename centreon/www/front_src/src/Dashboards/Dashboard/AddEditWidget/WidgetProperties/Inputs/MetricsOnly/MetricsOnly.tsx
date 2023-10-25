@@ -11,13 +11,14 @@ import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
 import {
   labelAvailable,
   labelMetrics,
+  labelSelectMetric,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { isAtLeastOneResourceFullfilled } from '../utils';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import { singleMetricSelectionAtom } from '../../../atoms';
 
 import useMetricsOnly from './useMetricsOnly';
@@ -74,7 +75,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           isOptionEqualToValue={(option, selectedValue) =>
             equals(option?.id, selectedValue?.id)
           }
-          label={t(labelMetrics)}
+          label={t(labelSelectMetric)}
           options={metrics}
           value={head(selectedMetrics || []) || undefined}
           onChange={changeMetric}
@@ -91,7 +92,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           getOptionLabel={getOptionLabel}
           getOptionTooltipLabel={getOptionLabel}
           getTagLabel={getMultipleOptionLabel}
-          label={t(labelMetrics)}
+          label={t(labelSelectMetric)}
           options={metrics}
           value={selectedMetrics || []}
           onChange={changeMetrics}

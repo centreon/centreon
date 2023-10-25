@@ -6,6 +6,7 @@ import FormatButtons from './FormatButtons';
 import UndoRedoButtons from './UndoRedoButtons';
 import MacrosButton from './MacrosButton';
 import BlockButtons from './BlockButtons';
+import AlignPicker from './AlignPicker';
 
 interface Props {
   disabled: boolean;
@@ -56,6 +57,7 @@ const ToolbarPlugin = ({
           <MacrosButton disabled={disabled} />
         </>
       )}
+      <AlignPicker disabled={disabled} />
     </div>
   ) : null;
 };

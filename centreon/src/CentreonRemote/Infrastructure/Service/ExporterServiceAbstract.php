@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,46 +21,32 @@
 
 namespace CentreonRemote\Infrastructure\Service;
 
-use Pimple\Container;
-use CentreonRemote\Infrastructure\Service\ExporterCacheService;
-use CentreonRemote\Infrastructure\Service\ExporterServiceInterface;
 use CentreonRemote\Infrastructure\Export\ExportCommitment;
 use CentreonRemote\Infrastructure\Export\ExportManifest;
+use Pimple\Container;
 
 abstract class ExporterServiceAbstract implements ExporterServiceInterface
 {
-    /**
-     * @var Container $dependencyInjector
-     */
+    /** @var Container */
     protected $dependencyInjector;
 
-    /**
-     * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
-     */
+    /** @var \Centreon\Infrastructure\Service\CentreonDBManagerService */
     protected $db;
 
-    /**
-     * @var \CentreonRemote\Infrastructure\Service\ExporterCacheService
-     */
+    /** @var \CentreonRemote\Infrastructure\Service\ExporterCacheService */
     protected $cache;
 
-    /**
-     * @var \CentreonRemote\Infrastructure\Export\ExportCommitment
-     */
+    /** @var \CentreonRemote\Infrastructure\Export\ExportCommitment */
     protected $commitment;
 
-    /**
-     * @var \Centreon\Infrastructure\Service\CentcoreConfigService
-     */
+    /** @var \Centreon\Infrastructure\Service\CentcoreConfigService */
     protected $config;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $manifest;
 
     /**
-     * Construct
+     * Construct.
      *
      * @param Container $services
      */
@@ -104,19 +90,19 @@ abstract class ExporterServiceAbstract implements ExporterServiceInterface
     }
 
     /**
-     * Create path for export
+     * Create path for export.
      *
      * @param string $exportPath
      *
      * @return string
      */
-    public function createPath(string $exportPath = null): string
+    public function createPath(?string $exportPath = null): string
     {
         // Create export path
         $exportPath = $this->getPath($exportPath);
 
         // make directory if missing
-        if (!is_dir($exportPath)) {
+        if (! is_dir($exportPath)) {
             mkdir($exportPath, $this->commitment->getFilePermission(), true);
         }
 
@@ -124,21 +110,21 @@ abstract class ExporterServiceAbstract implements ExporterServiceInterface
     }
 
     /**
-     * Get path of export
+     * Get path of export.
      *
      * @param string $exportPath
      *
      * @return string
      */
-    public function getPath(string $exportPath = null): string
+    public function getPath(?string $exportPath = null): string
     {
-        $exportPath = $exportPath ?? $this->commitment->getPath() . '/' . $this->getName();
+        $exportPath ??= $this->commitment->getPath() . '/' . $this->getName();
 
         return $exportPath;
     }
 
     /**
-     * Get exported file
+     * Get exported file.
      *
      * @param string $filename
      *
@@ -146,9 +132,7 @@ abstract class ExporterServiceAbstract implements ExporterServiceInterface
      */
     public function getFile(string $filename): string
     {
-        $exportFilepath = $this->getPath() . '/' . $filename;
-
-        return $exportFilepath;
+        return $this->getPath() . '/' . $filename;
     }
 
     public static function order(): int

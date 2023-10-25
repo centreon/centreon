@@ -74,6 +74,7 @@ class DbReadHostgroupRepository extends AbstractRepositoryDRB implements ReadHos
     private function findAll(int $hostId, ?string $aclRequest): array
     {
         $request = 'SELECT DISTINCT
+                1 AS REALTIME,
                 hg.hostgroup_id,
                 hg.name AS `hostgroup_name`
             FROM `:dbstg`.`hosts_hostgroups` AS hhg

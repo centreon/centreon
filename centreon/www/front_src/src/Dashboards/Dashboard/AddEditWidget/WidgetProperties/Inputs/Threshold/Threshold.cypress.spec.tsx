@@ -3,11 +3,11 @@ import { Formik } from 'formik';
 import {
   labelCriticalThreshold,
   labelShowThresholds,
-  labelThreshold,
+  labelThresholds,
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { ServiceMetric } from '../../../models';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import Threshold from './Threshold';
 
@@ -92,22 +92,22 @@ describe('Threshold', () => {
   beforeEach(() => editMode(true));
 
   it('does not display any default threshold values when no metrics are passed', () => {
-    initializeComponent({ metrics: emptyMetrics });
+    initializeComponent({ enabled: true, metrics: emptyMetrics });
 
-    cy.contains(labelThreshold).should('be.visible');
+    cy.contains(labelThresholds).should('be.visible');
     cy.contains(labelWarningThreshold).should('be.visible');
     cy.contains(labelCriticalThreshold).should('be.visible');
-    cy.findByLabelText(labelShowThresholds).should('not.be.checked');
+    cy.findByLabelText(labelShowThresholds).should('be.checked');
     cy.findAllByTestId('default').eq(0).children().eq(0).should('be.checked');
     cy.findAllByTestId('default').eq(1).children().eq(0).should('be.checked');
     cy.contains('Default (none)').should('be.visible');
-    cy.findByTestId(labelThreshold).should('not.exist');
+    cy.findByTestId(labelThresholds).should('not.exist');
 
     cy.makeSnapshot();
   });
 
   it('displays the first metrics threshold values as default when some Resource metrics are passed', () => {
-    initializeComponent({ metrics: selectedMetrics });
+    initializeComponent({ enabled: true, metrics: selectedMetrics });
 
     cy.contains('Default (10 ms - 35 ms)').should('be.visible');
     cy.contains('Default (50 ms - 100 ms)').should('be.visible');
@@ -121,26 +121,13 @@ describe('Threshold', () => {
     cy.findByLabelText(labelShowThresholds).click();
     cy.findAllByTestId('custom').eq(0).click();
 
-    cy.findAllByTestId(labelThreshold).find('input').eq(0).should('be.enabled');
-    cy.findAllByTestId(labelThreshold).find('input').eq(0).type('50');
-    cy.contains('50 ms').should('be.visible');
-    cy.findAllByTestId(labelThreshold).find('input').eq(1).should('not.exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('does not reset the threshold value when the Show Thresholds checkbox is unchecked', () => {
-    initializeComponent({ metrics: selectedMetrics });
-
-    cy.findByLabelText(labelShowThresholds).click();
-    cy.findAllByTestId('custom').eq(0).click();
-    cy.findAllByTestId(labelThreshold).find('input').eq(0).type('50');
-    cy.findByLabelText(labelShowThresholds).click();
-
-    cy.findAllByTestId(labelThreshold)
+    cy.findAllByTestId(labelThresholds)
       .find('input')
       .eq(0)
-      .should('have.value', '50');
+      .should('be.enabled');
+    cy.findAllByTestId(labelThresholds).find('input').eq(0).type('50');
+    cy.contains('50 ms').should('be.visible');
+    cy.findAllByTestId(labelThresholds).find('input').eq(1).should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -158,14 +145,14 @@ describe('Disabled threshold', () => {
   beforeEach(() => editMode(false));
 
   it('displays fields as disabled', () => {
-    initializeComponent({ metrics: selectedMetrics });
+    initializeComponent({ enabled: true, metrics: selectedMetrics });
 
     cy.findByLabelText(labelShowThresholds).should('be.disabled');
     cy.findAllByTestId('default').eq(0).children().eq(0).should('be.disabled');
     cy.findAllByTestId('default').eq(1).children().eq(0).should('be.disabled');
     cy.findAllByTestId('custom').eq(0).children().eq(0).should('be.disabled');
     cy.findAllByTestId('custom').eq(1).children().eq(0).should('be.disabled');
-    cy.findByTestId(labelThreshold).should('not.exist');
+    cy.findByTestId(labelThresholds).should('not.exist');
 
     cy.makeSnapshot();
   });

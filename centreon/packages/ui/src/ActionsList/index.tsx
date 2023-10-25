@@ -1,34 +1,42 @@
 /* eslint-disable react/no-array-index-key */
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
 import {
-  SvgIconProps,
   MenuList,
   MenuItem,
   ListItemText,
   ListItemIcon,
-  Divider
+  Divider,
+  SvgIconTypeMap
 } from '@mui/material';
+import { OverridableComponent } from '@mui/material/OverridableComponent';
+
+import { sanitizedHTML } from '..';
+
+import { useStyles } from './ActionsList.styles';
+import { ActionVariants } from './models';
 
 interface ActionsType {
-  Icon?: (props: SvgIconProps) => JSX.Element;
+  Icon?: OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
+    muiName: string;
+  };
   label: string;
   onClick?: (e?) => void;
+  secondaryLabel?: string;
+  variant?: ActionVariants;
 }
 
+export enum ActionsListActionDivider {
+  divider = 'divider'
+}
+export type ActionsListActions = Array<ActionsType | ActionsListActionDivider>;
+
 interface Props {
-  actions: Array<ActionsType | 'divider'>;
+  actions: ActionsListActions;
   className?: string;
   listItemClassName?: string;
 }
-
-const useStyles = makeStyles()({
-  list: {
-    maxWidth: '100%'
-  }
-});
 
 const ActionsList = ({
   className,
@@ -41,22 +49,35 @@ const ActionsList = ({
   return (
     <MenuList className={cx(classes.list, className)}>
       {actions?.map((action, idx) => {
-        if (equals(action, 'divider')) {
+        if (equals(action, ActionsListActionDivider.divider)) {
           return <Divider key={`divider_${idx}`} />;
         }
 
-        const { label, Icon, onClick } = action as ActionsType;
+        const { label, Icon, onClick, variant, secondaryLabel } =
+          action as ActionsType;
 
         return (
-          <MenuItem aria-label={label} id={label} key={label} onClick={onClick}>
+          <MenuItem
+            aria-label={label}
+            className={classes.item}
+            data-variant={variant}
+            id={label}
+            key={label}
+            onClick={onClick}
+          >
             {Icon && (
               <ListItemIcon>
                 <Icon fontSize="small" />
               </ListItemIcon>
             )}
-            <ListItemText className={listItemClassName}>
-              {t(label)}
-            </ListItemText>
+            <ListItemText
+              className={listItemClassName}
+              primary={t(label)}
+              secondary={
+                secondaryLabel &&
+                sanitizedHTML({ initialContent: t(secondaryLabel) })
+              }
+            />
           </MenuItem>
         );
       })}

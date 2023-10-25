@@ -19,7 +19,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { areResourcesFullfilled } from '../utils';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -78,7 +78,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               className={classes.resourceType}
               dataTestId={labelResourceType}
               disabled={!canEditField}
-              label={t(labelResourceType) as string}
+              label={t(labelSelectAResource) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}

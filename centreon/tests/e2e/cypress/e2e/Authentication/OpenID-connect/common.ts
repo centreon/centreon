@@ -1,5 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
+import { ActionClapi } from '../../../commons';
+
 const oidcConfigValues = {
   authEndpoint: '/auth',
   baseUrl: 'http://172.17.0.3:8080/realms/Centreon_SSO/protocol/openid-connect',
@@ -14,7 +16,11 @@ const oidcConfigValues = {
 const initializeOIDCUserAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
-    .then((contact) => cy.executeActionViaClapi({ bodyContent: contact }));
+    .then((fixture: Array<ActionClapi>) => {
+      fixture.forEach((action) =>
+        cy.executeActionViaClapi({ bodyContent: action })
+      );
+    });
 };
 
 const removeContact = (): Cypress.Chainable => {

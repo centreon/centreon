@@ -30,6 +30,11 @@ const useListingStyles = makeStyles<StylesProps>()(
       height: '100%',
       width: '100%'
     },
+    listingContainer: {
+      height: '100%',
+      overflow: 'hidden',
+      width: '100%'
+    },
     loadingIndicator: {
       height: loadingIndicatorHeight,
       width: '100%'

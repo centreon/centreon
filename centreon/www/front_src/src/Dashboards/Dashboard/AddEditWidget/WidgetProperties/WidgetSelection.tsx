@@ -7,7 +7,7 @@ import { SingleAutocompleteField } from '@centreon/ui';
 
 import { labelWidgetType } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
-import { editProperties } from '../../useCanEditDashboard';
+import { editProperties } from '../../hooks/useCanEditDashboard';
 
 import useWidgetSelection from './useWidgetSelection';
 import { useWidgetSelectionStyles } from './widgetProperties.styles';
@@ -33,7 +33,10 @@ const WidgetSelection = (): JSX.Element => {
 
     return (
       <li {...renderProps}>
-        <ListItemText primary={widget.title} secondary={widget.description} />
+        <ListItemText
+          primary={t(widget.title)}
+          secondary={t(widget.description)}
+        />
       </li>
     );
   };

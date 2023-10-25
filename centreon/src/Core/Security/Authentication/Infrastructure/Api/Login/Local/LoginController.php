@@ -31,7 +31,7 @@ use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class LoginController extends AbstractController
+final class LoginController extends AbstractController
 {
     use HttpUrlTrait;
     use LoggerTrait;
@@ -50,25 +50,24 @@ class LoginController extends AbstractController
         LoginPresenter $presenter,
         SessionInterface $session
     ): object {
+        /** @var array{login?: string, password?: string} $payload */
         $payload = json_decode($request->getContent(), true);
 
-        $referer = $request->headers->get('referer')
-            ? parse_url(
-                $request->headers->get('referer'),
-                PHP_URL_QUERY
-            ) : null;
+        if ($referer = $request->headers->get('referer')) {
+            $referer = parse_url($referer, PHP_URL_QUERY);
+        }
 
-        $request = LoginRequest::createForLocal(
+        $loginRequest = LoginRequest::createForLocal(
             (string) ($payload['login'] ?? ''),
             (string) ($payload['password'] ?? ''),
             $request->getClientIp(),
-            $referer
+            $referer ?: null
         );
 
         try {
-            $useCase($request, $presenter);
-        } catch (\Exception $e) {
-            $this->error($e->getMessage());
+            $useCase($loginRequest, $presenter);
+        } catch (\Exception $exception) {
+            $this->error($exception->getMessage());
         }
 
         $presenter->setResponseHeaders(
