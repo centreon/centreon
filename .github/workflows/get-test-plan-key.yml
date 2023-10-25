@@ -45,16 +45,15 @@ jobs:
 
           test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results')
 
+          test_plan_key =''
           node - <<EOF
           const data = JSON.parse('$test_plans');
-          let test_plan_key = '';
           data.forEach(item => {
               const key = item.jira.key;
               const summary = item.jira.summary;
-              console.log("Key:", key);
-              console.log("Summary:", summary);
               if (summary === "RT CENTREON CLOUD 23.04") {
-                test_plan_key = key;
+                console.log("the TP exist :", item);
+                $test_plan_key = key;
                 return;
               }
           });
