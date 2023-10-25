@@ -198,16 +198,13 @@ jobs:
           test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
           test_plan_key=""
 
-          echo "$test_plans" | jq -c '.data.getTestPlans.results[]'
-
           # Loop through the results to find a matching test plan
           for test_plan in $(echo "$test_plans" | jq -c '.data.getTestPlans.results[]'); do
-            echo ("this is the test plan : $test_plan")
+            echo "this is the test plan : $test_plan"
             summary=$(echo "$test_plan" | jq -c '.jira.summary')
-            key=$(echo "$test_plan" | jq -c '.jira.key')
             # Check if the summary matches your desired pattern
             if [[ "$summary" == "NIGHTLY OSS ${{ inputs.major_version }}"]]; then
-              test_plan_key=$key
+              test_plan_key=$(echo "$test_plan" | jq -c '.jira.key')
               echo"The test_plan_key is $test_plan_key"
               break
             fi
@@ -215,7 +212,7 @@ jobs:
 
           # If no matching test plan was found, create one
           if [ -z "$test_plan_key" ]; then
-            echo"TestPlan doesn't exist yet"
+            echo "TestPlan doesn't exist yet"
 
             # Create the test plan using a GraphQL mutation
             create_test_plan_mutation='{
