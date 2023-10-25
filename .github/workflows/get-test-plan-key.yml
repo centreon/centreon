@@ -55,12 +55,34 @@ jobs:
           echo "this is the result_array $result_array"
 
           # Loop through the results to find a matching test plan
-          for test_plan in "$result"; do
+          # for test_plan in "$result"; do
+          #   echo "this is the test plan : $test_plan"
+
+          #   jira_key=$(echo "$test_plan" | jq -r '.jira.key')
+          #   summary=$(echo "$test_plan" | jq -r '.jira.summary')
+            
+          #   echo "JIRA Key: $jira_key"
+          #   echo "Summary: $summary"
+          #   # Check if the summary matches your desired pattern
+          #   if [[ "$summary" == "NIGHTLY OSS ${{ needs.get-version.outputs.major_version }}" ]]; then
+          #     test_plan_key="$jira_key"
+          #     echo "The test_plan_key is $test_plan_key"
+          #     break
+          #   fi
+          # done
+
+          # Use grep to extract the JSON array from the test_plans variable
+          json_array=$(echo "$test_plans" | grep -oP '"results":\[\K[^]]+')
+
+          # Loop through the results to find a matching test plan
+          while read -r test_plan; do
             echo "this is the test plan : $test_plan"
 
-            jira_key=$(echo "$test_plan" | jq -r '.jira.key')
-            summary=$(echo "$test_plan" | jq -r '.jira.summary')
-            
+            jira_key=$(echo "$test_plan" | grep -oP '"key":\K"[^"]+"')
+            jira_key="${jira_key//\"/}" # Remove surrounding quotes
+            summary=$(echo "$test_plan" | grep -oP '"summary":\K"[^"]+"')
+            summary="${summary//\"/}" # Remove surrounding quotes
+
             echo "JIRA Key: $jira_key"
             echo "Summary: $summary"
             # Check if the summary matches your desired pattern
@@ -69,7 +91,7 @@ jobs:
               echo "The test_plan_key is $test_plan_key"
               break
             fi
-          done
+          done <<< "$json_array"
 
           # If no matching test plan was found, create one
           if [ -z "$test_plan_key" ]; then
