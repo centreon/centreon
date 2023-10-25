@@ -38,3 +38,16 @@ jobs:
           -pyflakes= \
           -color
         shell: bash
+  yaml-lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4 
+
+      - name: Install Yaml
+        run: |
+          pip install yamllint  
+
+      - name: Lint YAML files
+        run: |
+          yamllint .
