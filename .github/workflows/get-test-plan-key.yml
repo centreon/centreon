@@ -46,12 +46,21 @@ jobs:
 
           echo "this is my test_plans: $test_plans"
 
-          # result="{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}}
-          # {"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}}"
-          # echo "this is the result $result"
-
-          result_array= [{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]
+          result_array= '[{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]'
           echo "this is the result_array $result_array"
+
+          for item in $(echo "$api_input" | jq -c '.[]'); do
+            echo "Item: $item"
+
+            # You can access specific fields like this
+            issueId=$(echo "$item" | jq -r '.issueId')
+            key=$(echo "$item" | jq -r '.jira.key')
+            summary=$(echo "$item" | jq -r '.jira.summary')
+
+            echo "Issue ID: $issueId"
+            echo "Key: $key"
+            echo "Summary: $summary"
+          done
 
           # Loop through the results to find a matching test plan
           # for test_plan in "$result"; do
