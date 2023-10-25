@@ -77,7 +77,7 @@ jobs:
               dnf install -y mariadb-server mariadb
 
               if [[ "${{ inputs.module }}" == "web" ]];then
-                dnf download --resolve -y ${{ inputs.module }}
+                dnf download --resolve -y centreon-${{ inputs.module }}
               else
                 dnf download --resolve -y centreon
                 dnf download --resolve -y centreon-${{ inputs.module }}
@@ -98,7 +98,7 @@ jobs:
               dnf install -y mariadb-server mariadb
 
               if [[ "${{ inputs.module }}" == "web" ]];then
-                dnf download --resolve -y ${{ inputs.module }}
+                dnf download --resolve -y centreon-${{ inputs.module }}
               else
                 dnf download --resolve -y centreon
                 dnf download --resolve -y centreon-${{ inputs.module }}
@@ -117,7 +117,7 @@ jobs:
               apt update
 
               if [[ "${{ inputs.module }}" == "web" ]];then
-                apt-get install --download-only -y ${{ inputs.module }}
+                apt-get install --download-only -y centreon-${{ inputs.module }}
               else
                 apt-get install --download-only -y centreon
                 apt-get install --download-only -y centreon-${{ inputs.module }}
