@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,13 +30,11 @@ class ConfigurationExporter extends ExporterServiceAbstract
     public const NAME = 'configuration';
     private const MEDIA_PATH = _CENTREON_PATH_ . 'www/img/media';
 
-    /**
-     * @var \ConfigGenerateRemote\Generate
-     */
+    /** @var \ConfigGenerateRemote\Generate */
     private $generateService;
 
     /**
-     * Set generate service
+     * Set generate service.
      *
      * @param \ConfigGenerateRemote\Generate $generateService
      */
@@ -46,8 +44,10 @@ class ConfigurationExporter extends ExporterServiceAbstract
     }
 
     /**
-     * Export data
+     * Export data.
+     *
      * @param int $remoteId
+     *
      * @return mixed[]
      */
     public function export(int $remoteId): array
@@ -61,14 +61,14 @@ class ConfigurationExporter extends ExporterServiceAbstract
     }
 
     /**
-     * Import data
+     * Import data.
      *
      * @param \CentreonRemote\Infrastructure\Export\ExportManifest $manifest
      */
     public function import(ExportManifest $manifest): void
     {
         // skip if no data
-        if (!is_dir($this->getPath())) {
+        if (! is_dir($this->getPath())) {
             return;
         }
 
@@ -91,20 +91,20 @@ class ConfigurationExporter extends ExporterServiceAbstract
             // allow insert records without foreign key checks
             $db->query('SET FOREIGN_KEY_CHECKS=0;');
 
-            $import = $manifest->get("import");
+            $import = $manifest->get('import');
             foreach ($import['data'] as $data) {
                 $exportPathFile = $this->getFile($data['filename']);
                 $size = filesize($exportPathFile);
-                echo date("Y-m-d H:i:s") . " - INFO - Loading '" . $exportPathFile . "' ($size).\n";
+                echo date('Y-m-d H:i:s') . " - INFO - Loading '" . $exportPathFile . "' ({$size}).\n";
 
-                if ($size > 0 && !isset($tables[$data['table']])) {
-                    echo date("Y-m-d H:i:s") . " - ERROR - cannot import table '" . $data['table'] . "': not exist.\n";
+                if ($size > 0 && ! isset($tables[$data['table']])) {
+                    echo date('Y-m-d H:i:s') . " - ERROR - cannot import table '" . $data['table'] . "': not exist.\n";
                     continue;
                 }
 
-                if (!isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
+                if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
                     // empty table
-                    $db->query("DELETE FROM `" . $data['table'] . "`");
+                    $db->query('DELETE FROM `' . $data['table'] . '`');
                     $truncated[$data['table']] = 1;
                 }
 
@@ -128,17 +128,23 @@ class ConfigurationExporter extends ExporterServiceAbstract
         } catch (\ErrorException $e) {
             // rollback changes
             $db->rollBack();
-            echo date("Y-m-d H:i:s") . " - ERROR - Loading failed.\n";
+            echo date('Y-m-d H:i:s') . " - ERROR - Loading failed.\n";
         }
 
         // media copy
-        $exportPathMedia = $this->commitment->getPath() . "/media";
+        $exportPathMedia = $this->commitment->getPath() . '/media';
         $mediaPath = self::MEDIA_PATH;
         $this->recursiveCopy($exportPathMedia, $mediaPath);
     }
 
+    public static function order(): int
+    {
+        return 40;
+    }
+
     /**
-     * Copy directory recursively
+     * Copy directory recursively.
+     *
      * @param string $src
      * @param string $dst
      */
@@ -151,17 +157,12 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 if (is_dir($src . '/' . $file)) {
                     $this->recursiveCopy($src . '/' . $file, $dst . '/' . $file);
                 } else {
-                    echo date("Y-m-d H:i:s") . " - INFO - Copying '" . $src . "/" . $file . "'.\n";
+                    echo date('Y-m-d H:i:s') . " - INFO - Copying '" . $src . '/' . $file . "'.\n";
                     copy($src . '/' . $file, $dst . '/' . $file);
                     chmod($dst . '/' . $file, $this->commitment->getFilePermission());
                 }
             }
         }
         closedir($dir);
-    }
-
-    public static function order(): int
-    {
-        return 40;
     }
 }

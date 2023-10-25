@@ -5,12 +5,12 @@ import {
   DashboardGlobalRole,
   DashboardRolesAndPermissions,
   ListingVariant,
-  ThemeMode
+  ThemeMode,
+  FeatureFlags,
+  PlatformFeatures
 } from '@centreon/ui-context';
 
 import {
-  FeatureFlags,
-  PlatformFeatures,
   PlatformInstallationStatus,
   PlatformVersions,
   Version
@@ -110,12 +110,14 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
     dashboard: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
+    resourceStatusFilterRevamp: JsonDecoder.optional(JsonDecoder.boolean),
     resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),
     vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {
     adExclusionPeriods: 'ad_exclusion_periods',
+    resourceStatusFilterRevamp: 'resource_status_filter_revamp',
     resourceStatusTreeView: 'resource_status_tree_view'
   }
 );

@@ -24,10 +24,9 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
 use Core\Application\Common\UseCase\BodyResponseInterface;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
 
-class PasswordExpiredResponse extends UnauthorizedResponse implements ResponseStatusInterface, BodyResponseInterface
+final class PasswordExpiredResponse extends UnauthorizedResponse implements BodyResponseInterface
 {
     /** @var mixed */
     private $body;

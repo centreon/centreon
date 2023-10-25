@@ -16,7 +16,7 @@ import {
   labelYourWidgetHasBeenCreated,
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
-import { editProperties } from '../useCanEditDashboard';
+import { editProperties } from '../hooks/useCanEditDashboard';
 
 import {
   customBaseColorAtom,
@@ -88,11 +88,9 @@ const useWidgetModal = (): useWidgetModalState => {
 
     addPanel({
       data: values.data || undefined,
-      height: panelConfiguration.panelMinHeight,
       moduleName: values.moduleName || '',
       options: values.options,
-      panelConfiguration,
-      width: panelConfiguration.panelMinWidth
+      panelConfiguration
     });
     showSuccessMessage(t(labelYourWidgetHasBeenCreated));
     closeModal();
@@ -107,11 +105,9 @@ const useWidgetModal = (): useWidgetModalState => {
       addPanel({
         data: values.data || undefined,
         fixedId: widgetFormInitialData?.id || undefined,
-        height: panelConfiguration.panelMinHeight,
         moduleName: values.moduleName || '',
         options: values.options,
-        panelConfiguration,
-        width: panelConfiguration.panelMinWidth
+        panelConfiguration
       });
       showSuccessMessage(t(labelYourWidgetHasBeenModified));
       closeModal();

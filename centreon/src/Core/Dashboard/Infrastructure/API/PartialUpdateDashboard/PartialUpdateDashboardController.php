@@ -30,6 +30,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\PanelRequestDto;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request\RefreshRequestDto;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -130,6 +132,16 @@ final class PartialUpdateDashboardController extends AbstractController
 
                 $dto->panels[] = $dtoPanel;
             }
+        }
+
+        if (\array_key_exists('refresh', $dataSent)) {
+            $dtoGlobalRefresh = new RefreshRequestDto();
+            $dtoGlobalRefresh->refreshType = RefreshTypeConverter::fromString(
+                $dataSent['refresh']['type']
+            );
+            $dtoGlobalRefresh->refreshInterval = $dataSent['refresh']['interval'];
+
+            $dto->refresh = $dtoGlobalRefresh;
         }
 
         return $dto;

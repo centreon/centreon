@@ -4,12 +4,13 @@ import {
   configureOpenIDConnect,
   initializeOIDCUserAndGetLoginPage
 } from '../common';
-import { getAccessGroupId } from '../../../../commons';
+import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()
     .startOpenIdProviderContainer()
     .then(() => {
+      configureProviderAcls();
       initializeOIDCUserAndGetLoginPage();
     });
 });
@@ -99,6 +100,7 @@ When(
 
     cy.wait('@getListAccessGroup')
       .get('div[role="presentation"] ul li')
+      .contains('ALL')
       .click();
 
     cy.getByLabel({

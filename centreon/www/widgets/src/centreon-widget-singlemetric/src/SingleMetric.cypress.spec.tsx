@@ -153,7 +153,20 @@ const initializeComponent = ({
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Widget panelData={data} panelOptions={options} store={store} />
+        <Widget
+          globalRefreshInterval={{
+            interval: null,
+            type: 'global'
+          }}
+          panelData={data}
+          panelOptions={{
+            ...options,
+            refreshInterval: 'default',
+            refreshIntervalCustom: 15
+          }}
+          refreshCount={0}
+          store={store}
+        />
       </div>
     )
   });
@@ -303,22 +316,22 @@ describe('Single metric Widget', () => {
 
       cy.findByTestId('warning-line-65-tooltip').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 65%. Value defined by the {{metric}} metric'
+        'Warning threshold: 65%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('warning-line-70-tooltip').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 70%. Value defined by the {{metric}} metric'
+        'Warning threshold: 70%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('critical-line-85-tooltip').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 85%. Value defined by the {{metric}} metric'
+        'Critical threshold: 85%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('critical-line-90-tooltip').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 90%. Value defined by the {{metric}} metric'
+        'Critical threshold: 90%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();
@@ -351,6 +364,11 @@ describe('Single metric Widget', () => {
 
       cy.contains('34%').should('have.css', 'fill', 'rgb(253, 155, 39)');
       cy.findByTestId('34-bar-#FD9B27').should('be.visible');
+      cy.findByTestId('34-bar-#FD9B27').should(
+        'have.css',
+        'width',
+        '465.69696044921875px'
+      );
 
       cy.makeSnapshot();
     });
@@ -365,7 +383,7 @@ describe('Single metric Widget', () => {
 
       cy.contains('34%').should('have.css', 'fill', 'rgb(255, 74, 74)');
       cy.findByTestId('34-bar-#FF4A4A').should('be.visible');
-      cy.findByTestId('34-bar-#FF4A4A').should('have.css', 'width', '1366px');
+      cy.findByTestId('34-bar-#FF4A4A').should('have.css', 'width', '1356px');
 
       cy.findByTestId('warning-line-10-tooltip').trigger('mouseover');
       cy.contains('Warning threshold: 10%. Custom value').should('be.visible');
@@ -421,19 +439,19 @@ describe('Single metric Widget', () => {
 
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseover');
       cy.contains(
-        'Warning threshold: 65%. Value defined by the {{metric}} metric'
+        'Warning threshold: 65%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Warning threshold: 70%. Value defined by the {{metric}} metric'
+        'Warning threshold: 70%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseleave');
 
       cy.findAllByTestId('5-arc').eq(1).trigger('mouseover');
       cy.contains(
-        'Critical threshold: 85%. Value defined by the {{metric}} metric'
+        'Critical threshold: 85%. Value defined by {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Critical threshold: 90%. Value defined by the {{metric}} metric'
+        'Critical threshold: 90%. Value defined by {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();

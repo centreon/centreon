@@ -25,10 +25,13 @@ namespace Tests\Core\Dashboard\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Refresh;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 
 beforeEach(function (): void {
     $this->testedCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00');
     $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
+    $this->testedGlobalRefresh = new Refresh(RefreshType::Manual, 30);
     $this->createDashboard = function (array $fields = []): Dashboard {
         return new Dashboard(
             $fields['id'] ?? 1,
@@ -37,7 +40,8 @@ beforeEach(function (): void {
             \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
             \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
             $this->testedCreatedAt,
-            $this->testedUpdatedAt
+            $this->testedUpdatedAt,
+            $this->testedGlobalRefresh,
         );
     };
 });
@@ -51,7 +55,8 @@ it('should return properly set dashboard instance', function (): void {
         ->and($dashboard->getUpdatedAt()->getTimestamp())->toBe($this->testedUpdatedAt->getTimestamp())
         ->and($dashboard->getCreatedAt()->getTimestamp())->toBe($this->testedCreatedAt->getTimestamp())
         ->and($dashboard->getCreatedBy())->toBe(2)
-        ->and($dashboard->getUpdatedBy())->toBe(3);
+        ->and($dashboard->getUpdatedBy())->toBe(3)
+        ->and($dashboard->getRefresh())->toBe($this->testedGlobalRefresh);
 });
 
 // mandatory fields

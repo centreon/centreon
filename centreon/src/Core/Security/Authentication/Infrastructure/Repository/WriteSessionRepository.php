@@ -48,8 +48,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
         private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
         private readonly WriteTokenRepositoryInterface $writeTokenRepository,
         private readonly ProviderAuthenticationFactoryInterface $providerFactory
-    )
-    {
+    ) {
     }
 
     /**
@@ -66,6 +65,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             /** @var SAML $provider */
             $provider = $this->providerFactory->create(Provider::SAML);
             $configuration = $provider->getConfiguration();
+            /** @var CustomConfiguration $customConfiguration */
             $customConfiguration = $configuration->getCustomConfiguration();
             if (
                 $configuration->isActive()

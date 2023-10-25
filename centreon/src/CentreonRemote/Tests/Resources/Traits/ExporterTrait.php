@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,21 +21,18 @@
 
 namespace CentreonRemote\Tests\Resources\Traits;
 
-use Pimple\Container;
 use CentreonRemote\ServiceProvider;
+use Pimple\Container;
 
 /**
- * Trait with extension methods for Exporter testing
+ * Trait with extension methods for Exporter testing.
  *
- * @author CentreonRemote
  * @version 1.0.0
- * @package centreon-remote
- * @subpackage test
  */
 trait ExporterTrait
 {
     /**
-     * Set up exporter service in container
+     * Set up exporter service in container.
      *
      * <code>
      * public function setUp()
@@ -50,7 +47,6 @@ trait ExporterTrait
     public function setUpExporter(Container $container)
     {
         $this->container[ServiceProvider::CENTREON_REMOTE_EXPORTER] = new class {
-
             protected $list = [];
 
             public function add($class, callable $factory)
@@ -66,7 +62,7 @@ trait ExporterTrait
     }
 
     /**
-     * Check list of exporters if they are registered in export chain service
+     * Check list of exporters if they are registered in export chain service.
      *
      * <code>
      * $this->checkExporters([

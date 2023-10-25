@@ -3,16 +3,12 @@ import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 import { or } from 'ramda';
 
-import { Box } from '@mui/material';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
+import { Box, CircularProgress } from '@mui/material';
 
-import { ConfirmDialog, IconButton } from '@centreon/ui';
+import { IconButton } from '@centreon/ui';
 
-import {
-  labelSave,
-  labelDoYouWantToConfirmAction
-} from '../../../translatedLabels';
-import useFormSubmit from '../../Form/useFormSubmit';
+import { labelSave } from '../../../translatedLabels';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -27,43 +23,29 @@ const SaveAction = (): JSX.Element => {
   const { isSubmitting, isValid, dirty, submitForm } =
     useFormikContext<FormikValues>();
 
-  const { labelConfirm, panelMode, setDialogOpen, dialogOpen } =
-    useFormSubmit();
-
-  const onClick = (): void => setDialogOpen(true);
-
-  const onCancel = (): void => setDialogOpen(false);
-
   const onConfirm = (): void => {
     submitForm();
   };
 
   const disabled = or(!isValid, !dirty);
-  const dataTestId = `${panelMode}-notification`;
 
   return (
     <Box>
-      <IconButton
-        ariaLabel={t(labelSave) as string}
-        disabled={disabled as boolean}
-        title={t(labelSave) as string}
-        onClick={onClick}
-      >
-        <SaveIcon
-          className={classes.icon}
-          color={disabled ? 'disabled' : 'primary'}
-        />
-      </IconButton>
-      <ConfirmDialog
-        confirmDisabled={isSubmitting}
-        data-testid={dataTestId}
-        labelMessage={t(labelConfirm)}
-        labelTitle={t(labelDoYouWantToConfirmAction)}
-        open={dialogOpen}
-        submitting={isSubmitting}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />
+      {isSubmitting ? (
+        <CircularProgress color="primary" size={20} />
+      ) : (
+        <IconButton
+          ariaLabel={t(labelSave) as string}
+          disabled={disabled as boolean}
+          title={t(labelSave) as string}
+          onClick={onConfirm}
+        >
+          <SaveIcon
+            className={classes.icon}
+            color={disabled ? 'disabled' : 'primary'}
+          />
+        </IconButton>
+      )}
     </Box>
   );
 };

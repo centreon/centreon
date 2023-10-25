@@ -26,6 +26,7 @@ namespace Core\Command\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Command\Domain\Model\Command;
 use Core\Command\Domain\Model\CommandType;
+use Core\Common\Domain\TrimmedString;
 
 interface ReadCommandRepositoryInterface
 {
@@ -33,6 +34,8 @@ interface ReadCommandRepositoryInterface
      * Determine if a command exists by its ID.
      *
      * @param int $commandId
+     *
+     * @throws \Throwable
      *
      * @return bool
      */
@@ -44,9 +47,33 @@ interface ReadCommandRepositoryInterface
      * @param int $commandId
      * @param CommandType $commandType
      *
+     * @throws \Throwable
+     *
      * @return bool
      */
     public function existsByIdAndCommandType(int $commandId, CommandType $commandType): bool;
+
+    /**
+     * Determine if a command exists by its name.
+     *
+     * @param TrimmedString $name
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByName(TrimmedString $name): bool;
+
+    /**
+     * Retrieve a command by its ID.
+     *
+     * @param int $commandId
+     *
+     * @throws \Throwable
+     *
+     * @return Command|null
+     */
+    public function findById(int $commandId): ?Command;
 
     /**
      * Search for all commands based on request parameters and command types.

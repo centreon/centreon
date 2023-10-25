@@ -41,7 +41,7 @@ my ($gorgone);
 
 use base qw(gorgone::class::script);
 
-my $VERSION = '22.04.0';
+my $VERSION = '23.10.0';
 my %handlers = (TERM => {}, HUP => {}, CHLD => {}, DIE => {});
 
 sub new {

@@ -25,16 +25,23 @@ namespace Core\Service\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\SimpleEntity;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Domain\Model\NotificationType;
 use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
+use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
 
 /**
@@ -313,6 +320,341 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
 
         return $serviceTemplateInheritances;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParameter(RequestParametersInterface $requestParameters): array
+    {
+        $concatenator = $this->findServicesRequest();
+        $concatenator->withCalcFoundRows(true);
+
+        return $this->retrieveServices($concatenator, $requestParameters);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParameterAndAccessGroup(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array
+    {
+        if ($accessGroups === []) {
+            $this->debug('No access group for this user, return empty');
+
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $concatenator = $this->findServicesRequest($accessGroupIds);
+        $concatenator->withCalcFoundRows(true);
+
+        $concatenator->appendJoins(
+            <<<'SQL'
+                JOIN `:dbstg`.centreon_acl acl
+                    ON service.service_id = acl.service_id
+                SQL
+        );
+        $concatenator->appendWhere(
+            <<<'SQL'
+                WHERE acl.group_id IN (:access_group_ids)
+                SQL
+        );
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
+
+        return $this->retrieveServices($concatenator, $requestParameters);
+    }
+
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return SqlConcatenator
+     */
+    private function findServicesRequest(array $accessGroupIds = []): SqlConcatenator
+    {
+        $categoryAcls = '';
+        $groupAcls = '';
+        if ($accessGroupIds !== []) {
+            if ($this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+                $categoryAcls = <<<'SQL'
+                    AND scr.sc_id IN (
+                        SELECT arscr.sc_id
+                        FROM `:db`.acl_resources_sc_relations arscr
+                        INNER JOIN `:db`.acl_resources res
+                            ON arscr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON res.acl_res_id = argr.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON argr.acl_group_id = ag.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+            if (! $this->hasAccessToAllServiceGroups($accessGroupIds)) {
+                $groupAcls = <<<'SQL'
+                    AND sgr.servicegroup_sg_id in (
+                        SELECT arsgr.sg_id
+                        FROM `:db`.acl_resources_sg_relations arsgr
+                        INNER JOIN `:db`.acl_resources res
+                            ON arsgr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON res.acl_res_id = argr.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON argr.acl_group_id = ag.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT service.service_id,
+                    service.service_description,
+                    service.timeperiod_tp_id as check_timeperiod_id,
+                    checktp.tp_name as check_timeperiod_name,
+                    service.timeperiod_tp_id2 as notification_timeperiod_id,
+                    notificationtp.tp_name as notification_timeperiod_name,
+                    service.service_activate,
+                    service.service_normal_check_interval,
+                    service.service_retry_check_interval,
+                    service.service_template_model_stm_id as service_template_id,
+                    serviceTemplate.service_description as service_template_name,
+                    GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                    GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
+                    GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
+                    GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
+                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as groups
+                FROM `:db`.service
+                SQL
+        );
+        $concatenator
+            ->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service as serviceTemplate
+                        ON service.service_template_model_stm_id = serviceTemplate.service_id
+                        AND serviceTemplate.service_register = '0'
+                    LEFT JOIN `:db`.timeperiod checktp
+                        ON checktp.tp_id = service.timeperiod_tp_id
+                    LEFT JOIN `:db`.timeperiod notificationtp
+                        ON notificationtp.tp_id = service.timeperiod_tp_id2
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.service_service_id = service.service_id
+                        {$categoryAcls}
+                    LEFT JOIN `:db`.service_categories severity
+                        ON severity.sc_id = scr.sc_id
+                        AND severity.level IS NOT NULL
+                    LEFT JOIN `:db`.service_categories category
+                        ON category.sc_id = scr.sc_id
+                        AND category.level IS NULL
+                    LEFT JOIN `:db`.servicegroup_relation sgr
+                        ON sgr.service_service_id = service.service_id
+                        AND sgr.servicegroup_sg_id
+                        {$groupAcls}
+                    LEFT JOIN `:db`.servicegroup
+                        ON servicegroup.sg_id = sgr.servicegroup_sg_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = service.service_id
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                        AND host.host_register = '1'
+                    SQL
+            )
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE service.service_register = '1'
+                    SQL
+            )
+            ->appendGroupBy(
+                <<<'SQL'
+                    GROUP BY service.service_id
+                    SQL
+            );
+
+        return $concatenator;
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceLight[]
+     */
+    private function retrieveServices(SqlConcatenator $concatenator, RequestParametersInterface $requestParameters): array
+    {
+        // Settup for search, pagination, order
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'service.service_description',
+            'host.id' => 'host.host_id',
+            'host.name' => 'host.host_name',
+            'category.id' => 'category.sc_id',
+            'category.name' => 'category.sc_name',
+            'severity.id' => 'severity.sc_id',
+            'severity.name' => 'severity.sc_name',
+            'group.id' => 'servicegroup.sg_id',
+            'group.name' => 'servicegroup.sg_name',
+        ]);
+        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
+        $sqlTranslator->translateForConcatenator($concatenator);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $sqlTranslator->bindSearchValues($statement);
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
+        $services = [];
+        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            $services[] = new ServiceLight(
+                id: $result['service_id'],
+                name: new TrimmedString($result['service_description']),
+                hostIds: array_map('intval', explode(',', $result['host_ids'])),
+                categoryIds: $result['category_ids']
+                    ? array_map('intval', explode(',', $result['category_ids']))
+                    : [],
+                groups: $result['groups']
+                    ? array_map(
+                        static function (string $sgRel) use ($result): ServiceGroupRelation {
+                            [$sgId, $hostId] = explode('-', $sgRel);
+
+                            return new ServiceGroupRelation(
+                                serviceId: $result['service_id'],
+                                serviceGroupId: (int) $sgId,
+                                hostId: (int) $hostId
+                            );
+                        },
+                        explode(',', $result['groups'])
+                    )
+                    : [],
+                serviceTemplate: $result['service_template_id'] !== null
+                    ? new SimpleEntity(
+                        $result['service_template_id'],
+                        new TrimmedString($result['service_template_name']),
+                        'ServiceLight::serviceTemplate'
+                    )
+                    : null,
+                notificationTimePeriod: $result['notification_timeperiod_id'] !== null
+                    ? new SimpleEntity(
+                        $result['notification_timeperiod_id'],
+                        new TrimmedString($result['notification_timeperiod_name']),
+                        'ServiceLight::notificationTimePeriod'
+                    )
+                    : null,
+                checkTimePeriod: $result['check_timeperiod_id'] !== null
+                    ? new SimpleEntity(
+                        $result['check_timeperiod_id'],
+                        new TrimmedString($result['check_timeperiod_name']),
+                        'ServiceLight::checkTimePeriod'
+                    )
+                    : null,
+                severity: $result['severity_id'] !== null
+                    ? new SimpleEntity(
+                        (int) $result['severity_id'],
+                        new TrimmedString($result['severity_name']),
+                        'ServiceLight::severityId'
+                    )
+                    : null,
+                normalCheckInterval: $result['service_normal_check_interval'],
+                retryCheckInterval: $result['service_retry_check_interval'],
+                isActivated: (bool) $result['service_activate'],
+            );
+        }
+
+        return $services;
+    }
+
+    /**
+     * Determine if service categories are filtered for given access group ids
+     * true: accessible service categories are filtered (only specified are accessible)
+     * false: accessible service categories are not filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            'SELECT 1
+            FROM `:db`.acl_resources_sc_relations arhr
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id'
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * Determine if accessGroups give access to all serviceGroups
+     * true: all service groups are accessible
+     * false: all service groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllServiceGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_servicegroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

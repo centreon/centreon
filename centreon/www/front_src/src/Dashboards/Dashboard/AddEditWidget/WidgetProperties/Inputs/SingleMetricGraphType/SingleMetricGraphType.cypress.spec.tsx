@@ -1,7 +1,7 @@
 import { Formik } from 'formik';
 
 import { labelDisplayType } from '../../../../translatedLabels';
-import { editProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import SingleMetricGraphType from './SingleMetricGraphType';
 

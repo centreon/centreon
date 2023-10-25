@@ -26,7 +26,7 @@ namespace Utility\Interfaces;
 interface UUIDGeneratorInterface
 {
     /**
-     * Generate a UUID Version 4
+     * Generate a UUID Version 4.
      *
      * @return string
      */

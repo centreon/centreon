@@ -28,18 +28,10 @@ use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class LogoutSessionController extends AbstractController
+final class LogoutSessionController extends AbstractController
 {
     use HttpUrlTrait;
-
-    /**
-     * @param UrlGeneratorInterface $urlGenerator
-     */
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
-    {
-    }
 
     /**
      * @param LogoutSession $useCase

@@ -295,8 +295,12 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: Run of php-cs-fixer
-        run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
+      - name: Run of php-cs-fixer with strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+        working-directory: centreon
+
+      - name: Run of php-cs-fixer without strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
         working-directory: centreon
 
   package:
@@ -497,6 +501,8 @@ jobs:
     uses: ./.github/workflows/newman.yml
     with:
       collection_path: centreon/tests/rest_api/collections
+      image_name: centreon-web
+      os: alma9
       container_name: my_centreon_container
       centreon_url: http://localhost
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}

@@ -1,5 +1,7 @@
-import { StatusChip } from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
+
+import { getStatus } from './ServiceSubItemColumn/SubItem';
+import StatusChip from './ServiceSubItemColumn/StatusChip';
 
 import { useColumnStyles } from '.';
 
@@ -10,6 +12,8 @@ const ParentResourceColumn = ({
 }: ComponentColumnProps): JSX.Element | null => {
   const { classes } = useColumnStyles({ isHovered });
 
+  const status = row?.parent?.status?.name;
+
   if (!row.parent) {
     return null;
   }
@@ -18,9 +22,8 @@ const ParentResourceColumn = ({
     <>
       <div className={classes.resourceDetailsCell}>
         <StatusChip
-          className={classes.extraSmallChip}
-          severityCode={row.parent?.status?.severity_code || 0}
-          size="small"
+          content={getStatus(status?.toLowerCase())?.label}
+          severityCode={getStatus(status?.toLowerCase())?.severity}
         />
       </div>
       {renderEllipsisTypography?.({

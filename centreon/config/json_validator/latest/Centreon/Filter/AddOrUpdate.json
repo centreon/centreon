@@ -2,7 +2,10 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Add or update a user filter",
   "type": "object",
-  "required": ["name", "criterias"],
+  "required": [
+    "name",
+    "criterias"
+  ],
   "additionalProperties": false,
   "properties": {
     "name": {
@@ -12,7 +15,11 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "type", "value"],
+        "required": [
+          "name",
+          "type",
+          "value"
+        ],
         "additionalProperties": true,
         "properties": {
           "name": {
@@ -22,10 +29,63 @@
             "type": "string"
           },
           "value": {
-            "type": ["string", "integer", "object", "array", "null"]
+            "type": [
+              "string",
+              "integer",
+              "object",
+              "array",
+              "null"
+            ]
           },
           "object_type": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "search_data": {
+            "type": ["object", "null"],
+            "required": [
+              "field",
+              "id",
+              "type",
+              "values"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "value",
+                    "valueId"
+                  ],
+                  "additionalProperties": true,
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "valueId": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
