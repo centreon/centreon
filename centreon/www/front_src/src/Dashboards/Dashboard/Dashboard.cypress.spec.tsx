@@ -376,22 +376,22 @@ describe('Dashboard', () => {
   });
 
   describe('View mode', () => {
-    it('displays the widget form in view mode when the user has editor role and the user is not editing the dashboard', () => {
+    it('displays the widget form in editor mode when the user has editor role and the user is not editing the dashboard', () => {
       initializeAndMount(editorRoles);
 
       cy.contains(labelCancel).click();
 
-      cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
 
-      cy.findByLabelText(labelViewProperties).click();
+      cy.findByLabelText(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetType).should('be.disabled');
-      cy.findByLabelText(labelCancel).should('not.exist');
-      cy.findByLabelText(labelSave).should('not.exist');
+      cy.findByLabelText(labelWidgetType).should('be.enabled');
+      cy.findByLabelText(labelCancel).should('exist');
+      cy.findByLabelText(labelSave).should('exist');
 
       cy.findByLabelText('close').click();
 
-      cy.findByLabelText(labelWidgetType).should('not.exist');
+      cy.findByLabelText(labelWidgetType).should('exist');
 
       cy.makeSnapshot();
     });
