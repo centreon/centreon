@@ -474,7 +474,7 @@ jobs:
                 --header 'Content-Type: application/json' \
                 --data '{
                   "transition": {
-                    "id": "'"$transition_id"'"
+                    "id": "'"$transition_id_exec"'"
                   }
                 }'
             done
