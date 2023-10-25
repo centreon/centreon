@@ -203,9 +203,9 @@ jobs:
             echo "this is the test plan : $test_plan"
             summary=$(echo "$test_plan" | jq -c '.jira.summary')
             # Check if the summary matches your desired pattern
-            if [[ "$summary" == "NIGHTLY OSS ${{ inputs.major_version }}"]]; then
+            if [[ "$summary" == "NIGHTLY OSS ${{ inputs.major_version }}" ]]; then
               test_plan_key=$(echo "$test_plan" | jq -c '.jira.key')
-              echo"The test_plan_key is $test_plan_key"
+              echo "The test_plan_key is $test_plan_key"
               break
             fi
           done
