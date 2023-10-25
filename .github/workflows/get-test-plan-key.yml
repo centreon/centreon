@@ -45,7 +45,7 @@ jobs:
 
           test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results')
 
-          test_plan_key =''
+          test_plan_key=''
           node - <<EOF
           const data = JSON.parse('$test_plans');
           data.forEach(item => {
