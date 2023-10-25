@@ -705,6 +705,13 @@ systemctl try-restart php-fpm || :
 
 %posttrans web
 
+if [ -d /etc/centreon-broker ] && [ "$(getent passwd centreon-broker)" ]; then
+    chown centreon-broker:centreon /etc/centreon-broker/*
+fi
+if [ -d /etc/centreon-engine ] && [ "$(getent passwd centreon-engine)" ]; then
+    chown centreon-engine:centreon /etc/centreon-engine/*
+fi
+
 # rebuild symfony cache on upgrade
 if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
   rm -rf /var/cache/centreon/symfony
@@ -853,13 +860,13 @@ fi
 %{_sbindir}/usermod -a -G centreon-engine centreon-gorgone
 %{_sbindir}/usermod -a -G centreon-broker centreon-gorgone
 
-# Change right for Centreon Engine and Centreon Broker
+# Change right for Centreon Engine and Centreon Broker configuration files
 if [ -d /etc/centreon-broker ]; then
-    chown -R centreon-broker: /etc/centreon-broker
+    chown -R centreon-broker:centreon-broker /etc/centreon-broker
     chmod -R g+w /etc/centreon-broker
 fi
 if [ -d /etc/centreon-engine ]; then
-    chown -R centreon-engine: /etc/centreon-engine
+    chown -R centreon-engine:centreon-engine /etc/centreon-engine
     chmod -R g+w /etc/centreon-engine
 fi
 
