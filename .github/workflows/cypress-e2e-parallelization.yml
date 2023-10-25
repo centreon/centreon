@@ -207,7 +207,7 @@ jobs:
           echo "this is the result_array $result_array"
 
           # Loop through the results to find a matching test plan
-          for test_plan in "$result_array"; do
+          for test_plan in "$result"; do
             echo "this is the test plan : $test_plan"
 
             jira_key=$(echo "$test_plan" | jq -r '.jira.key')
