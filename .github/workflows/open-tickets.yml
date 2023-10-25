@@ -170,5 +170,8 @@ jobs:
 
     uses: ./.github/workflows/check-pkg-availability.yml
     with:
-      module: awie
+      module: open-tickets
       version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
