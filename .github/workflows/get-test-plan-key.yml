@@ -1,0 +1,97 @@
+on:
+  workflow_call:
+    outputs:
+      test_plan_key:
+        description: "the test plan key"
+        value: ${{ jobs.get-test-plan-key.outputs.test_plan_key }}
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  # NIGHTLY <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., NIGHTLY OSS 23.10)
+  get-test-plan-key:
+    runs-on: ubuntu-22.04
+    needs: [get-version]
+    outputs:
+      test_plan_key: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
+
+    steps:
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Get the TestPlanKey
+        id: get_test_plan_key
+        run: |
+          # is_nightly=$([[ ${{ github.event_name }} == 'schedule' ]] && echo "NIGHTLY" || echo "RT")
+
+          # Use a GraphQL query to get all test plans matching the JQL
+          graphql_query='{
+            "query":"query GetTestPlans($jql: String, $limit: Int!) { getTestPlans(jql: $jql, limit: $limit) { total results { issueId jira(fields: [\"summary\", \"key\"]) } } }",
+            "variables":{"jql": "project = MON","limit": 100}}'
+
+          # Execute the GraphQL query and parse the results
+          test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
+          test_plan_key=""
+
+          echo "this is my test_plans: $test_plans"
+
+          result=$(echo "$test_plans" | jq -c '.data.getTestPlans.results[]')
+          echo "this is the result $result"
+
+          result_array=$(echo "$test_plans" | jq -c '.data.getTestPlans.results')
+          echo "this is the result_array $result_array"
+
+          # Loop through the results to find a matching test plan
+          for test_plan in "$result"; do
+            echo "this is the test plan : $test_plan"
+
+            jira_key=$(echo "$test_plan" | jq -r '.jira.key')
+            summary=$(echo "$test_plan" | jq -r '.jira.summary')
+            
+            echo "JIRA Key: $jira_key"
+            echo "Summary: $summary"
+            # Check if the summary matches your desired pattern
+            if [[ "$summary" == "NIGHTLY OSS ${{ needs.get-version.outputs.major_version }}" ]]; then
+              test_plan_key="$jira_key"
+              echo "The test_plan_key is $test_plan_key"
+              break
+            fi
+          done
+
+          # If no matching test plan was found, create one
+          if [ -z "$test_plan_key" ]; then
+            echo "TestPlan doesn't exist yet"
+
+            # Create the test plan using a GraphQL mutation
+            create_test_plan_mutation='{
+              "query": "mutation CreateTestPlan($testIssueIds: [String], $jira: XrayIssueInput!) { createTestPlan(testIssueIds: $testIssueIds, jira: $jira) { testPlan { issueId jira(fields: [\\"key\\"]) } warnings } }",
+              "variables": {
+                "testIssueIds": [],
+                "jira": {
+                  "fields": {
+                    "summary": "NIGHTLY OSS ${{ needs.get-version.outputs.major_version }}",
+                    "project": { "key": "MON" }
+                  }
+                }
+              }
+            }'
+            create_result=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" -d "$create_test_plan_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
+            
+            echo "creation of the testPlan: $create_result "
+
+            # Extract the key of the created test plan
+            test_plan_key=$(echo "$create_result" | jq -r '.data.createTestPlan.testPlan.jira.fields.key')
+            echo "the test_plan_key for the new testPlan is: $test_plan_key"
+          fi
+
+          # Set the testPlanKey as an output
+          echo "test_plan_key=$test_plan_key" >> $GITHUB_OUTPUT
+        shell: bash
