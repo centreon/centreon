@@ -465,10 +465,8 @@ jobs:
             }'
 
             test_execution_id=${{ needs.associate-test-cases.outputs.test_exec }}
-            for transition_id exec in "${transition_ids_test_exec[@]}"; do
+            for transition_id_exec in "${transition_ids_test_exec[@]}"; do
               echo "Performing Jira transition with transition ID: $transition_ids_test_exec"
-
-              # Construire la requête avec l'ID de transition actuel
               curl --request POST \
                 --url "https://centreon.atlassian.net/rest/api/2/issue/${test_execution_id}/transitions?expand=transitions.fields" \
                 --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
