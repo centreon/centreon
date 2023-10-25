@@ -512,10 +512,10 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.client_id }}
-      client_secret: ${{ secrets.client_secret }}
-      jira_user: ${{ secrets.jira_user }}
-      jira_token_test: ${{ secrets.jira_token_test }}
+      client_id: ${{ secrets.CLIENT_ID }}
+      client_secret: ${{ secrets.CLIENT_SECRET }}
+      jira_user: ${{ secrets.JIRA_USER }}
+      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
 
   api-integration-test:
     needs: [get-version, changes, dockerize]
