@@ -109,6 +109,7 @@ const initialize = ({
   });
 
   cy.viewport('macbook-13');
+
 };
 
 describe('Edit Panel', () => {
