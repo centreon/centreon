@@ -224,7 +224,7 @@ jobs:
                 "testIssueIds": [],
                 "jira": {
                   "fields": {
-                    "summary": "'"$is_nightly"' OSS ${{ inputs.major_version }}",
+                    "summary": "NIGHTLY OSS ${{ inputs.major_version }}",
                     "project": { "key": "MON" }
                   }
                 }
