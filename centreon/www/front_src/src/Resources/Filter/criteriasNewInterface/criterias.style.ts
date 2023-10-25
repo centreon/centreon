@@ -32,6 +32,11 @@ export const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.default,
     minWidth: theme.spacing(35)
   },
+  moreFiltersButton: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginBottom: theme.spacing(1)
+  },
   small: {
     display: 'flex',
     flexDirection: 'row',
