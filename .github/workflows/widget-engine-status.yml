@@ -78,7 +78,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   check-stable-packages:
-    needs: [get-version]
+    needs: [get-version, promote]
 
     uses: ./.github/workflows/check-pkg-availability.yml
     with:
