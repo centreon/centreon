@@ -46,60 +46,26 @@ jobs:
 
           echo "this is my test_plans: $test_plans"
 
-          api_input='[{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]'
-          echo "this is the api_input $api_input"
+          # api_input='[{"issueId":"73930","jira":{"key":"MON-24025","summary":"Test plan epic Pieter"}},{"issueId":"73861","jira":{"key":"MON-23967","summary":"release-21.10-next newman tests"}},{"issueId":"73860","jira":{"key":"MON-23966","summary":"release-22.04-next newman tests"}}]'
+          # echo "this is the api_input $api_input"
 
           node - <<EOF
-          const data = JSON.parse('$api_input');
+          const data = JSON.parse('$test_plans');
+          let test_plan_key = '';
           data.forEach(item => {
               console.log("Item:", item);
-              const issueId = item.issueId;
               const key = item.jira.key;
               const summary = item.jira.summary;
-              console.log("Issue ID:", issueId);
               console.log("Key:", key);
               console.log("Summary:", summary);
+              if (summary === "NIGHTLY OSS ${{ needs.get-version.outputs.major_version }}") {
+                test_plan_key = key;
+                return;
+              }
           });
           EOF
 
-          # Loop through the results to find a matching test plan
-          # for test_plan in "$result"; do
-          #   echo "this is the test plan : $test_plan"
-
-          #   jira_key=$(echo "$test_plan" | jq -r '.jira.key')
-          #   summary=$(echo "$test_plan" | jq -r '.jira.summary')
-            
-          #   echo "JIRA Key: $jira_key"
-          #   echo "Summary: $summary"
-          #   # Check if the summary matches your desired pattern
-          #   if [[ "$summary" == "NIGHTLY OSS ${{ needs.get-version.outputs.major_version }}" ]]; then
-          #     test_plan_key="$jira_key"
-          #     echo "The test_plan_key is $test_plan_key"
-          #     break
-          #   fi
-          # done
-
-          # Use grep to extract the JSON array from the test_plans variable
-          json_array=$(echo "$test_plans" | grep -oP '"results":\[\K[^]]+')
-          echo "this is the json array $json_array"
-          # Loop through the results to find a matching test plan
-          while read -r test_plan; do
-            echo "this is the test plan : $test_plan"
-
-            jira_key=$(echo "$test_plan" | grep -oP '"key":\K"[^"]+"')
-            jira_key="${jira_key//\"/}" # Remove surrounding quotes
-            summary=$(echo "$test_plan" | grep -oP '"summary":\K"[^"]+"')
-            summary="${summary//\"/}" # Remove surrounding quotes
-
-            echo "JIRA Key: $jira_key"
-            echo "Summary: $summary"
-            # Check if the summary matches your desired pattern
-            if [[ "$summary" == "NIGHTLY OSS ${{ needs.get-version.outputs.major_version }}" ]]; then
-              test_plan_key="$jira_key"
-              echo "The test_plan_key is $test_plan_key"
-              break
-            fi
-          done <<< "$json_array"
+          echo "this is the test plan key for now: $test_plan_key"
 
           # If no matching test plan was found, create one
           if [ -z "$test_plan_key" ]; then
