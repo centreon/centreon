@@ -113,8 +113,8 @@ jobs:
           run: |
               jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.determine-testplan-key.outputs.testPlanKey }}"
               testPlan_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
-              echo "this is the testPlan ID : $test_plan_id"
-              echo "testPlan_id=$testPlan_id" >> $GITHUB_OUTPUT
+              echo "this is the testPlan ID : $testPlan_id"
+              echo "testPlan_id=$test_plan_id" >> $GITHUB_OUTPUT
 
         - name: Associate Test Cases with Test plan
           id: xray-newman
@@ -122,7 +122,7 @@ jobs:
             xray_graphql_getTestPlan='{
               "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
               "variables": {
-                "issueId": "${{ steps.get-test-plan-id.outputs.testPlan_id }}"
+                "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}"
               }
             }'
 
@@ -161,7 +161,7 @@ jobs:
             xray_graphql_AddingTestsToTestPlan='{
               "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
               "variables": {
-                "issueId": "${{ steps.get-test-plan-id.outputs.testPlan_id }}",
+                "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}",
                 "testIssueIds": []
               }
             }'
@@ -254,12 +254,12 @@ jobs:
             else
               echo "Created Test Execution with ID: $test_execution_id"
               echo "test_exec=$test_execution_id" >> $GITHUB_OUTPUT
-              fi
+            fi
 
             xray_graphql_addTestExecutionsToTestPlan='{
               "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
               "variables": {
-                "issueId": "${{steps.get-test-plan-id.outputs.testPlan_id }}",
+                "issueId": "${{steps.get-test-plan-id.outputs.test_plan_id }}",
                 "testExecIssueIds": ["'$test_execution_id'"]
               }
             }'
@@ -336,11 +336,11 @@ jobs:
         collection_directory="$(dirname "$collection_file")"
         environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
         if [ -f "$environment_file" ]; then
-           echo "Environment: $environment_file"
-           pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+            echo "Environment: $environment_file"
+            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
           else
-           echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
-           exit 1
+            echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
+            exit 1
         fi
 
     - name: Upload HTML Reports
