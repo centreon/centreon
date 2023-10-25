@@ -198,6 +198,8 @@ jobs:
           test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
           test_plan_key=""
 
+          echo "this is my test_plans: $test_plans"
+
           result=$(echo "$test_plans" | jq -c '.data.getTestPlans.results[]')
           echo "this is the result $result"
 
