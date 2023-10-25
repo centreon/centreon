@@ -108,7 +108,7 @@ const initialize = ({
     Component: <PanelWithQueryProvider />
   });
 
-  cy.viewport(1280, 590);
+  cy.viewport('macbook-13');
 };
 
 describe('Edit Panel', () => {
