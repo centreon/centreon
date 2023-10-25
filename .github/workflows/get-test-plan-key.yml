@@ -53,7 +53,7 @@ jobs:
               const summary = item.jira.summary;
               if (summary === "RT CENTREON CLOUD 23.04") {
                 console.log("the TP exist :", item);
-                $test_plan_key = key;
+                test_plan_key = key;
                 return;
               }
           });
