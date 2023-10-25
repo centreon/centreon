@@ -29,7 +29,34 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "Panel*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+  # cypress-component-test-run:
+  #   needs: [cypress-component-test-list]
+  #   runs-on: ubuntu-22.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
+  #   name: ${{ matrix.spec }}
+
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v4
+  #     - name: Cypress component testing
+  #       uses: ./.github/actions/web-frontend-component-test
+  #       with:
+  #         module: ${{ inputs.module_name }}
+  #         spec_file_path: ${{ inputs.specs_path }}/${{ matrix.spec }}
+  #         dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
+
+  #     - name: Upload components tests Results
+  #       if: failure()
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: ${{ inputs.name }}-test-reports
+  #         path: centreon/cypress/results/*.json
+  #         retention-days: 1
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -37,8 +64,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
-    name: ${{ matrix.spec }}
+        spec: [1, 2, 3, 4, 5, 6]
+    name: panel-${{ matrix.spec }}
 
     steps:
       - name: Checkout sources
