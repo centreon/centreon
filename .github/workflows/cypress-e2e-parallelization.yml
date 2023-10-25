@@ -198,17 +198,24 @@ jobs:
           test_plans=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
           test_plan_key=""
 
-          echo "$test_plans" | jq -c '.data.getTestPlans.results'
-          
+          result=$(echo "$test_plans" | jq -c '.data.getTestPlans.results[]')
+          echo "this is the result $result"
+
+          result_array=$(echo "$test_plans" | jq -c '.data.getTestPlans.results')
+          echo "this is the result_array $result_array"
+
           # Loop through the results to find a matching test plan
-          for test_plan in $(echo "$test_plans" | jq -c '.data.getTestPlans.results'); do
+          for test_plan in $result; do
             echo "this is the test plan : $test_plan"
-            echo "$test_plan" | jq -c '.jira.summary'
-            echo "$test_plan" | jq -c '.jira.key'
-            summary=$(echo "$test_plan" | jq -c '.jira.summary')
+
+            jira_key=$(echo "$test_plan" | jq -r '.jira.key')
+            summary=$(echo "$test_plan" | jq -r '.jira.summary')
+            
+            echo "JIRA Key: $jira_key"
+            echo "Summary: $summary"
             # Check if the summary matches your desired pattern
             if [[ "$summary" == "NIGHTLY OSS ${{ inputs.major_version }}" ]]; then
-              test_plan_key=$(echo "$test_plan" | jq -c '.jira.key')
+              test_plan_key="$jira_key"
               echo "The test_plan_key is $test_plan_key"
               break
             fi
