@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, propEq, reject } from 'ramda';
 
 import { Variant } from '@mui/material/styles/createTypography';
 
@@ -9,6 +9,7 @@ import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
 import {
   ChangedCriteriaParams,
+  DeactivateProps,
   SectionType,
   SelectedResourceType
 } from '../../model';
@@ -31,8 +32,9 @@ const CheckBoxSection = ({
   data,
   filterName,
   changeCriteria,
-  resourceType
-}: Props): JSX.Element | null => {
+  resourceType,
+  isDeactivated
+}: Props & DeactivateProps): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -60,7 +62,7 @@ const CheckBoxSection = ({
     setSelectedStatusByResourceType
   });
 
-  if (!dataByFilterName) {
+  if (!dataByFilterName || isDeactivated) {
     return null;
   }
 
@@ -105,12 +107,15 @@ const CheckBoxSection = ({
 
     const currentItem = { ...item, checked: false, resourceType };
 
-    const result = removeDuplicateFromObjectArray({
-      array: selectedStatusByResourceType
-        ? [...selectedStatusByResourceType, currentItem]
-        : [currentItem],
-      byFields: ['id', 'resourceType']
-    });
+    const result = reject(
+      propEq('id', item?.id),
+      removeDuplicateFromObjectArray({
+        array: selectedStatusByResourceType
+          ? [...selectedStatusByResourceType, currentItem]
+          : [currentItem],
+        byFields: ['id', 'resourceType']
+      })
+    );
     setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
   };
 
@@ -122,7 +127,7 @@ const CheckBoxSection = ({
       labelProps={labelProps}
       options={transformData(translatedOptions) || []}
       values={transformData(translatedValues) || []}
-      onChange={(event) => handleChangeStatus(event)}
+      onChange={handleChangeStatus}
     />
   );
 };

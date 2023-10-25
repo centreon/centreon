@@ -193,6 +193,7 @@ export const labelDisplayEvents = 'Display events';
 export const labelExportToPng = 'Export to png';
 export const labelPerformancePage = 'Go to performance page';
 export const labelParent = 'Parent';
+export const labelParentName = 'Parent name';
 export const labelSelectCriterias = 'Select criterias';
 export const labelForward = 'Forward';
 export const labelBackward = 'Backward';
@@ -210,7 +211,7 @@ export const labelOnlyPassiveChecksEnabled = 'Only passive checks are enabled';
 export const labelNotificationDisabled = 'Notifications disabled';
 export const labelNotificationEnabled = 'Notifications enabled';
 export const labelMetrics = 'Metrics';
-export const labelMetaService = 'Meta service';
+export const labelMetaService = 'Meta-Service';
 export const labelCalculationType = 'Calculation type';
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';

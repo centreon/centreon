@@ -1,5 +1,5 @@
 {
-  "extends": "../../../packages/js-config/tsconfig/index",
+  "extends": "../../packages/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": "..",
     "esModuleInterop": true,
