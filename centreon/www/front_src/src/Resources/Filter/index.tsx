@@ -140,7 +140,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const SaveFilter = lazy(() => import('./Save'));
+const SaveFilter = lazy(() => import('./Edit/EditButton'));
 const SelectFilter = lazy(() => import('./Fields/SelectFilter'));
 const Criterias = lazy(() => import('./Criterias'));
 

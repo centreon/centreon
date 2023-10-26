@@ -4,25 +4,19 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { userAtom } from '@centreon/ui-context';
 import { TestQueryProvider, Method } from '@centreon/ui';
 
-import useFilter from '../../testUtils/useFilter';
-import Context, { ResourceContext } from '../../testUtils/Context';
-import {
-  labelSaveFilter,
-  labelSave,
-  labelSaveAsNew,
-  labelName,
-  labelRequired
-} from '../../translatedLabels';
-import { Filter } from '../models';
-import useListing from '../../Listing/useListing';
-import { defaultSortField, defaultSortOrder } from '../Criterias/default';
-import { getFilterWithUpdatedCriteria } from '../../testUtils';
+import useFilter from '../../../testUtils/useFilter';
+import Context, { ResourceContext } from '../../../testUtils/Context';
+import { labelDelete, labelEditFilters } from '../../../translatedLabels';
+import { Filter } from '../../models';
+import useListing from '../../../Listing/useListing';
+import { defaultSortField, defaultSortOrder } from '../../Criterias/default';
+import EditFiltersPanel from '..';
 
-import SaveMenu from '.';
+import EditFilter from '.';
 
 let context;
 
-const SaveMenuTest = (): JSX.Element => {
+const EditFilterTest = (): JSX.Element => {
   const listingState = useListing();
   const filterState = useFilter();
 
@@ -40,15 +34,18 @@ const SaveMenuTest = (): JSX.Element => {
         } as ResourceContext
       }
     >
-      <SaveMenu />
+      <EditFilter />
     </Context.Provider>
   );
 };
 
-const SaveMenuTestWithJotai = (): JSX.Element => (
+const EditFilterTestWithJotai = (): JSX.Element => (
   <TestQueryProvider>
     <Provider>
-      <SaveMenuTest />
+      <div style={{ height: '100vh' }}>
+        <EditFilterTest />
+        <EditFiltersPanel />
+      </div>
     </Provider>
   </TestQueryProvider>
 );
@@ -173,8 +170,10 @@ before(() => {
   userData.result.current.locale = 'en_US';
 });
 
-describe('SaveMenu', () => {
+describe('Edit filter button', () => {
   beforeEach(() => {
+    cy.viewport('macbook-13');
+
     cy.interceptAPIRequest({
       alias: 'getResourceRequest',
       method: Method.GET,
@@ -196,82 +195,47 @@ describe('SaveMenu', () => {
       response: getFilter({})
     });
 
-    cy.mount({
-      Component: <SaveMenuTestWithJotai />
-    });
-  });
-
-  it('disables save menus when the current filter has no changes', () => {
-    cy.waitForRequest('@getResourceRequest');
-    cy.findByLabelText(labelSaveFilter).should('exist');
-    cy.findByLabelText(labelSaveFilter).click();
-    cy.findByText(labelSaveAsNew).should('have.attr', 'aria-disabled');
-    cy.findByText(labelSave)?.parentElement?.parentElement.should(
-      'have.attr',
-      'aria-disabled'
-    );
-
-    cy.makeSnapshot();
-  });
-
-  it('sends an updateFilter request when the "Save" command is clicked', () => {
-    cy.waitForRequest('@getResourceRequest');
-
-    const filter = getFilter({});
-    const newSearch = 'new search';
-    const updatedFilter = getFilter({ search: newSearch });
     cy.interceptAPIRequest({
-      alias: 'putFilterRequest',
-      method: Method.PUT,
+      alias: 'deleteFilterRequest',
+      method: Method.DELETE,
       path: '**filters/events-view**',
-      response: updatedFilter
+      statusCode: 204
     });
-    context.setCurrentFilter(
-      getFilterWithUpdatedCriteria({
-        criteriaName: 'search',
-        criteriaValue: newSearch,
-        filter
-      })
-    );
 
-    cy.findByLabelText(labelSaveFilter).click();
+    cy.mount({
+      Component: <EditFilterTestWithJotai />
+    });
+  });
 
-    cy.findByText(labelSave).should('not.have.attr', 'aria-disabled');
-    cy.findByText(labelSave).click();
+  it('displays the filters in the edition panel', () => {
+    cy.waitForRequest('@getResourceRequest');
+
+    cy.findByLabelText(labelEditFilters).click();
+  });
+
+  it('sends a put request when the filter is updated', () => {
+    cy.waitForRequest('@getResourceRequest');
+
+    cy.findByLabelText(labelEditFilters).click();
+
+    cy.get('input').type('updated');
+
+    cy.contains(labelEditFilters).click();
 
     cy.waitForRequest('@putFilterRequest');
-    cy.waitForRequest('@getResourceRequest');
-
-    cy.makeSnapshot();
   });
 
-  it('sends a createFilter request when the "Save as new" command is clicked', () => {
+  it('sends a delete request when the filter is delete', () => {
     cy.waitForRequest('@getResourceRequest');
 
-    const filter = getFilter({});
-    context.setCurrentFilter(
-      getFilterWithUpdatedCriteria({
-        criteriaName: 'search',
-        criteriaValue: 'toto',
-        filter
-      })
-    );
+    cy.findByLabelText(labelEditFilters).click();
 
-    cy.findByLabelText(labelSaveFilter).click();
+    cy.get('input').type('updated');
 
-    cy.findByText(labelSaveAsNew).click();
+    cy.findByLabelText(labelDelete).click();
 
-    cy.findByLabelText('Save').should('be.disabled');
+    cy.findByLabelText(labelDelete).click();
 
-    cy.contains(labelRequired).should('not.exist');
-
-    cy.findByLabelText(labelName).type('My new filter');
-
-    cy.findByLabelText('Save').click();
-
-    cy.waitForRequest('@postFilterRequest');
-    cy.waitForRequest('@getResourceRequest');
-
-    cy.makeSnapshot();
+    cy.waitForRequest('@deleteFilterRequest');
   });
 });
