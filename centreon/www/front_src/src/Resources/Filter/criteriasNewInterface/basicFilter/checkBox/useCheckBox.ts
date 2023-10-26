@@ -29,7 +29,6 @@ const useCheckBox = ({
   data,
   selectedStatusByResourceType,
   setSelectedStatusByResourceType,
-  changeCriteria,
   filterName,
   resourceType
 }: Parameters): UseCheckBox => {
@@ -41,17 +40,6 @@ const useCheckBox = ({
 
       return;
     }
-    const checkedData = selectedStatusByResourceType?.filter(
-      (item) => item?.checked
-    );
-    const updatedValue = checkedData?.map((element) => ({
-      id: element?.id,
-      name: element?.name
-    }));
-    changeCriteria({
-      filterName,
-      updatedValue
-    });
 
     const checkedValues = selectedStatusByResourceType?.filter(
       (item) => item.checked && item.resourceType === resourceType
