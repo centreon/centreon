@@ -58,7 +58,7 @@ jobs:
           console.log(test_plan_key);
           EOF)
 
-          echo "this is the test plan key for now: $test_plan_key"
+          echo "The test plan key for now is: $test_plan_key"
 
           # If no matching test plan was found, create one
           if [ -z "$test_plan_key" ]; then
@@ -79,11 +79,11 @@ jobs:
             }'
             create_result=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" -d "$create_test_plan_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
             
-            echo "creation of the testPlan: $create_result "
+            echo "API response: $create_result "
 
             # Extract the key of the created test plan
-            test_plan_key=$(echo "$create_result" | jq -r '.data.createTestPlan.testPlan.jira.fields.key')
-            echo "the test_plan_key for the new testPlan is: $test_plan_key"
+            test_plan_key=$(echo "$create_result" | jq -r '.data.createTestPlan.testPlan.jira.key')
+            echo "New TP created with key: $test_plan_key"
           fi
 
           # Set the testPlanKey as an output

@@ -75,12 +75,6 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  get-test-plan-key:
-    uses: ./.github/workflows/get-test-plan-key.yml
-    secrets:
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
-
   veracode-analysis:
     needs: [get-version]
     uses: ./.github/workflows/veracode-analysis.yml
