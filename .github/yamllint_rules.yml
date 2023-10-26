@@ -3,6 +3,9 @@ extends: default
 rules:
   document-start: disable
   line-length: disable
+  truthy:
+    allowed-values: ['true', 'false', 'on']
+    level: error
   indentation:
     spaces: 2
     indent-sequences: true
