@@ -52,14 +52,11 @@ jobs:
               const key = item.jira.key;
               const summary = item.jira.summary;
               if (summary === "RT CENTREON CLOUD 23.04") {
-                  console.log("the TP exist :", item);
-                  test_plan_key = key;
-                  return test_plan_key;
+                test_plan_key = key;
               }
           });
-          return test_plan_key;
-          EOF
-          )
+          console.log(test_plan_key);
+          EOF)
 
           echo "this is the test plan key for now: $test_plan_key"
 
