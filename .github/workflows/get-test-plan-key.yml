@@ -26,6 +26,8 @@ jobs:
       test_plan_key: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
 
     steps:
+      - uses: actions/checkout@v4
+      
       - name: Get the TestPlanKey
         id: get_test_plan_key
         run: |
