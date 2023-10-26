@@ -27,6 +27,10 @@ on:
         required: true
 
 jobs:
+  test_names:
+    runs-on: ubuntu-22.04
+    uses: ./.github/workflows/test_branch_name.yml
+
   build:
     name: Binary preparation
     runs-on: ubuntu-22.04
