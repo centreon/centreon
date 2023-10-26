@@ -4,4 +4,5 @@ rules:
   document-start: disable
   line-length: disable
   truthy:
+    check-keys: true
     level: error
