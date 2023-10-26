@@ -747,13 +747,15 @@ if (isset($req) && $req) {
     $buffer->writeElement("limit", $limit);
     $buffer->endElement();
 
-    // generate pages for navigation
-    $paginator = new Paginator($num, $rows, $limit);
-    $pages = $paginator->generatePages();
+    if ($logs) {
+        // generate pages for navigation
+        $paginator = new Paginator($num, $rows, $limit);
+        $pages = $paginator->generatePages();
 
-    // add generated pages into xml
-    $paginationRenderer = new PaginationRenderer($buffer);
-    $paginationRenderer->render($pages);
+        // add generated pages into xml
+        $paginationRenderer = new PaginationRenderer($buffer);
+        $paginationRenderer->render($pages);
+    }
 
 
     /*
