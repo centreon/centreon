@@ -160,7 +160,7 @@ jobs:
   # This action is only for NIGHTLY tests working only for unstable and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: always()
+    if: ${{ inputs.stability != 'canary' && github.event_name == 'schedule' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
