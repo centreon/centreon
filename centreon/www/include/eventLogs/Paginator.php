@@ -44,19 +44,26 @@ class Paginator
     public function generatePages(): array
     {
         $pages = [];
-        $totalPages = ceil($this->totalRecordsCount / $this->nbResultsPerPage);
-        $lowestPageNb = max(1, $this->currentPageNb - self::PAGER_SPAN);
-        $highestPageNb = min($totalPages, $this->currentPageNb + self::PAGER_SPAN);
+        $lowestPageNb = $this->currentPageNb;
+        $highestPageNb = $this->currentPageNb;
 
         if ($this->currentPageNb > 1) {
             $pages['previous'] = $this->generatePage($this->currentPageNb - 1);
+        }
+
+        for ($i = self::PAGER_SPAN; $lowestPageNb > 0 && $i > 0; $i--) {
+            $lowestPageNb--;
+        }
+
+        for ($i2 = 0; $i2 < (self::PAGER_SPAN + $i); $i2++) {
+            $highestPageNb++;
         }
 
         for ($i = $lowestPageNb; $i <= $highestPageNb; $i++) {
             $pages[$i] = $this->generatePage($i);
         }
 
-        if ($this->currentPageNb < $totalPages) {
+        if ($this->nbResultsPerPage < $this->totalRecordsCount) {
             $pages['next'] = $this->generatePage($this->currentPageNb + 1);
         }
 
@@ -73,7 +80,7 @@ class Paginator
     {
         return [
             'url_page' => sprintf('&num=%d&limit=%d', $pageNb, $this->nbResultsPerPage),
-            'label_page' => ($pageNb),
+            'label_page' => ($pageNb + 1),
             'num' => $pageNb,
             'active' => $pageNb === $this->currentPageNb,
         ];
