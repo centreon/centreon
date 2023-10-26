@@ -29,7 +29,7 @@ jobs:
         id: list-specs
         run: |
           cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "PanelEdit.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
