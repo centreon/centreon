@@ -58,7 +58,7 @@ runs:
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v6
       with:
-        command: pnpm run cypress:run --spec cypress/e2e/**/${{ inputs.feature_file_path }} 
+        command: pnpm run cypress:run --spec features/**/${{ inputs.feature_file_path }} 
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         publish-summary: false

@@ -179,7 +179,7 @@ When('I select the custom filter', () => {
 Then(
   'only Resources matching the selected filter are displayed in the result',
   () => {
-    cy.contains('No result found');
+    cy.contains(serviceOk).should('be.visible');
   }
 );
 

@@ -33,7 +33,9 @@ import {
   labelHostSeverity,
   labelHostSeverityLevel,
   labelServiceSeverityLevel,
-  labelAnomalyDetection
+  labelAnomalyDetection,
+  labelName,
+  labelParentName
 } from '../../translatedLabels';
 import {
   buildHostGroupsEndpoint,
@@ -42,7 +44,9 @@ import {
   buildMonitoringServersEndpoint,
   buildServiceGroupsEndpoint,
   buildHostServeritiesEndpoint,
-  buildServiceSeveritiesEndpoint
+  buildServiceSeveritiesEndpoint,
+  buildServicesEndpoint,
+  buildHostsEndpoint
 } from '../api/endpoint';
 
 import { SearchableFields } from './searchQueryLanguage/models';
@@ -52,7 +56,6 @@ export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];
 export interface Criteria {
   name: string;
   object_type: string | null;
-  search_data?: SearchData | null;
   type: string;
   value?: CriteriaValue;
 }
@@ -222,6 +225,8 @@ export enum CriteriaNames {
   hostSeverities = 'host_severities',
   hostSeverityLevels = 'host_severity_levels',
   monitoringServers = 'monitoring_servers',
+  names = 'names',
+  parentNames = 'parent_names',
   resourceTypes = 'resource_types',
   serviceCategories = 'service_categories',
   serviceGroups = 'service_groups',
@@ -236,6 +241,14 @@ const selectableCriterias: CriteriaById = {
   [CriteriaNames.resourceTypes]: {
     label: labelType,
     options: selectableResourceTypes
+  },
+  [CriteriaNames.names]: {
+    buildAutocompleteEndpoint: buildServicesEndpoint,
+    label: labelName
+  },
+  [CriteriaNames.parentNames]: {
+    buildAutocompleteEndpoint: buildHostsEndpoint,
+    label: labelParentName
   },
   [CriteriaNames.states]: {
     label: labelState,
@@ -318,4 +331,9 @@ export enum Action {
 export interface PopoverData {
   anchorEl: HTMLElement | undefined;
   setAnchorEl: Dispatch<SetStateAction<HTMLElement | undefined>>;
+}
+
+export interface SearchDataPropsCriterias {
+  search: string;
+  setSearch;
 }

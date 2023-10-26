@@ -67,11 +67,10 @@ const useActionFilter = (): UseActionFilter => {
     const retrievedFilter = find(propEq('id', currentFilter.id), filters);
 
     const criteriasCurrentFilter = currentFilter.criterias?.map((element) => ({
-      ...element,
-      search_data: null
+      ...element
     }));
     const criteriasFilters = (retrievedFilter?.criterias || [])?.map(
-      (element) => ({ ...element, search_data: null })
+      (element) => element
     );
 
     return !areValuesEqual(criteriasCurrentFilter, criteriasFilters);

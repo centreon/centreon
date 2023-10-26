@@ -9,6 +9,8 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Paper from '@mui/material/Paper';
 
+import { labelSave, labelSaveAsNew } from '../../../translatedLabels';
+
 import { useStyles } from './actions.style';
 
 interface Option {
@@ -62,12 +64,12 @@ const Save = ({
     {
       disabled: !canSaveFilterAsNew,
       onClick: saveAsNew,
-      title: 'Save as new'
+      title: labelSaveAsNew
     },
     {
       disabled: !canSaveFilter,
       onClick: saveAs,
-      title: 'Save as'
+      title: labelSave
     }
   ];
 
@@ -77,7 +79,7 @@ const Save = ({
   };
   const defaultCurrentOption =
     options.find(({ disabled }) => !disabled) ||
-    options.find(({ title }) => title === 'Save as new');
+    options.find(({ title }) => title === labelSaveAsNew);
 
   return (
     <ClickAwayListener onClickAway={handleClose}>
