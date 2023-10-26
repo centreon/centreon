@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 
 import { Menu } from '@mui/material';
@@ -48,9 +48,8 @@ const MorePanelActions = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const [, isEditing] = useAtom(isEditingAtom);
-
   const dashboard = useAtomValue(dashboardAtom);
+  const setIsEditing = useSetAtom(isEditingAtom);
 
   const { deleteWidget } = useDeleteWidgetModal();
 
@@ -59,7 +58,7 @@ const MorePanelActions = ({
   const { openModal } = useWidgetForm();
 
   const edit = (): void => {
-    isEditing(true);
+    setIsEditing(true);
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
     close();
   };
