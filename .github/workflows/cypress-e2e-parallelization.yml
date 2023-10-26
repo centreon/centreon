@@ -187,10 +187,8 @@ jobs:
         id: determine-test-plan-key
         uses: ./.github/actions/get-test-plan-key
         with:
-          client_id: ${{ secrets.CLIENT_ID }}
-          client_secret: ${{ secrets.CLIENT_SECRET }}
-          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
           major_version: ${{ inputs.major_version }}
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
 
       - name: Import results to xray
         id: import-reports
