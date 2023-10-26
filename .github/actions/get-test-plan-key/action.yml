@@ -1,9 +1,5 @@
 name: get-test-plan-key
 description: "Determine the TP key if the TP exist, create it if doesn't"
-outputs:
-  test_plan_key:
-    description: "the test plan key"
-    value: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
 inputs:
   major_version:
     required: true
@@ -11,12 +7,14 @@ inputs:
   xray_token:
     required: true
     type: string
+outputs:
+  test_plan_key:
+    description: "the test plan key"
+    value: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
 
 # NIGHTLY <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., NIGHTLY OSS 23.10)
 runs:
-  runs-on: ubuntu-22.04
-  outputs:
-    test_plan_key: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
+  using: "composite"
   steps:
     - name: Get the TestPlanKey
       id: get_test_plan_key
