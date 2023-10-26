@@ -1,5 +1,4 @@
 name: Chromatic
-
 description: Publish stories to Chromatic
 inputs:
   frontend_directory:

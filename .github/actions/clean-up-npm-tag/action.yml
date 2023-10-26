@@ -1,5 +1,4 @@
 name: "Clean up NPM versions"
-
 description: "Cleans up NPM pre-release versions for a package"
 
 inputs:

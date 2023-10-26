@@ -1,6 +1,5 @@
 name: centreon-ui-stable
 
-
 on:
   workflow_dispatch:
   push:

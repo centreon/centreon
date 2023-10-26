@@ -1,6 +1,5 @@
 name: centreon-ui-context-stable
 
-
 on:
   workflow_dispatch:
   pull_request:

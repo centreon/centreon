@@ -1,5 +1,4 @@
 name: 'Get Latest NPM Branch Version'
-
 description: 'Get the latest version of a package based on the branch'
 
 inputs:

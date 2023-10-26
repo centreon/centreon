@@ -1,5 +1,4 @@
 name: "publish-cypress-report"
-
 description: "Publish Cypress report"
 inputs:
   path:
