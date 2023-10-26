@@ -189,6 +189,7 @@ jobs:
         with:
           client_id: ${{ secrets.CLIENT_ID }}
           client_secret: ${{ secrets.CLIENT_SECRET }}
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
 
       - name: Import results to xray
         id: import-reports
@@ -252,7 +253,7 @@ jobs:
               "testEnvironments": ["ALMA9","MARIADB_10_5","CHROME"]
             }
           }'
-          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
+          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
 
       - name: Add the TestExecution Issue to the TestPlan
         run: |

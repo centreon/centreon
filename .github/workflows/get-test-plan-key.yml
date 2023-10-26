@@ -9,6 +9,8 @@ on:
         required: true
       client_secret:
         required: true
+      xray_token:
+        required: true
 
 jobs:
   get-version:
@@ -24,14 +26,6 @@ jobs:
       test_plan_key: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
 
     steps:
-      - name: Generate Xray Token
-        id: generate-xray-token
-        run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
-          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
-          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
-        shell: bash
-
       - name: Get the TestPlanKey
         id: get_test_plan_key
         run: |
@@ -41,7 +35,7 @@ jobs:
             "variables":{"jql": "project = MON","limit": 100}}'
 
           # Execute the GraphQL query and parse the results
-          response=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
+          response=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ secrets.xray_token }}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
 
           test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results')
 
@@ -77,7 +71,7 @@ jobs:
                 }
               }
             }'
-            create_result=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" -d "$create_test_plan_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
+            create_result=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ secrets.xray_token }}" -d "$create_test_plan_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
             
             echo "API response: $create_result "
 
