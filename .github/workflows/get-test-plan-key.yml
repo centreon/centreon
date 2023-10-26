@@ -51,7 +51,7 @@ jobs:
           data.forEach(item => {
               const key = item.jira.key;
               const summary = item.jira.summary;
-              if (summary === "RT CENTREON CLOUD 23.04") {
+              if (summary === "NIGHTLY OSS ${{ needs.get-version.outputs.major_version }}") {
                 test_plan_key = key;
               }
           });
