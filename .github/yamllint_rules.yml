@@ -6,7 +6,3 @@ rules:
   truthy:
     check-keys: false
     level: error
-  indentation:
-    spaces: 2
-    indent-sequences: true
-    check-multi-line-strings: false
