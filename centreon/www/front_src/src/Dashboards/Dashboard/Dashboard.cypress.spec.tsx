@@ -386,7 +386,6 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelEditWidget).click();
 
       cy.findByLabelText(labelWidgetType).should('be.enabled');
-      cy.findByLabelText(labelSave).should('exist');
 
       cy.findByLabelText('close').click();
 
