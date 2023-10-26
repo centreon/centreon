@@ -159,7 +159,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.clearViewport();
+    cy.clock();
 
     cy.makeSnapshot();
   });
