@@ -747,7 +747,7 @@ if (isset($req) && $req) {
     $buffer->writeElement("limit", $limit);
     $buffer->endElement();
 
-    if ($logs) {
+    if ($rows >= $limit) {
         // generate pages for navigation
         $paginator = new Paginator($num, $rows, $limit);
         $pages = $paginator->generatePages();
