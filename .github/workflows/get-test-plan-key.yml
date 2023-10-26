@@ -54,7 +54,6 @@ jobs:
               if (summary === "RT CENTREON CLOUD 23.04") {
                 console.log("the TP exist :", item);
                 test_plan_key = key;
-                console.log("this is the test_plan_key:",test_plan_key)
                 return;
               }
           });
