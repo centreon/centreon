@@ -31,6 +31,12 @@ if [ "$1" = "configure" ] ; then
     /usr/bin/chmod 600 /var/lib/centreon-gorgone/.ssh/id_rsa
   fi
 
+  if [ ! -f /etc/centreon-gorgone/config.d/31-centreon-api.yaml ] || grep -q "@GORGONE_USER@" "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"; then
+    mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+  else
+    mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/centreon-api.yaml.new
+  fi
+
   systemctl daemon-reload ||:
   systemctl unmask gorgoned.service ||:
   systemctl preset gorgoned.service ||:
