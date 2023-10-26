@@ -199,7 +199,7 @@ jobs:
           testFormat: "cucumber"
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
-          testPlanKey: "${{ steps.determine-test-plan-key.outputs.test_plan_key }}"
+          testPlanKey: ${{ steps.determine-test-plan-key.outputs.test_plan_key }}
           combineInSingleTestExec: true
           testExecKey:
         timeout-minutes: 10
