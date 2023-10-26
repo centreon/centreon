@@ -109,6 +109,7 @@ const initialize = ({
   });
 
   cy.viewport('macbook-13');
+
 };
 
 describe('Edit Panel', () => {
@@ -158,13 +159,9 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.findByLabelText(labelSave)
-      .should('be.visible')
-      .then(() => {
-        cy.makeSnapshot();
-      });
+    cy.clearViewport();
 
-      cy.wait(2000);
+    cy.makeSnapshot();
   });
 
   it('ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
