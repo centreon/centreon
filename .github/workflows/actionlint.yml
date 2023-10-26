@@ -46,7 +46,7 @@ jobs:
 
       - name: Install Yaml
         run: |
-          pip install yamllint
+          pip install yamllint==1.32.0
 
       - name: Lint YAML files
         run: |
