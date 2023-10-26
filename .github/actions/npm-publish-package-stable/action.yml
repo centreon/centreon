@@ -1,4 +1,5 @@
 name: NPM publish
+description: This publishes a package to NPM and creates a PR to update the package version
 
 inputs:
   directory:
