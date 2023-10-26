@@ -36,12 +36,14 @@ use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Media\Application\UseCase\AddMedia\AddMedia;
 use Core\Media\Application\UseCase\AddMedia\AddMediaRequest;
 use Core\Media\Application\UseCase\AddMedia\AddMediaResponse;
+use enshrined\svgSanitize\Sanitizer;
 use Tests\Core\Media\Infrastructure\API\AddMedia\AddMediaPresenterStub;
 
 beforeEach(function (): void {
     $this->writeMediaRepository = $this->createMock(WriteMediaRepositoryInterface::class);
     $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class);
     $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
+    $this->svgSanitizer = $this->createMock(Sanitizer::class);
     $this->user = $this->createMock(ContactInterface::class);
     $this->presenter = new AddMediaPresenterStub(
         $this->createMock(PresenterFormatterInterface::class)
@@ -51,6 +53,7 @@ beforeEach(function (): void {
         $this->readMediaRepository,
         $this->dataStorageEngine,
         $this->user,
+        $this->svgSanitizer,
     );
 
     $this->imagePath = realpath(__DIR__ . '/../../../Infrastructure/API/AddMedia/logo.jpg');
