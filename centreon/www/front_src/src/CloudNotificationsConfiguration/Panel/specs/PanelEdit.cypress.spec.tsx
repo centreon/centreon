@@ -163,6 +163,8 @@ describe('Edit Panel', () => {
       .then(() => {
         cy.makeSnapshot();
       });
+
+      cy.wait(2000);
   });
 
   it('ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
