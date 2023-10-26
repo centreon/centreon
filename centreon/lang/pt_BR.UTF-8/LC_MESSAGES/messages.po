@@ -17002,3 +17002,6 @@ msgstr ""
 
 #  msgid "Error while retrieving a command"
 #  msgstr ""
+
+# msgid "Save as"
+# msgstr ""

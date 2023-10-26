@@ -16205,3 +16205,6 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Error while retrieving a command"
 #  msgstr ""
+
+# msgid "Save as"
+# msgstr ""
