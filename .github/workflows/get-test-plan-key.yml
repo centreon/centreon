@@ -45,9 +45,9 @@ jobs:
 
           test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results')
 
-          test_plan_key=''
-          node - <<EOF
+          test_plan_key=$(node - <<EOF
           const data = JSON.parse('$test_plans');
+          let test_plan_key = '';
           data.forEach(item => {
               const key = item.jira.key;
               const summary = item.jira.summary;
@@ -58,7 +58,8 @@ jobs:
                 return;
               }
           });
-          EOF
+          console.log(test_plan_key);
+          EOF)
 
           echo "this is the test plan key for now: $test_plan_key"
 
