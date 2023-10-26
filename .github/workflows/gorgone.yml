@@ -122,7 +122,7 @@ jobs:
 
   deliver-deb:
     runs-on: [self-hosted, common]
-    needs: [get-version,package]
+    needs: [get-version, package]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     strategy:

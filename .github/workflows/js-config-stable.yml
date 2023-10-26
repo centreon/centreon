@@ -1,5 +1,6 @@
 name: centreon-js-config-stable
 
+
 on:
   workflow_dispatch:
   pull_request:

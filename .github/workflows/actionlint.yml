@@ -42,11 +42,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
 
       - name: Install Yaml
         run: |
-          pip install yamllint  
+          pip install yamllint
 
       - name: Lint YAML files
         run: |

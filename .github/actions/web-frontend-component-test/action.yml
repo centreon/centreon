@@ -1,4 +1,5 @@
 name: "Web Cypress Component Testing"
+
 description: "Web Cypress Component Testing"
 inputs:
   module:

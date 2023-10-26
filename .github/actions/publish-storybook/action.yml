@@ -1,4 +1,5 @@
 name: publish-storybook
+
 description: Publish storybook
 
 inputs:

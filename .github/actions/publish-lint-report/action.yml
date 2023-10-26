@@ -1,4 +1,5 @@
 name: "publish-lint-report"
+
 description: "Publish ESLint report"
 inputs:
   check_name:

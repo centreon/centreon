@@ -75,4 +75,3 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
-
