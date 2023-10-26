@@ -10,7 +10,8 @@ import {
   labelSaveFilter,
   labelSave,
   labelSaveAsNew,
-  labelName
+  labelName,
+  labelRequired
 } from '../../translatedLabels';
 import { Filter } from '../models';
 import useListing from '../../Listing/useListing';
@@ -261,6 +262,8 @@ describe('SaveMenu', () => {
     cy.findByText(labelSaveAsNew).click();
 
     cy.findByLabelText('Save').should('be.disabled');
+
+    cy.contains(labelRequired).should('not.exist');
 
     cy.findByLabelText(labelName).type('My new filter');
 
