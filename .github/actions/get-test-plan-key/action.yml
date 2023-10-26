@@ -1,5 +1,5 @@
 name: get-test-plan-key
-description: "Determine the TP key if the TP exist, create it if doesn't"
+description: "Determine the TP key if the TP exist, create it if it doesn't"
 inputs:
   major_version:
     required: true
