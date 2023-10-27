@@ -11,8 +11,28 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Rebase branches
+    - name: Synchronize branches
       id: rebase
       run: |
+        set -eux
         echo "[DEBUG] - This action is disabled for safety reasons and has to be performed manually."
+
+        # Variables (Update with inputs instead of hard coded)
+        PR_BASE_BRANCH="develop"
+        PR_REVIEWERS="centreon/centreon-release-management"
+        PR_BODY="REF #MON-21407"
+        PR_TITLE="MON-21407 Sync Centreon OSS next 22.10"
+
+        # Check vars (must not be empty)
+        if [[ -z ${PR_BASE_BRANCH} | -z ${PR_REVIEWERS} | -z ${PR_BODY} | -z ${PR_TITLE} ]]; then
+          echo "[ERROR] - One of the arguments to open sync pull request is empty."
+        fi
+
+        # Create sync pull request
+        gh pr create \
+          -B "${PR_BASE_BRANCH}" \
+          -r "${PR_REVIEWERS}" \
+          -b "${PR_BODY}" \
+          -t "${PR_TITLE}"
+
       shell: bash
