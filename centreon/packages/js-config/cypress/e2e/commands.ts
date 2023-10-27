@@ -215,6 +215,7 @@ Cypress.Commands.add(
       .exec(`docker exec -i ${name} ${command}`, { failOnNonZeroExit: false })
       .then((result) => {
         if (result.code) {
+          // output will not be truncated
           throw new Error(`
             Execution of "${command}" failed
             Exit code: ${result.code}
