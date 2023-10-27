@@ -160,7 +160,7 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
+    if: always()
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
