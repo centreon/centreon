@@ -16991,3 +16991,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while retrieving a command"
 #  msgstr ""
+
+# msgid "Save as"
+# msgstr ""

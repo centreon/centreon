@@ -139,13 +139,18 @@ const SelectInput = ({
   };
 
   const isOptionEqualToValue = (option, selectedValue): boolean => {
-    return isNil(option)
+    const formattedOption = typeof option === 'string' ? option : option.name;
+    const formattedSelectedValue =
+      typeof selectedValue === 'string' ? selectedValue : selectedValue.name;
+
+    return isNil(formattedOption) || isNil(formattedSelectedValue)
       ? false
-      : equals(option.name.toString(), selectedValue.name.toString());
+      : equals(formattedOption.toString(), formattedSelectedValue.toString());
   };
 
   return (
     <MultiConnectedAutocompleteField
+      disableSortedOptions
       freeSolo
       chipProps={{
         onDelete
