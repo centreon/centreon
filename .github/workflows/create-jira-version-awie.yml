@@ -25,8 +25,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Release
-        id: release
+      - name: Get major version
+        run: |
+          # Get major version from .env file from repository
+          VERSION=$(cat .env)
+        shell: bash
+
+      - name: Create sync pull request
+        id: sync-release
         uses: ./.github/actions/release
         with:
           module_name: ${{ env.module }}
