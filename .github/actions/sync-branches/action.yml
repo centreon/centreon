@@ -1,4 +1,4 @@
-name: "Sync Branches"
+name: "Sync branches"
 description: "Sync dev branch with develop"
 inputs:
   src_branch:
@@ -14,8 +14,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Synchronize branches
-      id: rebase
+    - name: Synchronize stable branch to dev branch
       run: |
         set -eux
         echo "[DEBUG] - This action is disabled for safety reasons and has to be performed manually."

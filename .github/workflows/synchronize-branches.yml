@@ -1,5 +1,5 @@
 ---
-name: Sync stable and dev version branches
+name: sync-stable-to-dev
 
 on:
   pull_request_target:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   main:
-    name: Sync Stable Branches
+    name: Sync branches
     runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
     steps:
@@ -21,9 +21,11 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-      - name: Sync Branches
+      - name: Sync stable branch to dev branch
         id: release
         uses: ./.github/actions/sync-branches
         with:
           src_branch: ${{ github.ref_name }}
           dest_branch: dev-${{ github.ref_name }}
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
