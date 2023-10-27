@@ -15459,6 +15459,9 @@ msgstr "Sauvegarder le filtre"
 msgid "Save as new"
 msgstr "Créer un nouveau filtre"
 
+msgid "Save as"
+msgstr "Enregistrer sous"
+
 msgid "My filters"
 msgstr "Mes filtres"
 
