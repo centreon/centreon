@@ -76,7 +76,7 @@ class Paginator implements IteratorAggregate
     public function isActive(int $pageNb): bool
     {
         return $pageNb === $this->currentPageNb
-            || ($pageNb === $this->totalPagesCount && $this->currentPageNb > $this->totalPagesCount);
+            || ($pageNb === $this->totalPagesCount && $this->isOutOfUpperBound());
     }
 
     public function getUrl(int $pageNb): string
