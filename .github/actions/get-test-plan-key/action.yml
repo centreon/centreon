@@ -27,20 +27,30 @@ runs:
         # Execute the GraphQL query and parse the results
         response=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ inputs.xray_token }}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
 
-        test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results')
+        test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results.[].jira')
 
-        test_plan_key=$(node - <<EOF
-        const data = JSON.parse('$test_plans');
-        let test_plan_key = '';
-        data.forEach(item => {
-            const key = item.jira.key;
-            const summary = item.jira.summary;
-            if (summary === "NIGHTLY OSS ${{ inputs.major_version }}") {
-              test_plan_key = key;
-            }
-        });
-        console.log(test_plan_key);
-        EOF)
+        # test_plan_key=$(node - <<EOF
+        # const data = JSON.parse('$test_plans');
+        # let test_plan_key = '';
+        # data.forEach(item => {
+        #     const key = item.jira.key;
+        #     const summary = item.jira.summary;
+        #     if (summary === "NIGHTLY OSS ${{ inputs.major_version }}") {
+        #       test_plan_key = key;
+        #     }
+        # });
+        # console.log(test_plan_key);
+        # EOF)
+
+        test_plan_key=''
+
+        echo $response | jq -c '.data.getTestPlans.results.[].jira' | while read row; do
+          if [[ "$summary" == "NIGHTLY OSS ${{ inputs.major_version }}" ]]; then
+            test_plan_key=$(echo "$row" | jq '.key')
+            echo "The test_plan_key is $test_plan_key and the summary is $summary"
+            break
+          fi
+        done
 
         echo "The test plan key for now is: $test_plan_key"
 

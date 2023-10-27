@@ -157,7 +157,7 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
-  # This action is only for NIGHTLY tests working only for unstable and testing branches
+  # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
     if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
