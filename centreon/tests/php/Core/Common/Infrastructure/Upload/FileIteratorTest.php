@@ -23,12 +23,12 @@ declare(strict_types = 1);
 
 namespace Tests\Core\Common\Infrastructure\Upload;
 
-use Core\Common\Infrastructure\Upload\FileIterator;
+use Core\Common\Infrastructure\Upload\FileCollection;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 it('should iterate on each files of ZIP archive and others', function(): void {
-    $fileManager = new FileIterator();
+    $fileManager = new FileCollection();
     $fileManager->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'archive.zip', 'archive.zip'));
     $fileManager->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'logo.jpg', 'logo.jpg'));
     $fileManager->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'logo.svg', 'logo.svg'));

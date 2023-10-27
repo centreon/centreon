@@ -25,7 +25,7 @@ namespace Core\Common\Infrastructure\Upload;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class FileIterator
+class FileCollection
 {
     private \AppendIterator $appendIterator;
 

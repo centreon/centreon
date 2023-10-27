@@ -26,7 +26,7 @@ namespace Core\Media\Infrastructure\API\AddMedia;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Common\Infrastructure\Upload\FileIterator;
+use Core\Common\Infrastructure\Upload\FileCollection;
 use Core\Media\Application\UseCase\AddMedia\AddMedia;
 use Core\Media\Application\UseCase\AddMedia\AddMediaRequest;
 use Core\Media\Infrastructure\API\Exception\AddMediaException;
@@ -48,7 +48,7 @@ class AddMediaController extends AbstractController
             $assertion->assertFilesSent();
             $assertion->assertDirectory();
 
-            $fileIterator = new FileIterator();
+            $fileIterator = new FileCollection();
 
             /** @var UploadedFile|list<UploadedFile> $files */
             $files = $request->files->get('data');

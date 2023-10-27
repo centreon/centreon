@@ -33,8 +33,6 @@ class ZipFileIterator implements FileIteratorInterface
 
     private int $filePosition = 0;
 
-    private string $currentFilename = '';
-
     /**
      * @param File $file
      *
@@ -64,13 +62,6 @@ class ZipFileIterator implements FileIteratorInterface
      */
     public function current(): string
     {
-
-        $currentFilename = $this->zipArchive->getNameIndex($this->filePosition);
-        if ($currentFilename === false) {
-            throw new \Exception();
-        }
-        $this->currentFilename = $currentFilename;
-
         $fileContent = $this->zipArchive->getFromIndex($this->filePosition);
         if ($fileContent === false) {
             throw new \Exception();
@@ -79,14 +70,25 @@ class ZipFileIterator implements FileIteratorInterface
         return $fileContent;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function next(): void
     {
         $this->filePosition++;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function key(): string
     {
-        return $this->currentFilename;
+        $currentFilename = $this->zipArchive->getNameIndex($this->filePosition);
+        if ($currentFilename === false) {
+            throw new \Exception();
+        }
+
+        return $currentFilename;
     }
 
     public function valid(): bool
@@ -94,6 +96,9 @@ class ZipFileIterator implements FileIteratorInterface
         return $this->filePosition < $this->zipArchive->count();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function rewind(): void
     {
         $this->filePosition = 0;

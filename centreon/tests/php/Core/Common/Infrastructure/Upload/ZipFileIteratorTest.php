@@ -39,7 +39,8 @@ it('should iterate on each files of ZIP archive', function(): void {
             'md5' => md5($contentFile)
         ];
     }
-    expect($files)->toHaveCount(2)
+    expect($fileIterator)->toHaveCount(2)
+        ->and($files)->toHaveCount(2)
         ->and($files[0]['filename'])->toEqual('logo_in_archive.jpg')
         ->and($files[0]['md5'])->toEqual('f7d5fc06a33946703054046c7174bbf4')
         ->and($files[1]['filename'])->toEqual('logo_in_archive.svg')

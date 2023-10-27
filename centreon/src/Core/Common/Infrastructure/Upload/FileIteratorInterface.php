@@ -26,7 +26,7 @@ namespace Core\Common\Infrastructure\Upload;
 /**
  * @extends \Iterator<string, string>
  */
-interface FileIteratorInterface extends \Iterator
+interface FileIteratorInterface extends \Iterator, \Countable
 {
     /**
      * @return int Returns the number of files

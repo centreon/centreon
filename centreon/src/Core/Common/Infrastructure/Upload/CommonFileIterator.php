@@ -31,8 +31,6 @@ class CommonFileIterator implements FileIteratorInterface
 
     private int $fileNumber = 0;
 
-    private string $currentFilename = '';
-
     /** @var list<UploadedFile> */
     private array $files = [];
 
@@ -55,8 +53,6 @@ class CommonFileIterator implements FileIteratorInterface
      */
     public function current(): string
     {
-        $this->currentFilename = $this->files[$this->fileIndex]->getClientOriginalName();
-
         return $this->files[$this->fileIndex]->getContent();
     }
 
@@ -70,7 +66,7 @@ class CommonFileIterator implements FileIteratorInterface
      */
     public function key(): string
     {
-        return $this->currentFilename;
+        return $this->files[$this->fileIndex]->getClientOriginalName();
     }
 
     public function valid(): bool
