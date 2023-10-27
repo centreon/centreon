@@ -18,6 +18,7 @@ after(() => {
   cy.stopWebContainer();
 });
 
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
