@@ -36,6 +36,11 @@ class Paginator
     {
     }
 
+    /**
+     * Generates an array with available pages
+     *
+     * @return <string|int, <string|int|bool>>
+     */
     public function generatePages(): array
     {
         $pages = [];
