@@ -7,6 +7,9 @@ inputs:
   dest_branch:
     description: "The destination branch"
     required: true
+  gh_token:
+    description: "The gh service token"
+    required: true
 
 runs:
   using: "composite"
@@ -18,21 +21,42 @@ runs:
         echo "[DEBUG] - This action is disabled for safety reasons and has to be performed manually."
 
         # Variables (Update with inputs instead of hard coded)
+        PR_ID=""
+        PR_HEAD_BRANCH="sync-release-test-12345"
         PR_BASE_BRANCH="develop"
         PR_REVIEWERS="centreon/centreon-release-management"
         PR_BODY="REF #MON-21407"
         PR_TITLE="MON-21407 Sync Centreon OSS next 22.10"
 
-        # Check vars (must not be empty)
+        # Check vars and exit if one of them is empty
         if [[ -z ${PR_BASE_BRANCH} | -z ${PR_REVIEWERS} | -z ${PR_BODY} | -z ${PR_TITLE} ]]; then
           echo "[ERROR] - One of the arguments to open sync pull request is empty."
+          exit 1
         fi
 
-        # Create sync pull request
+        # Create sync pull request using GH CLI
         gh pr create \
           -B "${PR_BASE_BRANCH}" \
           -r "${PR_REVIEWERS}" \
           -b "${PR_BODY}" \
           -t "${PR_TITLE}"
+
+        # Create sync pull request using GH API and get its unique ID
+        PR_ID=$(curl -v -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ inputs.gh_token }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/centreon/centreon/pulls \
+          -d '{"title":"${PR_TITLE}","body":"${PR_BODY}","head":"sync-release-test-12345","base":"${PR_BASE_BRANCH}"}')
+
+        # Request for reviewers using GH API
+        curl -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ inputs.gh_token }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/centreon/centreon/pulls/${PR_ID}/requested_reviewers \
+          -d '{"reviewers":[""],"team_reviewers":["centreon/centreon-release-management"]}'
 
       shell: bash

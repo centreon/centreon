@@ -32,3 +32,4 @@ jobs:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
+          gh_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
