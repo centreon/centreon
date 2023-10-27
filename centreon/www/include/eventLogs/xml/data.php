@@ -43,7 +43,9 @@ include_once "../../../../config/centreon.config.php";
 // Require Classes
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once realpath(__DIR__ . "/../../../../bootstrap.php");
+require_once __DIR__ . '/../../../../bootstrap.php';
+require_once __DIR__ . '/../Paginator.php';
+require_once __DIR__ . '/PaginationRenderer.php';
 
 // Connect to DB
 $pearDB = $dependencyInjector['configuration_db'];
@@ -594,7 +596,7 @@ foreach ($tab_id as $openid) {
 }
 
 // Build final request
-$req = "SELECT " . (!$is_admin ? "DISTINCT" : "") . "
+$req = "SELECT SQL_CALC_FOUND_ROWS " . (!$is_admin ? "DISTINCT" : "") . "
         1 AS REALTIME,
         logs.ctime,
         logs.host_id,
@@ -701,22 +703,17 @@ if (count($tab_host_ids) == 0 && count($tab_svc) == 0) {
  * calculate size before limit for pagination
  */
 if (isset($req) && $req) {
-    require_once '../Paginator.php';
     /*
      * Add Suffix for order
      */
     $req .= $suffix_order;
-    if ($num < 0) {
-        $num = 0;
-    }
+    $paginator = new Paginator((int) $num, (int) $limit);
 
-    $limitReq = "";
-    if ($export !== "1") {
-        $offset = $num * $limit;
-        $queryValues['offset'] = [\PDO::PARAM_INT => $offset];
-        // The query retrieves more than $limit results (in order to display next n-th pages)
-        $queryValues['limit'] = [\PDO::PARAM_INT => ($limit * Paginator::PAGER_SPAN)];
-        $limitReq = " LIMIT :offset, :limit";
+    $limitReq = '';
+    if (!$export) {
+        $queryValues['offset'] = [\PDO::PARAM_INT => $paginator->getOffset()];
+        $queryValues['limit'] = [\PDO::PARAM_INT => $paginator->nbResultsPerPage];
+        $limitReq = ' LIMIT :offset, :limit';
     }
 
     $stmt = $pearDBO->prepare($req . $limitReq);
@@ -726,35 +723,31 @@ if (isset($req) && $req) {
         }
     }
     $stmt->execute();
+    $rows = $stmt->rowCount();
 
-    if (!($stmt->rowCount()) && ($num != 0)) {
-        if ($export !== "1") {
-            $offset = floor($rows / $limit) * $limit;
-        }
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+    if ($result = $pearDBO->query('SELECT FOUND_ROWS()')) {
+        $paginator = $paginator->withTotalRecordCount((int) $result->fetchColumn());
+    }
+
+    // If the current page is out of bounds, we force the max page correctly.
+    if (!$export && 0 === $rows && $paginator->isOutOfUpperBound()) {
+        $stmt->bindValue(':offset', $paginator->getOffsetMaximum(), \PDO::PARAM_INT);
         $stmt->execute();
     }
 
     $logs = $stmt->fetchAll();
     $stmt->closeCursor();
-    $rows = $stmt->rowCount();
 
     $buffer->startElement("selectLimit");
-    for ($i = 10; $i <= 100; $i = $i + 10) {
+    foreach ([10, 20, 30, 40, 50, 60, 70, 80, 90, 100] as $i) {
         $buffer->writeElement("limitValue", $i);
     }
     $buffer->writeElement("limit", $limit);
     $buffer->endElement();
 
-
-    require_once './PaginationRenderer.php';
-    // generate pages for navigation
-    $paginator = new Paginator($num, $rows, $limit);
-    $pages = $paginator->generatePages();
-
     // add generated pages into xml
     $paginationRenderer = new PaginationRenderer($buffer);
-    $paginationRenderer->render($pages);
+    $paginationRenderer->render($paginator);
 
     /*
      * Full Request
