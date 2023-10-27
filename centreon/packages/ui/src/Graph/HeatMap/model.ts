@@ -21,6 +21,7 @@ export interface HeatMapProps<TData> {
     data,
     isSmallestSize
   }: ChildrenProps<TData>) => ReactElement | boolean | null;
+  tileSizeFixed?: boolean;
   tiles: Array<Tile<TData>>;
   tooltipContent?: ({
     backgroundColor,

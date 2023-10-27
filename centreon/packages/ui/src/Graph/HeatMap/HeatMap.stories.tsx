@@ -33,6 +33,7 @@ const TileContent = ({
     <Box
       sx={{
         alignItems: 'center',
+        color: 'common.black',
         display: 'flex',
         flexDirection: 'column',
         width: '100%'
@@ -46,7 +47,7 @@ const TileContent = ({
 
 const TooltipContent = ({ data }: { data: Data }): JSX.Element => {
   return (
-    <Box>
+    <Box sx={{ backgroundColor: 'common.white', color: 'common.black' }}>
       <Box
         sx={{
           backgroundColor: 'common.black',
@@ -93,4 +94,12 @@ export const withTooltip: Story = {
     tooltipContent: TooltipContent
   },
   render: Template
+};
+
+export const tilesWithFixedSize: Story = {
+  args: {
+    children: TileContent,
+    tileSizeFixed: true,
+    tiles: heatMapData
+  }
 };

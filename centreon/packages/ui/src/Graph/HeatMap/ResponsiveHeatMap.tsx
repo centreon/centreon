@@ -19,7 +19,8 @@ const ResponsiveHeatMap = <TData,>({
   children,
   tiles,
   arrowClassName,
-  tooltipContent
+  tooltipContent,
+  tileSizeFixed
 }: HeatMapProps<TData> & { width: number }): JSX.Element | null => {
   const { classes, cx } = useHeatMapStyles();
 
@@ -46,7 +47,7 @@ const ResponsiveHeatMap = <TData,>({
       return maxTileSize;
     }
 
-    return tileWidth;
+    return tileSizeFixed ? maxTileSize : tileWidth;
   }, [width, tiles]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
