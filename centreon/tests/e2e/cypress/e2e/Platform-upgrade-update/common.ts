@@ -239,7 +239,6 @@ EOF`,
       return cy.execInContainer({
         command: `bash -e <<EOF
         rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb
-        rm -f /etc/apt/sources.list.d/centreon-testing.list
         apt-get update
         apt-get install -y /tmp/packages-update-centreon/centreon-*.deb
 EOF`,
