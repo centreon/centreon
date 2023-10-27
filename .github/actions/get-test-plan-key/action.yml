@@ -32,10 +32,29 @@ runs:
 
         echo "Those are the existent TPs: $test_plans"
 
+        # Determine the summary's prefix
+        summary_prefix=''
+        if [[ ${{ github.event_name }} == 'schedule' ]]; then
+          summary_prefix="NIGHTLY"
+        else 
+          echo "The github_ref_name is: $GITHUB_REF_NAME"
+          case "$GITHUB_REF_NAME" in
+              hotfix*)
+                summary_prefix="HOTFIX"
+                ;;
+              release*)
+                summary_prefix="RLZ"
+                ;;
+          esac
+        fi
+        # Delete after test ! 
+        $summary_prefix='RLZ'
+        echo "The summary to search is: $summary_prefix"
+
         # Extract the key of the existent test plan
         while read row; do
           summary=$(echo "$row" | jq -r '.summary')
-          if [[ "$summary" == "NIGHTLY OSS ${{ inputs.major_version }}" ]]; then
+          if [[ "$summary" == "$summary_prefix OSS ${{ inputs.major_version }}" ]]; then
             test_plan_key=$(echo "$row" | jq -r '.key')
             echo "The test_plan_key is $test_plan_key and the summary is $summary"
             break
@@ -55,7 +74,7 @@ runs:
               "testIssueIds": [],
               "jira": {
                 "fields": {
-                  "summary": "NIGHTLY OSS ${{ inputs.major_version }}",
+                  "summary": "$summary_prefix OSS ${{ inputs.major_version }}",
                   "project": { "key": "MON" }
                 }
               }

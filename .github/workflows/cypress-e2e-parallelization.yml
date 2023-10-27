@@ -229,10 +229,33 @@ jobs:
         run: |
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
 
+          # Determine the summary's prefix
+          summary_prefix=''
+          if [[ ${{ github.event_name }} == 'schedule' ]]; then
+            summary_prefix="NIGHTLY"
+          else 
+            echo "The github_ref_name is: $GITHUB_REF_NAME"
+            case "$GITHUB_REF_NAME" in
+                hotfix*)
+                  summary_prefix="HOTFIX"
+                  ;;
+                release*)
+                  summary_prefix="RLZ"
+                  ;;
+            esac
+          fi
+          # Delete after test ! 
+          $summary_prefix='RLZ'
+          echo "The summary to search is: $summary_prefix"
+
+          current_date=$(date +'%d/%m/%Y') 
+
+          workflow_run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
           jira_payload='
           {
             "fields": {
-              "summary": "RT OSS ${{ inputs.major_version }}.${{ inputs.minor_version }} ",
+              "summary": "$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date $workflow_run_url",
               "components": [{"name": "centreon-web"}],
               "priority":{"name":"Low"}
             }
