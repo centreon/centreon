@@ -11,6 +11,8 @@ import { ThemeProvider } from '@centreon/ui';
 import '@testing-library/cypress/add-commands';
 import 'cypress-msw-interceptor';
 
+import disableMotion from './disableCssTransitions';
+
 interface MountProps {
   Component: React.ReactNode;
   options?: object;
@@ -132,9 +134,16 @@ Cypress.Commands.add('makeSnapshot', (title?: string) => {
   cy.matchImageSnapshot(title);
 });
 
+Cypress.Commands.add('cssDisableMotion', (): void => {
+  Cypress.on('window:before:load', (cyWindow) => {
+    disableMotion(cyWindow);
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      cssDisableMotion: () => Cypress.Chainable;
       interceptAPIRequest: <T extends object>(
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;

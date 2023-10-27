@@ -4,8 +4,6 @@ const {
   addMatchImageSnapshotPlugin
 } = require('@simonsmith/cypress-image-snapshot/plugin');
 
-const { disableMotion } = require('./disableCssTransitions');
-
 module.exports = ({
   webpackConfig,
   cypressFolder,
@@ -33,10 +31,6 @@ module.exports = ({
           }
 
           return launchOptions;
-        });
-
-        on('window:before:load', (cyWindow) => {
-          disableMotion(cyWindow);
         });
       },
       specPattern,
