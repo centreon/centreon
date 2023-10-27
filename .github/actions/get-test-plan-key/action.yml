@@ -48,7 +48,7 @@ runs:
           esac
         fi
         # Delete after test ! 
-        $summary_prefix='RLZ'
+        summary_prefix='RLZ'
         echo "The summary to search is: $summary_prefix"
 
         # Extract the key of the existent test plan
