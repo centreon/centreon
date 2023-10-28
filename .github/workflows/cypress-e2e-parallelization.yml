@@ -252,14 +252,14 @@ jobs:
 
           workflow_run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
-          jira_payload='
+          jira_payload="
           {
-            "fields": {
-              "summary": "$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date $workflow_run_url",
-              "components": [{"name": "centreon-web"}],
-              "priority":{"name":"Low"}
+            \"fields\": {
+              \"summary\": \"$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date $workflow_run_url\",
+              \"components\": [{\"name\": \"centreon-web\"}],
+              \"priority\":{\"name\":\"Low\"}
             }
-          }'
+          }"
 
           curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" --data "${jira_payload}" "${jira_url}"
 
