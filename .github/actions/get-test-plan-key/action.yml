@@ -49,12 +49,14 @@ runs:
         fi
         # Delete after test ! 
         summary_prefix='RLZ'
-        echo "The summary to search is: $summary_prefix"
+
+        input_summary="$summary_prefix OSS ${{ inputs.major_version }}"
+        echo "The summary to search is: $input_summary"
 
         # Extract the key of the existent test plan
         while read row; do
           summary=$(echo "$row" | jq -r '.summary')
-          if [[ "$summary" == "$summary_prefix OSS ${inputs.major_version}" ]]; then
+          if [[ "$summary" == "$input_summary" ]]; then
             test_plan_key=$(echo "$row" | jq -r '.key')
             echo "The test_plan_key is $test_plan_key and the summary is $summary"
             break
@@ -74,7 +76,7 @@ runs:
               \"testIssueIds\": [],
               \"jira\": {
                 \"fields\": {
-                  \"summary\": \"$summary_prefix OSS \${{ inputs.major_version }}\",
+                  \"summary\": \"$input_summary\",
                   \"project\": { \"key\": \"MON\" }
                 }
               }

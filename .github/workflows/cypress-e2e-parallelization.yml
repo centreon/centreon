@@ -252,10 +252,13 @@ jobs:
 
           workflow_run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
+          input_summary="$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date $workflow_run_url"
+          echo "The summary of the TE is: $input_summary"
+
           jira_payload="
           {
             \"fields\": {
-              \"summary\": \"$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date $workflow_run_url\",
+              \"summary\": \"$input_summary\",
               \"components\": [{\"name\": \"centreon-web\"}],
               \"priority\":{\"name\":\"Low\"}
             }
