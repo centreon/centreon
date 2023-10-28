@@ -47,8 +47,6 @@ runs:
                 ;;
           esac
         fi
-        # Delete after test ! 
-        summary_prefix='RLZ'
 
         input_summary="$summary_prefix OSS ${{ inputs.major_version }}"
         echo "The summary to search is: $input_summary"
