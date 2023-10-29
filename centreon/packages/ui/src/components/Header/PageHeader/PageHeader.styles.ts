@@ -1,4 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
+import { equals } from 'ramda';
+
+import { ThemeMode } from '@centreon/ui-context';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -22,7 +25,7 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(0, 0, 1.5, 0)
   },
   pageHeader: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.header.page.border}`,
     display: 'flex',
     gap: theme.spacing(4),
@@ -52,6 +55,38 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     position: 'relative',
     transform: `translateY(-${theme.spacing(0.25)})`
+  },
+  pageHeaderMessage: {
+    alignItems: 'center',
+    color: theme.palette.warning.main,
+    display: 'flex',
+    gap: theme.spacing(1),
+    h2: {
+      font: 'normal normal 500 20px/20px Roboto',
+      letterSpacing: '0.15px'
+    }
+  },
+  pageHeaderMessageIcon: {
+    alignItems: 'center',
+    background: theme.palette.warning.main,
+    borderRadius: '50%',
+    color: theme.palette.common.white,
+    display: 'flex',
+    font: 'normal normal 500 20px/20px Roboto',
+    height: theme.spacing(2.5),
+    justifyContent: 'center',
+    width: theme.spacing(2.5)
+  },
+  pageHeaderMessageIconWrapper: {
+    alignItems: 'center',
+    background: equals(theme.palette.mode, ThemeMode.light)
+      ? '#FEC37D'
+      : '#833F0D',
+    borderRadius: '50%',
+    display: 'flex',
+    height: theme.spacing(3.5),
+    justifyContent: 'center',
+    width: theme.spacing(3.5)
   },
   pageHeaderTitle: {
     '& > *': {
