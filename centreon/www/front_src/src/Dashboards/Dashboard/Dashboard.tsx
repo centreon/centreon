@@ -26,6 +26,7 @@ import { DashboardEditActions } from './components/DashboardEdit/DashboardEditAc
 import { AddWidgetButton } from './AddEditWidget';
 import { editProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
+import useUnsavedChangesWarning from './hooks/useUnsavedChangesWarning';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
@@ -36,6 +37,8 @@ const Dashboard = (): ReactElement => {
   });
   const { editDashboard } = useDashboardConfig();
   const { editAccessRights } = useDashboardAccessRights();
+
+  const unsavedChangesWarning = useUnsavedChangesWarning({ panels });
 
   const isEditing = useAtomValue(isEditingAtom);
   const { layout } = useAtomValue(dashboardAtom);
@@ -75,6 +78,7 @@ const Dashboard = (): ReactElement => {
               title={dashboard?.name || ''}
             />
           </PageHeader.Main>
+          <PageHeader.Message message={unsavedChangesWarning} />
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
