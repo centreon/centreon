@@ -118,3 +118,5 @@ export const labelBottom = 'Bottom';
 export const labelIncludesXHost = 'Includes {{count}} resources';
 export const labelNumberOfValues = 'Number of values';
 export const labelViewWidgetProperties = 'View widget properties';
+export const labelUnsavedChanges =
+  'You have unsaved changes. If you leave without saving your dashboard, changes will be permanently lost.';
