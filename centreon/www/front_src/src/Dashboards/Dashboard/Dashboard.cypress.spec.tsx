@@ -54,7 +54,8 @@ import {
   labelDuplicate,
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
-  labelInterval
+  labelInterval,
+  labelUnsavedChanges
 } from './translatedLabels';
 import { Dashboard } from './Dashboard';
 import { dashboardAtom } from './atoms';
@@ -297,6 +298,33 @@ describe('Dashboard', () => {
     });
   });
 
+  it('displays a warning message indicating unsaved changes in the dashboard when updating it', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.findByLabelText(labelEditDashboard).click();
+    cy.findByLabelText(labelAddAWidget).click();
+
+    cy.findByLabelText(labelWidgetType).click();
+    cy.contains('Generic input (example)').click();
+
+    cy.findByLabelText(labelTitle).type('Generic input');
+    cy.findByLabelText('Generic text').type('Text for the new widget');
+
+    cy.findAllByLabelText(labelSave).eq(1).click();
+
+    cy.contains(labelUnsavedChanges).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.contains(labelUnsavedChanges).should('not.exist');
+
+    cy.findByLabelText(labelEditDashboard).should('be.visible');
+  });
+
   describe('Add widget', () => {
     it('adds a widget when a widget type is selected and the submission button is clicked', () => {
       initializeAndMount(editorRoles);
@@ -477,7 +505,7 @@ describe('Dashboard', () => {
     cy.contains('Description').should('be.visible');
   });
 
-  it.only('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
+  it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
     initializeAndMount(editorRoles);
 
     cy.waitForRequest('@getDashboardDetails');
