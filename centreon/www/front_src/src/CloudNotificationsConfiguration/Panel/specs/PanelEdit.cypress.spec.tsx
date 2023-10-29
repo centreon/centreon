@@ -453,7 +453,7 @@ describe('Edit Panel', () => {
       cy.findByRole('checkbox').should('not.be.checked').and('be.disabled');
     });
 
-    cy.get('#panel-content').scrollTo('bottom');
+    cy.get('#panel-content').scrollTo('center');
 
     cy.makeSnapshot();
   });
