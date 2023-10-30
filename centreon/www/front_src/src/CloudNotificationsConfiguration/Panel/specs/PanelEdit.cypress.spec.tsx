@@ -144,8 +144,6 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.clock();
-
     cy.makeSnapshot();
   });
 
@@ -161,8 +159,6 @@ describe('Edit Panel', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.clock();
 
     cy.makeSnapshot();
   });
@@ -453,9 +449,9 @@ describe('Edit Panel', () => {
       cy.findByRole('checkbox').should('not.be.checked').and('be.disabled');
     });
 
-    cy.get('#panel-content').scrollTo('center');
+    cy.get('div[aria-label="Notification settings"]').scrollIntoView();
 
-    cy.makeSnapshot();
+    cy.screenshot();
   });
 
   it('confirms that the Subject field is properly rendered with the edited notification subject', () => {
