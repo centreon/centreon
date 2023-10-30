@@ -4,6 +4,9 @@ parameters:
   scanFiles:
     - tests/phpstan_stubs/bootstrap.stub
     - tests/phpstan_stubs/legacy.stub
+  excludePaths:
+    analyseAndScan:
+      - src/Centreon/Tests
   paths:
     - %currentWorkingDirectory%/src/Centreon
     - %currentWorkingDirectory%/src/EventSubscriber
