@@ -62,11 +62,13 @@ class GraphTemplate
     ) {
         Assertion::positiveInt($id, 'GraphTemplate::id');
 
-        Assertion::notEmptyString($name, 'GraphTemplate::name');
-        Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'GraphTemplate::name');
+        $this->name = trim($name);
+        Assertion::notEmptyString($this->name, 'GraphTemplate::name');
+        Assertion::maxLength($this->name, self::NAME_MAX_LENGTH, 'GraphTemplate::name');
 
-        Assertion::notEmptyString($verticalAxisLabel, 'GraphTemplate::verticalAxisLabel');
-        Assertion::maxLength($verticalAxisLabel, self::LABEL_MAX_LENGTH, 'GraphTemplate::verticalAxisLabel');
+        $this->verticalAxisLabel = trim($verticalAxisLabel);
+        Assertion::notEmptyString($this->verticalAxisLabel, 'GraphTemplate::verticalAxisLabel');
+        Assertion::maxLength($this->verticalAxisLabel, self::LABEL_MAX_LENGTH, 'GraphTemplate::verticalAxisLabel');
 
         Assertion::inArray($base, self::BASE_ALLOWED_VALUES, 'GraphTemplate::base');
 

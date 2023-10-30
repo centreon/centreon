@@ -8,7 +8,7 @@ properties:
     type: string
     description: "Graph template name"
     example: "CPU"
-  verticalAxisLabel:
+  vertical_axis_label:
     type: string
     description: "Graph vertical axis label"
     example: "some axis label"
@@ -24,25 +24,28 @@ properties:
     type: integer
     description: "Indicates the graph base value: 1000 or 1024"
     example: 1024
-  gridLowerLimit:
-    type: float
-    nullable: true
-    description: "Lower limit of the grid"
-    example: 115
-  gridUpperLimit:
-    type: float
-    nullable: true
-    description: "Upper limit of the grid"
-    example: 115
-  isUpperLimitSizedToMax:
-    type: bool
-    description: "Set the upper limit of the grid to the maximum value"
-    example: false
-  isGraphScaled:
+  grid:
+    type: object
+    items:
+      lower_limit:
+        type: float
+        nullable: true
+        description: "Lower limit of the grid"
+        example: 115
+      upper_limit:
+        type: float
+        nullable: true
+        description: "Upper limit of the grid"
+        example: 115
+      is_upper_limit_sized_to_max:
+        type: bool
+        description: "Set the upper limit of the grid to the maximum value"
+        example: false
+  is_graph_scaled:
     type: bool
     description: "Enable auto scale of the graph"
     example: true
-  isDefaultCentreonTemplate:
+  is_default_centreon_template:
     type: bool
     description: "Set template as default template"
     example: false
