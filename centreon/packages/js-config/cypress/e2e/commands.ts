@@ -448,6 +448,30 @@ interface ListingRequestResult {
   };
 }
 
+interface PatchBody {
+  panels: Array<{
+    layout: {
+      height: number;
+      min_height: number;
+      min_width: number;
+      width: number;
+      x: number;
+      y: number;
+    };
+    name: string;
+    widget_settings: {
+      options: {
+        description: {
+          content: string;
+          enabled: boolean;
+        };
+        name: string;
+      };
+    };
+    widget_type: string;
+  }>;
+}
+
 Cypress.Commands.add(
   'shareDashboardToUser',
   ({ dashboardName, userName, role }: ShareDashboardToUserProps): void => {
@@ -522,8 +546,8 @@ declare global {
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
-        patch: any
-      ) => Chainable;
+        patch: PatchBody
+      ) => Cypress.Chainable;
 
       loginByTypeOfUser: ({
         jsonName,
