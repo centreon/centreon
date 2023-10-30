@@ -70,7 +70,8 @@ class GraphTemplate
 
         Assertion::inArray($base, self::BASE_ALLOWED_VALUES, 'GraphTemplate::base');
 
-        if ($this->isUpperLimitSizedToMax === true) {
+        // if isUpperLimitSizedToMax is set to true, gridUpperLimit is silently set to null
+        if ($this->isUpperLimitSizedToMax) {
             $this->gridUpperLimit = null;
         }
     }
