@@ -18294,5 +18294,5 @@ msgstr "Erreur lors de la récuparation d'une commande"
 msgid "Error while retrieving contact groups"
 msgstr "Erreur lors de la récupération des groupes de contacts"
 
-msgid "You have unsaved changes. If you leave without saving your dashboard, changes will be permanently lost."
-msgstr "Vous avez des modifications non enregistrées. Si vous quittez sans enregistrer votre tableau de bord, les modifications seront définitivement perdues."
+msgid "If you leave without saving your dashboard, changes will be permanently lost."
+msgstr "Si vous quittez sans enregistrer votre tableau de bord, les modifications seront définitivement perdues."
