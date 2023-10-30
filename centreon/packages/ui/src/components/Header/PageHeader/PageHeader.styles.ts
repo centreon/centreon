@@ -59,11 +59,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     color: theme.palette.warning.main,
     display: 'flex',
-    gap: theme.spacing(1),
-    h2: {
-      font: 'normal normal 500 20px/20px Roboto',
-      letterSpacing: '0.15px'
-    }
+    gap: theme.spacing(1)
   },
   pageHeaderMessageIcon: {
     alignItems: 'center',
