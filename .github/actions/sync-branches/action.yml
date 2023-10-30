@@ -26,9 +26,12 @@ runs:
         PR_REVIEWERS="centreon/centreon-release-management"
         PR_BODY="REF #MON-21407"
         PR_TITLE="MON-21407 Sync Centreon OSS next 22.10"
+        RELEASE_ISSUE_ID=""
 
         # Get major version from .env file from repository
          VERSION=$(cat .env)
+
+        # Get release JIRA issue ID
 
         # Check vars and exit if one of them is empty
         if [[ -z ${PR_BASE_BRANCH} | -z ${PR_REVIEWERS} | -z ${PR_BODY} | -z ${PR_TITLE} ]]; then
