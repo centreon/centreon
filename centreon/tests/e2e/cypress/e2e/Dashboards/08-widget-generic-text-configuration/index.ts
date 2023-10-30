@@ -342,6 +342,5 @@ Then(
     cy.contains('Link to Centreon website').invoke('attr', 'target', '_self');
     cy.contains('Link to Centreon website').click({ force: true });
     cy.url().should('equal', 'https://www.centreon.com/');
-    cy.go('back');
   }
 );
