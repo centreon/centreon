@@ -214,7 +214,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::CENTREON_BROKER_CONFIGURATION_SERVICE] =
             function (Container $container): BrokerConfigurationService {
-                $service = new BrokerConfigurationService($container['configuration_db']);
+                $service = new BrokerConfigurationService();
                 $service->setBrokerInfoRepository($container[ServiceProvider::CENTREON_BROKER_INFO_REPOSITORY]);
 
                 return $service;
