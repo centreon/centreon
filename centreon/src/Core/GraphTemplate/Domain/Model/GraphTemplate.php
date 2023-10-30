@@ -105,7 +105,7 @@ class GraphTemplate
         return $this->base;
     }
 
-    public function getGridLowerLimit():  ?float
+    public function getGridLowerLimit(): ?float
     {
         return $this->gridLowerLimit;
     }

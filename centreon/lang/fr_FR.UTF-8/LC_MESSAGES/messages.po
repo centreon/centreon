@@ -18313,4 +18313,4 @@ msgid "You are not allowed to access graph templates"
 msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
 
 msgid "Error while searching for graph templates"
-msgstr "Erreur lors de la recherche des modèles de graphique"
+msgstr "Erreur lors de la recherche de modèles de graphique"

@@ -145,7 +145,7 @@ it('should throw an exception when vertical axis label is too long', function ()
     )->getMessage()
 );
 
-it('should throw an exception when base is different than 1000 or 1024', function (): void {
+it('should throw an exception when base is different from 1000 or 1024', function (): void {
     new GraphTemplate(
         id: 1,
         name: 'graph template name',
