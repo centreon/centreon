@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -13,35 +12,46 @@ import { platformInstallationStatusEndpoint } from '../api/endpoint';
 import { PlatformInstallationStatus } from '../api/models';
 import reactRoutes from '../reactRoutes/routeMap';
 import useFederatedModules from '../federatedModules/useFederatedModules';
+import useFederatedWidgets from '../federatedModules/useFederatedWidgets';
 
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useUser, { areUserParametersLoadedAtom } from './useUser';
 import usePlatformVersions from './usePlatformVersions';
 import useInitializeTranslation from './useInitializeTranslation';
+import usePlatformFeatures from './usePlatformFeatures';
+
+export const router = {
+  useNavigate
+};
 
 const useMain = (): void => {
   const { sendRequest: getPlatformInstallationStatus } =
     useRequest<PlatformInstallationStatus>({
       decoder: platformInstallationStatusDecoder,
-      request: getData,
+      request: getData
     });
   const { showErrorMessage } = useSnackbar();
 
   const { getBrowserLocale, getInternalTranslation, i18next } =
     useInitializeTranslation();
 
-  const setPlatformInstallationStatus = useSetAtom(
-    platformInstallationStatusAtom,
+  const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
+    areUserParametersLoadedAtom
   );
   const user = useAtomValue(userAtom);
-  const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
+
+  const setPlatformInstallationStatus = useSetAtom(
+    platformInstallationStatusAtom
+  );
 
   const loadUser = useUser();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
   const [searchParameter] = useSearchParams();
   const { getPlatformVersions } = usePlatformVersions();
+  const { getPlatformFeatures } = usePlatformFeatures();
   useFederatedModules();
+  useFederatedWidgets();
 
   const displayAuthenticationError = (): void => {
     const authenticationError = searchParameter.get('authenticationError');
@@ -56,17 +66,24 @@ const useMain = (): void => {
   useEffect(() => {
     displayAuthenticationError();
 
-    getPlatformVersions();
-
     getPlatformInstallationStatus({
-      endpoint: platformInstallationStatusEndpoint,
+      endpoint: platformInstallationStatusEndpoint
     }).then((retrievedPlatformInstallationStatus) => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
-    });
-  }, []);
 
-  useEffect((): void => {
-    loadUser();
+      if (
+        !retrievedPlatformInstallationStatus?.isInstalled ||
+        retrievedPlatformInstallationStatus.hasUpgradeAvailable
+      ) {
+        setAreUserParametersLoaded(false);
+
+        return;
+      }
+      loadUser();
+
+      getPlatformFeatures();
+      getPlatformVersions();
+    });
   }, []);
 
   useEffect((): void => {
@@ -80,7 +97,7 @@ const useMain = (): void => {
   useEffect(() => {
     const canChangeToBrowserLanguage = and(
       isNil(areUserParametersLoaded),
-      i18next.isInitialized,
+      i18next.isInitialized
     );
     if (canChangeToBrowserLanguage) {
       i18next?.changeLanguage(getBrowserLocale());
@@ -88,7 +105,7 @@ const useMain = (): void => {
 
     const canRedirectToUserDefaultPage = and(
       areUserParametersLoaded,
-      includes(location.pathname, [reactRoutes.login, '/']),
+      includes(location.pathname, [reactRoutes.login, '/'])
     );
 
     if (not(canRedirectToUserDefaultPage)) {

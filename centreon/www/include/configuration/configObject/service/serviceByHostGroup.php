@@ -41,7 +41,29 @@ if (!isset($centreon)) {
 global $form_service_type;
 $form_service_type = "BYHOSTGROUP";
 
-$service_id = filter_var(
+const SERVICE_ADD = 'a';
+const SERVICE_WATCH = 'w';
+const SERVICE_MODIFY = 'c';
+const SERVICE_MASSIVE_CHANGE = 'mc';
+const SERVICE_DIVISION = 'dv';
+const SERVICE_MOVE_TO_HOST = 'mvH';
+const SERVICE_ACTIVATION = 's';
+const SERVICE_MASSIVE_ACTIVATION = 'ms';
+const SERVICE_DEACTIVATION = 'u';
+const SERVICE_MASSIVE_DEACTIVATION = 'mu';
+const SERVICE_DUPLICATION = 'm';
+const SERVICE_DELETION = 'd';
+
+if (isset($_POST["o1"]) && isset($_POST["o2"])) {
+    if ($_POST["o1"] != "") {
+        $o = $_POST["o1"];
+    }
+    if ($_POST["o2"] != "") {
+        $o = $_POST["o2"];
+    }
+}
+
+$service_id = $o === SERVICE_MASSIVE_CHANGE ? false : filter_var(
     $_GET['service_id'] ?? $_POST['service_id'] ?? null,
     FILTER_VALIDATE_INT
 );
@@ -70,15 +92,6 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
-    if ($_POST["o1"] != "") {
-        $o = $_POST["o1"];
-    }
-    if ($_POST["o2"] != "") {
-        $o = $_POST["o2"];
-    }
-}
-
 /* Set the real page */
 if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
@@ -86,19 +99,6 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
 
 $acl = $centreon->user->access;
 $aclDbName = $acl->getNameDBAcl();
-
-const SERVICE_ADD = 'a';
-const SERVICE_WATCH = 'w';
-const SERVICE_MODIFY = 'c';
-const SERVICE_MASSIVE_CHANGE = 'mc';
-const SERVICE_DIVISION = 'dv';
-const SERVICE_MOVE_TO_HOST = 'mvH';
-const SERVICE_ACTIVATION = 's';
-const SERVICE_MASSIVE_ACTIVATION = 'ms';
-const SERVICE_DEACTIVATION = 'u';
-const SERVICE_MASSIVE_DEACTIVATION = 'mu';
-const SERVICE_DUPLICATION = 'm';
-const SERVICE_DELETION = 'd';
 
 switch ($o) {
     case SERVICE_ADD:

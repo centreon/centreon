@@ -1,0 +1,29 @@
+get:
+  tags:
+    - Metrics
+  summary: "List metrics"
+  parameters:
+    - $ref: 'QueryParameter/Start.yaml'
+    - $ref: 'QueryParameter/End.yaml'
+    - $ref: 'QueryParameter/MetricNames.yaml'
+  description: |
+    Get data for given metrics
+
+    The available parameters to **search** / **sort_by** are:
+    AND
+    * hostgroup.id
+    * hostcategory.id
+    * host.id
+    * servicegroup.id
+    * servicecategory.id
+    * service.name
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/Dashboard.MetricsPerformancesData.yaml'
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

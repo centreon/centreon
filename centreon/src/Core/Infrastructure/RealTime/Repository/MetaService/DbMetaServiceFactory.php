@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\MetaService;
@@ -32,6 +33,7 @@ class DbMetaServiceFactory
 
     /**
      * @param array<string,int|string|null> $data
+     *
      * @return MetaService
      */
     public static function createFromRecord(array $data): MetaService
@@ -67,10 +69,10 @@ class DbMetaServiceFactory
             ->setStatusChangePercentage(self::getFloatOrNull($data['status_change_percentage']))
             ->setNotificationEnabled((int) $data['notify'] === 1)
             ->setNotificationNumber(self::getIntOrNull($data['notification_number']))
-            ->setLastStatusChange(self::createDateTimeFromTimestamp((int) $data['last_status_change']))
-            ->setLastNotification(self::createDateTimeFromTimestamp((int) $data['last_notification']))
-            ->setLastCheck(self::createDateTimeFromTimestamp((int) $data['last_check']))
-            ->setLastTimeOk(self::createDateTimeFromTimestamp((int) $data['last_time_ok']))
+            ->setLastStatusChange(self::createDateTimeFromTimestamp(is_numeric($data['last_status_change']) ? (int) $data['last_status_change'] : null))
+            ->setLastNotification(self::createDateTimeFromTimestamp(is_numeric($data['last_notification']) ? (int) $data['last_notification'] : null))
+            ->setLastCheck(self::createDateTimeFromTimestamp(is_numeric($data['last_check']) ? (int) $data['last_check'] : null))
+            ->setLastTimeOk(self::createDateTimeFromTimestamp(is_numeric($data['last_time_ok']) ? (int) $data['last_time_ok'] : null))
             ->setMaxCheckAttempts(self::getIntOrNull($data['max_check_attempts']))
             ->setCheckAttempts(self::getIntOrNull($data['check_attempt']))
             ->setHasGraphData((int) $data['has_graph_data'] === 1);

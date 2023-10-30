@@ -1,4 +1,4 @@
-import { lazy, useEffect, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 
 import 'dayjs/locale/en';
 import 'dayjs/locale/pt';
@@ -14,17 +14,15 @@ import weekday from 'dayjs/plugin/weekday';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import duration from 'dayjs/plugin/duration';
-import { and, isNil, not } from 'ramda';
-import { Route, Routes, useNavigate } from 'react-router-dom';
-import { useAtomValue } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { and, equals, isNil, not } from 'ramda';
+import { Outlet, useLocation } from 'react-router-dom';
+import { useAtomValue, useAtom } from 'jotai';
 
 import reactRoutes from '../reactRoutes/routeMap';
 
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
-import Provider from './Provider';
 import { MainLoaderWithoutTranslation } from './MainLoader';
-import useMain from './useMain';
+import useMain, { router } from './useMain';
 import { areUserParametersLoadedAtom } from './useUser';
 
 dayjs.extend(localizedFormat);
@@ -37,19 +35,15 @@ dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(duration);
 
-const LoginPage = lazy(() => import('../Login'));
-const ResetPasswordPage = lazy(() => import('../ResetPassword'));
-
-const AppPage = lazy(() => import('./InitializationPage'));
-
 const Main = (): JSX.Element => {
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
+  const { pathname } = useLocation();
 
   useMain();
 
   const [areUserParametersLoaded] = useAtom(areUserParametersLoadedAtom);
   const platformInstallationStatus = useAtomValue(
-    platformInstallationStatusAtom,
+    platformInstallationStatusAtom
   );
 
   const navigateTo = (path: string): void => {
@@ -70,7 +64,7 @@ const Main = (): JSX.Element => {
 
     const canUpgrade = and(
       platformInstallationStatus.hasUpgradeAvailable,
-      not(areUserParametersLoaded),
+      not(areUserParametersLoaded)
     );
 
     if (canUpgrade) {
@@ -79,7 +73,11 @@ const Main = (): JSX.Element => {
       return;
     }
 
-    if (not(areUserParametersLoaded)) {
+    if (
+      not(areUserParametersLoaded) &&
+      !equals(pathname, reactRoutes.authenticationDenied) &&
+      !equals(pathname, reactRoutes.logout)
+    ) {
       navigate(reactRoutes.login);
     }
   }, [platformInstallationStatus, areUserParametersLoaded]);
@@ -90,20 +88,9 @@ const Main = (): JSX.Element => {
 
   return (
     <Suspense fallback={<MainLoaderWithoutTranslation />}>
-      <Routes>
-        <Route element={<LoginPage />} path={reactRoutes.login} />
-        <Route
-          element={<ResetPasswordPage />}
-          path={reactRoutes.resetPassword}
-        />
-        <Route element={<AppPage />} path="*" />
-      </Routes>
+      <Outlet />
     </Suspense>
   );
 };
 
-export default (): JSX.Element => (
-  <Provider>
-    <Main />
-  </Provider>
-);
+export default Main;

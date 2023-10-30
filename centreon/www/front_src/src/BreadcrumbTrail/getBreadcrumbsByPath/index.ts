@@ -50,8 +50,10 @@ const getFirstUrlInChildren = (item): string | undefined => {
 };
 
 interface Breadcrumb {
+  is_react?: boolean;
   label: string;
   link: string;
+  options?: string;
 }
 
 const getBreadcrumbStep = (item): Breadcrumb | null => {
@@ -59,8 +61,10 @@ const getBreadcrumbStep = (item): Breadcrumb | null => {
 
   return availableUrl
     ? {
+        is_react: item.is_react,
         label: item.label,
         link: availableUrl,
+        options: item.options
       }
     : null;
 };
@@ -76,9 +80,11 @@ const getBreadcrumbsByPath = (navigation: Array<Page>): BreadcrumbsByPath => {
     }
     breadcrumbs[stepLvl1.link] = [
       {
+        is_react: stepLvl1.is_react,
         label: stepLvl1.label,
         link: stepLvl1.link,
-      },
+        options: stepLvl1.options
+      }
     ];
 
     // build level 2 breadcrumbs
@@ -90,13 +96,17 @@ const getBreadcrumbsByPath = (navigation: Array<Page>): BreadcrumbsByPath => {
         }
         breadcrumbs[stepLvl2.link] = [
           {
+            is_react: stepLvl1.is_react,
             label: stepLvl1.label,
             link: stepLvl1.link,
+            options: stepLvl1.options
           },
           {
+            is_react: stepLvl2.is_react,
             label: stepLvl2.label,
             link: stepLvl2.link,
-          },
+            options: stepLvl2.options
+          }
         ];
 
         // build level 3 breadcrumbs
@@ -110,17 +120,23 @@ const getBreadcrumbsByPath = (navigation: Array<Page>): BreadcrumbsByPath => {
                 }
                 breadcrumbs[stepLvl3.link] = [
                   {
+                    is_react: stepLvl1.is_react,
                     label: stepLvl1.label,
                     link: stepLvl1.link,
+                    options: stepLvl1.options
                   },
                   {
+                    is_react: stepLvl2.is_react,
                     label: stepLvl2.label,
                     link: stepLvl2.link,
+                    options: stepLvl2.options
                   },
                   {
+                    is_react: stepLvl3.is_react,
                     label: stepLvl3.label,
                     link: stepLvl3.link,
-                  },
+                    options: stepLvl3.options
+                  }
                 ];
               });
             }

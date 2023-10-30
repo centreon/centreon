@@ -44,6 +44,15 @@ class ConfigurationMonitoringServerException extends \Exception
 
     /**
      * @param int $monitoringServerId
+     * @return self
+     */
+    public static function disabled(int $monitoringServerId): self
+    {
+        return new self(sprintf(_('Monitoring server disabled (#%d)'), $monitoringServerId));
+    }
+
+    /**
+     * @param int $monitoringServerId
      * @param string $errorMessage
      * @return self
      */

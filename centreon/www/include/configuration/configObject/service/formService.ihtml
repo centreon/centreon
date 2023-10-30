@@ -152,7 +152,22 @@
             </td>
         </tr>
         {if !isset($isServiceTemplate)}
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="use_only_contacts_from_host"> {$form.service_use_only_contacts_from_host.label}</td><td class="FormRowValue">{$form.service_use_only_contacts_from_host.html}</td></tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+
+                    <div class="formRowLabel">
+                        <div>
+                            <img class="helpTooltip" name="use_only_contacts_from_host">
+                        </div>
+                        <div>
+                            <p class="fieldLabel">
+                                {$form.service_use_only_contacts_from_host.label}
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="FormRowValue">{$form.service_use_only_contacts_from_host.html}</td></tr>
         {/if}
         {if $o == "mc"}
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_cgs.label}</td><td class="FormRowValue">{$form.mc_mod_cgs.html}</td></tr>
@@ -331,7 +346,23 @@
           </td>
         </tr>
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="retain_status_information"> {$form.service_retain_status_information.label}</td><td class="FormRowValue">{$form.service_retain_status_information.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="retain_nonstatus_information"> {$form.service_retain_nonstatus_information.label}</td><td class="FormRowValue">{$form.service_retain_nonstatus_information.html}</td></tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+
+
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="retain_nonstatus_information">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.service_retain_nonstatus_information.label}
+                        </p>
+
+                    </div>
+                </div>
+            </td>
+            <td class="FormRowValue">{$form.service_retain_nonstatus_information.html}</td></tr>
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="stalking_options"> {$form.service_stalOpts.label}</td><td class="FormRowValue">{$form.service_stalOpts.html}</td></tr>
 
         <tr class="list_lvl_1">
@@ -387,7 +418,7 @@
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="notes"> {$form.esi_notes.label}</td><td class="FormRowValue">{$form.esi_notes.html}</td></tr>
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="action_url"> {$form.esi_action_url.label}</td><td class="FormRowValue">{$form.esi_action_url.html}</td></tr>
         {/if}
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="icon_image"> {$form.esi_icon_image.label}</td><td class="FormRowValue">{$form.esi_icon_image.html}&nbsp;&nbsp;<img id='esi_icon_image_img' src='./img/blank.gif'></td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="icon_image"> {$form.esi_icon_image.label}</td><td class="FormRowValue">{$form.esi_icon_image.html}&nbsp;&nbsp;<img id='esi_icon_image_img' src='./img/blank.gif' class="img_box" ></td></tr>
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="icon_image_alt"> {$form.esi_icon_image_alt.label}</td><td class="FormRowValue">{$form.esi_icon_image_alt.html}</td></tr>
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="criticality_id"> {$form.criticality_id.label}</td><td class="FormRowValue">{$form.criticality_id.html}</td></tr>
         {if isset($form.geo_coords.label)}
@@ -398,7 +429,10 @@
             <h4>{$form.header.furtherInfos}</h4>
           </td>
         </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="service_activate"> {$form.service_activate.label}</td><td class="FormRowValue">{$form.service_activate.html}</td></tr>
+
+        {if !isset($isServiceTemplate)}
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="service_activate"> {$form.service_activate.label}</td><td class="FormRowValue">{$form.service_activate.html}</td></tr>
+        {/if}
         <tr class="list_two"><td class="FormRowField">{$form.service_comment.label}</td><td class="FormRowValue">{$form.service_comment.html}</td></tr>
      </table>
 </div>

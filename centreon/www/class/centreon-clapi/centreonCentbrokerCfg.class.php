@@ -118,10 +118,14 @@ class CentreonCentbrokerCfg extends CentreonObject
             } elseif (!preg_match('/^config_/', $params[1])) {
                 $parametersWithoutPrefix = [
                     "event_queue_max_size",
+                    "event_queues_total_size",
                     "cache_directory",
                     "stats_activate",
                     "daemon",
                     "pool_size",
+                    "command_file",
+                    "log_directory",
+                    "log_filename",
                 ];
                 if (!in_array($params[1], $parametersWithoutPrefix)) {
                     $params[1] = 'config_' . $params[1];
@@ -387,6 +391,9 @@ class CentreonCentbrokerCfg extends CentreonObject
 
         $defaultValues = array();
         foreach ($fields as $field) {
+            if ($field['required'] === 0) {
+                continue;
+            }
             if (is_null($field['value'])) {
                 $field['value'] = $this->brokerObj->getDefaults($field['id']);
             }
@@ -394,6 +401,10 @@ class CentreonCentbrokerCfg extends CentreonObject
                 $field['value'] = '';
             }
 
+            if ($field['group_name'] !== null) {
+                $field['fieldname'] = $field['group_name'] . '__' . $field['fieldname'];
+
+            }
             $defaultValues[$field['fieldname']] = $field['value'];
         }
 
@@ -751,6 +762,11 @@ class CentreonCentbrokerCfg extends CentreonObject
                 . $element['config_name'] . $this->delim
                 . "pool_size" . $this->delim
                 . $poolSize . "\n";
+            echo $this->action . $this->delim
+                . "SETPARAM" . $this->delim
+                . $element['config_name'] . $this->delim
+                . "event_queues_total_size" . $this->delim
+                . ($element['event_queues_total_size'] ?? '') . "\n";
             $sql = "SELECT config_key, config_value, config_group, config_group_id
             		FROM cfg_centreonbroker_info
             		WHERE config_id = ?

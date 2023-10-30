@@ -38,14 +38,16 @@ if (!isset($centreon)) {
     exit();
 }
 
+const DOWNTIME_ON_HOST = 75;
+
 $select = array();
 if (isset($_GET['select'])) {
     foreach ($_GET['select'] as $key => $value) {
-        if ($cmd == '75') {
-            $tmp = preg_split("/\;/", $key);
+        if ((int) $cmd == DOWNTIME_ON_HOST) {
+            $tmp = preg_split("/\;/", urlencode($key));
             $select[] = $tmp[0];
         } else {
-            $select[] = $key;
+            $select[] = urlencode($key);
         }
     }
 }

@@ -1,0 +1,5 @@
+{
+    "action": "SETPARAM",
+    "object": "HOST",
+    "values": "test_host;passive_checks_enabled;1"
+  }

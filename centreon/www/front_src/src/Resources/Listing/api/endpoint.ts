@@ -1,8 +1,10 @@
-import { buildListingEndpoint, ListingParameters } from '@centreon/ui';
+import { buildListingEndpoint } from '@centreon/ui';
+import type { ListingParameters } from '@centreon/ui';
 
 import { resourcesEndpoint } from '../../api/endpoint';
 
 export type ListResourcesProps = {
+  endpoint?: string;
   hostCategories: Array<string>;
   hostGroups: Array<string>;
   hostSeverities: Array<string>;
@@ -21,12 +23,12 @@ export type ListResourcesProps = {
 
 const buildResourcesEndpoint = (parameters: ListResourcesProps): string => {
   return buildListingEndpoint({
-    baseEndpoint: resourcesEndpoint,
+    baseEndpoint: parameters?.endpoint || resourcesEndpoint,
     customQueryParameters: [
       { name: 'states', value: parameters.states },
       {
         name: 'status_types',
-        value: parameters.statusTypes,
+        value: parameters.statusTypes
       },
       { name: 'types', value: parameters.resourceTypes },
       { name: 'statuses', value: parameters.statuses },
@@ -37,17 +39,17 @@ const buildResourcesEndpoint = (parameters: ListResourcesProps): string => {
       { name: 'monitoring_server_names', value: parameters.monitoringServers },
       {
         name: 'only_with_performance_data',
-        value: parameters.onlyWithPerformanceData,
+        value: parameters.onlyWithPerformanceData
       },
       { name: 'service_severity_names', value: parameters.serviceSeverities },
       {
         name: 'service_severity_levels',
-        value: parameters.serviceSeverityLevels,
+        value: parameters.serviceSeverityLevels
       },
       { name: 'host_severity_names', value: parameters.hostSeverities },
-      { name: 'host_severity_levels', value: parameters.hostSeverityLevels },
+      { name: 'host_severity_levels', value: parameters.hostSeverityLevels }
     ],
-    parameters,
+    parameters
   });
 };
 

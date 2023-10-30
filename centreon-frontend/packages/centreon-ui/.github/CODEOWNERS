@@ -1,6 +1,0 @@
-*               @centreon/centreon-frontend
-
-/.github/       @centreon/centreon-ci
-/.gitignore     @centreon/centreon-ci
-/Jenkinsfile    @centreon/centreon-ci
-*.md            @centreon/centreon-ci

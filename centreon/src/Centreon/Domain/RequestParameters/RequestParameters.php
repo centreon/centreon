@@ -162,12 +162,14 @@ class RequestParameters implements RequestParametersInterface
     /**
      * @inheritDoc
      */
-    public function hasSearchParameter(string $keyToFind, array $parameters): bool
+    public function hasSearchParameter(string $keyToFind, ?array $parameters = null): bool
     {
-        foreach ($parameters as $key => $value) {
+        foreach ($parameters ?? $this->search as $key => $value) {
             if ($key === $keyToFind) {
                 return true;
-            } elseif (is_array($value) || is_object($value)) {
+            }
+
+            if (\is_array($value) || \is_object($value)) {
                 $value = (array) $value;
                 if ($this->hasSearchParameter($keyToFind, $value)) {
                     return true;
@@ -317,6 +319,14 @@ class RequestParameters implements RequestParametersInterface
     /**
      * @inheritDoc
      */
+    public function getSearchAsString(): string
+    {
+        return (string) json_encode($this->search);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setSearch(string $search): void
     {
         $search = json_decode($search ?? '{}', true);
@@ -377,5 +387,13 @@ class RequestParameters implements RequestParametersInterface
     public function setTotal(int $total): void
     {
         $this->total = $total;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unsetSearch(): void
+    {
+        $this->search = [];
     }
 }

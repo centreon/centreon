@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Domain\RealTime\Model;
@@ -28,6 +29,39 @@ class Acknowledgement
     public const TYPE_HOST_ACKNOWLEDGEMENT = 0;
     public const TYPE_SERVICE_ACKNOWLEDGEMENT = 1;
 
+    /** @var int|null */
+    private $instanceId;
+
+    /** @var int|null */
+    private $authorId;
+
+    /** @var string|null */
+    private $authorName;
+
+    /** @var string|null */
+    private $comment;
+
+    /** @var \DateTime|null */
+    private $deletionTime;
+
+    /** @var bool */
+    private $isNotifyContacts = true;
+
+    /** @var bool */
+    private $isPersistentComment = true;
+
+    /** @var bool */
+    private $isSticky = true;
+
+    /** @var int|null */
+    private $state;
+
+    /** @var int|null */
+    private $type;
+
+    /** @var bool */
+    private $withServices = false;
+
     public function __construct(
         private int $id,
         private int $hostId,
@@ -35,61 +69,6 @@ class Acknowledgement
         private \DateTime $entryTime
     ) {
     }
-
-    /**
-     * @var int|null
-     */
-    private $instanceId;
-
-    /**
-     * @var int|null
-     */
-    private $authorId;
-
-    /**
-     * @var string|null
-     */
-    private $authorName;
-
-    /**
-     * @var string|null
-     */
-    private $comment;
-
-    /**
-     * @var \DateTime|null
-     */
-    private $deletionTime;
-
-    /**
-     * @var bool
-     */
-    private $isNotifyContacts = true;
-
-    /**
-     * @var bool
-     */
-    private $isPersistentComment = true;
-
-    /**
-     * @var bool
-     */
-    private $isSticky = true;
-
-    /**
-     * @var int|null
-     */
-    private $state;
-
-    /**
-     * @var int|null
-     */
-    private $type;
-
-    /**
-     * @var bool
-     */
-    private $withServices = false;
 
     /**
      * @return int
@@ -109,11 +88,13 @@ class Acknowledgement
 
     /**
      * @param int $instanceId
+     *
      * @return self
      */
     public function setInstanceId(int $instanceId): self
     {
         $this->instanceId = $instanceId;
+
         return $this;
     }
 
@@ -143,11 +124,13 @@ class Acknowledgement
 
     /**
      * @param int|null $authorId
+     *
      * @return self
      */
     public function setAuthorId(?int $authorId): self
     {
         $this->authorId = $authorId;
+
         return $this;
     }
 
@@ -161,11 +144,13 @@ class Acknowledgement
 
     /**
      * @param string|null $authorName
+     *
      * @return self
      */
     public function setAuthorName(?string $authorName): self
     {
         $this->authorName = $authorName;
+
         return $this;
     }
 
@@ -179,11 +164,13 @@ class Acknowledgement
 
     /**
      * @param string|null $comment
+     *
      * @return self
      */
     public function setComment(?string $comment): self
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -197,11 +184,13 @@ class Acknowledgement
 
     /**
      * @param \DateTime|null $deletionTime
+     *
      * @return self
      */
     public function setDeletionTime(?\DateTime $deletionTime): self
     {
         $this->deletionTime = $deletionTime;
+
         return $this;
     }
 
@@ -223,11 +212,13 @@ class Acknowledgement
 
     /**
      * @param bool $isNotifyContacts
+     *
      * @return self
      */
     public function setNotifyContacts(bool $isNotifyContacts): self
     {
         $this->isNotifyContacts = $isNotifyContacts;
+
         return $this;
     }
 
@@ -241,11 +232,13 @@ class Acknowledgement
 
     /**
      * @param bool $isPersistentComment
+     *
      * @return self
      */
     public function setPersistentComment(bool $isPersistentComment): self
     {
         $this->isPersistentComment = $isPersistentComment;
+
         return $this;
     }
 
@@ -259,11 +252,13 @@ class Acknowledgement
 
     /**
      * @param bool $isSticky
+     *
      * @return self
      */
     public function setSticky(bool $isSticky): self
     {
         $this->isSticky = $isSticky;
+
         return $this;
     }
 
@@ -277,11 +272,13 @@ class Acknowledgement
 
     /**
      * @param int|null $state
+     *
      * @return self
      */
     public function setState(?int $state): self
     {
         $this->state = $state;
+
         return $this;
     }
 
@@ -295,11 +292,13 @@ class Acknowledgement
 
     /**
      * @param int|null $type
+     *
      * @return self
      */
     public function setType(?int $type): self
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -313,11 +312,13 @@ class Acknowledgement
 
     /**
      * @param bool $withServices
+     *
      * @return self
      */
     public function setWithServices(bool $withServices): self
     {
         $this->withServices = $withServices;
+
         return $this;
     }
 }

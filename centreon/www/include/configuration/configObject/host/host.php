@@ -38,11 +38,32 @@ if (!isset($centreon)) {
     exit();
 }
 
-$host_id = filter_var(
+
+const HOST_ADD = 'a';
+const HOST_WATCH = 'w';
+const HOST_MODIFY = 'c';
+const HOST_MASSIVE_CHANGE = 'mc';
+const HOST_ACTIVATION = 's';
+const HOST_MASSIVE_ACTIVATION = 'ms';
+const HOST_DEACTIVATION = 'u';
+const HOST_MASSIVE_DEACTIVATION = 'mu';
+const HOST_DUPLICATION = 'm';
+const HOST_DELETION = 'd';
+const HOST_SERVICE_DEPLOYMENT = 'dp';
+
+if (isset($_POST["o1"]) && isset($_POST["o2"])) {
+    if ($_POST["o1"] != "") {
+        $o = $_POST["o1"];
+    }
+    if ($_POST["o2"] != "") {
+        $o = $_POST["o2"];
+    }
+}
+
+$host_id = $o === HOST_MASSIVE_CHANGE ? false : filter_var(
     $_GET['host_id'] ?? $_POST['host_id'] ?? null,
     FILTER_VALIDATE_INT
 );
-
 
 /*
  * Path to the configuration dir
@@ -66,15 +87,6 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
-    if ($_POST["o1"] != "") {
-        $o = $_POST["o1"];
-    }
-    if ($_POST["o2"] != "") {
-        $o = $_POST["o2"];
-    }
-}
-
 /* Set the real page */
 if (isset($ret2) && is_array($ret2) && $ret2['topology_page'] != "" && $p != $ret2['topology_page']) {
     $p = $ret2['topology_page'];
@@ -88,18 +100,6 @@ $aclDbName = $acl->getNameDBAcl('broker');
 $hgs = $acl->getHostGroupAclConf(null, 'broker');
 $aclHostString = $acl->getHostsString('ID', $dbmon);
 $aclPollerString = $acl->getPollerString();
-
-const HOST_ADD = 'a';
-const HOST_WATCH = 'w';
-const HOST_MODIFY = 'c';
-const HOST_MASSIVE_CHANGE = 'mc';
-const HOST_ACTIVATION = 's';
-const HOST_MASSIVE_ACTIVATION = 'ms';
-const HOST_DEACTIVATION = 'u';
-const HOST_MASSIVE_DEACTIVATION = 'mu';
-const HOST_DUPLICATION = 'm';
-const HOST_DELETION = 'd';
-const HOST_SERVICE_DEPLOYMENT = 'dp';
 
 switch ($o) {
     case HOST_ADD:

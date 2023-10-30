@@ -34,6 +34,8 @@
  *
  */
 
+use enshrined\svgSanitize\Sanitizer;
+
 /**
  * Displays the SVG file in HTML.
  *
@@ -49,9 +51,16 @@ function displaySvg(string $svgPath, string $color, float $height, float $width)
     $svgPath = str_replace('.', '', $path['dirname']) . DIRECTORY_SEPARATOR . $path['basename'];
     $path = _CENTREON_PATH_ . DIRECTORY_SEPARATOR . $svgPath;
     if (file_exists($path)) {
-        $data = file_get_contents($path);
-        $data = str_replace('<svg ', "<svg height='$height' width='$width' ", $data);
-        echo "<span style='fill:$color; vertical-align: middle'>" . $data . '</span>';
+        $sanitizer = new Sanitizer();
+        $svg = file_get_contents($path);
+        if ($svg === false) {
+            echo 'Unable to get content of file: ' . $path;
+        } else {
+            $cleanSvg = str_replace('"', "'", $sanitizer->sanitize($svg));
+            $cleanSvg = str_replace("\n", '', $cleanSvg);
+            $cleanSvg = str_replace('<svg ', "<svg height='$height' width='$width' ", $cleanSvg);
+            echo "<span style='fill:$color; vertical-align: middle'>" . $cleanSvg . "</span>";
+        }
     } else {
         echo 'SVG file not found: ' . $svgPath;
     }
@@ -1538,25 +1547,84 @@ function reset_search_page($url)
     }
 }
 
+/**
+ * Return an array of flag names which are enabled (active).
+ *
+ * @return array<string>
+ *
+ * @see \Core\Common\Infrastructure\FeatureFlags::getEnabled()
+ */
+function get_enabled_feature_flags(): array
+{
+    static $enabledFlags;
+    if (isset($enabledFlags)) {
+        return $enabledFlags;
+    }
+
+    $service = App\Kernel::createForWeb()->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+
+    return $enabledFlags = ($service instanceof Core\Common\Infrastructure\FeatureFlags ? $service->getEnabled() : []);
+}
+
+/**
+ * Indicates whether the platform is Cloud-based or not.
+ *
+ * @return bool
+ */
+function isCloudPlatform(): bool
+{
+    static $isCloudPlatform;
+    if (isset($isCloudPlatform)) {
+        return $isCloudPlatform;
+    }
+    $service = App\Kernel::createForWeb()->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+
+    return $isCloudPlatform = ($service instanceof Core\Common\Infrastructure\FeatureFlags ? $service->isCloudPlatform() : false);
+}
+
+/**
+ * We consider an empty feature **in the legacy code** as enabled.
+ * We tolerate this nonsense for the legacy : KISS.
+ */
+function is_enabled_feature_flag(?string $feature): bool
+{
+    return null === $feature || '' === $feature
+        || in_array($feature, get_enabled_feature_flags(), true);
+}
+
 function get_child($id_page, $lcaTStr)
 {
     global $pearDB;
 
     if ($lcaTStr != "") {
-        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react
-                FROM topology
-                WHERE topology_page IN ($lcaTStr)
-                AND topology_parent = '" . $id_page . "' AND topology_page IS NOT NULL AND topology_show = '1'
-                ORDER BY topology_order, topology_group ";
+        $rq = <<<SQL
+            SELECT topology_parent, topology_name, topology_id, topology_url, topology_url_substitute,
+                topology_page, topology_url_opt, is_react, topology_feature_flag
+            FROM topology
+            WHERE topology_page IN ($lcaTStr)
+                AND topology_parent = :id_page
+                AND topology_page IS NOT NULL
+                AND topology_show = '1'
+            ORDER BY topology_order, topology_group
+            SQL;
     } else {
-        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react
-                FROM topology
-                WHERE topology_parent = '" . $id_page . "' AND topology_page IS NOT NULL AND topology_show = '1'
-                ORDER BY topology_order, topology_group ";
+        $rq = <<<SQL
+            SELECT topology_parent, topology_name, topology_id, topology_url, topology_url_substitute,
+                topology_page, topology_url_opt, is_react, topology_feature_flag
+            FROM topology
+            WHERE topology_parent = :id_page
+              AND topology_page IS NOT NULL
+              AND topology_show = '1'
+            ORDER BY topology_order, topology_group
+            SQL;
     }
-
-    $DBRESULT = $pearDB->query($rq);
-    $redirect = $DBRESULT->fetch();
+    $statement = $pearDB->prepare($rq);
+    $statement->bindValue(':id_page', (int) $id_page, \PDO::PARAM_INT);
+    $statement->execute();
+    $redirect = $statement->fetch(\PDO::FETCH_ASSOC);
+    if (! is_enabled_feature_flag($redirect['topology_feature_flag'] ?? null)) {
+        return false;
+    }
     return $redirect;
 }
 

@@ -81,34 +81,6 @@ class HostGroupService implements HostGroupServiceInterface
     /**
      * @inheritDoc
      */
-    public function findAllWithAcl(): array
-    {
-        try {
-            return $this->readRepository->findAllByContact($this->contact);
-        } catch (RepositoryException $ex) {
-            throw $ex;
-        } catch (\Exception $ex) {
-            throw HostGroupException::findHostGroupsException($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAllWithoutAcl(): array
-    {
-        try {
-            return $this->readRepository->findAll();
-        } catch (RepositoryException $ex) {
-            throw $ex;
-        } catch (\Exception $ex) {
-            throw HostGroupException::findHostGroupsException($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function findByNamesWithoutAcl(array $groupsName): array
     {
         try {

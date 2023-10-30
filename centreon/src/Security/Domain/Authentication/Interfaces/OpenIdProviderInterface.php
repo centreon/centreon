@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ namespace Security\Domain\Authentication\Interfaces;
 
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Security\Domain\Authentication\Model\ProviderToken;
 
 interface OpenIdProviderInterface extends ProviderInterface
 {
@@ -45,34 +44,38 @@ interface OpenIdProviderInterface extends ProviderInterface
     public function getProviderRefreshToken(): ?NewProviderToken;
 
     /**
-     * Create user with informations from identity provider
+     * Create user with informations from identity provider.
+     *
      * @throws \Throwable
      */
     public function createUser(): void;
 
-     /**
+    /**
      * Authenticate the user using OpenId Provider.
      *
      * @param string|null $authorizationCode
+     * @param string $clientIp
      */
     public function authenticateOrFail(?string $authorizationCode, string $clientIp): void;
 
     /**
-     * Get User information gathered from IdP
+     * Get User information gathered from IdP.
      *
      * @return array<string,mixed>
      */
     public function getUserInformation(): array;
 
     /**
-     * Get information store in id_token JWT Payload
+     * Get information store in id_token JWT Payload.
      *
      * @return array<string,mixed>
      */
     public function getIdTokenPayload(): array;
 
     /**
-     * @return array<string>
+     * Get ACL Conditions that has been matches.
+     *
+     * @return string[]
      */
-    public function getRolesMappingFromProvider(): array;
+    public function getAclConditionsMatches(): array;
 }

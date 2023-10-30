@@ -1,0 +1,94 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.common}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.format_popup.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.format_popup.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.confirm_autoclose.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.confirm_autoclose.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.macro_ticket_id.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.macro_ticket_id.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.chainrule.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="chainruleList" cloneSet=$form.chainruleList}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.command.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="commandList" cloneSet=$form.commandList}
+    </td>
+</tr>
+{if $form.attach_files.enable}
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.attach_files.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.attach_files.html}
+    </td>
+</tr>
+{/if}
+{if $proxy_enabled}
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.proxy_settings}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.proxy_address.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_address.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.proxy_port.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_port.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.proxy_username.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_username.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.proxy_password.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.proxy_password.html}
+    </td>
+</tr>
+{/if}

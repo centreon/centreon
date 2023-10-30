@@ -118,6 +118,7 @@ CREATE TABLE `acl_resources_hc_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   KEY `hc_id` (`hc_id`),
   KEY `acl_res_id` (`acl_res_id`),
+  CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_ibfk_1` FOREIGN KEY (`hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -447,12 +448,13 @@ CREATE TABLE `cfg_centreonbroker` (
   `config_activate` enum('0','1') DEFAULT '0',
   `ns_nagios_server` int(11) NOT NULL,
   `event_queue_max_size` int(11) DEFAULT '100000',
+  `event_queues_total_size` int(11) DEFAULT NULL,
   `command_file` varchar(255),
   `cache_directory` varchar(255),
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.0',
+  `bbdo_version` varchar(50) DEFAULT '3.0.1',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -692,6 +694,7 @@ CREATE TABLE `contact` (
   `contact_comment` text,
   `contact_js_effects` enum('0','1') DEFAULT '0',
   `contact_theme` enum('light','dark') DEFAULT 'light',
+  `user_interface_density` enum('compact','extended') DEFAULT 'compact',
   `contact_location` int(11) DEFAULT '0',
   `contact_oreon` enum('0','1') DEFAULT NULL,
   `reach_api` int(11) DEFAULT '0',
@@ -1442,7 +1445,8 @@ CREATE TABLE `hostcategories` (
   `hc_activate` enum('0','1') NOT NULL DEFAULT '1',
   PRIMARY KEY (`hc_id`),
   KEY `name_index` (`hc_name`),
-  KEY `alias_index` (`hc_alias`)
+  KEY `alias_index` (`hc_alias`),
+  KEY `level_index` (`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1910,6 +1914,7 @@ CREATE TABLE `topology` (
   `topology_group` int(11) DEFAULT NULL,
   `topology_url` varchar(255) DEFAULT NULL,
   `topology_url_opt` varchar(255) DEFAULT NULL,
+  `topology_url_substitute` varchar(255) DEFAULT null,
   `topology_popup` enum('0','1') DEFAULT NULL,
   `topology_modules` enum('0','1') DEFAULT NULL,
   `topology_show` enum('0','1') DEFAULT '1',
@@ -1917,6 +1922,7 @@ CREATE TABLE `topology` (
   `topology_style_class` varchar(255) DEFAULT NULL,
   `topology_style_id` varchar(255) DEFAULT NULL,
   `topology_OnClick` varchar(255) DEFAULT NULL,
+  `topology_feature_flag` varchar(255) DEFAULT NULL,
   `readonly` enum('0','1') NOT NULL DEFAULT '1',
   `is_react` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`topology_id`),
@@ -2357,7 +2363,6 @@ CREATE TABLE `security_token` (
   `creation_date` bigint UNSIGNED NOT NULL,
   `expiration_date` bigint UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`id`),
-  INDEX `token_index` (`token`),
   INDEX `expiration_index` (`expiration_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -2367,12 +2372,18 @@ CREATE TABLE `security_authentication_tokens` (
   `provider_token_refresh_id` int(11) DEFAULT NULL,
   `provider_configuration_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `token_name` varchar(255) DEFAULT NULL,
+  `token_type` enum('auto', 'manual') NOT NULL DEFAULT 'auto',
+  `creator_id` int(11) DEFAULT NULL,
+  `creator_name` varchar(255) DEFAULT NULL,
+  `is_revoked` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`token`),
   KEY `security_authentication_tokens_token_fk` (`token`),
   KEY `security_authentication_tokens_provider_token_id_fk` (`provider_token_id`),
   KEY `security_authentication_tokens_provider_token_refresh_id_fk` (`provider_token_refresh_id`),
   KEY `security_authentication_tokens_configuration_id_fk` (`provider_configuration_id`),
   KEY `security_authentication_tokens_user_id_fk` (`user_id`),
+  KEY `security_authentication_tokens_creator_id_fk` (`creator_id`),
   CONSTRAINT `security_authentication_tokens_configuration_id_fk` FOREIGN KEY (`provider_configuration_id`)
   REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE,
   CONSTRAINT `security_authentication_tokens_provider_token_id_fk` FOREIGN KEY (`provider_token_id`)
@@ -2380,7 +2391,9 @@ CREATE TABLE `security_authentication_tokens` (
   CONSTRAINT `security_authentication_tokens_provider_token_refresh_id_fk` FOREIGN KEY (`provider_token_refresh_id`)
   REFERENCES `security_token` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_authentication_tokens_user_id_fk` FOREIGN KEY (`user_id`)
-  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `security_authentication_tokens_creator_id_fk` FOREIGN KEY (`creator_id`)
+  REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contact_password` (
@@ -2444,6 +2457,182 @@ CREATE TABLE `security_provider_contact_group_relation` (
     FOREIGN KEY (`provider_configuration_id`)
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `vault` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `vault` (`name`) VALUES ('hashicorp');
+
+CREATE TABLE IF NOT EXISTS `vault_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `vault_id` INT UNSIGNED NOT NULL,
+  `url` VARCHAR(1024) NOT NULL,
+  `port` SMALLINT UNSIGNED NOT NULL,
+  `root_path` VARCHAR(50) NOT NULL,
+  `role_id` VARCHAR(255) NOT NULL,
+  `secret_id` VARCHAR(255) NOT NULL,
+  `salt` CHAR(128) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `vault_configuration_vault_id`
+    FOREIGN KEY (`vault_id`)
+    REFERENCES `vault` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `notification` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(250) NOT NULL,
+  `is_activated` BOOLEAN NOT NULL DEFAULT 1,
+  `timeperiod_id` INT NOT NULL,
+  `hostgroup_events` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  `servicegroup_events` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  `included_service_events` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`timeperiod_id`) REFERENCES `timeperiod` (`tp_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `notification_message` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `notification_id` INT UNSIGNED NOT NULL,
+  `channel` enum('Email','Slack','Sms') DEFAULT 'Email',
+  `subject` VARCHAR(255) NOT NULL,
+  `message` TEXT NOT NULL,
+  `formatted_message` TEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `notification_message_notification_id`
+    FOREIGN KEY (`notification_id`)
+    REFERENCES `notification` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `notification_user_relation` (
+  `notification_id` INT UNSIGNED NOT NULL,
+  `user_id` INT NOT NULL,
+  UNIQUE KEY `notification_user_relation_unique_index` (`notification_id`,`user_id`),
+  CONSTRAINT `notification_user_relation_notification_id`
+    FOREIGN KEY (`notification_id`)
+    REFERENCES `notification` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `notification_user_relation_user_id`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `notification_contactgroup_relation` (
+  `notification_id` INT UNSIGNED NOT NULL,
+  `contactgroup_id` INT NOT NULL,
+  UNIQUE KEY `notification_contactgroup_relation_unique_index` (`notification_id`,`contactgroup_id`),
+  CONSTRAINT `notification_contactgroup_relation_notification_id`
+    FOREIGN KEY (`notification_id`)
+    REFERENCES `notification` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `notification_contactgroup_relation_contactgroup_id`
+    FOREIGN KEY (`contactgroup_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `notification_hg_relation` (
+  `notification_id` INT UNSIGNED NOT NULL,
+  `hg_id` INT NOT NULL,
+  UNIQUE KEY `notification_hg_relation_unique_index` (`notification_id`,`hg_id`),
+  CONSTRAINT `notification_hg_relation_notification_id`
+    FOREIGN KEY (`notification_id`)
+    REFERENCES `notification` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `notification_hg_relation_hg_id`
+    FOREIGN KEY (`hg_id`)
+    REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `notification_sg_relation` (
+  `notification_id` INT UNSIGNED NOT NULL,
+  `sg_id` INT NOT NULL,
+  UNIQUE KEY `notification_sg_relation_unique_index` (`notification_id`,`sg_id`),
+  CONSTRAINT `notification_sg_relation_notification_id`
+    FOREIGN KEY (`notification_id`)
+    REFERENCES `notification` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `notification_sg_relation_hg_id`
+    FOREIGN KEY (`sg_id`)
+    REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(200) NOT NULL,
+  `description` text,
+  `created_by` int(11) NULL,
+  `updated_by` int(11) NULL,
+  `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL,
+  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global',
+  `refresh_interval` int(11) NULL,
+  PRIMARY KEY (`id`),
+  KEY `name_index` (`name`),
+  CONSTRAINT `contact_created_by`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
+  CONSTRAINT `contact_updated_by`
+    FOREIGN KEY (`updated_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_panel` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
+  `widget_type` VARCHAR(200) NOT NULL,
+  `widget_settings` text NOT NULL,
+  `layout_x` smallint(6) NOT NULL,
+  `layout_y` smallint(6) NOT NULL,
+  `layout_width` smallint(6) NOT NULL,
+  `layout_height` smallint(6) NOT NULL,
+  `layout_min_width` smallint(6) NOT NULL,
+  `layout_min_height` smallint(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `name_index` (`name`),
+  CONSTRAINT `parent_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_contact_relation` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `contact_id` int(11) NOT NULL,
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  PRIMARY KEY (`id`),
+  KEY `role_index` (`role`),
+  UNIQUE KEY `dashboard_contact_relation_unique` (`dashboard_id`,`contact_id`),
+  CONSTRAINT `dashboard_contact_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_contact_relation_contact_id`
+    FOREIGN KEY (`contact_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `contactgroup_id` int(11) NOT NULL,
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  PRIMARY KEY (`id`),
+  KEY `role_index` (`role`),
+  UNIQUE KEY `dashboard_contactgroup_relation_unique` (`dashboard_id`,`contactgroup_id`),
+  CONSTRAINT `dashboard_contactgroup_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_contactgroup_relation_contactgroup_id`
+    FOREIGN KEY (`contactgroup_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

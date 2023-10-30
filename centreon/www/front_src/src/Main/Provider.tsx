@@ -1,15 +1,22 @@
-import { ReactElement, useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 
-import { BrowserRouter as Router } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { not, startsWith, tail } from 'ramda';
+import { createStore } from 'jotai';
 
-import { Module, QueryProvider } from '@centreon/ui';
+import { Module } from '@centreon/ui';
 
-interface Props {
-  children: ReactElement;
-}
+import routeMap from '../reactRoutes/routeMap';
+import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
 
-const Provider = ({ children }: Props): JSX.Element | null => {
+const LoginPage = lazy(() => import('../Login'));
+const ResetPasswordPage = lazy(() => import('../ResetPassword'));
+const AppPage = lazy(() => import('./InitializationPage'));
+const Main = lazy(() => import('.'));
+
+export const store = createStore();
+
+const Provider = (): JSX.Element | null => {
   const basename =
     (document
       .getElementsByTagName('base')[0]
@@ -26,16 +33,47 @@ const Provider = ({ children }: Props): JSX.Element | null => {
     window.location.href = `${basename}${path}`;
   }, []);
 
+  const router = createBrowserRouter(
+    [
+      {
+        Component: Main,
+        children: [
+          {
+            Component: AuthenticationDenied,
+            path: routeMap.authenticationDenied
+          },
+          {
+            Component: LoginPage,
+            path: routeMap.login
+          },
+          {
+            Component: ResetPasswordPage,
+            path: routeMap.resetPassword
+          },
+          {
+            Component: AppPage,
+            path: '*'
+          }
+        ],
+        path: '/'
+      }
+    ],
+    {
+      basename
+    }
+  );
+
   if (not(pathStartsWithBasename)) {
     return null;
   }
 
   return (
-    <Router basename={basename}>
-      <Module maxSnackbars={2} seedName="centreon">
-        <QueryProvider>{children}</QueryProvider>
-      </Module>
-    </Router>
+    <Module maxSnackbars={2} seedName="centreon" store={store}>
+      <>
+        <RouterProvider router={router} />
+        {/* <ReactQueryDevtools /> */}
+      </>
+    </Module>
   );
 };
 

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,28 +21,36 @@
 
 namespace CentreonNotification\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class DependencyRepository extends ServiceEntityRepository
+class DependencyRepository extends AbstractRepositoryRDB
 {
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
-     * Remove dependency by ID
+     * Remove dependency by ID.
      *
      * @param int $id
-     * @return void
      */
     public function removeById(int $id): void
     {
-        $sql = "DELETE FROM `dependency`"
-            . " WHERE dep_id = :id";
+        $request = <<<'SQL'
+            DELETE FROM `:db`.`dependency` WHERE dep_id = :dependencyId
+            SQL;
 
         $collector = new StatementCollector();
-        $collector->addValue(':id', $id);
+        $collector->addValue(':dependencyId', $id);
 
-        $stmt = $this->db->prepare($sql);
-        $collector->bind($stmt);
-        $stmt->execute();
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $collector->bind($statement);
+        $statement->execute();
     }
 }

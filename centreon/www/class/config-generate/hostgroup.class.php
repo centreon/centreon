@@ -135,7 +135,7 @@ class Hostgroup extends AbstractObject
         $this->object_name = self::TAG_OBJECT_NAME;
         $this->attributes_write = [
             'id',
-            'name',
+            'tag_name',
             'type',
         ];
         $this->attributes_array = [];
@@ -150,7 +150,7 @@ class Hostgroup extends AbstractObject
 
             $tag = [
                 'id' => $value['hostgroup_id'],
-                'name' => $value['hostgroup_name'],
+                'tag_name' => $value['hostgroup_name'],
                 'type' => self::TAG_TYPE,
             ];
 

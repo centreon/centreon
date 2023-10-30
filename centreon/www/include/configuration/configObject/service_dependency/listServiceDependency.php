@@ -59,7 +59,7 @@ if (isset($_POST['searchSD']) || isset($_GET['searchSD'])) {
 $aclFrom = "";
 $aclCond = "";
 if (!$oreon->user->admin) {
-    $aclFrom = ", $dbmon.centreon_acl acl ";
+    $aclFrom = ", `$dbmon`.centreon_acl acl ";
     $aclCond = " AND dspr.host_host_id = acl.host_id 
                  AND acl.service_id = dspr.service_service_id 
                  AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";

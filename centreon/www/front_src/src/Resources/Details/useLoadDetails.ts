@@ -2,21 +2,20 @@ import { useEffect } from 'react';
 
 import { isNil, ifElse, pathEq, always, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import { useRequest, getData } from '@centreon/ui';
 
 import {
   labelNoResourceFound,
-  labelSomethingWentWrong,
+  labelSomethingWentWrong
 } from '../translatedLabels';
 import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
 import {
   customTimePeriodAtom,
   getNewCustomTimePeriod,
   resourceDetailsUpdatedAtom,
-  selectedTimePeriodAtom,
+  selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
 
 import { ResourceDetails } from './models';
@@ -25,7 +24,7 @@ import {
   detailsAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom,
-  selectedResourceUuidAtom,
+  selectedResourceUuidAtom
 } from './detailsAtoms';
 import { ChangeCustomTimePeriodProps } from './tabs/Graph/models';
 
@@ -41,24 +40,24 @@ const useLoadDetails = (): DetailsState => {
     getErrorMessage: ifElse(
       pathEq(['response', 'status'], 404),
       always(t(labelNoResourceFound)),
-      pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message']),
+      pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
-    request: getData,
+    request: getData
   });
 
   const [customTimePeriod, setCustomTimePeriod] = useAtom(customTimePeriodAtom);
   const selectedResource = useAtomValue(selectedResourcesDetailsAtom);
   const selectedResourceUuid = useAtomValue(selectedResourceUuidAtom);
   const selectedResourceDetailsEndpoint = useAtomValue(
-    selectedResourceDetailsEndpointDerivedAtom,
+    selectedResourceDetailsEndpointDerivedAtom
   );
-  const setDetails = useUpdateAtom(detailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
-  const setSelectedTimePeriod = useUpdateAtom(selectedTimePeriodAtom);
-  const setResourceDetailsUpdated = useUpdateAtom(resourceDetailsUpdatedAtom);
+  const setDetails = useSetAtom(detailsAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
+  const setSelectedTimePeriod = useSetAtom(selectedTimePeriodAtom);
+  const setResourceDetailsUpdated = useSetAtom(resourceDetailsUpdatedAtom);
 
   useTimePeriod({
-    sending,
+    sending
   });
 
   const loadDetails = (): void => {
@@ -67,7 +66,7 @@ const useLoadDetails = (): DetailsState => {
     }
 
     sendRequest({
-      endpoint: selectedResourceDetailsEndpoint,
+      endpoint: selectedResourceDetailsEndpoint
     })
       .then(setDetails)
       .catch(() => {
@@ -78,7 +77,7 @@ const useLoadDetails = (): DetailsState => {
   const changeCustomTimePeriod = ({ date, property }): void => {
     const newCustomTimePeriod = getNewCustomTimePeriod({
       ...customTimePeriod,
-      [property]: date,
+      [property]: date
     });
 
     setCustomTimePeriod(newCustomTimePeriod);
@@ -92,12 +91,12 @@ const useLoadDetails = (): DetailsState => {
   }, [
     selectedResourceUuid,
     selectedResource?.parentResourceId,
-    selectedResource?.resourceId,
+    selectedResource?.resourceId
   ]);
 
   return {
     changeCustomTimePeriod,
-    loadDetails,
+    loadDetails
   };
 };
 

@@ -4,9 +4,10 @@ import { CriteriaValue } from '../Filter/Criterias/models';
 import { searchableFields } from '../Filter/Criterias/searchQueryLanguage';
 import { Filter } from '../Filter/models';
 import { buildResourcesEndpoint } from '../Listing/api/endpoint';
+import { Search } from '../Listing/useLoadResources/models';
 import { SortOrder } from '../models';
 
-interface EndpointParams {
+export interface EndpointParams {
   hostCategories?: Array<string>;
   hostGroups?: Array<string>;
   hostSeverities?: Array<string>;
@@ -15,7 +16,7 @@ interface EndpointParams {
   monitoringServers?: Array<string>;
   page?: number;
   resourceTypes?: Array<string>;
-  search?: string;
+  search?: Search | undefined;
   serviceCategories?: Array<string>;
   serviceGroups?: Array<string>;
   serviceSeverities?: Array<string>;
@@ -38,7 +39,7 @@ const getListingEndpoint = ({
   limit = 30,
   sort = {
     status_severity_code: SortOrder.asc,
-    ...defaultSecondSortCriteria,
+    ...defaultSecondSortCriteria
   },
   statuses = defaultStatuses,
   states = defaultStates,
@@ -53,7 +54,7 @@ const getListingEndpoint = ({
   serviceSeverityLevels = [],
   monitoringServers = [],
   search,
-  statusTypes = defaultStateTypes,
+  statusTypes = defaultStateTypes
 }: EndpointParams): string =>
   buildResourcesEndpoint({
     hostCategories,
@@ -64,14 +65,7 @@ const getListingEndpoint = ({
     monitoringServers,
     page,
     resourceTypes,
-    search: search
-      ? {
-          regex: {
-            fields: searchableFields,
-            value: search,
-          },
-        }
-      : undefined,
+    search,
     serviceCategories,
     serviceGroups,
     serviceSeverities,
@@ -79,7 +73,7 @@ const getListingEndpoint = ({
     sort,
     states,
     statusTypes,
-    statuses,
+    statuses
   });
 
 const cancelTokenRequestParam = { cancelToken: {} };
@@ -91,7 +85,7 @@ interface CriteriaValueProps {
 
 const getCriteriaValue = ({
   filter,
-  name,
+  name
 }: CriteriaValueProps): CriteriaValue | undefined => {
   return filter.criterias.find(propEq('name', name))?.value;
 };
@@ -105,7 +99,7 @@ interface FilterAndCriteriaToUpdate {
 const getFilterWithUpdatedCriteria = ({
   filter,
   criteriaName,
-  criteriaValue,
+  criteriaValue
 }: FilterAndCriteriaToUpdate): Filter => {
   const index = findIndex(propEq('name', criteriaName))(filter.criterias);
   const lens = lensPath(['criterias', index, 'value']);
@@ -114,14 +108,14 @@ const getFilterWithUpdatedCriteria = ({
 };
 
 export {
-  getListingEndpoint,
   cancelTokenRequestParam,
-  defaultStatuses,
   defaultResourceTypes,
-  defaultStates,
-  searchableFields,
-  getCriteriaValue,
-  getFilterWithUpdatedCriteria,
   defaultSecondSortCriteria,
   defaultStateTypes,
+  defaultStates,
+  defaultStatuses,
+  getCriteriaValue,
+  getFilterWithUpdatedCriteria,
+  getListingEndpoint,
+  searchableFields
 };

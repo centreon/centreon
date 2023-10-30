@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security;
@@ -26,40 +27,32 @@ use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 
 /**
  * Class used to authenticate a request by using a session id.
- *
- * @package Security
  */
 class SessionAPIAuthenticator extends AbstractAuthenticator
 {
-    /**
-     * @var AuthenticationServiceInterface
-     */
+    /** @var AuthenticationServiceInterface */
     private $authenticationService;
 
-    /**
-     * @var ContactRepositoryInterface
-     */
+    /** @var ContactRepositoryInterface */
     private $contactRepository;
 
-    /**
-     * @var SessionRepositoryInterface
-     */
+    /** @var SessionRepositoryInterface */
     private $sessionRepository;
 
     /**
@@ -84,7 +77,8 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): bool
     {
-        return $request->headers->has('Cookie') && ! empty($request->getSession()->getId());
+        return $request->headers->has('Cookie') && ! empty($request->getSession()->getId())
+            && ! $request->headers->has('X-Auth-Token');
     }
 
     /**
@@ -93,7 +87,7 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
+            'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
@@ -108,11 +102,12 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @return SelfValidatingPassport
      * @throws CustomUserMessageAuthenticationException
      * @throws TokenNotFoundException
+     *
+     * @return SelfValidatingPassport
      */
     public function authenticate(Request $request): SelfValidatingPassport
     {
@@ -141,10 +136,11 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
      *
      * @param string $sessionId
      *
-     * @return UserInterface
      * @throws BadCredentialsException
      * @throws SessionUnavailableException
      * @throws ContactDisabledException
+     *
+     * @return UserInterface
      */
     private function getUserAndUpdateSession(string $sessionId): UserInterface
     {

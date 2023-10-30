@@ -1,11 +1,12 @@
-import { InputProps, InputType } from '@centreon/ui';
+import { InputType } from '@centreon/ui';
+import type { InputProps } from '@centreon/ui';
 
 import {
   labelLast3PasswordsCanBeReused,
   labelMinimumPasswordLength,
   labelPasswordBlockingPolicy,
   labelPasswordCasePolicy,
-  labelPasswordExpirationPolicy,
+  labelPasswordExpirationPolicy
 } from '../translatedLabels';
 
 import Attempts from './Attempts';
@@ -22,26 +23,27 @@ const inputs: Array<InputProps> = [
       alignItems: 'center',
       columns: [
         {
+          dataTestId: labelMinimumPasswordLength,
           fieldName: 'passwordMinLength',
           label: labelMinimumPasswordLength,
           text: {
-            type: 'number',
+            type: 'number'
           },
-          type: InputType.Text,
+          type: InputType.Text
         },
         {
           custom: {
-            Component: CaseButtons,
+            Component: CaseButtons
           },
           fieldName: '',
           label: '',
-          type: InputType.Custom,
-        },
-      ],
+          type: InputType.Custom
+        }
+      ]
     },
     group: labelPasswordCasePolicy,
     label: '',
-    type: InputType.Grid,
+    type: InputType.Grid
   },
   {
     fieldName: '',
@@ -50,60 +52,61 @@ const inputs: Array<InputProps> = [
       columns: [
         {
           custom: {
-            Component: PasswordExpiration,
+            Component: PasswordExpiration
           },
           fieldName: '',
           label: '',
-          type: InputType.Custom,
+          type: InputType.Custom
         },
         {
           custom: {
-            Component: ExcludedUsers,
+            Component: ExcludedUsers
           },
           fieldName: '',
           label: '',
-          type: InputType.Custom,
-        },
+          type: InputType.Custom
+        }
       ],
-      gridTemplateColumns: 'repeat(2, 1fr)',
+      gridTemplateColumns: 'repeat(2, 1fr)'
     },
     group: labelPasswordExpirationPolicy,
     label: '',
-    type: InputType.Grid,
+    type: InputType.Grid
   },
   {
     custom: {
-      Component: TimeBeforeNewPassword,
+      Component: TimeBeforeNewPassword
     },
     fieldName: '',
     group: labelPasswordExpirationPolicy,
     label: '',
-    type: InputType.Custom,
+    type: InputType.Custom
   },
   {
+    dataTestId: labelLast3PasswordsCanBeReused,
     fieldName: 'canReusePasswords',
     group: labelPasswordExpirationPolicy,
     label: labelLast3PasswordsCanBeReused,
-    type: InputType.Switch,
+    type: InputType.Switch
   },
   {
     custom: {
-      Component: Attempts,
+      Component: Attempts
     },
     fieldName: '',
     group: labelPasswordBlockingPolicy,
     label: '',
-    type: InputType.Custom,
+    type: InputType.Custom
   },
   {
     custom: {
-      Component: BlockingDuration,
+      Component: BlockingDuration
     },
     fieldName: '',
     group: labelPasswordBlockingPolicy,
     label: '',
-    type: InputType.Custom,
-  },
+    type: InputType.Custom
+  }
 ];
 
 export default inputs;

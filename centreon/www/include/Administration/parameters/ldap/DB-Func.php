@@ -51,3 +51,12 @@ function minimalValue(int $value): bool
 
     return false;
 }
+
+/**
+ * @param string $filterValue
+ * @return bool
+ */
+function checkLdapFilterSyntax(string $filterValue): bool
+{
+    return preg_match('/=%s\)/', $filterValue);
+}

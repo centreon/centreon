@@ -1,28 +1,36 @@
-import { Typography } from '@mui/material';
+import type { ComponentColumnProps } from '@centreon/ui';
 
-import { ComponentColumnProps, StatusChip } from '@centreon/ui';
+import { getStatus } from './ServiceSubItemColumn/SubItem';
+import StatusChip from './ServiceSubItemColumn/StatusChip';
 
 import { useColumnStyles } from '.';
 
 const ParentResourceColumn = ({
   row,
   isHovered,
+  renderEllipsisTypography
 }: ComponentColumnProps): JSX.Element | null => {
-  const classes = useColumnStyles({ isHovered });
+  const { classes } = useColumnStyles({ isHovered });
+
+  const status = row?.parent?.status?.name;
 
   if (!row.parent) {
     return null;
   }
 
   return (
-    <div className={classes.resourceDetailsCell}>
-      <StatusChip severityCode={row.parent?.status?.severity_code || 0} />
-      <div className={classes.resourceNameItem}>
-        <Typography className={classes.resourceNameText} variant="body2">
-          {row.parent.name}
-        </Typography>
+    <>
+      <div className={classes.resourceDetailsCell}>
+        <StatusChip
+          content={getStatus(status?.toLowerCase())?.label}
+          severityCode={getStatus(status?.toLowerCase())?.severity}
+        />
       </div>
-    </div>
+      {renderEllipsisTypography?.({
+        className: classes.resourceNameText,
+        formattedString: row.parent?.name || ''
+      })}
+    </>
   );
 };
 

@@ -260,7 +260,9 @@ abstract class AbstractService extends AbstractObject
     protected function getServicePeriods(&$service)
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
-        $service['check_period'] = $period->generateFromTimeperiodId($service['check_period_id']);
+        // Optional "check_period_id" for Anomaly Detection for instance.
+        $service['check_period'] = $period->generateFromTimeperiodId($service['check_period_id'] ?? null);
+        // Mandatory "notification_period_id" field.
         $service['notification_period'] = $period->generateFromTimeperiodId($service['notification_period_id']);
     }
 

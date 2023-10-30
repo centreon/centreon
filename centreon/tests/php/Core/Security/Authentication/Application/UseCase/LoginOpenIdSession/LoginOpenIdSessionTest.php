@@ -24,48 +24,48 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginOpenIdSession;
 
 use CentreonDB;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Pimple\Container;
 use Centreon\Domain\Contact\Contact;
-use Core\Contact\Domain\Model\ContactGroup;
 use Symfony\Component\HttpFoundation\Request;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Core\Infrastructure\Common\Presenter\JsonPresenter;
+use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\AuthenticationTokens;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Security\Domain\Authentication\Interfaces\ProviderServiceInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\Authentication\Infrastructure\Api\Login\OpenId\LoginPresenter;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Core\Security\Authentication\Infrastructure\Repository\WriteSessionRepository;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 beforeEach(function () {
     $this->repository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
@@ -93,7 +93,7 @@ beforeEach(function () {
     $this->authenticationRepository = $this->createMock(AuthenticationRepositoryInterface::class);
     $this->sessionRepository = $this->createMock(SessionRepositoryInterface::class);
     $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
-    $this->formatter = $this->createMock(JsonPresenter::class);
+    $this->formatter = $this->createMock(JsonFormatter::class);
     $this->presenter = new LoginPresenter($this->formatter);
     $this->contact = $this->createMock(ContactInterface::class);
     $this->authenticationTokens = $this->createMock(AuthenticationTokens::class);
@@ -107,6 +107,7 @@ beforeEach(function () {
     $this->aclUpdater = $this->createMock(AclUpdaterInterface::class);
     $this->menuService = $this->createMock(MenuServiceInterface::class);
     $this->defaultRedirectUri = '/monitoring/resources';
+    $this->thirdPartyLoginForm = new ThirdPartyLoginForm($this->createMock(UrlGeneratorInterface::class));
 
     $configuration = new Configuration(
         1,
@@ -145,7 +146,8 @@ beforeEach(function () {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        'groups_mapping' => (new GroupsMapping(false, "", new Endpoint(), []))
+        'groups_mapping' => (new GroupsMapping(false, "", new Endpoint(), [])),
+        'redirect_url' => null
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
     $this->validOpenIdConfiguration = $configuration;
@@ -171,7 +173,8 @@ it('expects to return an error message in presenter when no provider configurati
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $useCase($request, $this->presenter);
@@ -200,7 +203,8 @@ it('expects to execute authenticateOrFail method from OpenIdProvider', function 
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
     $useCase($request, $this->presenter);
 });
@@ -215,7 +219,7 @@ it(
             ->method('authenticateOrFail');
 
         $this->provider
-            ->expects($this->never())
+            ->expects($this->once())
             ->method('isAutoImportEnabled');
 
         $this->provider
@@ -242,7 +246,8 @@ it(
             $this->writeSessionTokenRepository,
             $this->aclUpdater,
             $this->menuService,
-            $this->defaultRedirectUri
+            $this->defaultRedirectUri,
+            $this->thirdPartyLoginForm,
         );
         $useCase($request, $this->presenter);
         expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
@@ -261,12 +266,12 @@ it(
 
         $this->provider
             ->expects($this->once())
-            ->method('findUserOrFail');
-
-        $this->provider
-            ->expects($this->once())
             ->method('isAutoImportEnabled')
             ->willReturn(true);
+
+        $this->provider
+            ->expects($this->never())
+            ->method('findUserOrFail');
 
         $this->provider
             ->expects($this->once())
@@ -288,7 +293,8 @@ it(
             $this->writeSessionTokenRepository,
             $this->aclUpdater,
             $this->menuService,
-            $this->defaultRedirectUri
+            $this->defaultRedirectUri,
+            $this->thirdPartyLoginForm,
         );
 
         $useCase($request, $this->presenter);
@@ -302,8 +308,8 @@ it('should update access groups for the authenticated user', function () {
     $accessGroup1 = new AccessGroup(1, "access_group_1", "access_group_1");
     $accessGroup2 = new AccessGroup(2, "access_group_2", "access_group_2");
     $authorizationRules = [
-        new AuthorizationRule("group1", $accessGroup1),
-        new AuthorizationRule("group2", $accessGroup2)
+        new AuthorizationRule("group1", $accessGroup1, 1),
+        new AuthorizationRule("group2", $accessGroup2, 2)
     ];
     $this->validOpenIdConfiguration->getCustomConfiguration()->setAuthorizationRules($authorizationRules);
 
@@ -338,7 +344,8 @@ it('should update access groups for the authenticated user', function () {
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $useCase($request, $this->presenter);

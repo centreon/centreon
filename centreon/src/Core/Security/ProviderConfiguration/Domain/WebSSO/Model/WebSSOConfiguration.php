@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,16 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\WebSSO\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 
 class WebSSOConfiguration implements ProviderConfigurationInterface
 {
     public const NAME = 'web-sso';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private ?int $id;
 
     /**
@@ -54,20 +52,10 @@ class WebSSOConfiguration implements ProviderConfigurationInterface
         private ?string $patternReplaceLogin
     ) {
         foreach ($trustedClientAddresses as $trustedClientAddress) {
-            if (filter_var($trustedClientAddress, FILTER_VALIDATE_IP) === false) {
-                throw AssertionException::ipAddressNotValid(
-                    $trustedClientAddress,
-                    'WebSSOConfiguration::trustedClientAddresses'
-                );
-            }
+            Assertion::ipAddress($trustedClientAddress, 'WebSSOConfiguration::trustedClientAddresses');
         }
         foreach ($blacklistClientAddresses as $blacklistClientAddress) {
-            if (filter_var($blacklistClientAddress, FILTER_VALIDATE_IP) === false) {
-                throw AssertionException::ipAddressNotValid(
-                    $blacklistClientAddress,
-                    'WebSSOConfiguration::blacklistClientAddresses'
-                );
-            }
+            Assertion::ipAddress($blacklistClientAddress, 'WebSSOConfiguration::blacklistClientAddresses');
         }
     }
 
@@ -81,11 +69,13 @@ class WebSSOConfiguration implements ProviderConfigurationInterface
 
     /**
      * @param int|null $id
+     *
      * @return static
      */
     public function setId(?int $id): static
     {
         $this->id = $id;
+
         return $this;
     }
 

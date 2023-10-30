@@ -166,12 +166,6 @@ function updateNagiosConfigData($gopt_id = null)
 
     updateOption(
         $pearDB,
-        "nagios_path_img",
-        isset($ret["nagios_path_img"]) && $ret["nagios_path_img"] != null
-            ? $pearDB->escape($ret["nagios_path_img"]) : "NULL"
-    );
-    updateOption(
-        $pearDB,
         "nagios_path_plugins",
         isset($ret["nagios_path_plugins"]) && $ret["nagios_path_plugins"] != null
             ? $pearDB->escape($ret["nagios_path_plugins"]) : "NULL"
@@ -489,6 +483,13 @@ function updateLdapConfigData($gopt_id = null)
         "ldap_search_filter",
         isset($ret["ldap_search_filter"]) && $ret["ldap_search_filter"] != null
             ? htmlentities($ret["ldap_search_filter"], ENT_QUOTES, "UTF-8") : "NULL"
+    );
+    updateOption(
+        $pearDB,
+        "ldap_connection_timeout",
+        !empty($ret["ldap_connection_timeout"])
+            ? htmlentities($ret["ldap_connection_timeout"], ENT_QUOTES, "UTF-8")
+            : "NULL"
     );
     updateOption(
         $pearDB,

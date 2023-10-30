@@ -8,7 +8,7 @@ import { Tooltip } from '@mui/material';
 import { Resource } from './models';
 import {
   labelChecksDisabled,
-  labelOnlyPassiveChecksEnabled,
+  labelOnlyPassiveChecksEnabled
 } from './translatedLabels';
 
 interface IconProps {
@@ -27,17 +27,23 @@ const Icon = ({ Component, title }: IconProps): JSX.Element => {
   );
 };
 
-type Props = Pick<Resource, 'active_checks' | 'passive_checks'>;
+type Props = Pick<
+  Resource,
+  'has_active_checks_enabled' | 'has_passive_checks_enabled'
+>;
 
 const ChecksIcon = ({
-  active_checks,
-  passive_checks,
+  has_active_checks_enabled,
+  has_passive_checks_enabled
 }: Props): JSX.Element | null => {
-  if (equals(passive_checks, false) && equals(active_checks, false)) {
+  if (
+    equals(has_passive_checks_enabled, false) &&
+    equals(has_active_checks_enabled, false)
+  ) {
     return <Icon Component={SyncDisabledIcon} title={labelChecksDisabled} />;
   }
 
-  if (equals(active_checks, false)) {
+  if (equals(has_passive_checks_enabled, false)) {
     return (
       <Icon Component={SyncProblemIcon} title={labelOnlyPassiveChecksEnabled} />
     );

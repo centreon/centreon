@@ -16,7 +16,7 @@ runs:
       with:
         php-version: 8.1
       env:
-        runner: self-hosted
+        runner: ubuntu-22.04
 
     - name: Install Dependencies
       run: composer install --no-dev --optimize-autoloader

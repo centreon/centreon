@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,13 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration;
 
-use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Contact;
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration\{
     UpdateOpenIdConfiguration,
     UpdateOpenIdConfigurationPresenterInterface,
     UpdateOpenIdConfigurationRequest
 };
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UpdateOpenIdConfigurationController extends AbstractController
 {
@@ -37,6 +39,7 @@ class UpdateOpenIdConfigurationController extends AbstractController
      * @param UpdateOpenIdConfiguration $useCase
      * @param Request $request
      * @param UpdateOpenIdConfigurationPresenterInterface $presenter
+     *
      * @return object
      */
     public function __invoke(
@@ -45,6 +48,13 @@ class UpdateOpenIdConfigurationController extends AbstractController
         UpdateOpenIdConfigurationPresenterInterface $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+        if (! $contact->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE)) {
+            return $this->view(null, Response::HTTP_FORBIDDEN);
+        }
         $this->validateDataSent($request, __DIR__ . '/UpdateOpenIdConfigurationSchema.json');
         $updateOpenIdConfigurationRequest = $this->createUpdateOpenIdConfigurationRequest($request);
         $useCase($presenter, $updateOpenIdConfigurationRequest);
@@ -54,12 +64,13 @@ class UpdateOpenIdConfigurationController extends AbstractController
 
     /**
      * @param Request $request
+     *
      * @return UpdateOpenIdConfigurationRequest
      */
     private function createUpdateOpenIdConfigurationRequest(Request $request): UpdateOpenIdConfigurationRequest
     {
         $json = (string) $request->getContent();
-        $requestData  = json_decode($json, true);
+        $requestData = json_decode($json, true);
         $updateOpenIdConfigurationRequest = new UpdateOpenIdConfigurationRequest();
         $updateOpenIdConfigurationRequest->isActive = $requestData['is_active'];
         $updateOpenIdConfigurationRequest->isForced = $requestData['is_forced'];
@@ -80,8 +91,9 @@ class UpdateOpenIdConfigurationController extends AbstractController
         $updateOpenIdConfigurationRequest->emailBindAttribute = $requestData['email_bind_attribute'];
         $updateOpenIdConfigurationRequest->userNameBindAttribute = $requestData['fullname_bind_attribute'];
         $updateOpenIdConfigurationRequest->rolesMapping = $requestData['roles_mapping'];
-        $updateOpenIdConfigurationRequest->authenticationConditions = $requestData["authentication_conditions"];
-        $updateOpenIdConfigurationRequest->groupsMapping = $requestData["groups_mapping"];
+        $updateOpenIdConfigurationRequest->authenticationConditions = $requestData['authentication_conditions'];
+        $updateOpenIdConfigurationRequest->groupsMapping = $requestData['groups_mapping'];
+        $updateOpenIdConfigurationRequest->redirectUrl = $requestData['redirect_url'];
 
         return $updateOpenIdConfigurationRequest;
     }

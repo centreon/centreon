@@ -1,6 +1,6 @@
 <h1> Centreon - IT and Application monitoring software </h1>
 
-[![stable version](https://img.shields.io/github/release/centreon/centreon.svg?style=flat)](https://github.com/centreon/centreon/releases/latest) &nbsp;[![License](https://img.shields.io/badge/license-GPL--2.0-blue.svg)](https://raw.githubusercontent.com/centreon/centreon/master/LICENSE.md) &nbsp;[![Centreon bug tracker](https://img.shields.io/github/issues/centreon/centreon.svg?style=flat)](https://github.com/centreon/centreon/issues) &nbsp;[![Official documentation](https://img.shields.io/badge/official-documentation-orange.svg)](https://docs.centreon.com/) &nbsp;[![Official Slack](https://img.shields.io/badge/official-slack-orange.svg)](https://centreon.github.io/register-slack) &nbsp;[![Official website](https://img.shields.io/badge/official-website-orange.svg)](https://www.centreon.com/en/) &nbsp;[![Official Download](https://img.shields.io/badge/official-download-orange.svg)](https://download.centreon.com/) &nbsp;[![Official The Watch](https://img.shields.io/badge/official-The%20Watch-blueviolet)](https://thewatch.centreon.com/private/login) &nbsp;
+[![stable version](https://img.shields.io/github/release/centreon/centreon.svg?style=flat)](https://github.com/centreon/centreon/releases/latest) &nbsp;[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://raw.githubusercontent.com/centreon/centreon/master/LICENSE.md) &nbsp;[![Centreon bug tracker](https://img.shields.io/github/issues/centreon/centreon.svg?style=flat)](https://github.com/centreon/centreon/issues) &nbsp;[![Official documentation](https://img.shields.io/badge/official-documentation-orange.svg)](https://docs.centreon.com/) &nbsp;[![Official Slack](https://img.shields.io/badge/official-slack-orange.svg)](https://centreon.github.io/register-slack) &nbsp;[![Official website](https://img.shields.io/badge/official-website-orange.svg)](https://www.centreon.com/en/) &nbsp;[![Official Download](https://img.shields.io/badge/official-download-orange.svg)](https://download.centreon.com/) &nbsp;[![Official The Watch](https://img.shields.io/badge/official-The%20Watch-blueviolet)](https://thewatch.centreon.com/private/login) &nbsp;
 
 [![Centreon Twitter](https://img.shields.io/twitter/follow/centreon.svg?style=social)](https://twitter.com/centreon) &nbsp;[![Centreon Labs Twitter](https://img.shields.io/twitter/follow/centreonlabs.svg?style=social)](https://twitter.com/centreonlabs) &nbsp;
 
@@ -81,12 +81,12 @@ See also the list of our [**contributors**](https://github.com/centreon/centreon
 
 <h4> Security Acknowledgement page </h4>
 
-We want to thank all [reporters and pentesters](SECURITY_ACK.md) who help us improve our product each day.
+We want to thank all [reporters and pentesters](https://github.com/centreon/.github/blob/master/SECURITY.md) who help us improve our product each day.
 
 <h2> Contributing </h2>
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, bug report, feature request and the process for submitting pull requests for us.
+Please read [CONTRIBUTING.md](https://github.com/centreon/.github/blob/master/CONTRIBUTING.md) for details on our code of conduct, bug report, feature request and the process for submitting pull requests for us.
 
 <h2> License </h2>
 
-This project is licensed under the GPL-2.0 License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE.md) file for details

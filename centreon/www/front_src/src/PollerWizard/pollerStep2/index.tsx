@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { useUpdateAtom, useAtomValue } from 'jotai/utils';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { pick } from 'ramda';
 
 import { Typography, FormControlLabel, Checkbox } from '@mui/material';
@@ -12,8 +11,9 @@ import {
   useRequest,
   MultiAutocompleteField,
   SelectField,
-  SelectEntry,
+  centreonBaseURL
 } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import { pollerAtom, setWizardDerivedAtom, PollerData } from '../pollerAtoms';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
@@ -22,7 +22,7 @@ import {
   labelAdvancedServerConfiguration,
   labelLinkedRemoteMaster,
   labelLinkedadditionalRemote,
-  labelOpenBrokerFlow,
+  labelOpenBrokerFlow
 } from '../translatedLabels';
 import { Props, PollerRemoteList, WizardButtonsTypes } from '../models';
 import WizardButtons from '../forms/wizardButtons';
@@ -35,40 +35,39 @@ interface StepTwoFormData {
 }
 const PollerWizardStepTwo = ({
   goToNextStep,
-  goToPreviousStep,
+  goToPreviousStep
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [remoteServers, setRemoteServers] = useState<Array<PollerRemoteList>>(
-    [],
+    []
   );
   const [stepTwoFormData, setStepTwoFormData] = useState<StepTwoFormData>({
     linked_remote_master: '',
     linked_remote_slaves: [],
-    open_broker_flow: false,
+    open_broker_flow: false
   });
 
   const { sendRequest: getRemoteServersRequest } = useRequest<
     Array<PollerRemoteList>
   >({
-    request: postData,
+    request: postData
   });
 
   const { sendRequest: postWizardFormRequest, sending: loading } = useRequest<{
     success: boolean;
   }>({
-    request: postData,
+    request: postData
   });
 
   const pollerData = useAtomValue<PollerData | null>(pollerAtom);
-  const setWizard = useUpdateAtom(setWizardDerivedAtom);
+  const setWizard = useSetAtom(setWizardDerivedAtom);
 
   const getRemoteServers = (): void => {
     getRemoteServersRequest({
       data: null,
-      endpoint: remoteServersEndpoint,
+      endpoint: remoteServersEndpoint
     }).then(setRemoteServers);
   };
 
@@ -78,21 +77,21 @@ const PollerWizardStepTwo = ({
     if (name === 'open_broker_flow') {
       setStepTwoFormData({
         ...stepTwoFormData,
-        open_broker_flow: !stepTwoFormData.open_broker_flow,
+        open_broker_flow: !stepTwoFormData.open_broker_flow
       });
 
       return;
     }
     setStepTwoFormData({
       ...stepTwoFormData,
-      [name]: value,
+      [name]: value
     });
   };
 
   const changeValue = (_, slaves): void => {
     setStepTwoFormData({
       ...stepTwoFormData,
-      linked_remote_slaves: slaves,
+      linked_remote_slaves: slaves
     });
   };
 
@@ -101,22 +100,22 @@ const PollerWizardStepTwo = ({
     const data = {
       ...stepTwoFormData,
       linked_remote_slaves: stepTwoFormData.linked_remote_slaves.map(
-        ({ id }) => id,
-      ),
+        ({ id }) => id
+      )
     };
     const dataToPost = { ...data, ...pollerData };
     dataToPost.server_type = 'poller';
 
     postWizardFormRequest({
       data: dataToPost,
-      endpoint: wizardFormEndpoint,
+      endpoint: wizardFormEndpoint
     })
       .then(({ success }) => {
         setWizard({ submitStatus: success });
         if (pollerData?.linked_remote_master) {
           goToNextStep();
         } else {
-          navigate(routeMap.pollerList);
+          window.location.href = `${centreonBaseURL}${routeMap.pollerList}`;
         }
       })
       .catch(() => undefined);
@@ -126,8 +125,7 @@ const PollerWizardStepTwo = ({
 
   const linkedRemoteSlavesOption = remoteServers
     .filter(
-      (remoteServer) =>
-        remoteServer.id !== stepTwoFormData.linked_remote_master,
+      (remoteServer) => remoteServer.id !== stepTwoFormData.linked_remote_master
     )
     .map(pick(['id', 'name']));
 

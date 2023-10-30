@@ -203,7 +203,7 @@ UNLOCK TABLES;
 CREATE TABLE `metrics` (
   `metric_id` int(11) NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT UNSIGNED DEFAULT NULL,
-  `metric_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `metric_name` varchar(1021) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `data_source_type` enum('0','1','2','3') DEFAULT NULL,
   `unit_name` varchar(32) DEFAULT NULL,
   `current_value` float DEFAULT NULL,
@@ -296,7 +296,7 @@ CREATE TABLE `severities` (
   `icon_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`severity_id`),
   UNIQUE KEY `severities_id_type_uindex` (`id`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `resources` (
   `resource_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -309,8 +309,8 @@ CREATE TABLE `resources` (
   `in_downtime` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=false, 1=true',
   `acknowledged` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=false, 1=true',
   `status_confirmed` tinyint(1) DEFAULT NULL COMMENT '0=FALSE=SOFT\n1=TRUE=HARD',
-  `check_attempts` tinyint(3) unsigned DEFAULT NULL,
-  `max_check_attempts` tinyint(3) unsigned DEFAULT NULL,
+  `check_attempts` smallint unsigned DEFAULT NULL,
+  `max_check_attempts` smallint unsigned DEFAULT NULL,
   `poller_id` bigint(20) unsigned NOT NULL,
   `severity_id` bigint(20) unsigned DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -334,7 +334,7 @@ CREATE TABLE `resources` (
   UNIQUE KEY `resources_id_parent_id_type_uindex` (`id`,`parent_id`,`type`),
   KEY `resources_severities_severity_id_fk` (`severity_id`),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `tags` (
   `tag_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -343,7 +343,7 @@ CREATE TABLE `tags` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `tags_id_type_uindex` (`id`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `resources_tags` (
   `tag_id` bigint(20) unsigned NOT NULL,
@@ -353,7 +353,7 @@ CREATE TABLE `resources_tags` (
   KEY `resources_tags_tag_id_fk` (`tag_id`),
   CONSTRAINT `resources_tags_resources_resource_id_fk` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`resource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `resources_tags_tag_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

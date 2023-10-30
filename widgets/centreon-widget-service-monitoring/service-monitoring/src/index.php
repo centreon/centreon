@@ -113,7 +113,9 @@ $aStateType = ['1' => 'H', '0' => 'S'];
 $mainQueryParameters = [];
 
 // Build Query
-$query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
+$query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    1 AS REALTIME,
+    h.host_id,
     h.name as hostname,
     h.alias as hostalias,
     s.latency,
@@ -158,7 +160,13 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.service_id = cv2.service_id
         AND s.host_id = cv2.host_id
         AND cv2.name = \'CRITICALITY_ID\'
-    ) ';
+    )';
+
+if (isset($preferences['acknowledgement_filter']) &&  $preferences['acknowledgement_filter'] == 'ackByMe') {
+    $query .= ' JOIN acknowledgements ack ON (
+        s.service_id = ack.service_id
+    )';
+}
 
 if (!$centreon->user->admin) {
     $query .= ' , centreon_acl acl ';
@@ -231,10 +239,12 @@ if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachab
 if (count($stateTab)) {
     $query = CentreonUtils::conditionBuilder($query, ' s.state IN (' . implode(',', $stateTab) . ')');
 }
-
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
     if ($preferences['acknowledgement_filter'] == 'ack') {
         $query = CentreonUtils::conditionBuilder($query, ' s.acknowledged = 1');
+    } elseif ($preferences['acknowledgement_filter'] == 'ackByMe') {
+        $query = CentreonUtils::conditionBuilder($query, ' s.acknowledged = 1 AND ack.author = "'
+            . $centreon->user->alias . '"');
     } elseif ($preferences['acknowledgement_filter'] == 'nack') {
         $query = CentreonUtils::conditionBuilder(
             $query,
@@ -362,7 +372,7 @@ if (!$centreon->user->admin) {
         AND acl.service_id = s.service_id
         AND acl.group_id IN (" . $groupList . ") ";
 }
-$orderBy = 'hostname ASC , description ASC';
+$orderBy = 'hostname ASC ';
 
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
     $aOrder = explode(' ', $preferences['order_by']);
@@ -383,8 +393,6 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
     }
 }
 
-$query .= 'GROUP BY hostname, description ';
-
 if (trim($orderBy)) {
     $query .= "ORDER BY " . $orderBy;
 }
@@ -401,7 +409,7 @@ foreach ($mainQueryParameters as $parameter) {
 unset($parameter, $mainQueryParameters);
 $res->execute();
 
-$nbRows = $dbb->numberRows();
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 $data = [];
 $outputLength = $preferences['output_length'] ?: 50;
 $commentLength = $preferences['comment_length'] ?: 50;
@@ -580,13 +588,13 @@ while ($row = $res->fetch()) {
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
-        $commentSql = 'SELECT data FROM comments';
+        $commentSql = 'SELECT 1 AS REALTIME, data FROM comments';
         $comment = '-';
 
         if ((int) $row['s_acknowledged'] === 1) { // Service is acknowledged
-            $commentSql = 'SELECT comment_data AS data FROM acknowledgements';
+            $commentSql = 'SELECT 1 AS REALTIME, comment_data AS data FROM acknowledgements';
         } elseif ((int) $row['s_scheduled_downtime_depth'] === 1) { // Service is in downtime
-            $commentSql = 'SELECT comment_data AS data FROM downtimes';
+            $commentSql = 'SELECT 1 AS REALTIME, comment_data AS data FROM downtimes';
         }
 
         $commentSql .= " WHERE host_id = " . $row['host_id'] . " AND service_id = " . $row['service_id'];

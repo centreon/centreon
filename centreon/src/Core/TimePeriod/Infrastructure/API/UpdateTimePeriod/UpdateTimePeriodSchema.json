@@ -1,0 +1,60 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Update a time period",
+    "type": "object",
+    "required": [
+        "name",
+        "alias",
+        "days",
+        "templates",
+        "exceptions"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "days": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "day",
+                    "time_range"
+                ],
+                "properties": {
+                    "day": {
+                        "type": "integer"
+                    },
+                    "time_range": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "templates": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "exceptions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["day_range", "time_range"],
+                "properties": {
+                    "day_range": {
+                        "type": "string"
+                    },
+                    "time_range": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

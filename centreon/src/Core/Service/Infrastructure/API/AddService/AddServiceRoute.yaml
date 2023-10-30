@@ -1,0 +1,5 @@
+AddService:
+  methods: POST
+  path: /configuration/services
+  controller: 'Core\Service\Infrastructure\API\AddService\AddServiceController'
+  condition: "request.attributes.get('version') >= 23.10"

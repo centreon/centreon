@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -40,35 +40,36 @@ if ($configFile !== false) {
     require_once $configFile;
 }
 
-require_once dirname(__FILE__) . '/backend.class.php';
 require_once dirname(__FILE__) . '/abstract/object.class.php';
 require_once dirname(__FILE__) . '/abstract/objectJSON.class.php';
-require_once dirname(__FILE__) . '/hosttemplate.class.php';
+require_once dirname(__FILE__) . '/backend.class.php';
+require_once dirname(__FILE__) . '/broker.class.php';
 require_once dirname(__FILE__) . '/command.class.php';
-require_once dirname(__FILE__) . '/timeperiod.class.php';
-require_once dirname(__FILE__) . '/hostgroup.class.php';
-require_once dirname(__FILE__) . '/hostcategory.class.php';
-require_once dirname(__FILE__) . '/servicegroup.class.php';
-require_once dirname(__FILE__) . '/servicecategory.class.php';
+require_once dirname(__FILE__) . '/connector.class.php';
 require_once dirname(__FILE__) . '/contact.class.php';
 require_once dirname(__FILE__) . '/contactgroup.class.php';
-require_once dirname(__FILE__) . '/servicetemplate.class.php';
-require_once dirname(__FILE__) . '/service.class.php';
-require_once dirname(__FILE__) . '/media.class.php';
-require_once dirname(__FILE__) . '/connector.class.php';
-require_once dirname(__FILE__) . '/macro.class.php';
-require_once dirname(__FILE__) . '/host.class.php';
-require_once dirname(__FILE__) . '/severity.class.php';
-require_once dirname(__FILE__) . '/escalation.class.php';
 require_once dirname(__FILE__) . '/dependency.class.php';
-require_once dirname(__FILE__) . '/meta_timeperiod.class.php';
+require_once dirname(__FILE__) . '/engine.class.php';
+require_once dirname(__FILE__) . '/escalation.class.php';
+require_once dirname(__FILE__) . '/host.class.php';
+require_once dirname(__FILE__) . '/hostcategory.class.php';
+require_once dirname(__FILE__) . '/hostgroup.class.php';
+require_once dirname(__FILE__) . '/hosttemplate.class.php';
+require_once dirname(__FILE__) . '/macro.class.php';
+require_once dirname(__FILE__) . '/media.class.php';
 require_once dirname(__FILE__) . '/meta_command.class.php';
 require_once dirname(__FILE__) . '/meta_host.class.php';
 require_once dirname(__FILE__) . '/meta_service.class.php';
+require_once dirname(__FILE__) . '/meta_timeperiod.class.php';
 require_once dirname(__FILE__) . '/resource.class.php';
-require_once dirname(__FILE__) . '/engine.class.php';
-require_once dirname(__FILE__) . '/broker.class.php';
+require_once dirname(__FILE__) . '/service.class.php';
+require_once dirname(__FILE__) . '/servicecategory.class.php';
+require_once dirname(__FILE__) . '/servicegroup.class.php';
+require_once dirname(__FILE__) . '/servicetemplate.class.php';
+require_once dirname(__FILE__) . '/severity.class.php';
+require_once dirname(__FILE__) . '/timeperiod.class.php';
 require_once dirname(__FILE__) . '/timezone.class.php';
+require_once dirname(__FILE__) . '/vault.class.php';
 
 class Generate
 {
@@ -260,6 +261,7 @@ class Generate
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
 
+        Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         Host::getInstance($this->dependencyInjector)->generateFromPollerId(
             $this->current_poller['id'],
             $this->current_poller['localhost']

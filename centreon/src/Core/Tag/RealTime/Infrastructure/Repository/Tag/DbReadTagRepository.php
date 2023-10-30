@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,28 +18,28 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Tag\RealTime\Infrastructure\Repository\Tag;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 
 class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagRepositoryInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
      * @param DatabaseConnection $db
+     * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
     public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
     {
@@ -49,7 +49,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $this->sqlRequestTranslator->setConcordanceArray([
-            'name' => 'tags.name'
+            'name' => 'tags.name',
         ]);
     }
 
@@ -60,7 +60,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
     {
         $this->info('Fetching tags from database of type', ['type' => $typeId]);
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS id, name, `type`
+        $request = 'SELECT SQL_CALC_FOUND_ROWS 1 AS REALTIME, id, name, `type`
             FROM `:dbstg`.tags';
 
         // Handle search
@@ -92,7 +92,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
         $statement->execute();
 
         // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
@@ -115,11 +115,11 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
             [
                 'id' => $id,
                 'parentId' => $parentId,
-                'type' => $typeId
+                'type' => $typeId,
             ]
         );
 
-        $request = 'SELECT tags.id AS id, tags.name AS name, tags.`type` AS `type`
+        $request = 'SELECT 1 AS REALTIME, tags.id AS id, tags.name AS name, tags.`type` AS `type`
             FROM `:dbstg`.tags
             LEFT JOIN `:dbstg`.resources_tags
                 ON tags.tag_id = resources_tags.tag_id

@@ -261,7 +261,7 @@ $resourceController = $kernel->getContainer()->get(
     \Centreon\Application\Controller\MonitoringResourceController::class
 );
 
-$deprecationMessage = _('[Page deprecated] Please use the new page: ');
+$deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
 $resourcesStatusLabel = _('Resources Status');
 
 $filter = [
@@ -631,7 +631,7 @@ $tpl->display("service.ihtml");
         _keyPrefix = '<?= $keyPrefix; ?>';
         _tm = <?= $tM ?>;
         _o = '<?= $o; ?>';
-        _defaultStatusFilter = '<?= $defaultStatusFilter; ?>';
+        _defaultStatusFilter = '<?=  htmlspecialchars($defaultStatusFilter, ENT_QUOTES, 'UTF-8'); ?>';
         _defaultStatusService = '<?= $defaultStatusService; ?>';
         sSetOrderInMemory = '<?= $sSetOrderInMemory; ?>';
 

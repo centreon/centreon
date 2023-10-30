@@ -1,0 +1,14 @@
+import { useMemo } from 'react';
+
+import { useDeepCompare } from './useMemoComponent';
+
+interface UseDeepMemo<TVariable, TMemoProps> {
+  deps: Array<TMemoProps>;
+  variable: TVariable;
+}
+
+export const useDeepMemo = <TVariable, TMemoProps>({
+  deps,
+  variable
+}: UseDeepMemo<TVariable, TMemoProps>): TVariable =>
+  useMemo(() => variable, useDeepCompare(deps));

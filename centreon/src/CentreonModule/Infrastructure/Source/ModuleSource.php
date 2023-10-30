@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,10 @@
 
 namespace CentreonModule\Infrastructure\Source;
 
-use Psr\Container\ContainerInterface;
-use CentreonModule\Infrastructure\Entity\Module;
-use CentreonModule\Domain\Repository\ModulesInformationsRepository;
-use CentreonModule\Infrastructure\Source\SourceAbstract;
 use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
+use CentreonModule\Domain\Repository\ModulesInformationsRepository;
+use CentreonModule\Infrastructure\Entity\Module;
+use Psr\Container\ContainerInterface;
 
 class ModuleSource extends SourceAbstract
 {
@@ -34,13 +33,11 @@ class ModuleSource extends SourceAbstract
     public const PATH_WEB = 'modules/';
     public const CONFIG_FILE = 'conf.php';
 
-    /**
-     * @var array<string,mixed>
-     */
+    /** @var array<string,mixed> */
     protected $info;
 
     /**
-     * Construct
+     * Construct.
      *
      * @param \Psr\Container\ContainerInterface $services
      */
@@ -58,8 +55,7 @@ class ModuleSource extends SourceAbstract
     {
         $this->info = $this->db
             ->getRepository(ModulesInformationsRepository::class)
-            ->getAllModuleVsVersion()
-        ;
+            ->getAllModuleVsVersion();
     }
 
     /**
@@ -71,10 +67,25 @@ class ModuleSource extends SourceAbstract
      */
     public function install(string $id): ?Module
     {
+        /**
+         * Do not try to install the module if the package is not installed (deb or rpm).
+         */
+        if (($module = $this->getDetail($id)) === null) {
+            throw ModuleException::cannotFindModuleDetails($id);
+        }
+        /**
+         * Check if the module has dependencies
+         * if it does, then check if those dependencies are installed or need updates
+         * if not installed -> install the dependency
+         * if not up to date -> update the dependency.
+         */
         $this->installOrUpdateDependencies($id);
 
-        return parent::install($id);
-    }
+        /**
+         * Do not execute the install process for the module if it is already installed.
+         */
+        return $module->isInstalled() === false ? parent::install($id) : $module;
+  }
 
     /**
      * {@inheritDoc}
@@ -89,8 +100,7 @@ class ModuleSource extends SourceAbstract
 
         $recordId = $this->db
             ->getRepository(ModulesInformationsRepository::class)
-            ->findIdByName($id)
-        ;
+            ->findIdByName($id);
 
         ($this->remover)($id, $recordId)->remove();
     }
@@ -108,8 +118,7 @@ class ModuleSource extends SourceAbstract
 
         $recordId = $this->db
             ->getRepository(ModulesInformationsRepository::class)
-            ->findIdByName($id)
-        ;
+            ->findIdByName($id);
 
         ($this->upgrader)($id, $recordId)->upgrade();
 
@@ -120,11 +129,12 @@ class ModuleSource extends SourceAbstract
 
     /**
      * @param string|null $search
-     * @param boolean|null $installed
-     * @param boolean|null $updated
+     * @param bool|null $installed
+     * @param bool|null $updated
+     *
      * @return array<int,\CentreonModule\Infrastructure\Entity\Module>
      */
-    public function getList(string $search = null, bool $installed = null, bool $updated = null): array
+    public function getList(?string $search = null, ?bool $installed = null, ?bool $updated = null): array
     {
         $files = ($this->finder::create())
             ->files()
@@ -138,7 +148,7 @@ class ModuleSource extends SourceAbstract
         foreach ($files as $file) {
             $entity = $this->createEntityFromConfig($file->getPathName());
 
-            if (!$this->isEligible($entity, $search, $installed, $updated)) {
+            if (! $this->isEligible($entity, $search, $installed, $updated)) {
                 continue;
             }
 
@@ -150,6 +160,7 @@ class ModuleSource extends SourceAbstract
 
     /**
      * @param string $id
+     *
      * @return Module|null
      */
     public function getDetail(string $id): ?Module
@@ -166,8 +177,7 @@ class ModuleSource extends SourceAbstract
             ->name(static::CONFIG_FILE)
             ->depth('== 0')
             ->sortByName()
-            ->in($path)
-        ;
+            ->in($path);
 
         foreach ($files as $file) {
             $result = $this->createEntityFromConfig($file->getPathName());
@@ -178,6 +188,7 @@ class ModuleSource extends SourceAbstract
 
     /**
      * @param string $configFile
+     *
      * @return Module
      */
     public function createEntityFromConfig(string $configFile): Module
@@ -197,7 +208,7 @@ class ModuleSource extends SourceAbstract
         $entity->setVersion($info['mod_release']);
         $entity->setDescription($info['infos']);
         $entity->setKeywords($entity->getId());
-        $entity->setLicense($this->processLicense($entity->getId(), $info));
+        $entity->setLicense($this->getLicenseInformationForModule($entity->getId(), $info));
 
         if (array_key_exists('stability', $info) && $info['stability']) {
             $entity->setStability($info['stability']);
@@ -243,7 +254,9 @@ class ModuleSource extends SourceAbstract
 
     /**
      * @codeCoverageIgnore
+     *
      * @param string $configFile
+     *
      * @return array<mixed>
      */
     protected function getModuleConf(string $configFile): array
@@ -256,29 +269,56 @@ class ModuleSource extends SourceAbstract
     }
 
     /**
-     * Process license check and return license information
-     * @param string $moduleId the module id (slug)
-     * @param array<string,mixed> $info the info of the module from conf.php
-     * @return array<string,string|bool> the license information (required, expiration_date)
+     * Process license check and return license information.
+     *
+     * @param string $slug the module id (slug)
+     * @param array<string,mixed> $information the information of the module from conf.php
+     *
+     * @return array<string,mixed> the license information
      */
-    protected function processLicense(string $moduleId, array $info): array
+    protected function getLicenseInformationForModule(string $slug, array $information): array
     {
-        $license = [
-            'required' => false
-        ];
-
-        if (!empty($info['require_license']) && $info['require_license'] === true) {
-            $license = [
-                'required' => true,
-                'expiration_date' => $this->license->getLicenseExpiration($moduleId)
-            ];
+        if (empty($information['require_license'])) {
+            return ['required' => false];
         }
 
-        return $license;
+        // if module requires a license, use License Manager to get information
+        $dependencyInjector = loadDependencyInjector();
+        $license = $dependencyInjector['lm.license'];
+        $license->setProductForModule($slug);
+        $licenseInFileData = $license->getData();
+
+        return [
+            'required' => true,
+            'expiration_date' => $this->license->getLicenseExpiration($slug),
+            'host_usage' => $this->getHostUsage(),
+            'is_valid' => $license->validate(),
+            'host_limit' => $licenseInFileData['licensing']['hosts'],
+        ];
     }
 
     /**
-     * Install or update module dependencies when needed
+     * Return the number actively used.
+     *
+     * @return int|null
+     */
+    private function getHostUsage(): ?int
+    {
+        $database = new \CentreonDB();
+        $request = <<<'SQL'
+                SELECT COUNT(*) AS `num` FROM host WHERE host_register = "1"
+            SQL;
+
+        $statement = $database->query($request);
+        if ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            return (int) $record['num'];
+        }
+
+        return null;
+    }
+
+    /**
+     * Install or update module dependencies when needed.
      *
      * @param string $moduleId
      *
@@ -302,13 +342,14 @@ class ModuleSource extends SourceAbstract
     }
 
     /**
-     * Sort module dependencies
+     * Sort module dependencies.
      *
      * @param string $moduleId (example: centreon-license-manager)
      * @param string[] $alreadyProcessed
-     * @return string[]
      *
      * @throws ModuleException
+     *
+     * @return string[]
      */
     private function getSortedDependencies(
         string $moduleId,
@@ -342,7 +383,7 @@ class ModuleSource extends SourceAbstract
     }
 
     /**
-     * Validate requirements before remove (dependencies)
+     * Validate requirements before remove (dependencies).
      *
      * @param string $moduleId (example: centreon-license-manager)
      *

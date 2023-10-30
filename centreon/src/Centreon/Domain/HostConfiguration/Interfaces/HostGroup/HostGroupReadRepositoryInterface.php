@@ -35,25 +35,6 @@ use Centreon\Domain\Repository\RepositoryException;
 interface HostGroupReadRepositoryInterface
 {
     /**
-     * Find all host groups.
-     *
-     * @return HostGroup[]
-     * @throws RepositoryException
-     * @throws \Exception
-     */
-    public function findAll(): array;
-
-    /**
-     * Find all host groups by contact.
-     *
-     * @param ContactInterface $contact Contact related to host groups
-     * @return HostGroup[]
-     * @throws RepositoryException
-     * @throws \Exception
-     */
-    public function findAllByContact(ContactInterface $contact): array;
-
-    /**
      * Find all host groups linked to a host.
      *
      * @param Host $host

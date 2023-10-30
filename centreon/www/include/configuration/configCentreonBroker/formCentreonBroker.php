@@ -1,6 +1,7 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
+ * Copyright 2005-2022 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -136,6 +137,7 @@ $form->addElement('select', 'ns_nagios_server', _("Requester"), $nagios_servers)
 $form->addElement('text', 'cache_directory', _("Cache directory"), $attrsText);
 
 $form->addElement('text', 'event_queue_max_size', _('Event queue max size'), $attrsText);
+$form->addElement('text', 'event_queues_total_size', _('Event queues maximum total size'), $attrsText);
 $command = $form->addElement('text', 'command_file', _('Command file'), $attrsText);
 
 $form->addElement('text', 'pool_size', _('Pool size'), $attrsText);
@@ -188,7 +190,12 @@ $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("Yes
 $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("No"), 0);
 $form->addGroup($stats_activate, 'stats_activate', _("Statistics"), '&nbsp;');
 
-$bbdo_versions = [ '2.0.0' => 'v.2.0.0 (old protocol)', '3.0.0' => 'v.3.0.0 (with protobuf)'];
+$bbdo_versions = [
+    '2.0.0' => 'v.2.0.0 (old protocol)',
+    '3.0.0' => 'v.3.0.0 (with protobuf)',
+    '3.0.1' => 'v.3.0.1 (full protobuf)'
+];
+
 $form->addElement('select', 'bbdo_version', _("BBDO version"), $bbdo_versions);
 
 $tags = $cbObj->getTags();
@@ -219,7 +226,7 @@ if (isset($_GET["o"]) && $_GET["o"] == 'a') {
             "stats_activate" => '1',
             "activate" => '1',
             "activate_watchdog" => '1',
-            "bbdo_version" => '3.0.0',
+            "bbdo_version" => '3.0.1',
         ),
         $defaultLog
     );
@@ -262,6 +269,7 @@ $form->addRule('name', _("Name is already in use"), 'exist');
 $form->addRule('filename', _("Mandatory filename"), 'required');
 $form->addRule('cache_directory', _("Mandatory cache directory"), 'required');
 $form->addRule('event_queue_max_size', _('Value must be numeric'), 'numeric');
+$form->addRule('event_queues_total_size', _('Value must be numeric'), 'numeric');
 $form->addRule('pool_size', _('Value must be a positive numeric'), 'isPositiveNumeric');
 
 if ($o == "w") {

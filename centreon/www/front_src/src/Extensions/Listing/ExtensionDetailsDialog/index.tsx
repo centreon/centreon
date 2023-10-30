@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 import Carousel from 'react-material-ui-carousel';
-import { Responsive } from '@visx/visx';
 import { useTranslation } from 'react-i18next';
 import { equals, length } from 'ramda';
 
@@ -12,20 +11,26 @@ import {
   Grid,
   Button,
   Link,
-  CircularProgress,
+  CircularProgress
 } from '@mui/material';
 import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InstallIcon from '@mui/icons-material/Add';
 
-import { Dialog, IconButton, useRequest, getData } from '@centreon/ui';
+import {
+  Dialog,
+  IconButton,
+  useRequest,
+  getData,
+  ParentSize
+} from '@centreon/ui';
 
 import {
   labelAvailable,
   labelDescription,
   labelLastUpdate,
   labelInstall,
-  labelDelete,
+  labelDelete
 } from '../../translatedLabels';
 import { Entity, ExtensionDetails } from '../models';
 import { buildEndPoint } from '../api/endpoint';
@@ -34,7 +39,7 @@ import {
   SliderSkeleton,
   HeaderSkeleton,
   ContentSkeleton,
-  ReleaseNoteSkeleton,
+  ReleaseNoteSkeleton
 } from './LoadingSkeleton';
 
 interface Props {
@@ -59,7 +64,7 @@ const ExtensionDetailPopup = ({
   onDelete,
   onInstall,
   onUpdate,
-  isLoading,
+  isLoading
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const [extensionDetails, setExtensionDetails] = useState<Entity | null>(null);
@@ -67,7 +72,7 @@ const ExtensionDetailPopup = ({
 
   const { sendRequest: sendExtensionDetailsValueRequests } =
     useRequest<ExtensionDetails>({
-      request: getData,
+      request: getData
     });
 
   useEffect(() => {
@@ -75,8 +80,8 @@ const ExtensionDetailPopup = ({
       endpoint: buildEndPoint({
         action: 'details',
         id,
-        type,
-      }),
+        type
+      })
     }).then((data) => {
       const { result } = data;
       if (result.images) {
@@ -105,7 +110,7 @@ const ExtensionDetailPopup = ({
     onDelete(
       extensionDetails.id,
       extensionDetails.type,
-      extensionDetails.title,
+      extensionDetails.title
     );
   };
 
@@ -119,7 +124,7 @@ const ExtensionDetailPopup = ({
     >
       <Grid container direction="column" spacing={2} sx={{ width: 540 }}>
         <Grid item>
-          <Responsive.ParentSize>
+          <ParentSize>
             {({ width }): JSX.Element =>
               extensionDetails.images ? (
                 <Carousel
@@ -130,7 +135,7 @@ const ExtensionDetailPopup = ({
                   height={imageHeight}
                   indicators={!hasOneImage(extensionDetails.images)}
                   navButtonsAlwaysInvisible={hasOneImage(
-                    extensionDetails.images,
+                    extensionDetails.images
                   )}
                 >
                   {extensionDetails.images?.map((image) => (
@@ -147,7 +152,7 @@ const ExtensionDetailPopup = ({
                 <SliderSkeleton width={width} />
               )
             }
-          </Responsive.ParentSize>
+          </ParentSize>
         </Grid>
         <Grid item>
           {extensionDetails.version.installed &&

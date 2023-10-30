@@ -59,7 +59,7 @@ if (isset($_POST['searchHD']) || isset($_GET['searchHD'])) {
 $aclFrom = "";
 $aclCond = "";
 if (!$centreon->user->admin) {
-    $aclFrom = ", $dbmon.centreon_acl acl ";
+    $aclFrom = ", `$dbmon`.centreon_acl acl ";
     $aclCond = " AND dhpr.host_host_id = acl.host_id 
                      AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
 }

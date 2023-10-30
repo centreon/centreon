@@ -4,46 +4,54 @@ on:
       widget_name:
         required: true
         type: string
+      major_version:
+        required: true
+        type: string
+      minor_version:
+        required: true
+        type: string
+      release:
+        required: true
+        type: string
+      commit_hash:
+        required: true
+        type: string
     secrets:
-      nexus_username:
+      registry_username:
         required: true
-      nexus_password:
+      registry_password:
         required: true
-
-env:
-  version: "22.10"
 
 jobs:
   package:
-    runs-on: [self-hosted, common]
 
     strategy:
+      fail-fast: false
       matrix:
+        distrib: [el8, el9, bullseye]
         include:
           - package_extension: rpm
-            image: packaging-widgets-centos7
-            distrib: el7
-          - package_extension: rpm
-            image: packaging-widgets-alma8
+            image: packaging-alma8
             distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
           - package_extension: deb
-            image: packaging-widgets-bullseye
+            image: packaging-bullseye
             distrib: bullseye
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - uses: ./.github/actions/package
-        with:
-          package_extension: ${{ matrix.package_extension }}
-          image_name: ${{ matrix.image }}
-          script_name: widget-packaging-${{ matrix.package_extension }}
-          module_name: widgets/centreon-widget-${{ inputs.widget_name }}
-          version: ${{ env.version }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          sign: true
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+    uses: ./.github/workflows/package.yml
+    with:
+      base_directory: widgets/centreon-widget-${{ inputs.widget_name }}
+      spec_file: widgets/centreon-widget.spectemplate
+      package_extension: ${{ matrix.package_extension }}
+      image_name: ${{ matrix.image }}
+      module_name: centreon
+      major_version: ${{ inputs.major_version }}
+      minor_version: ${{ inputs.minor_version }}
+      release: ${{ inputs.release }}
+      commit_hash: ${{ inputs.commit_hash }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_password: ${{ secrets.registry_password }}

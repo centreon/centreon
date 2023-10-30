@@ -1,0 +1,65 @@
+name: Integrate e2e tests to Xray
+
+on:
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  synchronize-jira-xray:
+    needs: [get-version]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: |
+          pnpm install axios@1.5.1
+          pnpm install form-data@4.0.0
+          pnpm install @actions/core
+
+      - name: Get the latest commit hash
+        run: |
+          latest_commit=$(git log -1 --format="%H")
+          echo "LATEST_COMMIT=$latest_commit" >> $GITHUB_ENV
+
+      - name: Find Changed Feature Files
+        id: find_changed_files
+        run: |
+          mapfile -t CHANGED_FILES <<< "$(git show --name-only $LATEST_COMMIT | grep '\.feature$')"
+          echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${CHANGED_FILES[@]}"
+
+      - name: Run Script on Changed Feature Files
+        if: env.CHANGED_FILES != ''
+        run: |
+          echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
+          for file in $CHANGED_FILES; do
+            echo "Running script for $file on branch ${{ github.ref_name }}"
+            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
+          done
+        env:
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}

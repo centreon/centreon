@@ -53,7 +53,7 @@ final class HostCategory extends AbstractObject
         $this->generate_filename = 'tags.cfg';
         $this->attributes_write =  [
             'id',
-            'name',
+            'tag_name',
             'type',
         ];
     }
@@ -65,7 +65,7 @@ final class HostCategory extends AbstractObject
     private function addHostCategoryToList(int $hostCategoryId): self
     {
         $stmt = $this->backend_instance->db->prepare(
-            "SELECT hc_id as id, hc_name as name
+            "SELECT hc_id as id, hc_name as tag_name
             FROM hostcategories
             WHERE hc_id = :hc_id
             AND level IS NULL

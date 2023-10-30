@@ -1,0 +1,17 @@
+FROM almalinux:8
+
+RUN bash -e <<EOF
+
+echo '[goreleaser]
+name=GoReleaser
+baseurl=https://repo.goreleaser.com/yum/
+enabled=1
+gpgcheck=0' | tee /etc/yum.repos.d/goreleaser.repo
+
+dnf install -y make rpm-build rpm-sign zstd perl-devel nfpm selinux-policy-devel
+
+dnf clean all
+
+EOF
+
+WORKDIR /src

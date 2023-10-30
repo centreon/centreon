@@ -419,6 +419,7 @@ class Service extends AbstractService
         if (!is_null($severity)) {
             $this->service_cache[$serviceIdArg]['macros']['_CRITICALITY_LEVEL'] = $severity['level'];
             $this->service_cache[$serviceIdArg]['macros']['_CRITICALITY_ID'] = $severity['sc_id'];
+            $this->service_cache[$serviceIdArg]['macros']['severity'] = $severity['sc_id'];
             return;
         }
 
@@ -472,6 +473,7 @@ class Service extends AbstractService
                 if (!is_null($serviceSeverity)) {
                     $this->service_cache[$serviceId]['macros']['_CRITICALITY_LEVEL'] = $serviceSeverity['level'];
                     $this->service_cache[$serviceId]['macros']['_CRITICALITY_ID'] = $serviceSeverity['sc_id'];
+                    $this->service_cache[$serviceId]['macros']['severity'] = $serviceSeverity['sc_id'];
                 }
             }
         }
@@ -482,6 +484,7 @@ class Service extends AbstractService
         if ($service['severity_from_host'] == 1) {
             unset($service['macros']['_CRITICALITY_LEVEL']);
             unset($service['macros']['_CRITICALITY_ID']);
+            unset($service['macros']['severity']);
         }
     }
 

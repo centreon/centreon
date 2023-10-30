@@ -44,7 +44,7 @@ class Media extends AbstractObject
         'img_path',
         'img_comment',
     ];
-    protected $path_img = null;
+    protected $pathImg = null;
 
     /**
      * Get medias
@@ -62,10 +62,7 @@ class Media extends AbstractObject
         $stmt->execute();
         $this->medias = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
 
-        $stmt = $this->backendInstance->db->prepare('SELECT * FROM options WHERE `key` = "nagios_path_img"');
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $this->pathImg = $row['value'];
+        $this->pathImg = \CentreonMedia::CENTREON_MEDIA_PATH;
     }
 
     /**

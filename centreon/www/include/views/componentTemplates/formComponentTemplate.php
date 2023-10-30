@@ -74,7 +74,7 @@ $stmt->closeCursor();
  */
 $dataSources = [];
 $stmt = $pearDBO->query(
-    'SELECT `metric_name`, `unit_name` FROM `metrics` GROUP BY `metric_name` ORDER BY `metric_name`'
+    'SELECT 1 AS REALTIME, `metric_name`, `unit_name` FROM `metrics` GROUP BY `metric_name` ORDER BY `metric_name`'
 );
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $dataSources[$row['metric_name']] = $row['metric_name'];
@@ -371,7 +371,8 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === ADD_COMPONENT_TEMPLATE) {
         {
             var width = 400;
             var height = 300;
-            window.open('./include/common/javascript/color_picker.php?n=' + t + '&name=' + name,
+            var title = name.includes("area") ? "Area color" : "Line color";
+            window.open('./include/common/javascript/color_picker.php?n=' + t + '&name=' + name + "&title=" + title,
                 'cp',
                 'resizable=no, location=no, width=' + width + ', height=' + height +
                 ', menubar=no, status=yes, scrollbars=no, menubar=no'

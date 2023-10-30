@@ -209,7 +209,8 @@ cp -f $TMP_DIR/src/container.php $TMP_DIR/final
 cp -f $TMP_DIR/src/bootstrap.php $TMP_DIR/final
 cp -f $TMP_DIR/src/composer.json $TMP_DIR/final
 cp -f $TMP_DIR/src/package.json $TMP_DIR/final
-cp -f $TMP_DIR/src/package-lock.json $TMP_DIR/final
+cp -f $TMP_DIR/src/pnpm-lock.yaml $TMP_DIR/final
+cp -f $TMP_DIR/src/pnpm-workspace.yaml $TMP_DIR/final
 cp -f $TMP_DIR/src/.env $TMP_DIR/final
 cp -f $TMP_DIR/src/.env.local.php $TMP_DIR/final
 cp -Rf $TMP_DIR/src/src $TMP_DIR/final
@@ -475,8 +476,11 @@ $CHOWN $WEB_USER:$WEB_GROUP $INSTALL_DIR_CENTREON/composer.json
 cp -f $TMP_DIR/final/package.json $INSTALL_DIR_CENTREON/package.json >> "$LOG_FILE" 2>&1
 $CHOWN $WEB_USER:$WEB_GROUP $INSTALL_DIR_CENTREON/package.json
 
-cp -f $TMP_DIR/final/package-lock.json $INSTALL_DIR_CENTREON/package-lock.json >> "$LOG_FILE" 2>&1
-$CHOWN $WEB_USER:$WEB_GROUP $INSTALL_DIR_CENTREON/package-lock.json
+cp -f $TMP_DIR/final/pnpm-lock.yaml $INSTALL_DIR_CENTREON/pnpm-lock.yaml >> "$LOG_FILE" 2>&1
+$CHOWN $WEB_USER:$WEB_GROUP $INSTALL_DIR_CENTREON/pnpm-lock.yaml
+
+cp -f $TMP_DIR/final/pnpm-workspace.yaml $INSTALL_DIR_CENTREON/pnpm-workspace.yaml >> "$LOG_FILE" 2>&1
+$CHOWN $WEB_USER:$WEB_GROUP $INSTALL_DIR_CENTREON/pnpm-workspace.yaml
 
 $INSTALL_DIR/cinstall $cinstall \
         -u "$CENTREON_USER" -g "$CENTREON_GROUP" -d 775 \

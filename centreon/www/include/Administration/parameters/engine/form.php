@@ -51,10 +51,6 @@ if (!isset($gopt["interval_length"])) {
     $gopt["interval_length"] = 60;
 }
 
-if (!isset($gopt["nagios_path_img"])) {
-    $gopt["nagios_path_img"] = _CENTREON_PATH_ . 'www/img/media/';
-}
-
 $attrsText = array("size" => "40");
 $attrsText2 = array("size" => "5");
 $attrsAdvSelect = null;
@@ -65,7 +61,6 @@ $form->addElement('header', 'title', _("Modify General Options"));
 
 // Nagios information
 $form->addElement('header', 'nagios', _("Monitoring Engine information"));
-$form->addElement('text', 'nagios_path_img', _("Images Directory"), $attrsText);
 $form->addElement('text', 'nagios_path_plugins', _("Plugins Directory"), $attrsText);
 $form->addElement('text', 'interval_length', _("Interval Length"), $attrsText2);
 $form->addElement('text', 'mailer_path_bin', _("Directory + Mailer Binary"), $attrsText);
@@ -105,7 +100,6 @@ $redirect->setValue($o);
 
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('nagios_path', 'slash');
-$form->applyFilter('nagios_path_img', 'slash');
 $form->applyFilter('nagios_path_plugins', 'slash');
 
 $form->registerRule('is_valid_path', 'callback', 'is_valid_path');

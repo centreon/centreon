@@ -1,9 +1,9 @@
 {
-  "extends": "./node_modules/centreon-frontend/packages/frontend-config/tsconfig/index",
+  "extends": "../packages/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types"],
-    "module": "CommonJS",
+    "module": "nodenext",
     "outDir": "build",
     "esModuleInterop": true,
     "resolveJsonModule": true

@@ -1,19 +1,22 @@
 import { isNil, isEmpty } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Avatar, Tooltip } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { IconButton } from '@centreon/ui';
 
 import IconColumn from '../IconColumn';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   avatar: {
     backgroundColor: theme.palette.primary.main,
     fontSize: theme.typography.body2.fontSize,
     height: theme.spacing(2),
-    width: theme.spacing(2),
+    width: theme.spacing(2)
   },
+  button: {
+    padding: 0
+  }
 }));
 
 interface Props {
@@ -27,9 +30,9 @@ const UrlColumn = ({
   endpoint,
   title,
   icon,
-  avatarTitle,
+  avatarTitle
 }: Props): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const isEndpointEmpty = isNil(endpoint) || isEmpty(endpoint);
   const isTitleEmpty = isNil(title) || isEmpty(title);
@@ -58,6 +61,7 @@ const UrlColumn = ({
       >
         <IconButton
           ariaLabel={title}
+          className={classes.button}
           data-testid={title || endpoint}
           size="large"
           title={title || endpoint}

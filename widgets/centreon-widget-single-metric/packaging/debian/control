@@ -1,0 +1,15 @@
+Source: centreon-widget-single-metric
+Section: net
+Priority: optional
+Maintainer: Centreon <contact@centreon.com>
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.5.0
+Homepage: https://www.centreon.com
+
+Package: centreon-widget-single-metric
+Architecture: all
+Depends:    ${misc:Depends},
+            ${shlibs:Depends},
+            centreon-web (>= ${centreon:version}~),
+            centreon-web (<< ${centreon:versionThreshold}~)
+Description: Add homepage with Centreon Widgets

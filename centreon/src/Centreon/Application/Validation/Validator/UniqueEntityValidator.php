@@ -36,14 +36,15 @@
 
 namespace Centreon\Application\Validation\Validator;
 
-use Centreon\Application\Validation\Constraints\UniqueEntity;
-use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
+use App\Kernel;
 use Centreon\ServiceProvider;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
+use Centreon\Application\Validation\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
+use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
 
 class UniqueEntityValidator extends ConstraintValidator implements CentreonValidatorInterface
 {
@@ -90,8 +91,11 @@ class UniqueEntityValidator extends ConstraintValidator implements CentreonValid
             $methodValueGetter = 'get' . ucfirst($field);
             $value = $entity->$methodValueGetter();
 
-            $result = $this->db->getRepository($constraint->repository)
-                ->$methodRepository([$field => $value]);
+            $repository = (Kernel::createForWeb())
+                ->getContainer()
+                ->get($constraint->repository);
+
+            $result = $repository->$methodRepository([$field => $value]);
 
             if ($result && $result->$methodIdGetter() !== $entity->$methodIdGetter()) {
                 $this->context->buildViolation($constraint->message)

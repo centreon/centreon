@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,9 @@ class User extends NewUser
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark';
+                 THEME_DARK = 'dark',
+                 USER_INTERFACE_DENSITY_EXTENDED = 'extended',
+                 USER_INTERFACE_DENSITY_COMPACT = 'compact';
 
     /**
      * @param int $id
@@ -43,6 +45,8 @@ class User extends NewUser
      * @param string $email
      * @param bool $isAdmin
      * @param string $theme
+     * @param string $userInterfaceDensity
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
@@ -52,9 +56,11 @@ class User extends NewUser
         protected string $email,
         protected bool $isAdmin,
         protected string $theme,
+        protected string $userInterfaceDensity,
     ) {
         parent::__construct($alias, $name, $email);
         $this->setTheme($theme);
+        $this->setUserInterfaceDensity($userInterfaceDensity);
     }
 
     /**

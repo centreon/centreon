@@ -1,19 +1,22 @@
 import { Link as RouterLink } from 'react-router-dom';
+import { makeStyles } from 'tss-react/mui';
+import { useTranslation } from 'react-i18next';
 
-import { Link } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { Chip, Link } from '@mui/material';
 
 import { Breadcrumb as BreadcrumbModel } from './models';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()((theme) => ({
   link: {
     '&:hover': {
-      textDecoration: 'underline',
+      textDecoration: 'underline'
     },
-    color: 'inherit',
     fontSize: 'small',
-    textDecoration: 'none',
+    textDecoration: 'none'
   },
+  optionalLabel: {
+    marginLeft: theme.spacing(1)
+  }
 }));
 
 interface Props {
@@ -22,17 +25,29 @@ interface Props {
 }
 
 const Breadcrumb = ({ last, breadcrumb }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
+  const { t } = useTranslation();
+
+  const optionalLabel = breadcrumb.is_react && !!breadcrumb.options && (
+    <Chip
+      className={classes.optionalLabel}
+      color="secondary"
+      label={(t(breadcrumb.options) as string).toLocaleUpperCase()}
+    />
+  );
 
   return (
-    <Link
-      className={classes.link}
-      color={last ? 'textPrimary' : 'inherit'}
-      component={RouterLink}
-      to={breadcrumb.link}
-    >
-      {breadcrumb.label}
-    </Link>
+    <div>
+      <Link
+        className={classes.link}
+        color={last ? 'primary' : 'inherit'}
+        component={RouterLink}
+        to={breadcrumb.link}
+      >
+        {breadcrumb.label}
+      </Link>
+      {optionalLabel}
+    </div>
   );
 };
 

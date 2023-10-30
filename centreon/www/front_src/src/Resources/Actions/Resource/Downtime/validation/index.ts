@@ -6,7 +6,7 @@ import {
   labelEndDateGreaterThanStartDate,
   labelInvalidFormat,
   labelMaxDuration1Year,
-  labelRequired,
+  labelRequired
 } from '../../../../translatedLabels';
 
 const getValidationSchema = (t: (string) => string): unknown => {
@@ -21,7 +21,7 @@ const getValidationSchema = (t: (string) => string): unknown => {
       return !fixed
         ? schema.shape({
             unit: Yup.string().required(t(labelRequired)),
-            value: Yup.string().required(t(labelRequired)),
+            value: Yup.string().required(t(labelRequired))
           })
         : schema;
     }),
@@ -34,17 +34,14 @@ const getValidationSchema = (t: (string) => string): unknown => {
 
         return dateSchema
           .min(
-            dayjs(startTime).add(dayjs.duration({ minutes: 1 })),
-            t(labelEndDateGreaterThanStartDate),
+            dayjs(startTime).add(1, 'minute'),
+            t(labelEndDateGreaterThanStartDate)
           )
-          .max(
-            dayjs(startTime).add(dayjs.duration({ years: 1 })),
-            t(labelMaxDuration1Year),
-          );
-      },
+          .max(dayjs(startTime).add(1, 'year'), t(labelMaxDuration1Year));
+      }
     ),
     fixed: Yup.boolean(),
-    startTime: dateSchema,
+    startTime: dateSchema
   });
 };
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -100,6 +100,10 @@ class Command extends AbstractObject
             $this->getMailBin();
         }
 
+        if (! $this->isVaultEnabled) {
+            $this->getVaultConfigurationStatus();
+        }
+
         /*
          * enable_shell is 0 we remove it
          */
@@ -108,6 +112,13 @@ class Command extends AbstractObject
         $command_line = str_replace("@MAILER@", $this->mail_bin, $command_line);
         $command_line = str_replace("\n", " \\\n", $command_line);
         $command_line = str_replace("\r", "", $command_line);
+
+        if (
+            $this->isVaultEnabled
+            && preg_match("/\\\$CENTREONPLUGINS\\\$\\/centreon/", $command_line)
+        ) {
+            $command_line .= " --pass-manager=centreonvault";
+        }
 
         if (!is_null($this->commands[$command_id]['enable_shell']) &&
             $this->commands[$command_id]['enable_shell'] == 1

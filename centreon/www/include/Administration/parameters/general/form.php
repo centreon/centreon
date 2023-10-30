@@ -163,7 +163,13 @@ $form->addElement('select', 'problem_sort_type', _("Sort problems by"), $sortTyp
 $sort_order = array("ASC" => _("Ascending"), "DESC" => _("Descending"));
 $form->addElement('select', 'problem_sort_order', _("Order sort problems"), $sort_order);
 
-$options1[] = $form->createElement('checkbox', 'yes', '&nbsp;', '');
+$options1[] = $form->createElement(
+    'checkbox',
+    'yes',
+    '&nbsp;',
+    '',
+    ["id" => "enableAutoLogin", "data-testid" => _("Enable Autologin")]
+);
 $form->addGroup($options1, 'enable_autologin', _("Enable Autologin"), '&nbsp;&nbsp;');
 
 $options2[] = $form->createElement('checkbox', 'yes', '&nbsp;', '');
@@ -218,7 +224,6 @@ $form->addElement('text', 'centreon_support_email', _("Centreon Support Email"),
 
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('nagios_path', 'slash');
-$form->applyFilter('nagios_path_img', 'slash');
 $form->applyFilter('nagios_path_plugins', 'slash');
 $form->applyFilter('oreon_path', 'slash');
 $form->applyFilter('debug_path', 'slash');
@@ -259,7 +264,12 @@ $tpl = initSmartyTpl($path . 'general/', $tpl);
 
 $form->setDefaults($gopt);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
+$subC = $form->addElement(
+    'submit',
+    'submitC',
+    _("Save"),
+    ["class" => "btc bt_success", "id" => "submitGeneralOptionsForm", "data-testid" => _("Save")]
+);
 $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 
 $valid = false;

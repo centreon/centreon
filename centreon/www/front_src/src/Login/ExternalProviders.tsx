@@ -1,8 +1,8 @@
 import { isEmpty, isNil, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, Divider, Typography } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 
 import { ProviderConfiguration } from './models';
 import { labelLoginWith, labelOr } from './translatedLabels';
@@ -11,20 +11,20 @@ interface Props {
   providersConfiguration: Array<ProviderConfiguration> | null;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   otherProvidersContainer: {
     display: 'flex',
     flexDirection: 'column',
     marginTop: theme.spacing(1),
     rowGap: theme.spacing(1),
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 const ExternalProviders = ({
-  providersConfiguration,
+  providersConfiguration
 }: Props): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   if (or(isNil(providersConfiguration), isEmpty(providersConfiguration))) {
@@ -36,14 +36,23 @@ const ExternalProviders = ({
       <Divider>
         <Typography>{t(labelOr)}</Typography>
       </Divider>
-      {providersConfiguration?.map(({ name, authenticationUri }) => (
-        <Button
-          color="primary"
-          href={authenticationUri}
-          key={name}
-          variant="contained"
-        >{`${t(labelLoginWith)} ${name}`}</Button>
-      ))}
+      {providersConfiguration?.map(({ name, authenticationUri }) => {
+        const dataTestId = `${labelLoginWith} ${name}`;
+        const data = `${t(labelLoginWith)} ${name}`;
+
+        return (
+          <Button
+            aria-label={data}
+            color="primary"
+            data-testid={dataTestId}
+            href={authenticationUri}
+            key={name}
+            variant="contained"
+          >
+            {data}
+          </Button>
+        );
+      })}
     </div>
   );
 };

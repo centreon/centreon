@@ -1,0 +1,85 @@
+name: centreon-ui-beta
+
+on:
+  pull_request:
+    paths:
+      - "centreon/packages/ui/**"
+      - '.github/workflows/ui-beta.yml'
+  workflow_dispatch:
+
+env:
+  directory: "centreon/packages/ui"
+  package: "ui"
+  base_branch: develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.directory }}
+          module_name: centreon-ui
+          dependencies_lock_file: centreon/pnpm-lock.yaml
+
+  cypress-component-testing:
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon/packages/ui
+      specs_path: src/**
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+
+  unit-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install Centreon dependencies
+        run: pnpm install
+        working-directory: centreon
+
+      - name: Unit test
+        run: pnpm t
+        working-directory: ${{ env.directory }}
+
+  publish-snapshots:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - if: ${{ !github.event.pull_request.draft }}
+        uses: ./.github/actions/chromatic
+        with:
+          frontend_directory: ${{ env.directory }}
+          dependencies_lock_file: centreon/pnpm-lock.yaml
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          project_token: ${{ secrets.CHROMATIC_TOKEN }}
+
+  publish-new-npm-beta-version:
+    runs-on: ubuntu-22.04
+    needs: [lint, unit-test, cypress-component-testing, publish-snapshots]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: ./.github/actions/npm-publish-package-beta
+        with:
+          directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          release_branch: ${{ env.base_branch }}
+          package: ${{ env.package }}

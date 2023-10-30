@@ -281,20 +281,32 @@ class CentreonExternalCommand
         if (!isset($host)) {
             return 0;
         }
-
+        $db = CentreonDBInstance::getMonInstance();
         /*
          * Check if $host is an id or a name
          */
-        if (preg_match("/^[0-9]*$/", $host)) {
-            $query = "SELECT instance_id FROM hosts " .
-                "WHERE hosts.host_id = '" . CentreonDB::escape($host) . "' AND hosts.enabled = '1'";
-            $DBRESULT = CentreonDBInstance::getMonInstance()->query($query);
+        if (preg_match("/^\d+$/", $host)) {
+            $statement = $db->prepare(<<<SQL
+                SELECT instance_id
+                FROM hosts
+                WHERE hosts.host_id = :host_id
+                  AND hosts.enabled = '1'
+                SQL
+            );
+            $statement->bindValue(':host_id', (int) $host, PDO::PARAM_INT);
+            $statement->execute();
         } else {
-            $query = "SELECT instance_id FROM hosts " .
-                "WHERE hosts.name = '" . CentreonDB::escape($host) . "' AND hosts.enabled = '1' LIMIT 1";
-            $DBRESULT = CentreonDBInstance::getMonInstance()->query($query);
+            $statement = $db->prepare(<<<SQL
+                SELECT instance_id
+                FROM hosts
+                WHERE hosts.name = :host_name
+                  AND hosts.enabled = '1' LIMIT 1
+                SQL
+            );
+            $statement->bindValue(':host_name', $host);
+            $statement->execute();
         }
-        $row = $DBRESULT->fetchRow();
+        $row = $statement->fetchRow();
         if (isset($row['instance_id'])) {
             return $row['instance_id'];
         }
@@ -480,8 +492,9 @@ class CentreonExternalCommand
     {
         foreach ($hosts as $key => $value) {
             $res = preg_split("/\;/", $key);
-            $poller_id = $this->getPollerID($res[0]);
-            $this->setProcessCommand("DEL_" . $type . "_DOWNTIME;" . $res[1], $poller_id);
+            $pollerId = $this->getPollerID($res[0]);
+            $downtimeInternalId = (int) $res[1];
+            $this->setProcessCommand("DEL_" . $type . "_DOWNTIME;" . $downtimeInternalId, $pollerId);
         }
         $this->write();
     }

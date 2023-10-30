@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,35 +33,36 @@ class FindOpenIdConfigurationPresenter extends AbstractPresenter implements Find
 {
     /**
      * {@inheritDoc}
-     * @param FindOpenIdConfigurationResponse $response
+     *
+     * @param FindOpenIdConfigurationResponse $data
      */
-    public function present(mixed $response): void
+    public function present(mixed $data): void
     {
         $presenterResponse = [
-            'is_active' => $response->isActive,
-            'is_forced' => $response->isForced,
-            'base_url' => $response->baseUrl,
-            'authorization_endpoint' => $response->authorizationEndpoint,
-            'token_endpoint' => $response->tokenEndpoint,
-            'introspection_token_endpoint' => $response->introspectionTokenEndpoint,
-            'userinfo_endpoint' => $response->userInformationEndpoint,
-            'endsession_endpoint' => $response->endSessionEndpoint,
-            'connection_scopes' => $response->connectionScopes,
-            'login_claim' => $response->loginClaim,
-            'client_id' => $response->clientId,
-            'client_secret' => $response->clientSecret,
-            'authentication_type' => $response->authenticationType,
-            'verify_peer' => $response->verifyPeer,
-            'auto_import' => $response->isAutoImportEnabled,
-            'contact_template' => $response->contactTemplate,
-            'email_bind_attribute' => $response->emailBindAttribute,
-            'fullname_bind_attribute' => $response->userNameBindAttribute,
-            'contact_group' => $response->contactGroup,
-            'roles_mapping' => $response->aclConditions,
-            'authentication_conditions' => $response->authenticationConditions,
-            'groups_mapping' => $response->groupsMapping
+            'is_active' => $data->isActive,
+            'is_forced' => $data->isForced,
+            'base_url' => $data->baseUrl,
+            'authorization_endpoint' => $data->authorizationEndpoint,
+            'token_endpoint' => $data->tokenEndpoint,
+            'introspection_token_endpoint' => $data->introspectionTokenEndpoint,
+            'userinfo_endpoint' => $data->userInformationEndpoint,
+            'endsession_endpoint' => $data->endSessionEndpoint,
+            'connection_scopes' => $data->connectionScopes,
+            'login_claim' => $data->loginClaim,
+            'client_id' => $data->clientId,
+            'client_secret' => $data->clientSecret,
+            'authentication_type' => $data->authenticationType,
+            'verify_peer' => $data->verifyPeer,
+            'auto_import' => $data->isAutoImportEnabled,
+            'contact_template' => $data->contactTemplate,
+            'email_bind_attribute' => $data->emailBindAttribute,
+            'fullname_bind_attribute' => $data->userNameBindAttribute,
+            'roles_mapping' => $data->aclConditions,
+            'authentication_conditions' => $data->authenticationConditions,
+            'groups_mapping' => $data->groupsMapping,
+            'redirect_url' => $data->redirectUrl,
         ];
 
-        $this->presenterFormatter->present($presenterResponse);
+        parent::present($presenterResponse);
     }
 }

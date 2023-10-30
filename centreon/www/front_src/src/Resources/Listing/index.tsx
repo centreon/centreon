@@ -1,87 +1,122 @@
-import { equals, includes, not, isNil, isEmpty } from 'ramda';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, includes, isEmpty, isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
 
-import { useTheme, alpha } from '@mui/material';
+import { alpha, useTheme } from '@mui/material';
 
-import { MemoizedListing as Listing, useSnackbar } from '@centreon/ui';
-
-import { graphTabId } from '../Details/tabs';
-import { rowColorConditions } from '../colors';
-import Actions from '../Actions';
-import { Resource, SortOrder } from '../models';
-import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
 import {
-  openDetailsTabIdAtom,
-  selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom,
-} from '../Details/detailsAtoms';
+  MemoizedListing as Listing,
+  Method,
+  SeverityCode,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
+import { userAtom, featureFlagsDerivedAtom } from '@centreon/ui-context';
+
+import { userEndpoint } from '../../App/endpoint';
+import Actions from '../Actions';
+import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
+import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
-  resourcesToCheckAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom,
+  selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
+import {
+  openDetailsTabIdAtom,
+  panelWidthStorageAtom,
+  selectedResourceUuidAtom,
+  selectedResourcesDetailsAtom
+} from '../Details/detailsAtoms';
+import { graphTabId } from '../Details/tabs';
 import {
   getCriteriaValueDerivedAtom,
   searchAtom,
-  setCriteriaAndNewFilterDerivedAtom,
+  setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
+import { rowColorConditions } from '../colors';
+import { Resource, SortOrder, Visualization } from '../models';
+import {
+  labelForcedCheckCommandSent,
+  labelSelectAtLeastOneColumn,
+  labelStatus
+} from '../translatedLabels';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
-import useLoadResources from './useLoadResources';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost,
+  getColumns
+} from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
   listingAtom,
   pageAtom,
   selectedColumnIdsAtom,
-  sendingAtom,
+  sendingAtom
 } from './listingAtoms';
+import useLoadResources from './useLoadResources';
+import useViewerMode from './useViewerMode';
 
 export const okStatuses = ['OK', 'UP'];
 
 const ResourceListing = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { showWarningMessage } = useSnackbar();
+  const { isPending, updateUser, viewerMode } = useViewerMode();
+  const { showWarningMessage, showSuccessMessage } = useSnackbar();
 
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
-    selectedResourceUuidAtom,
+    selectedResourceUuidAtom
   );
   const [page, setPage] = useAtom(pageAtom);
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
-    selectedColumnIdsAtom,
+    selectedColumnIdsAtom
   );
   const [selectedResources, setSelectedResources] = useAtom(
-    selectedResourcesAtom,
+    selectedResourcesAtom
   );
   const [selectedResourceDetails, setSelectedResourceDetails] = useAtom(
-    selectedResourcesDetailsAtom,
+    selectedResourcesDetailsAtom
   );
+  const { user_interface_density, themeMode } = useAtomValue(userAtom);
   const listing = useAtomValue(listingAtom);
   const sending = useAtomValue(sendingAtom);
   const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const search = useAtomValue(searchAtom);
+  const panelWidth = useAtomValue(panelWidthStorageAtom);
+  const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
+  const visualization = useAtomValue(selectedVisualizationAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
-  const setOpenDetailsTabId = useUpdateAtom(openDetailsTabIdAtom);
-  const setLimit = useUpdateAtom(limitAtom);
-  const setResourcesToAcknowledge = useUpdateAtom(resourcesToAcknowledgeAtom);
-  const setResourcesToSetDowntime = useUpdateAtom(resourcesToSetDowntimeAtom);
-  const setResourcesToCheck = useUpdateAtom(resourcesToCheckAtom);
-  const setCriteriaAndNewFilter = useUpdateAtom(
-    setCriteriaAndNewFilterDerivedAtom,
+  const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
+  const setLimit = useSetAtom(limitAtom);
+  const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
+  const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
+  const setCriteriaAndNewFilter = useSetAtom(
+    setCriteriaAndNewFilterDerivedAtom
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
+
+  const { mutateAsync } = useMutationQuery({
+    getEndpoint: () => userEndpoint,
+    method: Method.PATCH
+  });
+  const { mutateAsync: checkResource } = useMutationQuery({
+    getEndpoint: () => forcedCheckInlineEndpoint,
+    method: Method.POST
+  });
+
+  const isPanelOpen = !isNil(selectedResourceDetails?.resourceId);
 
   const changeSort = ({ sortField, sortOrder }): void => {
     setCriteriaAndNewFilter({
       apply: true,
       name: 'sort',
-      value: [sortField, sortOrder],
+      value: [sortField, sortOrder]
     });
   };
 
@@ -97,7 +132,7 @@ const ResourceListing = (): JSX.Element => {
     setSelectedResourceUuid(uuid);
     setSelectedResourceDetails({
       resourceId: id,
-      resourcesDetailsEndpoint: links?.endpoints?.details,
+      resourcesDetailsEndpoint: links?.endpoints?.details
     });
   };
 
@@ -114,7 +149,15 @@ const ResourceListing = (): JSX.Element => {
         ? equals(id, parentResourceId)
         : equals(id, selectedResourceDetails?.resourceId);
     },
-    name: 'detailsOpen',
+    name: 'detailsOpen'
+  };
+
+  const onForcedCheck = (): void => {
+    checkResource({
+      is_forced: true
+    }).then(() => {
+      showSuccessMessage(t(labelForcedCheckCommandSent));
+    });
   };
 
   const columns = getColumns({
@@ -123,7 +166,7 @@ const ResourceListing = (): JSX.Element => {
         setResourcesToAcknowledge([resource]);
       },
       onCheck: (resource): void => {
-        setResourcesToCheck([resource]);
+        onForcedCheck(resource);
       },
       onDisplayGraph: (resource): void => {
         setOpenDetailsTabId(graphTabId);
@@ -132,21 +175,29 @@ const ResourceListing = (): JSX.Element => {
       },
       onDowntime: (resource): void => {
         setResourcesToSetDowntime([resource]);
-      },
+      }
     },
+    featureFlags,
     t,
+    visualization
   });
 
   const loading = sending;
 
   const [sortField, sortOrder] = getCriteriaValue('sort') as [
     string,
-    SortOrder,
+    SortOrder
   ];
 
   const getId = ({ uuid }: Resource): string => uuid;
 
   const resetColumns = (): void => {
+    if (equals(visualization, Visualization.Host)) {
+      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
+
+      return;
+    }
+
     setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
@@ -163,14 +214,27 @@ const ResourceListing = (): JSX.Element => {
   const predefinedRowsSelection = [
     {
       label: `${t(labelStatus).toLowerCase()}:OK`,
-      rowCondition: ({ status }): boolean => includes(status.name, okStatuses),
+      rowCondition: ({ status }): boolean => includes(status.name, okStatuses)
     },
     {
       label: `${t(labelStatus).toLowerCase()}:NOK`,
       rowCondition: ({ status }): boolean =>
-        not(includes(status.name, okStatuses)),
-    },
+        not(includes(status.name, okStatuses))
+    }
   ];
+
+  const changeViewModeTableResources = (): void => {
+    updateUser();
+    mutateAsync({
+      user_interface_density: viewerMode
+    });
+  };
+
+  const areColumnsSortable = equals(visualization, Visualization.All);
+
+  const visualizationActions = featureFlags?.resourceStatusTreeView ? (
+    <VisualizationActions />
+  ) : undefined;
 
   return (
     <Listing
@@ -178,13 +242,17 @@ const ResourceListing = (): JSX.Element => {
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       columnConfiguration={{
         selectedColumnIds,
-        sortable: true,
+        sortable: areColumnsSortable
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
+      getHighlightRowCondition={({ status }): boolean =>
+        equals(status?.severity_code, SeverityCode.High)
+      }
       getId={getId}
       headerMemoProps={[search]}
       limit={listing?.meta.limit}
+      listingVariant={user_interface_density}
       loading={loading}
       memoProps={[
         listing,
@@ -196,17 +264,34 @@ const ResourceListing = (): JSX.Element => {
         sending,
         enabledAutoRefresh,
         selectedResourceDetails,
+        themeMode,
+        columns
       ]}
+      moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
       rowColorConditions={[
         resourceDetailsOpenCondition,
-        ...rowColorConditions(theme),
+        ...rowColorConditions(theme)
       ]}
       rows={listing?.result}
       selectedRows={selectedResources}
       sortField={sortField}
       sortOrder={sortOrder}
+      subItems={{
+        canCheckSubItems: true,
+        enable: true,
+        labelCollapse: 'Collapse',
+        labelExpand: 'Expand',
+        rowProperty: 'children'
+      }}
       totalRows={listing?.meta.total}
+      viewerModeConfiguration={{
+        disabled: isPending,
+        onClick: changeViewModeTableResources,
+        title: user_interface_density
+      }}
+      visualizationActions={visualizationActions}
+      widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}

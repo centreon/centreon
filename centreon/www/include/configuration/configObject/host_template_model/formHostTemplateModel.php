@@ -255,7 +255,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title', _("View a Host Template"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title', _("Massive Change"));
+    $form->addElement('header', 'title', _("Mass Change"));
 }
 
 ## Sort 1 - Host Template Configuration
@@ -300,9 +300,7 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
 $form->addElement(
     'static',
     'tplTextParallel',
-    _("A host can have multiple templates, their orders have a significant importance")
-    . "<br><a href='#' onmouseover=\"Tip('<img src=\'img/misc/multiple-templates2.png\'>', OPACITY, 70)"
-    . "\" onmouseout=\"UnTip()\">" . _("Here is a self-explanatory image.") . "</a>"
+    _("A host or host template can have several templates. See help for more details.")
 );
 $form->addElement('static', 'tplText', _("Using a Template allows you to have multi-level Template connection"));
 
@@ -687,12 +685,6 @@ $form->addGroup($hostStalOpt, 'host_stalOpts', _("Stalking Options"), '&nbsp;&nb
 ## Further informations
 #
 $form->addElement('header', 'furtherInfos', _("Additional Information"));
-$hostActivation[] = $form->createElement('radio', 'host_activate', null, _("Enabled"), '1');
-$hostActivation[] = $form->createElement('radio', 'host_activate', null, _("Disabled"), '0');
-$form->addGroup($hostActivation, 'host_activate', _("Enable/disable resource"), '&nbsp;');
-if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->setDefaults(array('host_activate' => '1'));
-}
 
 $form->addElement('textarea', 'host_comment', _("Comments"), $attrsTextarea);
 
@@ -708,7 +700,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title2', _("View relations"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'links', _("Relations"));
@@ -738,7 +730,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title3', _("View Data Processing"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'treatment', _("Data Processing"));
@@ -848,7 +840,7 @@ if ($o === HOST_TEMPLATE_ADD) {
 } elseif ($o === HOST_TEMPLATE_WATCH) {
     $form->addElement('header', 'title5', _("View macros"));
 } elseif ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title5', _("Massive Change"));
+    $form->addElement('header', 'title5', _("Mass Change"));
 }
 
 $form->addElement('header', 'macro', _("Macros"));
@@ -935,7 +927,7 @@ if ($o === HOST_TEMPLATE_WATCH) {
     $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 }
 
-$tpl->assign('msg', array("nagios" => $centreon->user->get_version(), "tpl" => 1, "min" => $min));
+$tpl->assign('msg', array("nagios" => $centreon->user->get_version(), "isHostTemplate" => 1, "min" => $min));
 $tpl->assign('min', $min);
 $tpl->assign('p', $p);
 $tpl->assign("sort1", _("Host Configuration"));
@@ -1034,7 +1026,7 @@ if ($valid) {
     $tpl->assign("add_mtp_label", _("Add a template"));
     $tpl->assign('select_template', _('Select a template'));
     $tpl->assign("seconds", _("seconds"));
-    $tpl->assign("tpl", 1);
+    $tpl->assign("isHostTemplate", 1);
     $tpl->display("formHost.ihtml");
 
     ?>

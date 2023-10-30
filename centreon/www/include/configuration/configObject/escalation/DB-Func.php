@@ -59,7 +59,7 @@ function testExistence(?string $name = null): bool
 
     $escalation = $stmt->fetch();
 
-    return ! ($stmt->rowCount() >= 1 && $escalation["esc_id"] !== $id);
+    return ! ($stmt->rowCount() >= 1 && $escalation["esc_id"] !== (int) $id);
 }
 
 /**

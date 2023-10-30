@@ -2,21 +2,21 @@ import { FormikHelpers, FormikValues } from 'formik';
 import { equals, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 
 import { putData, useRequest, useSnackbar } from '@centreon/ui';
 
 import useUser from '../Main/useUser';
-import useLogin from '../Login/useLogin';
 import { labelLoginSucceeded } from '../Login/translatedLabels';
+import usePostLogin from '../Login/usePostLogin';
 
 import { ResetPasswordValues } from './models';
 import {
   labelNewPasswordsMustMatch,
   labelPasswordRenewed,
   labelRequired,
-  labelTheNewPasswordIstheSameAsTheOldPassword,
+  labelTheNewPasswordIstheSameAsTheOldPassword
 } from './translatedLabels';
 import { getResetPasswordEndpoint } from './api/endpoint';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
@@ -24,7 +24,7 @@ import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
 interface UseResetPasswordState {
   submitResetPassword: (
     values: ResetPasswordValues,
-    { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>,
+    { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
   ) => void;
   validationSchema: Yup.SchemaOf<ResetPasswordValues>;
 }
@@ -37,38 +37,42 @@ function differentPasswords(this, newPassword?: string): boolean {
   return not(equals(newPassword, this.parent.oldPassword));
 }
 
+export const router = {
+  useNavigate
+};
+
 const useResetPassword = (): UseResetPasswordState => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
 
   const { showSuccessMessage } = useSnackbar();
   const { sendRequest } = useRequest({
-    request: putData,
+    request: putData
   });
 
   const passwordResetInformations = useAtomValue(passwordResetInformationsAtom);
 
   const loadUser = useUser();
-  const { sendLogin } = useLogin();
+  const { sendLogin } = usePostLogin();
 
   const submitResetPassword = (
     values: ResetPasswordValues,
-    { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>,
+    { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
   ): void => {
     sendRequest({
       data: {
         new_password: values.newPassword,
-        old_password: values.oldPassword,
+        old_password: values.oldPassword
       },
       endpoint: getResetPasswordEndpoint(
-        passwordResetInformations?.alias as string,
-      ),
+        passwordResetInformations?.alias as string
+      )
     })
       .then(() => {
         showSuccessMessage(t(labelPasswordRenewed));
         sendLogin({
           login: passwordResetInformations?.alias as string,
-          password: values.newPassword,
+          password: values.newPassword
         }).then(({ redirectUri }) => {
           showSuccessMessage(t(labelLoginSucceeded));
           loadUser()?.then(() => navigate(redirectUri));
@@ -84,18 +88,18 @@ const useResetPassword = (): UseResetPasswordState => {
       .test(
         'match',
         t(labelTheNewPasswordIstheSameAsTheOldPassword),
-        differentPasswords,
+        differentPasswords
       )
       .required(t(labelRequired)),
     newPasswordConfirmation: Yup.string()
       .test('match', t(labelNewPasswordsMustMatch), matchNewPasswords)
       .required(t(labelRequired)),
-    oldPassword: Yup.string().required(t(labelRequired)),
+    oldPassword: Yup.string().required(t(labelRequired))
   });
 
   return {
     submitResetPassword,
-    validationSchema,
+    validationSchema
   };
 };
 

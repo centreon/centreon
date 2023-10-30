@@ -80,7 +80,8 @@ class FindUsersPresenterTest extends TestCase
             'name',
             'root@localhost',
             true,
-            'light'
+            'light',
+            'compact'
         );
 
         $this->requestParameters->expects($this->once())
@@ -88,7 +89,7 @@ class FindUsersPresenterTest extends TestCase
             ->willReturn($requestParameterValues);
 
         $this->presenterFormatter->expects($this->once())
-            ->method('present')
+            ->method('format')
             ->with(
                 [
                     'result' => [$user],
@@ -98,5 +99,6 @@ class FindUsersPresenterTest extends TestCase
 
         $response = new FindUsersResponse([$userModel]);
         $presenter->present($response);
+        $presenter->show();
     }
 }

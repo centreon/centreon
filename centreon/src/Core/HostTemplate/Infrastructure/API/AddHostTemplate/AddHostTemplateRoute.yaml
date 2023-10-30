@@ -1,0 +1,5 @@
+AddHostTemplate:
+  methods: POST
+  path: /configuration/hosts/templates
+  controller: 'Core\HostTemplate\Infrastructure\API\AddHostTemplate\AddHostTemplateController'
+  condition: "request.attributes.get('version') >= 23.10"

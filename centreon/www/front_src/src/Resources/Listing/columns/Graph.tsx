@@ -1,40 +1,41 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 
-import { path, isNil, not } from 'ramda';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isNil, not, path } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import IconGraph from '@mui/icons-material/BarChart';
+import { Paper } from '@mui/material';
 
-import {
-  IconButton,
-  ComponentColumnProps,
-  LoadingSkeleton,
-} from '@centreon/ui';
+import type { ComponentColumnProps } from '@centreon/ui';
+import { IconButton, LoadingSkeleton } from '@centreon/ui';
 
-import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
+import FederatedComponent from '../../../components/FederatedComponents';
 import { ResourceDetails } from '../../Details/models';
-import { Resource } from '../../models';
+import { lastDayPeriod } from '../../Details/tabs/Graph/models';
 import {
   changeMousePositionAndTimeValueDerivedAtom,
-  isListingGraphOpenAtom,
+  isListingGraphOpenAtom
 } from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
-import { lastDayPeriod } from '../../Details/tabs/Graph/models';
+import { Resource } from '../../models';
+import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
 
 const PerformanceGraph = lazy(() => import('../../Graph/Performance'));
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
+  button: {
+    padding: 0
+  },
   graph: {
     display: 'block',
     overflow: 'auto',
     padding: theme.spacing(1),
-    width: 575,
-  },
+    width: 575
+  }
 }));
 
 interface GraphProps {
@@ -46,16 +47,16 @@ interface GraphProps {
 const Graph = ({
   row,
   endpoint,
-  displayCompleteGraph,
+  displayCompleteGraph
 }: GraphProps): JSX.Element => {
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
-  const setIsListingGraphOpen = useUpdateAtom(isListingGraphOpenAtom);
-  const changeMousePositionAndTimeValue = useUpdateAtom(
-    changeMousePositionAndTimeValueDerivedAtom,
+  const setIsListingGraphOpen = useSetAtom(isListingGraphOpenAtom);
+  const changeMousePositionAndTimeValue = useSetAtom(
+    changeMousePositionAndTimeValueDerivedAtom
   );
 
   const graphQueryParameters = getGraphQueryParameters({
-    timePeriod: lastDayPeriod,
+    timePeriod: lastDayPeriod
   });
 
   useEffect(() => {
@@ -75,6 +76,17 @@ const Graph = ({
         displayTitle={false}
         endpoint={`${endpoint}${graphQueryParameters}`}
         graphHeight={150}
+        interactWithGraph={false}
+        renderAdditionalLines={({
+          additionalLinesProps,
+          resource
+        }): JSX.Element => (
+          <FederatedComponent
+            displayAdditionalLines
+            additionalLinesData={{ additionalLinesProps, resource }}
+            path="/anomaly-detection"
+          />
+        )}
         resource={row}
         timeline={[]}
       />
@@ -83,12 +95,13 @@ const Graph = ({
 };
 
 const renderChip =
-  ({ onClick, label }) =>
+  ({ onClick, label, className }) =>
   (): JSX.Element =>
     (
       <IconButton
         ariaLabel={label}
-        size="large"
+        className={className}
+        size="small"
         title={label}
         onClick={onClick}
       >
@@ -97,15 +110,15 @@ const renderChip =
     );
 
 const GraphColumn = ({
-  onClick,
+  onClick
 }: {
   onClick: (row) => void;
 }): ((props: ComponentColumnProps) => JSX.Element | null) => {
   const GraphHoverChip = ({
     row,
-    isHovered,
+    isHovered
   }: ComponentColumnProps): JSX.Element | null => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     const { type } = row;
 
@@ -113,7 +126,7 @@ const GraphColumn = ({
 
     const endpoint = path<string | undefined>(
       ['links', 'endpoints', 'performance_graph'],
-      row,
+      row
     );
 
     if (isNil(endpoint) && !isHost) {
@@ -125,7 +138,11 @@ const GraphColumn = ({
     return (
       <IconColumn>
         <HoverChip
-          Chip={renderChip({ label, onClick: () => onClick(row) })}
+          Chip={renderChip({
+            className: classes.button,
+            label,
+            onClick: () => onClick(row)
+          })}
           isHovered={isHovered}
           label={label}
         >

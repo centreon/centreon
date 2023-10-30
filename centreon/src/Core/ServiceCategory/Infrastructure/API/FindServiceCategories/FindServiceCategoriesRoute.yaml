@@ -1,0 +1,5 @@
+FindServiceCategories:
+  methods: GET
+  path: /configuration/services/categories
+  controller: 'Core\ServiceCategory\Infrastructure\API\FindServiceCategories\FindServiceCategoriesController'
+  condition: "request.attributes.get('version') >= 23.04"

@@ -52,7 +52,7 @@ function testServiceGroupExistence($name = null)
     $statement->bindValue(':sg_name', $sgName, \PDO::PARAM_STR);
     $statement->execute();
     $sg = $statement->fetch();
-    if ($statement->rowCount() >= 1 && $sg["sg_id"] !== $id) {
+    if ($statement->rowCount() >= 1 && $sg["sg_id"] !== (int) $id) {
         return false;
     } else {
         return true;

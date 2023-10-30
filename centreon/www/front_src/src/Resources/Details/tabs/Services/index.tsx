@@ -1,27 +1,29 @@
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
-import { useRequest, ListingModel } from '@centreon/ui';
+import { useRequest } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 
 import { listResources } from '../../../Listing/api';
 import { Resource } from '../../../models';
-import InfiniteScroll from '../../InfiniteScroll';
 import { detailsAtom, selectResourceDerivedAtom } from '../../detailsAtoms';
+import InfiniteScroll from '../../InfiniteScroll';
 
 import ServiceList from './List';
 import LoadingSkeleton from './LoadingSkeleton';
 
 const ServicesTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest({
-    request: listResources,
+    request: listResources
   });
 
   const details = useAtomValue(detailsAtom);
-  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
+
+  const selectResource = useSetAtom(selectResourceDerivedAtom);
 
   const limit = 30;
 
   const sendListingRequest = ({
-    atPage,
+    atPage
   }: {
     atPage?: number;
   }): Promise<ListingModel<Resource>> => {
@@ -34,11 +36,11 @@ const ServicesTab = (): JSX.Element => {
           {
             field: 'h.name',
             values: {
-              $eq: details?.name,
-            },
-          },
-        ],
-      },
+              $eq: details?.name
+            }
+          }
+        ]
+      }
     });
   };
 

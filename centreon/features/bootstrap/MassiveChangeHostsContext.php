@@ -39,7 +39,7 @@ class MassiveChangeHostsContext extends CentreonContext
         'alias' => 'hostCategoryAlias1',
         'severity' => 1,
         'severity_level' => 2,
-        'severity_icon' => '       centreon (png)'
+        'severity_icon' => 'centreon (png)'
     );
 
     protected $hostCategory2 = array(
@@ -112,14 +112,13 @@ class MassiveChangeHostsContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -181,14 +180,13 @@ class MassiveChangeHostsContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -250,14 +248,13 @@ class MassiveChangeHostsContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -287,7 +284,7 @@ class MassiveChangeHostsContext extends CentreonContext
     }
 
     /**
-     * @When I have applied Massive Change operation to several hosts
+     * @When I have applied Mass Change operation to several hosts
      */
     public function iHaveAppliedMassiveChangeOperationToSeveralHosts()
     {
@@ -298,7 +295,7 @@ class MassiveChangeHostsContext extends CentreonContext
         $object = $this->currentPage->getEntry($this->host2['name']);
         $checkbox = $this->assertFind('css', 'input[type="checkbox"][name="select[' . $object['id'] . ']"]');
         $this->currentPage->checkCheckbox($checkbox);
-        $this->selectInList('select[name="o1"]', 'Massive Change');
+        $this->selectInList('select[name="o1"]', 'Mass Change');
 
 
 

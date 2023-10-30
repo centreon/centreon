@@ -1,18 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { equals, not } from 'ramda';
 
-import { postData, useRequest } from '@centreon/ui';
+import { centreonBaseURL, postData, useRequest } from '@centreon/ui';
 
 import WizardFormSetupStatus from '../../components/WizardFormSetupStatus';
 import routeMap from '../../reactRoutes/routeMap';
 import { remoteServerAtom, RemoteServerData } from '../pollerAtoms';
 import {
   labelExportGenerationTimeout,
-  labelFinalStep,
+  labelFinalStep
 } from '../translatedLabels';
 import { exportTaskEndpoint } from '../api/endpoints';
 
@@ -26,16 +25,14 @@ const RemoteServerWizardStepThree = (): JSX.Element => {
     status: string | null;
     success: boolean;
   }>({
-    request: postData,
+    request: postData
   });
-
-  const navigate = useNavigate();
 
   const generationTimeoutRef = useRef<NodeJS.Timeout>();
 
   const remainingGenerationTimeoutRef = useRef<number>(30);
   const pollerData = useAtomValue<RemoteServerData | null>(
-    remoteServerAtom,
+    remoteServerAtom
   ) as RemoteServerData;
 
   const refreshGeneration = (): void => {
@@ -43,7 +40,7 @@ const RemoteServerWizardStepThree = (): JSX.Element => {
 
     getExportTask({
       data: { task_id: taskId },
-      endpoint: exportTaskEndpoint,
+      endpoint: exportTaskEndpoint
     })
       .then((data) => {
         if (not(data.success)) {
@@ -55,7 +52,7 @@ const RemoteServerWizardStepThree = (): JSX.Element => {
         if (equals(data.status, 'completed')) {
           setGenerateStatus(true);
           setTimeout(() => {
-            navigate(routeMap.pollerList);
+            window.location.href = `${centreonBaseURL}${routeMap.pollerList}`;
           }, 2000);
 
           return;

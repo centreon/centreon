@@ -1,0 +1,46 @@
+{
+  "title": "Single metric",
+  "description": "Displays the value of a single metric as a text, a gauge or a bar chart.",
+  "options": {
+    "singleMetricGraphType": {
+      "type": "single-metric-graph-type",
+      "defaultValue": "text"
+    },
+    "threshold": {
+      "type": "threshold",
+      "defaultValue": {
+        "enabled": true,
+        "customCritical": null,
+        "criticalType": "default",
+        "customWarning": null,
+        "warningType": "default",
+        "baseColor": null
+      },
+      "label": "threshold"
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    },
+    "valueFormat": {
+      "type": "value-format",
+      "defaultValue": "human",
+      "label": "Value format"
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": []
+    },
+    "metrics": {
+      "type": "metrics",
+      "defaultValue": []
+    }
+  },
+  "singleMetricSelection": true,
+  "singleResourceTypeSelection": true,
+  "customBaseColor": true,
+  "moduleName": "centreon-widget-singlemetric"
+}

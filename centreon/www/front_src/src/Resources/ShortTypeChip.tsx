@@ -1,14 +1,18 @@
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
+
+import { Typography } from '@mui/material';
 
 import { SeverityCode, StatusChip } from '@centreon/ui';
 
-const useStyles = makeStyles((theme) => ({
-  extraSmallChipContainer: {
-    height: 19,
+const useStyles = makeStyles()((theme) => ({
+  containerLabel: {
+    padding: theme.spacing(0.5)
   },
-  smallChipLabel: {
-    padding: theme.spacing(0.5),
-  },
+  label: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1
+  }
 }));
 
 interface Props {
@@ -16,15 +20,14 @@ interface Props {
 }
 
 const ShortTypeChip = ({ label }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <StatusChip
       classes={{
-        label: classes.smallChipLabel,
-        root: classes.extraSmallChipContainer,
+        label: classes.containerLabel
       }}
-      label={label}
+      label={<Typography className={classes.label}>{label}</Typography>}
       severityCode={SeverityCode.None}
     />
   );

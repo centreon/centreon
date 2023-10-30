@@ -1,0 +1,346 @@
+on:
+  workflow_call:
+    inputs:
+      name:
+        required: true
+        type: string
+      module_name:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+      features_path:
+        required: true
+        type: string
+      major_version:
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
+      package_cache_key:
+        required: false
+        type: string
+      package_directory:
+        required: false
+        type: string
+      dependencies_lock_file:
+        required: true
+        type: string
+        description: "The frontend dependencies lock file path"
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+      client_id:
+        required: true
+      client_secret:
+        required: true
+      jira_user:
+        required: true
+      jira_token_test:
+        required: true
+
+jobs:
+  cypress-e2e-test-list:
+    runs-on: ubuntu-22.04
+    outputs:
+      features: ${{ steps.list-features.outputs.features }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: List features
+        id: list-features
+        run: |
+          cd ${{ inputs.module_name }}
+          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+  cypress-e2e-test-run:
+    needs: [cypress-e2e-test-list]
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
+    name: ${{ matrix.feature }}
+
+    env:
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Restore packages
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
+        uses: actions/cache@v3
+        with:
+          path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
+          key: ${{ inputs.package_cache_key }}
+          fail-on-cache-miss: true
+
+      - name: Move packages
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
+        run: |
+          mkdir -p ${{ inputs.package_directory }}
+          mv ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
+        shell: bash
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
+
+      - name: Restore standard slim image from cache
+        id: cache-docker-slim
+        uses: actions/cache/restore@v3
+        continue-on-error: true
+        timeout-minutes: 6
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Load standard slim image
+        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        run: |
+          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        shell: bash
+
+      - name: Cypress e2e testing
+        uses: ./.github/actions/cypress-e2e-testing
+        with:
+          name: ${{ inputs.name }}
+          web_image_os: ${{ inputs.os }}
+          web_image_version: ${{ github.head_ref || github.ref_name }}
+          openid_image_version: ${{ inputs.major_version }}
+          module: centreon
+          feature_file_path: ${{ matrix.feature }}
+          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-results
+          path: ${{ inputs.module_name }}/tests/e2e/results/
+          retention-days: 1
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
+          retention-days: 1
+
+      - name: Upload xray reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
+          retention-days: 1
+
+  import-reports-to-xray:
+    needs: [cypress-e2e-test-run]
+    if: ${{ inputs.stability != 'canary' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.name }}-json-xray-reports
+
+      # dev-24.04.x => MON-23428
+      # release-24.04-next,hotfix-24.04-next => MON-23429
+      # dev-23.10.x => MON-22631
+      # release-23.10-next,hotfix-23.10-next => MON-23275
+      # dev-23.04.x => MON-23278
+      # release-23.04-next,hotfix-23.04-next => MON-23280
+      # dev-22.10.x => MON-23281
+      # release-22.10-next,hotfix-22.10-next => MON-23282
+      # dev-22.04.x => MON-23283
+      # release-22.04-next,hotfix-22.04-next => MON-23284
+      # dev-21.10.x => MON-23285
+      # release-21.10-next,hotfix-21.10-next => MON-23287
+
+      - name: Determine testPlanKey
+        id: determine-testplan-key
+        run: |
+          stability="${{ inputs.stability }}"
+          major_version="${{ inputs.major_version }}"
+
+          echo "stability of this branch is $stability"
+          echo "major version of this branch is $major_version"
+
+          if [[ $stability == "unstable" ]]; then
+            if [[ $major_version == "24.04" ]]; then
+              testPlanKey="MON-23428"
+            elif [[ $major_version == "23.10" ]]; then
+              testPlanKey="MON-22631"
+            elif [[ $major_version == "23.04" ]]; then
+              testPlanKey="MON-23278"
+            elif [[ $major_version == "22.10" ]]; then
+              testPlanKey="MON-23281"
+            elif [[ $major_version == "22.04" ]]; then
+              testPlanKey="MON-23283"
+            elif [[ $major_version == "21.10" ]]; then
+              testPlanKey="MON-23285"
+            else
+              testPlanKey="MON-UNKNOWN"  # Handle other cases
+            fi
+          elif [[ $stability == "testing" ]]; then
+            if [[ $major_version == "24.04" ]]; then
+              testPlanKey="MON-23429"
+            elif [[ $major_version == "23.10" ]]; then
+              testPlanKey="MON-23275"
+            elif [[ $major_version == "23.04" ]]; then
+              testPlanKey="MON-23280"
+            elif [[ $major_version == "22.10" ]]; then
+              testPlanKey="MON-23282"
+            elif [[ $major_version == "22.04" ]]; then
+              testPlanKey="MON-23284"
+            elif [[ $major_version == "21.10" ]]; then
+              testPlanKey="MON-23287"
+            else
+              testPlanKey="MON-UNKNOWN"  # Handle other cases
+            fi
+          else
+            testPlanKey="MON-UNKNOWN"  # Handle other cases
+          fi
+          echo "the testPlanKey is $testPlanKey"
+          echo "testPlanKey=$testPlanKey" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Import results to xray
+        id: import-reports
+        uses: mikepenz/xray-action@v3.0.2
+        with:
+          username: ${{ secrets.CLIENT_ID }}
+          password: ${{ secrets.CLIENT_SECRET }}
+          testFormat: "cucumber"
+          testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
+          projectKey: "MON"
+          testPlanKey: "${{ steps.determine-testplan-key.outputs.testPlanKey }}"
+          combineInSingleTestExec: true
+          testExecKey:
+        timeout-minutes: 10
+
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Get TestExecution ID
+        id: get-testExecution-id
+        run: |
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
+
+          testExecution_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
+          echo "this is the testExecution ID : $testExecution_id"
+          echo "testExecution_id=$testExecution_id" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Get TestPlan ID
+        id: get-testPlan-id
+        run: |
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.determine-testplan-key.outputs.testPlanKey }}"
+
+          testPlan_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
+          echo "this is the testPlan ID : $testPlan_id"
+          echo "testPlan_id=$testPlan_id" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Update the component, priority and the summary of the TestExecution Issue
+        run: |
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
+
+          jira_payload='
+          {
+            "fields": {
+              "summary": "${{ github.run_id}} E2E Tests",
+              "components": [{"name": "centreon-web"}],
+              "priority":{"name":"Low"}
+            }
+          }'
+
+          curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" --data "${jira_payload}" "${jira_url}"
+
+      - name: Update the status of the TestExecution Issue
+        run: |
+          curl -D- -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}/transitions?expand=transitions.fields
+
+      - name: Update the Test Environments of the TestExecution Issue
+        run: |
+          xray_graphql_mutation='{
+            "query": "mutation addTestEnvironmentsToTestExecution($issueId: String!, $testEnvironments: [String]!) { addTestEnvironmentsToTestExecution(issueId: $issueId, testEnvironments: $testEnvironments) { associatedTestEnvironments createdTestEnvironments warning } }",
+            "variables": {
+              "issueId": "${{ steps.get-testExecution-id.outputs.testExecution_id }}", 
+              "testEnvironments": ["ALMA9","MARIADB_10_5","CHROME"]
+            }
+          }'
+          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
+
+      - name: Add the TestExecution Issue to the TestPlan
+        run: |
+          xray_graphql_mutation='{
+            "query": "mutation AddTestExecution($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
+            "variables": {
+              "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}", 
+              "testExecIssueIds": ["'${{ steps.get-testExecution-id.outputs.testExecution_id }}'"]
+            }
+          }'
+          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
+
+  cypress-e2e-test-report:
+    needs: [cypress-e2e-test-run]
+    if: failure()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          path: ${{ inputs.name }}-json-reports
+
+      - name: Merge reports
+        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        shell: bash
+
+      - name: Publish report
+        uses: ./.github/actions/publish-report
+        with:
+          check_name: ${{ inputs.name }}-report
+          path: mochawesome.json
+          format: cypress
+          urlFilePrefix: centreon

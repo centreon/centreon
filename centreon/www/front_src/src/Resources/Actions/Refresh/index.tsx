@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Grid } from '@mui/material';
 import IconRefresh from '@mui/icons-material/Refresh';
@@ -12,11 +11,11 @@ import { IconButton } from '@centreon/ui';
 import {
   labelRefresh,
   labelDisableAutorefresh,
-  labelEnableAutorefresh,
+  labelEnableAutorefresh
 } from '../../translatedLabels';
 import {
   enabledAutorefreshAtom,
-  sendingAtom,
+  sendingAtom
 } from '../../Listing/listingAtoms';
 
 interface AutorefreshProps {
@@ -26,7 +25,7 @@ interface AutorefreshProps {
 
 const AutorefreshButton = ({
   enabledAutorefresh,
-  toggleAutorefresh,
+  toggleAutorefresh
 }: AutorefreshProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -36,9 +35,10 @@ const AutorefreshButton = ({
 
   return (
     <IconButton
-      ariaLabel={t(label)}
+      ariaLabel={t(label) as string}
+      data-testid="Disable autorefresh"
       size="small"
-      title={t(label)}
+      title={t(label) as string}
       onClick={toggleAutorefresh}
     >
       {enabledAutorefresh ? <IconPause /> : <IconPlay />}
@@ -54,7 +54,7 @@ const RefreshActions = ({ onRefresh }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const [enabledAutorefresh, setEnabledAutorefresh] = useAtom(
-    enabledAutorefreshAtom,
+    enabledAutorefreshAtom
   );
   const sending = useAtomValue(sendingAtom);
 
@@ -66,11 +66,11 @@ const RefreshActions = ({ onRefresh }: Props): JSX.Element => {
     <Grid container spacing={1}>
       <Grid item>
         <IconButton
-          ariaLabel={t(labelRefresh)}
-          data-testid={labelRefresh}
+          ariaLabel={t(labelRefresh) as string}
+          data-testid="Refresh"
           disabled={sending}
           size="small"
-          title={t(labelRefresh)}
+          title={t(labelRefresh) as string}
           onClick={onRefresh}
         >
           <IconRefresh />

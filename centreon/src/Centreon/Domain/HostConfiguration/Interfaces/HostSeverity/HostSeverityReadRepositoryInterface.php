@@ -35,23 +35,6 @@ use Centreon\Domain\Repository\RepositoryException;
 interface HostSeverityReadRepositoryInterface
 {
     /**
-     * Find all host severities.
-     *
-     * @return HostSeverity[]
-     * @throws \Throwable
-     */
-    public function findAll(): array;
-
-    /**
-     * Find all host severities by contact.
-     *
-     * @param ContactInterface $contact Contact related to host severities
-     * @return Hostseverity[]
-     * @throws \Throwable
-     */
-    public function findAllByContact(ContactInterface $contact): array;
-
-    /**
      * Find a host severity by id.
      *
      * @param int $hostSeverityId Id of the host severity to be found

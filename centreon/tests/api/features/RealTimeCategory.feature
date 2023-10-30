@@ -7,7 +7,7 @@ Feature:
     Given a running instance of Centreon Web API
     And the endpoints are described in Centreon Web API documentation
 
-    Scenario: Host categories listing
+  Scenario: Host categories listing
     Given I am logged in
     And the following CLAPI import data:
     """

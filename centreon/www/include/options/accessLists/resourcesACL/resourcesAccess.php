@@ -136,9 +136,6 @@ switch ($o) {
         }
         require_once(__DIR__ . '/listsResourcesAccess.php');
         break; #Delete n LCAs
-    case "t":
-        require_once(__DIR__ . '/showUsersAccess.php');
-        break;
     default:
         require_once(__DIR__ . '/listsResourcesAccess.php');
         break;

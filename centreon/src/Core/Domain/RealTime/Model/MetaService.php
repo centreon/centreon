@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,120 +18,78 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Domain\RealTime\Model;
 
-use Core\Domain\RealTime\Model\ServiceStatus;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 class MetaService
 {
     public const MAX_NAME_LENGTH = 255;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $isInDowntime = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $isAcknowledged = false;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isNotificationEnabled = false;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $notificationNumber;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $commandLine;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $performanceData;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $output;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastStatusChange;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastNotification;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     private $latency;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     private $executionTime;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     private $statusChangePercentage;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $nextCheck;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastCheck;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $activeChecks = true;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $passiveChecks = false;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastTimeOk;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $maxCheckAttempts;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $checkAttempts;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $isFlapping = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $hasGraphData = false;
 
     /**
@@ -140,6 +98,8 @@ class MetaService
      * @param int $serviceId
      * @param string $name
      * @param ServiceStatus $status
+     * @param string $monitoringServerName
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
@@ -179,7 +139,7 @@ class MetaService
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isFlapping(): bool
     {
@@ -187,17 +147,19 @@ class MetaService
     }
 
     /**
-     * @param boolean $isFlapping
+     * @param bool $isFlapping
+     *
      * @return self
      */
     public function setIsFlapping(bool $isFlapping): self
     {
         $this->isFlapping = $isFlapping;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isAcknowledged(): bool
     {
@@ -205,27 +167,31 @@ class MetaService
     }
 
     /**
-     * @param boolean $isAcknowledged
+     * @param bool $isAcknowledged
+     *
      * @return self
      */
     public function setIsAcknowledged(bool $isAcknowledged): self
     {
         $this->isAcknowledged = $isAcknowledged;
+
         return $this;
     }
 
     /**
-     * @param boolean $isInDowntime
+     * @param bool $isInDowntime
+     *
      * @return self
      */
     public function setIsInDowntime(bool $isInDowntime): self
     {
         $this->isInDowntime = $isInDowntime;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isInDowntime(): bool
     {
@@ -242,21 +208,25 @@ class MetaService
 
     /**
      * @param string|null $output
+     *
      * @return self
      */
     public function setOutput(?string $output): self
     {
         $this->output = $output;
+
         return $this;
     }
 
     /**
      * @param string|null $performanceData
+     *
      * @return self
      */
     public function setPerformanceData(?string $performanceData): self
     {
         $this->performanceData = $performanceData;
+
         return $this;
     }
 
@@ -278,11 +248,13 @@ class MetaService
 
     /**
      * @param string|null $commandLine
+     *
      * @return self
      */
     public function setCommandLine(?string $commandLine): self
     {
         $this->commandLine = $commandLine;
+
         return $this;
     }
 
@@ -296,6 +268,7 @@ class MetaService
 
     /**
      * @param bool $isNotificationEnabled
+     *
      * @return self
      */
     public function setNotificationEnabled(bool $isNotificationEnabled): self
@@ -315,11 +288,13 @@ class MetaService
 
     /**
      * @param int|null $notificationNumber
+     *
      * @return self
      */
     public function setNotificationNumber(?int $notificationNumber): self
     {
         $this->notificationNumber = $notificationNumber;
+
         return $this;
     }
 
@@ -333,11 +308,13 @@ class MetaService
 
     /**
      * @param \DateTime|null $lastStatusChange
+     *
      * @return self
      */
     public function setLastStatusChange(?\DateTime $lastStatusChange): self
     {
         $this->lastStatusChange = $lastStatusChange;
+
         return $this;
     }
 
@@ -351,11 +328,13 @@ class MetaService
 
     /**
      * @param \DateTime|null $lastNotification
+     *
      * @return self
      */
     public function setLastNotification(?\DateTime $lastNotification): self
     {
         $this->lastNotification = $lastNotification;
+
         return $this;
     }
 
@@ -369,21 +348,25 @@ class MetaService
 
     /**
      * @param float|null $latency
+     *
      * @return self
      */
     public function setLatency(?float $latency): self
     {
         $this->latency = $latency;
+
         return $this;
     }
 
     /**
      * @param float|null $executionTime
+     *
      * @return self
      */
     public function setExecutionTime(?float $executionTime): self
     {
         $this->executionTime = $executionTime;
+
         return $this;
     }
 
@@ -397,11 +380,13 @@ class MetaService
 
     /**
      * @param float|null $statusChangePercentage
+     *
      * @return self
      */
     public function setStatusChangePercentage(?float $statusChangePercentage): self
     {
         $this->statusChangePercentage = $statusChangePercentage;
+
         return $this;
     }
 
@@ -423,11 +408,13 @@ class MetaService
 
     /**
      * @param \DateTime|null $nextCheck
+     *
      * @return self
      */
     public function setNextCheck(?\DateTime $nextCheck): self
     {
         $this->nextCheck = $nextCheck;
+
         return $this;
     }
 
@@ -441,26 +428,30 @@ class MetaService
 
     /**
      * @param \DateTime|null $lastCheck
+     *
      * @return self
      */
     public function setLastCheck(?\DateTime $lastCheck): self
     {
         $this->lastCheck = $lastCheck;
+
         return $this;
     }
 
     /**
-     * @param boolean $activeChecks
+     * @param bool $activeChecks
+     *
      * @return self
      */
     public function setActiveChecks(bool $activeChecks): self
     {
         $this->activeChecks = $activeChecks;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasActiveChecks(): bool
     {
@@ -468,17 +459,19 @@ class MetaService
     }
 
     /**
-     * @param boolean $passiveChecks
+     * @param bool $passiveChecks
+     *
      * @return self
      */
     public function setPassiveChecks(bool $passiveChecks): self
     {
         $this->passiveChecks = $passiveChecks;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasPassiveChecks(): bool
     {
@@ -487,11 +480,13 @@ class MetaService
 
     /**
      * @param \DateTime|null $lastTimeOk
+     *
      * @return self
      */
     public function setLastTimeOk(?\DateTime $lastTimeOk): self
     {
         $this->lastTimeOk = $lastTimeOk;
+
         return $this;
     }
 
@@ -513,21 +508,25 @@ class MetaService
 
     /**
      * @param int|null $maxCheckAttempts
+     *
      * @return self
      */
     public function setMaxCheckAttempts(?int $maxCheckAttempts): self
     {
         $this->maxCheckAttempts = $maxCheckAttempts;
+
         return $this;
     }
 
     /**
      * @param int|null $checkAttempts
+     *
      * @return self
      */
     public function setCheckAttempts(?int $checkAttempts): self
     {
         $this->checkAttempts = $checkAttempts;
+
         return $this;
     }
 
@@ -564,7 +563,7 @@ class MetaService
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasGraphData(): bool
     {
@@ -572,12 +571,14 @@ class MetaService
     }
 
     /**
-     * @param boolean $hasGraphData
+     * @param bool $hasGraphData
+     *
      * @return self
      */
     public function setHasGraphData(bool $hasGraphData): self
     {
         $this->hasGraphData = $hasGraphData;
+
         return $this;
     }
 }

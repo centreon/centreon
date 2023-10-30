@@ -1,11 +1,11 @@
-import {
-  buildListingEndpoint,
+import { buildListingEndpoint } from '@centreon/ui';
+import type {
   BuildListingEndpointParameters,
-  ListingParameters,
+  ListingParameters
 } from '@centreon/ui';
 
 import { baseEndpoint } from '../../../api/endpoint';
-import { monitoringEndpoint } from '../../api/endpoint';
+import { monitoringEndpoint, resourcesEndpoint } from '../../api/endpoint';
 
 const hostCategoriesEndpoint = `${monitoringEndpoint}/hosts/categories`;
 const serviceCategoriesEndpoint = `${monitoringEndpoint}/services/categories`;
@@ -15,59 +15,75 @@ const monitoringServersEndpoint = `${baseEndpoint}/monitoring/servers`;
 const hostSeveritiesEndpoint = `${monitoringEndpoint}/severities/host`;
 const serviceSeveritiesEndpoint = `${monitoringEndpoint}/severities/service`;
 
+const buildHostsEndpoint = (parameters: ListingParameters): string => {
+  return buildListingEndpoint({
+    baseEndpoint: resourcesEndpoint,
+    customQueryParameters: [{ name: 'types', value: ['host'] }],
+    parameters
+  });
+};
+
+const buildServicesEndpoint = (parameters: ListingParameters): string => {
+  return buildListingEndpoint({
+    baseEndpoint: resourcesEndpoint,
+    customQueryParameters: [{ name: 'types', value: ['service'] }],
+    parameters
+  });
+};
+
 const buildHostGroupsEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
     baseEndpoint: hostgroupsEndpoint,
-    parameters,
+    parameters
   });
 };
 
 const buildServiceGroupsEndpoint = (
-  parameters: BuildListingEndpointParameters,
+  parameters: BuildListingEndpointParameters
 ): string => {
   return buildListingEndpoint({
     baseEndpoint: serviceGroupsEndpoint,
-    parameters,
+    parameters
   });
 };
 
 const buildMonitoringServersEndpoint = (
-  parameters: BuildListingEndpointParameters,
+  parameters: BuildListingEndpointParameters
 ): string => {
   return buildListingEndpoint({
     baseEndpoint: monitoringServersEndpoint,
-    parameters,
+    parameters
   });
 };
 
 const buildHostCategoriesEndpoint = (
-  parameters: BuildListingEndpointParameters,
+  parameters: BuildListingEndpointParameters
 ): string => {
   return buildListingEndpoint({
     baseEndpoint: hostCategoriesEndpoint,
-    parameters,
+    parameters
   });
 };
 
 const buildServiceCategoriesEndpoint = (
-  parameters: BuildListingEndpointParameters,
+  parameters: BuildListingEndpointParameters
 ): string => {
   return buildListingEndpoint({
     baseEndpoint: serviceCategoriesEndpoint,
-    parameters,
+    parameters
   });
 };
 const buildHostServeritiesEndpoint = (parameters): string => {
   return buildListingEndpoint({
     baseEndpoint: hostSeveritiesEndpoint,
-    parameters,
+    parameters
   });
 };
 
 const buildServiceSeveritiesEndpoint = (parameters): string => {
   return buildListingEndpoint({
     baseEndpoint: serviceSeveritiesEndpoint,
-    parameters,
+    parameters
   });
 };
 
@@ -79,4 +95,6 @@ export {
   buildMonitoringServersEndpoint,
   buildHostServeritiesEndpoint,
   buildServiceSeveritiesEndpoint,
+  buildHostsEndpoint,
+  buildServicesEndpoint
 };

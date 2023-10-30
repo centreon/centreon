@@ -1,17 +1,17 @@
-import { ListingModel } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 
 export enum ResourceType {
-  anomalydetection = 'anomaly-detection',
+  anomalyDetection = 'anomaly-detection',
   host = 'host',
   metaservice = 'metaservice',
-  service = 'service',
+  service = 'service'
 }
 
 export enum ResourceCategory {
   'anomaly-detection' = ResourceType.service,
   'service' = ResourceType.service,
   'host' = ResourceType.host,
-  'metaservice' = ResourceType.metaservice,
+  'metaservice' = ResourceType.metaservice
 }
 
 export type ResourceShortType = 'h' | 's' | 'm' | 'a';
@@ -43,17 +43,18 @@ export interface Status {
 }
 
 export interface Resource extends NamedEntity {
-  acknowledged?: boolean;
-  active_checks?: boolean;
+  children?;
   duration?: string;
+  has_active_checks_enabled?: boolean;
+  has_passive_checks_enabled?: boolean;
   icon?: Icon;
-  in_downtime?: boolean;
   information?: string;
+  is_acknowledged?: boolean;
+  is_in_downtime?: boolean;
+  is_notification_enabled?: boolean;
   last_check?: string;
   links?: ResourceLinks;
-  notification_enabled?: boolean;
   parent?: Parent | null;
-  passive_checks?: boolean;
   service_id?: number;
   severity_level?: number;
   short_type: ResourceShortType;
@@ -82,8 +83,10 @@ export interface Acknowledgement {
 
 export interface ResourceEndpoints {
   acknowledgement?: string;
+  check?: string;
   details?: string;
   downtime?: string;
+  forced_check?: string;
   metrics?: string;
   performance_graph?: string;
   sensitivity?: string;
@@ -118,5 +121,11 @@ export type TranslationType = (label: string) => string;
 
 export enum SortOrder {
   asc = 'asc',
-  desc = 'desc',
+  desc = 'desc'
+}
+
+export enum Visualization {
+  All = 'All',
+  Host = 'By host',
+  Service = 'By service'
 }

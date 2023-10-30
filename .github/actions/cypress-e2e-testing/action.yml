@@ -1,26 +1,77 @@
 name: "Cypress E2E Testing"
 description: "Cypress E2E Testing"
-
 inputs:
-  image:
-    description: "image"
+  name:
+    description: "test name"
     required: true
-  image_version:
-    description: "image version"
+  web_image_os:
+    description: "Web image operating system"
     required: true
-  image_cypress_version:
-    description: "image cypress version"
+  web_image_version:
+    description: "Web image version"
+    required: true
+  openid_image_version:
+    description: "Openid image version"
     required: true
   module:
     description: "module"
     required: true
+  feature_file_path:
+    description: "feature file"
+    required: true
+  dependencies_lock_file:
+    description: "The frontend dependencies lock file path"
+    required: true
+
 runs:
   using: "composite"
   steps:
-    - name: "Start Centreon container"
-      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.module }}/tests/e2e
+      shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+    - name: Install Cypress binary
+      uses: nick-fields/retry@v2
+      with:
+        timeout_seconds: 120
+        max_attempts: 10
+        retry_wait_seconds: 30
+        retry_on: error
+        command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
+
+    - name: Cypress end-to-end testing
+      uses: cypress-io/github-action@v6
+      with:
+        command: pnpm run cypress:run --spec features/**/${{ inputs.feature_file_path }} 
+        install: false
+        working-directory: ${{ inputs.module }}/tests/e2e
+        publish-summary: false
+      env:
+        CYPRESS_VERIFY_TIMEOUT: "60000"
+        CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
+        CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
+        CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
+
+    - name: Rename JSON report
+      run: |
+        # Assuming your reports are located in the cypress/cucumber-logs directory
+        feature_name=$(basename "${{ inputs.feature_file_path }}")
+        mv ${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json ${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json
       shell: bash
 
-    - name: "Run Cypress"
-      run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" docker.registry.apps.centreon.com/cypress:${{ inputs.image_cypress_version }}
-      shell: bash

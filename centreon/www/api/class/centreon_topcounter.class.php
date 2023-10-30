@@ -287,6 +287,9 @@ class CentreonTopCounter extends CentreonWebService
      */
     private function getPasswordRemainingTime(): ?int
     {
+        if ($this->centreon->user->authType === CentreonAuth::AUTH_TYPE_LDAP) {
+            return null;
+        }
         $passwordRemainingTime = null;
         $contact = new CentreonContact($this->pearDB);
         $passwordCreationDate = $contact->findLastPasswordCreationDate((int) $this->centreon->user->user_id);
@@ -591,7 +594,7 @@ class CentreonTopCounter extends CentreonWebService
     public function getHosts_status()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource datas");
+            throw new \RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
@@ -601,7 +604,7 @@ class CentreonTopCounter extends CentreonWebService
             return $_SESSION['topCounterHostStatus'];
         }
 
-        $query = 'SELECT
+        $query = 'SELECT 1 AS REALTIME,
             COALESCE(SUM(CASE WHEN h.state = 0 THEN 1 ELSE 0 END), 0) AS up_total,
             COALESCE(SUM(CASE WHEN h.state = 1 THEN 1 ELSE 0 END), 0) AS down_total,
             COALESCE(SUM(CASE WHEN h.state = 2 THEN 1 ELSE 0 END), 0) AS unreachable_total,
@@ -659,7 +662,7 @@ class CentreonTopCounter extends CentreonWebService
     public function getServicesStatus()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource datas");
+            throw new \RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
@@ -669,7 +672,7 @@ class CentreonTopCounter extends CentreonWebService
             return $_SESSION['topCounterServiceStatus'];
         }
 
-        $query = 'SELECT
+        $query = 'SELECT 1 AS REALTIME,
             COALESCE(SUM(CASE WHEN s.state = 0 THEN 1 ELSE 0 END), 0) AS ok_total,
             COALESCE(SUM(CASE WHEN s.state = 1 THEN 1 ELSE 0 END), 0) AS warning_total,
             COALESCE(SUM(CASE WHEN s.state = 2 THEN 1 ELSE 0 END), 0) AS critical_total,
@@ -817,7 +820,7 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         /* Get status of pollers */
-        $query = 'SELECT instance_id, last_alive, running FROM instances
+        $query = 'SELECT 1 AS REALTIME, instance_id, last_alive, running FROM instances
             WHERE deleted = 0 AND instance_id IN (' . implode(', ', array_keys($listPoller)) . ')';
 
         try {
@@ -842,7 +845,7 @@ class CentreonTopCounter extends CentreonWebService
             }
         }
         /* Get latency */
-        $query = 'SELECT n.stat_value, i.instance_id
+        $query = 'SELECT 1 AS REALTIME, n.stat_value, i.instance_id
             FROM nagios_stats n, instances i
             WHERE n.stat_label = "Service Check Latency"
                 AND n.stat_key = "Average"
@@ -880,7 +883,7 @@ class CentreonTopCounter extends CentreonWebService
             return true;
         }
 
-        $query = "SELECT * FROM log_action WHERE action_log_date > $lastRestart " .
+        $query = "SELECT 1 AS REALTIME, log_action.* FROM log_action WHERE action_log_date > $lastRestart " .
             "AND ((object_type = 'host' AND ((action_type = 'd' AND object_id IN (SELECT host_id FROM hosts)) " .
             "OR object_id IN (SELECT host_host_id FROM `" .
             $conf_centreon['db'] . "`.ns_host_relation WHERE nagios_server_id = '$pollerId'))) " .

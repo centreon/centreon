@@ -1,26 +1,31 @@
 import { RefObject, useEffect, useRef } from 'react';
 
-import { isNil, isEmpty, pipe, not, defaultTo, propEq, findIndex } from 'ramda';
+import { isNil, propEq, findIndex, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { useTheme, alpha, Skeleton } from '@mui/material';
 
 import { MemoizedPanel as Panel, Tab } from '@centreon/ui';
+import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { rowColorConditions } from '../colors';
 
 import Header from './Header';
 import { ResourceDetails } from './models';
-import { TabById, detailsTabId, tabs } from './tabs';
+import {
+  TabById,
+  detailsTabId,
+  notificationsTabId,
+  tabs as initialTabs
+} from './tabs';
 import { Tab as TabModel, TabId } from './tabs/models';
 import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
-  selectResourceDerivedAtom,
+  selectResourceDerivedAtom
 } from './detailsAtoms';
 
 export interface DetailsSectionProps {
@@ -35,9 +40,14 @@ const Details = (): JSX.Element | null => {
 
   const [panelWidth, setPanelWidth] = useAtom(panelWidthStorageAtom);
   const [openDetailsTabId, setOpenDetailsTabId] = useAtom(openDetailsTabIdAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
   const details = useAtomValue(detailsAtom);
-  const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
-  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
+  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
+  const selectResource = useSetAtom(selectResourceDerivedAtom);
+
+  const tabs = featureFlags?.notification
+    ? initialTabs.filter((tab) => !equals(tab.id, notificationsTabId))
+    : initialTabs;
 
   useEffect(() => {
     if (isNil(details)) {
@@ -72,14 +82,14 @@ const Details = (): JSX.Element | null => {
   };
 
   const getHeaderBackgroundColor = (): string | undefined => {
-    const { downtimes, acknowledgement } = details || {};
+    const { in_downtime, acknowledged } = details || {};
 
     const foundColorCondition = rowColorConditions(theme).find(
       ({ condition }) =>
         condition({
-          acknowledged: !isNil(acknowledgement),
-          in_downtime: pipe(defaultTo([]), isEmpty, not)(downtimes),
-        }),
+          acknowledged,
+          in_downtime
+        })
     );
 
     if (isNil(foundColorCondition)) {

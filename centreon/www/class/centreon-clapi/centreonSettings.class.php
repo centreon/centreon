@@ -82,7 +82,6 @@ class CentreonSettings extends CentreonObject
             'enable_autologin' => array('values' => array('0', '1')),
             'interval_length' => array('format' => self::ISNUM),
             'enable_gmt' => array('values' => array('0', '1')),
-            'nagios_path_img' => array('format' => self::ISSTRING),
         );
     }
 

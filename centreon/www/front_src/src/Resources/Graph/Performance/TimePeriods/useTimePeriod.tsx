@@ -3,17 +3,16 @@ import { useEffect } from 'react';
 import { equals, isNil, not, propOr } from 'ramda';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
   getTimePeriodById,
-  TimePeriodId,
+  TimePeriodId
 } from '../../../Details/tabs/Graph/models';
 import {
   defaultSelectedCustomTimePeriodAtom,
   defaultSelectedTimePeriodIdAtom,
-  detailsAtom,
+  detailsAtom
 } from '../../../Details/detailsAtoms';
 
 import {
@@ -21,7 +20,7 @@ import {
   getNewCustomTimePeriod,
   getTimeperiodFromNow,
   resourceDetailsUpdatedAtom,
-  selectedTimePeriodAtom,
+  selectedTimePeriodAtom
 } from './timePeriodAtoms';
 
 dayjs.extend(duration);
@@ -33,16 +32,16 @@ interface Props {
 const useTimePeriod = ({ sending = false }: Props): void => {
   const [customTimePeriod, setCustomTimePeriod] = useAtom(customTimePeriodAtom);
   const [selectedTimePeriod, setSelectedTimePeriod] = useAtom(
-    selectedTimePeriodAtom,
+    selectedTimePeriodAtom
   );
   const details = useAtomValue(detailsAtom);
   const defaultSelectedTimePeriodId = useAtomValue(
-    defaultSelectedTimePeriodIdAtom,
+    defaultSelectedTimePeriodIdAtom
   );
   const defaultSelectedCustomTimePeriod = useAtomValue(
-    defaultSelectedCustomTimePeriodAtom,
+    defaultSelectedCustomTimePeriodAtom
   );
-  const setResourceDetailsUpdated = useUpdateAtom(resourceDetailsUpdatedAtom);
+  const setResourceDetailsUpdated = useSetAtom(resourceDetailsUpdatedAtom);
 
   useEffect(() => {
     if (isNil(selectedTimePeriod) || isNil(details) || not(sending)) {
@@ -67,7 +66,7 @@ const useTimePeriod = ({ sending = false }: Props): void => {
 
     const newCustomTimePeriod = getNewCustomTimePeriod({
       end: new Date(propOr(0, 'end', defaultSelectedCustomTimePeriod)),
-      start: new Date(propOr(0, 'start', defaultSelectedCustomTimePeriod)),
+      start: new Date(propOr(0, 'start', defaultSelectedCustomTimePeriod))
     });
 
     setCustomTimePeriod(newCustomTimePeriod);
@@ -83,7 +82,7 @@ const useTimePeriod = ({ sending = false }: Props): void => {
     }
 
     const newTimePeriod = getTimePeriodById(
-      defaultSelectedTimePeriodId as TimePeriodId,
+      defaultSelectedTimePeriodId as TimePeriodId
     );
 
     setSelectedTimePeriod(newTimePeriod);

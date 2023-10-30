@@ -62,6 +62,35 @@ class CentreonService
     protected $instanceObj;
 
     /**
+     * Macros formatted by id
+     * ex:
+     * [
+     *  1 => [
+     *    "macroName" => "KEY"
+     *    "macroValue" => "value"
+     *    "macroPassword" => "1"
+     *  ],
+     *  2 => [
+     *    "macroName" => "KEY_1"
+     *    "macroValue" => "value_1"
+     *    "macroPassword" => "1"
+     *    "originalName" => "MACRO_1"
+     *  ]
+     * ]
+     *
+     * @var array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: '0'|'1',
+     *  originalName?: string
+     * }>
+     */
+    private array $formattedMacros = [];
+
+    private const TABLE_SERVICE_CONFIGURATION = 'service',
+                  TABLE_SERVICE_REALTIME = 'services';
+
+    /**
      *  Constructor
      *
      * @param CentreonDB $db
@@ -75,7 +104,7 @@ class CentreonService
             $this->dbMon = $dbMon;
         }
 
-        $this->instanceObj = new CentreonInstance($db);
+        $this->instanceObj = CentreonInstance::getInstance($db, $dbMon);
     }
 
     /**
@@ -87,7 +116,7 @@ class CentreonService
      * @param  int[] $ids
      * @return int[] filtered
      */
-    function filteredArrayId(array $ids): array
+    public function filteredArrayId(array $ids): array
     {
         /* Slight difference here. Array parameter is made
          * of combined ids HOSTID_SERVICEID
@@ -308,10 +337,7 @@ class CentreonService
     {
         $DBRESULT = $this->db->query("SELECT illegal_object_name_chars FROM cfg_nagios");
         while ($data = $DBRESULT->fetchRow()) {
-            $tab = str_split(html_entity_decode($data['illegal_object_name_chars'], ENT_QUOTES, "UTF-8"));
-            foreach ($tab as $char) {
-                $name = str_replace($char, "", $name);
-            }
+            $name = str_replace(str_split($data['illegal_object_name_chars']), '', $name);
         }
         $DBRESULT->closeCursor();
         return $name;
@@ -328,19 +354,29 @@ class CentreonService
      */
     public function replaceMacroInString($svc_id, $string, $antiLoop = null, $instanceId = null)
     {
-        $rq = "SELECT service_register FROM service WHERE service_id = '" . $svc_id . "' LIMIT 1";
-        $DBRES = $this->db->query($rq);
-        if (!$DBRES->rowCount()) {
+        if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string)) {
             return $string;
         }
-        $row = $DBRES->fetchRow();
+        $query = <<<SQL
+          SELECT service_register, service_description
+          FROM service
+          WHERE service_id = :service_id LIMIT 1
+        SQL;
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':service_id', (int) $svc_id, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (!$statement->rowCount()) {
+            return $string;
+        }
+        $row = $statement->fetchRow();
 
         /*
          * replace if not template
          */
         if ($row['service_register'] == 1) {
             if (preg_match('/\$SERVICEDESC\$/', $string)) {
-                $string = str_replace("\$SERVICEDESC\$", $this->getServiceDesc($svc_id), $string);
+                $string = str_replace("\$SERVICEDESC\$", $row['service_description'], $string);
             }
             if (!is_null($instanceId) && preg_match("\$INSTANCENAME\$", $string)) {
                 $string = str_replace("\$INSTANCENAME\$", $this->instanceObj->getParam($instanceId, 'name'), $string);
@@ -454,7 +490,8 @@ class CentreonService
             $macroFrom
         );
         foreach ($macros as $key => $value) {
-            if ($value != "" &&
+            if (
+                $value != "" &&
                 !isset($stored[strtolower($value)])
             ) {
                 $this->db->query(
@@ -468,6 +505,19 @@ class CentreonService
                 );
                 $stored[strtolower($value)] = true;
                 $cnt++;
+
+                //Format macros to improve handling on form submit.
+                $dbResult = $this->db->query("SELECT MAX(svc_macro_id) FROM on_demand_macro_service");
+                $macroId = $dbResult->fetch();
+                $this->formattedMacros[(int) $macroId['MAX(svc_macro_id)']] = [
+                    "macroName" => '_SERVICE' . strtoupper($value),
+                    "macroValue" => $macrovalues[$key],
+                    "macroPassword" => $macroPassword[$key] ?? '0',
+                ];
+                if (isset($_REQUEST['macroOriginalName_' . $key])) {
+                    $this->formattedMacros[(int) $macroId['MAX(svc_macro_id)']]['originalName']
+                        = '_SERVICE' . $_REQUEST['macroOriginalName_' . $key];
+                }
             }
         }
     }
@@ -682,11 +732,14 @@ class CentreonService
         $aMacros = $this->getMacros($serviceId, $aListTemplate, $cmdId);
         foreach ($aMacros as $macro) {
             foreach ($macroInput as $ind => $input) {
-                if (isset($macro['macroInput_#index#']) && isset($macro["macroValue_#index#"])) {
+                if (isset($macro['macroInput_#index#'], $macro["macroValue_#index#"])) {
                     # Don't override macros on massive change if there is not direct inheritance
-                    if (($input == $macro['macroInput_#index#'] && $macroValue[$ind] == $macro["macroValue_#index#"])
-                        || ($isMassiveChange && $input == $macro['macroInput_#index#'] &&
-                            isset($macroFrom[$ind]) && $macroFrom[$ind] != 'direct')
+                    if (
+                        ($input == $macro['macroInput_#index#'] && $macroValue[$ind] == $macro["macroValue_#index#"])
+                        || ($isMassiveChange
+                            && $input == $macro['macroInput_#index#']
+                            && isset($macroFrom[$ind])
+                            && $macroFrom[$ind] != 'direct')
                     ) {
                         unset($macroInput[$ind]);
                         unset($macroValue[$ind]);
@@ -821,7 +874,7 @@ class CentreonService
             }
         }
 
-        $iIdCommande = $form['command_command_id'];
+        $iIdCommande = $form['command_command_id'] ?? [];
 
         $templateName = "";
         if (empty($iIdCommande)) {
@@ -1680,37 +1733,39 @@ class CentreonService
      * Returns service details
      *
      * @param int $id
+     * @param array $parameters
+     * @param boolean $monitoringDB
+     *
      * @return array
      */
-    public function getParameters($id, $parameters = array(), $monitoringDB = false)
+    public function getParameters($id, $parameters = [], $monitoringDB = false)
     {
-        $sElement = "*";
-        $arr = array();
-        if (empty($id)) {
-            return array();
-        }
-        if (count($parameters) > 0) {
-            $sElement = implode(",", $parameters);
+        if ((int) $id <= 0) {
+            return [];
         }
 
-        $table = 'service';
-        $db = $this->db;
-        if ($monitoringDB) {
-            $table = 'services';
-            $db = $this->dbMon;
-        }
+        $searchColumns = (count($parameters) > 0) ? implode(',', $parameters) : '*';
+        $searchTable = ($monitoringDB === true) ? self::TABLE_SERVICE_REALTIME : self::TABLE_SERVICE_CONFIGURATION;
+        $database = ($monitoringDB === true) ? $this->dbMon : $this->db;
 
-        $res = $db->query(
-            "SELECT " . $sElement . " "
-            . "FROM " . $table . " "
-            . "WHERE service_id = " . $db->escape($id)
+        $statement = $database->prepare(<<<SQL
+            SELECT
+                $searchColumns
+            FROM
+                $searchTable
+            WHERE
+                service_id = :serviceId
+            SQL
         );
+        $statement->bindValue(':serviceId', (int) $id, \PDO::PARAM_INT);
+        $statement->execute();
 
-        if ($res->rowCount()) {
-            $arr = $res->fetchRow();
+        $result = [];
+        if ($statement->rowCount()) {
+            $result = $statement->fetchRow();
         }
 
-        return $arr;
+        return $result;
     }
 
     /**
@@ -1868,5 +1923,20 @@ class CentreonService
         }
 
         return $name;
+    }
+
+    /**
+     * Get Macros Information Unified by id
+     *
+     * @return array<int,array{
+     *  macroName: string,
+     *  macroValue: string,
+     *  macroPassword: '0'|'1',
+     *  originalName?: string
+     * }>
+     */
+    public function getFormattedMacros(): array
+    {
+        return $this->formattedMacros;
     }
 }

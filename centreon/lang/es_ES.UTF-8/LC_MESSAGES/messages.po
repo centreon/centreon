@@ -2274,7 +2274,6 @@ msgstr "Estado detallado"
 
 #: centreon-web/www/install/smarty_translate.php:873 centreon-web/www/install/smarty_translate.php:909
 #: centreon-web/www/include/Administration/parameters/ldap/xml/additionalRowXml.php:100
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:75
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:71
 #: centreon-web/www/include/monitoring/acknowlegement/serviceAcknowledge.php:73
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:481
@@ -2287,7 +2286,6 @@ msgid "Host Name"
 msgstr "Nombre del anfitrión"
 
 #: centreon-web/www/install/smarty_translate.php:876
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon-web/www/include/configuration/configObject/service_dependency/formServiceDependency.php:167
 msgid "Service Description"
 msgstr "Descripción del servicio."
@@ -2382,8 +2380,8 @@ msgid "Recurrent downtimes"
 msgstr "Tiempos de parada recurrentes"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:156
-msgid "Plugin Packs"
-msgstr "Packs de plugins"
+msgid "Monitoring Connectors"
+msgstr "Conectores de supervisión"
 
 #: centreon-web/src/CentreonLegacy/Core/Menu/Menu.php:169
 msgid "Manager"
@@ -2784,8 +2782,8 @@ msgid "Custom Views"
 msgstr "Vistas personalizadas"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Salpicadero"
+# msgid "Dashboards"
+# msgstr ""
 
 #: centreon-web/www/install/menu_translation.php:73
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:865
@@ -3056,8 +3054,12 @@ msgid "Performance Management"
 msgstr "Gestión de datos de rendimiento."
 
 #: centreon-web/www/install/menu_translation.php:121
-msgid "Plugin packs"
-msgstr "Packs de sondes"
+msgid "Monitoring connectors"
+msgstr "Conectores de supervisión"
+
+# centreon-web/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisión"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -5340,7 +5342,7 @@ msgstr "modificado"
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:662
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:690
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:793
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Cambio masivo"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:132
@@ -5907,21 +5909,17 @@ msgstr "Gestión de host"
 msgid "Services Resources"
 msgstr "Gestión de servicios"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:109
 msgid "Centreon Users"
 msgstr "Usuarios de Centreon"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:147
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:229
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:224
 msgid "The selected user didn't see any resources"
 msgstr "El usuario seleccionado no ve ningún recurso."
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:148
 msgid "Please select an user in order to display resources"
 msgstr "Por favor, seleccione un usuario para ver los recursos"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:149
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:231
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:226
 msgid "The selected user is not enable."
@@ -9303,8 +9301,8 @@ msgstr "Modo de actualización"
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:541
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
-msgid "A host can have multiple templates, their orders have a significant importance"
-msgstr "Un host puede tener varios modelos, su orden tiene un significado significativo"
+# msgid "A host or host template can have several templates. See help for more details."
+# msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:541
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:389
@@ -12097,7 +12095,7 @@ msgid "This Service is flapping"
 msgstr "Le statut du service bagote"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:172
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Servicio meta"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:194
@@ -14407,7 +14405,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Resource name"
 #  msgstr ""
 
-#  msgid "Resource problems"
+#  msgid "All alerts"
 #  msgstr ""
 
 #  msgid "Rows per page"
@@ -14473,13 +14471,13 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Downtime command sent"
 #  msgstr ""
 
-#  msgid "Check command sent"
+#  msgid "Check command sent ! Please refresh the listing to update the data."
 #  msgstr ""
 
 #  msgid "Type of resource"
 #  msgstr ""
 
-#  msgid "Unhandled problems"
+#  msgid "Unhandled alerts"
 #  msgstr ""
 
 #  msgid "Unhandled"
@@ -14961,6 +14959,74 @@ msgstr ""
 # msgid "OpenID Connect only"
 # msgstr ""
 
+msgid "Login attribute path"
+msgstr "Ruta del atributo de inicio de sesión"
+
+msgid "Enable conditions on identity provider"
+msgstr "Habilitar las condiciones del proveedor de identidad"
+
+msgid "Conditions attribute path"
+msgstr "Condiciones ruta de atributos"
+
+msgid "Which endpoint does the conditions attribute path come from?"
+msgstr "De qué endpoint proviene la ruta de atributos de las condiciones?"
+
+msgid "Introspection endpoint"
+msgstr "endpoint de introspección"
+
+msgid "User information"
+msgstr "Información para el usuario"
+
+msgid "Other"
+msgstr "Otros"
+
+msgid "Define authorized conditions values"
+msgstr "Definir los valores de las condiciones autorizadas"
+
+msgid "Condition value"
+msgstr "Condition value"
+
+msgid "Email attribute path"
+msgstr "Ruta de atributos del correo electrónico"
+
+msgid "Fullname attribute path"
+msgstr "Ruta del atributo nombre completo"
+
+msgid "Enable automatic management"
+msgstr "Activar la gestión automática"
+
+msgid "Apply only first role"
+msgstr "Aplicar sólo el primer papel"
+
+msgid "Roles attribute path"
+msgstr "Ruta del atributo Roles"
+
+msgid "Which endpoint does the roles attribute path come from?"
+msgstr "De qué endpoint proviene la ruta del atributo roles?"
+
+msgid "Define the relation between roles and ACL access groups"
+msgstr "Definir la relación entre los roles y los grupos de acceso ACL"
+
+msgid "Role value"
+msgstr "Valor de la función"
+
+msgid "ACL access group"
+msgstr "Grupo de acceso ACL"
+
+msgid "Groups attribute path"
+msgstr "Ruta de atributos de los grupos"
+
+msgid "Which endpoint does the groups attribute path come from?"
+msgstr "De qué endpoint proviene la ruta de atributos de los grupos?"
+
+msgid "Define the relation between groups and contact groups"
+msgstr "Definir la relación entre grupos y grupos de contacto"
+
+msgid "Group value"
+msgstr "Valor del grupo"
+
+msgid "Define your endpoint"
+msgstr "Defina su endpoint"
 # msgid "Mixed"
 # msgstr ""
 
@@ -15240,19 +15306,19 @@ msgstr "Nivel de criticidad del host"
 #  msgid "Deploy configuration"
 #  msgstr ""
 
-msgid "Are you sure you want to change the size of the envelope? The new envelope size will be applied immediately."
+msgid "Are you sure you want to change the size of the envelope? Please note that the new envelope size will only be applied from now on. The old envelope will stay the same."
 msgstr "¿Está seguro de que desea cambiar el tamaño del sobre? El nuevo tamaño de sobre se aplicará inmediatamente."
 
-msgid "Changes to the envelope size will be applied immediately"
+msgid "Changes to the envelope size will be applied only from now on."
 msgstr "Los cambios en el tamaño del sobre se aplicarán inmediatamente."
 
 msgid "Manage envelope size"
 msgstr "Administrar el tamaño del sobre"
 
-msgid "use default value"
-msgstr "usar el valor predeterminado"
+msgid "Reset to default value"
+msgstr "Establecer en el valor predeterminado"
 
-msgid "points out of envelope"
+msgid "points outside of the envelope"
 msgstr "puntos fuera del sobre"
 
 msgid "Edit anomaly detection data"
@@ -15287,3 +15353,1191 @@ msgstr "Editar datos de detección de anomalías"
 
 #  msgid "Host Groups (simplified)"
 #  msgstr ""
+
+msgid "You have unsaved changes, do you want to proceed?"
+msgstr "No ha guardado los cambios, ¿quiere continuar?"
+
+#  msgid "Confirm"
+#  msgstr "Confirmar"
+
+#  msgid "Incorrect LDAP filter syntax"
+#  msgstr ""
+
+#  msgid "LDAP connection timeout"
+#  msgstr ""
+
+#  msgid "Vault configuration with these properties already exists"
+#  msgstr ""
+
+#  msgid "Impossible to create vault configuration"
+#  msgstr ""
+
+#  msgid "Vault provider does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host categories"
+#  msgstr ""
+
+#  msgid "Error while searching for host categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host categories"
+#  msgstr ""
+
+#  msgid "Host category not found"
+#  msgstr ""
+
+#  msgid "Error while deleting host category"
+#  msgstr ""
+
+#  msgid "Error while searching for host groups"
+#  msgstr ""
+
+# msgid "Error while retrieving a host group"
+# msgstr ""
+
+#  msgid "You are not allowed to access host groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on host groups"
+#  msgstr ""
+
+#  msgid "Host group not found"
+#  msgstr ""
+
+#  msgid "Error while deleting a host group"
+#  msgstr ""
+
+#  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "Error while updating a host group"
+#  msgstr ""
+
+#  msgid "The host group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving just created host group"
+#  msgstr ""
+
+#  msgid "The host group icon '%s' with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to create host categories"
+#  msgstr ""
+
+#  msgid "Host category name already exists"
+#  msgstr ""
+
+#  msgid "Error while creating host category"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host severities"
+#  msgstr ""
+
+#  msgid "Error while searching for host severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host severities"
+#  msgstr ""
+
+#  msgid "Error while deleting host severity"
+#  msgstr ""
+
+#  msgid "Error while creating host severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create/modify a host severity"
+#  msgstr ""
+
+#  msgid "Error while retrieving host severity"
+#  msgstr ""
+
+#  msgid "Host severity name already exists"
+#  msgstr ""
+
+#  msgid "The host severity icon with id '%d' does not exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to access time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit time periods"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service groups"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write operations on service groups"
+#  msgstr ""
+
+#  msgid "Error while searching for service groups"
+#  msgstr ""
+
+#  msgid "Error while deleting a service group"
+#  msgstr ""
+
+#  msgid "Error while adding a service group"
+#  msgstr ""
+
+#  msgid "Error while retrieving newly created service group"
+#  msgstr ""
+
+#  msgid "The service group name '%s' already exists"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service categories"
+#  msgstr ""
+
+#  msgid "Error while searching for service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to access service severities"
+#  msgstr ""
+
+#  msgid "Error while searching for service severities"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service categories"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service categories"
+#  msgstr ""
+
+#  msgid "Error while deleting service category"
+#  msgstr ""
+
+#  msgid "Error while creating service category"
+#  msgstr ""
+
+#  msgid "Service category name already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service category"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete service severities"
+#  msgstr ""
+
+#  msgid "Error while deleting service severity"
+#  msgstr ""
+
+#  msgid "Error while creating service severity"
+#  msgstr ""
+
+#  msgid "You are not allowed to create service severities"
+#  msgstr ""
+
+#  msgid "Error while retrieving recently created service severity"
+#  msgstr ""
+
+#  msgid "Service severity name already exists"
+#  msgstr ""
+
+#  msgid "The service severity icon with id '%d' does not exist"
+#  msgstr ""
+
+msgid "Forced check"
+msgstr "control forzado"
+
+msgid "Check selected resources only within configured check period"
+msgstr "Verifique los recursos seleccionados solo dentro del período de verificación configurado"
+
+msgid "Check selected resources even outside configured check period"
+msgstr "Verifique los recursos seleccionados incluso fuera del período configurado de verificación"
+
+msgid "Forced check command sent ! Please refresh the listing to update the data."
+msgstr ""
+
+#  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""
+
+#  msgid "Centreon wallpaper"
+#  msgstr ""
+
+#  msgid "Powered by Centreon"
+#  msgstr ""
+
+# msgid "Developed by"
+# msgstr ""
+
+# msgid "and"
+# msgstr ""
+
+# msgid "the community"
+# msgstr ""
+
+# msgid "Project leaders"
+# msgstr ""
+
+# msgid "Developers"
+# msgstr ""
+
+# msgid "Contributors"
+# msgstr ""
+
+# msgid "Security acknowledgement"
+# msgstr ""
+
+# msgid "And many others..."
+# msgstr ""
+
+# msgid "You can see the full list on the"
+# msgstr ""
+
+# msgid "Centreon's Github"
+# msgstr ""
+
+# msgid "Many thanks to all the contributors to the security of Centreon"
+# msgstr ""
+
+# msgid "Centreon website"
+# msgstr ""
+
+#: www/front_src/src/Header/Poller
+
+# msgid "Database issue"
+# msgstr ""
+
+# msgid "Pollers not running"
+# msgstr ""
+
+# msgid "Everything is OK"
+# msgstr ""
+
+# msgid "All pollers:"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Host
+
+# msgid "Down status hosts"
+# msgstr ""
+
+# msgid "Unreachable status hosts"
+# msgstr ""
+
+# msgid "Up status hosts"
+# msgstr ""
+
+#: www/front_src/src/Header/Resources/Services
+
+# msgid "Critical status services"
+# msgstr ""
+
+# msgid "Warning status services"
+# msgstr ""
+
+# msgid "Unknown status services"
+# msgstr ""
+
+# msgid "OK status services"
+# msgstr ""
+
+# msgid "Redirect URL"
+# msgstr ""
+
+# msgid "SAML configuration"
+# msgstr ""
+
+# msgid "Define SAML configuration"
+# msgstr ""
+
+# msgid "Failed to save SAML configuration"
+# msgstr ""
+
+# msgid "SAML configuration saved"
+# msgstr ""
+
+# msgid "Enable SAMLv2 authentication"
+# msgstr ""
+
+# msgid "SAML only"
+# msgstr ""
+
+# msgid "Remote login URL"
+# msgstr ""
+
+# msgid "Issuer (Entity ID) URL"
+# msgstr ""
+
+# msgid "Copy/paste x.509 certificate"
+# msgstr ""
+
+# msgid "User ID (login) attribute for Centreon user"
+# msgstr ""
+
+# msgid "Logout from"
+# msgstr ""
+
+# msgid "Centreon UI only"
+# msgstr ""
+
+# msgid "Both identity provider and Centreon UI"
+# msgstr ""
+
+# msgid "Define relation between roles and ACL access groups"
+# msgstr ""
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+# msgid "B.Activities"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Full name attribute"
+# msgstr ""
+
+# msgid "Roles mapping"
+# msgstr ""
+
+# msgid "Groups mapping"
+# msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+#msgid "Do you really want to unblock this user?"
+#msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+#msgid "The user(s) will be unblocked. Do you confirm the request?"
+#msgstr ""
+
+# msgid "Error while updating host severity"
+# msgstr ""
+
+# msgid "Error when searching for the host severity #%d"
+# msgstr ""
+
+# msgid "Error when searching for the host category #%d"
+# msgstr ""
+
+#  msgid "Error while retrieving a host category"
+#  msgstr ""
+
+# msgid "You are not allowed to access dashboards"
+# msgstr ""
+
+# msgid "Error while searching for dashboards"
+# msgstr ""
+
+# msgid "Error while retrieving newly created dashboard"
+# msgstr ""
+
+# msgid "Error while adding a dashboard"
+# msgstr ""
+
+# msgid "You are not allowed to perform write operations on dashboards"
+# msgstr ""
+
+# msgid "You are not allowed to edit access rights on the dashboard #%d"
+# msgstr ""
+
+# msgid "You cannot view access rights on the dashboard #%d"
+# msgstr ""
+
+# msgid "Error while retrieving a dashboard"
+# msgstr ""
+
+# msgid "Error while deleting a dashboard"
+# msgstr ""
+
+# msgid "Error while updating a dashboard"
+# msgstr ""
+
+# msgid "Error while trying to update a widget which belongs to another dashboard"
+# msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#msgid "Unblock"
+#msgstr ""
+
+#  msgid "Error while searching for host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host templates"
+#  msgstr ""
+
+#  msgid "Error while updating the host category"
+#  msgstr ""
+
+# msgid "You are not allowed to access service templates"
+# msgstr ""
+
+# msgid "Error while searching for service templates"
+# msgstr ""
+
+# msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+# msgstr ""
+
+# msgid "The service template '%s' is locked and cannot be deleted"
+# msgstr ""
+
+# msgid "You are not allowed to delete a service template"
+# msgstr ""
+
+# msgid "Error while deleting the service template"
+# msgstr ""
+
+#  msgid "Error while deleting a host template"
+#  msgstr ""
+
+#  msgid "Error while adding a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to add host templates"
+#  msgstr ""
+
+#  msgid "The %s with value '%d' does not exist"
+#  msgstr ""
+
+#  msgid "The name %s (original name: %s) already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host template"
+#  msgstr ""
+
+#  msgid "Host template #%d is locked (edition and deletion not allowed)"
+#  msgstr ""
+
+# msgid "Edit dashboard"
+# msgstr ""
+
+# msgid "Exit"
+# msgstr ""
+
+# msgid "Exit {{dashboardName}}"
+# msgstr ""
+
+# msgid "Exit edition mode"
+# msgstr ""
+
+# msgid "If you leave the edition mode, your changes will not be saved."
+# msgstr ""
+
+# msgid "If you leave {{dashboardName}}, your changes will not be saved."
+# msgstr ""
+
+# msgid "Your dashboard has been saved"
+# msgstr ""
+
+#  msgid "You are not allowed to add a service template"
+#  msgstr ""
+
+#  msgid "Error while adding the service template"
+#  msgstr ""
+
+#  msgid "Error while retrieving a service template"
+#  msgstr ""
+
+#  msgid "The service template name '%s' already exists"
+#  msgstr ""
+
+#  msgid "[%s] The value contains unauthorized characters: %s"
+#  msgstr ""
+
+#  msgid "Error while linking host categories to a host template"
+#  msgstr ""
+
+#  msgid "The %s does not exist with id(s) '%s'"
+#  msgstr ""
+
+#  msgid "Error while partially updating a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write actions on host templates"
+#  msgstr ""
+
+#  msgid "Host template #%d not found"
+#  msgstr ""
+
+# msgid "The contact ID #%d does not exist"
+# msgstr ""
+
+# msgid "Error while retrieving the new dashboard share"
+# msgstr ""
+
+# msgid "Error while adding the dashboard share"
+# msgstr ""
+
+# msgid "Error while searching for the dashboard shares"
+# msgstr ""
+
+# msgid "Error while deleting the dashboard share"
+# msgstr ""
+
+# msgid "Error while updating the dashboard share"
+# msgstr ""
+
+#  msgid "Circular inheritance not allowed"
+#  msgstr ""
+
+#cloud notifications
+
+# msgid 'Notification rules'
+# msgstr ""
+
+# msgid 'Welcome to the notifications interface'
+# msgstr ""
+
+# msgid 'Create a notification rule'
+# msgstr ""
+
+# msgid 'Add'
+# msgstr ""
+
+# msgid 'Duplicate'
+# msgstr ""
+
+# msgid 'Delete'
+# msgstr ""
+
+# msgid 'Discard'
+# msgstr ""
+
+# msgid 'Cancel'
+# msgstr ""
+
+# msgid 'Name'
+# msgstr ""
+
+# msgid 'Channels'
+# msgstr ""
+
+# msgid 'Users'
+# msgstr ""
+
+# msgid'Resources'
+# msgstr ""
+
+# msgid 'Period'
+# msgstr ""
+
+# msgid 'Actions'
+# msgstr ""
+
+# msgid 'Status'
+# msgstr ""
+
+# msgid 'Search'
+# msgstr ""
+
+# msgid 'Save'
+# msgstr ""
+
+# msgid 'Select resources and events'
+# msgstr ""
+
+# msgid 'Search host groups'
+# msgstr ""
+
+# msgid 'Select users'
+# msgstr ""
+
+# msgid 'Notification settings'
+# msgstr ""
+
+# msgid "Notification duplicated"
+# msgstr ""
+
+# msgid "Failed to duplicate the notification"
+# msgstr ""
+
+# msgid "Please enter a name for the duplicated notification"
+# msgstr ""
+
+# msgid 'Delete notification rule?'
+# msgstr ""
+
+# msgid 'This action cannot be undone.'
+# msgstr ""
+
+# msgid 'Collapse information panel'
+# msgstr ""
+
+# msgid 'Expand information panel'
+# msgstr ""
+
+# msgid 'Type your text here'
+# msgstr ""
+
+# msgid 'Active / Inactive'
+# msgstr ""
+
+# msgid 'Edit name'
+# msgstr ""
+
+# msgid 'Notification name'
+# msgstr ""
+
+# msgid 'Required'
+# msgstr ""
+
+# msgid 'The notification was successfully updated'
+# msgstr ""
+
+# msgid 'The notification was successfully added'
+# msgstr ""
+
+# msgid 'Choose at least 1 resource'
+# msgstr ""
+
+# msgid 'Choose at least 1 service group'
+# msgstr ""
+
+# msgid 'Choose at least 1 contact or contact group'
+# msgstr ""
+
+# msgid 'The message field should not be empty!'
+# msgstr ""
+
+# msgid 'Close the panel'
+# msgstr ""
+
+# msgid 'Email template for the notification message'
+# msgstr ""
+
+# msgid 'Subject'
+# msgstr ""
+
+# msgid 'Notification channels'
+# msgstr ""
+
+# msgid 'Service groups'
+# msgstr ""
+
+# msgid 'Host groups'
+# msgstr ""
+
+# msgid 'Time period'
+# msgstr ""
+
+# msgid 'Search service groups'
+# msgstr ""
+
+# msgid' Do you want to quit the form without saving the changes?'
+# msgstr ""
+
+# msgid 'Your form has unsaved changes'
+# msgstr ""
+
+# msgid 'This name already exists'
+# msgstr ""
+
+# msgid 'Cancel notification creation'
+# msgstr ""
+
+# msgid 'Cancel notification update'
+# msgstr ""
+
+# msgid 'Create notification for the first time'
+# msgstr ""
+
+# msgid 'Notification deleted successfully'
+# msgstr ""
+
+# msgid 'The selected notifications have been deleted successfully'
+# msgstr ""
+
+# msgid 'Failed to delete the notification'
+# msgstr ""
+
+# msgid 'Failed to delete the notifications'
+# msgstr ""
+
+# msgid 'Failed to delete the selected notifications'
+# msgstr ""
+
+# msgid 'delete multiple notifications'
+# msgstr ""
+
+# msgid 'Contacts'
+# msgstr ""
+
+# msgid 'Contact groups'
+# msgstr ""
+
+# msgid 'Search contacts'
+# msgstr ""
+
+# msgid 'Search contact groups'
+# msgstr ""
+
+# msgid 'Select contacts and contact groups'
+# msgstr ""
+
+# msgid '24h/24h - 7/7 days'
+# msgstr ""
+
+# msgid 'Include services for these hosts'
+# msgstr ""
+
+# msgid "Select a widget type"
+# msgstr ""
+
+# msgid "No widget found"
+# msgstr ""
+
+# msgid "Delete a widget"
+# msgstr ""
+
+# msgid "Do you want to delete this widget?"
+# msgstr ""
+
+# msgid "Widget library"
+# msgstr ""
+
+# msgid "Please choose a widget to activate the preview"
+# msgstr ""
+
+# msgid "Edit widget"
+# msgstr ""
+
+# msgid "Delete widget"
+# msgstr ""
+
+# msgid "Widget properties"
+# msgstr ""
+
+# msgid "Common properties"
+# msgstr ""
+
+# msgid "More actions"
+# msgstr ""
+
+#  msgid "Error while adding a host"
+#  msgstr ""
+
+#  msgid "Error while linking host categories to a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to add hosts"
+#  msgstr ""
+
+#  msgid "Host #%d not found"
+#  msgstr ""
+
+#  msgid "Host name should not start with '_Module_'"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete a service"
+#  msgstr ""
+
+#  msgid "Error while deleting the service"
+#  msgstr ""
+
+#  msgid "Host template required in service group association is not linked to service template"
+#  msgstr ""
+
+# msgid "No data found"
+# msgstr ""
+
+# msgid "Metrics dataset selection"
+# msgstr ""
+
+# msgid "Resource type"
+# msgstr ""
+
+# msgid "Select a resource"
+# msgstr ""
+
+# msgid "Please select a resource"
+# msgstr ""
+
+# msgid "Service name"
+# msgstr ""
+
+# msgid "Please select a metric"
+# msgstr ""
+
+# msgid "Show description"
+# msgstr ""
+# msgid "The limit of 2 units has been reached"
+# msgstr ""
+
+# msgid "Refresh interval"
+# msgstr ""
+
+# msgid "Dashboard global interval (by default)"
+# msgstr ""
+
+# msgid "Custom refresh interval"
+# msgstr ""
+
+# msgid "second"
+# msgstr ""
+
+# msgid "Open links in new tab"
+# msgstr ""
+
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab."
+# msgstr ""
+
+# msgstr "Dataset selection"
+# msgid ""
+
+# msgstr "You have too many metrics, please filter more resources to optimize platform performance"
+# msgid ""
+
+# msgstr "You can select a maximum of two metric units"
+# msgid ""
+
+# msgstr "Add resource"
+# msgid ""
+
+# msgstr "Add metric"
+# msgid ""
+
+# msgstr "available"
+# msgid ""
+
+# msgstr "Your widget has been modified successfully!"
+# msgid ""
+
+# msgstr "Your widget has been created successfully!"
+# msgid ""
+
+# msgstr "Value settings"
+# msgid ""
+
+# msgid "Graph type"
+# msgstr ""
+
+# msgid "Value defined by the {{metric}} metric"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+# msgid "Custom value"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+# msgid "Custom value"
+# msgstr ""
+
+# msgid "Notifications will only be sent during this time period"
+# msgstr ""
+
+# msgid "Business views"
+# msgstr ""
+
+# msgid "Search Business Views"
+# msgstr ""
+
+# msgid "Business Views events"
+# msgstr ""
+
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab."
+# msgstr ""
+
+#  msgid "You are not allowed to add a service"
+#  msgstr ""
+
+#  msgid "Error while adding the service"
+#  msgstr ""
+
+#  msgid "Error while retrieving a service"
+#  msgstr ""
+
+#  msgid "The check command cannot be null if the service template is null"
+#  msgstr ""
+
+#  msgid "'%s' does not exist with ID(s) '%s'"
+#  msgstr ""
+
+#  msgid "'%s' service name already exists for host ID %d"
+#  msgstr ""
+
+# msgid "Widget type"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Text"
+# msgstr ""
+
+# msgid "Gauge"
+# msgstr ""
+
+# msgid "Bar chart"
+# msgstr ""
+
+# msgid "The default value is the value defined for the first metric used."
+# msgstr ""
+
+# msgid "None"
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Raw value"
+# msgstr ""
+
+# msgid "Human readable"
+# msgstr ""
+
+# msgid "You can choose only one resource for each resource type."
+# msgstr ""
+
+# msgid "View properties"
+# msgstr ""
+
+# msgid "Your rights only allow you to view the properties of a widget."
+# msgstr ""
+
+# msgid "Please contact your administrator for more information."
+# msgstr ""
+
+# msgid "Base color"
+# msgstr ""
+
+#  msgid "Display view:"
+#  msgstr ""
+
+#  msgid "View all resources"
+#  msgstr ""
+
+#  msgid "View by host"
+#  msgstr ""
+
+#  msgid "View by service"
+#  msgstr ""
+
+msgid "Advanced mode"
+msgstr "Modo avanzado"
+
+#  msgid "Error while adding a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens"
+#  msgstr ""
+
+#  msgid "Error while retrieving a token"
+#  msgstr ""
+
+#  msgid "The token name '%s' already exists"
+#  msgstr ""
+
+#  msgid "The user with ID %d' doesn't exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} resources"
+# msgstr ""
+
+#  msgid "Error while deleting a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "hosts"
+# msgstr ""
+
+# msgid "none"
+# msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""
+
+# msgid "View widget properties"
+# msgstr ""
+
+# msgid "Dashboard library"
+# msgstr ""
+
+# msgid "Welcome to the Dashboards interface!"
+# msgstr ""
+
+#  msgid "You are not allowed to access services"
+#  msgstr ""
+
+#  msgid "Error while searching for services"
+#  msgstr ""
+
+
+# msgid "Availability"
+# msgstr ""
+
+# msgid "Generic text"
+# msgstr ""
+
+# msgid "Allows you to add free text to your dashboards (section titles, information, etc.)."
+# msgstr ""
+
+# msgid "Single metric"
+# msgstr ""
+
+# msgid "Displays the value of a single metric as a text, a gauge or a bar chart."
+# msgstr ""
+
+# msgid "Metrics graph"
+# msgstr ""
+
+# msgid "Displays metrics for a given time period."
+# msgstr ""
+
+# msgid "Top/bottom"
+# msgstr ""
+
+# msgid "Displays the top or bottom x hosts, for a selected metric."
+# msgstr ""
+
+# msgid "Thresholds"
+# msgstr ""
+
+# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Time period"
+# msgstr ""
+
+# msgid "Last hour (default)"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Customize"
+# msgstr ""
+
+# msgid "to"
+# msgstr ""
+
+# msgid "Add widget"
+# msgstr ""
+
+# msgid "Dataset selection"
+# msgstr ""
+
+# msgid "Select resource"
+# msgstr ""
+
+# msgid "Select metric"
+# msgstr ""
+
+# msgid "You can select a maximum of 2 metric units."
+# msgstr ""
+
+#  msgid "You are not allowed to list hosts"
+#  msgstr ""
+
+#  msgid "Error while searching for host configurations"
+#  msgstr ""
+
+#  msgid "The '%s' command name already exists"
+#  msgstr ""
+
+#  msgid "'%d' is not a valid command type"
+#  msgstr ""
+
+#  msgid "The following arguments are not valid: %s"
+#  msgstr ""
+
+#  msgid "The following macros are not valid: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to add a command"
+#  msgstr ""
+
+#  msgid "Error while adding the command"
+#  msgstr ""
+
+#  msgid "Error while retrieving a command"
+#  msgstr ""
+
+# msgid "Save as"
+# msgstr ""

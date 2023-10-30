@@ -1,0 +1,5 @@
+AddHostCategory:
+  methods: POST
+  path: /configuration/hosts/categories
+  controller: 'Core\HostCategory\Infrastructure\API\AddHostCategory\AddHostCategoryController'
+  condition: "request.attributes.get('version') >= 23.04"

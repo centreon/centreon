@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,10 @@ require_once __DIR__ . '/../www/class/centreonStatistics.class.php';
 
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
+
+$shortopts  = "d";
+$longopts  = [ "debug" ];
+$options = getopt($shortopts, $longopts);
 
 $output = new ConsoleOutput();
 $logger = new ConsoleLogger($output);
@@ -115,6 +119,8 @@ if ($isRemote === false) {
         $versions = $oStatistics->getVersion();
         $infos = $oStatistics->getPlatformInfo();
         $timezone = $oStatistics->getPlatformTimezone();
+        $authentication = $oStatistics->getAuthenticationOptions();
+        $authentication['api_token'] = $oStatistics->getApiTokensInfo();
         $additional = [];
 
         /*
@@ -136,18 +142,23 @@ if ($isRemote === false) {
             'versions' => $versions,
             'infos' => $infos,
             'timezone' => $timezone,
+            'authentication' => $authentication,
             'additional' => $additional
         );
 
-        $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, array(), true);
-        logger(
-            sprintf(
-                'Response from [%s] : %s,body : %s',
-                CENTREON_STATS_URL,
-                $returnData['statusCode'],
-                $returnData['body']
-            )
-        );
+        if ( isset($options["d"]) || isset($options["debug"]) ) {
+            echo json_encode($data, JSON_PRETTY_PRINT) . "\n";
+        } else {
+            $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, array(), true);
+            logger(
+                sprintf(
+                    'Response from [%s] : %s,body : %s',
+                    CENTREON_STATS_URL,
+                    $returnData['statusCode'],
+                    $returnData['body']
+                )
+            );
+        }
     } catch (Exception $ex) {
         logger('Got error while sending data to [' . CENTREON_STATS_URL . ']', $ex);
     }

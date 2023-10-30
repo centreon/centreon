@@ -49,17 +49,6 @@ class FindOneMetaServiceConfigurationTest extends TestCase
     }
 
     /**
-     * @return FindHostCategories
-     */
-    private function createMetaServiceConfigurationUseCase(): FindOneMetaServiceConfiguration
-    {
-        $contact = new Contact();
-        $contact->setAdmin(true);
-
-        return (new FindOneMetaServiceConfiguration($this->metaServiceConfigurationService, $contact));
-    }
-
-    /**
      * Test as admin user
      */
     public function testExecuteAsAdmin(): void

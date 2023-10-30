@@ -48,5 +48,23 @@ class PlatformInstallationStatusContext extends ApiContext
             'rm -rf /var/cache/centreon/symfony',
             'web'
         );
+
+        $this->getContainer()->execute(
+            'mkdir /usr/share/centreon/www/install',
+            'web'
+        );
+    }
+
+    /**
+     * Remove centreon databases, configuration file, installation dir and symfony cache
+     *
+     * @Given Centreon Web is not installed and not installable
+     */
+    public function centreonWebIsNotInstalledAndNotInstallable()
+    {
+        $this->getContainer()->execute(
+            'rm -Rf /usr/share/centreon/www/install',
+            'web'
+        );
     }
 }

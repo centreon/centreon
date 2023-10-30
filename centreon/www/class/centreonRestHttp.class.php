@@ -156,6 +156,7 @@ class CentreonRestHttp
         switch ($http_code) {
             case 200:
             case 201:
+            case 204:
                 break;
             case 400:
                 $exceptionClass = 'RestBadRequestException';

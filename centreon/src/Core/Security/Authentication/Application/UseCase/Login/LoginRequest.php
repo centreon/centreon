@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,7 @@ namespace Core\Security\Authentication\Application\UseCase\Login;
 
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
-class LoginRequest
+final class LoginRequest
 {
     /**
      * @param string $providerName
@@ -34,6 +34,8 @@ class LoginRequest
      * @param string|null $password
      * @param string|null $code
      * @param string|null $refererQueryParameters
+     * @param string|null $requestId
+     * @param string|null $assertion
      */
     private function __construct(
         public string $providerName,
@@ -41,7 +43,9 @@ class LoginRequest
         public ?string $username = null,
         public ?string $password = null,
         public ?string $code = null,
-        public ?string $refererQueryParameters = null
+        public ?string $refererQueryParameters = null,
+        public ?string $requestId = null,
+        public ?string $assertion = null,
     ) {
     }
 
@@ -50,6 +54,7 @@ class LoginRequest
      * @param string $password
      * @param string|null $clientIp
      * @param string|null $refererQueryParameters
+     *
      * @return LoginRequest
      */
     public static function createForLocal(
@@ -72,6 +77,7 @@ class LoginRequest
     /**
      * @param string $clientIp
      * @param string $code
+     *
      * @return LoginRequest
      */
     public static function createForOpenId(string $clientIp, string $code): self
@@ -81,10 +87,21 @@ class LoginRequest
 
     /**
      * @param string $clientIp
+     *
      * @return LoginRequest
      */
     public static function createForSSO(string $clientIp): self
     {
         return new self(Provider::WEB_SSO, $clientIp);
+    }
+
+    /**
+     * @param string $clientIp
+     *
+     * @return LoginRequest
+     */
+    public static function createForSAML(string $clientIp): self
+    {
+        return new self(Provider::SAML, $clientIp);
     }
 }

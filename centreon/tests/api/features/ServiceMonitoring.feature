@@ -18,7 +18,7 @@ Feature:
         And the configuration is generated and exported
         And I wait until host "test" is monitored
         And I wait until service "test_service1" from host "test" is monitored
-
+        And I wait to get 2 results from "/api/v21.10/monitoring/services?search={"host.name":"test"}" (tries: 100)
         When I send a GET request to '/api/v21.10/monitoring/services?search={"host.name":"test"}'
         Then the response code should be "200"
         And the JSON node "result" should have "2" elements

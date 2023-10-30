@@ -39,9 +39,6 @@ namespace CentreonClapi;
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
 use CentreonRemote\ServiceProvider;
-use CentreonRemote\Domain\Service\TaskService;
-use Centreon\Infrastructure\Service\CentcoreCommandService;
-use Centreon\Infrastructure\Service\CentreonDBManagerService;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -63,7 +60,7 @@ class CentreonConfigPoller
     private $brokerCachePath;
     private $engineCachePath;
     private $centreon_path;
-    private $centcore_pipe;
+
     /**
      * @var EngineCommandGenerator|null
      */
@@ -94,11 +91,24 @@ class CentreonConfigPoller
         $this->engineCachePath = _CENTREON_CACHEDIR_ . "/config/engine/";
         $this->centreon_path = $centreon_path;
         $this->resultTest = array("warning" => 0, "errors" => 0);
-        $this->centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
 
         $kernel = new Kernel('prod', false);
         $kernel->boot();
         $this->container = $kernel->getContainer();
+    }
+
+    /**
+     * Get dynamic centcore pipe file when possible
+     *
+     * @return string
+     */
+    private function getCentcorePipe(): string
+    {
+        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
+            return _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+        }
+
+        return _CENTREON_VARLIB_ . '/centcore.cmd';
     }
 
     /**
@@ -119,43 +129,9 @@ class CentreonConfigPoller
             return;
         } else {
             print "ERROR: Unknown poller...\n";
-            $this->getPollerList($this->format);
+            $this->getPollerList('');
             exit(1);
         }
-    }
-
-    /**
-     *
-     * @param type $poller
-     * @return type
-     */
-    private function isPollerLocalhost($poller)
-    {
-        if (is_numeric($poller)) {
-            $sQuery = "SELECT localhost FROM nagios_server WHERE `id` = '" . $this->DB->escape($poller) . "'";
-        } else {
-            $sQuery = "SELECT localhost FROM nagios_server WHERE `name` = '" . $this->DB->escape($poller) . "'";
-        }
-
-        $DBRESULT = $this->DB->query($sQuery);
-        if ($data = $DBRESULT->fetchRow()) {
-            return $data["localhost"];
-        } else {
-            print "ERROR: Unknown poller...\n";
-            $this->getPollerList($this->format);
-            exit(1);
-        }
-    }
-
-    /**
-     * Returns monitoring engines for generation purpose
-     *
-     * @param int $poller
-     * @return string
-     */
-    private function getMonitoringEngine($poller)
-    {
-        return 'CENGINE';
     }
 
     /**
@@ -202,15 +178,15 @@ class CentreonConfigPoller
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
         exec(
-            sprintf("echo '%s:%d' >> %s", $reloadCommand, $host["id"], $this->centcore_pipe),
+            sprintf("echo '%s:%d' >> %s", $reloadCommand, $host["id"], $this->getCentcorePipe()),
             $stdout,
             $return_code
         );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->centcore_pipe, $stdout, $return_code);
+        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->getCentcorePipe(), $stdout, $return_code);
         $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
-            "UPDATE `nagios_server` SET `last_restart` = :last_restart WHERE `id` = :poller_id LIMIT 1"
+            "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
         $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
@@ -280,15 +256,15 @@ class CentreonConfigPoller
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
         exec(
-            sprintf("echo '%s:%d' >> %s", $restartCommand, $host["id"], $this->centcore_pipe),
+            sprintf("echo '%s:%d' >> %s", $restartCommand, $host["id"], $this->getCentcorePipe()),
             $stdout,
             $return_code
         );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->centcore_pipe, $stdout, $return_code);
+        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->getCentcorePipe(), $stdout, $return_code);
         $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
-            "UPDATE `nagios_server` SET `last_restart` = :last_restart WHERE `id` = :poller_id LIMIT 1"
+            "UPDATE `nagios_server` SET `last_restart` = :last_restart, `updated` = '0' WHERE `id` = :poller_id LIMIT 1"
         );
         $statement->bindValue(':last_restart', time(), \PDO::PARAM_INT);
         $statement->bindValue(':poller_id', (int) $poller_id, \PDO::PARAM_INT);
@@ -405,7 +381,8 @@ class CentreonConfigPoller
         $this->testPollerId($variables);
 
         $poller_id = $this->getPollerId($variables);
-
+        //sanitize poller id against traversal path vulnerability
+        $poller_id = basename($poller_id);
         $config_generate->configPollerFromId($poller_id, $login);
 
         /* Change files owner */
@@ -510,10 +487,18 @@ class CentreonConfigPoller
             /* Change files owner */
             if ($apacheUser != "") {
                 foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
+                    //handle path traversal vulnerability
+                    if (strpos($file, '..') !== false) {
+                        throw new \Exception('Path traversal found');
+                    }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
                 }
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
+                    //handle path traversal vulnerability
+                    if (strpos($file, '..') !== false) {
+                        throw new \Exception('Path traversal found');
+                    }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
                 }
@@ -559,6 +544,10 @@ class CentreonConfigPoller
                 /* Change files owner */
                 if ($apacheUser != "") {
                     foreach (glob(rtrim($centreonBrokerDirCfg, "/") . "/" . "/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
+                        //handle path traversal vulnerability
+                        if (strpos($file, '..') !== false) {
+                            throw new \Exception('Path traversal found');
+                        }
                         @chown($file, $apacheUser);
                         @chgrp($file, $apacheUser);
                     }
@@ -633,7 +622,7 @@ class CentreonConfigPoller
                     ['params' => $exportParams]
                 );
             }
-            exec("echo 'SENDCFGFILE:" . $host['id'] . "' >> " . $this->centcore_pipe, $stdout, $return);
+            exec("echo 'SENDCFGFILE:" . $host['id'] . "' >> " . $this->getCentcorePipe(), $stdout, $return);
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"
@@ -693,8 +682,12 @@ class CentreonConfigPoller
             mkdir("{$trapdPath}/{$pollerId}");
         }
         $filename = "{$trapdPath}/{$pollerId}/centreontrapd.sdb";
+        //handle path traversal vulnerability
+        if (strpos($filename, '..') !== false) {
+            throw new \Exception('Path traversal found');
+        }
         passthru("$centreonDir/bin/generateSqlLite '{$pollerId}' '{$filename}' 2>&1");
-        exec("echo 'SYNCTRAP:" . $pollerId . "' >> " . $this->centcore_pipe, $stdout, $return);
+        exec("echo 'SYNCTRAP:" . $pollerId . "' >> " . $this->getCentcorePipe(), $stdout, $return);
         return $return;
     }
 
@@ -716,8 +709,8 @@ class CentreonConfigPoller
 
     /**
      *
-     * @param type $poller
-     * @return type
+     * @param string $poller
+     * @return int
      */
     private function getPollerId($poller)
     {

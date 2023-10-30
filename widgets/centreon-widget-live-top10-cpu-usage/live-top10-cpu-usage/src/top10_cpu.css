@@ -8,26 +8,26 @@
     border-radius: 4px;
 }
 .bar .progress-ok {
-    background-color: #caef74;
+    background-color: #88B922;
     height: 100%;
     display: block;
     border-radius: 4px;
 }
 .bar .progress-warning {
-    background-color: #fdc67c;
+    background-color: #FD9B27;
     height: 100%;
     display: block;
     border-radius: 4px;
 }
 .bar .progress-critical {
-    background-color: #FF9194;
+    background-color: #FF6666;
     height: 100%;
     display: block;
     color: #e00b3d;
     border-radius: 4px;
 }
 .bar .progress-unknown {
-    background-color: #bcbdc0;
+    background-color: #757575;
     height: 100%;
     display: block;
     border-radius: 4px;

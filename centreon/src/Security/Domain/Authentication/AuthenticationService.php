@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security\Domain\Authentication;
@@ -34,9 +35,6 @@ use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
 
-/**
- * @package Security\Authentication
- */
 class AuthenticationService implements AuthenticationServiceInterface
 {
     use LoggerTrait;
@@ -67,6 +65,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         $authenticationTokens = $this->findAuthenticationTokensByToken($token);
         if ($authenticationTokens === null) {
             $this->notice('[AUTHENTICATION SERVICE] token not found');
+
             return false;
         }
 
@@ -75,24 +74,27 @@ class AuthenticationService implements AuthenticationServiceInterface
         );
 
         try {
-            $provider = $this->providerFactory->create($configuration->getName());
+            $provider = $this->providerFactory->create($configuration->getType());
         } catch (ProviderException) {
             $this->notice('[AUTHENTICATION SERVICE] Provider not found');
+
             return false;
         }
 
         if ($authenticationTokens->getProviderToken()->isExpired()) {
             if (
-                !$provider->canRefreshToken()
+                ! $provider->canRefreshToken()
                 || $authenticationTokens->getProviderRefreshToken() === null
                 || $authenticationTokens->getProviderRefreshToken()->isExpired()
             ) {
                 $this->notice('Your session has expired');
+
                 return false;
             }
             $newAuthenticationTokens = $provider->refreshToken($authenticationTokens);
             if ($newAuthenticationTokens === null) {
                 $this->notice('Error while refresh token');
+
                 return false;
             }
             $this->updateAuthenticationTokens($newAuthenticationTokens);

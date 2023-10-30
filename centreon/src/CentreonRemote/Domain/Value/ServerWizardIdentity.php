@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,12 +24,12 @@ namespace CentreonRemote\Domain\Value;
 use Curl\Curl;
 
 /**
- * Check wizard type
+ * Check wizard type.
  */
 class ServerWizardIdentity
 {
     /**
-     * check wizard type (remote server / poller)
+     * check wizard type (remote server / poller).
      *
      * @return bool true if it is remote server wizard
      */
@@ -39,21 +39,22 @@ class ServerWizardIdentity
     }
 
     /**
-     * check wizard type (remote server / poller)
+     * check wizard type (remote server / poller).
      *
      * @return bool true if it is poller wizard
      */
     public function requestConfigurationIsPoller(): bool
     {
-        return !static::requestConfigurationIsRemote();
+        return ! static::requestConfigurationIsRemote();
     }
 
     /**
-     * check if bam is installed on remote server
+     * check if bam is installed on remote server.
      *
      * @param string $centreonUrl URL of Centreon of the remote server
      * @param bool $noCheckCertificate do not check peer SSL certificat
      * @param bool $noProxy don't use configured proxy
+     *
      * @return bool if bam is installed on remote server
      */
     public function checkBamOnRemoteServer(
@@ -61,7 +62,7 @@ class ServerWizardIdentity
         bool $noCheckCertificate = false,
         bool $noProxy = false
     ): bool {
-        $centreonUrl .= "/api/external.php?object=centreon_modules_webservice&action=getBamModuleInfo";
+        $centreonUrl .= '/api/external.php?object=centreon_modules_webservice&action=getBamModuleInfo';
 
         try {
             $curl = new Curl;
@@ -83,7 +84,7 @@ class ServerWizardIdentity
             return false;
         }
 
-        $data = json_decode($curl->response, true);
+        $data = json_decode($curl->response, true) ?: [];
 
         return array_key_exists('enabled', $data) && $data['enabled'];
     }

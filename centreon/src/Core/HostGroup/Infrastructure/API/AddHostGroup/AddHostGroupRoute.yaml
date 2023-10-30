@@ -1,0 +1,5 @@
+AddHostGroup:
+  methods: POST
+  path: /configuration/hosts/groups
+  controller: 'Core\HostGroup\Infrastructure\API\AddHostGroup\AddHostGroupController'
+  condition: "request.attributes.get('version') >= 23.04"

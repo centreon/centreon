@@ -162,7 +162,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             $optionPayload = [
                 'proxy' => null,
                 'no_proxy' => '*',
-                'verify_peer' => $_SERVER['REQUEST_SCHEME'] === 'https',
+                'verify_peer' => false,
                 'headers' => ['X-AUTH-TOKEN' => $providerToken->getToken()],
                 'body' => $payloadBody,
                 'timeout' => $this->timeout

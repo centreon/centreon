@@ -1,0 +1,61 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.rt}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.address.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.address.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.path.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.path.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.token.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.token.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.https.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.https.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.timeout.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.timeout.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.mappingticket.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.mappingticketdynamicfield.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicketDynamicField" cloneSet=$form.mappingTicketDynamicField}
+    </td>
+</tr>

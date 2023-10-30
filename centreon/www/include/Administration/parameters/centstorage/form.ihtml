@@ -12,21 +12,172 @@
                 <h4>{$form.header.folder}</h4>
             </td>
         </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_path_to_rrdtool_database_for_metrics">{$form.RRDdatabase_path.label}</td><td class="FormRowValue">{$form.RRDdatabase_path.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_path_to_rrdtool_database_for_status">{$form.RRDdatabase_status_path.label}</td><td class="FormRowValue">{$form.RRDdatabase_status_path.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_path_to_rrdtool_database_for_nagios_statistics">{$form.RRDdatabase_nagios_stats_path.label}</td><td class="FormRowValue">{$form.RRDdatabase_nagios_stats_path.html}</td></tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_path_to_rrdtool_database_for_metrics">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.RRDdatabase_path.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </td>
+            <td class="FormRowValue">{$form.RRDdatabase_path.html}</td>
+        </tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_path_to_rrdtool_database_for_status">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.RRDdatabase_status_path.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </td>
+            <td class="FormRowValue">{$form.RRDdatabase_status_path.html}</td>
+        </tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_path_to_rrdtool_database_for_nagios_statistics">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.RRDdatabase_nagios_stats_path.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </td>
+            <td class="FormRowValue">{$form.RRDdatabase_nagios_stats_path.html}</td>
+        </tr>
 
         <tr class="list_lvl_1">
             <td class="ListColLvl1_name" colspan="2">
                 <h4>{$form.header.retention}</h4>
             </td>
         </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_reporting_retention">{$form.reporting_retention.label}</td><td class="FormRowValue">{$form.reporting_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_logs_retention_duration">{$form.archive_retention.label}</td><td class="FormRowValue">{$form.archive_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_retention_duration_for_data_in_mysql">{$form.len_storage_mysql.label}</td><td class="FormRowValue">{$form.len_storage_mysql.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_rrdtool_database_size">{$form.len_storage_rrd.label}</td><td class="FormRowValue">{$form.len_storage_rrd.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_retention_duration_for_data_in_downtimes">{$form.len_storage_downtimes.label}</td><td class="FormRowValue">{$form.len_storage_downtimes.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_retention_duration_for_data_in_comments">{$form.len_storage_comments.label}</td><td class="FormRowValue">{$form.len_storage_comments.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_reporting_retention">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.reporting_retention.label}
+                        </p>
+
+                    </div>
+                </div>
+
+            </td>
+            <td class="FormRowValue">{$form.reporting_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_logs_retention_duration">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.archive_retention.label}
+                        </p>
+
+                    </div>
+                </div>
+
+            </td>
+            <td class="FormRowValue">{$form.archive_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_retention_duration_for_data_in_mysql">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.len_storage_mysql.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </td>
+            <td class="FormRowValue">{$form.len_storage_mysql.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_rrdtool_database_size">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+
+                            {$form.len_storage_rrd.label}
+                        </p>
+
+                    </div>
+                </div>
+
+            </td>
+            <td class="FormRowValue">{$form.len_storage_rrd.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_retention_duration_for_data_in_downtimes">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.len_storage_downtimes.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </td>
+            <td class="FormRowValue">{$form.len_storage_downtimes.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_retention_duration_for_data_in_comments">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.len_storage_comments.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </td>
+            <td class="FormRowValue">{$form.len_storage_comments.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
 
 
         <tr class="list_lvl_1">
@@ -34,9 +185,42 @@
                 <h4>{$form.header.partitioning}</h4>
             </td>
         </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_partitioning_retention">{$form.partitioning_retention.label}</td><td class="FormRowValue">{$form.partitioning_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_partitioning_retention">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.partitioning_retention.label}
+                        </p>
+
+                    </div>
+                </div>
+
+            </td>
+            <td class="FormRowValue">{$form.partitioning_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_partitioning_retention_forward">{$form.partitioning_retention_forward.label}</td><td class="FormRowValue">{$form.partitioning_retention_forward.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_partitioning_backup_directory">{$form.partitioning_backup_directory.label}</td><td class="FormRowValue">{$form.partitioning_backup_directory.html}</td></tr>
+        <tr class="list_one">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_partitioning_backup_directory">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.partitioning_backup_directory.label}
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </td>
+            <td class="FormRowValue">{$form.partitioning_backup_directory.html}</td>
+        </tr>
 
 
         <tr class="list_lvl_1">
@@ -45,7 +229,23 @@
             </td>
         </tr>
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_audit_log_option">{$form.audit_log_option.label}</td><td class="FormRowValue">{$form.audit_log_option.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_audit_log_retention">{$form.audit_log_retention.label}</td><td class="FormRowValue">{$form.audit_log_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td></tr>
+        <tr class="list_two">
+            <td class="FormRowField">
+                <div class="formRowLabel">
+                    <div>
+                        <img class="helpTooltip" name="tip_audit_log_retention">
+                    </div>
+                    <div>
+                        <p class="fieldLabel">
+                            {$form.audit_log_retention.label}
+                        </p>
+
+                    </div>
+                </div>
+
+            </td>
+            <td class="FormRowValue">{$form.audit_log_retention.html}&nbsp;&nbsp;{$ods_log_retention_unit}</td>
+        </tr>
         {if isset($form.required)}
             <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
                 {if isset($form.required)}

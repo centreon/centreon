@@ -297,7 +297,7 @@ if ($o == SERVICE_TEMPLATE_ADD) {
 } elseif ($o == SERVICE_TEMPLATE_WATCH) {
     $form->addElement('header', 'title', _("View a Service Template Model"));
 } elseif ($o == SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title', _("Massive Change"));
+    $form->addElement('header', 'title', _("Mass Change"));
 }
 
 #
@@ -696,12 +696,6 @@ $form->addGroup($serviceStalOpt, 'service_stalOpts', _("Stalking Options"), '&nb
 ## Further informations
 #
 $form->addElement('header', 'furtherInfos', _("Additional Information"));
-$serviceActivation[] = $form->createElement('radio', 'service_activate', null, _("Enabled"), '1');
-$serviceActivation[] = $form->createElement('radio', 'service_activate', null, _("Disabled"), '0');
-$form->addGroup($serviceActivation, 'service_activate', _("Enable/disable resource"), '&nbsp;');
-if ($o != SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    $form->setDefaults(array('service_activate' => '1'));
-}
 $form->addElement('textarea', 'service_comment', _("Comments"), $attrsTextarea);
 
 #
@@ -714,7 +708,7 @@ if ($o == SERVICE_TEMPLATE_ADD) {
 } elseif ($o == SERVICE_TEMPLATE_WATCH) {
     $form->addElement('header', 'title2', _("View relations"));
 } elseif ($o == SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'links', _("Relations"));
@@ -755,7 +749,7 @@ if ($o == SERVICE_TEMPLATE_ADD) {
 } elseif ($o == SERVICE_TEMPLATE_WATCH) {
     $form->addElement('header', 'title3', _("View Data Processing"));
 } elseif ($o == SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'treatment', _("Data Processing"));
@@ -830,7 +824,7 @@ if ($o == SERVICE_TEMPLATE_ADD) {
 } elseif ($o == SERVICE_TEMPLATE_WATCH) {
     $form->addElement('header', 'title4', _("View an Extended Info"));
 } elseif ($o == SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title2', _("Massive Change"));
+    $form->addElement('header', 'title2', _("Mass Change"));
 }
 
 $form->addElement('header', 'nagios', _("Monitoring Engine"));
@@ -891,7 +885,7 @@ if ($o == SERVICE_TEMPLATE_ADD) {
 } elseif ($o == SERVICE_TEMPLATE_WATCH) {
     $form->addElement('header', 'title5', _("View macros"));
 } elseif ($o == SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    $form->addElement('header', 'title5', _("Massive Change"));
+    $form->addElement('header', 'title5', _("Mass Change"));
 }
 
 $form->addElement('header', 'macro', _("Macros"));

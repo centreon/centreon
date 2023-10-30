@@ -1,9 +1,9 @@
 import { prop, isNil, filter, equals } from 'ramda';
 import { TFunction, useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
+import { makeStyles } from 'tss-react/mui';
 
 import { Chip, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import EventIcon from '@mui/icons-material/Event';
 import CommentIcon from '@mui/icons-material/Comment';
 import NotificationIcon from '@mui/icons-material/Notifications';
@@ -11,6 +11,7 @@ import FaceIcon from '@mui/icons-material/Face';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
+import CompactStatusChip from '../CompactStatusChip';
 import {
   labelEvent,
   labelComment,
@@ -27,13 +28,10 @@ import {
   labelLastMonth,
   labelLastYear,
   labelBeforeLastYear,
-  labelStatus,
+  labelStatus
 } from '../../../translatedLabels';
 import DowntimeChip from '../../../Chip/Downtime';
 import AcknowledgeChip from '../../../Chip/Acknowledge';
-import CompactStatusChip, {
-  useCompactStatusChipStyles,
-} from '../CompactStatusChip';
 import OutputInformation from '../OutputInformation';
 
 import { TimelineEvent, Type } from './models';
@@ -41,74 +39,79 @@ import { TimelineEvent, Type } from './models';
 const types: Array<Type> = [
   {
     id: 'event',
-    name: labelStatus,
+    name: labelStatus
   },
 
   {
     id: 'notification',
-    name: labelNotification,
+    name: labelNotification
   },
 
   {
     id: 'comment',
-    name: labelComment,
+    name: labelComment
   },
 
   {
     id: 'acknowledgement',
-    name: labelAcknowledgement,
+    name: labelAcknowledgement
   },
 
   {
     id: 'downtime',
-    name: labelDowntime,
-  },
+    name: labelDowntime
+  }
 ];
 
 const getTypeIds = (): Array<string> => {
   return types.map(prop('id'));
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
+  author: {
+    borderRadius: theme.spacing(1.75),
+    height: theme.spacing(2.75),
+    paddingLeft: 0
+  },
   chip: {
-    display: 'flex',
+    display: 'flex'
   },
   event: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: theme.spacing(1),
+    padding: theme.spacing(1)
   },
   eventTimeLineContainer: {
+    alignContent: 'center',
     alignItems: 'center',
+    columnGap: theme.spacing(2),
     display: 'flex',
     flexGrow: 0.5,
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     marginBottom: theme.spacing(1),
     padding: theme.spacing(0, 1),
-    rowGap: theme.spacing(1),
+    rowGap: theme.spacing(1)
   },
   info: {
     display: 'grid',
     gridAutoFlow: 'row',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   infoHeader: {
-    alignItems: 'start',
+    alignItems: 'center',
     display: 'grid',
     gridAutoFlow: 'column',
     gridGap: theme.spacing(2),
-    gridTemplateColumns: 'minmax(80px, auto) auto 1fr',
-    marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(2),
+    gridTemplateColumns: 'minmax(80px, auto) auto 1fr'
   },
   outputContainer: {
     alignItems: 'center',
     display: 'flex',
     marginBottom: theme.spacing(1),
-    paddingLeft: theme.spacing(12 / 8),
+    paddingLeft: theme.spacing(12 / 8)
   },
   title: {
     alignItems: 'center',
@@ -116,8 +119,8 @@ const useStyles = makeStyles((theme) => ({
     gridAutoColumns: 'auto',
     gridAutoFlow: 'column',
     gridGap: theme.spacing(2),
-    justifyContent: 'flex-start',
-  },
+    justifyContent: 'flex-start'
+  }
 }));
 
 interface Props {
@@ -133,13 +136,12 @@ const Date = ({ event }: Props): JSX.Element => {
 };
 
 const Author = ({ event }: Props): JSX.Element => {
-  const classes = useCompactStatusChipStyles();
-
+  const { classes } = useStyles();
   const contactName = event.contact?.name || '';
 
   return (
     <Chip
-      className={classes.root}
+      className={classes.author}
       icon={<FaceIcon />}
       label={contactName}
       size="small"
@@ -149,7 +151,7 @@ const Author = ({ event }: Props): JSX.Element => {
 };
 
 const EventTimelineEvent = ({ event }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (
@@ -178,7 +180,7 @@ const EventTimelineEvent = ({ event }: Props): JSX.Element => {
 };
 
 const CommentTimelineEvent = ({ event }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.event}>
@@ -194,7 +196,7 @@ const CommentTimelineEvent = ({ event }: Props): JSX.Element => {
 };
 
 const AcknowledgeTimelineEvent = ({ event }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.event}>
@@ -210,14 +212,14 @@ const AcknowledgeTimelineEvent = ({ event }: Props): JSX.Element => {
 };
 
 const DowntimeTimelineEvent = ({ event }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
 
   const getCaption = (): string => {
     const formattedStartDate = format({
       date: event.startDate as string,
-      formatString: 'LLLL',
+      formatString: 'LLLL'
     });
 
     const from = `${t(labelFrom)} ${formattedStartDate}`;
@@ -228,7 +230,7 @@ const DowntimeTimelineEvent = ({ event }: Props): JSX.Element => {
 
     const formattedEndDate = format({
       date: event.endDate as string,
-      formatString: 'LLLL',
+      formatString: 'LLLL'
     });
 
     return `${from} ${t(labelTo)} ${formattedEndDate}`;
@@ -248,7 +250,7 @@ const DowntimeTimelineEvent = ({ event }: Props): JSX.Element => {
 };
 
 const NotificationTimelineEvent = ({ event }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.event}>
@@ -268,7 +270,7 @@ const TimelineEventByType = {
   comment: CommentTimelineEvent,
   downtime: DowntimeTimelineEvent,
   event: EventTimelineEvent,
-  notification: NotificationTimelineEvent,
+  notification: NotificationTimelineEvent
 };
 
 const TimelineIconByType = {
@@ -286,12 +288,12 @@ const TimelineIconByType = {
   ),
   notification: (t: TFunction): JSX.Element => (
     <NotificationIcon aria-label={t(labelNotification)} color="primary" />
-  ),
+  )
 };
 
 const sortEventsByDate = (
   { date: prevDate }: TimelineEvent,
-  { date: nextDate }: TimelineEvent,
+  { date: nextDate }: TimelineEvent
 ): number => dayjs(nextDate).valueOf() - dayjs(prevDate).valueOf();
 
 const getWeeksInDays = (weeks: number): number => weeks * -7;
@@ -303,7 +305,7 @@ interface GetDateFromNowWithWeeksProps {
 
 const getDateFromNowWithWeeks = ({
   weeks,
-  locale,
+  locale
 }: GetDateFromNowWithWeeksProps): Dayjs =>
   dayjs().locale(locale).weekday(getWeeksInDays(weeks));
 
@@ -325,7 +327,7 @@ const getEventsByDateInWeeks = ({
   locale,
   fromNumberOfWeeks,
   toNumberOfWeeks,
-  inclusionPolicy = '[)',
+  inclusionPolicy = '[)'
 }: GetEventsByDateInWeeksProps): Array<TimelineEvent> =>
   events
     .filter(
@@ -334,9 +336,9 @@ const getEventsByDateInWeeks = ({
           getDateFromNowWithWeeks({ locale, weeks: fromNumberOfWeeks }),
           getDateFromNowWithWeeks({ locale, weeks: toNumberOfWeeks }),
           'day',
-          inclusionPolicy,
+          inclusionPolicy
         ),
-      events,
+      events
     )
     .sort(sortEventsByDate);
 
@@ -358,14 +360,14 @@ const eventsByDateDivisions: Array<EventsByDateDivisions> = [
       events
         .filter(({ date }) => dayjs(date).isToday(), events)
         .sort(sortEventsByDate),
-    label: labelToday,
+    label: labelToday
   },
   {
     getEventsByDate: ({ events }): Array<TimelineEvent> =>
       events
         .filter(({ date }) => dayjs(date).isYesterday(), events)
         .sort(sortEventsByDate),
-    label: labelYesterday,
+    label: labelYesterday
   },
   {
     endDate: (): Dayjs => dayjs().subtract(2, 'day'),
@@ -389,13 +391,13 @@ const eventsByDateDivisions: Array<EventsByDateDivisions> = [
                   .weekday(getWeeksInDays(thisWeek)),
                 dayjs().subtract(2, 'day'),
                 'day',
-                '[]',
+                '[]'
               );
         }, events) as Array<TimelineEvent>
       ).sort(sortEventsByDate),
     label: labelThisWeek,
     startDate: (locale): Dayjs =>
-      getDateFromNowWithWeeks({ locale, weeks: thisWeek }),
+      getDateFromNowWithWeeks({ locale, weeks: thisWeek })
   },
   {
     endDate: (locale: string): Dayjs =>
@@ -405,11 +407,11 @@ const eventsByDateDivisions: Array<EventsByDateDivisions> = [
         ...props,
         fromNumberOfWeeks: lastWeek,
         inclusionPolicy: '[)',
-        toNumberOfWeeks: thisWeek,
+        toNumberOfWeeks: thisWeek
       }),
     label: labelLastWeek,
     startDate: (locale: string): Dayjs =>
-      getDateFromNowWithWeeks({ locale, weeks: lastWeek }),
+      getDateFromNowWithWeeks({ locale, weeks: lastWeek })
   },
   {
     endDate: (locale: string): Dayjs =>
@@ -418,11 +420,11 @@ const eventsByDateDivisions: Array<EventsByDateDivisions> = [
       getEventsByDateInWeeks({
         ...props,
         fromNumberOfWeeks: lastMonth,
-        toNumberOfWeeks: lastWeek,
+        toNumberOfWeeks: lastWeek
       }),
     label: labelLastMonth,
     startDate: (locale: string): Dayjs =>
-      getDateFromNowWithWeeks({ locale, weeks: lastMonth }),
+      getDateFromNowWithWeeks({ locale, weeks: lastMonth })
   },
   {
     endDate: (locale: string): Dayjs =>
@@ -431,11 +433,11 @@ const eventsByDateDivisions: Array<EventsByDateDivisions> = [
       getEventsByDateInWeeks({
         ...props,
         fromNumberOfWeeks: lastYear,
-        toNumberOfWeeks: lastMonth,
+        toNumberOfWeeks: lastMonth
       }),
     label: labelLastYear,
     startDate: (locale: string): Dayjs =>
-      getDateFromNowWithWeeks({ locale, weeks: lastYear }),
+      getDateFromNowWithWeeks({ locale, weeks: lastYear })
   },
   {
     getEventsByDate: ({ events, locale }): Array<TimelineEvent> =>
@@ -444,15 +446,15 @@ const eventsByDateDivisions: Array<EventsByDateDivisions> = [
           ({ date }) =>
             dayjs(date).isBefore(
               getDateFromNowWithWeeks({ locale, weeks: lastYear }),
-              'day',
+              'day'
             ),
-          events,
+          events
         ) as Array<TimelineEvent>
       ).sort(sortEventsByDate),
     label: labelBeforeLastYear,
     startDate: (locale: string): Dayjs =>
-      getDateFromNowWithWeeks({ locale, weeks: lastYear }).subtract(1, 'day'),
-  },
+      getDateFromNowWithWeeks({ locale, weeks: lastYear }).subtract(1, 'day')
+  }
 ];
 
 export {
@@ -461,5 +463,5 @@ export {
   getTypeIds,
   TimelineIconByType,
   eventsByDateDivisions,
-  sortEventsByDate,
+  sortEventsByDate
 };

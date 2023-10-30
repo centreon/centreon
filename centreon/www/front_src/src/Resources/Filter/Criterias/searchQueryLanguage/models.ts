@@ -6,7 +6,7 @@ import {
   selectableResourceTypes,
   selectableStates,
   selectableStateTypes,
-  selectableStatuses,
+  selectableStatuses
 } from '../models';
 
 export interface CriteriaId {
@@ -31,7 +31,7 @@ export const criteriaNameSortOrder = {
   [CriteriaNames.hostSeverities]: 10,
   [CriteriaNames.hostSeverityLevels]: 11,
   [CriteriaNames.serviceSeverities]: 12,
-  [CriteriaNames.serviceSeverityLevels]: 13,
+  [CriteriaNames.serviceSeverityLevels]: 13
 };
 
 export interface AutocompleteSuggestionProps {
@@ -40,17 +40,28 @@ export interface AutocompleteSuggestionProps {
   search: string;
 }
 
+export enum SearchableFields {
+  'alias' = 'alias',
+  'fqdn' = 'fqdn',
+  'h.address' = 'h.address',
+  'h.alias' = 'h.alias',
+  'h.name' = 'h.name',
+  'information' = 'information',
+  'name' = 'name',
+  'parent_alias' = 'parent_alias',
+  'parent_name' = 'parent_name',
+  's.description' = 's.description'
+}
+
 export const searchableFields = [
   'h.name',
   'h.alias',
   'h.address',
   's.description',
-  'name',
   'alias',
-  'parent_name',
   'parent_alias',
   'fqdn',
-  'information',
+  'information'
 ];
 
 const statusNameToQueryLanguageName = selectableStatuses
@@ -62,14 +73,14 @@ const statusNameToQueryLanguageName = selectableStatuses
 export const criteriaNameToQueryLanguageName = {
   ...statusNameToQueryLanguageName,
   resource_type: 'type',
-  unhandled_problems: 'unhandled',
+  unhandled_problems: 'unhandled'
 };
 
 const staticCriteriaValuesByName = {
   resource_type: selectableResourceTypes,
   state: selectableStates,
   status: selectableStatuses,
-  status_type: selectableStateTypes,
+  status_type: selectableStateTypes
 };
 
 export const dynamicCriteriaValuesByName = [
@@ -82,10 +93,12 @@ export const dynamicCriteriaValuesByName = [
   CriteriaNames.serviceSeverities,
   CriteriaNames.hostSeverityLevels,
   CriteriaNames.serviceSeverityLevels,
+  CriteriaNames.names,
+  CriteriaNames.parentNames
 ];
 
 export const getSelectableCriteriasByName = (
-  name: string,
+  name: string
 ): Array<{ id: string; name: string }> => {
   return staticCriteriaValuesByName[name];
 };

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Model;
@@ -30,10 +31,12 @@ use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use CentreonAuth;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
+use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
+use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
@@ -45,30 +48,19 @@ use DateTimeImmutable;
 use Exception;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
-use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 
-/**
- * @package Security\Authentication\Model
- */
 class LocalProvider implements LocalProviderInterface
 {
     use LoggerTrait;
-
     public const NAME = 'local';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $contactId;
 
-    /**
-     * @var Configuration
-     */
+    /** @var Configuration */
     private $configuration;
 
-    /**
-     * @var Centreon
-     */
+    /** @var Centreon */
     private $legacySession;
 
     /**
@@ -81,6 +73,7 @@ class LocalProvider implements LocalProviderInterface
      * @param ReadUserRepositoryInterface $readUserRepository
      * @param WriteUserRepositoryInterface $writeUserRepository
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
+     * @param LoginLogger $loginLogger
      */
     public function __construct(
         private int $sessionExpirationDelay,
@@ -89,7 +82,8 @@ class LocalProvider implements LocalProviderInterface
         private OptionServiceInterface $optionService,
         private ReadUserRepositoryInterface $readUserRepository,
         private WriteUserRepositoryInterface $writeUserRepository,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
+        private readonly LoginLoggerInterface $loginLogger
     ) {
     }
 
@@ -110,7 +104,7 @@ class LocalProvider implements LocalProviderInterface
             $this->dependencyInjector['configuration_db'],
             $log,
             \CentreonAuth::ENCRYPT_MD5,
-            ""
+            ''
         );
 
         if ($auth->userInfos === null) {
@@ -120,28 +114,29 @@ class LocalProvider implements LocalProviderInterface
         $this->debug(
             '[LOCAL PROVIDER] local provider trying to authenticate using legacy Authentication',
             [
-                "class" => \CentreonAuth::class,
+                'class' => \CentreonAuth::class,
             ],
             function () use ($auth) {
                 $userInfos = $auth->userInfos;
+
                 return [
                     'contact_id' => $userInfos['contact_id'] ?? null,
                     'contact_alias' => $userInfos['contact_alias'] ?? null,
                     'contact_auth_type' => $userInfos['contact_auth_type'] ?? null,
-                    'contact_ldap_dn' => $userInfos['contact_ldap_dn'] ?? null
+                    'contact_ldap_dn' => $userInfos['contact_ldap_dn'] ?? null,
                 ];
             }
         );
 
         $doesPasswordMatch = $auth->passwdOk === 1;
 
-        if ($auth->userInfos["contact_auth_type"] === CentreonAuth::AUTH_TYPE_LOCAL) {
+        if ($auth->userInfos['contact_auth_type'] === CentreonAuth::AUTH_TYPE_LOCAL) {
             $user = $this->readUserRepository->findUserByAlias($auth->userInfos['contact_alias']);
             if ($user === null) {
                 throw new Exception('user not found');
             }
 
-            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByName(Provider::LOCAL);
+            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
             /** @var CustomConfiguration $customConfiguration */
             $customConfiguration = $providerConfiguration->getCustomConfiguration();
             $securityPolicy = $customConfiguration->getSecurityPolicy();
@@ -151,18 +146,22 @@ class LocalProvider implements LocalProviderInterface
 
         if (! $doesPasswordMatch) {
             $this->info(
-                "Local provider cannot authenticate successfully user",
+                'Local provider cannot authenticate successfully user',
                 [
-                    "provider_name" => $this->getName(),
-                    "user" => $credentials['login']
+                    'provider_name' => $this->getName(),
+                    'user' => $credentials['login'],
                 ]
             );
+
             throw AuthenticationException::notAuthenticated();
         }
 
         $this->contactId = (int) $auth->userInfos['contact_id'];
+        $auth->userInfos['auth_type'] = $auth->userInfos['contact_auth_type'] === CentreonAuth::AUTH_TYPE_LDAP
+            ? $auth->userInfos['contact_auth_type']
+            : Provider::LOCAL;
         $this->setLegacySession(new \Centreon($auth->userInfos));
-        $this->info('[LOCAL PROVIDER] authentication succeed');
+        $this->info('[LOCAL PROVIDER] authentication succeeded');
     }
 
     /**
@@ -240,9 +239,10 @@ class LocalProvider implements LocalProviderInterface
     public function getProviderToken(string $token): NewProviderToken
     {
         $sessionExpireOption = $this->optionService->findSelectedOptions(['session_expire']);
-        if (!empty($sessionExpireOption)) {
+        if (! empty($sessionExpireOption)) {
             $this->sessionExpirationDelay = (int) $sessionExpireOption[0]->getValue();
         }
+
         return new NewProviderToken(
             $token,
             new DateTimeImmutable(),
@@ -259,7 +259,7 @@ class LocalProvider implements LocalProviderInterface
     }
 
     /**
-     * Check if local security policy is respected
+     * Check if local security policy is respected.
      *
      * @param User $user
      * @param SecurityPolicy $securityPolicy
@@ -278,12 +278,18 @@ class LocalProvider implements LocalProviderInterface
         $this->writeUserRepository->updateBlockingInformation($user);
 
         if ($isUserBlocked) {
+            $this->loginLogger->info(
+                Provider::LOCAL,
+                'User is blocked: maximum number of authentication attempts was reached',
+                ['contact_alias' => $user->getAlias()]
+            );
             $this->info(
                 '[LOCAL PROVIDER] authentication failed because user is blocked',
                 [
                     'contact_alias' => $user->getAlias(),
                 ],
             );
+
             throw AuthenticationException::userBlocked();
         }
 
@@ -298,16 +304,18 @@ class LocalProvider implements LocalProviderInterface
                     'contact_alias' => $user->getAlias(),
                 ],
             );
+
             throw PasswordExpiredException::passwordIsExpired();
         }
     }
 
     /**
-     * Check if the user is blocked
+     * Check if the user is blocked.
      *
      * @param User $user
      * @param SecurityPolicy $securityPolicy
      * @param bool $doesPasswordMatch
+     *
      * @return bool
      */
     private function isUserBlocked(User $user, SecurityPolicy $securityPolicy, bool $doesPasswordMatch): bool
@@ -322,6 +330,7 @@ class LocalProvider implements LocalProviderInterface
                     'contact_alias' => $user->getAlias(),
                 ],
             );
+
             return true;
         }
 
@@ -352,10 +361,11 @@ class LocalProvider implements LocalProviderInterface
     }
 
     /**
-     * Check if the password is expired
+     * Check if the password is expired.
      *
      * @param User $user
      * @param SecurityPolicy $securityPolicy
+     *
      * @return bool
      */
     private function isPasswordExpired(User $user, SecurityPolicy $securityPolicy): bool
@@ -367,6 +377,7 @@ class LocalProvider implements LocalProviderInterface
                     'contact_alias' => $user->getAlias(),
                 ],
             );
+
             return false;
         }
 
@@ -382,6 +393,7 @@ class LocalProvider implements LocalProviderInterface
                     'expiration_delay' => $expirationDelay,
                 ],
             );
+
             return true;
         }
 

@@ -1,15 +1,16 @@
-import { Responsive } from '@visx/visx';
+import { makeStyles } from 'tss-react/mui';
 
 import { Typography, Box } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles((theme) => ({
+import { ParentSize } from '@centreon/ui';
+
+const useStyles = makeStyles()((theme) => ({
   lineText: {
     fontSize: theme.typography.body2.fontSize,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
+    whiteSpace: 'nowrap'
+  }
 }));
 
 interface Props {
@@ -17,24 +18,24 @@ interface Props {
 }
 
 const DetailsLine = ({ line }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
-    <Responsive.ParentSize parentSizeStyles={{ height: 'auto' }}>
+    <ParentSize parentSizeStyles={{ height: 'auto' }}>
       {({ width }): JSX.Element => (
         <Typography component="div">
           <Box
             className={classes.lineText}
             lineHeight={1}
             style={{
-              maxWidth: width || 'unset',
+              maxWidth: width || 'unset'
             }}
           >
             {line}
           </Box>
         </Typography>
       )}
-    </Responsive.ParentSize>
+    </ParentSize>
   );
 };
 

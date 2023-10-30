@@ -116,8 +116,15 @@ class LdapManualImportContext extends CentreonContext
      */
     public function hesLoggedByDefaultOnHomePage()
     {
-        if (!$this->assertFind('css', '.MuiBadge-root')) {
-            throw new Exception('The user is not logged in');
-        }
+        $this->spin(
+            function ($context) {
+                return $context->getSession()->getPage()->has(
+                    'css',
+                    '.MuiBadge-root'
+                );
+            },
+            'User is not logged in',
+            10
+        );
     }
 }

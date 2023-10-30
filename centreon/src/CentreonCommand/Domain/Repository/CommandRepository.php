@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,22 +21,32 @@
 
 namespace CentreonCommand\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
-use PDO;
-use CentreonCommand\Domain\Entity\Command;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use CentreonCommand\Domain\Entity\Command;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class CommandRepository extends ServiceEntityRepository implements PaginationRepositoryInterface
+class CommandRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
+    /** @var int */
+    private int $resultCountForPagination = 0;
 
     /**
-     * {@inheritdoc}
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function getPaginationList(
         $filters = null,
-        int $limit = null,
-        int $offset = null,
+        ?int $limit = null,
+        ?int $offset = null,
         $ordering = []
     ): array {
         $sql = 'SELECT SQL_CALC_FOUND_ROWS `command_id` AS `id`, `command_name` AS `name` '
@@ -45,7 +55,7 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
         $collector = new StatementCollector();
 
         $sql .= ' WHERE `command_activate` = :active';
-        $collector->addValue(':active', true, PDO::PARAM_STR);
+        $collector->addValue(':active', true, \PDO::PARAM_STR);
 
         if ($filters !== null) {
             if (array_key_exists('search', $filters) && $filters['search']) {
@@ -58,7 +68,7 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
                 foreach ($filters['ids'] as $x => $id) {
                     $key = ":id{$x}";
                     $idsListKey[] = $key;
-                    $collector->addValue($key, $id, PDO::PARAM_INT);
+                    $collector->addValue($key, $id, \PDO::PARAM_INT);
 
                     unset($x, $id);
                 }
@@ -76,11 +86,11 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
 
         if ($limit !== null) {
             $sql .= ' LIMIT :limit';
-            $collector->addValue(':limit', $limit, PDO::PARAM_INT);
+            $collector->addValue(':limit', $limit, \PDO::PARAM_INT);
 
             if ($offset !== null) {
                 $sql .= ' OFFSET :offset';
-                $collector->addValue(':offset', $offset, PDO::PARAM_INT);
+                $collector->addValue(':offset', $offset, \PDO::PARAM_INT);
             }
         }
 
@@ -88,17 +98,23 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
         $collector->bind($stmt);
 
         $stmt->execute();
-        $stmt->setFetchMode(PDO::FETCH_CLASS, Command::class);
-        $result = $stmt->fetchAll();
 
-        return $result;
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $this->resultCountForPagination = $total;
+        }
+
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, Command::class);
+
+        return $stmt->fetchAll();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationListTotal(): int
     {
-        return $this->db->numberRows();
+        return $this->resultCountForPagination;
     }
 }

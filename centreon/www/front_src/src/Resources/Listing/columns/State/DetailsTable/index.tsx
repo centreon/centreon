@@ -10,21 +10,16 @@ import {
   TableHead,
   TableCell,
   TableBody,
-  Skeleton,
+  Skeleton
 } from '@mui/material';
 
-import {
-  useRequest,
-  getData,
-  ListingModel,
-  Column,
-  ColumnType,
-} from '@centreon/ui';
+import { useRequest, getData } from '@centreon/ui';
+import type { ListingModel, ColumnType, Column } from '@centreon/ui';
 
 import {
   labelSomethingWentWrong,
   labelYes,
-  labelNo,
+  labelNo
 } from '../../../../translatedLabels';
 
 const getYesNoLabel = (value: boolean): string => (value ? labelYes : labelNo);
@@ -44,17 +39,17 @@ export interface DetailsTableProps {
 
 const DetailsTable = <TDetails extends { id: number }>({
   endpoint,
-  columns,
+  columns
 }: DetailsTableProps): JSX.Element => {
   const [details, setDetails] = useState<Array<TDetails> | null>();
 
   const { sendRequest } = useRequest<ListingModel<TDetails>>({
-    request: getData,
+    request: getData
   });
 
   useEffect(() => {
     sendRequest({
-      endpoint,
+      endpoint
     }).then((retrievedDetails) => {
       setDetails(retrievedDetails.result);
     });

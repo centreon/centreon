@@ -32,8 +32,25 @@
 		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="notification_failure_criteria"> {$form.notification_failure_criteria.label}</td><td class="FormRowValue">{$form.notification_failure_criteria.html}</td></tr>
 
 		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="metaservice_name"> {$form.dep_msParents.label}</td><td class="FormRowValue">{$form.dep_msParents.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="dependent_metaservice_name"> {$form.dep_msChilds.label}</td><td class="FormRowValue">{$form.dep_msChilds.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField">{$form.dep_comment.label}</td><td class="FormRowValue">{$form.dep_comment.html}</td></tr>
+		 <tr class="list_one">
+			 <td class="FormRowField">
+
+				 <div class="formRowLabel">
+					 <div>
+						 <img class="helpTooltip" name="dependent_metaservice_name">
+					 </div>
+					 <div>
+						 <p class="fieldLabel">
+							 {$form.dep_msChilds.label}
+						 </p>
+
+					 </div>
+				 </div>
+
+			 </td>
+			 <td class="FormRowValue">{$form.dep_msChilds.html}</td>
+		 </tr>
+		 <tr class="list_two"><td class="FormRowField">{$form.dep_comment.label}</td><td class="FormRowValue">{$form.dep_comment.html}</td></tr>
 	</table>
 	</div>
 	<div id="validForm">

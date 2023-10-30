@@ -1,0 +1,6 @@
+etc/centreon-gorgone/config.d
+etc/centreon-gorgone/config.d/cron.d
+var/cache/centreon-gorgone
+var/cache/centreon-gorgone/autodiscovery
+var/lib/centreon-gorgone
+var/log/centreon-gorgone

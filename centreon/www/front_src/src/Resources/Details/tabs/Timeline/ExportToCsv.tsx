@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import SaveIcon from '@mui/icons-material/SaveAlt';
 import { Button, Stack } from '@mui/material';
 
-import { getSearchQueryParameterValue, SearchParameter } from '@centreon/ui';
+import { getSearchQueryParameterValue } from '@centreon/ui';
+import type { SearchParameter } from '@centreon/ui';
 
 import { labelExportToCSV } from '../../../translatedLabels';
 
@@ -14,7 +15,7 @@ interface Props {
 
 const ExportToCsv = ({
   getSearch,
-  timelineDownloadEndpoint,
+  timelineDownloadEndpoint
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -23,7 +24,7 @@ const ExportToCsv = ({
 
     const parameters = getSearchQueryParameterValue(data);
     const exportToCSVEndpoint = `${timelineDownloadEndpoint}?search=${JSON.stringify(
-      parameters,
+      parameters
     )}`;
 
     window.open(exportToCSVEndpoint, 'noopener', 'noreferrer');

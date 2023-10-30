@@ -141,7 +141,7 @@ class CentreonXMLBGRequest
          * Init Objects
          */
         $this->hostObj = new CentreonHost($this->DB);
-        $this->serviceObj = new CentreonService($this->DB);
+        $this->serviceObj = new CentreonService($this->DB, $this->DBC);
 
         /*
          * Init Object Monitoring

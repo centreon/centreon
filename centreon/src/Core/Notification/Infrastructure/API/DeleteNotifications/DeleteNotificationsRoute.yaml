@@ -1,0 +1,5 @@
+DeleteNotifications:
+  methods: POST
+  path: /configuration/notifications/_delete
+  controller: 'Core\Notification\Infrastructure\API\DeleteNotifications\DeleteNotificationsController'
+  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.notification')"

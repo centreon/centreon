@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '22.10.0-beta.1');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '23.10.0');
 
 --
 -- Contenu de la table `contact`
@@ -75,6 +75,7 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('ldap_auth_enable', '0'),
 ('ldap_auto_import', '0'),
 ('ldap_srv_dns', '0'),
+('ldap_connection_timeout','5'),
 ('ldap_dns_use_domain', ''),
 ('ldap_search_timeout','60'),
 ('ldap_search_limit','60'),
@@ -124,7 +125,6 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('tactical_refresh_interval', '20'),
 ('index_data', '1'),
 ('interval_length', '60'),
-('nagios_path_img','@centreon_dir@/www/img/media/'),
 ('selectPaginationSize', 60),
 ('display_downtime_chart','0'),
 ('display_comment_chart','0'),
@@ -1469,7 +1469,7 @@ VALUES (
 (
   'openid',
   'openid',
-  '{"base_url":null,"authorization_endpoint":null,"token_endpoint":null,"introspection_token_endpoint":null,"userinfo_endpoint":null,"endsession_endpoint":null,"connection_scopes":[],"login_claim":null,"client_id":null,"client_secret":null,"authentication_type":"client_secret_post","verify_peer":true, "auto_import": false, "contact_template_id": null, "email_bind_attribute": null, "fullname_bind_attribute": null, "authentication_conditions":{"is_enabled": false, "endpoint": {"type": "introspection_endpoint", "custom_endpoint": null}, "attribute_path": "", "authorized_values": [], "trusted_client_addresses":[], "blacklist_client_addresses":[]}, "roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":"","endpoint":{"type":"introspection_endpoint","custom_endpoint":""}}, "groups_mapping": {"is_enabled": false, "attribute_path": "", "endpoint": {"type": "introspection_endpoint", "custom_endpoint": null}}}',
+  '{"base_url":null,"authorization_endpoint":null,"token_endpoint":null,"introspection_token_endpoint":null,"userinfo_endpoint":null,"endsession_endpoint":null,"connection_scopes":[],"login_claim":null,"client_id":null,"client_secret":null,"authentication_type":"client_secret_post","verify_peer":true, "auto_import": false, "contact_template_id": null, "email_bind_attribute": null, "fullname_bind_attribute": null, "authentication_conditions":{"is_enabled": false, "endpoint": {"type": "introspection_endpoint", "custom_endpoint": null}, "attribute_path": "", "authorized_values": [], "trusted_client_addresses":[], "blacklist_client_addresses":[]}, "roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":"","endpoint":{"type":"introspection_endpoint","custom_endpoint":""}}, "groups_mapping": {"is_enabled": false, "attribute_path": "", "endpoint": {"type": "introspection_endpoint", "custom_endpoint": null}}, "redirect_url": null}',
   false,
   false
 ),
@@ -1484,3 +1484,18 @@ VALUES (
 -- Exclude centreon-gorgone user from password policy
 INSERT INTO `password_expiration_excluded_users` (provider_configuration_id, user_id)
 VALUES (1, 4);
+
+INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_active`, `is_forced`)
+VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-generictext', '23.10.0');
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-singlemetric', '23.10.0');
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-graph', '23.10.0');
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-topbottom', '23.10.0');

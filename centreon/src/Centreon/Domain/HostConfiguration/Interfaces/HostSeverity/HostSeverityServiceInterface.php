@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostSeverity;
 
 use Centreon\Domain\HostConfiguration\Exception\HostSeverityException;
-use Centreon\Domain\HostConfiguration\HostSeverityService;
 use Centreon\Domain\HostConfiguration\Model\HostSeverity;
 use Centreon\Domain\Repository\RepositoryException;
 
@@ -34,22 +33,6 @@ use Centreon\Domain\Repository\RepositoryException;
  */
 interface HostSeverityServiceInterface
 {
-    /**
-     * Find all host severities (for non admin user).
-     *
-     * @return HostSeverity[]
-     * @throws HostSeverityException
-     */
-    public function findAllWithAcl(): array;
-
-    /**
-     * Find all host severities (for admin user).
-     *
-     * @return HostSeverity[]
-     * @throws HostSeverityException
-     */
-    public function findAllWithoutAcl(): array;
-
     /**
      * Find a host severity (for admin user).
      *

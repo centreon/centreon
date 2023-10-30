@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,27 +18,23 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Configuration\NotificationPolicy\Repository;
 
-use Pimple\Container;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Application\Configuration\Notification\Repository\ReadServiceNotificationRepositoryInterface;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Pimple\Container;
 
-class LegacyReadServiceNotificationRepository extends AbstractDbReadNotificationRepository implements
-    ReadServiceNotificationRepositoryInterface
+class LegacyReadServiceNotificationRepository extends AbstractDbReadNotificationRepository implements ReadServiceNotificationRepositoryInterface
 {
-    /**
-     * @var array<int,NotifiedContact[]>
-     */
+    /** @var array<int,NotifiedContact[]> */
     private array $notifiedContacts = [];
 
-    /**
-     * @var array<int,NotifiedContactGroup[]>
-     */
+    /** @var array<int,NotifiedContactGroup[]> */
     private array $notifiedContactGroups = [];
 
     /**
@@ -57,7 +53,7 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
      */
     public function findNotifiedContactsById(int $serviceId): array
     {
-        if (!isset($this->notifiedContacts[$serviceId])) {
+        if (! isset($this->notifiedContacts[$serviceId])) {
             $this->fetchNotifiedContactsAndContactGroups($serviceId);
         }
 
@@ -69,7 +65,7 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
      */
     public function findNotifiedContactGroupsById(int $serviceId): array
     {
-        if (!isset($this->notifiedContactGroups[$serviceId])) {
+        if (! isset($this->notifiedContactGroups[$serviceId])) {
             $this->fetchNotifiedContactsAndContactGroups($serviceId);
         }
 
@@ -77,7 +73,7 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
     }
 
     /**
-     * Initialize notified contacts and contactgroups for given service id
+     * Initialize notified contacts and contactgroups for given service id.
      *
      * @param int $serviceId
      */

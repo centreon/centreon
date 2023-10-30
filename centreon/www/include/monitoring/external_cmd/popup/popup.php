@@ -42,6 +42,11 @@ require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonLang.class.php";
 require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
 
+const ACKNOWLEDGEMENT_ON_SERVICE = 70;
+const ACKNOWLEDGEMENT_ON_HOST = 72;
+const DOWNTIME_ON_SERVICE = 74;
+const DOWNTIME_ON_HOST = 75;
+
 $pearDB = $dependencyInjector['configuration_db'];
 
 session_start();
@@ -70,14 +75,19 @@ if (session_id()) {
 } else {
     exit;
 }
+$o = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']);
+$p = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['p']);
+$cmd = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['cmd']);
 
-$o = htmlentities($_GET['o'], ENT_QUOTES, "UTF-8");
-$p = htmlentities($_GET['p'], ENT_QUOTES, "UTF-8");
-$cmd = htmlentities($_GET['cmd'], ENT_QUOTES, "UTF-8");
-
-if ($cmd == 70 || $cmd == 72) {
+if (
+    (int) $cmd === ACKNOWLEDGEMENT_ON_SERVICE
+    || (int) $cmd === ACKNOWLEDGEMENT_ON_HOST
+) {
     require_once _CENTREON_PATH_ . 'www/include/monitoring/external_cmd/popup/massive_ack.php';
-} elseif ($cmd == 74 || $cmd == 75) {
+} elseif (
+    (int) $cmd === DOWNTIME_ON_HOST
+    || (int) $cmd === DOWNTIME_ON_SERVICE
+) {
     require_once _CENTREON_PATH_ . 'www/include/monitoring/external_cmd/popup/massive_downtime.php';
 }
 exit();

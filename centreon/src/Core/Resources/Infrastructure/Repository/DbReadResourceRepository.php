@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,67 +18,57 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
-use Core\Tag\RealTime\Domain\Model\Tag;
-use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Domain\RealTime\ResourceTypeInterface;
-use Core\Severity\RealTime\Domain\Model\Severity;
-use Centreon\Domain\Repository\RepositoryException;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Domain\Monitoring\ResourceFilter;
+use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Domain\RealTime\ResourceTypeInterface;
+use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
+use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
+use Core\Severity\RealTime\Domain\Model\Severity;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
 class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
+    private const RESOURCE_TYPE_HOST = 1;
 
-    /**
-     * @var ResourceEntity[]
-     */
+    /** @var ResourceEntity[] */
     private array $resources = [];
 
-    private const RESOURCE_TYPE_SERVICE = 0,
-                  RESOURCE_TYPE_HOST = 1,
-                  RESOURCE_TYPE_METASERVICE = 2;
+    /** @var ResourceTypeInterface[] */
+    private array $resourceTypes;
 
-    /**
-     * @var ResourceTypeInterface[]
-     */
-    private array $resourceTypes = [];
+    /** @var SqlRequestParametersTranslator */
+    private SqlRequestParametersTranslator $sqlRequestTranslator;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
-    private $sqlRequestTranslator;
-
-    /**
-     * @var array<string, string>
-     */
-    private $resourceConcordances = [
+    /** @var array<string, string> */
+    private array $resourceConcordances = [
         'id' => 'resources.id',
         'name' => 'resources.name',
         'alias' => 'resources.alias',
         'fqdn' => 'resources.address',
         'type' => 'resources.type',
-        'h.name' => 'parent_resource.name',
-        'h.alias' => 'parent_resource.alias',
+        'h.name' => 'CASE WHEN resources.type = 1 THEN resources.name ELSE resources.parent_name END',
+        'h.alias' => 'CASE WHEN resources.type = 1 THEN resources.alias ELSE parent_resource.alias END',
         'h.address' => 'parent_resource.address',
         's.description' => 'resources.type IN (0,2) AND resources.name',
         'status_code' => 'resources.status',
         'status_severity_code' => 'resources.status_ordered',
         'action_url' => 'resources.action_url',
+        'parent_id' => 'resources.parent_id',
         'parent_name' => 'resources.parent_name',
         'parent_alias' => 'parent_resource.alias',
         'parent_status' => 'parent_status',
@@ -97,12 +87,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(
         DatabaseConnection $db,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
-        private \Traversable $resourceACLProviders
+        private readonly \Traversable $resourceACLProviders
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
@@ -120,14 +112,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->resourceTypes = iterator_to_array($resourceTypes);
     }
 
-    private function generateFindResourcesRequest(
-        ResourceFilter $filter,
-        StatementCollector $collector,
-        string $accessGroupRequest = ''
-    ): string {
+    public function findParentResourcesById(ResourceFilter $filter): array
+    {
+        $this->resources = [];
+        $collector = new StatementCollector();
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT
+        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
             resources.resource_id,
             resources.name,
             resources.alias,
@@ -171,15 +163,285 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         FROM `:dbstg`.`resources`
         LEFT JOIN `:dbstg`.`resources` parent_resource
             ON parent_resource.id = resources.parent_id
-        LEFT JOIN `:dbstg`.`severities`
+            AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
+            . ' LEFT JOIN `:dbstg`.`severities`
             ON `severities`.severity_id = `resources`.severity_id
         LEFT JOIN `:dbstg`.`resources_tags` AS rtags
             ON `rtags`.resource_id = `resources`.resource_id
         INNER JOIN `:dbstg`.`instances`
-            ON `instances`.instance_id = `resources`.poller_id";
+            ON `instances`.instance_id = `resources`.poller_id';
+
+        $request .= " WHERE resources.name NOT LIKE '\_Module\_%'
+            AND resources.parent_name NOT LIKE '\_Module\_BAM%'
+            AND resources.enabled = 1 AND resources.type != 3";
+
+        $request .= $this->addResourceParentIdSubRequest($filter, $collector);
 
         /**
-         * Handle search values
+         * Resource Type filter
+         * 'service', 'metaservice', 'host'.
+         */
+        $request .= $this->addResourceTypeSubRequest($filter);
+
+        /**
+         * Handle sort parameters.
+         */
+        $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
+            ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+
+        /**
+         * Handle pagination.
+         */
+        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare(
+            $this->translateDbName($request)
+        );
+
+        $collector->bind($statement);
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
+
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        while ($resourceRecord = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array<string,int|string|null> $resourceRecord */
+            $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
+        }
+
+        $iconIds = $this->getIconIdsFromResources();
+        $icons = $this->getIconsDataForResources($iconIds);
+        $this->completeResourcesWithIcons($icons);
+
+        return $this->resources;
+    }
+
+    public function findResources(ResourceFilter $filter): array
+    {
+        $this->resources = [];
+        $collector = new StatementCollector();
+        $request = $this->generateFindResourcesRequest($filter, $collector);
+
+        $this->fetchResources($filter, $request, $collector);
+
+        return $this->resources;
+    }
+
+    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array
+    {
+        $this->resources = [];
+        $collector = new StatementCollector();
+        $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
+        $request = $this->generateFindResourcesRequest($filter, $collector, $accessGroupRequest);
+        $this->fetchResources($filter, $request, $collector);
+
+        return $this->resources;
+    }
+
+    /**
+     * Only return resources that has performance data available in order to display graphs.
+     */
+    public function extractResourcesWithGraphData(): void
+    {
+        $this->resources = array_values(
+            array_filter(
+                $this->resources,
+                static fn (ResourceEntity $resource) => $resource->hasGraph(),
+            )
+        );
+    }
+
+    /**
+     * This adds the subrequest filter for tags (servicegroups, hostgroups).
+     *
+     * @param ResourceFilter $filter
+     * @param StatementCollector $collector
+     *
+     * @return string
+     */
+    public function addResourceTagsSubRequest(ResourceFilter $filter, StatementCollector $collector): string
+    {
+        $subRequest = '';
+        $searchedTagNames = [];
+        $includeHostResourceType = false;
+        $includeServiceResourceType = false;
+        $searchedTags = [];
+
+        if (! empty($filter->getHostgroupNames())) {
+            $includeHostResourceType = true;
+            foreach ($filter->getHostgroupNames() as $hostGroupName) {
+                $searchedTags[Tag::HOST_GROUP_TYPE_ID][] = $hostGroupName;
+                $searchedTagNames[] = $hostGroupName;
+            }
+        }
+
+        if (! empty($filter->getServicegroupNames())) {
+            $includeServiceResourceType = true;
+            foreach ($filter->getServicegroupNames() as $serviceGroupName) {
+                $searchedTags[Tag::SERVICE_GROUP_TYPE_ID][] = $serviceGroupName;
+                $searchedTagNames[] = $serviceGroupName;
+            }
+        }
+
+        if (! empty($filter->getServiceCategoryNames())) {
+            $includeServiceResourceType = true;
+            foreach ($filter->getServiceCategoryNames() as $serviceCategoryName) {
+                $searchedTags[Tag::SERVICE_CATEGORY_TYPE_ID][] = $serviceCategoryName;
+                $searchedTagNames[] = $serviceCategoryName;
+            }
+        }
+
+        if (! empty($filter->getHostCategoryNames())) {
+            $includeHostResourceType = true;
+            foreach ($filter->getHostCategoryNames() as $hostCategoryName) {
+                $searchedTags[Tag::HOST_CATEGORY_TYPE_ID][] = $hostCategoryName;
+                $searchedTagNames[] = $hostCategoryName;
+            }
+        }
+
+        if (! empty($searchedTagNames)) {
+            $subRequest = ' INNER JOIN (';
+            $intersectRequest = '';
+            $index = 1;
+            foreach ($searchedTags as $type => $names) {
+                $tagKeys = [];
+                foreach ($names as $name) {
+                    $key = ":tagName_{$index}";
+                    $index++;
+                    $tagKeys[] = $key;
+                    $collector->addValue($key, $name, \PDO::PARAM_STR);
+                }
+                $literalTagKeys = implode(', ', $tagKeys);
+
+                if ($intersectRequest !== '') {
+                    $intersectRequest .= ' INTERSECT ';
+                }
+
+                if (
+                    $type === Tag::HOST_GROUP_TYPE_ID
+                    || $type === Tag::HOST_CATEGORY_TYPE_ID
+                ) {
+                    $intersectRequest .= <<<"SQL"
+                            SELECT resources.resource_id
+                            FROM `:dbstg`.`resources` resources
+                            LEFT JOIN `:dbstg`.`resources` parent_resource
+                                ON parent_resource.id = resources.parent_id
+                            LEFT JOIN `:dbstg`.resources_tags AS rtags
+                              ON rtags.resource_id = resources.resource_id
+                              OR rtags.resource_id = parent_resource.resource_id
+                            INNER JOIN `:dbstg`.tags
+                                ON tags.tag_id = rtags.tag_id
+                            WHERE tags.name IN ({$literalTagKeys})
+                            AND tags.type = {$type}
+                        SQL;
+                } else {
+                    $intersectRequest .= <<<"SQL"
+                            SELECT rtags.resource_id
+                            FROM `:dbstg`.resources_tags AS rtags
+                            INNER JOIN `:dbstg`.tags
+                                ON tags.tag_id = rtags.tag_id
+                            WHERE tags.name IN ({$literalTagKeys})
+                            AND tags.type = {$type}
+                        SQL;
+                }
+            }
+
+            $subRequest .= $intersectRequest . ') AS tag ON tag.resource_id = resources.resource_id';
+
+            if (
+                $includeHostResourceType
+                && ! $includeServiceResourceType
+            ) {
+                $subRequest .= ' OR tag.resource_id = parent_resource.resource_id';
+            }
+        }
+
+        return $subRequest;
+    }
+
+    /**
+     * @param ResourceFilter $filter
+     * @param StatementCollector $collector
+     * @param string $accessGroupRequest
+     *
+     * @throws RepositoryException
+     *
+     * @return string
+     */
+    private function generateFindResourcesRequest(
+        ResourceFilter $filter,
+        StatementCollector $collector,
+        string $accessGroupRequest = ''
+    ): string {
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+
+        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
+            resources.resource_id,
+            resources.name,
+            resources.alias,
+            resources.address,
+            resources.id,
+            resources.internal_id,
+            resources.parent_id,
+            resources.parent_name,
+            parent_resource.status AS `parent_status`,
+            parent_resource.alias AS `parent_alias`,
+            parent_resource.status_ordered AS `parent_status_ordered`,
+            parent_resource.address AS `parent_fqdn`,
+            severities.id AS `severity_id`,
+            severities.level AS `severity_level`,
+            severities.name AS `severity_name`,
+            severities.type AS `severity_type`,
+            severities.icon_id AS `severity_icon_id`,
+            resources.type,
+            resources.status,
+            resources.status_ordered,
+            resources.status_confirmed,
+            resources.in_downtime,
+            resources.acknowledged,
+            resources.passive_checks_enabled,
+            resources.active_checks_enabled,
+            resources.notifications_enabled,
+            resources.last_check,
+            resources.last_status_change,
+            resources.check_attempts,
+            resources.max_check_attempts,
+            resources.notes,
+            resources.notes_url,
+            resources.action_url,
+            resources.output,
+            resources.poller_id,
+            resources.has_graph,
+            instances.name AS `monitoring_server_name`,
+            resources.enabled,
+            resources.icon_id,
+            resources.severity_id
+        FROM `:dbstg`.`resources`
+        LEFT JOIN `:dbstg`.`resources` parent_resource
+            ON parent_resource.id = resources.parent_id
+            AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
+            . ' LEFT JOIN `:dbstg`.`severities`
+            ON `severities`.severity_id = `resources`.severity_id
+        LEFT JOIN `:dbstg`.`resources_tags` AS rtags
+            ON `rtags`.resource_id = `resources`.resource_id
+        INNER JOIN `:dbstg`.`instances`
+            ON `instances`.instance_id = `resources`.poller_id';
+
+        /**
+         * Resource tag filter by name
+         * - servicegroups
+         * - hostgroups
+         * - servicecategories
+         * - hostcategories.
+         */
+        $request .= $this->addResourceTagsSubRequest($filter, $collector);
+
+        /**
+         * Handle search values.
          */
         $searchSubRequest = null;
 
@@ -187,6 +449,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
         } catch (RequestParametersTranslatorException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             throw new RepositoryException($ex->getMessage(), 0, $ex);
         }
 
@@ -198,57 +461,50 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         $request .= $accessGroupRequest;
 
+        $request .= $this->addResourceParentIdSubRequest($filter, $collector);
+
         /**
          * Resource Type filter
-         * 'service', 'metaservice', 'host'
+         * 'service', 'metaservice', 'host'.
          */
         $request .= $this->addResourceTypeSubRequest($filter);
 
         /**
          * State filter
-         * 'unhandled_problems', 'resource_problems', 'acknowledged', 'in_downtime'
+         * 'unhandled_problems', 'resource_problems', 'acknowledged', 'in_downtime'.
          */
         $request .= $this->addResourceStateSubRequest($filter);
 
         /**
          * Status filter
-         * 'OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UP', 'UNREACHABLE', 'DOWN', 'PENDING'
+         * 'OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UP', 'UNREACHABLE', 'DOWN', 'PENDING'.
          */
         $request .= $this->addResourceStatusSubRequest($filter);
 
         /**
          * Status type filter
-         * 'HARD', 'SOFT'
+         * 'HARD', 'SOFT'.
          */
         $request .= $this->addStatusTypeSubRequest($filter);
 
         /**
-         * Monitoring Server filter
+         * Monitoring Server filter.
          */
         $request .= $this->addMonitoringServerSubRequest($filter, $collector);
 
         /**
-         * Severity filter (levels and/or names)
+         * Severity filter (levels and/or names).
          */
         $request .= $this->addSeveritySubRequest($filter, $collector);
 
         /**
-         * Resource tag filter by name
-         * - servicegroups
-         * - hostgroups
-         * - servicecategories
-         * - hostcategories
-         */
-        $request .= $this->addResourceTagsSubRequest($filter, $collector);
-
-        /**
-         * Handle sort parameters
+         * Handle sort parameters.
          */
         $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
             ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
 
         /**
-         * Handle pagination
+         * Handle pagination.
          */
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
 
@@ -256,37 +512,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findResources(ResourceFilter $filter): array
-    {
-        $this->resources = [];
-        $collector = new StatementCollector();
-        $request = $this->generateFindResourcesRequest($filter, $collector);
-
-        $this->fetchResources($request, $collector);
-
-        return $this->resources;
-    }
-
-    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array
-    {
-        $this->resources = [];
-        $collector = new StatementCollector();
-        $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
-        $request = $this->generateFindResourcesRequest($filter, $collector, $accessGroupRequest);
-        $this->fetchResources($request, $collector);
-
-        return $this->resources;
-    }
-
-    /**
      * @param int[] $accessGroupIds
+     *
+     * @throws \InvalidArgumentException
      */
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            fn(ResourceACLProviderInterface $provider) => '(' . $provider->getACLSubRequest() . ')',
+            static fn (ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -294,19 +527,25 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
         }
 
-        $pattern = ' AND EXISTS (SELECT 1 FROM `:dbstg`.centreon_acl acl WHERE (%s) AND acl.group_id IN (%s) LIMIT 1)';
-
-        return sprintf($pattern, join(' OR ', $orConditions), join(', ', $accessGroupIds));
+        return sprintf(' AND (%s)', implode(' OR ', $orConditions));
     }
 
-    private function fetchResources(string $request, StatementCollector $collector): void
+    /**
+     * @param ResourceFilter $filter
+     * @param string $request
+     * @param StatementCollector $collector
+     *
+     * @throws AssertionFailedException
+     * @throws \PDOException
+     */
+    private function fetchResources(ResourceFilter $filter, string $request, StatementCollector $collector): void
     {
         $statement = $this->db->prepare(
             $this->translateDbName($request)
         );
 
         foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /** @var int */
+            /** @var int $data_type */
             $data_type = key($data);
             $collector->addValue($key, current($data), $data_type);
         }
@@ -314,14 +553,21 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $collector->bind($statement);
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
         while ($resourceRecord = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array<string,int|string|null> $resourceRecord */
             $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
+        }
+
+        // Apply only_with_performance_data
+        if ($filter->getOnlyWithPerformanceData() === true) {
+            $this->extractResourcesWithGraphData();
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) count($this->resources));
         }
 
         $iconIds = $this->getIconIdsFromResources();
@@ -331,7 +577,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /**
      * @param array<int, array<string, string>> $icons
-     * @return void
      */
     private function completeResourcesWithIcons(array $icons): void
     {
@@ -370,11 +615,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithIcons = array_filter(
             $this->resources,
-            fn (ResourceEntity $resource) => $resource->getIcon() !== null
+            static fn (ResourceEntity $resource): bool => null !== $resource->getIcon()
         );
 
         return array_map(
-            fn (ResourceEntity $resource) => $resource->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
             $resourcesWithIcons
         );
     }
@@ -386,17 +631,18 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithSeverities = array_filter(
             $this->resources,
-            fn (ResourceEntity $resource) => $resource->getSeverity() !== null
+            static fn (ResourceEntity $resource): bool => null !== $resource->getSeverity()
         );
 
         return array_map(
-            fn (ResourceEntity $resource) => $resource->getSeverity()?->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
             $resourcesWithSeverities
         );
     }
 
     /**
      * @param ResourceFilter $filter
+     *
      * @return int[]
      */
     private function getSeverityLevelsFromFilter(ResourceFilter $filter): array
@@ -413,11 +659,13 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 $levels[] = $level;
             }
         }
+
         return array_unique($levels);
     }
 
     /**
      * @param ResourceFilter $filter
+     *
      * @return int[]
      */
     private function getSeverityTypesFromFilter(ResourceFilter $filter): array
@@ -442,6 +690,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /**
      * @param ResourceFilter $filter
+     *
      * @return string[]
      */
     private function getSeverityNamesFromFilter(ResourceFilter $filter): array
@@ -465,6 +714,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     /**
      * @param ResourceFilter $filter
      * @param StatementCollector $collector
+     *
      * @return string
      */
     private function addSeveritySubRequest(ResourceFilter $filter, StatementCollector $collector): string
@@ -520,23 +770,37 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * Only return resources that has performance data available in order to display graphs
+     * @param ResourceFilter $filter
+     * @param StatementCollector $collector
      *
-     * @param ResourceEntity[] $resources
-     * @return ResourceEntity[]
+     * @return string
      */
-    public function extractResourcesWithGraphData(array $resources): array
+    private function addResourceParentIdSubRequest(ResourceFilter $filter, StatementCollector $collector): string
     {
-        return array_filter(
-            $resources,
-            fn (ResourceEntity $resource) => $resource->hasGraph(),
-        );
+        $subRequest = '';
+        $filteredParentIds = [];
+
+        if (empty($filter->getHostIds())) {
+            return $subRequest;
+        }
+
+        foreach ($filter->getHostIds() as $index => $hostId) {
+            $key = ":parentId_{$index}";
+            $filteredParentIds[] = $key;
+            $collector->addValue($key, $hostId, \PDO::PARAM_INT);
+        }
+
+        $subRequest = ' AND (resources.parent_id IN (' . implode(', ', $filteredParentIds) . ')';
+        $subRequest .= ' OR resources.id IN (' . implode(', ', $filteredParentIds) . '))';
+
+        return $subRequest;
     }
 
     /**
-     * This adds the sub request filter on resource types
+     * This adds the sub request filter on resource types.
      *
      * @param ResourceFilter $filter
+     *
      * @return string
      */
     private function addResourceTypeSubRequest(ResourceFilter $filter): string
@@ -563,17 +827,18 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * This adds the sub request filter on resource state
+     * This adds the sub request filter on resource state.
      *
      * @param ResourceFilter $filter
+     *
      * @return string
      */
     private function addResourceStateSubRequest(ResourceFilter $filter): string
     {
         $subRequest = '';
         if (
-            !empty($filter->getStates())
-            && !$filter->hasState(ResourceFilter::STATE_ALL)
+            ! empty($filter->getStates())
+            && ! $filter->hasState(ResourceFilter::STATE_ALL)
         ) {
             $sqlState = [];
             $sqlStateCatalog = [
@@ -596,9 +861,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * This adds the sub request filter on resource status
+     * This adds the sub request filter on resource status.
      *
      * @param ResourceFilter $filter
+     *
      * @return string
      */
     private function addResourceStatusSubRequest(ResourceFilter $filter): string
@@ -607,13 +873,23 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $sqlStatuses = [];
         if (! empty($filter->getStatuses())) {
             foreach ($filter->getStatuses() as $status) {
-                if (array_key_exists($status, ResourceFilter::MAP_STATUS_SERVICE)) {
-                    $sqlStatuses[] = '(resources.type = ' . self::RESOURCE_TYPE_SERVICE
-                        . ' OR resources.type = ' . self::RESOURCE_TYPE_METASERVICE
-                        . ') AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
-                } elseif (array_key_exists($status, ResourceFilter::MAP_STATUS_HOST)) {
-                    $sqlStatuses[] = 'resources.type = ' . self::RESOURCE_TYPE_HOST
-                        . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_HOST[$status];
+                switch ($status) {
+                    case ResourceFilter::STATUS_PENDING:
+                        $sqlStatuses[] = 'resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
+                        break;
+                    case ResourceFilter::STATUS_OK:
+                    case ResourceFilter::STATUS_WARNING:
+                    case ResourceFilter::STATUS_UNKNOWN:
+                    case ResourceFilter::STATUS_CRITICAL:
+                        $sqlStatuses[] = 'resources.type != ' . self::RESOURCE_TYPE_HOST
+                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
+                        break;
+                    case ResourceFilter::STATUS_UP:
+                    case ResourceFilter::STATUS_DOWN:
+                    case ResourceFilter::STATUS_UNREACHABLE:
+                        $sqlStatuses[] = 'resources.type = ' . self::RESOURCE_TYPE_HOST
+                            . " AND resources.status = '" . ResourceFilter::MAP_STATUS_HOST[$status] . "'";
+                        break;
                 }
             }
 
@@ -624,9 +900,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * This adds the sub request filter on resource status type
+     * This adds the sub request filter on resource status type.
      *
      * @param ResourceFilter $filter
+     *
      * @return string
      */
     private function addStatusTypeSubRequest(ResourceFilter $filter): string
@@ -634,9 +911,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $subRequest = '';
         $sqlStatusTypes = [];
 
-        if (!empty($filter->getStatusTypes())) {
+        if (! empty($filter->getStatusTypes())) {
             foreach ($filter->getStatusTypes() as $statusType) {
-                if (array_key_exists($statusType, ResourceFilter::MAP_STATUS_TYPES)) {
+                if (\array_key_exists($statusType, ResourceFilter::MAP_STATUS_TYPES)) {
                     $sqlStatusTypes[] = 'resources.status_confirmed = ' . ResourceFilter::MAP_STATUS_TYPES[$statusType];
                 }
             }
@@ -648,76 +925,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * This adds the subrequest filter for tags (servicegroups, hostgroups)
+     * This adds the subrequest filter for Monitoring Server.
      *
      * @param ResourceFilter $filter
      * @param StatementCollector $collector
-     * @return string
-     */
-    public function addResourceTagsSubRequest(ResourceFilter $filter, StatementCollector $collector): string
-    {
-        $subRequest = '';
-        $searchedTagNames = [];
-        $searchedTagTypes = [];
-        $searchedTags = [];
-
-        if (! empty($filter->getHostgroupNames())) {
-            $searchedTagTypes[] = Tag::HOST_GROUP_TYPE_ID;
-            foreach ($filter->getHostgroupNames() as $hostgroupName) {
-                $searchedTagNames[] = $hostgroupName;
-            }
-        }
-
-        if (! empty($filter->getServicegroupNames())) {
-            $searchedTagTypes[] = Tag::SERVICE_GROUP_TYPE_ID;
-            foreach ($filter->getServicegroupNames() as $servicegroupName) {
-                $searchedTagNames[] = $servicegroupName;
-            }
-        }
-
-        if (! empty($filter->getServiceCategoryNames())) {
-            $searchedTagTypes[] = Tag::SERVICE_CATEGORY_TYPE_ID;
-            foreach ($filter->getServiceCategoryNames() as $serviceCategoryName) {
-                $searchedTagNames[] = $serviceCategoryName;
-            }
-        }
-
-        if (! empty($filter->getHostCategoryNames())) {
-            $searchedTagTypes[] = Tag::HOST_CATEGORY_TYPE_ID;
-            foreach ($filter->getHostCategoryNames() as $hostCategoryName) {
-                $searchedTagNames[] = $hostCategoryName;
-            }
-        }
-
-        if (! empty($searchedTagNames)) {
-            foreach ($searchedTagNames as $index => $name) {
-                $key = ":tagName_{$index}";
-                $searchedTags[] = $key;
-                $collector->addValue($key, $name, \PDO::PARAM_STR);
-            }
-
-            $subRequest = ' AND
-                EXISTS (
-                    SELECT 1 FROM `:dbstg`.resources_tags AS rtags
-                    WHERE (rtags.resource_id = resources.resource_id OR rtags.resource_id = parent_resource.resource_id)
-                    AND EXISTS (
-                        SELECT 1 FROM `:dbstg`.tags
-                        WHERE tags.tag_id = rtags.tag_id AND tags.name IN (' . implode(', ', $searchedTags) . ')
-                        AND tags.type IN (' . implode(', ', $searchedTagTypes) . ')
-                        LIMIT 1
-                    )
-                    LIMIT 1
-                )';
-        }
-
-        return $subRequest;
-    }
-
-    /**
-     * This adds the subrequest filter for Monitoring Server
      *
-     * @param ResourceFilter $filter
-     * @param StatementCollector $collector
      * @return string
      */
     private function addMonitoringServerSubRequest(ResourceFilter $filter, StatementCollector $collector): string
@@ -740,9 +952,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * Get icons for resources
+     * Get icons for resources.
      *
      * @param array<int, int|null> $iconIds
+     *
+     * @throws \PDOException
+     *
      * @return array<int, array<string, string>>
      */
     private function getIconsDataForResources(array $iconIds): array
@@ -765,9 +980,16 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $statement->execute(array_values($iconIds));
 
             while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                /** @var array{
+                 *     icon_id: int,
+                 *     icon_name: string,
+                 *     icon_path: string,
+                 *     icon_directory: string
+                 * } $record
+                 */
                 $icons[(int) $record['icon_id']] = [
                     'name' => $record['icon_name'],
-                    'url' => $record['icon_directory'] . DIRECTORY_SEPARATOR . $record['icon_path']
+                    'url' => $record['icon_directory'] . DIRECTORY_SEPARATOR . $record['icon_path'],
                 ];
             }
         }

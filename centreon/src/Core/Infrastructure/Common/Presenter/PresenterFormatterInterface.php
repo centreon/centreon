@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Presenter;
@@ -27,22 +28,10 @@ use Symfony\Component\HttpFoundation\Response;
 interface PresenterFormatterInterface
 {
     /**
-     * @param mixed[] $responseHeaders
-     */
-    public function setResponseHeaders(array $responseHeaders): void;
-
-    /**
-     * @return mixed[]
-     */
-    public function getResponseHeaders(): array;
-
-    /**
      * @param mixed $data
-     */
-    public function present(mixed $data): void;
-
-    /**
+     * @param array<string, mixed> $headers
+     *
      * @return Response
      */
-    public function show(): Response;
+    public function format(mixed $data, array $headers): Response;
 }

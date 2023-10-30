@@ -1,6 +1,7 @@
 import { isNil } from 'ramda';
 
-import { ListingModel, useRequest } from '@centreon/ui';
+import { useRequest } from '@centreon/ui';
+import type { ListingModel } from '@centreon/ui';
 
 import { TabProps } from '..';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
@@ -12,13 +13,13 @@ import { listResources } from '../../../Listing/api';
 
 const HostGraph = ({ details }: TabProps): JSX.Element => {
   const { sendRequest, sending } = useRequest({
-    request: listResources,
+    request: listResources
   });
 
   const limit = 6;
 
   const sendListingRequest = ({
-    atPage,
+    atPage
   }: {
     atPage?: number;
   }): Promise<ListingModel<Resource>> => {
@@ -32,20 +33,18 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
           {
             field: 'h.name',
             values: {
-              $eq: details?.name,
-            },
-          },
-        ],
-      },
+              $eq: details?.name
+            }
+          }
+        ]
+      }
     });
   };
-
-  const loading = isNil(details) || sending;
 
   return (
     <InfiniteScroll<Resource>
       details={details}
-      filter={<TimePeriodButtonGroup disabled={loading} />}
+      filter={<TimePeriodButtonGroup />}
       limit={limit}
       loading={sending}
       loadingSkeleton={<LoadingSkeleton />}

@@ -29,6 +29,12 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 interface RequestParametersInterface
 {
     /**
+     * Converts search array to string
+     *
+     * @return string
+     */
+    public function getSearchAsString(): string;
+    /**
      * Add an extra parameter.
      *
      * @param string $parameterName Parameter name
@@ -40,10 +46,10 @@ interface RequestParametersInterface
      * Check if a search parameter exists.
      *
      * @param string $keyToFind Name of the search parameter
-     * @param array $parameters List of parameters
+     * @param null|array $parameters List of parameters
      * @return bool Returns true if the parameter exists
      */
-    public function hasSearchParameter(string $keyToFind, array $parameters): bool;
+    public function hasSearchParameter(string $keyToFind, ?array $parameters = null): bool;
 
     /**
      * @return int
@@ -135,6 +141,13 @@ interface RequestParametersInterface
      * @return array ['sort_by' => ..., 'limit' => ..., 'total' => ..., ...]
      */
     public function toArray(): array;
+
+    /**
+     * Re-initialize the search set previously
+     *
+     * @return void
+     */
+    public function unsetSearch(): void;
 
     /**
      * Remove a search parameter.

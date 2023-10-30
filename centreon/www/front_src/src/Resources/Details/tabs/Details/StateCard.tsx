@@ -1,19 +1,19 @@
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Card, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { labelComment } from '../../../translatedLabels';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   chip: {
-    gridArea: 'chip',
+    gridArea: 'chip'
   },
   comment: {
-    gridArea: 'comment',
+    gridArea: 'comment'
   },
   commentTitle: {
-    gridArea: 'comment-title',
+    gridArea: 'comment-title'
   },
   container: {
     display: 'grid',
@@ -22,25 +22,30 @@ const useStyles = makeStyles((theme) => ({
       'content-title content chip'
       'comment-title comment chip'
       `,
-    gridTemplateColumns: '1fr 2fr auto',
+    gridTemplateColumns: '1fr 2fr auto'
   },
   content: {
-    gridArea: 'content',
+    gridArea: 'content'
   },
   contentTitle: {
-    gridArea: 'content-title',
-  },
+    gridArea: 'content-title'
+  }
 }));
+
+interface ContentLine {
+  line: string;
+  testId?: string;
+}
 
 interface Props {
   chip: JSX.Element;
   commentLine: string;
-  contentLines: Array<string>;
+  contentLines: Array<ContentLine>;
   title: string;
 }
 
-const Line = (line): JSX.Element => (
-  <Typography component="p" key={line} variant="body2">
+const Line = ({ line, testId }: ContentLine): JSX.Element => (
+  <Typography component="p" data-testid={testId} key={line} variant="body2">
     {line}
   </Typography>
 );
@@ -49,9 +54,9 @@ const StateCard = ({
   title,
   contentLines,
   commentLine,
-  chip,
+  chip
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (
@@ -73,7 +78,7 @@ const StateCard = ({
         >
           {t(labelComment)}
         </Typography>
-        <div className={classes.comment}>{Line(commentLine)}</div>
+        <div className={classes.comment}>{Line({ line: commentLine })}</div>
         <div className={classes.chip}>{chip}</div>
       </div>
     </Card>

@@ -26,90 +26,12 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 22.10.0-beta.1: ';
 $errorMessage = '';
 
-try {
-    $errorMessage = "Impossible to update 'cb_field' table";
-    $pearDB->query("ALTER TABLE cb_field MODIFY description VARCHAR(510) DEFAULT NULL");
-
-    $errorMessage = "Impossible to update 'hosts' table";
-    if (! str_contains(strtolower($pearDBO->getColumnType('hosts', 'notification_number')), 'bigint')) {
-        $pearDBO->beginTransaction();
-        $pearDBO->query("UPDATE `hosts` SET `notification_number`= 0 WHERE `notification_number`< 0");
-        $pearDBO->query("ALTER TABLE `hosts` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
-    }
-
-    $errorMessage = "Impossible to update 'services' table";
-    if (! str_contains(strtolower($pearDBO->getColumnType('services', 'notification_number')), 'bigint')) {
-        $pearDBO->beginTransaction();
-        $pearDBO->query("UPDATE `services` SET `notification_number`= 0 WHERE `notification_number`< 0");
-        $pearDBO->query("ALTER TABLE `services` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
-    }
-
-    $pearDB->beginTransaction();
-
-    $errorMessage = "Unable to delete 'oreon_web_path' and color options from database";
-    $pearDB->query("DELETE FROM `options` WHERE `key` = 'oreon_web_path' OR `key` LIKE 'color_%'");
-
-    $errorMessage = "Unable to delete 'appKey' information from database";
-    $pearDB->query("DELETE FROM `informations` WHERE `key` = 'appKey'");
-
-    $errorMessage = "Impossible to add new BBDO streams";
-    createBbdoStreamConfigurationForms($pearDB);
-
-    $errorMessage = "Impossible to update pollers ACLs";
-    updatePollerAcls($pearDB);
-
-    $errorMessage = "Impossible to update OpenID Provider configuration";
-    updateOpenIdCustomConfiguration($pearDB);
-    $pearDB->commit();
-
-    if ($pearDB->isColumnExist('remote_servers', 'app_key') === 1) {
-        $errorMessage = "Unable to drop 'app_key' from remote_servers table";
-        $pearDB->query("ALTER TABLE remote_servers DROP COLUMN `app_key`");
-    }
-
-    if ($pearDB->isColumnExist('remote_servers', 'server_id') === 0) {
-        $errorMessage = "Unable to add 'server_id' column to remote_servers table";
-        $pearDB->query(
-            "ALTER TABLE remote_servers
-            ADD COLUMN `server_id` int(11) NOT NULL"
-        );
-
-        migrateRemoteServerRelations($pearDB);
-
-        $errorMessage = "Unable to add foreign key constraint of remote_servers.server_id";
-        $pearDB->query(
-            "ALTER TABLE remote_servers
-            ADD CONSTRAINT `remote_server_nagios_server_ibfk_1`
-            FOREIGN KEY(`server_id`) REFERENCES `nagios_server` (`id`)
-            ON DELETE CASCADE"
-        );
-    }
-} catch (\Exception $e) {
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
-    }
-
-    if ($pearDBO->inTransaction()) {
-        $pearDBO->rollBack();
-    }
-
-    $centreonLog->insertLog(
-        4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
-    );
-
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
-}
-
 /**
  * Manage relations between remote servers and nagios servers
  *
  * @param \CentreonDB $pearDB
  */
-function migrateRemoteServerRelations(\CentreonDB $pearDB): void
+$migrateRemoteServerRelations = function(\CentreonDB $pearDB): void
 {
     $processedIps = [];
 
@@ -147,6 +69,98 @@ function migrateRemoteServerRelations(\CentreonDB $pearDB): void
             $deleteRemoteStatement->execute();
         }
     }
+};
+
+try {
+    $errorMessage = "Impossible to update 'cb_field' table";
+    $pearDB->query("ALTER TABLE cb_field MODIFY description VARCHAR(510) DEFAULT NULL");
+
+    $errorMessage = "Impossible to update 'hosts' table";
+    if (! str_contains(strtolower($pearDBO->getColumnType('hosts', 'notification_number')), 'bigint')) {
+        $pearDBO->beginTransaction();
+        $pearDBO->query("UPDATE `hosts` SET `notification_number`= 0 WHERE `notification_number`< 0");
+        $pearDBO->query("ALTER TABLE `hosts` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
+    }
+
+    $errorMessage = "Impossible to update 'services' table";
+    if (! str_contains(strtolower($pearDBO->getColumnType('services', 'notification_number')), 'bigint')) {
+        $pearDBO->beginTransaction();
+        $pearDBO->query("UPDATE `services` SET `notification_number`= 0 WHERE `notification_number`< 0");
+        $pearDBO->query("ALTER TABLE `services` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
+    }
+
+    $errorMessage = "Impossible to create 'security_provider_contact_group_relation'";
+    $pearDB->query("CREATE TABLE IF NOT EXISTS `security_provider_contact_group_relation` (
+        `claim_value` VARCHAR(255) NOT NULL,
+        `contact_group_id` int(11) NOT NULL,
+        `provider_configuration_id` int(11) NOT NULL,
+        PRIMARY KEY (`claim_value`, `contact_group_id`, `provider_configuration_id`),
+        CONSTRAINT `security_provider_contact_group_id`
+          FOREIGN KEY (`contact_group_id`)
+          REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
+        CONSTRAINT `security_provider_configuration_provider_id`
+          FOREIGN KEY (`provider_configuration_id`)
+          REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+    $pearDB->beginTransaction();
+
+    $errorMessage = "Unable to delete 'oreon_web_path' and color options from database";
+    $pearDB->query("DELETE FROM `options` WHERE `key` = 'oreon_web_path' OR `key` LIKE 'color_%'");
+
+    $errorMessage = "Unable to delete 'appKey' information from database";
+    $pearDB->query("DELETE FROM `informations` WHERE `key` = 'appKey'");
+
+    $errorMessage = "Impossible to add new BBDO streams";
+    createBbdoStreamConfigurationForms($pearDB);
+
+    $errorMessage = "Impossible to update pollers ACLs";
+    updatePollerAcls($pearDB);
+
+    $errorMessage = "Impossible to update OpenID Provider configuration";
+    updateOpenIdCustomConfiguration($pearDB);
+    $pearDB->commit();
+
+    if ($pearDB->isColumnExist('remote_servers', 'app_key') === 1) {
+        $errorMessage = "Unable to drop 'app_key' from remote_servers table";
+        $pearDB->query("ALTER TABLE remote_servers DROP COLUMN `app_key`");
+    }
+
+    if ($pearDB->isColumnExist('remote_servers', 'server_id') === 0) {
+        $errorMessage = "Unable to add 'server_id' column to remote_servers table";
+        $pearDB->query(
+            "ALTER TABLE remote_servers
+            ADD COLUMN `server_id` int(11) NOT NULL"
+        );
+
+        $migrateRemoteServerRelations($pearDB);
+
+        $errorMessage = "Unable to add foreign key constraint of remote_servers.server_id";
+        $pearDB->query(
+            "ALTER TABLE remote_servers
+            ADD CONSTRAINT `remote_server_nagios_server_ibfk_1`
+            FOREIGN KEY(`server_id`) REFERENCES `nagios_server` (`id`)
+            ON DELETE CASCADE"
+        );
+    }
+} catch (\Exception $e) {
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
+
+    if ($pearDBO->inTransaction()) {
+        $pearDBO->rollBack();
+    }
+
+    $centreonLog->insertLog(
+        4,
+        $versionOfTheUpgrade . $errorMessage .
+        " - Code : " . (int)$e->getCode() .
+        " - Error : " . $e->getMessage() .
+        " - Trace : " . $e->getTraceAsString()
+    );
+
+    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
 
 /**
@@ -644,7 +658,7 @@ function updateOpenIdCustomConfiguration(CentreonDB $pearDB): void
         $customConfiguration['authentication_conditions'] = [
             'is_enabled' => false,
             'attribute_path' => '',
-            'endpoint' => '',
+            'endpoint' => ['type' => 'introspection_endpoint', 'custom_endpoint' => ''],
             'authorized_values' => [],
             'trusted_client_addresses' => $trustedClientAddresses,
             'blacklist_client_addresses' => $blacklistClientAddresses
@@ -664,7 +678,7 @@ function updateOpenIdCustomConfiguration(CentreonDB $pearDB): void
         $encodedConfiguration = json_encode($customConfiguration);
 
         $statement = $pearDB->prepare(
-            "UPDATE custom_configuration SET custom_configuration = :customConfiguration WHERE `name`='openid'"
+            "UPDATE provider_configuration SET custom_configuration = :customConfiguration WHERE `name`='openid'"
         );
         $statement->bindValue(':customConfiguration', $encodedConfiguration, \PDO::PARAM_STR);
         $statement->execute();

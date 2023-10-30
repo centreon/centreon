@@ -1,0 +1,3 @@
+name: config.yaml
+description: Configuration brought by Centreon Gorgone install. SHOULD NOT BE EDITED! USE CONFIG.D DIRECTORY!
+configuration: !include @GORGONE_ETC_DIR@/config.d/*.yaml

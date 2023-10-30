@@ -1,6 +1,7 @@
 import { CancelToken } from 'axios';
 
-import { buildListingEndpoint, getData, ListingParameters } from '@centreon/ui';
+import { buildListingEndpoint, getData } from '@centreon/ui';
+import type { ListingParameters } from '@centreon/ui';
 
 import { MetaServiceMetricListing } from '../models';
 
@@ -11,21 +12,21 @@ interface ListMetaServiceMetricsProps {
 
 const buildListMetaServiceMetricsEndpoint = ({
   endpoint,
-  parameters,
+  parameters
 }: ListMetaServiceMetricsProps): string =>
   buildListingEndpoint({
     baseEndpoint: endpoint,
-    parameters,
+    parameters
   });
 
 const listMetaServiceMetrics =
   (cancelToken: CancelToken) =>
   ({
     endpoint,
-    parameters,
+    parameters
   }: ListMetaServiceMetricsProps): Promise<MetaServiceMetricListing> => {
     return getData<MetaServiceMetricListing>(cancelToken)({
-      endpoint: buildListMetaServiceMetricsEndpoint({ endpoint, parameters }),
+      endpoint: buildListMetaServiceMetricsEndpoint({ endpoint, parameters })
     });
   };
 

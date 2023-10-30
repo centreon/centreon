@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,6 @@ namespace Core\Application\Platform\UseCase\FindInstallationStatus;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
-use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatusResponse;
 
 class FindInstallationStatus
 {
@@ -46,7 +45,7 @@ class FindInstallationStatus
     {
         $this->info('check installation status of centreon web');
         $isCentreonWebInstalled = $this->repository->isCentreonWebInstalled();
-        $isCentreonWebUpgradeAvailable = $this->repository->isCentreonWebUpgradeAvailable();
+        $isCentreonWebUpgradeAvailable = $this->repository->isCentreonWebInstallableOrUpgradable();
 
         if ($isCentreonWebInstalled === false && $isCentreonWebUpgradeAvailable === false) {
             $this->critical(
@@ -55,6 +54,8 @@ class FindInstallationStatus
             $presenter->setResponseStatus(new ErrorResponse(
                 _('centreon is not properly installed')
             ));
+
+            return;
         }
 
         $presenter->present($this->createResponse(
@@ -66,6 +67,7 @@ class FindInstallationStatus
     /**
      * @param bool $isCentreonWebInstalled
      * @param bool $isCentreonWebUpgradeAvailable
+     *
      * @return FindInstallationStatusResponse
      */
     private function createResponse(

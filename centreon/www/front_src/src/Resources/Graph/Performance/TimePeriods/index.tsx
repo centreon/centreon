@@ -1,21 +1,12 @@
-import { useTranslation } from 'react-i18next';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
-import { Responsive } from '@visx/visx';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import {
-  Paper,
-  ButtonGroup,
-  Button,
-  useTheme,
-  Tooltip,
-  Theme,
-} from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { Button, ButtonGroup, Paper, Tooltip, useTheme } from '@mui/material';
 
+import { useDebounce, useMemoComponent, ParentSize } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-import { useMemoComponent } from '@centreon/ui';
 
 import { timePeriods } from '../../../Details/tabs/Graph/models';
 import GraphOptions from '../ExportableGraphWithTimeline/GraphOptions';
@@ -25,34 +16,34 @@ import {
   changeCustomTimePeriodDerivedAtom,
   changeSelectedTimePeriodDerivedAtom,
   customTimePeriodAtom,
-  selectedTimePeriodAtom,
+  selectedTimePeriodAtom
 } from './timePeriodAtoms';
 
 interface StylesProps {
   disablePaper: boolean;
 }
 
-const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
+const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
   button: {
     fontSize: theme.typography.body2.fontSize,
-    pointerEvents: 'all',
+    pointerEvents: 'all'
   },
   buttonGroup: {
     alignSelf: 'center',
-    height: '100%',
+    height: '100%'
   },
-  header: ({ disablePaper }): CreateCSSProperties<StylesProps> => ({
+  header: {
     alignItems: 'center',
     backgroundColor: disablePaper ? 'transparent' : 'undefined',
     border: disablePaper ? 'unset' : 'undefined',
     boxShadow: disablePaper ? 'unset' : 'undefined',
     columnGap: theme.spacing(2),
     display: 'grid',
-    gridTemplateColumns: `repeat(3, auto)`,
+    gridTemplateColumns: `repeat(4, auto)`,
     gridTemplateRows: '1fr',
     justifyContent: 'center',
-    padding: theme.spacing(1, 0.5),
-  }),
+    padding: theme.spacing(1, 0.5)
+  }
 }));
 
 interface Props {
@@ -66,35 +57,35 @@ const timePeriodOptions = map(pick(['id', 'name', 'largeName']), timePeriods);
 const TimePeriodButtonGroup = ({
   disabled = false,
   disableGraphOptions = false,
-  disablePaper = false,
+  disablePaper = false
 }: Props): JSX.Element => {
-  const classes = useStyles({ disablePaper });
+  const { classes } = useStyles({ disablePaper });
   const { t } = useTranslation();
   const theme = useTheme();
+  const debouncedChangeDate = useDebounce({
+    functionToDebounce: ({ property, date }): void =>
+      changeCustomTimePeriod({ date, property }),
+    wait: 500
+  });
 
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeCustomTimePeriod = useUpdateAtom(
-    changeCustomTimePeriodDerivedAtom,
-  );
-  const changeSelectedTimePeriod = useUpdateAtom(
-    changeSelectedTimePeriodDerivedAtom,
+  const changeCustomTimePeriod = useSetAtom(changeCustomTimePeriodDerivedAtom);
+  const changeSelectedTimePeriod = useSetAtom(
+    changeSelectedTimePeriodDerivedAtom
   );
 
   const translatedTimePeriodOptions = timePeriodOptions.map((timePeriod) => ({
     ...timePeriod,
     largeName: t(timePeriod.largeName),
-    name: t(timePeriod.name),
+    name: t(timePeriod.name)
   }));
-
-  const changeDate = ({ property, date }): void =>
-    changeCustomTimePeriod({ date, property });
 
   return useMemoComponent({
     Component: (
-      <Responsive.ParentSize>
+      <ParentSize>
         {({ width }): JSX.Element => {
           const isCompact = lt(width, theme.breakpoints.values.sm);
 
@@ -123,16 +114,16 @@ const TimePeriodButtonGroup = ({
                       >
                         {cond<number, string>([
                           [lte(theme.breakpoints.values.md), always(largeName)],
-                          [T, always(name)],
+                          [T, always(name)]
                         ])(width)}
                       </Button>
                     </Tooltip>
                   ),
-                  translatedTimePeriodOptions,
+                  translatedTimePeriodOptions
                 )}
               </ButtonGroup>
               <CustomTimePeriodPickers
-                acceptDate={changeDate}
+                acceptDate={debouncedChangeDate}
                 customTimePeriod={customTimePeriod}
                 isCompact={isCompact}
               />
@@ -140,7 +131,7 @@ const TimePeriodButtonGroup = ({
             </Paper>
           );
         }}
-      </Responsive.ParentSize>
+      </ParentSize>
     ),
     memoProps: [
       customTimePeriod,
@@ -148,8 +139,8 @@ const TimePeriodButtonGroup = ({
       disableGraphOptions,
       disablePaper,
       selectedTimePeriod?.id,
-      themeMode,
-    ],
+      themeMode
+    ]
   });
 };
 

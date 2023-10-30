@@ -70,8 +70,7 @@ $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
 $cct = array();
 if ($o == "c") {
     $query = "SELECT contact_id, contact_name, contact_alias, contact_lang, contact_email, contact_pager,
-        contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type,
-        contact_theme
+        contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type
         FROM contact WHERE contact_id = :id";
     $DBRESULT = $pearDB->prepare($query);
     $DBRESULT->bindValue(':id', $centreon->user->get_id(), \PDO::PARAM_INT);
@@ -116,12 +115,7 @@ if ($cct["contact_auth_type"] != 'ldap') {
 $form->addElement('text', 'contact_email', _("Email"), $attrsText);
 $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
 
-$tab = array();
-$tab[] = $form->createElement('radio', 'contact_theme', null, _("Light"), 'light');
-$tab[] = $form->createElement('radio', 'contact_theme', null, _("Dark"), 'dark');
-$form->addGroup($tab, 'contact_theme', _("Front-end Theme"), '&nbsp;');
-
-if ($cct["contact_auth_type"] != 'ldap') {
+if ($cct["contact_auth_type"] === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
         "SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1"
@@ -169,10 +163,15 @@ $form->addElement(
     'button',
     'contact_gen_akey',
     _("Generate"),
-    ['onclick' => "generatePassword('aKey', '$encodedPasswordPolicy');", 'class' => 'btc bt_info']
+    ['onclick' => "generatePassword('aKey', '$encodedPasswordPolicy');",
+    'class' => 'btc bt_info',
+    "id" => "generateAutologinKeyButton",
+    "data-testid" => _("Generate")]
 );
 $form->addElement('select', 'contact_lang', _("Language"), $langs);
-$form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+if (!isCloudPlatform()) {
+    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+}
 
 
 /* ------------------------ Topoogy ---------------------------- */

@@ -1,0 +1,129 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.servicenow}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.instance_name.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.instance_name.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.client_id.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.client_id.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.client_secret.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.client_secret.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.username.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.username.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.password.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.password.html}
+    </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {t}Test authentication{/t}
+  </td>
+  <td class="FormRowValue">
+    <button class="btc bt_action" id="test-servicenow">{t}Test{/t}</button>
+    <span id="test-error" class="error_msg" style="display: none; color: red;"></span>
+    <span id="test-ok" class="error_msg" style="display: none; color: green;">Ok</span>
+  </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.mappingticket.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+    </td>
+</tr>
+<script>
+var webServiceUrl = '{$webServiceUrl}';
+</script>
+{literal}
+<script>
+jQuery('#test-servicenow').on('click', function (e) {
+  e.preventDefault();
+  jQuery('.error_msg').hide();
+
+  /* Valid required field */
+  var fields = [
+    'instance_name',
+    'client_id',
+    'client_secret',
+    'username',
+    'password'
+  ];
+  var i;
+  var inError = false;
+  for (i = 0; i < fields.length; i++) {
+    var field = 'input[name="' + fields[i] + '"]';
+    if (jQuery(field).val().trim() === '') {
+      jQuery('#test-error').text('A required field is empty.');
+      jQuery('#test-error').show();
+      jQuery('#err-' + fields[i]).text('This field is required.').show()
+      inError = true;
+    }
+  }
+  if (inError) {
+    return;
+  }
+
+  jQuery.ajax({
+    url: webServiceUrl + '?object=centreon_openticket&action=testProvider',
+    method: 'POST',
+    type: 'POST',
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    data: JSON.stringify({
+      service: 'ServiceNow',
+      instance: jQuery('input[name="instance_name"]').val(),
+      clientId: jQuery('input[name="client_id"]').val(),
+      clientSecret: jQuery('input[name="client_secret"]').val(),
+      username: jQuery('input[name="username"]').val(),
+      password: jQuery('input[name="password"]').val(),
+      proxyAddress: jQuery('input[name="proxy_address"]').val(),
+      proxyPort: jQuery('input[name="proxy_port"]').val(),
+      proxyUsername: jQuery('input[name="proxy_username"]').val(),
+      proxyPassword: jQuery('input[name="proxy_password"]').val()
+    }),
+    success: function (data) {
+      if (data === true) {
+        jQuery('#test-ok').show();
+      } else {
+        jQuery('#test-error').text('Fail');
+        jQuery('#test-error').show();
+      }
+    },
+    error: function (error) {
+      jQuery('#test-error').show();
+      jQuery('#test-error').text(error.responseText);
+    }
+  });
+});
+</script>
+{/literal}

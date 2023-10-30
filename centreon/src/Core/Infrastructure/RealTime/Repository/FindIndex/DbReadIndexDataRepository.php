@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\FindIndex;
 
-use PDO;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
 use Core\Domain\RealTime\Model\IndexData;
+use PDO;
 
 class DbReadIndexDataRepository extends AbstractRepositoryDRB implements ReadIndexDataRepositoryInterface
 {
@@ -44,7 +44,7 @@ class DbReadIndexDataRepository extends AbstractRepositoryDRB implements ReadInd
      */
     public function findIndexByHostIdAndServiceId(int $hostId, int $serviceId): int
     {
-        $query = 'SELECT id FROM `:dbstg`.index_data WHERE host_id = :hostId AND service_id = :serviceId';
+        $query = 'SELECT 1 AS REALTIME, id FROM `:dbstg`.index_data WHERE host_id = :hostId AND service_id = :serviceId';
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $statement->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
@@ -52,7 +52,7 @@ class DbReadIndexDataRepository extends AbstractRepositoryDRB implements ReadInd
 
         $row = $statement->fetch();
 
-        if (!is_array($row) || !array_key_exists('id', $row)) {
+        if (! is_array($row) || ! array_key_exists('id', $row)) {
             throw new \InvalidArgumentException('Resource not found');
         }
 
@@ -64,7 +64,7 @@ class DbReadIndexDataRepository extends AbstractRepositoryDRB implements ReadInd
      */
     public function findHostNameAndServiceDescriptionByIndex(int $index): ?IndexData
     {
-        $query = 'SELECT host_name as hostName, service_description as serviceDescription ';
+        $query = 'SELECT 1 AS REALTIME, host_name as hostName, service_description as serviceDescription ';
         $query .= ' FROM `:dbstg`.index_data WHERE id = :index';
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':index', $index, PDO::PARAM_INT);
@@ -72,7 +72,7 @@ class DbReadIndexDataRepository extends AbstractRepositoryDRB implements ReadInd
 
         $record = $statement->fetch();
 
-        if (!is_array($record)) {
+        if (! is_array($record)) {
             return null;
         }
 

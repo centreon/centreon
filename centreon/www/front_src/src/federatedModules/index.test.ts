@@ -12,12 +12,19 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 const retrievedWebVersions = {
   modules: {
     'centreon-bam-server': {
-      version: '1.0.0',
-    },
+      fix: '0',
+      major: '1',
+      minor: '0',
+      version: '1.0.0'
+    }
   },
   web: {
-    version: '21.10.1',
+    fix: '0',
+    major: '23',
+    minor: '04',
+    version: '23.04.1'
   },
+  widgets: {}
 };
 
 describe('external components', () => {
@@ -31,7 +38,7 @@ describe('external components', () => {
   it('populates the federated components atom with the data retrieved from the API', async () => {
     const { result } = renderHook(() => ({
       ...useFederatedModules(),
-      ...usePlatformVersions(),
+      ...usePlatformVersions()
     }));
 
     expect(result.current.federatedModules).toEqual(null);
@@ -50,7 +57,7 @@ describe('external components', () => {
 
     await waitFor(() => {
       expect(result.current.federatedModules).toEqual([
-        retrievedFederatedModule,
+        retrievedFederatedModule
       ]);
     });
   });

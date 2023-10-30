@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -171,8 +171,14 @@ if (isset($_GET["autologin"]) && $_GET["autologin"]) {
 function updateCentreonBaseUri(): void
 {
     $requestUri = htmlspecialchars($_SERVER['REQUEST_URI']) ?: '/centreon/';
-    $basePath = '/' . trim(explode('index.php', $requestUri)[0], "/") . '/';
-    $basePath = str_replace('//', '/', $basePath);
+    // Regular expression pattern to match the string between slashes
+    $pattern = "/\/([^\/]+)\//";
+    preg_match($pattern, $requestUri, $matches);
+    if (isset($matches[0]) && $matches[0] !== '') {
+        $basePath = str_replace('//', '/', $matches[0]);
+    } else {
+        $basePath = '/centreon/';
+    }
     $indexHtmlPath = './index.html';
     $indexHtmlContent = file_get_contents($indexHtmlPath);
 
@@ -184,7 +190,7 @@ function updateCentreonBaseUri(): void
             $indexHtmlContent
         );
 
-        file_put_contents($indexHtmlPath, $indexHtmlContent);
+        file_put_contents($indexHtmlPath, $indexHtmlContent, LOCK_EX);
     }
 }
 

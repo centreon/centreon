@@ -22,59 +22,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginSession;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\Authentication\Application\UseCase\Login\LoginPresenterInterface;
-use Symfony\Component\HttpFoundation\Response;
 
-class LoginPresenterStub extends AbstractPresenter implements LoginPresenterInterface
+class LoginPresenterStub extends AbstractPresenter
 {
-    /**
-     * @var mixed
-     */
-    public $response;
-
-    /**
-     * @var ResponseStatusInterface|null
-     */
-    protected $responseStatus;
-
-    /**
-     * constructor
-     */
-    public function __construct()
-    {
-    }
-
-    /**
-     * @return Response
-     */
-    public function show(): Response
-    {
-        return new Response();
-    }
-
-    /**
-     * @param mixed $response
-     */
-    public function present(mixed $response): void
-    {
-        $this->response = $response;
-    }
-
-    /**
-     * @param ResponseStatusInterface|null $responseStatus
-     */
-    public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
-    {
-        $this->responseStatus = $responseStatus;
-    }
-
-    /**
-     * @return ResponseStatusInterface|null
-     */
-    public function getResponseStatus(): ?ResponseStatusInterface
-    {
-        return $this->responseStatus;
-    }
 }

@@ -2,17 +2,13 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { prop, isEmpty, path, isNil } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Stack } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-import {
-  useRequest,
-  ListingModel,
-  MultiAutocompleteField,
-  SearchParameter,
-} from '@centreon/ui';
+import { useRequest, MultiAutocompleteField } from '@centreon/ui';
+import type { ListingModel, SearchParameter } from '@centreon/ui';
 
 import { labelEvent } from '../../../translatedLabels';
 import { TabProps } from '..';
@@ -21,7 +17,7 @@ import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import {
   customTimePeriodAtom,
   getDatesDerivedAtom,
-  selectedTimePeriodAtom,
+  selectedTimePeriodAtom
 } from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
 
 import { types } from './Event';
@@ -34,21 +30,21 @@ import ExportToCsv from './ExportToCsv';
 
 type TimelineListing = ListingModel<TimelineEvent>;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   filterHeader: {
     alignItems: 'center',
     display: 'grid',
-    padding: theme.spacing(1),
-  },
+    padding: theme.spacing(1)
+  }
 }));
 
 const TimelineTab = ({ details }: TabProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const translatedTypes = types.map((type) => ({
     ...type,
-    name: t(type.name),
+    name: t(type.name)
   })) as Array<Type>;
 
   const [selectedTypes, setSelectedTypes] =
@@ -56,7 +52,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
 
   const { sendRequest, sending } = useRequest<TimelineListing>({
     decoder: listTimelineEventsDecoder,
-    request: listTimelineEvents,
+    request: listTimelineEvents
   });
 
   const getIntervalDates = useAtomValue(getDatesDerivedAtom);
@@ -78,27 +74,27 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
           field: 'date',
           values: {
             $gt: start,
-            $lt: end,
-          },
-        },
+            $lt: end
+          }
+        }
       ],
       lists: [
         {
           field: 'type',
-          values: selectedTypes.map(prop('id')),
-        },
-      ],
+          values: selectedTypes.map(prop('id'))
+        }
+      ]
     };
   };
 
   const timelineEndpoint = path(['links', 'endpoints', 'timeline'], details);
   const timelineDownloadEndpoint = path(
     ['links', 'endpoints', 'timeline_download'],
-    details,
+    details
   );
 
   const listTimeline = ({
-    atPage,
+    atPage
   }: {
     atPage?: number;
   }): Promise<TimelineListing> => {
@@ -107,8 +103,8 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
       parameters: {
         limit,
         page: atPage,
-        search: getSearch(),
-      },
+        search: getSearch()
+      }
     });
   };
 
@@ -147,7 +143,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
       reloadDependencies={[
         selectedTypes,
         selectedTimePeriod?.id || customTimePeriod,
-        timelineEndpoint,
+        timelineEndpoint
       ]}
       sendListingRequest={isNil(timelineEndpoint) ? undefined : listTimeline}
     >

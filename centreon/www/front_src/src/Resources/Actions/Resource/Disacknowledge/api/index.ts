@@ -1,8 +1,8 @@
 import axios, { AxiosResponse, CancelToken } from 'axios';
-import { map, pick } from 'ramda';
+import { equals } from 'ramda';
 
 import { resourcesEndpoint } from '../../../../api/endpoint';
-import { Resource } from '../../../../models';
+import { Resource, ResourceType, ResourceCategory } from '../../../../models';
 
 const disacknowledgeEndpoint = `${resourcesEndpoint}/acknowledgements`;
 
@@ -15,16 +15,22 @@ const disacknowledgeResources =
   (cancelToken: CancelToken) =>
   ({
     resources,
-    disacknowledgeAttachedResources,
+    disacknowledgeAttachedResources
   }: ResourcesWithDisacknowledgeParams): Promise<Array<AxiosResponse>> => {
+    const payload = resources.map(({ type, id, parent, service_id }) => ({
+      id: equals(type, ResourceType.anomalyDetection) ? service_id : id,
+      parent: parent ? { id: parent?.id } : null,
+      type: ResourceCategory[type]
+    }));
+
     return axios.delete(disacknowledgeEndpoint, {
       cancelToken,
       data: {
         disacknowledgement: {
-          with_services: disacknowledgeAttachedResources,
+          with_services: disacknowledgeAttachedResources
         },
-        resources: map(pick(['type', 'id', 'parent']), resources),
-      },
+        resources: payload
+      }
     });
   };
 

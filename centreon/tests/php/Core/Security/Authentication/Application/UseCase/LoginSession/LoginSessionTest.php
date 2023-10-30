@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginSession;
 
-use PHPUnit\Framework\TestCase;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Centreon\Domain\Menu\Model\Page;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Symfony\Component\HttpFoundation\Request;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
@@ -50,6 +50,7 @@ use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryIn
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 beforeEach(function () {
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
@@ -79,6 +80,7 @@ beforeEach(function () {
     $this->writeSessionRepository = $this->createMock(WriteSessionRepositoryInterface::class);
     $this->aclUpdater = $this->createMock(AclUpdaterInterface::class);
     $this->defaultRedirectUri = '/monitoring/resources';
+    $this->thirdPartyLoginForm = new ThirdPartyLoginForm($this->createMock(UrlGeneratorInterface::class));
     $this->useCase = new Login(
         $this->providerFactory,
         $this->session,
@@ -89,10 +91,15 @@ beforeEach(function () {
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $this->authenticationRequest = LoginRequest::createForLocal("admin", "password", '127.0.0.1');
+
+    $formater = $this->createMock(PresenterFormatterInterface::class);
+    $this->presenter = new LoginPresenterStub($formater);
+
 });
 
 it('should present an error response when the provider configuration is not found', function () {
@@ -106,17 +113,18 @@ it('should present an error response when the provider configuration is not foun
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
         ->with(Provider::LOCAL)
         ->willThrowException(ProviderException::providerConfigurationNotFound(Provider::LOCAL));
 
-    $useCase($this->authenticationRequest, $presenter);
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
+    $useCase($this->authenticationRequest, $this->presenter);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
 });
 
 
@@ -131,9 +139,10 @@ it('should present an UnauthorizedResponse when the authentication fails', funct
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
+
     $this->provider
         ->expects($this->once())
         ->method('authenticateOrFail')
@@ -145,8 +154,8 @@ it('should present an UnauthorizedResponse when the authentication fails', funct
         ->with(Provider::LOCAL)
         ->willReturn($this->provider);
 
-    $useCase($this->authenticationRequest, $presenter);
-    expect($presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
+    $useCase($this->authenticationRequest, $this->presenter);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
 it('should present a PasswordExpiredResponse when the user password is expired', function () {
@@ -160,9 +169,10 @@ it('should present a PasswordExpiredResponse when the user password is expired',
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
+
     $this->provider
         ->expects($this->once())
         ->method('authenticateOrFail')
@@ -174,8 +184,8 @@ it('should present a PasswordExpiredResponse when the user password is expired',
         ->with(Provider::LOCAL)
         ->willReturn($this->provider);
 
-    $useCase($this->authenticationRequest, $presenter);
-    expect($presenter->getResponseStatus())->toBeInstanceOf(PasswordExpiredResponse::class);
+    $useCase($this->authenticationRequest, $this->presenter);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(PasswordExpiredResponse::class);
 });
 
 it('should present an UnauthorizedResponse when user is not authorized to log in', function () {
@@ -189,11 +199,11 @@ it('should present an UnauthorizedResponse when user is not authorized to log in
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
-    $useCase($this->authenticationRequest, $presenter);
-    expect($presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
+    $useCase($this->authenticationRequest, $this->presenter);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
 
@@ -208,9 +218,9 @@ it("should present an UnauthorizedResponse when user doesn't exist", function ()
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
     $this->provider
         ->expects($this->once())
         ->method('authenticateOrFail');
@@ -226,8 +236,8 @@ it("should present an UnauthorizedResponse when user doesn't exist", function ()
         ->method('findUserOrFail')
         ->willThrowException(LegacyAuthenticationException::userNotFound());
 
-    $useCase($this->authenticationRequest, $presenter);
-    expect($presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
+    $useCase($this->authenticationRequest, $this->presenter);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
 });
 
 it('should create a user when auto import is enabled', function () {
@@ -241,9 +251,9 @@ it('should create a user when auto import is enabled', function () {
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
     $this->contact
         ->expects($this->once())
         ->method('isAllowedToReachWeb')
@@ -269,7 +279,7 @@ it('should create a user when auto import is enabled', function () {
         ->with(Provider::LOCAL)
         ->willReturn($this->provider);
 
-    $useCase($this->authenticationRequest, $presenter);
+    $useCase($this->authenticationRequest, $this->presenter);
 });
 
 it('should create authentication tokens when user is correctly authenticated', function () {
@@ -283,9 +293,9 @@ it('should create authentication tokens when user is correctly authenticated', f
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
 
     $this->contact
         ->method('isAllowedToReachWeb')
@@ -329,7 +339,7 @@ it('should create authentication tokens when user is correctly authenticated', f
         ->expects($this->once())
         ->method('createAuthenticationTokens');
 
-    $useCase($this->authenticationRequest, $presenter);
+    $useCase($this->authenticationRequest, $this->presenter);
 });
 
 it('should present the default page when user is correctly authenticated', function () {
@@ -343,9 +353,9 @@ it('should present the default page when user is correctly authenticated', funct
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
 
     $this->contact
         ->method('isAllowedToReachWeb')
@@ -372,9 +382,10 @@ it('should present the default page when user is correctly authenticated', funct
         ->method('hasAuthenticationTokensByToken')
         ->willReturn(true);
 
-    $useCase($this->authenticationRequest, $presenter);
-    expect($presenter->getResponseStatus())->toBeInstanceOf(LoginResponse::class);
-    expect($presenter->response->getMessage())->toBe('/monitoring/resources');
+    $useCase($this->authenticationRequest, $this->presenter);
+
+    expect($this->presenter->getPresentedData())->toBeInstanceOf(LoginResponse::class);
+    expect($this->presenter->getPresentedData()->getRedirectUri())->toBe('/monitoring/resources');
 });
 
 it('should present the custom redirection page when user is authenticated', function () {
@@ -388,9 +399,10 @@ it('should present the custom redirection page when user is authenticated', func
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
-    $presenter = new LoginPresenterStub();
+
     $page = new Page(1, '/my_custom_page', 60101, true);
 
     $this->contact
@@ -423,7 +435,7 @@ it('should present the custom redirection page when user is authenticated', func
         ->method('hasAuthenticationTokensByToken')
         ->willReturn(true);
 
-    $useCase($this->authenticationRequest, $presenter);
-    expect($presenter->getResponseStatus())->toBeInstanceOf(LoginResponse::class);
-    expect($presenter->response->getMessage())->toBe($page->getRedirectionUri());
+    $useCase($this->authenticationRequest, $this->presenter);
+    expect($this->presenter->getPresentedData())->toBeInstanceOf(LoginResponse::class);
+    expect($this->presenter->getPresentedData()->getRedirectUri())->toBe($page->getRedirectionUri());
 });

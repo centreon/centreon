@@ -3,9 +3,9 @@ import { useState, useCallback } from 'react';
 import { FormikValues, useFormikContext } from 'formik';
 import { isEmpty, not, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, CircularProgress } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 
@@ -17,20 +17,20 @@ import PasswordEndAdornment from './PasswordEndAdornment';
 const aliasFieldName = 'alias';
 const passwordFieldName = 'password';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   form: {
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing(2),
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 const getTouchedError = ({ fieldName, errors, touched }): string | undefined =>
   prop(fieldName, touched) && prop(fieldName, errors);
 
 const LoginForm = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const {
@@ -41,7 +41,7 @@ const LoginForm = (): JSX.Element => {
     handleBlur,
     dirty,
     isSubmitting,
-    handleSubmit,
+    handleSubmit
   } = useFormikContext<FormikValues>();
 
   const changeVisibility = (): void => {
@@ -52,13 +52,13 @@ const LoginForm = (): JSX.Element => {
   const aliasError = getTouchedError({
     errors,
     fieldName: aliasFieldName,
-    touched,
+    touched
   });
   const passwordValue = prop(passwordFieldName, values);
   const passwordError = getTouchedError({
     errors,
     fieldName: passwordFieldName,
-    touched,
+    touched
   });
   const isDisabled = not(isEmpty(errors)) || isSubmitting || not(dirty);
 
@@ -69,7 +69,7 @@ const LoginForm = (): JSX.Element => {
         isVisible={isVisible}
       />
     ),
-    [isVisible],
+    [isVisible]
   );
 
   return (
@@ -78,7 +78,7 @@ const LoginForm = (): JSX.Element => {
         fullWidth
         required
         StartAdornment={PersonIcon}
-        ariaLabel={t(labelAlias)}
+        ariaLabel={labelAlias}
         error={aliasError}
         label={t(labelAlias)}
         value={aliasValue || ''}
@@ -90,8 +90,12 @@ const LoginForm = (): JSX.Element => {
         required
         EndAdornment={passwordEndAdornment}
         StartAdornment={LockIcon}
-        ariaLabel={t(labelPassword)}
+        ariaLabel={labelPassword}
         error={passwordError}
+        inputProps={{
+          'aria-label': t(labelPassword) as string,
+          autocomplete: 'new-password'
+        }}
         label={t(labelPassword)}
         type={isVisible ? 'text' : 'password'}
         value={passwordValue || ''}
@@ -100,7 +104,7 @@ const LoginForm = (): JSX.Element => {
       />
       <Button
         fullWidth
-        aria-label={t(labelConnect)}
+        aria-label={labelConnect}
         color="primary"
         disabled={isDisabled}
         endIcon={isSubmitting && <CircularProgress color="inherit" size={20} />}

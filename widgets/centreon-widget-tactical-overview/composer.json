@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-tactical-overview",
   "description": "Widget to display Host and service status Summary",
-  "version": "22.10.0",
+  "version": "23.04.0",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {

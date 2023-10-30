@@ -1,0 +1,5 @@
+AddServiceGroup:
+  methods: POST
+  path: /configuration/services/groups
+  controller: 'Core\ServiceGroup\Infrastructure\API\AddServiceGroup\AddServiceGroupController'
+  condition: "request.attributes.get('version') >= 23.04"

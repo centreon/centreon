@@ -76,7 +76,7 @@ export const labelPending = 'Pending';
 export const labelMonitoringServer = 'Monitoring server';
 export const labelRequired = 'Required';
 export const labelResourceName = 'Resource name';
-export const labelResourceProblems = 'Resource problems';
+export const labelAllAlerts = 'All alerts';
 export const labelResource = 'Resource';
 export const labelRowsPerPage = 'Rows per page';
 export const labelOf = 'of';
@@ -121,9 +121,10 @@ export const labelTimezone = 'Timezone';
 export const labelTo = 'To';
 export const labelAcknowledgeCommandSent = 'Acknowledge command sent';
 export const labelDowntimeCommandSent = 'Downtime command sent';
-export const labelCheckCommandSent = 'Check command sent';
+export const labelCheckCommandSent =
+  'Check command sent ! Please refresh the listing to update the data.';
 export const labelTypeOfResource = 'Type of resource';
-export const labelUnhandledProblems = 'Unhandled problems';
+export const labelUnhandledAlerts = 'Unhandled alerts';
 export const labelUnhandled = 'Unhandled';
 export const labelUnreachable = 'Unreachable';
 export const labelUnknown = 'Unknown';
@@ -145,6 +146,7 @@ export const labelSaveFilter = 'Save filter';
 export const labelSaveAsNew = 'Save as new';
 export const labelSave = 'Save';
 export const labelNewFilter = 'New filter';
+export const labelUpdateFilter = 'Update filter';
 export const labelName = 'Name';
 export const labelFilterCreated = 'Filter created';
 export const labelFilterSaved = 'Filter saved';
@@ -192,6 +194,7 @@ export const labelDisplayEvents = 'Display events';
 export const labelExportToPng = 'Export to png';
 export const labelPerformancePage = 'Go to performance page';
 export const labelParent = 'Parent';
+export const labelParentName = 'Parent name';
 export const labelSelectCriterias = 'Select criterias';
 export const labelForward = 'Forward';
 export const labelBackward = 'Backward';
@@ -209,7 +212,7 @@ export const labelOnlyPassiveChecksEnabled = 'Only passive checks are enabled';
 export const labelNotificationDisabled = 'Notifications disabled';
 export const labelNotificationEnabled = 'Notifications enabled';
 export const labelMetrics = 'Metrics';
-export const labelMetaService = 'Meta service';
+export const labelMetaService = 'Meta-Service';
 export const labelCalculationType = 'Calculation type';
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
@@ -270,6 +273,29 @@ export const labelEditAnomalyDetectionConfirmation =
 export const labelMenageEnvelope = 'Manage envelope size';
 export const labelMenageEnvelopeSubTitle =
   'Changes to the envelope size will be applied immediately';
-export const labelUseDefaultValue = 'use default value';
-export const labelPointsOutsideOfEnvelopeCount = 'points out of envelope';
+export const labelResetToDefaultValue = 'Reset to default value';
+export const labelPointsOutsideOfEnvelopeCount =
+  'points outside of the envelope';
 export const labelClose = 'Close';
+export const labelSearchBar = 'Search bar';
+export const labelSlider = 'Slider';
+export const labelCloseEditModal = 'Close edit modal';
+export const labelModalEditAnomalyDetection = 'Edit modal';
+export const labelModalConfirmation = 'Modal confirmation';
+export const labelForcedCheck = 'Forced check';
+export const labelCheckDescription = `Check selected resources only within configured check period`;
+export const labelForcedCheckDescription =
+  'Check selected resources even outside configured check period';
+export const labelForcedCheckCommandSent =
+  'Forced check command sent ! Please refresh the listing to update the data.';
+export const labelUnit = 'Unit';
+export const labelNeedHelpWithSearchBarUsage =
+  'Need help with search bar usage?';
+export const labelFindExplanationsAndExamples =
+  'Find explanations and examples';
+export const labelHere = 'here';
+
+export const labelDisplayView = 'Display view:';
+export const labelViewAllResources = 'View all resources';
+export const labelViewByHost = 'View by host';
+export const labelViewByService = 'View by service';

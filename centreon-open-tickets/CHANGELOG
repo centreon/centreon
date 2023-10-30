@@ -1,0 +1,17 @@
+## Centreon Open Tickets 1.2.0
+* Add OTRS Provider (#10)
+* Add Simple Provider (#14)
+* Add history and a page to display it (#5 #12)
+* Add some filter on the widget (#18)
+* Add a system to close ticket (#19)
+* Small fixes
+
+## Centreon Open Tickets 1.1.0
+* Can link an url for the ticket_id (#9)
+* Add a timer to autoclose popup confirm (#1)
+* Add list system (#2)
+* Add GLPI Provider (#9)
+* Small fixes
+
+## Centreon Open Tickets 1.0.0
+* Initial version

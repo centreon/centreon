@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Update Vault Configuration",
+    "type": "object",
+    "required": [
+        "address",
+        "port",
+        "role_id",
+        "secret_id"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "address": {
+            "type": "string"
+        },
+        "port": {
+            "type": "integer"
+        },
+        "role_id": {
+            "type": "string"
+        },
+        "secret_id": {
+            "type": "string"
+        }
+    }
+}

@@ -50,7 +50,7 @@ class URIContext extends CentreonContext
         $serviceConfig->save();
 
         // Ensure service is monitored.
-        $this->restartAllPollers();
+        $this->reloadAllPollers();
     }
 
     /**
@@ -101,7 +101,7 @@ class URIContext extends CentreonContext
                 return true;
             },
             'Cannot find link in service output',
-            20
+            50
         );
     }
 

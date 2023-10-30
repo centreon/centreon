@@ -1,5 +1,8 @@
+import pluralize from 'pluralize';
 import {
+  __,
   allPass,
+  compose,
   concat,
   endsWith,
   filter,
@@ -25,32 +28,29 @@ import {
   split,
   startsWith,
   trim,
-  without,
-  __,
-  compose,
+  without
 } from 'ramda';
-import pluralize from 'pluralize';
 
-import { SelectEntry } from '@centreon/ui';
+import { type SelectEntry } from '@centreon/ui';
 
+import getDefaultCriterias from '../default';
 import {
   Criteria,
   CriteriaDisplayProps,
   criteriaValueNameById,
-  selectableCriterias,
+  selectableCriterias
 } from '../models';
-import getDefaultCriterias from '../default';
 
 import {
-  CriteriaId,
-  criteriaNameToQueryLanguageName,
-  criteriaNameSortOrder,
-  CriteriaValueSuggestionsProps,
-  searchableFields,
   AutocompleteSuggestionProps,
-  staticCriteriaNames,
-  getSelectableCriteriasByName,
+  CriteriaId,
+  criteriaNameSortOrder,
+  criteriaNameToQueryLanguageName,
+  CriteriaValueSuggestionsProps,
   dynamicCriteriaValuesByName,
+  getSelectableCriteriasByName,
+  searchableFields,
+  staticCriteriaNames
 } from './models';
 
 const singular = pluralize.singular as (string) => string;
@@ -72,7 +72,7 @@ const isCriteriaPart = pipe(
   head,
   getCriteriaNameFromQueryLanguageName,
   pluralize,
-  isIn(selectableCriteriaNames),
+  isIn(selectableCriteriaNames)
 );
 const isFilledCriteria = pipe(endsWith(':'), not);
 
@@ -83,11 +83,11 @@ interface ParametersParse {
 
 const parse = ({
   search,
-  criteriaName = criteriaValueNameById,
+  criteriaName = criteriaValueNameById
 }: ParametersParse): Array<Criteria> => {
   const [criteriaParts, rawSearchParts] = partition(
     allPass([includes(':'), isCriteriaPart, isFilledCriteria]),
-    search.split(' '),
+    search.split(' ')
   );
 
   const criterias: Array<Criteria> = criteriaParts.map((criteria) => {
@@ -97,12 +97,12 @@ const parse = ({
 
     const defaultCriteria = find(
       propEq('name', pluralizedKey),
-      getDefaultCriterias(),
+      getDefaultCriterias()
     );
 
     const objectType = defaultCriteria?.object_type || null;
 
-    return {
+    const result = {
       name: pluralizedKey,
       object_type: objectType,
       type: 'multi_select',
@@ -114,16 +114,18 @@ const parse = ({
 
           return {
             id,
-            name: criteriaName[id],
+            name: criteriaName[id]
           };
         }
 
         return {
           id: 0,
-          name: value,
+          name: value
         };
-      }),
+      })
     };
+
+    return result;
   });
 
   const criteriasWithSearch = [
@@ -132,8 +134,8 @@ const parse = ({
       name: 'search',
       object_type: null,
       type: 'text',
-      value: rawSearchParts.join(' ').trim(),
-    },
+      value: rawSearchParts.join(' ').trim()
+    }
   ];
 
   const toNames = map(prop('name'));
@@ -149,8 +151,8 @@ const parse = ({
     ({ name }) => criteriaNameSortOrder[name],
     reject(propEq('name', 'sort'), [
       ...defaultCriterias,
-      ...criteriasWithSearch,
-    ]),
+      ...criteriasWithSearch
+    ])
   );
 };
 
@@ -167,7 +169,7 @@ const build = (criterias: Array<Criteria>): string => {
   const regularCriterias = pipe(
     rejectSearch,
     rejectSort,
-    rejectEmpty,
+    rejectEmpty
   )(criterias);
 
   const builtCriterias = regularCriterias
@@ -178,13 +180,13 @@ const build = (criterias: Array<Criteria>): string => {
 
       const formattedValues = isStaticCriteria
         ? values.map(
-            pipe(({ id }) => id as string, getCriteriaQueryLanguageName),
+            pipe(({ id }) => id as string, getCriteriaQueryLanguageName)
           )
         : values.map(({ name: valueName }) => `${valueName}`);
 
       const criteriaName = compose(
         getCriteriaQueryLanguageName,
-        singular,
+        singular
       )(name);
 
       return `${criteriaName}:${formattedValues.join(',')}`;
@@ -201,7 +203,7 @@ const build = (criterias: Array<Criteria>): string => {
 const getCriteriaNameSuggestions = (word: string): Array<string> => {
   const criteriaNames = map(
     compose(getCriteriaQueryLanguageName, pluralize.singular),
-    selectableCriteriaNames,
+    selectableCriteriaNames
   );
 
   if (isEmpty(word)) {
@@ -210,7 +212,7 @@ const getCriteriaNameSuggestions = (word: string): Array<string> => {
 
   const suggestions = filter(startsWith(word), [
     ...criteriaNames,
-    ...searchableFields,
+    ...searchableFields
   ]);
 
   return map(concat(__, ':'), suggestions);
@@ -218,10 +220,10 @@ const getCriteriaNameSuggestions = (word: string): Array<string> => {
 
 const getCriteriaValueSuggestions = ({
   selectedValues,
-  criterias,
+  criterias
 }: CriteriaValueSuggestionsProps): Array<string> => {
   const criteriaNames = map<CriteriaId, string>(
-    compose(getCriteriaQueryLanguageName, prop('id')),
+    compose(getCriteriaQueryLanguageName, prop('id'))
   )(criterias);
 
   return without(selectedValues, criteriaNames);
@@ -229,7 +231,7 @@ const getCriteriaValueSuggestions = ({
 
 const getIsNextCharacterEmpty = ({
   search,
-  cursorPosition,
+  cursorPosition
 }: AutocompleteSuggestionProps): boolean => {
   const nextCharacter = search[cursorPosition];
 
@@ -244,26 +246,26 @@ interface CriteriaExpression {
 
 const getCriteriaAndExpression = ({
   search,
-  cursorPosition,
+  cursorPosition
 }: AutocompleteSuggestionProps): CriteriaExpression => {
   const searchBeforeCursor = slice(0, cursorPosition + 1, search);
   const expressionBeforeCursor = pipe(
     trim,
     split(' '),
-    last,
+    last
   )(searchBeforeCursor) as string;
 
   const expressionCriteria = expressionBeforeCursor.split(':');
   const criteriaQueryLanguageName = head(expressionCriteria) as string;
   const criteriaName = getCriteriaNameFromQueryLanguageName(
-    criteriaQueryLanguageName,
+    criteriaQueryLanguageName
   );
   const expressionCriteriaValues = pipe(last, split(','))(expressionCriteria);
 
   return {
     criteriaName,
     expressionBeforeCursor,
-    expressionCriteriaValues,
+    expressionCriteriaValues
   };
 };
 
@@ -275,11 +277,11 @@ interface DynamicCriteriaParametersAndValues {
 const getDynamicCriteriaParametersAndValue = ({
   search,
   cursorPosition,
-  newSelectableCriterias = selectableCriterias,
+  newSelectableCriterias = selectableCriterias
 }: AutocompleteSuggestionProps): DynamicCriteriaParametersAndValues | null => {
   const isNextCharacterEmpty = getIsNextCharacterEmpty({
     cursorPosition,
-    search,
+    search
   });
 
   if (isNil(cursorPosition) || !isNextCharacterEmpty) {
@@ -288,20 +290,20 @@ const getDynamicCriteriaParametersAndValue = ({
 
   const { criteriaName, expressionCriteriaValues } = getCriteriaAndExpression({
     cursorPosition,
-    search,
+    search
   });
 
   const pluralizedCriteriaName = pluralize(criteriaName);
 
   const hasCriteriaDynamicValues = includes(
     pluralizedCriteriaName,
-    dynamicCriteriaValuesByName,
+    dynamicCriteriaValuesByName
   );
 
   return hasCriteriaDynamicValues
     ? {
         criteria: newSelectableCriterias[pluralizedCriteriaName],
-        values: expressionCriteriaValues,
+        values: expressionCriteriaValues
       }
     : null;
 };
@@ -309,11 +311,11 @@ const getDynamicCriteriaParametersAndValue = ({
 const getAutocompleteSuggestions = ({
   search,
   cursorPosition,
-  newSelectableCriterias,
+  newSelectableCriterias
 }: AutocompleteSuggestionProps): Array<string> => {
   const isNextCharacterEmpty = getIsNextCharacterEmpty({
     cursorPosition,
-    search,
+    search
   });
 
   if (isNil(cursorPosition) || !isNextCharacterEmpty) {
@@ -344,12 +346,12 @@ const getAutocompleteSuggestions = ({
 
     const criteriaValueSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
-      selectedValues: expressionCriteriaValues,
+      selectedValues: expressionCriteriaValues
     });
 
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
-      selectedValues: [],
+      selectedValues: []
     }).includes(lastCriteriaValue);
 
     return isLastValueInSuggestions
@@ -361,10 +363,10 @@ const getAutocompleteSuggestions = ({
 };
 
 export {
-  parse,
   build,
+  DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
-  searchableFields,
-  DynamicCriteriaParametersAndValues,
+  parse,
+  searchableFields
 };

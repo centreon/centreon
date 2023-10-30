@@ -56,7 +56,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'description' => 'serviceCategoryDescription',
         'severity' => 1,
         'level' => 12,
-        'icon' => '       centreon (png)'
+        'icon' => 'centreon (png)'
     );
 
     protected $serviceGroup = array(
@@ -136,7 +136,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceIcon',
         'severity' => 'serviceCategoryName (12)',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -198,7 +198,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceIcon',
         'severity' => 'serviceCategoryName (12)',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -260,7 +260,7 @@ class MassiveChangeServicesContext extends CentreonContext
         'url' => 'serviceUrl',
         'notes' => 'serviceNotes',
         'action_url' => 'serviceActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'serviceIcon',
         'severity' => 'serviceCategoryName (12)',
         'geo_coordinates' => '2.3522219,48.856614',
@@ -306,7 +306,7 @@ class MassiveChangeServicesContext extends CentreonContext
     }
 
     /**
-     * @When I have applied Massive Change operation to several services
+     * @When I have applied Mass Change operation to several services
      */
     public function iHaveAppliedMassiveChangeOperationToSeveralServices()
     {
@@ -323,7 +323,7 @@ class MassiveChangeServicesContext extends CentreonContext
         ));
         $checkbox = $this->assertFind('css', 'input[type="checkbox"][name="select[' . $object['id'] . ']"]');
         $this->currentPage->checkCheckbox($checkbox);
-        $this->selectInList('select[name="o1"]', 'Massive Change');
+        $this->selectInList('select[name="o1"]', 'Mass Change');
         $this->currentPage = new MassiveChangeServiceConfigurationPage($this, false);
         $this->currentPage->setProperties($this->updatedProperties);
         $this->currentPage->save();
@@ -334,34 +334,12 @@ class MassiveChangeServicesContext extends CentreonContext
      */
     public function allSelectedServicesAreUpdatedWithTheSameValues()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ServiceConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedService1['description']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedService1 as $key => $value) {
-                        if ($value != $object[$key]) {
-                            $this->tableau[] = $key . ' 1';
-                        }
-                    }
-                    $this->currentPage = new ServiceConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedService2['description']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedService2 as $key => $value) {
-                        if ($value != $object[$key]) {
-                            $this->tableau[] = $key . ' 2';
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ServiceConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedService1['description']);
+        $this->comparePageProperties($this->currentPage, $this->updatedService1);
+
+        $this->currentPage = new ServiceConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedService2['description']);
+        $this->comparePageProperties($this->currentPage, $this->updatedService2);
     }
 }

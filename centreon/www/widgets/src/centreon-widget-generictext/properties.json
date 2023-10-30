@@ -1,0 +1,6 @@
+{
+  "title": "Generic text",
+  "description": "Allows you to add free text to your dashboards (section titles, information, etc.).",
+  "options": {},
+  "moduleName": "centreon-widget-generictext"
+}
