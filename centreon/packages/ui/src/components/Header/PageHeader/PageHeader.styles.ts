@@ -1,7 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
-import { equals } from 'ramda';
 
-import { ThemeMode } from '@centreon/ui-context';
+import { alpha } from '@mui/system';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -72,16 +71,13 @@ const useStyles = makeStyles()((theme) => ({
     borderRadius: '50%',
     color: theme.palette.common.white,
     display: 'flex',
-    font: 'normal normal 500 20px/20px Roboto',
     height: theme.spacing(2.5),
     justifyContent: 'center',
     width: theme.spacing(2.5)
   },
   pageHeaderMessageIconWrapper: {
     alignItems: 'center',
-    background: equals(theme.palette.mode, ThemeMode.light)
-      ? '#FEC37D'
-      : '#833F0D',
+    backgroundColor: alpha(theme.palette.warning.main, 0.7),
     borderRadius: '50%',
     display: 'flex',
     height: theme.spacing(3.5),

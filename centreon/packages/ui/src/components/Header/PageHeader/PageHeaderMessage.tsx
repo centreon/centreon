@@ -20,7 +20,7 @@ const PageHeaderMessage = ({
           <Box className={classes.pageHeaderMessageIconWrapper}>
             <Box className={classes.pageHeaderMessageIcon}>!</Box>
           </Box>
-          <Typography aria-label="unsaved changes warning" variant="h2">
+          <Typography aria-label="unsaved changes warning" variant="h6">
             {message}
           </Typography>
         </>
