@@ -6,5 +6,9 @@
   "requiredOnly": {
     "name": "dashboard with required props",
     "description": null
+  },
+  "fromDashboardCreatorUser": {
+    "name": "dashboard-from-dashboard-creator-user",
+    "description": "created by user-dashboard-creator"
   }
 }

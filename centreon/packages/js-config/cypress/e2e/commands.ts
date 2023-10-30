@@ -399,6 +399,38 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('insertDashboardWithPatch', (dashboardBody, patchBody) => {
+  cy.request({
+    body: {
+      ...dashboardBody
+    },
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).then((response) => {
+    const dashboardId = response.body.id;
+    cy.waitUntil(
+      () => {
+        return cy
+          .request({
+            method: 'GET',
+            url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+          })
+          .then((getResponse) => {
+            return getResponse.body && getResponse.body.id === dashboardId;
+          });
+      },
+      {
+        timeout: 10000
+      }
+    );
+    cy.request({
+      body: patchBody,
+      method: 'PATCH',
+      url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+    });
+  });
+});
+
 interface ShareDashboardToUserProps {
   dashboardName: string;
   role: string;
@@ -485,6 +517,8 @@ declare global {
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
+      insertDashboardWithPatch: (dashboard: Dashboard, patch: any) => Chainable;
+
       loginByTypeOfUser: ({
         jsonName,
         loginViaApi
