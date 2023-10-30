@@ -165,4 +165,12 @@ class ConfigurationExporter extends ExporterServiceAbstract
         }
         closedir($dir);
     }
+
+    /**
+     * @return string
+     */
+    public static function getName(): string
+    {
+        return static::NAME;
+    }
 }
