@@ -242,19 +242,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * Only return resources that has performance data available in order to display graphs.
-     */
-    public function extractResourcesWithGraphData(): void
-    {
-        $this->resources = array_values(
-            array_filter(
-                $this->resources,
-                static fn (ResourceEntity $resource) => $resource->hasGraph(),
-            )
-        );
-    }
-
-    /**
      * This adds the subrequest filter for tags (servicegroups, hostgroups).
      *
      * @param ResourceFilter $filter
