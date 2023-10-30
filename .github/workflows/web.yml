@@ -92,7 +92,6 @@ jobs:
   frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -124,7 +123,6 @@ jobs:
   backend-dependencies:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -136,7 +134,6 @@ jobs:
 
   translation-build:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     runs-on: ubuntu-22.04
     container:
@@ -170,7 +167,7 @@ jobs:
   frontend-web-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -184,7 +181,7 @@ jobs:
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -198,7 +195,7 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -233,7 +230,7 @@ jobs:
 
   frontend-component-test:
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
@@ -244,7 +241,7 @@ jobs:
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -496,7 +493,7 @@ jobs:
 
   api-integration-test:
     needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     strategy:
       fail-fast: false
       matrix:
@@ -517,7 +514,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
