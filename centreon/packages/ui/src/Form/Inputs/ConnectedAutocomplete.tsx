@@ -76,9 +76,14 @@ const ConnectedAutocomplete = ({
 
   const blur = (): void => setFieldTouched(fieldName, true);
 
-  const isOptionEqualToValue = (option, value): boolean => {
-    return isEmpty(value) ? false : equals(option[filterKey], value[filterKey]);
-  };
+  const isOptionEqualToValue = useCallback(
+    (option, value): boolean => {
+      return isEmpty(value)
+        ? false
+        : equals(option[filterKey], value[filterKey]);
+    },
+    [filterKey]
+  );
 
   const value = path(fieldNamePath, values);
 
