@@ -174,7 +174,7 @@ class Upgrader extends Installer
      *
      * @throws \Exception
      *
-     * @return type
+     * @return void
      */
     private function upgradePreferences($widgetId)
     {
