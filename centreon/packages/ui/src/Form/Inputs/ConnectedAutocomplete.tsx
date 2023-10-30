@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isEmpty, path, split } from 'ramda';
+import { equals, isEmpty, path, split, uniqBy } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
+  SelectEntry,
   SingleConnectedAutocompleteField,
   buildListingEndpoint,
   useMemoComponent
@@ -75,14 +76,9 @@ const ConnectedAutocomplete = ({
 
   const blur = (): void => setFieldTouched(fieldName, true);
 
-  const isOptionEqualToValue = useCallback(
-    (option, value): boolean => {
-      return isEmpty(value)
-        ? false
-        : equals(option[filterKey], value[filterKey]);
-    },
-    [filterKey]
-  );
+  const isOptionEqualToValue = (option, value): boolean => {
+    return isEmpty(value) ? false : equals(option[filterKey], value[filterKey]);
+  };
 
   const value = path(fieldNamePath, values);
 
@@ -101,6 +97,12 @@ const ConnectedAutocomplete = ({
     [isMultiple]
   );
 
+  const getUniqueOptions = (
+    options: Array<SelectEntry>
+  ): Array<SelectEntry> => {
+    return uniqBy((item) => item[filterKey], options);
+  };
+
   return useMemoComponent({
     Component: (
       <AutocompleteField
@@ -109,6 +111,7 @@ const ConnectedAutocomplete = ({
         disabled={disabled}
         error={error}
         field={filterKey}
+        filterOptions={getUniqueOptions}
         getEndpoint={getEndpoint}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
