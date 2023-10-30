@@ -1,0 +1,6 @@
+<?php
+
+function getTemplate(string $dir): SmartyBC
+{
+    return new \SmartyBC();
+}

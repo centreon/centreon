@@ -3,6 +3,7 @@ parameters:
     - config/centreon.config.php.template
   scanFiles:
     - tests/phpstan_stubs/bootstrap.stub
+    - tests/phpstan_stubs/legacy.stub
   paths:
     - %currentWorkingDirectory%/src/Centreon
     - %currentWorkingDirectory%/src/EventSubscriber
