@@ -451,7 +451,7 @@ describe('Edit Panel', () => {
 
     cy.get('div[aria-label="Notification settings"]').scrollIntoView();
 
-    cy.screenshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Subject field is properly rendered with the edited notification subject', () => {
