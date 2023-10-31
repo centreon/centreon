@@ -28,7 +28,6 @@ jobs:
 
   package:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     uses: ./.github/workflows/widget-package.yml
     with:

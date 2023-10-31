@@ -42,7 +42,7 @@ jobs:
           token_download_centreon_com: ${{ secrets.token_download_centreon_com }}
 
   delivery-rpm:
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ inputs.environment }}
 
@@ -65,7 +65,7 @@ jobs:
           stability: ${{ inputs.stability }}
 
   delivery-deb:
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ inputs.environment }}
 
