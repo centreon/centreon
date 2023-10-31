@@ -31,7 +31,7 @@ import {
 import { hostEvents, serviceEvents } from '../utils';
 import {
   businessViewsEndpoint,
-  contactsGroupsEndpoint,
+  contactGroupsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
@@ -71,6 +71,9 @@ const useFormInputs = ({
     variant: 'subtitle1' as Variant
   };
 
+  const translatedServiceEvents = serviceEvents.map((service) => t(service));
+  const translatedHostEvents = hostEvents.map((host) => t(host));
+
   const basicFormGroups: Array<Group> = [
     {
       name: t(labelSelectResourcesAndEvents),
@@ -109,7 +112,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: hostEvents
+              options: translatedHostEvents
             },
             dataTestId: 'Host groups events',
             fieldName: 'hostGroups.events',
@@ -133,7 +136,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: serviceEvents
+              options: translatedServiceEvents
             },
             dataTestId: 'Extra events services',
             fieldName: 'hostGroups.extra.eventsServices',
@@ -173,7 +176,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: serviceEvents
+              options: translatedServiceEvents
             },
             dataTestId: 'Service groups events',
             fieldName: 'serviceGroups.events',
@@ -213,7 +216,7 @@ const useFormInputs = ({
                   checkbox: {
                     direction: 'horizontal',
                     labelPlacement: 'top',
-                    options: serviceEvents
+                    options: translatedServiceEvents
                   },
                   dataTestId: labelBusinessViewsEvents,
                   fieldName: 'businessviews.events',
@@ -331,7 +334,7 @@ const useFormInputs = ({
           {
             connectedAutocomplete: {
               additionalConditionParameters: [],
-              endpoint: contactsGroupsEndpoint
+              endpoint: contactGroupsEndpoint
             },
             dataTestId: 'Search contact groups',
             fieldName: 'contactgroups',
