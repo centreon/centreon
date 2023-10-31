@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useResourceStyles = makeStyles()((theme) => ({
   resourceCompositionItem: {
     display: 'grid',
-    gridTemplateColumns: '136px 1fr'
+    gridTemplateColumns: `${theme.spacing(22)} 2fr`
   },
   resourceType: {
     borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`
