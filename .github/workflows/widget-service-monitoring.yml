@@ -17,8 +17,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-service-monitoring/**"
-    tags:
-      - centreon-widget-service-monitoring-*
 
 jobs:
   get-version:
