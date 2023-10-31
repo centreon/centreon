@@ -21,21 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Infrastructure\API\DownloadPerformanceMetrics;
+namespace Core\Security\Authentication\Domain\Exception;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricPresenterInterface;
-use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
-
-class DownloadPerformanceMetricsPresenter extends AbstractPresenter implements DownloadPerformanceMetricPresenterInterface
+class ProviderException extends \Exception
 {
     /**
-     * {@inheritDoc}
+     * Exception thrown when a Provider class was unexpected.
      *
-     * @param DownloadPerformanceMetricResponse $data
+     * @param class-string $class
+     *
+     * @return self
      */
-    public function present(mixed $data): void
+    public static function unexpectedProvider(string $class): self
     {
-        parent::present($data);
+        return new self(sprintf(_('Must not Happen, got unexpected Provider type %s'), $class));
     }
 }

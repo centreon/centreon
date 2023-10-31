@@ -49,7 +49,7 @@ final class DownloadPerformanceMetrics
 
     /**
      * @param DownloadPerformanceMetricRequest $request
-     * @param FindPerformanceMetricPresenterInterface $presenter
+     * @param DownloadPerformanceMetricPresenterInterface $presenter
      */
     public function __invoke(
         DownloadPerformanceMetricRequest $request,
