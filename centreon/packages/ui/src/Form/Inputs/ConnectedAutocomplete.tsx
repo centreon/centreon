@@ -5,7 +5,6 @@ import { equals, isEmpty, path, split, uniqBy } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
-  SelectEntry,
   SingleConnectedAutocompleteField,
   buildListingEndpoint,
   useMemoComponent
@@ -26,7 +25,8 @@ const ConnectedAutocomplete = ({
   connectedAutocomplete,
   change,
   additionalMemoProps,
-  type
+  type,
+  disableSortedOptions = false
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -102,21 +102,15 @@ const ConnectedAutocomplete = ({
     [isMultiple]
   );
 
-  const getUniqueOptions = (
-    options: Array<SelectEntry>
-  ): Array<SelectEntry> => {
-    return uniqBy((item) => item[filterKey], options);
-  };
-
   return useMemoComponent({
     Component: (
       <AutocompleteField
         dataTestId={dataTestId}
         disableClearable={false}
+        disableSortedOptions={disableSortedOptions}
         disabled={disabled}
         error={error}
         field={filterKey}
-        filterOptions={getUniqueOptions}
         getEndpoint={getEndpoint}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}

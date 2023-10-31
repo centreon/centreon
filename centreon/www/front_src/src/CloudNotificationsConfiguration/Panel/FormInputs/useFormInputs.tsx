@@ -99,7 +99,8 @@ const useFormInputs = ({
               additionalConditionParameters: [],
               endpoint: hostsGroupsEndpoint
             },
-            dataTestId: t(labelSearchHostGroups),
+            dataTestId: labelSearchHostGroups,
+            disableSortedOptions: true,
             fieldName: 'hostGroups.ids',
             label: t(labelSearchHostGroups),
             required: true,
@@ -154,6 +155,7 @@ const useFormInputs = ({
     {
       additionalLabel: t(labelServiceGroups),
       additionalLabelClassName: classes.additionalLabel,
+
       fieldName: '',
       grid: {
         alignItems: 'center',
@@ -163,7 +165,8 @@ const useFormInputs = ({
               additionalConditionParameters: [],
               endpoint: serviceGroupsEndpoint
             },
-            dataTestId: t(labelSearchServiceGroups),
+            dataTestId: labelSearchServiceGroups,
+            disableSortedOptions: true,
             fieldName: 'serviceGroups.ids',
             label: t(labelSearchServiceGroups),
             required: true,
@@ -194,6 +197,7 @@ const useFormInputs = ({
           {
             additionalLabel: t(labelBusinessViews),
             additionalLabelClassName: classes.additionalLabel,
+
             fieldName: '',
             grid: {
               alignItems: 'center',
@@ -204,6 +208,7 @@ const useFormInputs = ({
                     endpoint: businessViewsEndpoint
                   },
                   dataTestId: labelSearchBusinessViews,
+                  disableSortedOptions: true,
                   fieldName: 'businessviews.ids',
                   label: t(labelSearchBusinessViews),
                   required: true,
