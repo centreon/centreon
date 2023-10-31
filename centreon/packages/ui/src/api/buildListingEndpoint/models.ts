@@ -18,7 +18,6 @@ export interface Parameters {
   search?: SearchParameter;
   sort?: SortQueryParameterValue;
 }
-
 export interface SearchParameter {
   conditions?: Array<ConditionsSearchParameter>;
   lists?: Array<ListsSearchParameter>;
