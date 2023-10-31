@@ -38,7 +38,7 @@ const getListingEndpoint = ({
   page = 1,
   limit = 30,
   sort = {
-    status_severity_code: SortOrder.asc,
+    status_severity_code: SortOrder.desc,
     ...defaultSecondSortCriteria
   },
   statuses = defaultStatuses,
