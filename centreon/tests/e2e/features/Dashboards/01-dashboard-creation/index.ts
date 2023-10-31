@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
-import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 
+import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import patchBody from '../../../fixtures/dashboards/creation/widgets/patchBody.json'
 
 before(() => {

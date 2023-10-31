@@ -448,7 +448,7 @@ interface ListingRequestResult {
   };
 }
 
-interface PatchBody {
+interface PatchDashboardBody {
   panels: Array<{
     layout: {
       height: number;
@@ -546,7 +546,7 @@ declare global {
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
-        patch: PatchBody
+        patch: PatchDashboardBody
       ) => Cypress.Chainable;
 
       loginByTypeOfUser: ({
