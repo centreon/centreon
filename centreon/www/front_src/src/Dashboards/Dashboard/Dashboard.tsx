@@ -102,7 +102,7 @@ const Dashboard = (): ReactElement => {
                 data-testid="refresh"
                 icon={<RefreshIcon />}
                 size="small"
-                variant="ghost"
+                variant="primary"
                 onClick={refreshAllWidgets}
               />
             </span>
