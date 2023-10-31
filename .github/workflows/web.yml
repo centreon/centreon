@@ -166,7 +166,7 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -180,7 +180,7 @@ jobs:
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -194,7 +194,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -229,7 +229,7 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
@@ -240,7 +240,7 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
+    needs: [changes, get-version]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
