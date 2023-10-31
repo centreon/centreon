@@ -55,13 +55,16 @@ class Connector
     {
         Assertion::positiveInt($id, 'Connector::id');
 
-        Assertion::notEmptyString($name, 'Connector::name');
-        Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'Connector::name');
+        $this->name = trim($name);
+        Assertion::notEmptyString($this->name, 'Connector::name');
+        Assertion::maxLength($this->name, self::NAME_MAX_LENGTH, 'Connector::name');
 
-        Assertion::notEmptyString($commandLine, 'Connector::commandLine');
-        Assertion::maxLength($commandLine, self::COMMAND_MAX_LENGTH, 'Connector::commandLine');
+        $this->commandLine = trim($commandLine);
+        Assertion::notEmptyString($this->commandLine, 'Connector::commandLine');
+        Assertion::maxLength($this->commandLine, self::COMMAND_MAX_LENGTH, 'Connector::commandLine');
 
-        Assertion::maxLength($description, self::DESCRIPTION_MAX_LENGTH, 'Connector::description');
+        $this->description = trim($description);
+        Assertion::maxLength($this->description, self::DESCRIPTION_MAX_LENGTH, 'Connector::description');
     }
 
     public function getId(): int

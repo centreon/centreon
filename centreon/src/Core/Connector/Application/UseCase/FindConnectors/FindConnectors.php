@@ -78,7 +78,7 @@ final class FindConnectors
             $commandIds = [];
             foreach ($connectors as $connector)
             {
-                array_push($commandIds, ...$connector->getcommandIds());
+                array_push($commandIds, ...$connector->getCommandIds());
             }
 
             $commands = [];

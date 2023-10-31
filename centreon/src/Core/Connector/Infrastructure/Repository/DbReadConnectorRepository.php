@@ -81,10 +81,6 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
         array $commandTypes
     ): array
     {
-        if ([] === $commandTypes) {
-            return [];
-        }
-
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
@@ -115,13 +111,13 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
 
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
+        $sqlConcatenator->appendGroupBy(
+            <<<'SQL'
+                GROUP BY `connector`.id
+                SQL
+        );
 
         if ($commandTypes !== []) {
-            $sqlConcatenator->appendGroupBy(
-                <<<'SQL'
-                    GROUP BY `connector`.id
-                    SQL
-            );
             $sqlConcatenator->storeBindValueMultiple(
                 ':command_type',
                 array_map(
