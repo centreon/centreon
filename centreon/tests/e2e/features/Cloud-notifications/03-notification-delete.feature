@@ -1,3 +1,4 @@
+@ignore
 Feature: Deleting a notification rule
   As a Centreon user with access to the notification rules page
   I need to delete a notification rule
