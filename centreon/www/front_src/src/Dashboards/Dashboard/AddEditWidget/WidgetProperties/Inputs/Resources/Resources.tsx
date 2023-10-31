@@ -1,6 +1,4 @@
 /* eslint-disable react/no-array-index-key */
-import { useEffect } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { or } from 'ramda';
