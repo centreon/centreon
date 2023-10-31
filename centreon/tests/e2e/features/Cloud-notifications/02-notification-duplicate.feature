@@ -1,4 +1,5 @@
 @ignore
+@REQ_MON-24180
 Feature: Duplicating a notification rule
   As a Centreon user with access to the notification rules page
   I need to duplicate a notification rule

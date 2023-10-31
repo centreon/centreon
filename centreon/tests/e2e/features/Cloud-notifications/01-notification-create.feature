@@ -1,4 +1,5 @@
 @ignore
+@REQ_MON-24178
 Feature: Creating a notification rule
   As a Centreon user with access to the notification rules page
   I need to create a notification rule

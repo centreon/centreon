@@ -1,4 +1,5 @@
 @ignore
+@REQ_MON-24183
 Feature: Get notification rules
   As a Centreon user with access to the notification rules page
   I need to show this list of notification rules

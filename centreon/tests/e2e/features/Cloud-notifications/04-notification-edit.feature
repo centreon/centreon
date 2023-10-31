@@ -1,4 +1,5 @@
 @ignore
+@REQ_MON-24182
 Feature: Editing notification rule configuration
   As a Centreon user with access to the notification rules page
   I need to edit a notification rule
