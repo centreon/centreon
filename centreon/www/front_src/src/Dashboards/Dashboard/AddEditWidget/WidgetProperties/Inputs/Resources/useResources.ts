@@ -21,9 +21,11 @@ import {
   labelServiceGroup
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
-import { singleResourceTypeSelectionAtom } from '../../../atoms';
+import {
+  selectedWidgetAtom,
+  singleResourceTypeSelectionAtom
+} from '../../../atoms';
 import { getDataProperty } from '../utils';
-import { isEditingAtom } from '../../../../atoms';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -100,10 +102,10 @@ const resourceQueryParameters = [
 const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
-  const isEditing = useAtomValue(isEditingAtom);
   const singleResourceTypeSelection = useAtomValue(
     singleResourceTypeSelectionAtom
   );
+  const selectedWidget = useAtomValue(selectedWidgetAtom);
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -147,12 +149,6 @@ const useResources = (propertyName: string): UseResourcesState => {
       }
     ]);
   };
-
-  useEffect(() => {
-    if (!isEditing) {
-      addResource();
-    }
-  }, []);
 
   const deleteResource = (index: number | string) => (): void => {
     setFieldValue(
@@ -199,7 +195,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     };
 
   useEffect(() => {
-    if (!singleResourceTypeSelection || !isEmpty(value)) {
+    if (!isEmpty(value)) {
       return;
     }
 
@@ -209,7 +205,7 @@ const useResources = (propertyName: string): UseResourcesState => {
         resources: []
       }
     ]);
-  }, [singleResourceTypeSelection]);
+  }, [selectedWidget?.id]);
 
   return {
     addResource,

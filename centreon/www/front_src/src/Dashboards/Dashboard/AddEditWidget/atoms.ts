@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 
-import { Widget } from './models';
+import { SelectedWidget, Widget } from './models';
 import { WidgetPropertiesRenderer } from './WidgetProperties/useWidgetInputs';
 
 export const widgetFormInitialDataAtom = atom<Widget | null>(null);
@@ -17,3 +17,5 @@ export const singleResourceTypeSelectionAtom = atom<boolean | undefined>(
 export const customBaseColorAtom = atom<boolean | undefined>(undefined);
 
 export const metricsOnlyAtom = atom<boolean | undefined>(undefined);
+
+export const selectedWidgetAtom = atom<SelectedWidget | undefined>(undefined);

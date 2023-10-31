@@ -69,3 +69,8 @@ export enum RadioOptions {
   default = 'default',
   manual = 'manual'
 }
+
+export interface SelectedWidget {
+  id: string;
+  name: string;
+}
