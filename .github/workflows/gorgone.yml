@@ -17,8 +17,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-gorgone/**"
-    tags:
-      - centreon-gorgone-*
 
 env:
   base_directory: centreon-gorgone
