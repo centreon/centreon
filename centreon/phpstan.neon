@@ -8,12 +8,9 @@ parameters:
   excludePaths:
     analyseAndScan:
       - src/Centreon/Tests
+  level: 1
   paths:
-    - %currentWorkingDirectory%/src/Centreon
-    - %currentWorkingDirectory%/src/EventSubscriber
-    - %currentWorkingDirectory%/src/Security
-    - %currentWorkingDirectory%/src/Utility
-    - %currentWorkingDirectory%/src/Core
+    - %currentWorkingDirectory%/src
     - %currentWorkingDirectory%/tests/php/Core
     - %currentWorkingDirectory%/tests/php/Centreon
     - %currentWorkingDirectory%/tests/php/Security
