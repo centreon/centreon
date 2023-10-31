@@ -23,6 +23,7 @@ import {
 import { baseEndpoint } from '../../../../../../api/endpoint';
 import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
+import { isEditingAtom } from '../../../../atoms';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -99,7 +100,7 @@ const resourceQueryParameters = [
 const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
-
+  const isEditing = useAtomValue(isEditingAtom);
   const singleResourceTypeSelection = useAtomValue(
     singleResourceTypeSelectionAtom
   );
@@ -146,6 +147,12 @@ const useResources = (propertyName: string): UseResourcesState => {
       }
     ]);
   };
+
+  useEffect(() => {
+    if (!isEditing) {
+      addResource();
+    }
+  }, []);
 
   const deleteResource = (index: number | string) => (): void => {
     setFieldValue(
