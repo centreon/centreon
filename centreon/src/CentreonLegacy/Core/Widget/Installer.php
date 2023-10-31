@@ -74,8 +74,6 @@ class Installer extends Widget
      * @param int $id
      *
      * @throws \Exception
-     *
-     * @return void
      */
     protected function installPreferences($id)
     {
@@ -154,8 +152,6 @@ class Installer extends Widget
     /**
      * @param int $paramId
      * @param array $preference
-     *
-     * @return void
      */
     protected function installMultipleOption($paramId, $preference)
     {

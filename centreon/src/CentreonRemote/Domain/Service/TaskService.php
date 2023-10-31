@@ -24,7 +24,6 @@ namespace CentreonRemote\Domain\Service;
 use Centreon\Domain\Entity\Command;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\Repository\TaskRepository;
-use Centreon\Domain\Service\KeyGeneratorInterface;
 use Centreon\Infrastructure\Service\CentcoreCommandService;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
