@@ -13,9 +13,6 @@ inputs:
   pat:
     description: "The Github PAT"
     required: true
-  ignoreLastBuildOnBranch:
-    required: false
-    default: false
   autoAcceptChanges:
     required: false
     default: false
@@ -48,15 +45,15 @@ runs:
         uses: chromaui/action@v1
         with:
           projectToken: ${{ inputs.project_token }}
-          onlyChanged: "MON-**"
           workingDir: ${{ inputs.frontend_directory }}
           token: ${{ inputs.pat }}
           buildScriptName: build:storybook
-          ignoreLastBuildOnBranch: ${{ inputs.ignoreLastBuildOnBranch }}
+          onlyChanged: true
           untraced: |
             - "centreon/packages/ui/package.json"
             - "centreon/package.json"
           autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
           exitOnceUploaded: true
+          skip: '!(develop)'
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"

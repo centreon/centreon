@@ -4703,7 +4703,7 @@ msgid "Extended information"
 msgstr "Informação Extendida"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:173
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Meta-Serviço"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:195
@@ -17002,3 +17002,6 @@ msgstr ""
 
 #  msgid "Error while retrieving a command"
 #  msgstr ""
+
+# msgid "Save as"
+# msgstr ""
