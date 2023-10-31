@@ -38,7 +38,7 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       },
       name: name || '',
       widget_settings: {
-        data,
+        data: data || null,
         options
       },
       widget_type: panelConfiguration.path
