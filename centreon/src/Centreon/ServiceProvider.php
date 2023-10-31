@@ -105,10 +105,6 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             // add webservice to get frontend hooks and pages installed by modules and widgets
             ->add(Webservice\CentreonFrontendComponent::class);
 
-        if (defined('OpenApi\UNDEFINED') !== false) {
-            $pimple[static::CENTREON_WEBSERVICE]->add(\Centreon\Application\Webservice\OpenApiWebservice::class);
-        }
-
         $pimple[static::CENTREON_I18N_SERVICE] = function (Container $pimple): I18nService {
             $pimple['translator']; // bind lang
 
