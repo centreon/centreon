@@ -123,7 +123,7 @@ class AddMedia
 
                 $fileInfo = pathinfo($media->getFilename());
                 if (! in_array($fileInfo['extension'] ?? '', $this->fileExtensionsAllowed, true)) {
-                    $errors[] = $this->createMediaError($media, MediaException::extensionFileNotAuthorised()->getMessage());
+                    $errors[] = $this->createMediaError($media, MediaException::fileExtensionNotAuthorised()->getMessage());
                     continue;
                 }
 

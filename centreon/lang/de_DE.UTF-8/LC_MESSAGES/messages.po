@@ -16215,7 +16215,7 @@ msgstr "Erweiterter Modus"
 #  msgid "Error while adding a media"
 #  msgstr ""
 
-#  msgid "Extension file not authorised"
+#  msgid "File extension not authorised"
 #  msgstr ""
 
 #  msgid "Media already exists"

@@ -44,9 +44,9 @@ class MediaException extends \Exception
     /**
      * @return self
      */
-    public static function extensionFileNotAuthorised(): self
+    public static function fileExtensionNotAuthorised(): self
     {
-        return new self(_('Extension file not authorised'));
+        return new self(_('File extension not authorised'));
     }
 
     /**
