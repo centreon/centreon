@@ -38,6 +38,7 @@ export const labelService = 'Service';
 export const labelDelete = 'Delete';
 export const labelResourceType = 'Resource type';
 export const labelSelectAResource = 'Select resource';
+export const labelSelectResourceType = 'Select resource type';
 export const labelMetrics = 'Metrics';
 export const labelPleaseSelectAResource = 'Please select a resource';
 export const labelYouHaveTooManyMetrics =
