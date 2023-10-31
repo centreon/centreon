@@ -302,6 +302,14 @@ jobs:
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
         working-directory: centreon
 
+      - name: Run of phpstan on /src (Level 1)
+        run: vendor/bin/phpstan analyse --level=1 --configuration=phpstan.neon
+        working-directory: centreon
+
+      - name: Run of phpstan on /src/Core (Level 1)
+        run: vendor/bin/phpstan analyse --level=1 --configuration=phpstan.core.neon
+        working-directory: centreon
+
   package:
     needs:
       [
