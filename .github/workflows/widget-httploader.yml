@@ -17,8 +17,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-httploader/**"
-    tags:
-      - centreon-widget-httploader-*
 
 jobs:
   get-version:
