@@ -52,6 +52,15 @@ interface ReadResourceRepositoryInterface
     public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array;
 
     /**
+     * @param ResourceFilter $filter
+     *
+     * @throws \Throwable
+     *
+     * @return ResourceEntity[]
+     */
+    public function findParentResourcesById(ResourceFilter $filter): array;
+
+    /**
      * Get list of resources with graph data.
      */
     public function extractResourcesWithGraphData(): void;
