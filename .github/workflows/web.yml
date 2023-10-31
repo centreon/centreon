@@ -303,11 +303,11 @@ jobs:
         working-directory: centreon
 
       - name: Run of phpstan on /src (Level 1)
-        run: vendor/bin/phpstan analyse --level=1 --configuration=phpstan.neon
+        run: vendor/bin/phpstan analyse --no-progress --level=1 --configuration=phpstan.neon
         working-directory: centreon
 
       - name: Run of phpstan on /src/Core (Level 1)
-        run: vendor/bin/phpstan analyse --level=1 --configuration=phpstan.core.neon
+        run: vendor/bin/phpstan analyse --no-progress --level=1 --configuration=phpstan.core.neon
         working-directory: centreon
 
   package:

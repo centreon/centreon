@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Application\UseCase\RenewPassword;
 
-class RenewPasswordRequest
+final class RenewPasswordRequest
 {
     /** @var string */
     public string $userAlias;

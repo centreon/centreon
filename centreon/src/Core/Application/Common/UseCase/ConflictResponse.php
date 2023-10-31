@@ -28,6 +28,6 @@ namespace Core\Application\Common\UseCase;
  * - a string which will be translated
  * - a Throwable from which we will get the message.
  */
-class ConflictResponse extends AbstractResponse
+final class ConflictResponse extends AbstractResponse
 {
 }
