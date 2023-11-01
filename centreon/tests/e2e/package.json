@@ -7,7 +7,7 @@
     "cypress:run": "cypress run --env tags='not @ignore' --config-file cypress.dev.config.ts --browser=chrome --e2e",
     "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt",
     "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e",
-    "eslint": "eslint ./cypress",
+    "eslint": "eslint ./features",
     "eslint:fix": "pnpm eslint --fix"
   },
   "devDependencies": {
