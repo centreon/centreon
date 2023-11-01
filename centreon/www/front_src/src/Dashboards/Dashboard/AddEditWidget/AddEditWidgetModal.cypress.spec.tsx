@@ -497,9 +497,8 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelTitle).type('Generic data');
 
+        cy.findByLabelText(labelAddResource).should('be.disabled');
         cy.findByLabelText(labelSave).should('be.disabled');
-
-        cy.findByLabelText(labelAddResource).click();
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
@@ -531,13 +530,13 @@ describe('AddEditWidgetModal', () => {
         cy.makeSnapshot();
       });
 
-      it('disables the Add button when metrics are removed from the dataset selection', () => {
+      it('hides the delete button when there is only one resource ', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data (example)').click();
 
         cy.findByLabelText(labelTitle).type('Generic data');
 
-        cy.findByLabelText(labelAddResource).click();
+        cy.findByLabelText(labelAddResource).should('be.disabled');
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
@@ -557,9 +556,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
-        cy.findAllByLabelText(labelDelete).eq(1).click({ force: true });
-
-        cy.findByLabelText(labelSave).should('be.disabled');
+        cy.findAllByLabelText(labelDelete).should('have.length', 1);
 
         cy.makeSnapshot();
       });
@@ -570,7 +567,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelTitle).type('Generic data');
 
-        cy.findByLabelText(labelAddResource).click();
+        cy.findByLabelText(labelAddResource).should('be.disabled');
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
