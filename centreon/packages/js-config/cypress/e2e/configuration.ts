@@ -25,7 +25,7 @@ export default ({
   dockerName,
   env
 }: ConfigurationOptions): Cypress.ConfigOptions => {
-  const resultsFolder = `${cypressFolder || 'cypress'}/results`;
+  const resultsFolder = `${cypressFolder || '.'}/results`;
 
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')
@@ -36,6 +36,7 @@ export default ({
     defaultCommandTimeout: 6000,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
+      fixturesFolder: 'fixtures',
       reporter: require.resolve('cypress-multi-reporters'),
       reporterOptions: {
         configFile: `${__dirname}/reporter-config.js`
@@ -47,7 +48,8 @@ export default ({
 
         return plugins(on, config);
       },
-      specPattern
+      specPattern,
+      supportFile: 'support/e2e.{js,jsx,ts,tsx}'
     },
     env: {
       ...env,
