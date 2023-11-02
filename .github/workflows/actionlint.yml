@@ -85,4 +85,4 @@ jobs:
         run: pnpm install gherkin-lint
 
       - name: Run Gherkin Lint
-        run: ./node_modules/.bin/gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc
+        run: ./node_modules/.bin/gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
