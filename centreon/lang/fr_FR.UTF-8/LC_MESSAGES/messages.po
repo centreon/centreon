@@ -18258,6 +18258,9 @@ msgstr "Sélection d'un jeu de données"
 msgid "Select resource"
 msgstr "Sélectionner une ressource"
 
+msgid "Select type"
+msgstr "Sélectionner un type"
+
 msgid "Select metric"
 msgstr "Sélectionner une métrique"
 
