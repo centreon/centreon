@@ -56,8 +56,12 @@ export const CheckBoxWrapper = ({
     }));
   };
 
-  const translatedOptions = getTranslated(dataByFilterName?.options);
-  const translatedValues = getTranslated(dataByFilterName?.value);
+  const translatedOptions = getTranslated(
+    dataByFilterName?.options as Array<SelectEntry>
+  );
+  const translatedValues = getTranslated(
+    dataByFilterName?.value as Array<SelectEntry>
+  );
 
   const handleChangeStatus = (event): void => {
     const originalValue = translatedOptions.find(({ name }) =>

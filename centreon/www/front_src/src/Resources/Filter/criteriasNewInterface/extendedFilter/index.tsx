@@ -7,13 +7,12 @@ import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
 import { displayInformationFilterAtom } from '../basicFilter/atoms';
 import { useStyles } from '../criterias.style';
-import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
+import { ChangedCriteriaParams } from '../model';
 import { informationLabel } from '../translatedLabels';
 
 import FilterSearch from './FilterSearch';
 import MemoizedCheckBoxWrapper from './MemoizedCheckBoxWrapper';
 import MemoizedInputGroup from './MemoizedInputGroup';
-import MemoizedSelectInput from './MemoizedSelectInput';
 import useExtendedFilter from './useExtendedFilter';
 
 interface Props {
@@ -24,7 +23,7 @@ interface Props {
 const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { resourceTypes, inputGroupsData, statusTypes } = useExtendedFilter({
+  const { inputGroupsData, statusTypes } = useExtendedFilter({
     data
   });
 
@@ -39,18 +38,6 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
             data={data}
             filterName={item.name}
             key={item.name}
-          />
-          <Divider className={classes.dividerInputs} />
-        </>
-      ))}
-      {resourceTypes?.map((item) => (
-        <>
-          <MemoizedSelectInput
-            changeCriteria={changeCriteria}
-            data={data}
-            filterName={ExtendedCriteria.resourceTypes}
-            key={item.name}
-            resourceType={item.id}
           />
           <Divider className={classes.dividerInputs} />
         </>

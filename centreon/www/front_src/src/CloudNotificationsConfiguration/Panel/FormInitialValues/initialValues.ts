@@ -45,7 +45,11 @@ export const getInitialValues = ({
   t: TFunction;
 }): object => ({
   contactgroups,
-  hostGroups: formatResource({ resourceType: ResourcesTypeEnum.HG, resources }),
+  hostGroups: formatResource({
+    resourceType: ResourcesTypeEnum.HG,
+    resources,
+    t
+  }),
   isActivated,
   messages: formatMessages({ messageType: ChannelsEnum.Email, messages }),
   name,

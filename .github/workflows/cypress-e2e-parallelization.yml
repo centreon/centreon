@@ -19,6 +19,12 @@ on:
       major_version:
         required: true
         type: string
+      minor_version:
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
       package_cache_key:
         required: false
         type: string
@@ -33,6 +39,14 @@ on:
       registry_username:
         required: true
       registry_password:
+        required: true
+      client_id:
+        required: true
+      client_secret:
+        required: true
+      jira_user:
+        required: true
+      jira_token_test:
         required: true
 
 jobs:
@@ -124,7 +138,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/
+          path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
       - name: Upload test reports
@@ -132,8 +146,148 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/reports/*.json
+          path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
+
+      - name: Upload xray reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
+          retention-days: 1
+
+  # This action is only for NIGHTLY and testing branches
+  import-reports-to-xray:
+    needs: [cypress-e2e-test-run]
+    if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.name }}-json-xray-reports
+
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Determine testPlanKey
+        id: determine-test-plan-key
+        uses: ./.github/actions/get-test-plan-key
+        with:
+          major_version: ${{ inputs.major_version }}
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
+
+      - name: Import results to xray
+        id: import-reports
+        uses: mikepenz/xray-action@v3.0.2
+        with:
+          username: ${{ secrets.CLIENT_ID }}
+          password: ${{ secrets.CLIENT_SECRET }}
+          testFormat: "cucumber"
+          testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
+          projectKey: "MON"
+          testPlanKey: ${{ steps.determine-test-plan-key.outputs.test_plan_key }}
+          combineInSingleTestExec: true
+          testExecKey:
+        timeout-minutes: 10
+
+      - name: Get TestExecution ID
+        id: get-testExecution-id
+        run: |
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
+
+          testExecution_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
+          echo "this is the testExecution ID : $testExecution_id"
+          echo "testExecution_id=$testExecution_id" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Get TestPlan ID
+        id: get-testPlan-id
+        run: |
+          echo "getting the testPlanId for the testPlanKey: ${{ steps.determine-test-plan-key.outputs.test_plan_key }}"
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.determine-test-plan-key.outputs.test_plan_key }}"
+
+          testPlan_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
+          echo "this is the testPlan ID : $testPlan_id"
+          echo "testPlan_id=$testPlan_id" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Update the component, priority and the summary of the TestExecution Issue
+        run: |
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
+
+          # Determine the summary's prefix
+          summary_prefix=''
+          if [[ ${{ github.event_name }} == 'schedule' ]]; then
+            summary_prefix="NIGHTLY"
+          else 
+            echo "The github_ref_name is: $GITHUB_REF_NAME"
+            case "$GITHUB_REF_NAME" in
+                hotfix*)
+                  summary_prefix="HOTFIX"
+                  ;;
+                release*)
+                  summary_prefix="RLZ"
+                  ;;
+            esac
+          fi
+
+          current_date=$(date +'%d/%m/%Y') 
+
+          workflow_run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          input_summary="$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date $workflow_run_url"
+          echo "The summary of the TE is: $input_summary"
+
+          jira_payload="
+          {
+            \"fields\": {
+              \"summary\": \"$input_summary\",
+              \"components\": [{\"name\": \"centreon-web\"}],
+              \"priority\":{\"name\":\"Low\"}
+            }
+          }"
+
+          curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" --data "${jira_payload}" "${jira_url}"
+
+      - name: Update the status of the TestExecution Issue
+        run: |
+          curl -D- -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}/transitions?expand=transitions.fields
+
+      - name: Update the Test Environments of the TestExecution Issue
+        run: |
+          xray_graphql_mutation='{
+            "query": "mutation addTestEnvironmentsToTestExecution($issueId: String!, $testEnvironments: [String]!) { addTestEnvironmentsToTestExecution(issueId: $issueId, testEnvironments: $testEnvironments) { associatedTestEnvironments createdTestEnvironments warning } }",
+            "variables": {
+              "issueId": "${{ steps.get-testExecution-id.outputs.testExecution_id }}", 
+              "testEnvironments": ["ALMA9","MARIADB_10_5","CHROME"]
+            }
+          }'
+          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
+
+      - name: Add the TestExecution Issue to the TestPlan
+        run: |
+          xray_graphql_mutation='{
+            "query": "mutation AddTestExecution($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
+            "variables": {
+              "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}", 
+              "testExecIssueIds": ["'${{ steps.get-testExecution-id.outputs.testExecution_id }}'"]
+            }
+          }'
+          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]

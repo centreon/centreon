@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,43 +30,37 @@ class PaginationRenderer
     }
 
     /**
-     * Renders navigation pages as xml nodes
+     * Renders navigation pages as xml nodes.
      *
-     * @param <string|int, <string|int|bool>> $pages
-     * @return void
+     * @param Paginator $paginator
      */
-    public function render(array $pages): void
+    public function render(Paginator $paginator): void
     {
-        if (count($pages) <= 1) {
+        if ($paginator->totalPagesCount <= 1) {
             return;
         }
 
-        $previousBtnText = array_key_exists('previous', $pages) ? $pages['previous']['num'] : null;
-        $this->addNavigation('prev', (string) $previousBtnText);
+        $this->addNavigation('prev', $paginator->getPageNumberPrevious());
 
-        foreach ($pages as $key => $page) {
-            if (is_numeric($key)) {
-                $this->addPage($page);
-            }
+        foreach ($paginator as $page) {
+            $this->addPage($paginator, $page);
         }
 
-        $nextBtnText = array_key_exists('next', $pages) ? $pages['next']['num'] : null;
-        $this->addNavigation('next', (string) $nextBtnText);
+        $this->addNavigation('next', $paginator->getPageNumberNext());
     }
 
     /**
-     * Ads next or previous page into the xml as a new node
+     * Adds next or previous page into the xml as a new node.
      *
      * @param string $elName
-     * @param string|null $text
-     * @return void
+     * @param ?int $pageNb
      */
-    private function addNavigation(string $elName, ?string $text): void
+    private function addNavigation(string $elName, ?int $pageNb): void
     {
         $this->buffer->startElement($elName);
-        if (is_string($text)) {
+        if (is_int($pageNb)) {
             $this->buffer->writeAttribute('show', 'true');
-            $this->buffer->text($text);
+            $this->buffer->text((string) $pageNb);
         } else {
             $this->buffer->writeAttribute('show', 'false');
             $this->buffer->text('none');
@@ -74,18 +69,21 @@ class PaginationRenderer
     }
 
     /**
-     * Ads navigation page into the xml as a new node
+     * Adds navigation page into the xml as a new node.
      *
-     * @param array $page
-     * @return void
+     * @param Paginator $paginator
+     * @param int $pageNb
      */
-    private function addPage(array $page)
+    private function addPage(Paginator $paginator, int $pageNb): void
     {
+        $active = $paginator->isActive($pageNb);
+        $url = $paginator->getUrl($pageNb);
+
         $this->buffer->startElement('page');
-        $this->buffer->writeElement('selected', $page['active'] ? '1' : '0');
-        $this->buffer->writeElement('num', $page['num']);
-        $this->buffer->writeElement('url_page', $page['url_page']);
-        $this->buffer->writeElement('label_page', $page['label_page']);
+        $this->buffer->writeElement('selected', $active ? '1' : '0');
+        $this->buffer->writeElement('num', (string) $pageNb);
+        $this->buffer->writeElement('url_page', $url);
+        $this->buffer->writeElement('label_page', (string) $pageNb);
         $this->buffer->endElement();
     }
 }
