@@ -65,7 +65,7 @@ EOF`,
     const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
     [...stdout.matchAll(versionsRegex)].forEach((result) => {
-      cy.log(`available version found : ${majorVersion}.${result[1]}`);
+      cy.log(`available version found: ${majorVersion}.${result[1]}`);
       stableVersions.push(Number(result[1]));
     });
 
