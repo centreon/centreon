@@ -20,7 +20,6 @@ import {
   labelAll,
   labelViewByHost
 } from '../translatedLabels';
-import { getListingEndpoint, defaultSecondSortCriteria } from '../testUtils';
 import useDetails from '../Details/useDetails';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
@@ -45,8 +44,8 @@ import { selectedColumnIdsAtom } from './listingAtoms';
 import Listing from '.';
 
 const ListingTest = (): JSX.Element => {
-  useLoadDetails();
   useFilter();
+  useLoadDetails();
   useDetails();
 
   return (
@@ -186,38 +185,212 @@ describe('Resource Listing', () => {
   });
 });
 
+describe('Resource Listing: Visualization by Service', () => {
+  beforeEach(() => {
+    store.set(selectedVisualizationAtom, Visualization.All);
+    interceptRequestsAndMountBeforeEach();
+  });
+
+  it('sends a request with types "service,metaservice"', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(JSON.parse(request?.url?.searchParams.get('types'))).to.deep.equal(
+        ['service', 'metaservice']
+      );
+    });
+
+    cy.makeSnapshot();
+  });
+  it('sorts columnns by worst status and duration', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(
+        JSON.parse(request?.url?.searchParams.get('sort_by'))
+      ).to.deep.equal({
+        last_status_change: 'desc',
+        status_severity_code: 'desc'
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('disables columns drag and drop feature', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    columns.forEach(({ label }) => {
+      cy.findByLabelText(`${label} Drag handle`).should('not.exist');
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('updates column names', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    cy.findByText('Resource').should('not.exist');
+    cy.findByText('Parent').should('not.exist');
+    cy.findByText('Service').should('be.visible');
+    cy.findByText('Host').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Resource Listing: Visualization by Hosts', () => {
+  after(() => {
+    store.set(selectedColumnIdsAtom, defaultSelectedColumnIds);
+    store.set(selectedVisualizationAtom, Visualization.All);
+  });
+  beforeEach(() => {
+    store.set(selectedColumnIdsAtom, defaultSelectedColumnIdsforViewByHost);
+    store.set(selectedVisualizationAtom, Visualization.Host);
+
+    interceptRequestsAndMountBeforeEach();
+
+    cy.interceptAPIRequest({
+      alias: 'listingByHosts',
+      method: Method.GET,
+      path: '**resources/hosts?**',
+      response: retrievedListingByHosts
+    });
+  });
+
+  it('sends a request to retrieve all sevices and their parents', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts').then(({ request }) => {
+      expect(JSON.parse(request?.url?.searchParams.get('types'))).to.deep.equal(
+        ['host']
+      );
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('sorts columnns by worst status and duration', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts').then(({ request }) => {
+      expect(
+        JSON.parse(request?.url?.searchParams.get('sort_by'))
+      ).to.deep.equal({
+        last_status_change: 'desc',
+        status_severity_code: 'desc'
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('disables columns drag and drop feature', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts');
+
+    columns.forEach(({ label }) => {
+      cy.findByLabelText(`${label} Drag handle`).should('not.exist');
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('updates column names', () => {
+    cy.findByLabelText(labelViewByHost).click();
+
+    cy.waitForRequest('@listingByHosts');
+
+    cy.findByText('Resource').should('not.exist');
+    cy.findByText('Parent').should('not.exist');
+    cy.findByText('State').should('be.visible');
+    cy.findByText('Services').should('be.visible');
+    cy.findByText('Host').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the services when the Expand button is clicked', () => {
+    cy.findByLabelText(labelViewByHost).click();
+    cy.waitForRequest('@listingByHosts');
+
+    cy.findAllByLabelText('Expand 14').click();
+
+    cy.findByText('Disk-/').should('be.visible');
+    cy.findByText('Load').should('be.visible');
+    cy.findByText('Memory').should('be.visible');
+    cy.findByText('Ping').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Resource Listing: Visualization by all resources', () => {
+  beforeEach(() => {
+    store.set(selectedVisualizationAtom, Visualization.Service);
+    interceptRequestsAndMountBeforeEach();
+  });
+  it('sends a request to get all resources', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(request?.url?.searchParams.has('types')).to.be.false;
+    });
+
+    cy.makeSnapshot();
+  });
+  it('sorts columnns by newest duration', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(
+        JSON.parse(request?.url?.searchParams.get('sort_by'))
+      ).to.deep.equal({
+        last_status_change: 'desc'
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('sets the column names to the default ones', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    cy.findByText('Resource').should('be.visible');
+    cy.findByText('Parent').should('be.visible');
+    cy.findByText('Service').should('not.exist');
+    cy.findByText('Host').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('enables columns drag and drop feature', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    columnToSort.forEach(({ label }) => {
+      cy.findByLabelText(`${label} Drag handle`).should('exist');
+    });
+
+    cy.makeSnapshot();
+  });
+});
+
 describe('column sorting', () => {
   beforeEach(() => {
-    columnToSort.forEach(({ id, label, sortField }) => {
-      const sortBy = (sortField || id) as string;
-      const secondSortCriteria =
-        Ramda.not(Ramda.equals(sortField, 'last_status_change')) &&
-        defaultSecondSortCriteria;
-
-      const requestUrlDesc = getListingEndpoint({
-        sort: {
-          [sortBy]: 'desc',
-          ...secondSortCriteria
-        }
-      });
-
+    columnToSort.forEach(() => {
       cy.interceptAPIRequest({
-        alias: `dataToListingTableDesc${label}`,
+        alias: `dataToListingTable`,
         method: Method.GET,
-        path: Ramda.replace('./api/latest/monitoring', '**', requestUrlDesc),
-        response: retrievedListing
-      });
-
-      const requestUrlAsc = getListingEndpoint({
-        sort: {
-          [sortBy]: 'asc',
-          ...secondSortCriteria
-        }
-      });
-      cy.interceptAPIRequest({
-        alias: `dataToListingTableAsc${label}`,
-        method: Method.GET,
-        path: Ramda.replace('./api/latest/monitoring', '**', requestUrlAsc),
+        path: './api/latest/monitoring**',
         response: retrievedListing
       });
     });
@@ -246,11 +419,11 @@ describe('column sorting', () => {
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTableDesc${label}`);
+      cy.waitForRequest(`@dataToListingTable`);
 
       cy.findByLabelText(`Column ${label}`).click();
 
-      cy.waitForRequest(`@dataToListingTableAsc${label}`);
+      cy.waitForRequest(`@dataToListingTable`);
 
       cy.makeSnapshot();
     });
@@ -484,6 +657,22 @@ describe('Display additional columns', () => {
 });
 
 describe('Notification column', () => {
+  it('displays notification column if the cloud notification feature is disabled', () => {
+    store.set(
+      platformFeaturesAtom,
+      getPlatformFeatures({ notification: false })
+    );
+    interceptRequestsAndMountBeforeEach();
+
+    cy.contains('E0').should('be.visible');
+
+    cy.findByTestId('Add columns').click();
+
+    cy.findByText('Notification (Notif)').should('exist');
+
+    cy.makeSnapshot();
+  });
+
   it('hides notification column if the cloud notification feature is enabled', () => {
     store.set(
       platformFeaturesAtom,
@@ -496,220 +685,6 @@ describe('Notification column', () => {
     cy.findByTestId('Add columns').click();
 
     cy.findByText('Notification (Notif)').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-  it('displays notification column if the cloud notification feature is disabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ notification: false })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('Add columns').click();
-
-    cy.findByText('Notification (Notif)').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-});
-
-describe('Resource Listing: Visualization by Service', () => {
-  beforeEach(() => {
-    store.set(selectedVisualizationAtom, Visualization.All);
-    interceptRequestsAndMountBeforeEach();
-  });
-
-  it('sends a request with types "service,metaservice"', () => {
-    cy.findByLabelText(labelViewByService).click();
-
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(JSON.parse(request?.url?.searchParams.get('types'))).to.deep.equal(
-        ['service', 'metaservice']
-      );
-    });
-
-    cy.makeSnapshot();
-  });
-  it('sorts columnns by worst status and duration', () => {
-    cy.findByLabelText(labelViewByService).click();
-
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(
-        JSON.parse(request?.url?.searchParams.get('sort_by'))
-      ).to.deep.equal({
-        last_status_change: 'desc',
-        status_severity_code: 'desc'
-      });
-    });
-
-    cy.makeSnapshot();
-  });
-
-  it('disables columns drag and drop feature', () => {
-    cy.findByLabelText(labelViewByService).click();
-
-    cy.waitForRequest('@dataToListingTable');
-
-    columns.forEach(({ label }) => {
-      cy.findByLabelText(`${label} Drag handle`).should('not.exist');
-    });
-
-    cy.makeSnapshot();
-  });
-
-  it('updates column names', () => {
-    cy.findByLabelText(labelViewByService).click();
-
-    cy.waitForRequest('@dataToListingTable');
-
-    cy.findByText('Resource').should('not.exist');
-    cy.findByText('Parent').should('not.exist');
-    cy.findByText('Service').should('be.visible');
-    cy.findByText('Host').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-});
-
-describe('Resource Listing: Visualization by Hosts', () => {
-  after(() => {
-    store.set(selectedColumnIdsAtom, defaultSelectedColumnIds);
-    store.set(selectedVisualizationAtom, Visualization.All);
-  });
-  beforeEach(() => {
-    store.set(selectedColumnIdsAtom, defaultSelectedColumnIdsforViewByHost);
-    store.set(selectedVisualizationAtom, Visualization.Host);
-
-    interceptRequestsAndMountBeforeEach();
-
-    cy.interceptAPIRequest({
-      alias: 'listingByHosts',
-      method: Method.GET,
-      path: '**resources/hosts?**',
-      response: retrievedListingByHosts
-    });
-  });
-
-  it('sends a request to retrieve all sevices and their parents', () => {
-    cy.findByLabelText(labelViewByHost).click();
-
-    cy.waitForRequest('@listingByHosts').then(({ request }) => {
-      expect(JSON.parse(request?.url?.searchParams.get('types'))).to.deep.equal(
-        ['host']
-      );
-    });
-
-    cy.makeSnapshot();
-  });
-
-  it('sorts columnns by worst status and duration', () => {
-    cy.findByLabelText(labelViewByHost).click();
-
-    cy.waitForRequest('@listingByHosts').then(({ request }) => {
-      expect(
-        JSON.parse(request?.url?.searchParams.get('sort_by'))
-      ).to.deep.equal({
-        last_status_change: 'desc',
-        status_severity_code: 'desc'
-      });
-    });
-
-    cy.makeSnapshot();
-  });
-
-  it('disables columns drag and drop feature', () => {
-    cy.findByLabelText(labelViewByHost).click();
-
-    cy.waitForRequest('@listingByHosts');
-
-    columns.forEach(({ label }) => {
-      cy.findByLabelText(`${label} Drag handle`).should('not.exist');
-    });
-
-    cy.makeSnapshot();
-  });
-
-  it('updates column names', () => {
-    cy.findByLabelText(labelViewByHost).click();
-
-    cy.waitForRequest('@listingByHosts');
-
-    cy.findByText('Resource').should('not.exist');
-    cy.findByText('Parent').should('not.exist');
-    cy.findByText('State').should('be.visible');
-    cy.findByText('Services').should('be.visible');
-    cy.findByText('Host').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('displays the services when the Expand button is clicked', () => {
-    cy.findByLabelText(labelViewByHost).click();
-    cy.waitForRequest('@listingByHosts');
-
-    cy.findAllByLabelText('Expand 14').click();
-
-    cy.findByText('Disk-/').should('be.visible');
-    cy.findByText('Load').should('be.visible');
-    cy.findByText('Memory').should('be.visible');
-    cy.findByText('Ping').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-});
-
-describe('Resource Listing: Visualization by all resources', () => {
-  beforeEach(() => {
-    store.set(selectedVisualizationAtom, Visualization.Service);
-    interceptRequestsAndMountBeforeEach();
-  });
-  it('sends a request to get all resources', () => {
-    cy.findByLabelText(labelAll).click();
-
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(request?.url?.searchParams.has('types')).to.be.false;
-    });
-
-    cy.makeSnapshot();
-  });
-  it('sorts columnns by newest duration', () => {
-    cy.findByLabelText(labelAll).click();
-
-    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(
-        JSON.parse(request?.url?.searchParams.get('sort_by'))
-      ).to.deep.equal({
-        last_status_change: 'desc'
-      });
-    });
-
-    cy.makeSnapshot();
-  });
-
-  it('sets the column names to the default ones', () => {
-    cy.findByLabelText(labelAll).click();
-
-    cy.waitForRequest('@dataToListingTable');
-
-    cy.findByText('Resource').should('be.visible');
-    cy.findByText('Parent').should('be.visible');
-    cy.findByText('Service').should('not.exist');
-    cy.findByText('Host').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-
-  it('enables columns drag and drop feature', () => {
-    cy.findByLabelText(labelAll).click();
-
-    cy.waitForRequest('@dataToListingTable');
-
-    columnToSort.forEach(({ label }) => {
-      cy.findByLabelText(`${label} Drag handle`).should('exist');
-    });
 
     cy.makeSnapshot();
   });

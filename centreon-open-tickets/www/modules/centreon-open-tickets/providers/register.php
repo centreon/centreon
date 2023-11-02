@@ -35,3 +35,4 @@ $register_providers['Jira'] = 10;
 $register_providers['GlpiRestApi'] = 11;
 $register_providers['RequestTracker2'] = 12;
 $register_providers['Itop'] = 13;
+$register_providers['EasyVistaRest'] = 14;
