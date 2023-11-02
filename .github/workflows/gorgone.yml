@@ -71,6 +71,9 @@ jobs:
     name: package ${{ matrix.distrib }}
 
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        
       - name: Set package version and paths according to distrib
         run: |
           export VERSION="${{ needs.get-version.outputs.major_version }}"
