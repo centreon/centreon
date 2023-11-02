@@ -43,8 +43,7 @@ final class FindDashboardContacts
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
-    )
-    {
+    ) {
     }
 
     public function __invoke(FindDashboardContactsPresenterInterface $presenter): void
@@ -52,7 +51,9 @@ final class FindDashboardContacts
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->readUserRepository->findAllUsers();
+                $this->contact->isAdmin()
+                    ? $users = $this->readUserRepository->findAllUsers()
+                    : $users = $this->readUserRepository->findByContactGroups($this->contact);
                 $presenter->presentResponse($this->createResponse($users));
             } else {
                 $this->error(
