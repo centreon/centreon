@@ -109,7 +109,9 @@ const initialize = ({
     Component: <PanelWithQueryProvider />
   });
 
-  cy.viewport('macbook-13');
+  cy.viewport(1280, 590);
+
+  cy.cssDisableMotion();
 };
 
 describe('Edit Panel', () => {
@@ -440,7 +442,7 @@ describe('Edit Panel', () => {
       cy.findByRole('checkbox').should('not.be.checked').and('be.disabled');
     });
 
-    cy.get('#panel-content').scrollTo('bottom');
+    cy.get('div[aria-label="Notification settings"]').scrollIntoView();
 
     cy.makeSnapshot();
   });
