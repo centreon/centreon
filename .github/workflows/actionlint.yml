@@ -44,6 +44,9 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+      
+      - name: Navigate to Centreon E2E Tests Directory
+        run: cd centreon/tests/e2e
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -52,4 +55,4 @@ jobs:
         run: pnpm install gherkin-lint
 
       - name: Run Gherkin Lint
-        run: pnpm run gherkin-lint
+        run: ./node_modules/.bin/gherkin-lint
