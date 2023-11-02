@@ -180,9 +180,10 @@ class TaskService
      */
     private function getRepository()
     {
-        /** @var TaskRepository $repo */
-        $repo = $this->getDbManager()->getAdapter('configuration_db')->getRepository(TaskRepository::class);
-
-        return $repo;
+        /** @var TaskRepository */
+        return $this
+            ->getDbManager()
+            ->getAdapter('configuration_db')
+            ->getRepository(TaskRepository::class);
     }
 }
