@@ -73,10 +73,21 @@ jobs:
     name: package ${{ matrix.distrib }}
 
     steps:
+      - name: Set package version and paths according to distrib
+        run: |
+          export VERSION="${{ needs.get-version.outputs.major_version }}"
+          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+            export PERL_VENDORLIB="/usr/share/perl5"
+          else
+            export VERSION="${{ needs.get-version.outputs.minor_version }}"
+            export PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
+          fi
+        shell: bash
+
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:
-          nfpm_file_pattern: "centreon-gorgone/packaging/*.yaml"
+          nfpm_file_pattern: "centreon-gorgone/packaging/centreon-gorgone.yaml"
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
           arch: all
