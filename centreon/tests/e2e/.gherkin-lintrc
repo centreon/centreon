@@ -15,7 +15,6 @@
   "no-superfluous-tags": "on",
   "one-space-between-tags": "on",
   "no-unused-variables": "on",
-  "no-background-only-scenario": "on",
   "no-empty-background": "on",
   "indentation": [
     "on",
