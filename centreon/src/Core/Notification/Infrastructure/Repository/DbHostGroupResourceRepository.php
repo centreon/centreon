@@ -482,7 +482,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT
+                    SELECT DISTINCT
                         rel.hg_id, hg.hg_name
                     SQL
             )->defineFrom(
@@ -530,7 +530,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             ->defineSelect(
                 <<<'SQL'
                     SELECT
-                    notification_id, COUNT(rel.hg_id)
+                    notification_id, COUNT(DISTINCT rel.hg_id)
                     SQL
             )->defineFrom(
                 <<<'SQL'
