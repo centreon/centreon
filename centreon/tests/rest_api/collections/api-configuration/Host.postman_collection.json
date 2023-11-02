@@ -5094,6 +5094,62 @@
 							"response": []
 						},
 						{
+							"name": "Add a new host",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"Host6Name\", \"host-6\");\r",
+											"pm.collectionVariables.set(\"Host6Alias\", \"I'm the sixth host and I was created by user R/W\");\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host6Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host6Alias\") + \"'.\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"\r",
+											"    // Creation of a variable with the ID of the new host \r",
+											"    var response = JSON.parse(responseBody);\r",
+											"    pm.collectionVariables.set(\"Host6Id\", response.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{Host6Name}}\",\r\n    \"alias\": \"{{Host6Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"categories\": [ {{HostCategory2Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Logout from R/W user",
 							"event": [
 								{
@@ -5483,8 +5539,8 @@
 											"const responseJson = pm.response.json();\r",
 											"console.log(responseJson);\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
-											"    // Check the number of hosts (1)\r",
-											"    pm.expect(responseJson.result.length).to.eql(1);\r",
+											"    // Check the number of hosts (3)\r",
+											"    pm.expect(responseJson.result.length).to.eql(3);\r",
 											"\r",
 											"    // Check the properties of each host\r",
 											"    pm.expect(responseJson.result[0]).to.include({\r",
@@ -5519,6 +5575,56 @@
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    }]);\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host5Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host5Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host5Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": null,\r",
+											"        \"retry_check_interval\": null,\r",
+											"        \"check_timeperiod\": null,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"        id: 1, \r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[1].categories).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
+											"\r",
+											"\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
+											"        \"id\": pm.collectionVariables.get(\"Host5Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host5Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host5Alias\"),\r",
+											"        \"address\": \"127.0.0.1\",\r",
+											"        \"normal_check_interval\": null,\r",
+											"        \"retry_check_interval\": null,\r",
+											"        \"check_timeperiod\": null,\r",
+											"        \"notification_timeperiod\": null,\r",
+											"        \"severity\": null,\r",
+											"        \"is_activated\": true\r",
+											"    });\r",
+											"\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
+											"        id: 1, \r",
+											"        name: \"Central\"\r",
+											"    });\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+											"    }]);\r",
+											"    pm.expect(responseJson.result[2].categories).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});\r",
 											"\r",
@@ -5572,11 +5678,11 @@
 											"/*\r",
 											"/  Check code status\r",
 											"*/\r",
-											"const responseJson = pm.response.json();\r",
-											"pm.test(\"Host not found.\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"\r",
-											"    pm.expect(responseJson.message).to.eql(\"Host not found\");\r",
+											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host5Alias\") + \"' has been successfully deleted.\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"    pm.collectionVariables.unset(\"Host5Name\");\r",
+											"    pm.collectionVariables.unset(\"Host5Alias\");\r",
+											"    pm.collectionVariables.unset(\"Host5Id\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -5784,7 +5890,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"action\": \"addmember\",\n  \"object\": \"HC\",\n  \"values\": \"{{HostCategory1Name}};{{Host5Name}}\"\n}\n"
+									"raw": "{\n  \"action\": \"addmember\",\n  \"object\": \"HC\",\n  \"values\": \"{{HostCategory1Name}};{{Host6Name}}\"\n}\n"
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
@@ -6048,9 +6154,9 @@
 											"\r",
 											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host5Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host5Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host5Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host6Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host6Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host6Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
@@ -6065,8 +6171,8 @@
 											"        name: \"Central\"\r",
 											"    });\r",
 											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
-											"        id: 4,\r",
-											"        name: \"generic-passive-host-custom\"\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
 											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
@@ -6128,9 +6234,9 @@
 											"*/\r",
 											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host5Alias\") + \"' has been successfully deleted.\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
-											"    pm.collectionVariables.unset(\"Host5Name\");\r",
-											"    pm.collectionVariables.unset(\"Host5Alias\");\r",
-											"    pm.collectionVariables.unset(\"Host5Id\");\r",
+											"    pm.collectionVariables.unset(\"Host6Name\");\r",
+											"    pm.collectionVariables.unset(\"Host6Alias\");\r",
+											"    pm.collectionVariables.unset(\"Host6Id\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6156,14 +6262,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
+									"raw": "{{baseUrl}}/configuration/hosts/{{Host6Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"hosts",
-										"{{Host5Id}}"
+										"{{Host6Id}}"
 									]
 								}
 							},
@@ -7205,64 +7311,8 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"pm.collectionVariables.set(\"Host6Name\", \"host-6\");\r",
-											"pm.collectionVariables.set(\"Host6Alias\", \"I'm the sixth host\");\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host6Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host6Alias\") + \"'.\", function () {\r",
-											"    pm.response.to.have.status(201);\r",
-											"\r",
-											"    // Creation of a variable with the ID of the new host \r",
-											"    var response = JSON.parse(responseBody);\r",
-											"    pm.collectionVariables.set(\"Host6Id\", response.id);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "centreon-auth-token",
-										"value": "{{token}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Host6Name}}\",\r\n    \"alias\": \"{{Host6Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
-								},
-								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"configuration",
-										"hosts"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Add a new host",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"pm.collectionVariables.set(\"Host7Name\", \"host-7\");\r",
-											"pm.collectionVariables.set(\"Host7Alias\", \"I'm the seventh host\");\r",
+											"pm.collectionVariables.set(\"Host7Name\", \"host-6\");\r",
+											"pm.collectionVariables.set(\"Host7Alias\", \"I'm the sixth host\");\r",
 											""
 										],
 										"type": "text/javascript"
@@ -7296,6 +7346,62 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n    \"name\": \"{{Host7Name}}\",\r\n    \"alias\": \"{{Host7Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/hosts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"hosts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add a new host",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.set(\"Host8Name\", \"host-7\");\r",
+											"pm.collectionVariables.set(\"Host8Alias\", \"I'm the seventh host\");\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host8Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host8Alias\") + \"'.\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"\r",
+											"    // Creation of a variable with the ID of the new host \r",
+											"    var response = JSON.parse(responseBody);\r",
+											"    pm.collectionVariables.set(\"Host8Id\", response.id);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{Host8Name}}\",\r\n    \"alias\": \"{{Host8Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
@@ -7540,14 +7646,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts/{{Host6Id}}",
+									"raw": "{{baseUrl}}/configuration/hosts/{{Host7Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"hosts",
-										"{{Host6Id}}"
+										"{{Host7Id}}"
 									]
 								}
 							},
@@ -8104,9 +8210,9 @@
 											"\r",
 											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host6Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host6Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host6Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
@@ -8121,8 +8227,8 @@
 											"        name: \"Central\"\r",
 											"    });\r",
 											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
-											"        id: 4,\r",
-											"        name: \"generic-passive-host-custom\"\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
 											"    pm.expect(responseJson.result[1].categories).to.be.an('Array').that.is.empty;\r",
 											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
@@ -8132,9 +8238,9 @@
 											"\r",
 											"\r",
 											"    pm.expect(responseJson.result[2]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host8Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host8Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host8Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
@@ -8149,8 +8255,8 @@
 											"        name: \"Central\"\r",
 											"    });\r",
 											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
-											"        id: 4,\r",
-											"        name: \"generic-passive-host-custom\"\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
 											"    pm.expect(responseJson.result[2].categories).to.be.an('Array').that.is.empty;\r",
 											"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
@@ -8210,11 +8316,11 @@
 											"/*\r",
 											"/  Check code status\r",
 											"*/\r",
-											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host6Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host6Alias\") + \"' has been successfully deleted.\", function () {\r",
+											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host7Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host7Alias\") + \"' has been successfully deleted.\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
-											"    pm.collectionVariables.unset(\"Host6Name\");\r",
-											"    pm.collectionVariables.unset(\"Host6Alias\");\r",
-											"    pm.collectionVariables.unset(\"Host6Id\");\r",
+											"    pm.collectionVariables.unset(\"Host7Name\");\r",
+											"    pm.collectionVariables.unset(\"Host7Alias\");\r",
+											"    pm.collectionVariables.unset(\"Host7Id\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -8240,14 +8346,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts/{{Host6Id}}",
+									"raw": "{{baseUrl}}/configuration/hosts/{{Host7Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"hosts",
-										"{{Host6Id}}"
+										"{{Host7Id}}"
 									]
 								}
 							},
@@ -8308,9 +8414,9 @@
 											"\r",
 											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host8Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host8Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host8Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
@@ -8325,8 +8431,8 @@
 											"        name: \"Central\"\r",
 											"    });\r",
 											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
-											"        id: 4,\r",
-											"        name: \"generic-passive-host-custom\"\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
 											"    pm.expect(responseJson.result[1].categories).to.be.an('Array').that.is.empty;\r",
 											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
@@ -8809,9 +8915,9 @@
 											"\r",
 											"\r",
 											"    pm.expect(responseJson.result[1]).to.include({\r",
-											"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+											"        \"id\": pm.collectionVariables.get(\"Host8Id\"),\r",
+											"        \"name\": pm.collectionVariables.get(\"Host8Name\"),\r",
+											"        \"alias\": pm.collectionVariables.get(\"Host8Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
@@ -8826,8 +8932,8 @@
 											"        name: \"Central\"\r",
 											"    });\r",
 											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
-											"        id: 4,\r",
-											"        name: \"generic-passive-host-custom\"\r",
+											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
 											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
@@ -8890,11 +8996,11 @@
 											"/*\r",
 											"/  Check code status\r",
 											"*/\r",
-											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host7Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host7Alias\") + \"' has been successfully deleted.\", function () {\r",
+											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host8Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host8Alias\") + \"' has been successfully deleted.\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
-											"    pm.collectionVariables.unset(\"Host7Name\");\r",
-											"    pm.collectionVariables.unset(\"Host7Alias\");\r",
-											"    pm.collectionVariables.unset(\"Host7Id\");\r",
+											"    pm.collectionVariables.unset(\"Host8Name\");\r",
+											"    pm.collectionVariables.unset(\"Host8Alias\");\r",
+											"    pm.collectionVariables.unset(\"Host8Id\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -8920,14 +9026,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/hosts/{{Host7Id}}",
+									"raw": "{{baseUrl}}/configuration/hosts/{{Host8Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"hosts",
-										"{{Host7Id}}"
+										"{{Host8Id}}"
 									]
 								}
 							},
@@ -10971,19 +11077,7 @@
 			"value": ""
 		},
 		{
-			"key": "Host5Name",
-			"value": ""
-		},
-		{
-			"key": "Host5Alias",
-			"value": ""
-		},
-		{
 			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "Host5Id",
 			"value": ""
 		}
 	]
