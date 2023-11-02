@@ -9,7 +9,11 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 
-import { dashboardAtom, duplicatePanelDerivedAtom } from '../../atoms';
+import {
+  dashboardAtom,
+  duplicatePanelDerivedAtom,
+  isEditingAtom
+} from '../../atoms';
 import { labelMoreActions } from '../../translatedLabels';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
@@ -33,9 +37,11 @@ const PanelHeader = ({
   const dashboard = useAtomValue(dashboardAtom);
   const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
 
+  const setIsEditing = useSetAtom(isEditingAtom);
+
   const duplicate = (event): void => {
     event.preventDefault();
-
+    setIsEditing(true);
     duplicatePanel(id);
   };
 
