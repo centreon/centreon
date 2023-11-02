@@ -13,10 +13,9 @@ const SAMLConfigValues = {
 };
 
 const configureSAML = (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Identity provider', tag: 'div' })
-    .eq(0)
-    .contains('Identity provider')
-    .click();
+  cy.contains('Enable SAMLv2 authentication').should('be.visible');
+
+  cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
   cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
     .should('be.visible')
     .type(SAMLConfigValues.remoteLoginURL);
