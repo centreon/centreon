@@ -530,7 +530,7 @@ describe('AddEditWidgetModal', () => {
         cy.makeSnapshot();
       });
 
-      it.only('hides the delete button when there is only one resource ', () => {
+      it('hides the delete button when there is only one resource ', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data (example)').click();
 
