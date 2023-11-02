@@ -2231,7 +2231,7 @@
 					"response": []
 				},
 				{
-					"name": "[XX] Get authentication cookie",
+					"name": "Get authentication cookie",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -2260,7 +2260,7 @@
 					"response": []
 				},
 				{
-					"name": "[XX] Install base monitoring connectors",
+					"name": "Install base monitoring connectors",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2276,12 +2276,9 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
 									"pm.test(\"The base monitoring connectors all have been successfully installed.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.installed.length).to.eql(12);\r",
 									"    pm.expect(responseJson.updated).to.be.empty;\r",
 									"    pm.expect(responseJson.failed).to.be.empty;\r",
@@ -2424,7 +2421,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{HostSeverity1Name}}\",\n    \"alias\":\"{{HostSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
+							"raw": "{\n    \"name\":\"{{HostSeverity1Name}}\",\n    \"alias\":\"{{HostSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 3,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",
