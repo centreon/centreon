@@ -1,4 +1,6 @@
 node_modules
 results
 fixtures/packages
+cucumber-messages.ndjson
+cypress
 *.yml
