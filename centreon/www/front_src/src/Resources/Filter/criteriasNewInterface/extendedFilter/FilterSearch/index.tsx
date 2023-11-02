@@ -57,7 +57,7 @@ const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
   });
 
   const onChange = (e): void => {
-    setValue(e.target.value);
+    setValue(e.target.value.replace(/\s/g, ''));
     setIsDirty(true);
 
     debouncedRequest();
@@ -71,6 +71,7 @@ const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        onFocus={() => setIsDirty(true)}
       />
     ),
     memoProps: [search, value]

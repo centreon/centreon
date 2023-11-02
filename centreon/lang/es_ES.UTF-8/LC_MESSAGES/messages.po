@@ -12095,7 +12095,7 @@ msgid "This Service is flapping"
 msgstr "Le statut du service bagote"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:172
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Servicio meta"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:194
@@ -16538,3 +16538,6 @@ msgstr "Modo avanzado"
 
 #  msgid "Error while retrieving a command"
 #  msgstr ""
+
+# msgid "Save as"
+# msgstr ""
