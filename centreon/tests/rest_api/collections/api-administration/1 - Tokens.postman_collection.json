@@ -1863,13 +1863,19 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/administration/tokens",
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"administration",
 								"tokens"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"token_name\":\"ASC\"}"
+								}
 							]
 						}
 					},
@@ -2780,7 +2786,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-fourth-token-by-user-menu-action-for-user-menu-action\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"expiration_date\": \"2024-08-31T00:00:00+00:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-fourth-token-by-user-menu-action-for-user-menu-action\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"expiration_date\": \"2024-08-27T00:00:00+00:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2920,7 +2926,6 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
 									"pm.test(\"The tokens retrieved are listed with expected informations\", function() {\r",
 									"    // Check the number of tokens (4)\r",
 									"    pm.expect(responseJson.result.length).to.eql(4);\r",
@@ -2947,7 +2952,7 @@
 									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.include({name:\"my-fourth-token-by-user-menu-action-for-user-menu-action\"}).\r",
-									"            and.to.include({expiration_date:\"2024-08-31T00:00:00+01:00\"}).\r",
+									"            and.to.include({expiration_date:\"2024-08-27T00:00:00+02:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"    \r",
 									"    pm.expect(responseJson.result[2].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\"))}).\r",
@@ -3368,6 +3373,22 @@
 		},
 		{
 			"key": "Token6Name",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_menu",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_menu",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing_Token",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing_Token",
 			"value": ""
 		}
 	]
