@@ -12,7 +12,7 @@ import { PopoverMenu, useMemoComponent } from '@centreon/ui';
 
 import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
 import { labelSearchOptions } from '../../translatedLabels';
-import useActionFilter from '../Save/useActionFilter';
+import useActionFilter from '../Edit/EditButton/useActionFilter';
 import CriteriasNewInterface from '../criteriasNewInterface';
 import Actions from '../criteriasNewInterface/actions';
 import Save from '../criteriasNewInterface/actions/Save';

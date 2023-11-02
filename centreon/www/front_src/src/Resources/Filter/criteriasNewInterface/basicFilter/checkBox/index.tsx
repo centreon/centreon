@@ -72,6 +72,18 @@ const CheckBoxSection = ({
     return input?.map((item) => item?.name);
   };
 
+  const changeFilter = (selectedStatus: Array<SelectedResourceType>): void => {
+    const checkedData = selectedStatus?.filter((item) => item?.checked);
+    const updatedValue = checkedData?.map((element) => ({
+      id: element?.id,
+      name: element?.name
+    }));
+    changeCriteria({
+      filterName,
+      updatedValue
+    });
+  };
+
   const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
     return keys.map((entry) => ({
       id: entry.id,
@@ -101,6 +113,7 @@ const CheckBoxSection = ({
         byFields: ['id', 'resourceType']
       });
       setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
+      changeFilter(result as Array<SelectedResourceType>);
 
       return;
     }
@@ -117,6 +130,7 @@ const CheckBoxSection = ({
       })
     );
     setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
+    changeFilter(result as Array<SelectedResourceType>);
   };
 
   return (
