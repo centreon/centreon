@@ -2276,6 +2276,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"\r",
 									"pm.test(\"The base monitoring connectors all have been successfully installed.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
