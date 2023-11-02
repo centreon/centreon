@@ -613,23 +613,44 @@ class CentreonConfigCentreonBroker
 
         // Get the list of fields for a block
         $fields = array();
-        $query = "SELECT f.cb_field_id, f.fieldname, f.displayname, f.fieldtype, f.description, f.external,
-            tfr.is_required, tfr.order_display, tfr.jshook_name, tfr.jshook_arguments, f.cb_fieldgroup_id
-            FROM cb_field f, cb_type_field_relation tfr
-                WHERE f.cb_field_id = tfr.cb_field_id AND (tfr.cb_type_id = %d
-                    OR tfr.cb_type_id IN (SELECT t.cb_type_id
-                        FROM cb_type t, cb_module_relation mr
-                        WHERE mr.inherit_config = 1 AND t.cb_module_id IN (SELECT mr2.module_depend_id
-                            FROM cb_type t2, cb_module_relation mr2
-                            WHERE t2.cb_module_id = mr2.cb_module_id AND
-                                mr2.inherit_config = 1 AND t2.cb_type_id = %d)))
-            ORDER BY tfr.order_display";
+        $query = <<<'SQL'
+            SELECT field.cb_field_id, field.fieldname, field.displayname, field.fieldtype, field.description, field.external,
+                   field.cb_fieldgroup_id, field_grp.groupname,
+                   field_rel.is_required, field_rel.order_display, field_rel.jshook_name, field_rel.jshook_arguments
+            FROM cb_field field
+            INNER JOIN cb_type_field_relation field_rel
+                    ON field_rel.cb_field_id = field.cb_field_id
+                AND (field_rel.cb_type_id = :type_id
+                    OR field_rel.cb_type_id IN (
+                        SELECT cb_type_id
+                        FROM cb_type type
+                        INNER JOIN cb_module_relation module_rel
+                            ON module_rel.cb_module_id = type.cb_module_id
+                            AND module_rel.inherit_config = 1
+                            AND type.cb_module_id IN (
+                                SELECT module_depend_id
+                                FROM cb_module_relation module_rel2
+                                INNER JOIN cb_type type2
+                                    ON type2.cb_module_id = module_rel2.cb_module_id
+                                    AND module_rel2.inherit_config = 1
+                                    AND type2.cb_type_id = :type_id
+                            )
+                    )
+               )
+            LEFT JOIN cb_fieldgroup field_grp
+                ON field_grp.cb_fieldgroup_id = field.cb_fieldgroup_id
+                AND field_grp.multiple = 1
+            ORDER BY field_rel.order_display;
+            SQL;
+
         try {
-            $res = $this->db->query(sprintf($query, $typeId, $typeId));
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':type_id', $typeId, \PDO::PARAM_INT);
+            $statement->execute();
         } catch (\PDOException $e) {
             return false;
         }
-        while ($row = $res->fetch()) {
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $field = array();
             $field['id'] = $row['cb_field_id'];
             $field['fieldname'] = $row['fieldname'];
@@ -639,6 +660,7 @@ class CentreonConfigCentreonBroker
             $field['required'] = $row['is_required'];
             $field['order'] = $row['order_display'];
             $field['group'] = $row['cb_fieldgroup_id'];
+            $field['group_name'] = $row['groupname'];
             $field['hook_name'] = $row['jshook_name'];
             $field['hook_arguments'] = $row['jshook_arguments'];
             if (!is_null($row['external']) && $row['external'] != '') {

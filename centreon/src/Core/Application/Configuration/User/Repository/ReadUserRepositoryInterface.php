@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Application\Configuration\User\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Domain\Configuration\User\Model\User;
 
 interface ReadUserRepositoryInterface
@@ -34,6 +35,15 @@ interface ReadUserRepositoryInterface
      * @return User[]
      */
     public function findAllUsers(): array;
+
+    /**
+     * Find configured users by their contactgroup ids.
+     *
+     * @param ContactInterface $contact
+     *
+     * @return User[]
+     */
+    public function findByContactGroups(ContactInterface $contact): array;
 
     /**
      * Find user ids from a list of alias.

@@ -28,7 +28,8 @@ import {
   pipe,
   pluck,
   propEq,
-  remove
+  remove,
+  uniq
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -46,7 +47,7 @@ import {
 import {
   IconButton,
   LoadingSkeleton,
-  MemoizedFilter,
+  Filter as MemoizedFilter,
   SearchField,
   SelectEntry,
   getData,
@@ -77,6 +78,7 @@ import {
   clearFilterDerivedAtom,
   currentFilterAtom,
   customFiltersAtom,
+  isCriteriasPanelOpenAtom,
   searchAtom,
   sendingFilterAtom,
   setNewFilterDerivedAtom
@@ -89,6 +91,7 @@ import {
 } from './models';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
+import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 
 const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -137,7 +140,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const SaveFilter = lazy(() => import('./Save'));
+const SaveFilter = lazy(() => import('./Edit/EditButton'));
 const SelectFilter = lazy(() => import('./Fields/SelectFilter'));
 const Criterias = lazy(() => import('./Criterias'));
 
@@ -174,6 +177,7 @@ const Filter = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterAtom);
   const sendingFilter = useAtomValue(sendingFilterAtom);
   const user = useAtomValue(userAtom);
+  const isCriteriasPanelOpen = useAtomValue(isCriteriasPanelOpenAtom);
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
@@ -205,7 +209,7 @@ const Filter = (): JSX.Element => {
 
     const lastValue = last(values);
 
-    const selectedValues = remove(-1, 1, values);
+    const selectedValues = remove(-1, 1, values).map(escapeRegExpSpecialChars);
 
     sendDynamicCriteriaValueRequests({
       endpoint: buildAutocompleteEndpoint({
@@ -223,7 +227,7 @@ const Filter = (): JSX.Element => {
           ],
           regex: {
             fields: ['name'],
-            value: lastValue
+            value: escapeRegExpSpecialChars(lastValue || '')
           }
         }
       })
@@ -232,7 +236,7 @@ const Filter = (): JSX.Element => {
         ? pluck('level', result)
         : pluck('name', result);
 
-      const formattedResult = results.map((item) => item.toString());
+      const formattedResult = uniq(results.map((item) => item.toString()));
 
       const lastValueEqualsToAResult = find(equals(lastValue), formattedResult);
 
@@ -409,7 +413,6 @@ const Filter = (): JSX.Element => {
     const expressionToShiftToTheEnd = expressionBeforeCursor.includes(':')
       ? expressionBeforeCursor + completedWord
       : acceptedSuggestion;
-
     setSearch(
       [
         searchWithAcceptedSuggestion
@@ -548,6 +551,7 @@ const Filter = (): JSX.Element => {
   const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
 
   const memoProps = [
+    currentFilter,
     customFilters,
     sendingFilter,
     search,
@@ -558,7 +562,8 @@ const Filter = (): JSX.Element => {
     currentFilter,
     isDynamicCriteria,
     sendingDynamicCriteriaValueRequests,
-    user
+    user,
+    isCriteriasPanelOpen
   ];
 
   return (
@@ -571,6 +576,7 @@ const Filter = (): JSX.Element => {
                 <SearchField
                   fullWidth
                   EndAdornment={renderEndAdornmentFilter(clearFilters)}
+                  disabled={isCriteriasPanelOpen}
                   inputRef={searchRef as RefObject<HTMLInputElement>}
                   placeholder={t(labelSearch) as string}
                   value={search}
@@ -591,7 +597,7 @@ const Filter = (): JSX.Element => {
                     />
                   }
                 >
-                  <Criterias />
+                  <Criterias searchData={{ search, setSearch }} />
                 </Suspense>
                 <SearchHelp />
               </Box>
