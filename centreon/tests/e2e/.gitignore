@@ -1,5 +1,6 @@
 node_modules
-cypress/node_modules
-cypress/results
-cypress/fixtures/packages
+results
+fixtures/packages
+cucumber-messages.ndjson
+cypress
 *.yml

@@ -115,7 +115,7 @@ describe(buildListingEndpoint, () => {
     });
 
     expect(decodeURIComponent(endpointWithValues)).toContain(
-      '&search={"$and":[{"date":{"$gt":"2020-12-01T07:00:00"}},{"date":{"$lt":"2020-12-01T11:00:00"}}]}'
+      '&search={"$and":[{"$or":[{"date":{"$gt":"2020-12-01T07:00:00"}},{"date":{"$lt":"2020-12-01T11:00:00"}}]}]}'
     );
 
     const endpointWithValue = buildListingEndpoint({
@@ -134,7 +134,7 @@ describe(buildListingEndpoint, () => {
     });
 
     expect(decodeURIComponent(endpointWithValue)).toContain(
-      '&search={"$and":[{"is_activated":true}]}'
+      '&search={"$and":[{"$or":[{"is_activated":true}]}]}'
     );
   });
 });

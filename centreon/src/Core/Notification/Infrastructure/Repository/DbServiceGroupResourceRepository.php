@@ -476,7 +476,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT
+                    SELECT DISTINCT
                         rel.sg_id, sg.sg_name
                     SQL
             )->defineFrom(
@@ -524,7 +524,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             ->defineSelect(
                 <<<'SQL'
                     SELECT
-                        notification_id, COUNT(rel.sg_id)
+                        notification_id, COUNT(DISTINCT rel.sg_id)
                     SQL
             )->defineFrom(
                 <<<'SQL'

@@ -6,5 +6,5 @@ export default configuration({
   },
   envFile: `${__dirname}/../../../.env`,
   isDevelopment: true,
-  specPattern: 'cypress/e2e/**/*.feature'
+  specPattern: 'features/**/*.feature'
 });

@@ -154,18 +154,18 @@ const ActionsWithLoading = (): JSX.Element => {
 let context: ResourceContext;
 
 const host = {
+  has_passive_checks_enabled: true,
   id: 0,
   parent: null,
-  passive_checks: true,
   type: 'host'
 } as Resource;
 
 const service = {
+  has_passive_checks_enabled: true,
   id: 1,
   parent: {
     id: 1
   },
-  passive_checks: true,
   type: 'service'
 } as Resource;
 
@@ -922,7 +922,9 @@ describe(Actions, () => {
     });
 
     act(() => {
-      context.setSelectedResources?.([{ ...service, passive_checks: false }]);
+      context.setSelectedResources?.([
+        { ...service, has_passive_checks_enabled: false }
+      ]);
     });
 
     await waitFor(() => {
