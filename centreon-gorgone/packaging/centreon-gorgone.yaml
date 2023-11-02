@@ -25,7 +25,7 @@ contents:
     file_info:
       mode: 0755
 
- - dst: "/centreon-gorgone/config.d/cron.d"
+ - dst: "/etc/centreon-gorgone/config.d/cron.d"
     type: dir
     file_info:
       mode: 0755
