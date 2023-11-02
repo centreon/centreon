@@ -56,16 +56,9 @@ When(
       tag: 'input'
     }).check();
 
-    cy.getByLabel({ label: 'Identity provider' })
-      .eq(0)
-      .contains('Identity provider')
-      .click({ force: true });
-
     configureOpenIDConnect();
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click({
-      force: true
-    });
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
     cy.wait('@updateOIDCProvider')
       .its('response.statusCode')

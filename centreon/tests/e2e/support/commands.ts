@@ -8,15 +8,23 @@ import '../features/Dashboards/commands';
 
 Cypress.Commands.add(
   'getByLabel',
-  ({ tag = '', patternInfo, label }: GetByLabelProps): Cypress.Chainable => {
-    return cy.get(`${tag}[aria-label${patternInfo || ''}="${label}"]`);
+  ({
+    tag = '',
+    patternType = PatternType.equals,
+    label
+  }: GetByLabelProps): Cypress.Chainable => {
+    return cy.get(`${tag}[aria-label${patternType}="${label}"]`);
   }
 );
 
 Cypress.Commands.add(
   'getByTestId',
-  ({ tag = '', patternInfo, testId }: GetByTestIdProps): Cypress.Chainable => {
-    return cy.get(`${tag}[data-testid${patternInfo || ''}="${testId}"]`);
+  ({
+    tag = '',
+    patternType = PatternType.equals,
+    testId
+  }: GetByTestIdProps): Cypress.Chainable => {
+    return cy.get(`${tag}[data-testid${patternType}="${testId}"]`);
   }
 );
 
@@ -185,20 +193,21 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
-export enum patternInfo {
+export enum PatternType {
   contains = '*',
   endsWith = '$',
+  equals = '',
   startsWith = '^'
 }
 
 interface GetByLabelProps {
   label: string;
-  patternInfo?: patternInfo;
+  patternType?: PatternType;
   tag?: string;
 }
 
 interface GetByTestIdProps {
-  patternInfo?: patternInfo;
+  patternType?: PatternType;
   tag?: string;
   testId: string;
 }
@@ -214,12 +223,12 @@ declare global {
       disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({
-        patternInfo,
+        patternType,
         tag,
         label
       }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({
-        patternInfo,
+        patternType,
         tag,
         testId
       }: GetByTestIdProps) => Cypress.Chainable;
