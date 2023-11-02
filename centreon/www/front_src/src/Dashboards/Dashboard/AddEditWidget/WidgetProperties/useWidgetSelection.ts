@@ -18,8 +18,7 @@ import {
 import {
   customBaseColorAtom,
   singleMetricSelectionAtom,
-  singleResourceTypeSelectionAtom,
-  selectedWidgetAtom
+  singleResourceTypeSelectionAtom
 } from '../atoms';
 import { isGenericText } from '../../utils';
 
@@ -43,7 +42,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     singleResourceTypeSelectionAtom
   );
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
-  const setSelectedWidget = useSetAtom(selectedWidgetAtom);
 
   const { setValues, values } = useFormikContext<Widget>();
 
@@ -141,8 +139,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const selectedWidget = formattedWidgets.find(({ id }) =>
     equals(values.moduleName, id)
   );
-
-  setSelectedWidget(selectedWidget);
 
   return {
     options: formattedWidgets,

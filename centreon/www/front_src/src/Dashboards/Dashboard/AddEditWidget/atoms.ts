@@ -17,5 +17,3 @@ export const singleResourceTypeSelectionAtom = atom<boolean | undefined>(
 export const customBaseColorAtom = atom<boolean | undefined>(undefined);
 
 export const metricsOnlyAtom = atom<boolean | undefined>(undefined);
-
-export const selectedWidgetAtom = atom<SelectedWidget | undefined>(undefined);

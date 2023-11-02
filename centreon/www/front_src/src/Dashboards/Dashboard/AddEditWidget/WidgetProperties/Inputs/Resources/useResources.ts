@@ -21,10 +21,7 @@ import {
   labelServiceGroup
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
-import {
-  selectedWidgetAtom,
-  singleResourceTypeSelectionAtom
-} from '../../../atoms';
+import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
@@ -105,7 +102,6 @@ const useResources = (propertyName: string): UseResourcesState => {
   const singleResourceTypeSelection = useAtomValue(
     singleResourceTypeSelectionAtom
   );
-  const selectedWidget = useAtomValue(selectedWidgetAtom);
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -205,7 +201,7 @@ const useResources = (propertyName: string): UseResourcesState => {
         resources: []
       }
     ]);
-  }, [selectedWidget?.id]);
+  }, [values.moduleName]);
 
   return {
     addResource,
