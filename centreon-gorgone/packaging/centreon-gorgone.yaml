@@ -20,7 +20,7 @@ contents:
     file_info:
       mode: 0775
 
- - dst: "/centreon-gorgone/config.d"
+ - dst: "/etc/centreon-gorgone/config.d"
     type: dir
     file_info:
       mode: 0755
