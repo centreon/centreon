@@ -22,6 +22,7 @@
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
 use FOS\RestBundle\View\View;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Contact\Contact;
 use Psr\Container\ContainerInterface;
@@ -46,10 +47,10 @@ class CommentControllerTest extends TestCase
     private string $wrongJsonComment;
     private string $hostCommentJson;
     private string $serviceCommentJson;
-    private CommentService $commentService;
+    private CommentService&MockObject $commentService;
     private MonitoringService $monitoringService;
     private ContainerInterface $container;
-    private Request $request;
+    private Request&MockObject $request;
 
     protected function setUp(): void
     {

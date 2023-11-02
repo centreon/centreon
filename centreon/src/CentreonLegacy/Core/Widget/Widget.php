@@ -27,7 +27,7 @@ use Psr\Container\ContainerInterface;
 
 class Widget
 {
-    /** @var \CentreonLegacy\Core\Module\Information */
+    /** @var \CentreonLegacy\Core\Widget\Information */
     protected $informationObj;
     
     /** @var string */
@@ -39,7 +39,7 @@ class Widget
     /** @var array */
     protected $widgetConfiguration;
     
-    /** @var Pimple\Container */
+    /** @var ContainerInterface */
     protected $services;
     
     /**

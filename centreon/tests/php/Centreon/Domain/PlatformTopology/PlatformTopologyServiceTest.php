@@ -485,10 +485,9 @@ class PlatformTopologyServiceTest extends TestCase
             $this->platformTopologyRegisterRepository,
             $this->remoteServerRepository
         );
-
-        $this->assertEquals(null, $platformTopologyService->deletePlatformAndReallocateChildren(
+        $platformTopologyService->deletePlatformAndReallocateChildren(
             $this->platform->getId()
-        ));
+        );
     }
 
     public function testDeletePlatformTopologyWithBadId(): void

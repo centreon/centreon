@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\PlatformInformation\UseCase;
 
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 use Tests\Centreon\Domain\PlatformInformation\Model\PlatformInformationTest;
