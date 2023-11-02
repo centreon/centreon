@@ -81,7 +81,7 @@ When(
     cy.getByLabel({
       label: 'Contact group',
       tag: 'input'
-    }).click({ force: true });
+    }).click();
 
     cy.wait('@getListContactGroups');
 
