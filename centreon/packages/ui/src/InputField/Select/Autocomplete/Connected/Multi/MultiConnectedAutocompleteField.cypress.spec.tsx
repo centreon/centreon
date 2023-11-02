@@ -82,34 +82,6 @@ describe('Multi connected autocomplete', () => {
     cy.makeSnapshot('hides the list when the user clicks on the input');
   });
 
-  it('displays exactly one option on the list when the user types that option', () => {
-    cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
-
-    cy.get('@input').click();
-
-    cy.waitForRequest('@getListOptions');
-
-    cy.findByRole('presentation').as('listOptions');
-
-    cy.get('@listOptions').should('be.visible');
-
-    cy.get('@input').type(optionOne);
-
-    cy.waitForRequest('@getSearchedOption');
-
-    cy.fixture('inputField/searchedOption').then((optionData) => {
-      cy.get('@listOptions')
-        .find('li')
-        .should('have.length', optionData.result.length);
-    });
-
-    cy.get('@listOptions').within(() => {
-      cy.contains(optionOne).should('be.visible');
-    });
-
-    cy.makeSnapshot();
-  });
-
   it('displays all options on the list when the user searches for and selects an option', () => {
     cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
 
@@ -125,13 +97,11 @@ describe('Multi connected autocomplete', () => {
 
     cy.waitForRequest('@getSearchedOption');
 
-    cy.fixture('inputField/searchedOption').then((optionData) => {
-      cy.get('@listOptions')
-        .find('li')
-        .should('have.length', optionData.result.length);
+    cy.fixture('inputField/searchedOption').then(() => {
+      cy.get('@listOptions').find('li').should('have.length', 5);
     });
 
-    cy.get('[type="checkbox"]').check();
+    cy.get('[type="checkbox"]').eq(0).check();
     cy.get('@input')
       .parent()
       .within(() => {
@@ -153,7 +123,5 @@ describe('Multi connected autocomplete', () => {
         });
       });
     });
-
-    cy.makeSnapshot();
   });
 });

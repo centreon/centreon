@@ -14,8 +14,7 @@ import {
   propEq,
   reduce,
   set as update,
-  values,
-  isEmpty
+  values
 } from 'ramda';
 import { TFunction } from 'react-i18next';
 
@@ -24,7 +23,7 @@ import { getUrlQueryParameters } from '@centreon/ui';
 import { baseKey } from '../storage';
 import { labelNewFilter } from '../translatedLabels';
 
-import { Criteria, CriteriaValue, SearchData } from './Criterias/models';
+import { Criteria, CriteriaValue } from './Criterias/models';
 import {
   allFilter,
   Filter,
@@ -37,6 +36,8 @@ import { build, parse } from './Criterias/searchQueryLanguage';
 import { getStoredOrDefaultFilter } from './storedFilter';
 
 export const filterKey = `${baseKey}filter`;
+
+export const isCriteriasPanelOpenAtom = atom(false);
 
 export const storedFilterAtom = atomWithStorage<Filter>(
   filterKey,
@@ -90,7 +91,6 @@ export const filterWithParsedSearchDerivedAtom = atom((get) => {
     criterias: [
       ...parse({
         criteriaName: criteriaValueNameById,
-        currentFilter: currentFilter.criterias,
         search: get(searchAtom)
       }),
       find(propEq('name', 'sort'), currentFilter.criterias) as Criteria
@@ -106,7 +106,6 @@ export const filterByInstalledModulesWithParsedSearchDerivedAtom = atom(
         criterias: [
           ...parse({
             criteriaName,
-            currentFilter: get(currentFilterAtom).criterias,
             search: get(searchAtom)
           }),
           find(
@@ -122,13 +121,12 @@ export const filterByInstalledModulesWithParsedSearchDerivedAtom = atom(
 
 interface Params {
   name: string;
-  search_data?: SearchData;
   value: unknown;
 }
 
 export const getFilterWithUpdatedCriteriaDerivedAtom = atom(
   (get) =>
-    ({ name, value, search_data }: Params): Filter => {
+    ({ name, value }: Params): Filter => {
       const index = findIndex(propEq('name', name))(
         get(filterWithParsedSearchDerivedAtom).criterias
       );
@@ -140,18 +138,7 @@ export const getFilterWithUpdatedCriteriaDerivedAtom = atom(
         get(filterWithParsedSearchDerivedAtom)
       );
 
-      if (isNil(search_data) || isEmpty(search_data)) {
-        return updatedByFieldValue;
-      }
-
-      const lensSearch = lensPath(['criterias', index, 'search_data']);
-      const updatedWithFieldSearch = update(
-        lensSearch,
-        search_data,
-        updatedByFieldValue
-      );
-
-      return updatedWithFieldSearch;
+      return updatedByFieldValue;
     }
 );
 
@@ -174,11 +161,7 @@ export const applyFilterDerivedAtom = atom(null, (get, set, filter: Filter) => {
 
 export const setCriteriaAndNewFilterDerivedAtom = atom(
   null,
-  (
-    get,
-    set,
-    { name, value, search_data, apply = false }: Params & { apply?: boolean }
-  ) => {
+  (get, set, { name, value, apply = false }: Params & { apply?: boolean }) => {
     const currentFilter = get(currentFilterAtom);
     const getFilterWithUpdatedCriteria = get(
       getFilterWithUpdatedCriteriaDerivedAtom
@@ -186,7 +169,7 @@ export const setCriteriaAndNewFilterDerivedAtom = atom(
 
     const isCustomFilter = isCustom(currentFilter);
     const updatedFilter = {
-      ...getFilterWithUpdatedCriteria({ name, search_data, value }),
+      ...getFilterWithUpdatedCriteria({ name, value }),
       ...(!isCustomFilter && newFilter)
     };
 
