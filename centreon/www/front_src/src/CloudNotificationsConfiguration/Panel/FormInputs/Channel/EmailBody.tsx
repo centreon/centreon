@@ -51,6 +51,7 @@ const EmailBody = (): JSX.Element => {
         namespace="EmailBody"
         placeholder={t(labelTypeYourTextHere) as string}
         setHtmlString={sethtmlEmailBody}
+        toolbarClassName={classes.editorToolbar}
         toolbarPositions="end"
         onBlur={handleBlur('messages.message')}
       />
