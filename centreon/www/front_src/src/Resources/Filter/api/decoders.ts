@@ -4,27 +4,8 @@ import { buildListingDecoder } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
 import { Filter } from '../models';
-import { Criteria, SearchData, SearchedDataValue } from '../Criterias/models';
+import { Criteria } from '../Criterias/models';
 import { SortOrder } from '../../models';
-
-const searchDataValueDecoder = JsonDecoder.object<SearchedDataValue>(
-  {
-    id: JsonDecoder.string,
-    value: JsonDecoder.string,
-    valueId: JsonDecoder.number
-  },
-  'searchedDataValue'
-);
-
-const searchDataDecoder = JsonDecoder.object<SearchData>(
-  {
-    field: JsonDecoder.string,
-    id: JsonDecoder.string,
-    type: JsonDecoder.string,
-    values: JsonDecoder.array(searchDataValueDecoder, 'searchedDataValues')
-  },
-  'searchData'
-);
 
 const entityDecoder = JsonDecoder.object<Filter>(
   {
@@ -33,7 +14,6 @@ const entityDecoder = JsonDecoder.object<Filter>(
         {
           name: JsonDecoder.string,
           object_type: JsonDecoder.nullable(JsonDecoder.string),
-          search_data: JsonDecoder.optional(searchDataDecoder),
           type: JsonDecoder.string,
           value: JsonDecoder.optional(
             JsonDecoder.oneOf<

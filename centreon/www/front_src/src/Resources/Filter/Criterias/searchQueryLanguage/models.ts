@@ -58,9 +58,7 @@ export const searchableFields = [
   'h.alias',
   'h.address',
   's.description',
-  'name',
   'alias',
-  'parent_name',
   'parent_alias',
   'fqdn',
   'information'
@@ -94,7 +92,9 @@ export const dynamicCriteriaValuesByName = [
   CriteriaNames.hostSeverities,
   CriteriaNames.serviceSeverities,
   CriteriaNames.hostSeverityLevels,
-  CriteriaNames.serviceSeverityLevels
+  CriteriaNames.serviceSeverityLevels,
+  CriteriaNames.names,
+  CriteriaNames.parentNames
 ];
 
 export const getSelectableCriteriasByName = (

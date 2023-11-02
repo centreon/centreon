@@ -12596,7 +12596,7 @@ msgid "This Service is flapping"
 msgstr "Le statut du service bagote"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:172
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Méta-Service"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:194
@@ -15458,6 +15458,9 @@ msgstr "Sauvegarder le filtre"
 
 msgid "Save as new"
 msgstr "Créer un nouveau filtre"
+
+msgid "Save as"
+msgstr "Enregistrer sous"
 
 msgid "My filters"
 msgstr "Mes filtres"

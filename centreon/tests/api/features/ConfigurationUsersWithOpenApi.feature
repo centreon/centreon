@@ -66,7 +66,13 @@ Feature:
       "is_export_button_enabled": true,
       "theme": "light",
       "user_interface_density": "compact",
-      "default_page": null
+      "default_page": null,
+      "dashboard": {
+          "global_user_role": "administrator",
+          "view_dashboards": true,
+          "create_dashboards": true,
+          "administrate_dashboards": true
+      }
     }
     """
 
