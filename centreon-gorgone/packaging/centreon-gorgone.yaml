@@ -44,7 +44,7 @@ contents:
     type: config|noreplace
 
   - src: "centreon-gorgone/gorgone/*"
-    dst: "/etc/${PERL_VENDORLIB}/gorgone/"
+    dst: "${PERL_VENDORLIB}/gorgone/"
 
   - src: "centreon-gorgone/gorgoned"
     dst: "usr/bin/"
