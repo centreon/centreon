@@ -34,7 +34,7 @@ Feature: Editing notification rule configuration
       | enables  | no more  |
       | disables |          |
 
-  Scenario: Manage notification rule status on edition
+  Scenario Outline: Manage notification rule status on edition
     When the user selects the edition action on a notification rule
     And the user <action> the notification rule
     And the user saves and confirm the changes
