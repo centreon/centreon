@@ -16,22 +16,30 @@ Feature: Editing notification rule configuration
     And the user saves and confirm the changes
     Then only notifications for status changes of the updated resource parameters are sent once the notification refresh_delay has been reached
 
-
-  Scenario: Editing a notification rule users configuration
+  Scenario Outline: Editing a notification rule users configuration
     When the user selects the edition action on a notification rule
-    And the user changes the contact and contact groups configuration
+    And the user changes the <user_type> configuration
     And the user saves and confirm the changes
-    Then notifications for status changes are sent only to the updated contact and contact groups once the notification refresh_delay has been reached
+    Then notifications for status changes are sent only to the updated <user_type> once the notification refresh_delay has been reached
+    Examples:
+      | user_type      |
+      | contact        |
+      | contact groups |
 
+  Scenario Outline: Manage notification rule status on listing
+    When the user selects the <action> action on a notification rule line
+    Then <not_send> notification is sent for this rule once the notification refresh_delay has been reached
+    Examples:
+      | action   | not_send |
+      | enables  | no more  |
+      | disables |          |
 
-  Scenario: Toggling a notification rule status
+  Scenario: Manage notification rule status on edition
     When the user selects the edition action on a notification rule
-    And the user disables the notification rule
+    And the user <action> the notification rule
     And the user saves and confirm the changes
-    Then no more notification is sent for this rule once the notification refresh_delay has been reached
-
-    When the user selects the edition action the disabled notification rule
-    And the user enables the notification rule
-    And the user saves and confirm the changes
-    When changes occur in the configured statuses for the selected resources
-    Then an email is sent to the configured contacts and contact groups with the configured format once the notification refresh_delay has been reached
+    Then <not_send> notification is sent for this rule once the notification refresh_delay has been reached
+    Examples:
+      | action   | not_send |
+      | enables  | no more  |
+      | disables |          |
