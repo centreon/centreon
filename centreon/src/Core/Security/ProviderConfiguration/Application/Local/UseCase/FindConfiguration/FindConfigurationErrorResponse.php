@@ -25,6 +25,6 @@ namespace Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConf
 
 use Core\Application\Common\UseCase\ErrorResponse;
 
-class FindConfigurationErrorResponse extends ErrorResponse
+final class FindConfigurationErrorResponse extends ErrorResponse
 {
 }

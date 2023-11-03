@@ -143,6 +143,14 @@ class ConfigurationExporter extends ExporterServiceAbstract
     }
 
     /**
+     * @return string
+     */
+    public static function getName(): string
+    {
+        return static::NAME;
+    }
+
+    /**
      * Copy directory recursively.
      *
      * @param string $src

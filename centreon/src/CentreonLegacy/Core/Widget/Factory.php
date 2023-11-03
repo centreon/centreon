@@ -33,9 +33,8 @@ class Factory
 
     /**
      * @param \Pimple\Container $dependencyInjector
-     * @param mixed $utils
      */
-    public function __construct(\Pimple\Container $dependencyInjector, $utils = null)
+    public function __construct(\Pimple\Container $dependencyInjector)
     {
         $this->dependencyInjector = $dependencyInjector;
     }

@@ -1,0 +1,6 @@
+<?php
+
+function loadDependencyInjector(): Centreon\LegacyContainer
+{
+    return Centreon\LegacyContainer::getInstance();
+}

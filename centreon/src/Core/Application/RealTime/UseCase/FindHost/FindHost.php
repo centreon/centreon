@@ -42,7 +42,7 @@ use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
-class FindHost
+final class FindHost
 {
     use LoggerTrait;
 
