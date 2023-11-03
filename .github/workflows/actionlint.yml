@@ -83,4 +83,4 @@ jobs:
         run: npm install gherkin-lint@4.2.2
 
       - name: Run Gherkin Lint
-        run: gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
+        run: ./node_modules/.bin/gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
