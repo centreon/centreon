@@ -75,7 +75,7 @@ jobs:
             has_features_changes:
               - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  
+
   gherkin-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
