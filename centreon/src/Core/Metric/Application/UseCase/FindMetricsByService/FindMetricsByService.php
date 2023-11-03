@@ -66,9 +66,13 @@ final class FindMetricsByService
                     $accessGroups,
                     $this->requestParameters
                 );
-            }[] === $metrics
-                ? $presenter->presentResponse(new NotFoundResponse('metrics'))
-                : $presenter->presentResponse($this->createResponse($metrics));
+            }
+
+            if ([] === $metrics) {
+                $presenter->presentResponse(new NotFoundResponse('metrics'));
+            } else {
+                $presenter->presentResponse($this->createResponse($metrics));
+            }
         } catch (\Throwable) {
             $presenter->presentResponse(new ErrorResponse('An error occured while finding metrics'));
         }

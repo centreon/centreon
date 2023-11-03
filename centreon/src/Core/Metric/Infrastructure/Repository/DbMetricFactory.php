@@ -27,6 +27,20 @@ use Core\Metric\Domain\Model\Metric;
 
 class DbMetricFactory
 {
+    /**
+     * @param array{
+     *    id: int,
+     *    name: string
+     *    unit_name: string,
+     *    current_value: float|null,
+     *    warn: float|null,
+     *    warn_low: float|null,
+     *    crit: float|null,
+     *    crit_low: float|null
+     *  } $record
+     *
+     * @return Metric
+     */
     public static function createFromRecord(array $record): Metric
     {
         return (new Metric($record['id'], $record['name']))
