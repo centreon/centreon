@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Metric\Application\UseCase\FindMetricsByService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
@@ -36,7 +37,8 @@ final class FindMetricsByService
     public function __construct(
         private ContactInterface $user,
         private ReadMetricRepositoryInterface $metricRepository,
-        private ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private RequestParametersInterface $requestParameters
     ) {
     }
 
@@ -46,19 +48,20 @@ final class FindMetricsByService
     ): void {
         try {
             if ($this->user->isAdmin()) {
-                $metrics = $this->metricRepository->findByHostIdAndServiceId($request->hostId, $request->serviceId);
+                $metrics = $this->metricRepository->findByHostIdAndServiceId($request->hostId, $request->serviceId, $this->requestParameters);
             } else {
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
                 $metrics = $this->metricRepository->findByHostIdAndServiceIdAndAccessGroups(
                     $request->hostId,
                     $request->serviceId,
-                    $accessGroups
+                    $accessGroups,
+                    $this->requestParameters
                 );
             }
             [] === $metrics
                 ? $presenter->presentResponse(new NotFoundResponse('metrics'))
                 : $presenter->presentResponse($this->createResponse($metrics));
-        } catch (\Throwable $ex) {
+        } catch (\Throwable) {
             $presenter->presentResponse(new ErrorResponse('An error occured while finding metrics'));
         }
     }

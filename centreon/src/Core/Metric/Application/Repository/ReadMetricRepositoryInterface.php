@@ -75,7 +75,11 @@ interface ReadMetricRepositoryInterface
      *
      * @return Metric[]
      */
-    public function findByHostIdAndServiceId(int $hostId, int $serviceId): array;
+    public function findByHostIdAndServiceId(
+        int $hostId,
+        int $serviceId,
+        RequestParametersInterface $requestParameters
+    ): array;
 
         /**
      * Find Metrics by their service and host id.
@@ -87,5 +91,10 @@ interface ReadMetricRepositoryInterface
      *
      * @return Metric[]
      */
-    public function findByHostIdAndServiceIdAndAccessGroups(int $hostId, int $serviceId, array $accessGroups): array;
+    public function findByHostIdAndServiceIdAndAccessGroups(
+        int $hostId,
+        int $serviceId,
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array;
 }
