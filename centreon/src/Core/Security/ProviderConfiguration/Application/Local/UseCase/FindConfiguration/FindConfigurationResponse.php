@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration;
 
-class FindConfigurationResponse
+final class FindConfigurationResponse
 {
     /** @var int */
     public int $passwordMinimumLength;

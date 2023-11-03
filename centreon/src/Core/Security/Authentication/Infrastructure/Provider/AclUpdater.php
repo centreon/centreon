@@ -66,7 +66,6 @@ class AclUpdater implements AclUpdaterInterface
             $aclConditions = $customConfiguration->getACLConditions();
             if ($aclConditions->isEnabled()) {
                 $aclConditionMatches = $provider->getAclConditionsMatches();
-                /** @phpstan-ignore-next-line */
                 $userAccessGroups = $this->provider->getUserAccessGroupsFromClaims($aclConditionMatches);
                 $this->updateAccessGroupsForUser($user, $userAccessGroups);
             }
