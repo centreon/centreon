@@ -37,6 +37,7 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
     steps:
       - uses: actions/checkout@v4
 
@@ -71,7 +72,26 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+            has_features_changes:
+              - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  
+  gherkinlint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Navigate to Centreon E2E Tests Directory
+        run: cd centreon/tests/e2e
+
+      - name: Install Gherkin Lint
+        run: npm install gherkin-lint@4.2.2
+
+      - name: Run Gherkin Lint
+        run: ./node_modules/.bin/gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
 
   get-version:
     uses: ./.github/workflows/get-version.yml

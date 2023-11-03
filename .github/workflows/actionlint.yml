@@ -70,17 +70,3 @@ jobs:
         run: |
           yamllint -c ./yamllint_rules.yml ./.github/actions/ ./.github/workflows/
 
-  gherkinlint:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - name: Navigate to Centreon E2E Tests Directory
-        run: cd centreon/tests/e2e
-
-      - name: Install Gherkin Lint
-        run: npm install gherkin-lint@4.2.2
-
-      - name: Run Gherkin Lint
-        run: ./node_modules/.bin/gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
