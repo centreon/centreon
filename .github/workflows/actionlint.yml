@@ -80,7 +80,7 @@ jobs:
         run: cd centreon/tests/e2e
 
       - name: Install Gherkin Lint
-        run: pnpm install gherkin-lint@4.2.2
+        run: npm install gherkin-lint@4.2.2
 
       - name: Run Gherkin Lint
         run: npx run gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
