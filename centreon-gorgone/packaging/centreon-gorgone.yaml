@@ -20,12 +20,12 @@ contents:
     file_info:
       mode: 0775
 
- - dst: "/etc/centreon-gorgone/config.d"
+ - dst: "/centreon-gorgone/config.d"
     type: dir
     file_info:
       mode: 0755
 
- - dst: "/etc/centreon-gorgone/config.d/cron.d"
+ - dst: "/centreon-gorgone/config.d/cron.d"
     type: dir
     file_info:
       mode: 0755
@@ -132,7 +132,7 @@ overrides:
       - perl(Try::Tiny)
       - tar
   deb:
-    depends:   # those dependecy are taken from centreon-gorgone/packaging/debian/control
+    depends:   # those dependencies are taken from centreon-gorgone/packaging/debian/control
       - libdatetime-perl
       - libtime-parsedate-perl  
       - libtry-tiny-perl
