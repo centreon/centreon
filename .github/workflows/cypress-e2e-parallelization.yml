@@ -233,7 +233,7 @@ jobs:
           summary_prefix=''
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
             summary_prefix="NIGHTLY"
-          else 
+          else
             echo "The github_ref_name is: $GITHUB_REF_NAME"
             case "$GITHUB_REF_NAME" in
                 hotfix*)
@@ -245,7 +245,7 @@ jobs:
             esac
           fi
 
-          current_date=$(date +'%d/%m/%Y') 
+          current_date=$(date +'%d/%m/%Y')
 
           workflow_run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
@@ -272,7 +272,7 @@ jobs:
           xray_graphql_mutation='{
             "query": "mutation addTestEnvironmentsToTestExecution($issueId: String!, $testEnvironments: [String]!) { addTestEnvironmentsToTestExecution(issueId: $issueId, testEnvironments: $testEnvironments) { associatedTestEnvironments createdTestEnvironments warning } }",
             "variables": {
-              "issueId": "${{ steps.get-testExecution-id.outputs.testExecution_id }}", 
+              "issueId": "${{ steps.get-testExecution-id.outputs.testExecution_id }}",
               "testEnvironments": ["ALMA9","MARIADB_10_5","CHROME"]
             }
           }'
@@ -283,7 +283,7 @@ jobs:
           xray_graphql_mutation='{
             "query": "mutation AddTestExecution($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
             "variables": {
-              "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}", 
+              "issueId": "${{ steps.get-testPlan-id.outputs.testPlan_id }}",
               "testExecIssueIds": ["'${{ steps.get-testExecution-id.outputs.testExecution_id }}'"]
             }
           }'
