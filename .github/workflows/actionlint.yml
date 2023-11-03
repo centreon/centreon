@@ -38,6 +38,7 @@ jobs:
           -pyflakes= \
           -color
         shell: bash
+
   yaml-lint:
     runs-on: ubuntu-22.04
     steps:
@@ -78,11 +79,8 @@ jobs:
       - name: Navigate to Centreon E2E Tests Directory
         run: cd centreon/tests/e2e
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
       - name: Install Gherkin Lint
-        run: pnpm install gherkin-lint
+        run: npx install gherkin-lint@4.2.2
 
       - name: Run Gherkin Lint
-        run: ./node_modules/.bin/gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
+        run: npx run gherkin-lint -c centreon/tests/e2e/.gherkin-lintrc centreon/tests/e2e/features
