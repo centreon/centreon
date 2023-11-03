@@ -1,0 +1,6 @@
+{
+    "rtaValues": {
+      "warning": "Warning: 200 ms",
+      "critical": "Critical: 400 ms"
+    }
+  }

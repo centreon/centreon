@@ -185,6 +185,41 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
+Cypress.Commands.add(
+  'insertDashboardWithDoubleWidget',
+  (dashboardBody, patchBody) => {
+    cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        {
+          timeout: 10000
+        }
+      );
+      cy.request({
+        body: patchBody,
+        method: 'PATCH',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      });
+    });
+  }
+);
+
 export enum patternInfo {
   contains = '*',
   endsWith = '$',
@@ -208,6 +243,11 @@ interface requestOnDatabaseProps {
   query: string;
 }
 
+interface Dashboard {
+  description?: string;
+  name: string;
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -223,6 +263,10 @@ declare global {
         tag,
         testId
       }: GetByTestIdProps) => Cypress.Chainable;
+      insertDashboardWithDoubleWidget: (
+        dashboard: Dashboard,
+        patch: any
+      ) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => void;

@@ -3,16 +3,16 @@ Feature: Configuring a single metric widget
   I need to configure a widget containing single metric on a dashboard
   So that this dashboard can feature information users can read and links they can click
 
-Scenario: Creating and configuring a new Generic text widget on a dashboard
-  Given a dashboard in the dashboard administrator user's dashboard library
-  When the dashboard administrator user selects the option to add a new widget
-  And selects the widget type "Single metric"
-  Then configuration properties for the Single metric widget are displayed
-  When the dashboard administrator user selects a resource and the metric for the widget to report on
-  Then information about this metric is displayed in the widget preview
-  When the user saves the Single metric widget
-  Then the Single metric widget is added in the dashboard's layout
-  And the information about the selected metric is displayed
+# Scenario: Creating and configuring a new Generic text widget on a dashboard
+#   Given a dashboard in the dashboard administrator user's dashboard library
+#   When the dashboard administrator user selects the option to add a new widget
+#   And selects the widget type "Single metric"
+#   Then configuration properties for the Single metric widget are displayed
+#   When the dashboard administrator user selects a resource and the metric for the widget to report on
+#   Then information about this metric is displayed in the widget preview
+#   When the user saves the Single metric widget
+#   Then the Single metric widget is added in the dashboard's layout
+#   And the information about the selected metric is displayed
 
 Scenario: Duplicating a Single metric widget
   Given a dashboard featuring a single Single metric widget

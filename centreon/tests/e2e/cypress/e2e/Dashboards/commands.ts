@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+import singleMetricWidget from '../../fixtures/dashboards/creation/widgets/singleWidgetText.json';
 
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
@@ -25,9 +26,52 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('verifyGraphContainer', () => {
+  cy.get('[class*="graphContainer"]')
+    .should('be.visible')
+    .within(() => {
+      cy.get('[class*="graphText"]')
+        .should('be.visible')
+        .within(() => {
+          cy.get('[class*="MuiTypography-h2"]').should('be.visible');
+
+          cy.get('[class*="MuiTypography-h5"]')
+            .eq(0)
+            .should('contain', singleMetricWidget.rtaValues.warning);
+
+          cy.get('[class*="MuiTypography-h5"]')
+            .eq(1)
+            .should('contain', singleMetricWidget.rtaValues.critical);
+        });
+    });
+});
+
+Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
+  cy.get('[class*="graphContainer"]')
+    .eq(1)
+    .should('be.visible')
+    .within(() => {
+      cy.get('[class*="graphText"]')
+        .should('be.visible')
+        .within(() => {
+          cy.get('[class*="MuiTypography-h2"]').should('be.visible');
+
+          cy.get('[class*="MuiTypography-h5"]')
+            .eq(0)
+            .should('contain', singleMetricWidget.rtaValues.warning);
+
+          cy.get('[class*="MuiTypography-h5"]')
+            .eq(1)
+            .should('contain', singleMetricWidget.rtaValues.critical);
+        });
+    });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      verifyDuplicatesGraphContainer: (singleMetricWidget) => Cypress.Chainable;
+      verifyGraphContainer: (singleMetricWidget) => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number
