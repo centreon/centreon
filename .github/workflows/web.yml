@@ -1,8 +1,9 @@
 name: web
-run-name: ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
-          github.event_name == 'pull_request' && github.event.pull_request.title ||
-          github.event_name == 'push' && github.event.head_commit.message ||
-          github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
+run-name:
+  ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
+  github.event_name == 'pull_request' && github.event.pull_request.title ||
+  github.event_name == 'push' && github.event.head_commit.message ||
+  github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -92,7 +93,7 @@ jobs:
 
       - name: Add Gherkin Lint Rules
         run: |
-          cat <<EOF >>./.gherkin-lintrc
+          echo '
           {
             "no-files-without-scenarios": "on",
             "no-unnamed-features": "on",
@@ -136,14 +137,14 @@ jobs:
                   "@ignore"
                 ],
                 "patterns": [
-                  "^@REQ_MON-\\d+$",
-                  "^@TEST_MON-\\d+$",
-                  "^@execTimeout\\(\\d+\\)$"
+                  "^@REQ_MON-[1-9]\\d+$",
+                  "^@TEST_MON-[1-9]\\d+$",
+                  "^@execTimeout\\([1-9]\\d+\\)$"
                 ]
               }
             ]
           }
-          EOF
+          ' > .gherkin-lintrc
 
       - name: Run Gherkin Lint
         run: ./node_modules/.bin/gherkin-lint -c .gherkin-lintrc centreon/tests/e2e/features
