@@ -33,7 +33,7 @@ use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfigur
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateConfigurationController extends AbstractController
+final class UpdateConfigurationController extends AbstractController
 {
     /**
      * @param UpdateConfiguration $useCase

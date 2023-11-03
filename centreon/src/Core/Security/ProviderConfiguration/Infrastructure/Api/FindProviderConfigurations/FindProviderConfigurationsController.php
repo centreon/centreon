@@ -29,7 +29,7 @@ use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigur
     FindProviderConfigurationsPresenterInterface
 };
 
-class FindProviderConfigurationsController extends AbstractController
+final class FindProviderConfigurationsController extends AbstractController
 {
     /**
      * @param FindProviderConfigurations $findProviderConfigurations

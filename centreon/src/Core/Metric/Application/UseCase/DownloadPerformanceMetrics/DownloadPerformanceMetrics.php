@@ -31,7 +31,7 @@ use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\IndexData;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 
-class DownloadPerformanceMetrics
+final class DownloadPerformanceMetrics
 {
     use LoggerTrait;
 

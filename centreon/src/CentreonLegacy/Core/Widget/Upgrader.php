@@ -173,8 +173,6 @@ class Upgrader extends Installer
      * @param int $widgetId
      *
      * @throws \Exception
-     *
-     * @return type
      */
     private function upgradePreferences($widgetId)
     {

@@ -48,7 +48,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-class UpdateSAMLConfiguration
+final class UpdateSAMLConfiguration
 {
     use LoggerTrait;
 
