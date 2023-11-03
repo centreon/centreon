@@ -287,8 +287,8 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         $query = <<<'SQL'
             SELECT DISTINCT metric_id as id, metric_name as name, unit_name, current_value, warn,
             warn_low, crit, crit_low
-            FROM :dbstg.metrics m
-                INNER JOIN :dbstg.index_data ON m.index_id = :dbstg.index_data.id
+            FROM  `:dbstg`.metrics m
+                INNER JOIN  `:dbstg`.index_data ON m.index_id =  `:dbstg`.index_data.id
             SQL;
 
         $accessGroupIds = \array_map(
@@ -305,8 +305,8 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         $query .= <<<'SQL'
-            WHERE :dbstg.index_data.host_id = :hostId
-                AND :dbstg.index_data.service_id = :serviceId
+            WHERE `:dbstg`.index_data.host_id = :hostId
+                AND `:dbstg`.index_data.service_id = :serviceId
             SQL;
 
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Metric\Application\UseCase\FindMetricsByService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -33,6 +34,8 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 
 final class FindMetricsByService
 {
+    use LoggerTrait;
+
     /**
      * @param ContactInterface $user
      * @param ReadMetricRepositoryInterface $metricRepository
@@ -56,6 +59,7 @@ final class FindMetricsByService
         FindMetricsByServicePresenterInterface $presenter
     ): void {
         try {
+            $this->info('Finding metrics for service', ['id' => $request->serviceId]);
             if ($this->user->isAdmin()) {
                 $metrics = $this->metricRepository->findByHostIdAndServiceId($request->hostId, $request->serviceId, $this->requestParameters);
             } else {
@@ -73,7 +77,8 @@ final class FindMetricsByService
             } else {
                 $presenter->presentResponse($this->createResponse($metrics));
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $ex) {
+            $this->error('An error occured while finding metrics', ['trace' => (string) $ex]);
             $presenter->presentResponse(new ErrorResponse('An error occured while finding metrics'));
         }
     }

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Metric\Application\UseCase\FindMetricsByService;
 
-class FindMetricsByServiceResponse
+final class FindMetricsByServiceResponse
 {
     /** @var MetricDto[] */
     public array $metricsDto;
