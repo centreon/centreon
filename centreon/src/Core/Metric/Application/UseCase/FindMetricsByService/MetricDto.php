@@ -25,19 +25,19 @@ namespace Core\Metric\Application\UseCase\FindMetricsByService;
 
 class MetricDto
 {
-    public int $id;
+    public int $id = 0;
 
-    public string $name;
+    public string $name = '';
 
-    public ?string $unit;
+    public ?string $unit = null;
 
-    public ?float $currentValue;
+    public ?float $currentValue = null;
 
-    public ?float $warningHighThreshold;
+    public ?float $warningHighThreshold = null;
 
-    public ?float $warningLowThreshold;
+    public ?float $warningLowThreshold = null;
 
-    public ?float $criticalHighThreshold;
+    public ?float $criticalHighThreshold = null;
 
-    public ?float $criticalLowThreshold;
+    public ?float $criticalLowThreshold = null;
 }
