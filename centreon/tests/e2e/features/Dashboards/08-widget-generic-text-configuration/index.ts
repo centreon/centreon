@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { patternInfo } from '../../../support/commands';
+import { PatternType } from '../../../support/commands';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
@@ -125,7 +125,7 @@ Then("the Generic text widget is added in the dashboard's layout", () => {
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains('Your widget has been created successfully!').should('exist');
   cy.getByTestId({
-    patternInfo: patternInfo.startsWith,
+    patternType: PatternType.startsWith,
     testId: 'panel_/widgets/generictext'
   }).should('exist');
 });
@@ -338,6 +338,5 @@ Then(
     cy.contains('Link to Centreon website').invoke('attr', 'target', '_self');
     cy.contains('Link to Centreon website').click({ force: true });
     cy.url().should('equal', 'https://www.centreon.com/');
-    cy.go('back');
   }
 );

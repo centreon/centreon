@@ -66,7 +66,7 @@ beforeEach(() => {
 Given(
   'a running platform in major {string} with {string} version',
   (major_version_from_expression: string, version_from_expression: string) => {
-    cy.getWebVersion().then(({ major_version }) => {
+    return cy.getWebVersion().then(({ major_version }) => {
       let major_version_from = '0';
       switch (major_version_from_expression) {
         case 'n - 1':
@@ -115,12 +115,16 @@ Given(
                   default:
                     throw new Error(`${version_from_expression} not managed.`);
                 }
-                if (minor_version_index <= 0) {
+                if (
+                  minor_version_index < 0 ||
+                  (major_version_from === major_version &&
+                    minor_version_index === 0)
+                ) {
                   cy.log(
                     `Not needed to test ${version_from_expression} version.`
                   );
 
-                  return Cypress.runner.stop();
+                  return cy.wrap('skipped');
                 }
 
                 cy.log(
@@ -172,5 +176,5 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.visitEmptyPage().stopContainer({ name: Cypress.env('dockerName') });
 });

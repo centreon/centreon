@@ -50,11 +50,6 @@ When(
 
     cy.wait('@getOIDCProvider');
 
-    cy.getByLabel({ label: 'Identity provider' })
-      .eq(0)
-      .contains('Identity provider')
-      .click({ force: true });
-
     configureOpenIDConnect();
   }
 );
