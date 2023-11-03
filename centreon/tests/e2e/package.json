@@ -31,8 +31,5 @@
     "pretty": {
       "enabled": true
     }
-  },
-  "dependencies": {
-    "gherkin-lint": "^4.2.2"
   }
 }
