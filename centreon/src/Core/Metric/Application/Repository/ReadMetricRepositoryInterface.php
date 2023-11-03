@@ -64,4 +64,28 @@ interface ReadMetricRepositoryInterface
         array $accessGroups,
         RequestParametersInterface $requestParameters
     ): array;
+
+    /**
+     * Find Metrics by their service and host id.
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return Metric[]
+     */
+    public function findByHostIdAndServiceId(int $hostId, int $serviceId): array;
+
+        /**
+     * Find Metrics by their service and host id.
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param AccessGroup[] $accessGroups
+     * @throws \Throwable
+     *
+     * @return Metric[]
+     */
+    public function findByHostIdAndServiceIdAndAccessGroups(int $hostId, int $serviceId, array $accessGroups): array;
 }
