@@ -22,6 +22,9 @@ on:
       minor_version:
         required: true
         type: string
+      minor_version:
+        required: true
+        type: string
       stability:
         required: true
         type: string
