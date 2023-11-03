@@ -5,4 +5,4 @@ FindMetricsByService:
     requirements:
         hostId: '\d+'
         serviceId: '\d+'
-    condition: "request.attributes.get('version') >= 23.10"
+    condition: "request.attributes.get('version') >= 24.04"
