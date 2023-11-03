@@ -136,9 +136,9 @@ jobs:
                   "@ignore"
                 ],
                 "patterns": [
-                  "^@REQ_MON-[1-9]\\d*$",
-                  "^@TEST_MON-[1-9]\\d*$",
-                  "^@execTimeout\\([1-9]\\d*\\)$"
+                  "^@REQ_MON-\\d+$",
+                  "^@TEST_MON-\\d+$",
+                  "^@execTimeout\\(\\d+\\)$"
                 ]
               }
             ]
