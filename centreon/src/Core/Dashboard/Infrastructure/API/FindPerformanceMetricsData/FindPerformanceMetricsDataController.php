@@ -37,7 +37,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
     use LoggerTrait;
     private const START_DATE_PARAMETER = 'start';
     private const END_DATE_PARAMETER = 'end';
-    private const    = 'metric_names';
+    private const METRIC_NAMES_PARAMETER = 'metric_names';
 
     public function __invoke(
         FindPerformanceMetricsData $useCase,
