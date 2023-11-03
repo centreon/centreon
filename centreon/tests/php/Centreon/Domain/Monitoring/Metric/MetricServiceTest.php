@@ -46,6 +46,8 @@ class MetricServiceTest extends TestCase
     protected $metricRepository;
     protected $accessGroupRepository;
 
+    protected array $status = [];
+
     protected function setUp(): void
     {
         $this->adminContact = (new Contact())

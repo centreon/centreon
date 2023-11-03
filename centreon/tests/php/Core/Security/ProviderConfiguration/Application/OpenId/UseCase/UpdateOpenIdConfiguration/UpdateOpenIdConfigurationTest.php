@@ -71,7 +71,7 @@ it('should present a NoContentResponse when the use case is executed correctly',
     $request->authenticationType = 'client_secret_post';
     $request->verifyPeer = false;
     $request->isAutoImportEnabled = false;
-    $request->contactTemplate = ['id' => 1]; /** @phpstan-ignore-line */
+    $request->contactTemplate = ['id' => 1];
     $request->rolesMapping = [
         'is_enabled' => false,
         'apply_only_first_role' => false,
@@ -122,7 +122,7 @@ it('should present an ErrorResponse when an error occured during the use case ex
     $request->authenticationType = 'client_secret_post';
     $request->verifyPeer = false;
     $request->isAutoImportEnabled = false;
-    $request->contactTemplate = ['id' => 1]; /** @phpstan-ignore-line */
+    $request->contactTemplate = ['id' => 1];
     $request->rolesMapping = [
         'is_enabled' => false,
         'apply_only_first_role' => false,

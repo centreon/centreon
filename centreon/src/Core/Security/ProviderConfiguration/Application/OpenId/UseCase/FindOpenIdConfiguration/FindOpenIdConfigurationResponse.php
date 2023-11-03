@@ -30,7 +30,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 
-class FindOpenIdConfigurationResponse
+final class FindOpenIdConfigurationResponse
 {
     /** @var bool */
     public bool $isActive = false;

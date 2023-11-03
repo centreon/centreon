@@ -50,10 +50,10 @@ class FindConfiguration
         try {
             $provider = $this->providerFactory->create(Provider::LOCAL);
             $configuration = $provider->getConfiguration();
-        } catch (\Throwable $e) {
-            $this->critical($e->getMessage());
+        } catch (\Throwable $throwable) {
+            $this->critical($throwable->getMessage());
             $presenter->setResponseStatus(
-                new FindConfigurationErrorResponse($e->getMessage())
+                new FindConfigurationErrorResponse($throwable->getMessage())
             );
 
             return;

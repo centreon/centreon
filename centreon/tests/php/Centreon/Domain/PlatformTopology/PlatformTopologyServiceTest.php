@@ -380,7 +380,7 @@ class PlatformTopologyServiceTest extends TestCase
             ->willReturn([$this->brokerConfiguration]);
 
         $this->platformTopologyRepository
-            ->expects($this->once(0))
+            ->expects($this->once())
             ->method('getPlatformTopology')
             ->willReturn([$this->registeredParent]);
 

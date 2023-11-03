@@ -27,7 +27,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
-class OpenIdProviderResponse implements ProviderResponseInterface
+final class OpenIdProviderResponse implements ProviderResponseInterface
 {
     /** @var int */
     public int $id;

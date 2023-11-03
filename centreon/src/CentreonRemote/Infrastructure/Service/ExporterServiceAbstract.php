@@ -82,14 +82,6 @@ abstract class ExporterServiceAbstract implements ExporterServiceInterface
     }
 
     /**
-     * @return string
-     */
-    public static function getName(): string
-    {
-        return static::NAME;
-    }
-
-    /**
      * Create path for export.
      *
      * @param string $exportPath

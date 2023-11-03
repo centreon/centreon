@@ -39,7 +39,7 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-class FindHosts
+final class FindHosts
 {
     use LoggerTrait;
 
