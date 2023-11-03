@@ -97,7 +97,6 @@ class Metric
         return $this->warningHighThreshold;
     }
 
-
     public function setWarningLowThreshold(?float $warningLowThreshold): self
     {
         $this->warningLowThreshold = $warningLowThreshold;
@@ -110,7 +109,6 @@ class Metric
         return $this->warningLowThreshold;
     }
 
-
     public function setCriticalHighThreshold(?float $criticalHighThreshold): self
     {
         $this->criticalHighThreshold = $criticalHighThreshold;
@@ -122,7 +120,6 @@ class Metric
     {
         return $this->criticalHighThreshold;
     }
-
 
     public function setCriticalLowThreshold(?float $criticalLowThreshold): self
     {

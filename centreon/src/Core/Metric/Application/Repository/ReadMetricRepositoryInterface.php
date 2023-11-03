@@ -66,7 +66,7 @@ interface ReadMetricRepositoryInterface
     ): array;
 
     /**
-     * Find Metrics by their service and host id.
+     * Find Metrics by their host and service id.
      *
      * @param int $hostId
      * @param int $serviceId
@@ -83,7 +83,7 @@ interface ReadMetricRepositoryInterface
     ): array;
 
     /**
-     * Find Metrics by their service and host id.
+     * Find Metrics by their host, service id and user access groups.
      *
      * @param int $hostId
      * @param int $serviceId

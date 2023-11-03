@@ -36,8 +36,6 @@ final class FindMetricsByServiceController extends AbstractController
      * @param int $serviceId
      * @param FindMetricsByService $useCase
      * @param FindMetricsByServicePresenter $presenter
-     *
-     * @return void
      */
     public function __invoke(
         int $hostId,
@@ -54,7 +52,7 @@ final class FindMetricsByServiceController extends AbstractController
     }
 
     /**
-     * Create Request DTO
+     * Create Request DTO.
      *
      * @param int $hostId
      * @param int $serviceId

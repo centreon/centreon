@@ -32,7 +32,6 @@ use Core\Metric\Application\UseCase\FindMetricsByService\MetricDto;
 
 final class FindMetricsByServicePresenter extends AbstractPresenter implements FindMetricsByServicePresenterInterface
 {
-
     public function __construct(protected PresenterFormatterInterface $presenterFormatter)
     {
         parent::__construct($presenterFormatter);

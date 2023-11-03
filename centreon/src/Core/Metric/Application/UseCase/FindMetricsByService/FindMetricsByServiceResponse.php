@@ -25,8 +25,6 @@ namespace Core\Metric\Application\UseCase\FindMetricsByService;
 
 class FindMetricsByServiceResponse
 {
-    /**
-     * @var MetricDto[]
-     */
+    /** @var MetricDto[] */
     public array $metricsDto;
 }

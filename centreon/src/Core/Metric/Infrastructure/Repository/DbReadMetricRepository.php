@@ -130,6 +130,37 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
+        array $metricNames,
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array {
+        if ([] === $metricNames) {
+            return [];
+        }
+
+        $request = $this->buildQueryForFindServices($requestParameters, $accessGroups, $metricNames);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement = $this->executeQueryForFindServices($statement, $metricNames);
+
+        $records = $statement->fetchAll();
+        $services = [];
+        foreach ($records as $record) {
+            $services[] = (new Service())
+                ->setId($record['service_id'])
+                ->setHost(
+                    (new Host())
+                        ->setId($record['host_id'])
+                        ->setName($record['host_name'])
+                );
+        }
+
+        return $services;
+    }
+
+    /**
      * Execute SQL Query to find Metrics.
      *
      * @param string $query
@@ -180,37 +211,6 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         return $metrics;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
-        array $metricNames,
-        array $accessGroups,
-        RequestParametersInterface $requestParameters
-    ): array {
-        if ([] === $metricNames) {
-            return [];
-        }
-
-        $request = $this->buildQueryForFindServices($requestParameters, $accessGroups, $metricNames);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQueryForFindServices($statement, $metricNames);
-
-        $records = $statement->fetchAll();
-        $services = [];
-        foreach ($records as $record) {
-            $services[] = (new Service())
-                ->setId($record['service_id'])
-                ->setHost(
-                    (new Host())
-                        ->setId($record['host_id'])
-                        ->setName($record['host_name'])
-                );
-        }
-
-        return $services;
     }
 
     /**
@@ -285,11 +285,11 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     private function buildQueryForFindMetrics(RequestParametersInterface $requestParameters, array $accessGroups = []): string
     {
         $query = <<<'SQL'
-        SELECT DISTINCT metric_id as id, metric_name as name, unit_name, current_value, warn,
-        warn_low, crit, crit_low
-        FROM :dbstg.metrics m
-            INNER JOIN :dbstg.index_data ON m.index_id = :dbstg.index_data.id 
-        SQL;
+            SELECT DISTINCT metric_id as id, metric_name as name, unit_name, current_value, warn,
+            warn_low, crit, crit_low
+            FROM :dbstg.metrics m
+                INNER JOIN :dbstg.index_data ON m.index_id = :dbstg.index_data.id
+            SQL;
 
         $accessGroupIds = \array_map(
             fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
@@ -300,7 +300,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             $accessGroupIdsQuery = \implode(',', $accessGroupIds);
             $query .= <<<SQL
                     INNER JOIN `:dbstg`.`centreon_acl` acl ON acl.`service_id` = id.`service_id`
-                    AND acl.`group_id` IN ({$accessGroupIdsQuery}) 
+                    AND acl.`group_id` IN ({$accessGroupIdsQuery})
                 SQL;
         }
 

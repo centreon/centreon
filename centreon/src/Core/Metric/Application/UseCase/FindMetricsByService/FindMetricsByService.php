@@ -67,8 +67,7 @@ final class FindMetricsByService
                     $accessGroups,
                     $this->requestParameters
                 );
-            }
-            [] === $metrics
+            }[] === $metrics
                 ? $presenter->presentResponse(new NotFoundResponse('metrics'))
                 : $presenter->presentResponse($this->createResponse($metrics));
         } catch (\Throwable) {
@@ -80,6 +79,7 @@ final class FindMetricsByService
      * Create Response.
      *
      * @param Metric[] $metrics
+     *
      * @return FindMetricsByServiceResponse
      */
     private function createResponse(array $metrics): FindMetricsByServiceResponse
