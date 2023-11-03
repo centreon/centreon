@@ -8,7 +8,7 @@ Feature: Navigating through the list of dashboards
   Scenario: Get on the dashboards overview page when no dashboards are available
     Given a user with access to the dashboards overview page
     When the user accesses the dashboard overview page with no dashboards
-    Then an empty state message and a button to create a new dashboard are displayed instead of the dashboards
+  Then an empty state message and a button to create a new dashboard are displayed instead of the dashboards
 
   @TEST_MON-22162
   Scenario: Select a dashboard on the first page of the dashboard library
