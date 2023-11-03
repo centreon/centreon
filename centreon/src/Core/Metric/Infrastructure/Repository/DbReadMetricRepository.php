@@ -272,6 +272,16 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         return $request;
     }
 
+    /**
+     * Build Query For Find Metrics.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return string
+     */
     private function buildQueryForFindMetrics(RequestParametersInterface $requestParameters, array $accessGroups = []): string
     {
         $query = <<<'SQL'

@@ -70,6 +70,7 @@ interface ReadMetricRepositoryInterface
      *
      * @param int $hostId
      * @param int $serviceId
+     * @param RequestParametersInterface $requestParameters
      *
      * @throws \Throwable
      *
@@ -81,12 +82,14 @@ interface ReadMetricRepositoryInterface
         RequestParametersInterface $requestParameters
     ): array;
 
-        /**
+    /**
      * Find Metrics by their service and host id.
      *
      * @param int $hostId
      * @param int $serviceId
      * @param AccessGroup[] $accessGroups
+     * @param RequestParametersInterface $requestParameters
+     *
      * @throws \Throwable
      *
      * @return Metric[]

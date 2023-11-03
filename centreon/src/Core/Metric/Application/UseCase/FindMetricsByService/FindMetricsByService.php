@@ -34,6 +34,12 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 
 final class FindMetricsByService
 {
+    /**
+     * @param ContactInterface $user
+     * @param ReadMetricRepositoryInterface $metricRepository
+     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param RequestParametersInterface $requestParameters
+     */
     public function __construct(
         private ContactInterface $user,
         private ReadMetricRepositoryInterface $metricRepository,
@@ -42,6 +48,10 @@ final class FindMetricsByService
     ) {
     }
 
+    /**
+     * @param FindMetricsByServiceRequest $request
+     * @param FindMetricsByServicePresenterInterface $presenter
+     */
     public function __invoke(
         FindMetricsByServiceRequest $request,
         FindMetricsByServicePresenterInterface $presenter
