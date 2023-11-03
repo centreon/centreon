@@ -201,7 +201,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function createMetricsFromRecords(array $records): array
     {
-        if([] === $records) {
+        if ([] === $records) {
             return [];
         }
 
@@ -304,7 +304,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                 SQL;
         }
 
-        $query .= <<<SQL
+        $query .= <<<'SQL'
             WHERE :dbstg.index_data.host_id = :hostId
                 AND :dbstg.index_data.service_id = :serviceId
             SQL;

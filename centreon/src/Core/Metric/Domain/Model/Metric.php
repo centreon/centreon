@@ -132,5 +132,4 @@ class Metric
     {
         return $this->criticalLowThreshold;
     }
-
 }

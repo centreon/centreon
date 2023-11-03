@@ -28,7 +28,6 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
-use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByServicePresenterInterface;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
