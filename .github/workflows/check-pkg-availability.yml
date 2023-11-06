@@ -5,7 +5,7 @@ on:
         type: string
         description: The module name
         required: true
-      version:
+      major_version:
         type: string
         description: The version
         required: true
@@ -39,8 +39,8 @@ jobs:
         run: |
           set -eux
 
-          # Set version
-          MAJOR_VERSION=$(cut -d "." -f 1,2 <<< ${{ inputs.version }})
+          # Set major version
+          MAJOR_VERSION=${{ inputs.major_version }}
           COMBINATION="${{ matrix.image }}:$MAJOR_VERSION"
 
           # Set php version
