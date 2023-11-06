@@ -62,7 +62,16 @@ class PlatformController extends AbstractController
             [
                 'web' => (object) $this->extractVersion($webVersion),
                 'modules' => (object) array_map($this->extractVersion(...), $modulesVersion),
-                'widgets' => (object) array_map($this->extractVersion(...), $widgetsVersion),
+                'widgets' => (object) array_map(
+                    function($widgetVersion) {
+                        if ($widgetVersion === null) {
+                            return null;
+                        }
+
+                        return $this->extractVersion($widgetVersion);
+                    },
+                    $widgetsVersion
+                ),
             ]
         );
     }
@@ -114,19 +123,13 @@ class PlatformController extends AbstractController
      *     fix: string
      * } (ex: [ 'version' => '1.2.09', 'major' => '1', 'minor' => '2', 'fix' => '09'])
      */
-    private function extractVersion(?string $version): array
+    private function extractVersion(string $version): array
     {
-        $major = null;
-        $minor = null;
-        $fix = null;
-
-        if ($version !== null) {
-            [$major, $minor, $fix] = explode(
-                '.',
-                VersionHelper::regularizeDepthVersion($version),
-                3
-            );
-        }
+        [$major, $minor, $fix] = explode(
+            '.',
+            VersionHelper::regularizeDepthVersion($version),
+            3
+        );
 
         return compact('version', 'major', 'minor', 'fix');
     }
