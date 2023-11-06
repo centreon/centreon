@@ -93,7 +93,8 @@ try {
      * @var CentreonModuleService
      */
     $moduleService = \Centreon\LegacyContainer::getInstance()[ServiceProvider::CENTREON_MODULE];
-    $widgets = $moduleService->getList(null, false, false, ['widget']);
+    $widgets = $moduleService->getList(null, false, null, ['widget']);
+    var_dump($widgets);
     foreach ($widgets['widget'] as $widget) {
         $moduleService->install($widget->getName(), 'widget');
     }
