@@ -78,6 +78,7 @@ jobs:
 
   check-stable-packages:
     needs: [get-version, promote]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
 
     uses: ./.github/workflows/check-pkg-availability.yml
     with:
