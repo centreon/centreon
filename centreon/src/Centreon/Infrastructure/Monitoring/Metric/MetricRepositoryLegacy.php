@@ -87,6 +87,6 @@ final class MetricRepositoryLegacy implements MetricRepositoryInterface
         );
         $graph = new \CentreonGraphStatus($indexData, $start->getTimestamp(), $end->getTimestamp());
 
-        return $graph->getData(200);
+        return $graph->getData();
     }
 }

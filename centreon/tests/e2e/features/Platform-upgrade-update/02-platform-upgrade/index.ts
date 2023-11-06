@@ -115,7 +115,11 @@ Given(
                   default:
                     throw new Error(`${version_from_expression} not managed.`);
                 }
-                if (minor_version_index <= 0) {
+                if (
+                  minor_version_index < 0 ||
+                  (major_version_from === major_version &&
+                    minor_version_index === 0)
+                ) {
                   cy.log(
                     `Not needed to test ${version_from_expression} version.`
                   );

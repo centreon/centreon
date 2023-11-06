@@ -25,7 +25,7 @@ namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateO
 
 use Core\Application\Common\UseCase\ErrorResponse;
 
-class UpdateOpenIdConfigurationErrorResponse extends ErrorResponse
+final class UpdateOpenIdConfigurationErrorResponse extends ErrorResponse
 {
     public function __construct()
     {

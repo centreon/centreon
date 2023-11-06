@@ -23,7 +23,7 @@ use ArrayAccess;
 class DependencyInjector implements ArrayAccess
 {
     /**
-     * @var \DependencyInjector
+     * @var self
      */
     protected static $instance;
 
@@ -35,7 +35,7 @@ class DependencyInjector implements ArrayAccess
     /**
      * Get instance of the object
      *
-     * @return \self
+     * @return self
      */
     public static function getInstance(): self
     {

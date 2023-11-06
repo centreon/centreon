@@ -50,7 +50,7 @@ class PlatformController extends AbstractController
      *
      * @throws PlatformException
      *
-     * @return View
+     * @return Response
      */
     public function getVersions(): Response
     {

@@ -8,7 +8,7 @@ class TrapRepository extends ServiceEntityRepository
     /**
      * Export
      *
-     * @param int $pollerId
+     * @param int[] $pollerIds
      * @param array $templateChainList
      * @return array
      */
