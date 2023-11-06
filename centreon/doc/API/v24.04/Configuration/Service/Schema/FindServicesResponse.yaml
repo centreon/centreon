@@ -1,0 +1,80 @@
+type: object
+allOf:
+  - properties:
+      id:
+        type: integer
+        description: "Service ID."
+        example: 1
+      name:
+        type: string
+        description: "Service name."
+        example: "generic-service"
+      hosts:
+        type: array
+        description: "Hosts linked to this service."
+        items:
+          $ref: 'simpleEntity.yaml'
+      service_template:
+        description: "Service template linked to this service."
+        nullable: true
+        allOf:
+          - $ref: 'simpleEntity.yaml'
+      check_timeperiod:
+        description: "Time period of the check command."
+        nullable: true
+        allOf:
+          - $ref: 'simpleEntity.yaml'
+      notification_timeperiod:
+        description: "Time period of the notification command."
+        nullable: true
+        allOf:
+          - $ref: 'simpleEntity.yaml'
+      severity:
+        description: "Severity linked to this service."
+        nullable: true
+        allOf:
+          - $ref: 'simpleEntity.yaml'
+      categories:
+        type: array
+        description: "Service categories associated with this service."
+        items:
+          $ref: 'simpleEntity.yaml'
+      groups:
+        type: array
+        description: "Service groups associated with this service."
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 12
+            name:
+              type: string
+              example: "sg-name"
+            host_id:
+              type: integer
+              example: 12
+            host_name:
+              type: string
+              example: 'host-name'
+      normal_check_interval:
+        type: integer
+        description: |
+          Define the number of 'time units' between regularly scheduled checks of the service.
+
+          With the default time unit of 60s, this number will mean multiples of 1 minute.
+        nullable: true
+      retry_check_interval:
+        type: integer
+        description: |
+          Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
+
+          With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+          Once the service has been retried max_check_attempts times without a change in its status,
+          it will revert to being scheduled at its "normal" check interval rate.
+        nullable: true
+      is_activated:
+        type: boolean
+        description: "Indicates whether the service is activated or not"
+        example: true
