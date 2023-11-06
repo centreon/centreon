@@ -19,46 +19,35 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Centreon\Domain\Repository\Interfaces;
+namespace Core\Common\Infrastructure\Upload;
 
 /**
- * This interface is designed to perform specific operations on the data storage engine.
+ * @extends \Iterator<string, string>
  */
-interface DataStorageEngineInterface
+interface FileIteratorInterface extends \Iterator, \Countable
 {
     /**
-     * Rollback the operations in the transaction.
-     *
-     * @throws \Exception
-     *
-     * @return bool
+     * @return int Returns the number of files
      */
-    public function rollbackTransaction(): bool;
+    public function count(): int;
 
     /**
-     * Start a transaction.
-     *
      * @throws \Exception
      *
-     * @return bool
+     * @return string Returns the file content
      */
-    public function startTransaction(): bool;
+    public function current(): string;
+
+    public function next(): void;
 
     /**
-     * Commit the operations in the transaction.
-     *
-     * @throws \Exception
-     *
-     * @return bool
+     * @return string Returns the filename
      */
-    public function commitTransaction(): bool;
+    public function key(): string;
 
-    /**
-     * Check if a transaction is already started.
-     *
-     * @return bool
-     */
-    public function isAlreadyinTransaction(): bool;
+    public function valid(): bool;
+
+    public function rewind(): void;
 }
