@@ -51,22 +51,27 @@ final class FindMetricsByService
     }
 
     /**
-     * @param FindMetricsByServiceRequest $request
+     * Undocumented function
+     *
+     * @param integer $hostId
+     * @param integer $serviceId
      * @param FindMetricsByServicePresenterInterface $presenter
+     * @return void
      */
     public function __invoke(
-        FindMetricsByServiceRequest $request,
+        int $hostId,
+        int $serviceId,
         FindMetricsByServicePresenterInterface $presenter
     ): void {
         try {
-            $this->info('Finding metrics for service', ['id' => $request->serviceId]);
+            $this->info('Finding metrics for service', ['id' => $serviceId]);
             if ($this->user->isAdmin()) {
-                $metrics = $this->metricRepository->findByHostIdAndServiceId($request->hostId, $request->serviceId, $this->requestParameters);
+                $metrics = $this->metricRepository->findByHostIdAndServiceId($hostId, $serviceId, $this->requestParameters);
             } else {
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
                 $metrics = $this->metricRepository->findByHostIdAndServiceIdAndAccessGroups(
-                    $request->hostId,
-                    $request->serviceId,
+                    $hostId,
+                    $serviceId,
                     $accessGroups,
                     $this->requestParameters
                 );

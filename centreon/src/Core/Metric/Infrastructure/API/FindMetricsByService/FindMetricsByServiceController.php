@@ -24,10 +24,7 @@ declare(strict_types=1);
 namespace Core\Metric\Infrastructure\API\FindMetricsByService;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Metric\Application\UseCase\FindMetricsByService\{
-    FindMetricsByService,
-    FindMetricsByServiceRequest
-};
+use Core\Metric\Application\UseCase\FindMetricsByService\{FindMetricsByService};
 
 final class FindMetricsByServiceController extends AbstractController
 {
@@ -45,26 +42,8 @@ final class FindMetricsByServiceController extends AbstractController
     ) {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        $request = $this->createRequest($hostId, $serviceId);
-        $useCase($request, $presenter);
+        $useCase($hostId, $serviceId, $presenter);
 
         return $presenter->show();
-    }
-
-    /**
-     * Create Request DTO.
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     *
-     * @return FindMetricsByServiceRequest
-     */
-    private function createRequest(int $hostId, int $serviceId): FindMetricsByServiceRequest
-    {
-        $request = new FindMetricsByServiceRequest();
-        $request->hostId = $hostId;
-        $request->serviceId = $serviceId;
-
-        return $request;
     }
 }

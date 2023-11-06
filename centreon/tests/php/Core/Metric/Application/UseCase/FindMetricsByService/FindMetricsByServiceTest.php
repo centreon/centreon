@@ -29,7 +29,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByService;
-use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByServiceRequest;
 use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByServiceResponse;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -40,9 +39,8 @@ beforeEach(function () {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
     $this->nonAdminUser = (new Contact())->setAdmin(false)->setId(1);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
-    $this->request = new FindMetricsByServiceRequest();
-    $this->request->hostId = 1;
-    $this->request->serviceId = 2;
+    $this->hostId = 1;
+    $this->serviceId = 2;
     $this->metrics = [
         (new Metric(1, 'mymetric'))
             ->setUnit('ms')
@@ -74,7 +72,7 @@ it('should present a NotFoundResponse when no metrics could be found as admin', 
         $this->requestParameters
     );
     $presenter = new FindMetricsByServicePresenterStub();
-    $useCase($this->request, $presenter);
+    $useCase($this->hostId, $this->serviceId, $presenter);
 
     expect($presenter->data)->toBeInstanceOf(NotFoundResponse::class)->and($presenter->data->getMessage())->toBe('metrics not found');
 });
@@ -92,7 +90,7 @@ it('should present a NotFoundResponse when no metrics could be found as non-admi
         $this->requestParameters
     );
     $presenter = new FindMetricsByServicePresenterStub();
-    $useCase($this->request, $presenter);
+    $useCase($this->hostId, $this->serviceId, $presenter);
 
     expect($presenter->data)->toBeInstanceOf(NotFoundResponse::class)->and($presenter->data->getMessage())->toBe('metrics not found');
 });
@@ -110,7 +108,7 @@ it('should present an ErrorResponse when an error occured as admin', function ()
         $this->requestParameters
     );
     $presenter = new FindMetricsByServicePresenterStub();
-    $useCase($this->request, $presenter);
+    $useCase($this->hostId, $this->serviceId, $presenter);
 
     expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)->and($presenter->data->getMessage())->toBe('An error occured while finding metrics');
 });
@@ -128,7 +126,7 @@ it('should present an ErrorResponse when an error occured as non-admin', functio
         $this->requestParameters
     );
     $presenter = new FindMetricsByServicePresenterStub();
-    $useCase($this->request, $presenter);
+    $useCase($this->hostId, $this->serviceId, $presenter);
 
     expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)->and($presenter->data->getMessage())->toBe('An error occured while finding metrics');
 });
@@ -146,7 +144,7 @@ it('should present an FindMetricsByServiceResponse when metrics are correctly fo
         $this->requestParameters
     );
     $presenter = new FindMetricsByServicePresenterStub();
-    $useCase($this->request, $presenter);
+    $useCase($this->hostId, $this->serviceId, $presenter);
 
     expect($presenter->data)->toBeInstanceOf(FindMetricsByServiceResponse::class)
         ->and($presenter->data->metricsDto[0]->id)->toBe(1)
@@ -180,7 +178,7 @@ it('should present an FindMetricsByServiceResponse when metrics are correctly fo
         $this->requestParameters
     );
     $presenter = new FindMetricsByServicePresenterStub();
-    $useCase($this->request, $presenter);
+    $useCase($this->hostId, $this->serviceId, $presenter);
 
     expect($presenter->data)->toBeInstanceOf(FindMetricsByServiceResponse::class)
         ->and($presenter->data->metricsDto[0]->id)->toBe(1)
