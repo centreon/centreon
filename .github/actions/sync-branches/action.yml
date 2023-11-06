@@ -41,13 +41,8 @@ runs:
         # Get major version from .env file from repository
          VERSION=$(cat .env)
 
-        # Get release JIRA issue ID
-        RELEASE_ISSUE_ID=$(curl -v -L \
-          -X GET \
-          --header 'Accept: application/json' \
-          --user '${{ inputs.jira_user }}@centreon.atlassian.net:${{ inputs.jira_token}}'
-          'https://centreon.atlassian.net/rest/api/3/search?jql=${RELEASE_ISSUE_JIRA_FILTER}' \
-          )
+        # Get release JIRA issue ID from the most recent release PR merged
+
 
         # Check vars and exit if one of them is empty
         if [[ -z ${PR_BASE_BRANCH} | -z ${PR_REVIEWERS} | -z ${PR_BODY} | -z ${PR_TITLE} ]]; then

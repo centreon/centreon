@@ -164,3 +164,29 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  post-release-operations:
+    needs: [get-version, promote]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Create git release tag
+        run: |
+          set -eux
+
+          # Get release commit
+          git log --format=short --grep="Jira release"
+          
+        shell: bash
+
+      - name: Create git release
+
+      - name: Create component JIRA version
+
+      - name: Open sync pull request
+
+
