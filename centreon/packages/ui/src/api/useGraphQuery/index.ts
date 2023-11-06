@@ -91,7 +91,7 @@ const useGraphQuery = ({
     ? (timePeriodToUse as CustomTimePeriod)
     : getStartEndFromTimePeriod(timePeriodToUse as number);
 
-  const definedMetrics = metrics.filter((metric) => metric);
+  const definedMetrics = metrics.filter((metric) => metric.replace('#', '%23'));
 
   const {
     data: graphData,
@@ -117,6 +117,7 @@ const useGraphQuery = ({
         startAndEnd.end
       }&metric_names=[${definedMetrics.join(',')}]`;
     },
+
     getQueryKey: () => [
       'graph',
       JSON.stringify(definedMetrics),
