@@ -499,7 +499,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param RequestParametersInterface $requestParameters
      * @param \PDOStatement $statement
      *
-     * @return ResourceMetrics[]
+     * @return ResourceMetric[]
      */
     private function buildResourceMetrics(
         RequestParametersInterface $requestParameters,

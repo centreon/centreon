@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups;
 
-use Core\Notification\Application\UseCase\FindNotfiableContactGroups\Response\NotifiableContactGroupDto;
+use Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response\NotifiableContactGroupDto;
 
 final class FindNotifiableContactGroupsResponse
 {

@@ -46,7 +46,7 @@ class User extends NewUser
      * @param bool $isAdmin
      * @param string $theme
      * @param string $userInterfaceDensity
-     * @param protectedbool $canReachFrontend
+     * @param bool $canReachFrontend
      *
      * @throws \Assert\AssertionFailedException
      */
