@@ -62,7 +62,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    if:  ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
     outputs:
       test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-plan-id.outputs.test_plan_id }}
@@ -273,7 +273,7 @@ jobs:
           response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_addTestExecutionsToTestPlan" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
   newman-test-run:
-    needs: [newman-test-list,associate-test-cases]
+    needs: [newman-test-list, associate-test-cases]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-22.04
     continue-on-error: true
@@ -305,9 +305,9 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-            node-version: 18
-            cache: pnpm
-            cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+          node-version: 18
+          cache: pnpm
+          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install Dependencies for tests/rest_api
         run: pnpm install --frozen-lockfile
@@ -330,10 +330,10 @@ jobs:
         continue-on-error: true
         timeout-minutes: 6
         with:
-            path: /tmp/cache/docker-image
-            key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
         env:
-            SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
@@ -393,7 +393,7 @@ jobs:
           done
 
       - name: Change test execution status
-        if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
         run: |
           for summary_file in ./postman_summaries/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
@@ -475,7 +475,7 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        if:  ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
         run: |
               test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
               transition_ids=("61" "81" "21" "31")
