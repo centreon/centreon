@@ -42,7 +42,8 @@ class DbUserFactoryTest extends TestCase
             'contact_email' => 'root@localhost',
             'contact_admin' => '1',
             'contact_theme' => 'light',
-            'user_interface_density' => 'compact'
+            'user_interface_density' => 'compact',
+            'user_can_reach_frontend' => '1'
         ];
     }
 
@@ -60,5 +61,6 @@ class DbUserFactoryTest extends TestCase
         $this->assertEquals(true, $user->isAdmin());
         $this->assertEquals('light', $user->getTheme());
         $this->assertEquals('compact', $user->getUserInterfaceDensity());
+        $this->assertEquals(true, $user->canReachFrontend());
     }
 }

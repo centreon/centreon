@@ -10,16 +10,15 @@ import IconClose from '@mui/icons-material/HighlightOff';
 const useStyles = makeStyles()((theme) => ({
   buttonClose: {
     position: 'absolute',
-    right: theme.spacing(0.5),
-    top: '40%'
+    right: theme.spacing(-0.5),
+    top: theme.spacing(-1)
   },
   tooltip: {
     backgroundColor: theme.palette.common.white,
     boxShadow: theme.shadows[3],
     color: theme.palette.text.primary,
     fontSize: theme.typography.pxToRem(12),
-    maxWidth: 500,
-    padding: theme.spacing(1, 2, 1, 1)
+    maxWidth: 500
   }
 }));
 
@@ -60,7 +59,7 @@ const PersistentTooltip = ({
   };
 
   const title = (
-    <>
+    <div style={{ position: 'relative' }}>
       <IconButton
         className={classes.buttonClose}
         size="small"
@@ -69,7 +68,7 @@ const PersistentTooltip = ({
         <IconClose fontSize="small" />
       </IconButton>
       {children}
-    </>
+    </div>
   );
 
   return (

@@ -555,7 +555,7 @@ describe('Criterias', () => {
     cy.findByLabelText(labelSearchOptions).click();
 
     cy.findByLabelText('Host').should('not.exist');
-    cy.contains(labelUp).should('not.exist');
+    cy.findByText(labelUp, { exact: true }).should('not.exist');
 
     cy.makeSnapshot();
 

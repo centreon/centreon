@@ -15459,6 +15459,9 @@ msgstr "Sauvegarder le filtre"
 msgid "Save as new"
 msgstr "Créer un nouveau filtre"
 
+msgid "Save as"
+msgstr "Enregistrer sous"
+
 msgid "My filters"
 msgstr "Mes filtres"
 
@@ -18254,6 +18257,9 @@ msgstr "Sélection d'un jeu de données"
 
 msgid "Select resource"
 msgstr "Sélectionner une ressource"
+
+msgid "Select type"
+msgstr "Sélectionner un type"
 
 msgid "Select metric"
 msgstr "Sélectionner une métrique"

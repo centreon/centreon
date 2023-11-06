@@ -12,7 +12,6 @@ import {
   not,
   pathEq,
   pathOr,
-  pipe,
   prop
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -59,7 +58,6 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-import { escapeRegExpSpecialChars } from '../../Filter/criteriasNewInterface/utils';
 
 import { Search } from './models';
 
@@ -209,9 +207,7 @@ const useLoadResources = (): LoadResources => {
         | Array<SelectEntry>
         | undefined;
 
-      return (criteriaValue || []).map(
-        pipe(prop('name'), escapeRegExpSpecialChars)
-      ) as Array<string>;
+      return (criteriaValue || []).map(prop('name')) as Array<string>;
     };
 
     const getCriteriaLevels = (name: string): Array<number> => {

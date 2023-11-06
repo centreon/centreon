@@ -14,16 +14,19 @@ import { useTranslation } from 'react-i18next';
 
 import { useRequest, useSnackbar } from '@centreon/ui';
 
-import { labelFilterSaved } from '../../translatedLabels';
-import { listCustomFilters, updateFilter as updateFilterRequest } from '../api';
-import { listCustomFiltersDecoder } from '../api/decoders';
+import { labelFilterSaved } from '../../../translatedLabels';
+import {
+  listCustomFilters,
+  updateFilter as updateFilterRequest
+} from '../../api';
+import { listCustomFiltersDecoder } from '../../api/decoders';
 import {
   applyFilterDerivedAtom,
   currentFilterAtom,
   customFiltersAtom,
   filtersDerivedAtom
-} from '../filterAtoms';
-import { Filter } from '../models';
+} from '../../filterAtoms';
+import { Filter } from '../../models';
 
 interface UseActionFilter {
   canSaveFilter: boolean;
