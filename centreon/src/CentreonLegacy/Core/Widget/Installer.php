@@ -53,18 +53,18 @@ class Installer extends Widget
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 
-        $sth->bindParam(':title', $this->widgetConfiguration['title'], \PDO::PARAM_STR);
-        $sth->bindParam(':description', $this->widgetConfiguration['description'], \PDO::PARAM_STR);
-        $sth->bindParam(':url', $this->widgetConfiguration['url'], \PDO::PARAM_STR);
-        $sth->bindParam(':version', $this->widgetConfiguration['version'], \PDO::PARAM_STR);
-        $sth->bindParam(':is_internal', $this->widgetConfiguration['version'] === null ? '1' : '0', \PDO::PARAM_STR);
-        $sth->bindParam(':directory', $this->widgetConfiguration['directory'], \PDO::PARAM_STR);
-        $sth->bindParam(':author', $this->widgetConfiguration['author'], \PDO::PARAM_STR);
-        $sth->bindParam(':email', $this->widgetConfiguration['email'], \PDO::PARAM_STR);
-        $sth->bindParam(':website', $this->widgetConfiguration['website'], \PDO::PARAM_STR);
-        $sth->bindParam(':keywords', $this->widgetConfiguration['keywords'], \PDO::PARAM_STR);
-        $sth->bindParam(':thumbnail', $this->widgetConfiguration['thumbnail'], \PDO::PARAM_STR);
-        $sth->bindParam(':autoRefresh', $this->widgetConfiguration['autoRefresh'], \PDO::PARAM_INT);
+        $sth->bindValue(':title', $this->widgetConfiguration['title'], \PDO::PARAM_STR);
+        $sth->bindValue(':description', $this->widgetConfiguration['description'], \PDO::PARAM_STR);
+        $sth->bindValue(':url', $this->widgetConfiguration['url'], \PDO::PARAM_STR);
+        $sth->bindValue(':version', $this->widgetConfiguration['version'], \PDO::PARAM_STR);
+        $sth->bindValue(':is_internal', $this->widgetConfiguration['version'] === null ? '1' : '0', \PDO::PARAM_STR);
+        $sth->bindValue(':directory', $this->widgetConfiguration['directory'], \PDO::PARAM_STR);
+        $sth->bindValue(':author', $this->widgetConfiguration['author'], \PDO::PARAM_STR);
+        $sth->bindValue(':email', $this->widgetConfiguration['email'], \PDO::PARAM_STR);
+        $sth->bindValue(':website', $this->widgetConfiguration['website'], \PDO::PARAM_STR);
+        $sth->bindValue(':keywords', $this->widgetConfiguration['keywords'], \PDO::PARAM_STR);
+        $sth->bindValue(':thumbnail', $this->widgetConfiguration['thumbnail'], \PDO::PARAM_STR);
+        $sth->bindValue(':autoRefresh', $this->widgetConfiguration['autoRefresh'], \PDO::PARAM_INT);
 
         $sth->execute();
 
