@@ -98,17 +98,23 @@ class CentreonConfigPoller
     }
 
     /**
-     * Get dynamic centcore pipe file when possible
+     * Write command to centcore pipe, using the dynamic centcore pipe file
+     * when possible
      *
-     * @return string
+     * @param string $cmd
+     * @param int $id
+     * @return int
      */
-    private function getCentcorePipe(): string
+    private function writeToCentcorePipe($cmd, $id): int
     {
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            return _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+            $pipe = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+        } else {
+            $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
         }
-
-        return _CENTREON_VARLIB_ . '/centcore.cmd';
+        $full_command = sprintf("%s:%d", $cmd, $id);
+        $result = file_put_contents($pipe, $full_command, FILE_APPEND);
+        return ($result !== false) ? 0 : 1;
     }
 
     /**
@@ -177,12 +183,8 @@ class CentreonConfigPoller
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
-        exec(
-            sprintf("echo '%s:%d' >> %s", $reloadCommand, $host["id"], $this->getCentcorePipe()),
-            $stdout,
-            $return_code
-        );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->getCentcorePipe(), $stdout, $return_code);
+        $return_code = $this->writeToCentcorePipe($reloadCommand, $host["id"]);
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
         $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
@@ -252,12 +254,8 @@ class CentreonConfigPoller
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
-        exec(
-            sprintf("echo '%s:%d' >> %s", $restartCommand, $host["id"], $this->getCentcorePipe()),
-            $stdout,
-            $return_code
-        );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->getCentcorePipe(), $stdout, $return_code);
+        $return_code = $this->writeToCentcorePipe($restartCommand, $host["id"]);
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
         $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
@@ -608,7 +606,7 @@ class CentreonConfigPoller
                     ['params' => $exportParams]
                 );
             }
-            exec("echo 'SENDCFGFILE:" . $host['id'] . "' >> " . $this->getCentcorePipe(), $stdout, $return);
+            $return = $this->writeToCentcorePipe('SENDCFGFILE', $host["id"]);
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"
@@ -674,7 +672,7 @@ class CentreonConfigPoller
             throw new \Exception('Path traversal found');
         }
         passthru("$centreonDir/bin/generateSqlLite '{$pollerId}' '{$filename}' 2>&1");
-        exec("echo 'SYNCTRAP:" . $pollerId . "' >> " . $this->getCentcorePipe(), $stdout, $return);
+        $return = $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
         return $return;
     }
 
