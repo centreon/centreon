@@ -23,7 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Media\Application\UseCase\AddMedia;
 
-class AddMediaRequest
+final class AddMediaRequest
 {
     public string $directory = '';
 

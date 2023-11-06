@@ -77,6 +77,10 @@ const initialize = ({
 }: {
   isBamModuleInstalled: boolean;
 }): void => {
+  cy.cssDisableMotion();
+
+  cy.viewport(1280, 590);
+
   cy.interceptAPIRequest({
     alias: 'getNotificationRequest',
     method: Method.GET,
@@ -105,13 +109,10 @@ const initialize = ({
     path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport(1280, 590);
-
-  cy.cssDisableMotion();
 };
 
 describe('Edit Panel', () => {
