@@ -191,7 +191,7 @@ it(
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        /** @var AddDashboardResponse $presentedData */
+        /** @var AddDashboardResponse $dashboard */
         $dashboard = $this->presenter->data;
 
         expect($dashboard)->toBeInstanceOf(AddDashboardResponse::class)
@@ -221,7 +221,7 @@ it(
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        /** @var AddDashboardResponse $presentedData */
+        /** @var AddDashboardResponse $dashboard */
         $dashboard = $this->presenter->data;
 
         expect($dashboard)->toBeInstanceOf(AddDashboardResponse::class)
