@@ -80,6 +80,8 @@ final class FindResourcesByParent
             // Creating a new sort to search children as we want a specific order priority
             $servicesSort = ['parent_id' => 'ASC', ...$this->sortProvided];
 
+            $parents = new FindResourcesResponse([]);
+
             $this->requestParameters->setSort(json_encode($servicesSort));
 
             if ($this->contact->isAdmin()) {
@@ -87,28 +89,32 @@ final class FindResourcesByParent
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
 
-                // prepare special ResourceFilter for parent search
-                $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
+                if (count($children->resources) !== 0) {
+                    // prepare special ResourceFilter for parent search
+                    $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
 
-                // unset search provided in order to find parents linked to the resources found and restore sort
-                $this->prepareRequestParametersForParentSearch();
-                $parents = $this->findResourcesAsAdmin($parentFilter);
+                    // unset search provided in order to find parents linked to the resources found and restore sort
+                    $this->prepareRequestParametersForParentSearch();
+                    $parents = $this->findParentResources($parentFilter);
+                }
             } else {
                 $children = $this->findResourcesAsUser($filter);
 
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
 
-                // prepare special ResourceFilter for parent search
-                $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
+                if (count($children->resources) !== 0) {
+                    // prepare special ResourceFilter for parent search
+                    $parentFilter->setHostIds($this->extractParentIdsFromResources($children));
 
-                // unset search provided in order to find parents linked to the resources found and restore sort
-                $this->prepareRequestParametersForParentSearch();
-                $parents = $this->findResourcesAsUser($parentFilter);
-           }
+                    // unset search provided in order to find parents linked to the resources found and restore sort
+                    $this->prepareRequestParametersForParentSearch();
+                    $parents = $this->findParentResources($parentFilter);
+                }
+            }
 
             // Set total to the number of children found 
-            $this->requestParameters->setTotal($totalChildrenFound); 
+            $this->requestParameters->setTotal($totalChildrenFound);
 
             // Restore search and sort from initial request (for accurate meta in presenter).
             $this->restoreProvidedSearchParameters();
@@ -159,6 +165,18 @@ final class FindResourcesByParent
     {
         return FindResourcesFactory::createResponse(
             $this->repository->findResources($filter)
+        );
+    }
+
+    /**
+     * @param ResourceFilter $filter
+     *
+     * @return FindResourcesResponse
+     */
+    private function findParentResources(ResourceFilter $filter): FindResourcesResponse
+    {
+        return FindResourcesFactory::createResponse(
+            $this->repository->findParentResourcesById($filter)
         );
     }
 

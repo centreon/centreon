@@ -39,7 +39,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInterface
+final class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInterface
 {
     /**
      * @param HttpClientInterface $client
@@ -70,7 +70,7 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
 
             return $this->getContentOrFail($response);
         } catch (Exception $exception) {
-            throw new $exception;
+            throw $exception;
         }
     }
 

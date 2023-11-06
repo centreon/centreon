@@ -3,6 +3,15 @@
 if [ "$1" = "configure" ] ; then
     update-alternatives --set php /usr/bin/php8.1
 
+    sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
+
+    if [ -d /etc/centreon-broker ] && [ "$(getent passwd centreon-broker)" ]; then
+        chown centreon-broker:centreon /etc/centreon-broker/*
+    fi
+    if [ -d /etc/centreon-engine ] && [ "$(getent passwd centreon-engine)" ]; then
+        chown centreon-engine:centreon /etc/centreon-engine/*
+    fi
+
     # Set locales on system to use in translation
     sed -i \
         -e '/^#.* en_US.UTF-8 /s/^#//' \

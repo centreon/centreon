@@ -33,7 +33,7 @@ use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
-class FindHostResponse
+final class FindHostResponse
 {
     use RealTimeResponseTrait;
 

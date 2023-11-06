@@ -53,24 +53,27 @@ const MultiAutocompleteField = ({
   const { classes } = useStyles();
 
   const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
-    renderedValue.map((option, index) => (
-      <Tooltip
-        key={option.id}
-        placement="top"
-        title={getOptionTooltipLabel?.(option)}
-      >
-        <Chip
-          classes={{
-            deleteIcon: classes.deleteIcon,
-            root: classes.tag
-          }}
-          label={getTagLabel(option)}
-          size="medium"
-          {...getTagProps({ index })}
-          {...chipProps}
-        />
-      </Tooltip>
-    ));
+    renderedValue.map((option, index) => {
+      return (
+        <Tooltip
+          key={option.id}
+          placement="top"
+          title={getOptionTooltipLabel?.(option)}
+        >
+          <Chip
+            classes={{
+              deleteIcon: classes.deleteIcon,
+              root: classes.tag
+            }}
+            label={getTagLabel(option)}
+            size="medium"
+            {...getTagProps({ index })}
+            {...chipProps}
+            onDelete={(event) => chipProps?.onDelete?.(event, option)}
+          />
+        </Tooltip>
+      );
+    });
 
   const getLimitTagsText = (more): JSX.Element => <Option>{`+${more}`}</Option>;
 

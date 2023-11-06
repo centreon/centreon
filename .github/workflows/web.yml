@@ -1,5 +1,8 @@
 name: web
-
+run-name: ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
+          github.event_name == 'pull_request' && github.event.pull_request.title ||
+          github.event_name == 'push' && github.event.head_commit.message ||
+          github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -7,7 +10,7 @@ concurrency:
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: "0 3 * * *"
   pull_request:
     paths:
       - "centreon/**"
@@ -303,6 +306,14 @@ jobs:
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
         working-directory: centreon
 
+      - name: Run of phpstan on /src at level 1
+        run: vendor/bin/phpstan analyse --no-progress --level=1 --configuration=phpstan.neon
+        working-directory: centreon
+
+      - name: Run of phpstan on /src/Core at level 1 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=1 --configuration=phpstan.core.neon
+        working-directory: centreon
+
   package:
     needs:
       [
@@ -564,14 +575,20 @@ jobs:
       module_name: centreon
       image_name: centreon-web
       os: ${{ matrix.os }}
-      features_path: tests/e2e/cypress/e2e
+      features_path: tests/e2e/features
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
-      package_directory: centreon/tests/e2e/cypress/fixtures/packages
+      package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      client_id: ${{ secrets.CLIENT_ID }}
+      client_secret: ${{ secrets.CLIENT_SECRET }}
+      jira_user: ${{ secrets.JIRA_USER }}
+      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
 
   performances-test:
     runs-on: ubuntu-22.04

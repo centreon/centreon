@@ -18,10 +18,7 @@ const MemoizedSelectInput = ({
         resourceType={resourceType}
       />
     ),
-    memoProps: [
-      findData({ data, filterName })?.value,
-      findData({ data, filterName })?.search_data?.values
-    ]
+    memoProps: [findData({ data, filterName })?.value]
   });
 };
 

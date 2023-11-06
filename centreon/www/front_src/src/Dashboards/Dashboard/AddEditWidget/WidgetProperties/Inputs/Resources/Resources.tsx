@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 
@@ -13,6 +14,7 @@ import {
   labelResourceType,
   labelResources,
   labelSelectAResource,
+  labelSelectResourceType,
   labelYouCanChooseOnResourcePerResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
@@ -51,6 +53,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
 
   const { canEditField } = editProperties.useCanEditProperties();
 
+  const deleteButtonHidden = or(!canEditField, value.length <= 1);
+
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
@@ -69,7 +73,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
-            deleteButtonHidden={!canEditField}
+            deleteButtonHidden={deleteButtonHidden}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -78,7 +82,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               className={classes.resourceType}
               dataTestId={labelResourceType}
               disabled={!canEditField}
-              label={t(labelSelectAResource) as string}
+              label={t(labelSelectResourceType) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}

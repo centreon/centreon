@@ -59,9 +59,8 @@ class FrontendComponentService
      *
      * @param \Psr\Container\ContainerInterface $services
      */
-    public function __construct(ContainerInterface $services)
+    public function __construct(private ContainerInterface $services)
     {
-        $this->services = $services;
     }
 
     /**
