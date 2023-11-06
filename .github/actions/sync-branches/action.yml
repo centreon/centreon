@@ -45,7 +45,7 @@ runs:
         RELEASE_ISSUE_ID=$(curl -v -L \
           -X GET \
           --header 'Accept: application/json' \
-          --user 'user@domain.com:<jira_token>'
+          --user '${{ inputs.jira_user }}@centreon.atlassian.net:${{ inputs.jira_token}}'
           'https://centreon.atlassian.net/rest/api/3/search?jql=${RELEASE_ISSUE_JIRA_FILTER}' \
           )
 
