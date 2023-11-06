@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 interface FindMetricsByServicePresenterInterface
 {
     /**
-     * @param FindMetricsByServiceResponse|ResponseStatusInterface $data
+     * @param FindMetricsByServiceResponse|ResponseStatusInterface $response
      */
-    public function presentResponse(FindMetricsByServiceResponse|ResponseStatusInterface $data): void;
+    public function presentResponse(FindMetricsByServiceResponse|ResponseStatusInterface $response): void;
 }
