@@ -55,6 +55,9 @@ class Module implements SourceDataInterface
     /** @var string|null */
     private $versionCurrent;
 
+    /** @var bool */
+    private $isInternal = false;
+
     /** @var string */
     private $path;
 
@@ -206,6 +209,22 @@ class Module implements SourceDataInterface
     public function setVersionCurrent(?string $versionCurrent): void
     {
         $this->versionCurrent = $versionCurrent;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInternal(): bool
+    {
+        return $this->isInternal;
+    }
+
+    /**
+     * @param string $isInternal
+     */
+    public function setInternal(bool $isInternal): void
+    {
+        $this->isInternal = $isInternal;
     }
 
     /**

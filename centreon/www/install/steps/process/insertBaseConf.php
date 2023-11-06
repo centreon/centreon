@@ -93,7 +93,10 @@ try {
      * @var CentreonModuleService
      */
     $moduleService = \Centreon\LegacyContainer::getInstance()[ServiceProvider::CENTREON_MODULE];
-    $entity = $moduleService->install('engine-status', 'widget');
+    $widgets = $moduleService->getList(null, false, false, 'widget');
+    foreach ($widgets['widget'] as $widget) {
+        $moduleService->install($widget->getName(), 'widget');
+    }
 } catch (\Exception $e) {
     $return['msg'] = $e->getMessage();
     echo json_encode($return);

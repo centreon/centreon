@@ -135,6 +135,7 @@ class WidgetSource extends SourceAbstract
         $entity->setDescription($xml->description->__toString());
         $entity->setAuthor($xml->author->__toString());
         $entity->setVersion($xml->version ? $xml->version->__toString() : null);
+        $entity->setInternal($xml->version ? false : true);
         $entity->setKeywords($xml->keywords->__toString());
 
         if ($xml->stability) {
