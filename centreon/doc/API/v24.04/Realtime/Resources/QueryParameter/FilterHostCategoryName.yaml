@@ -1,0 +1,9 @@
+in: query
+name: host_category_names
+required: false
+description: "Filter the resources by host category names"
+schema:
+  type: string
+  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+  description: should be in form ["<str1>","<str2>"]
+  example: '["Linux", "Windows"]'

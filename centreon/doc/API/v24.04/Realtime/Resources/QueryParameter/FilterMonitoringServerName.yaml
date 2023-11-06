@@ -1,0 +1,9 @@
+in: query
+name: monitoring_server_names
+required: false
+description: "Filter the resources by monitoring server names"
+schema:
+  type: string
+  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+  description: should be in form ["<str1>","<str2>"]
+  example: '["Central", "Remote-Server-Paris", "Poller-Lyon"]'

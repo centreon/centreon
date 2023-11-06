@@ -1,0 +1,30 @@
+type: object
+properties:
+  id:
+    type: integer
+  is_activated:
+    type: boolean
+  name:
+    type: string
+  user_count:
+    type: integer
+  channels:
+    type: array
+    items:
+      type: string
+  resources:
+    type: array
+    items:
+      type: object
+      properties:
+        type:
+          type: string
+        count:
+          type: integer
+  timeperiod:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string

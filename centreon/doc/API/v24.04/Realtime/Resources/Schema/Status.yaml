@@ -1,0 +1,35 @@
+type: object
+properties:
+  code:
+    type: integer
+    description: |
+      resource status code
+      * `0` - UP or OK
+      * `1` - DOWN or WARNING
+      * `2` - UNREACHABLE or CRITICAL
+      * `3` - UNKNOWN
+      * `4` - PENDING
+    example: 0
+  name:
+    type: string
+    description: |
+      resource status name
+      * UP
+      * DOWN
+      * UNREACHABLE
+      * PENDING
+      * OK
+      * WARNING
+      * CRITICAL
+      * UNKNOWN
+    example: "UP"
+  severity_code:
+    type: integer
+    description: |
+      resource status name
+      * `1` - DOWN or CRITICAL
+      * `2` - WARNING
+      * `3` - UNKNOWN or UNREACHABLE
+      * `4` - PENDING
+      * `5` - UP or OK
+    example: 1
