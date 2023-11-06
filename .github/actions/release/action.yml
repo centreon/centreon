@@ -18,9 +18,12 @@ runs:
       uses: actions/checkout@v4
 
     - name: Create release tag
-      shell:
+      run: |
+        set -eux
 
-      bas
+        # Get release commit
+        git log --format=short --grep="Jira release"
+      shell: bash
 
     - name: Create git release
 

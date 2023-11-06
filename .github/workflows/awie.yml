@@ -174,19 +174,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Create git release tag
-        run: |
-          set -eux
-
-          # Get release commit
-          git log --format=short --grep="Jira release"
-          
-        shell: bash
-
-      - name: Create git release
-
-      - name: Create component JIRA version
-
-      - name: Open sync pull request
+      - name: Run post release operations
+        uses: ./.github/actions/release
 
 
