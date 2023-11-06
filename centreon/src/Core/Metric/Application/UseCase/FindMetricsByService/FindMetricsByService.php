@@ -51,8 +51,8 @@ final class FindMetricsByService
     }
 
     /**
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $hostId
+     * @param int $serviceId
      * @param FindMetricsByServicePresenterInterface $presenter
      */
     public function __invoke(
