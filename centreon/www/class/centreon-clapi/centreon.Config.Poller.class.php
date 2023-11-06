@@ -452,7 +452,7 @@ class CentreonConfigPoller
          */
         $this->testPollerId($variables);
 
-        $pollerId = (int) $this->getPollerId($variables);
+        $pollerId = $this->getPollerId($variables);
 
         $statement = $pearDB->prepare("SELECT * FROM `nagios_server` WHERE `id` = :pollerId");
         $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
@@ -674,7 +674,7 @@ class CentreonConfigPoller
         }
         $this->testPollerId($pollerId);
         /* $pollerId could be a name; make sure we have an ID */
-        $pollerId = (int) $this->getPollerId($pollerId);
+        $pollerId = $this->getPollerId($pollerId);
 
         $centreonDir = $this->centreon_path;
         $pearDB = $this->dependencyInjector['configuration_db'];
@@ -718,7 +718,7 @@ class CentreonConfigPoller
     private function getPollerId($poller)
     {
         if (is_numeric($poller)) {
-            return $poller;
+            return (int) $poller;
         }
 
         $sQuery = "SELECT id FROM nagios_server WHERE `name` = '" . $this->DB->escape($poller) . "'";
