@@ -24,14 +24,15 @@ declare(strict_types=1);
 namespace Core\Metric\Infrastructure\API\DownloadPerformanceMetrics;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricResponse;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricPresenterInterface;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
 
-class DownloadPerformanceMetricsPresenter extends AbstractPresenter
+class DownloadPerformanceMetricsPresenter extends AbstractPresenter implements DownloadPerformanceMetricPresenterInterface
 {
     /**
      * {@inheritDoc}
      *
-     * @param FindPerformanceMetricResponse $data
+     * @param DownloadPerformanceMetricResponse $data
      */
     public function present(mixed $data): void
     {

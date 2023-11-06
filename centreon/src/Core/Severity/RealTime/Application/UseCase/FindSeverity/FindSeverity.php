@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
-class FindSeverity
+final class FindSeverity
 {
     use LoggerTrait;
 

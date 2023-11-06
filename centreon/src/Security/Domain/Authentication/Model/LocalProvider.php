@@ -73,7 +73,7 @@ class LocalProvider implements LocalProviderInterface
      * @param ReadUserRepositoryInterface $readUserRepository
      * @param WriteUserRepositoryInterface $writeUserRepository
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
-     * @param LoginLogger $loginLogger
+     * @param LoginLoggerInterface $loginLogger
      */
     public function __construct(
         private int $sessionExpirationDelay,

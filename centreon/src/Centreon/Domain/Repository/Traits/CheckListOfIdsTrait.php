@@ -36,6 +36,7 @@
 
 namespace Centreon\Domain\Repository\Traits;
 
+use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 
 trait CheckListOfIdsTrait
@@ -50,20 +51,12 @@ trait CheckListOfIdsTrait
      */
     protected function checkListOfIdsTrait(
         array $ids,
-        string $tableName = null,
-        string $columnNameOfIdentificator = null
+        string $tableName,
+        string $columnNameOfIdentificator
     ): bool {
-        if ($tableName === null) {
-            $tableName = $this->getClassMetadata()->getTableName();
-        }
-
-        if ($columnNameOfIdentificator === null) {
-            $columnNameOfIdentificator = $this->getClassMetadata()->getPrimaryKeyColumn();
-        }
-
         $count = count($ids);
 
-        $collector = new StatementCollector;
+        $collector = new StatementCollector();
         $sql = "SELECT COUNT(*) AS `total` FROM `{$tableName}` ";
 
         $isWhere = false;

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 
 import { Menu } from '@mui/material';
@@ -49,7 +49,7 @@ const MorePanelActions = ({
   const { t } = useTranslation();
 
   const dashboard = useAtomValue(dashboardAtom);
-  const isEditing = useAtomValue(isEditingAtom);
+  const setIsEditing = useSetAtom(isEditingAtom);
 
   const { deleteWidget } = useDeleteWidgetModal();
 
@@ -58,6 +58,7 @@ const MorePanelActions = ({
   const { openModal } = useWidgetForm();
 
   const edit = (): void => {
+    setIsEditing(true);
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
     close();
   };
@@ -67,7 +68,7 @@ const MorePanelActions = ({
     close();
   };
 
-  const displayEditButtons = canEdit && isEditing;
+  const displayEditButtons = canEdit;
 
   const editActions = (openConfirmationTooltip): ActionsListActions => [
     {

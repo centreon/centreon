@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindMetricsTop;
 
-class FindMetricsTopRequest
+final class FindMetricsTopRequest
 {
     public string $metricName = '';
 }

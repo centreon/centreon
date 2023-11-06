@@ -224,12 +224,13 @@ foreach ($failDataProvider as $name => [$failAssertion, $failMessage, $failCode]
             try {
                 $failAssertion();
                 $this->fail('This SHALL NOT pass.');
-            } catch (\Throwable $e) {
+            } catch (AssertionFailedException $e) {
                 // expected class + message + propertyPath + code
-                expect($e)->toBeInstanceOf(AssertionFailedException::class)
-                    ->and($e->getMessage())->toBe($failMessage)
+                expect($e->getMessage())->toBe($failMessage)
                     ->and($e->getPropertyPath())->toBe($propertyPath)
                     ->and($e->getCode())->toBe($failCode);
+            } catch(\Throwable) {
+                $this->fail('This SHALL NOT pass.');
             }
         }
     );
@@ -375,7 +376,7 @@ $successDataProvider = [
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
 foreach ($successDataProvider as $name => [$successAssertion]) {
     it(
-        'should NOT throw an exception for ' . $name,
+        'should not throw an exception for ' . $name,
         function () use ($successAssertion): void {
             try {
                 $successAssertion();

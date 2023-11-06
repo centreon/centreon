@@ -25,6 +25,6 @@ namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAM
 
 use Core\Application\Common\UseCase\ErrorResponse;
 
-class UpdateSAMLConfigurationErrorResponse extends ErrorResponse
+final class UpdateSAMLConfigurationErrorResponse extends ErrorResponse
 {
 }

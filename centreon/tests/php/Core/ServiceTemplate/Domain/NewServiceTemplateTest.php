@@ -152,7 +152,7 @@ foreach (['commandArgument', 'eventHandlerArgument'] as $field) {
 
 it(
     "should retrieve all notificationTypes that were previously added",
-    function () use ($field) {
+    function () {
         $serviceTemplate = createNewServiceTemplate();
         $notificationTypes = [
             NotificationType::Unknown,

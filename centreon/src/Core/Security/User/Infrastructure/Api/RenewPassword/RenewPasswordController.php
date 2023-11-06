@@ -29,7 +29,7 @@ use Core\Security\User\Application\UseCase\RenewPassword\RenewPasswordPresenterI
 use Core\Security\User\Application\UseCase\RenewPassword\RenewPasswordRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-class RenewPasswordController extends AbstractController
+final class RenewPasswordController extends AbstractController
 {
     /**
      * @param RenewPassword $useCase

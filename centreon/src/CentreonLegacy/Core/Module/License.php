@@ -35,7 +35,6 @@ class License extends Module
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface
      * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
@@ -69,7 +68,7 @@ class License extends Module
     /**
      * Parsing a license file.
      *
-     * @param type $licenseFile
+     * @param string $licenseFile
      *
      * @return array
      */

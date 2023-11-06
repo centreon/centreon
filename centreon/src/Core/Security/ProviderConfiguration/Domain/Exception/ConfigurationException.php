@@ -36,6 +36,18 @@ class ConfigurationException extends \Exception
     }
 
     /**
+     * Exception thrown when a CustomConfiguration class was unexpected.
+     *
+     * @param class-string $class
+     *
+     * @return self
+     */
+    public static function unexpectedCustomConfiguration(string $class): self
+    {
+        return new self(sprintf(_('Must not Happen, got unexpected CustomConfiguration type %s'), $class));
+    }
+
+    /**
      * Exception thrown when both user information endpoints are missing.
      *
      * @return self

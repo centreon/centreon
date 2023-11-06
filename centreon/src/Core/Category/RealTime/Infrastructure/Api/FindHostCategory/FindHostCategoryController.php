@@ -26,7 +26,7 @@ namespace Core\Category\RealTime\Infrastructure\Api\FindHostCategory;
 use Centreon\Application\Controller\AbstractController;
 use Core\Category\RealTime\Application\UseCase\FindHostCategory\FindHostCategory;
 
-class FindHostCategoryController extends AbstractController
+final class FindHostCategoryController extends AbstractController
 {
     /**
      * @param FindHostCategory $useCase

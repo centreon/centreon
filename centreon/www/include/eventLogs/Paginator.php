@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,69 +21,88 @@
 
 declare(strict_types=1);
 
-class Paginator
+/**
+ * @implements IteratorAggregate<int, int>
+ */
+class Paginator implements IteratorAggregate
 {
     /**
-     * Maximum number of pages displayed after / before the current page
+     * Maximum number of pages displayed after / before the current page.
      */
-    const PAGER_SPAN = 5;
+    public const PAGER_SPAN = 5;
 
-    /**
-     * @param int $currentPageNb
-     * @param int $totalRecordsCount
-     * @param int $nbResultsPerPage
-     */
-    public function __construct(private int $currentPageNb, private int $totalRecordsCount, private int $nbResultsPerPage)
+    /** @var positive-int */
+    public readonly int $currentPageNb;
+
+    /** @var positive-int */
+    public readonly int $nbResultsPerPage;
+
+    /** @var int<0, max> */
+    public readonly int $totalRecordsCount;
+
+    /** @var positive-int */
+    public readonly int $totalPagesCount;
+
+    public function __construct(int $currentPageNb, int $nbResultsPerPage, int $totalRecordsCount = 0)
     {
+        $this->currentPageNb = max(1, $currentPageNb);
+        $this->nbResultsPerPage = max(1, $nbResultsPerPage);
+        $this->totalRecordsCount = max(0, $totalRecordsCount);
+        $this->totalPagesCount = max(1, (int) ceil($totalRecordsCount / $nbResultsPerPage));
+    }
+
+    public function withTotalRecordCount(int $count): self
+    {
+        return new self($this->currentPageNb, $this->nbResultsPerPage, $count);
+    }
+
+    public function getOffset(): int
+    {
+        return $this->nbResultsPerPage * ($this->currentPageNb - 1);
+    }
+
+    public function getOffsetMaximum(): int
+    {
+        return $this->isOutOfUpperBound()
+            ? $this->nbResultsPerPage * ($this->totalPagesCount - 1)
+            : $this->getOffset();
+    }
+
+    public function isOutOfUpperBound(): bool
+    {
+        return $this->currentPageNb > $this->totalPagesCount;
+    }
+
+    public function isActive(int $pageNb): bool
+    {
+        return $pageNb === $this->currentPageNb
+            || ($pageNb === $this->totalPagesCount && $this->isOutOfUpperBound());
+    }
+
+    public function getUrl(int $pageNb): string
+    {
+        return sprintf('&num=%d&limit=%d', $pageNb, $this->nbResultsPerPage);
+    }
+
+    public function getPageNumberPrevious(): ?int
+    {
+        return $this->currentPageNb > 1 ? $this->currentPageNb - 1 : null;
+    }
+
+    public function getPageNumberNext(): ?int
+    {
+        return $this->currentPageNb < $this->totalPagesCount ? $this->currentPageNb + 1 : null;
     }
 
     /**
-     * Generates an array with available pages
-     *
-     * @return <string|int, <string|int|bool>>
+     * @return Generator<int, int>
      */
-    public function generatePages(): array
+    public function getIterator(): Generator
     {
-        $pages = [];
-        $lowestPageNb = $this->currentPageNb;
-        $highestPageNb = $this->currentPageNb;
+        $currentPage = min($this->currentPageNb, $this->totalPagesCount);
+        $lowestPageNb = max(1, $currentPage - self::PAGER_SPAN);
+        $highestPageNb = min($this->totalPagesCount, $currentPage + self::PAGER_SPAN);
 
-        if ($this->currentPageNb > 1) {
-            $pages['previous'] = $this->generatePage($this->currentPageNb - 1);
-        }
-
-        for ($i = self::PAGER_SPAN; $lowestPageNb > 0 && $i > 0; $i--) {
-            $lowestPageNb--;
-        }
-
-        for ($i2 = 0; $i2 < (self::PAGER_SPAN + $i); $i2++) {
-            $highestPageNb++;
-        }
-
-        for ($i = $lowestPageNb; $i <= $highestPageNb; $i++) {
-            $pages[$i] = $this->generatePage($i);
-        }
-
-        if ($this->nbResultsPerPage < $this->totalRecordsCount) {
-            $pages['next'] = $this->generatePage($this->currentPageNb + 1);
-        }
-
-        return $pages;
-    }
-
-    /**
-     * Genearetes an array with data for given page
-     *
-     * @param int $pageNb
-     * @return <string,string|int|bool>
-     */
-    private function generatePage(int $pageNb): array
-    {
-        return [
-            'url_page' => sprintf('&num=%d&limit=%d', $pageNb, $this->nbResultsPerPage),
-            'label_page' => ($pageNb + 1),
-            'num' => $pageNb,
-            'active' => $pageNb === $this->currentPageNb,
-        ];
+        yield from range($lowestPageNb, $highestPageNb);
     }
 }

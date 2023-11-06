@@ -25,7 +25,7 @@ namespace Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroup
 
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-class FindLocalUserAccessGroupsResponse
+final class FindLocalUserAccessGroupsResponse
 {
     /** @var array<array<string,mixed>> */
     public array $accessGroups;

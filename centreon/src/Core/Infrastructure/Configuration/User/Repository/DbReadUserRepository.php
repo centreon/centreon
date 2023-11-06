@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Infrastructure\Configuration\User\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -70,7 +71,8 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 contact_email,
                 contact_admin,
                 contact_theme,
-                user_interface_density
+                user_interface_density,
+                contact_oreon AS `user_can_reach_frontend`
             FROM `:db`.contact
             SQL;
 
@@ -97,6 +99,73 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 $statement->bindValue($key, $value, $type);
             }
         }
+
+        $statement->execute();
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $users = [];
+
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /**
+             * @var array<string, string> $result
+             */
+            $users[] = DbUserFactory::createFromRecord($result);
+        }
+
+        return $users;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByContactGroups(ContactInterface $contact): array
+    {
+
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                contact_id,
+                contact_alias,
+                contact_name,
+                contact_email,
+                contact_admin,
+                contact_theme,
+                user_interface_density
+            FROM `:db`.contact
+            INNER JOIN `:db`.contactgroup_contact_relation AS cg
+            ON cg.contact_contact_id = contact.contact_id
+            SQL;
+
+        // Search
+        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+        $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
+        $request .= 'cg.contactgroup_cg_id IN (SELECT contactgroup_cg_id FROM `:db`.contactgroup_contact_relation '
+            . 'WHERE contact_contact_id = :contactId) AND contact_register = 1';
+
+        // Sort
+        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+
+        // Pagination
+        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare(
+            $this->translateDbName($request)
+        );
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            if (is_array($data)) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
+        $statement->bindValue(':contactId', $contact->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
 

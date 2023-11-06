@@ -62,7 +62,7 @@ class EventDispatcher
     private $executionContext = [];
 
     /**
-     * @var []
+     * @var mixed[]
      */
     private $eventHandlers;
 

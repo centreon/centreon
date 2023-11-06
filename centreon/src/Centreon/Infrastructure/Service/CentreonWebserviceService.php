@@ -51,7 +51,7 @@ class CentreonWebserviceService implements ContainerInterface
      * Add webservice from DI
      *
      * @param string $object
-     * @return \self
+     * @return self
      * @throws \Centreon\Infrastructure\Service\Exception\NotFoundException
      */
     public function add(string $object): self

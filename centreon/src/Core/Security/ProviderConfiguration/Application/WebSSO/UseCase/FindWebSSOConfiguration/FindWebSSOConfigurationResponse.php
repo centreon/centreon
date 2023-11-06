@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration;
 
-class FindWebSSOConfigurationResponse
+final class FindWebSSOConfigurationResponse
 {
     /** @var bool */
     public bool $isActive;

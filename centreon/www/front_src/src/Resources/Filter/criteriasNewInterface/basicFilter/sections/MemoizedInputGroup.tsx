@@ -1,23 +1,15 @@
 import { useMemoComponent } from '@centreon/ui';
 
-import {
-  BasicCriteria,
-  MemoizedChildSectionWrapper,
-  SectionType
-} from '../../model';
+import { MemoizedChildSectionWrapper } from '../../model';
 import { findData } from '../../utils';
 import InputGroup from '../InputGroup';
 
 const MemoizedInputGroup = ({
   changeCriteria,
   basicData,
-  sectionType
+  sectionType,
+  filterName
 }: MemoizedChildSectionWrapper): JSX.Element => {
-  const filterName =
-    sectionType === SectionType.host
-      ? BasicCriteria.hostGroups
-      : BasicCriteria.serviceGroups;
-
   return useMemoComponent({
     Component: (
       <InputGroup

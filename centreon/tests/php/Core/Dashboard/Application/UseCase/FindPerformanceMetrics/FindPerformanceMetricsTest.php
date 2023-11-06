@@ -89,18 +89,18 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
             1,
             "Centreon-Server_Ping",
             [
-                new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null, null),
-                new PerformanceMetric(2,'rta','ms', 20, 50, null, null, null, null, null, null),
-                new PerformanceMetric(3,'rtmax','ms', null, null, null, null, null, null, null, null),
-                new PerformanceMetric(4,'rtmin','ms', null, null, null, null, null, null, null, null),
+                new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null),
+                new PerformanceMetric(2,'rta','ms', 20, 50, null, null, null, null, null),
+                new PerformanceMetric(3,'rtmax','ms', null, null, null, null, null, null, null),
+                new PerformanceMetric(4,'rtmin','ms', null, null, null, null, null, null, null),
             ]
         ),
         new ResourceMetric(
             2,
             "Centreon-Server_Traffic",
             [
-                new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null, null),
-                new PerformanceMetric(6,'traffic_out','M', null, null, null, null, null, null, null, null),
+                new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null),
+                new PerformanceMetric(6,'traffic_out','M', null, null, null, null, null, null, null),
             ]
         )
     ];

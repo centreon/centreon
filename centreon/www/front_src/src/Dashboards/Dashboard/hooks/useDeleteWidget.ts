@@ -1,6 +1,6 @@
 import { useSetAtom } from 'jotai';
 
-import { removePanelDerivedAtom } from '../atoms';
+import { removePanelDerivedAtom, isEditingAtom } from '../atoms';
 
 interface UseDeleteWidgetState {
   deleteWidget: (id: string) => () => void;
@@ -8,8 +8,10 @@ interface UseDeleteWidgetState {
 
 const useDeleteWidget = (): UseDeleteWidgetState => {
   const removePanel = useSetAtom(removePanelDerivedAtom);
+  const setIsEditing = useSetAtom(isEditingAtom);
 
   const deleteWidget = (id: string) => (): void => {
+    setIsEditing(true);
     removePanel(id);
   };
 

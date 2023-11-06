@@ -36,11 +36,6 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
     use Webservice\DependenciesTrait;
 
     /**
-     * @var mixed
-     */
-    private $services;
-
-    /**
      * {@inheritdoc}
      */
     public static function getName(): string

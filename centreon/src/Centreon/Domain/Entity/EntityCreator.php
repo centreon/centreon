@@ -147,9 +147,13 @@ class EntityCreator
                     $firstParameter = $parameters[0];
                     if ($firstParameter->hasType()) {
                         try {
+                            $parameterType = $firstParameter->getType();
+                            if (!$parameterType instanceof \ReflectionNamedType) {
+                                throw new \UnexpectedValueException('Not a ReflectionNamedType');
+                            }
                             $value = $this->convertValueBeforeInsert(
                                 $value,
-                                $firstParameter->getType()->getName(),
+                                $parameterType->getName(),
                                 $firstParameter->allowsNull()
                             );
                         } catch (\Exception $error) {
@@ -263,9 +267,7 @@ class EntityCreator
         $properties = $reflectionClass->getProperties();
         $reader = new AnnotationReader();
         foreach ($properties as $property) {
-            /**
-             * @var $annotation EntityDescriptor
-             */
+            /** @var EntityDescriptor $annotation */
             $annotation = $reader->getPropertyAnnotation(
                 $property,
                 EntityDescriptor::class

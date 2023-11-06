@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,35 +18,31 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\MonitoringServer\Repository;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Entity\EntityCreator;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Domain\Entity\EntityCreator;
+use Centreon\Domain\MonitoringServer\Interfaces\RealTimeMonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
+use Centreon\Domain\MonitoringServer\MonitoringServer;
+use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\MonitoringServer\Repository\Model\RealTimeMonitoringServerFactoryRdb;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Centreon\Domain\MonitoringServer\Interfaces\RealTimeMonitoringServerRepositoryInterface;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Centreon\Infrastructure\MonitoringServer\Repository\Model\RealTimeMonitoringServerFactoryRdb;
 
 /**
  * This class is designed to represent the MariaDb repository to manage host category.
- *
- * @package Centreon\Infrastructure\MonitoringServer\Repository
  */
-class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements
-    RealTimeMonitoringServerRepositoryInterface
+class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements RealTimeMonitoringServerRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -143,9 +139,11 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
      * Find all RealTime Monitoring Servers filtered by contact id.
      *
      * @param int[] $ids Monitoring Server ids
-     * @return RealTimeMonitoringServer[]
+     *
      * @throws AssertionFailedException
      * @throws \InvalidArgumentException
+     *
+     * @return RealTimeMonitoringServer[]
      */
     private function findAllRequest(array $ids): array
     {
@@ -167,20 +165,27 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
                     if (is_bool($valueToNormalize)) {
                         return ($valueToNormalize === true) ? '1' : '0';
                     }
+
                     return $valueToNormalize;
                 }
             }
         );
 
         $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS * FROM `:dbstg`.instances');
+        $whereCondition = false;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= $searchRequest !== null ? $searchRequest : '';
 
-        if (!empty($ids)) {
+        if ($searchRequest !== null) {
+            $request .= $searchRequest;
+            $whereCondition = true;
+        }
+
+        if (! empty($ids)) {
             $instanceIds = [];
-            $request .= (empty($searchRequest)) ? ' WHERE ' : ' AND ';
+            $request .= $whereCondition ? ' AND ' : ' WHERE ';
+            $whereCondition = true;
             foreach ($ids as $index => $instanceId) {
                 $key = ":instanceId_{$index}";
                 $instanceIds[] = $key;
@@ -189,12 +194,11 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
             $request .= 'instances.instance_id IN (' . implode(', ', $instanceIds) . ')';
         }
 
-        $request .= (empty($searchRequest)) ? ' WHERE ' : ' AND ';
-        $request .= 'deleted = 0';
+        $request .= ($whereCondition ? ' AND ' : ' WHERE ') . 'deleted = 0';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= !is_null($sortRequest)
+        $request .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY instances.name ASC';
 

@@ -9,6 +9,6 @@ export const resourcesToSetDowntimeAtom = atom<Array<Resource>>([]);
 export const resourcesToCheckAtom = atom<Array<Resource>>([]);
 export const resourcesToDisacknowledgeAtom = atom<Array<Resource>>([]);
 export const selectedVisualizationAtom = atomWithStorage<Visualization>(
-  'resources-status-visualization',
+  'centreon-resources-status-23.10-status-visualization',
   Visualization.All
 );

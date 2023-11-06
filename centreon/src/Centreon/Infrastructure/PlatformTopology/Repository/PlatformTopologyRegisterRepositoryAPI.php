@@ -195,9 +195,6 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
             throw PlatformTopologyRepositoryException::apiRedirectionException($e->getMessage());
         } catch (ServerExceptionInterface $e) {
             $message = _("API calling the Central returned a Server exception");
-            if (!empty($optionPayload['proxy'])) {
-                $message .= '. ' . _("Please check the 'Centreon UI' form and your proxy configuration");
-            }
             throw PlatformTopologyRepositoryException::apiServerException($message, $e->getMessage());
         } catch (DecodingExceptionInterface $e) {
             throw PlatformTopologyRepositoryException::apiDecodingResponseFailure($e->getMessage());
@@ -298,9 +295,6 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
             throw PlatformTopologyRepositoryException::apiRedirectionException($e->getMessage());
         } catch (ServerExceptionInterface $e) {
             $message = _("API calling the Central returned a Server exception");
-            if (!empty($optionPayload['proxy'])) {
-                $message .= '. ' . _("Please check the 'Centreon UI' form and your proxy configuration");
-            }
             throw PlatformTopologyRepositoryException::apiServerException($message, $e->getMessage());
         } catch (DecodingExceptionInterface $e) {
             throw PlatformTopologyRepositoryException::apiDecodingResponseFailure($e->getMessage());

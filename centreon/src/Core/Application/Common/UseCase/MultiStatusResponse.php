@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Application\Common\UseCase;
 
-class MultiStatusResponse implements ResponseStatusInterface
+final class MultiStatusResponse implements ResponseStatusInterface
 {
     /**
-     * @param array $results
+     * @param array<mixed> $results
      */
     public function __construct(private readonly array $results)
     {

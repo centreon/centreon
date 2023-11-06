@@ -29,7 +29,7 @@ use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfigurat
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfigurationPresenterInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class FindConfigurationController extends AbstractController
+final class FindConfigurationController extends AbstractController
 {
     /**
      * @param FindConfiguration $useCase

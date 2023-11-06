@@ -27,7 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
 
-class FindInstallationStatus
+final class FindInstallationStatus
 {
     use LoggerTrait;
 

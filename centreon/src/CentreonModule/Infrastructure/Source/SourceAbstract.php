@@ -137,14 +137,4 @@ abstract class SourceAbstract implements SourceInterface
 
         return $result;
     }
-
-    /**
-     * @codeCoverageIgnore
-     *
-     * @return string
-     */
-    protected function getPath(): string
-    {
-        return $this->path . static::PATH;
-    }
 }

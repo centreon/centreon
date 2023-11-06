@@ -202,7 +202,6 @@ class CentreonPaginationService
     /**
      * Set pagination order
      *
-     * @param int $offset
      * @throws \RuntimeException
      * @return \Centreon\Infrastructure\Service\CentreonPaginationService
      */

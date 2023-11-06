@@ -25,6 +25,6 @@ namespace Core\Category\RealTime\Application\UseCase\FindServiceCategory;
 
 use Core\Tag\RealTime\Application\UseCase\FindTag\FindTagResponse;
 
-class FindServiceCategoryResponse extends FindTagResponse
+final class FindServiceCategoryResponse extends FindTagResponse
 {
 }

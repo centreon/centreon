@@ -24,7 +24,6 @@ namespace CentreonRemote\Domain\Service;
 use Centreon\Domain\Entity\Command;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\Repository\TaskRepository;
-use Centreon\Domain\Service\KeyGeneratorInterface;
 use Centreon\Infrastructure\Service\CentcoreCommandService;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
@@ -68,14 +67,6 @@ class TaskService
     public function setCmdService(CentcoreCommandService $cmdService): void
     {
         $this->cmdService = $cmdService;
-    }
-
-    /**
-     * @return KeyGeneratorInterface
-     */
-    public function getGen(): KeyGeneratorInterface
-    {
-        return $this->gen;
     }
 
     /**
@@ -142,8 +133,7 @@ class TaskService
      */
     public function getStatus(string $taskId)
     {
-        $task = $this->getDbManager()->getAdapter('configuration_db')->getRepository(TaskRepository::class)
-            ->findOneById($taskId);
+        $task = $this->getRepository()->findOneById($taskId);
 
         return $task ? $task->getStatus() : null;
     }
@@ -155,8 +145,7 @@ class TaskService
      */
     public function getStatusByParent(int $parentId)
     {
-        $task = $this->getDbManager()->getAdapter('configuration_db')
-            ->getRepository(TaskRepository::class)
+        $task = $this->getRepository()
             ->findOneByParentId($parentId);
 
         return $task ? $task->getStatus() : null;
@@ -175,18 +164,26 @@ class TaskService
      */
     public function updateStatus(string $taskId, string $status)
     {
-        $task = $this->getDbManager()
-            ->getAdapter('configuration_db')
-            ->getRepository(TaskRepository::class)
+        $task = $this->getRepository()
             ->findOneById($taskId);
 
         if (! in_array($status, $task->getStatuses())) {
             return false;
         }
 
-        return $this->getDbManager()
-            ->getAdapter('configuration_db')
-            ->getRepository(TaskRepository::class)
+        return $this->getRepository()
             ->updateStatus($status, $taskId);
+    }
+
+    /**
+     * @return TaskRepository
+     */
+    private function getRepository()
+    {
+        /** @var TaskRepository */
+        return $this
+            ->getDbManager()
+            ->getAdapter('configuration_db')
+            ->getRepository(TaskRepository::class);
     }
 }

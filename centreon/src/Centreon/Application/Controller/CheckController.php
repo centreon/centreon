@@ -380,7 +380,6 @@ class CheckController extends AbstractController
      * Entry point to check resources.
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      *
      * @throws \Exception
      * @throws CheckException

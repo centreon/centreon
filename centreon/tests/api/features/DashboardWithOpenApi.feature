@@ -1568,6 +1568,8 @@ Feature:
 
     Given the following CLAPI import data:
     """
+    CONTACT;ADD;usr-admin;usr-admin;usr-admin@centreon.test;Centreon@2023;0;1;en_US;local
+    CONTACT;setparam;usr-admin;reach_api;1
     CONTACT;ADD;usr-viewer;usr-viewer;usr-viewer@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-viewer;reach_api;1
     ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
@@ -1575,27 +1577,34 @@ Feature:
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
+    CG;add;GC-Name;alias-admin-CG;
+    CG;addcontact;GC-Name;usr-admin;
+    CG;addcontact;GC-Name;usr-viewer;
     """
     Given I am logged in with "usr-viewer"/"Centreon@2023"
     And a feature flag "dashboard" of bitmask 3
 
-    When I send a GET request to '/api/latest/configuration/dashboards/contacts?search={"name":{"$lk":"%25admin%25"}}'
+    When I send a GET request to '/api/latest/configuration/dashboards/contacts?search={"name":{"$lk":"%25usr%25"}}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
     {
         "result": [
             {
-                "id": 1,
-                "name": "admin admin"
+                "id": 20,
+                "name": "usr-admin"
+            },
+            {
+                "id": 21,
+                "name": "usr-viewer"
             }
         ],
         "meta": {
             "page": 1,
             "limit": 10,
-            "search": { "$and": { "name": { "$lk": "%admin%" } } },
+            "search": { "$and": { "name": { "$lk": "%usr%" } } },
             "sort_by": {},
-            "total": 1
+            "total": 2
         }
     }
     """

@@ -69,7 +69,7 @@ class LogoutSessionControllerTest extends TestCase
      */
     public function testLogout(): void
     {
-        $logoutSessionController = new LogoutSessionController($this->urlGenerator);
+        $logoutSessionController = new LogoutSessionController();
 
         $this->request->cookies = new InputBag(['PHPSESSID' => 'token']);
 
@@ -89,7 +89,7 @@ class LogoutSessionControllerTest extends TestCase
      */
     public function testLogoutFailed(): void
     {
-        $logoutSessionController = new LogoutSessionController($this->urlGenerator);
+        $logoutSessionController = new LogoutSessionController();
 
         $this->request->cookies = new InputBag([]);
 

@@ -194,7 +194,7 @@ it('should present an ErrorResponse if the newly created service severity cannot
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(ServiceSeverityException::errorWhileRetrievingJustCreated(new \Exception())->getMessage());
+        ->toBe(ServiceSeverityException::errorWhileRetrievingJustCreated()->getMessage());
 });
 
 it('should return created object on success', function (): void {

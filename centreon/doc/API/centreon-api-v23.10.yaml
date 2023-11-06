@@ -14,11 +14,13 @@ info:
     + Added token endpoints (GET, POST, DELETE)
     + Added resources by parent endpoint (GET)
     + Added command endpoint (ADD)
-    +
+    + Added notifiable contact group endpoint (GET)
+    + Added media endpoint (POST)
+
     # Updated features
     + Updated host template endpoint (GET)
     + Updated JSON API returned keys for /monitoring/resources endpoint (GET)
-    +
+
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -69,6 +71,7 @@ tags:
   - name: Meta service
   - name: Host severity
   - name: Host template
+  - name: Media
   - name: Monitoring server
   - name: Notification
   - name: Proxy
@@ -266,6 +269,8 @@ paths:
     $ref: "./v23.10/Configuration/Notification/FindNotifiableResources.yaml"
   /configuration/notifications/{notification_id}/rules:
     $ref: "./v23.10/Configuration/Notification/FindNotifiableRule.yaml"
+  /configuration/notifications/contact_groups:
+    $ref: "./v23.10/Configuration/Notification/FindNotifiableContactGroups.yaml"
   /configuration/hosts/{host_id}:
     $ref: './v23.10/Configuration/Host/DeleteHost.yaml'
   /configuration/hosts/templates:
@@ -1016,6 +1021,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/medias:
+    $ref: './v23.10/Configuration/Media/AddMedia.yaml'
   /configuration/proxy:
     get:
       tags:

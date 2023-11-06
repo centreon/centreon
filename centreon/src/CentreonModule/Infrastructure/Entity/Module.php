@@ -314,17 +314,12 @@ class Module implements SourceDataInterface
 
     /**
      * @param bool $value
-     *
-     * @return bool
      */
     public function setInstalled(bool $value): void
     {
         $this->isInstalled = $value;
     }
 
-    /**
-     * @return string
-     */
     public function isUpdated(): bool
     {
         return $this->isUpdated;
@@ -332,8 +327,6 @@ class Module implements SourceDataInterface
 
     /**
      * @param bool $value
-     *
-     * @return bool
      */
     public function setUpdated(bool $value): void
     {

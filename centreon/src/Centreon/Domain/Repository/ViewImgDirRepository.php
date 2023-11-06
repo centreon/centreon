@@ -17,7 +17,7 @@ class ViewImgDirRepository extends ServiceEntityRepository
             return [];
         }
 
-        $list = join(',', $imgList ?? []);
+        $list = implode(',', $imgList);
 
         $sql = <<<SQL
 SELECT

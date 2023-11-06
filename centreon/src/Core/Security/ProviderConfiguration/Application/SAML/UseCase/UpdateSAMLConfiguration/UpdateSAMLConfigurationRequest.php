@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-class UpdateSAMLConfigurationRequest
+final class UpdateSAMLConfigurationRequest
 {
     /** @var bool */
     public bool $isActive = false;

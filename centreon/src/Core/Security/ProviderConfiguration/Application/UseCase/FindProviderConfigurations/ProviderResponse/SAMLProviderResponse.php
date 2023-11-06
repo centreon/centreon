@@ -26,7 +26,7 @@ namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderCo
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
-class SAMLProviderResponse implements ProviderResponseInterface
+final class SAMLProviderResponse implements ProviderResponseInterface
 {
     /** @var int */
     public int $id;

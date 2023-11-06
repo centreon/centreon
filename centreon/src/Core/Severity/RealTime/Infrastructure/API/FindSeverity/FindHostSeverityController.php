@@ -28,7 +28,7 @@ use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverity;
 use Core\Severity\RealTime\Application\UseCase\FindSeverity\FindSeverityPresenterInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
-class FindHostSeverityController extends AbstractController
+final class FindHostSeverityController extends AbstractController
 {
     /**
      * @param FindSeverity $useCase

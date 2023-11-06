@@ -117,9 +117,9 @@ class ExportServiceTest extends TestCase
         $path = $this->fs->path('/export');
 
         // missing export path
-        $this->assertNull($this->export->import(new ExportCommitment(null, null, null, null, "{$path}/not-found", [
+        $this->export->import(new ExportCommitment(null, null, null, null, "{$path}/not-found", [
             ConfigurationExporter::class,
-        ])));
+        ]));
 
         $manifest = '{
     "date": "Tuesday 23rd of July 2019 11:22:19 AM",

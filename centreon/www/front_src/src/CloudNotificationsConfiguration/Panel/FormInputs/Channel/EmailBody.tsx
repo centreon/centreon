@@ -54,6 +54,7 @@ const EmailBody = (): JSX.Element => {
         minInputHeight={120}
         namespace="EmailBody"
         placeholder={t(labelTypeYourTextHere) as string}
+        toolbarClassName={classes.editorToolbar}
         toolbarPositions="end"
         onBlur={handleBlur('messages.message')}
       />

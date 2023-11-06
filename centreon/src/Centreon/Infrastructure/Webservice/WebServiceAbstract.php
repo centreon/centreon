@@ -117,11 +117,11 @@ abstract class WebServiceAbstract extends \CentreonWebService
     /**
      * Get URL parameters
      *
-     * @return array
+     * @return array<mixed>
      */
     public function query(): array
     {
-        $request = $_GET ?? [];
+        $request = $_GET;
 
         return $request;
     }

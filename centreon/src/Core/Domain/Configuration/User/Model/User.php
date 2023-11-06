@@ -46,6 +46,7 @@ class User extends NewUser
      * @param bool $isAdmin
      * @param string $theme
      * @param string $userInterfaceDensity
+     * @param bool $canReachFrontend
      *
      * @throws \Assert\AssertionFailedException
      */
@@ -57,10 +58,12 @@ class User extends NewUser
         protected bool $isAdmin,
         protected string $theme,
         protected string $userInterfaceDensity,
+        protected bool $canReachFrontend
     ) {
         parent::__construct($alias, $name, $email);
         $this->setTheme($theme);
         $this->setUserInterfaceDensity($userInterfaceDensity);
+        $this->setCanReachFrontend($canReachFrontend);
     }
 
     /**

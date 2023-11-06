@@ -26,7 +26,6 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindDashboardContacts;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContactsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContactsResponse;
-use Core\Infrastructure\Common\API\DefaultPresenter;
 
 class FindDashboardContactsPresenterStub implements FindDashboardContactsPresenterInterface
 {

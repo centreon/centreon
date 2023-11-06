@@ -657,7 +657,6 @@ class DowntimeController extends AbstractController
      * Entry point to bulk set downtime for resources (hosts and services).
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      *
      * @throws \Exception
      *

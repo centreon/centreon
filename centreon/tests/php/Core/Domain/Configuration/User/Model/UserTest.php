@@ -52,7 +52,8 @@ class UserTest extends TestCase
             'email',
             false,
             'light',
-            'compact'
+            'compact',
+            true
         );
     }
 
@@ -80,7 +81,8 @@ class UserTest extends TestCase
             'email',
             false,
             'light',
-            'compact'
+            'compact',
+            true
         );
     }
 
@@ -108,7 +110,8 @@ class UserTest extends TestCase
             'email',
             false,
             'light',
-            'compact'
+            'compact',
+            true
         );
     }
 
@@ -136,7 +139,8 @@ class UserTest extends TestCase
             'email',
             false,
             'light',
-            'compact'
+            'compact',
+            true
         );
     }
 
@@ -164,7 +168,8 @@ class UserTest extends TestCase
             $email,
             false,
             'light',
-            'compact'
+            'compact',
+            true
         );
     }
 
@@ -192,7 +197,8 @@ class UserTest extends TestCase
             $email,
             false,
             'light',
-            'compact'
+            'compact',
+            true
         );
     }
 
@@ -220,7 +226,8 @@ class UserTest extends TestCase
             'hellotest@centreon.com',
             false,
             'light',
-            $userInterfaceViewMode
+            $userInterfaceViewMode,
+            true
         );
     }
 
@@ -245,7 +252,8 @@ class UserTest extends TestCase
             'hellotest@centreon.com',
             false,
             'light',
-            $userInterfaceViewMode
+            $userInterfaceViewMode,
+            true
         );
     }
 
@@ -266,7 +274,8 @@ class UserTest extends TestCase
             'hellotest@centreon.com',
             false,
             'light',
-            $userInterfaceViewMode
+            $userInterfaceViewMode,
+            true
         );
     }
 
@@ -290,7 +299,8 @@ class UserTest extends TestCase
             $email,
             $isAdmin,
             'light',
-            'compact'
+            'compact',
+            true
         );
 
         $this->assertEquals($id, $user->getId());

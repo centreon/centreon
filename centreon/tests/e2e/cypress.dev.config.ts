@@ -4,6 +4,7 @@ export default configuration({
   env: {
     OPENID_IMAGE_URL: 'http://localhost:8080'
   },
+  envFile: `${__dirname}/../../../.env`,
   isDevelopment: true,
-  specPattern: 'cypress/e2e/**/*.feature'
+  specPattern: 'features/**/*.feature'
 });

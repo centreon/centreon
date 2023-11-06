@@ -95,9 +95,7 @@ describe(SingleConnectedAutocompleteField, () => {
 
     await waitFor(() => {
       expect(getFetchCall(2)).toEqual(
-        `${baseEndpoint}?page=1&search=${encodeURIComponent(
-          '{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}'
-        )}`
+        `${baseEndpoint}?page=1&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22host.name%22%3A%7B%22%24lk%22%3A%22%25My%20Option%202%25%22%7D%7D%5D%7D%5D%7D`
       );
     });
   });
@@ -118,9 +116,7 @@ describe(SingleConnectedAutocompleteField, () => {
 
     await waitFor(() => {
       expect(getFetchCall(0)).toEqual(
-        `${baseEndpoint}?page=1&search=${encodeURIComponent(
-          '{"$and":[{"parent_name":{"$eq":"Centreon-Server"}}]}'
-        )}`
+        `${baseEndpoint}?page=1&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22parent_name%22%3A%7B%22%24eq%22%3A%22Centreon-Server%22%7D%7D%5D%7D%5D%7D`
       );
     });
   });

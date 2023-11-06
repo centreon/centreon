@@ -457,6 +457,9 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     private function initGlobalContact(ContactInterface $user): void
     {
+        if (! $this->contact instanceof Contact) {
+            return;
+        }
         $this->contact->setId($user->getId())
             ->setName($user->getName())
             ->setAlias($user->getAlias())

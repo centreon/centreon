@@ -17,8 +17,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-service-monitoring/**"
-    tags:
-      - centreon-widget-service-monitoring-*
 
 jobs:
   get-version:
@@ -75,4 +73,3 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
-

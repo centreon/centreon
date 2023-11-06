@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\RealTime\UseCase\FindHost\FindHost;
 use Core\Application\RealTime\UseCase\FindHost\FindHostPresenterInterface;
 
-class FindHostController extends AbstractController
+final class FindHostController extends AbstractController
 {
     /**
      * @param int $hostId

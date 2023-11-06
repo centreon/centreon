@@ -1,0 +1,5 @@
+AddMedia:
+  methods: POST
+  path: /configuration/medias
+  controller: 'Core\Media\Infrastructure\API\AddMedia\AddMediaController'
+  condition: "request.attributes.get('version') >= 24.04"

@@ -3,9 +3,11 @@ import { useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Divider, Typography } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
+import { Divider } from '@mui/material';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+
+import { Button } from '@centreon/ui/components';
 
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
@@ -30,7 +32,10 @@ import {
   ExtendedCriteria
 } from './model';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
-import { advancedModeLabel } from './translatedLabels';
+import {
+  labelCloseMoreFilters,
+  labelOpenMoreFilters
+} from './translatedLabels';
 
 export { CheckboxGroup } from '@centreon/ui';
 
@@ -52,41 +57,45 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   const setDisplayInformationFilter = useSetAtom(displayInformationFilterAtom);
 
-  const { newSelectableCriterias: buildCriterias, selectableCriterias } = data;
+  const {
+    newSelectableCriterias: buildCriterias,
+    selectableCriterias,
+    searchData
+  } = data;
 
   const changeCriteria = ({
     updatedValue,
-    filterName,
-    search_data
+    filterName
   }: ChangedCriteriaParams): void => {
     const parameters = {
       name: filterName,
       value: updatedValue
     };
 
-    setCriteriaAndNewFilter(
-      search_data ? { ...parameters, search_data } : parameters
-    );
+    setCriteriaAndNewFilter(parameters);
   };
 
-  const controlFilterInterface = (event): void => {
-    setOpen(event.target.checked);
-    if (!event.target.checked) {
-      return;
-    }
-    setDisplayInformationFilter(false);
+  const controlFilterInterface = (): void => {
+    setOpen((currentOpen) => {
+      const newState = !currentOpen;
+      if (newState) {
+        setDisplayInformationFilter(false);
+      }
+
+      return newState;
+    });
   };
 
   const buildDataByCategoryFilter = ({
     CriteriaType,
     selectableCriteria,
-    buildedCriteria
+    builtCriteria
   }: BuildDataByCategoryFilter): Array<CriteriaDisplayProps & Criteria> => {
     const dataInteraction = selectableCriteria.filter((item) =>
       Object.values(CriteriaType).includes(item.name)
     );
 
-    const dataOfBuild = Object.keys(buildedCriteria).map((item) => {
+    const dataOfBuild = Object.keys(builtCriteria).map((item) => {
       if (!Object.values(CriteriaType).includes(item)) {
         return null;
       }
@@ -104,7 +113,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
   const getDataByCategoryFilter = ({
     categoryFilter,
     selectableCriteria,
-    buildedCriteria
+    builtCriteria
   }: DataByCategoryFilter): Array<Criteria & CriteriaDisplayProps> => {
     const criteriaType =
       categoryFilter === CategoryFilter.BasicFilter
@@ -112,7 +121,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         : Object.values(ExtendedCriteria);
     const dataByCategory = buildDataByCategoryFilter({
       CriteriaType: criteriaType,
-      buildedCriteria,
+      builtCriteria,
       selectableCriteria
     });
 
@@ -125,7 +134,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   const basicData = useMemo(() => {
     return getDataByCategoryFilter({
-      buildedCriteria: buildCriterias,
+      builtCriteria: buildCriterias,
       categoryFilter: CategoryFilter.BasicFilter,
       selectableCriteria: selectableCriterias
     });
@@ -133,7 +142,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   const extendedData = useMemo(() => {
     return getDataByCategoryFilter({
-      buildedCriteria: buildCriterias,
+      builtCriteria: buildCriterias,
       categoryFilter: CategoryFilter.ExtendedFilter,
       selectableCriteria: selectableCriterias
     });
@@ -141,6 +150,17 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
   return (
     <>
+      <div className={classes.moreFiltersButton}>
+        <Button
+          icon={open ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
+          iconVariant="end"
+          size="small"
+          variant="ghost"
+          onClick={controlFilterInterface}
+        >
+          {t(open ? labelCloseMoreFilters : labelOpenMoreFilters)}
+        </Button>
+      </div>
       <div className={cx(classes.small, { [classes.extended]: open })}>
         <BasicFilter
           poller={
@@ -153,6 +173,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
             <SectionWrapper
               basicData={basicData}
               changeCriteria={changeCriteria}
+              searchData={searchData}
             />
           }
           state={
@@ -182,22 +203,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
       <Divider className={classes.footer} />
 
       {displayActions && (
-        <div className={classes.formControlContainer}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={open}
-                inputProps={{ 'aria-label': 'controlled' }}
-                size="small"
-                onChange={controlFilterInterface}
-              />
-            }
-            label={
-              <Typography variant="body2">{t(advancedModeLabel)}</Typography>
-            }
-          />
-          {actions}
-        </div>
+        <div className={classes.formControlContainer}>{actions}</div>
       )}
     </>
   );

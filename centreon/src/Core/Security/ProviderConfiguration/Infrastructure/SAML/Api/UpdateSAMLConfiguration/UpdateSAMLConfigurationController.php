@@ -33,7 +33,7 @@ use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfi
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateSAMLConfigurationController extends AbstractController
+final class UpdateSAMLConfigurationController extends AbstractController
 {
     /**
      * @param UpdateSAMLConfiguration $useCase

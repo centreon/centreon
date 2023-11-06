@@ -29,7 +29,7 @@ use Core\Contact\Application\UseCase\FindContactGroups\{
     FindContactGroupsPresenterInterface
 };
 
-class FindContactGroupsController extends AbstractController
+final class FindContactGroupsController extends AbstractController
 {
     /**
      * @param FindContactGroups $useCase

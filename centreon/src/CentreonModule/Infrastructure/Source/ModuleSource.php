@@ -298,6 +298,16 @@ class ModuleSource extends SourceAbstract
     }
 
     /**
+     * @codeCoverageIgnore
+     *
+     * @return string
+     */
+    protected function getPath(): string
+    {
+        return $this->path . static::PATH;
+    }
+
+    /**
      * Return the number actively used.
      *
      * @return int|null

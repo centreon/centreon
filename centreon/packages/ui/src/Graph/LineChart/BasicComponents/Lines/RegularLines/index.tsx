@@ -46,7 +46,7 @@ const RegularLine = ({
     defined: (value): boolean => !isNil(value[metric_id]),
     opacity: 1,
     stroke: lineColor,
-    strokeWidth: !highlight ? 1 : 2,
+    strokeWidth: !highlight ? 2 : 3,
     unit,
     x: (timeValue): number => xScale(getTime(timeValue)) as number,
     y: (timeValue): number => yScale(prop(metric_id, timeValue)) ?? null

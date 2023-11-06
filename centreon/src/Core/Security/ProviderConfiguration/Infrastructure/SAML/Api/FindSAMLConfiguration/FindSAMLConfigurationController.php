@@ -31,7 +31,7 @@ use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfigu
 };
 use Symfony\Component\HttpFoundation\Response;
 
-class FindSAMLConfigurationController extends AbstractController
+final class FindSAMLConfigurationController extends AbstractController
 {
     /**
      * @param FindSAMLConfiguration $useCase

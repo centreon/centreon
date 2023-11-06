@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 
-const baseKey = 'centreon-resource-status-21.10-';
+const baseKey = 'centreon-resource-status-23.10-';
 
 interface StoredItemParameters<TItem> {
   cachedItem: TItem;

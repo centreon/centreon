@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
-class FindServiceCategory
+final class FindServiceCategory
 {
     use LoggerTrait;
 

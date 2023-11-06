@@ -25,12 +25,14 @@ namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePat
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidContentException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidResponseException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidStatusCodeException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\OpenIdCustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 
 class UserInformationFetcher implements AttributePathFetcherInterface
@@ -56,6 +58,9 @@ class UserInformationFetcher implements AttributePathFetcherInterface
     {
         $scope = $configuration->getType();
         $customConfiguration = $configuration->getCustomConfiguration();
+        if (! $customConfiguration instanceof OpenIdCustomConfigurationInterface) {
+            throw ConfigurationException::unexpectedCustomConfiguration($customConfiguration::class);
+        }
         $url = str_starts_with($customConfiguration->getUserInformationEndpoint(), '/')
             ? $customConfiguration->getBaseUrl() . $customConfiguration->getUserInformationEndpoint()
             : $customConfiguration->getUserInformationEndpoint();

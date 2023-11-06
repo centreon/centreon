@@ -27,7 +27,7 @@ namespace Core\Application\Common\UseCase;
  * @template R
  * @template P
  */
-class CreatedResponse implements ResponseStatusInterface
+final class CreatedResponse implements ResponseStatusInterface
 {
     /**
      * @param R $resourceId

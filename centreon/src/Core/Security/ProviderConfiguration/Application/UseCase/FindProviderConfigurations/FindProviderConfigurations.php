@@ -30,7 +30,7 @@ use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigur
     ProviderResponseInterface
 };
 
-class FindProviderConfigurations
+final class FindProviderConfigurations
 {
     use LoggerTrait;
 

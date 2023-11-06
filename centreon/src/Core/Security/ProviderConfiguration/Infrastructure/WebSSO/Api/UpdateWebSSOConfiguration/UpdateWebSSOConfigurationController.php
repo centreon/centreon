@@ -34,7 +34,7 @@ use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\UpdateWebSSOC
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateWebSSOConfigurationController extends AbstractController
+final class UpdateWebSSOConfigurationController extends AbstractController
 {
     use LoggerTrait;
 

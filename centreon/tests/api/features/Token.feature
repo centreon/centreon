@@ -67,7 +67,7 @@ Feature:
       """
     Then the response code should be "201"
 
-    When I send a GET request to '/api/latest/administration/tokens?order={"id":"ASC"}'
+    When I send a GET request to '/api/latest/administration/tokens?sort_by={"token_name":"ASC"}'
     Then the response code should be "200"
     And the JSON node "result" should have "2" element
     And the JSON nodes should be equal to:

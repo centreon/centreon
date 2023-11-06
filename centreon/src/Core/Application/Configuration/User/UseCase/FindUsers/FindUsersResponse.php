@@ -25,7 +25,7 @@ namespace Core\Application\Configuration\User\UseCase\FindUsers;
 
 use Core\Domain\Configuration\User\Model\User;
 
-class FindUsersResponse
+final class FindUsersResponse
 {
     /** @var array<string,mixed> */
     public $users;

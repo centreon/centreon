@@ -1,32 +1,25 @@
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue } from 'jotai';
-import * as Ramda from 'ramda';
-import { omit } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
-import { ResourceType } from '../models';
-import { getFilterWithUpdatedCriteria, getListingEndpoint } from '../testUtils';
+import { getListingEndpoint } from '../testUtils';
 import {
   labelAcknowledged,
-  labelAll,
   labelHost,
   labelHostGroup,
-  labelNewFilter,
   labelOk,
   labelSearch,
   labelSearchOptions,
   labelServiceGroup,
-  labelStateFilter,
   labelUnhandledAlerts
 } from '../translatedLabels';
 
 import { defaultSortField, defaultSortOrder } from './Criterias/default';
 import { filterKey } from './filterAtoms';
-import { allFilter } from './models';
 import useFilter from './useFilter';
 
 import Filter from '.';
@@ -220,6 +213,25 @@ describe('Filter storage', () => {
     cy.viewport(1200, 1000);
   });
 
+  it('stores filter values in localStorage when updated', () => {
+    cy.waitForRequest('@filterRequest');
+
+    cy.findByPlaceholderText(labelSearch).clear();
+    cy.findByPlaceholderText(labelSearch).type(
+      'type:host parent_name:Server name:Service host_group:HG status:up,down'
+    );
+
+    cy.getAllLocalStorage().should('deep.equal', {
+      'http://localhost:9092': {
+        MSW_COOKIE_STORE: '[]',
+        'centreon-resource-status-23.10-filter':
+          '{"criterias":[{"name":"resource_types","object_type":null,"type":"multi_select","value":[{"id":"host","name":"Host"}]},{"name":"states","object_type":null,"type":"multi_select","value":[]},{"name":"statuses","object_type":null,"type":"multi_select","value":[{"id":"UP","name":"Up"},{"id":"DOWN","name":"Down"}]},{"name":"status_types","object_type":null,"type":"multi_select","value":[]},{"name":"host_groups","object_type":"host_groups","type":"multi_select","value":[{"id":0,"name":"HG"}]},{"name":"service_groups","object_type":"service_groups","type":"multi_select","value":[]},{"name":"monitoring_servers","object_type":"monitoring_servers","type":"multi_select","value":[]},{"name":"host_categories","object_type":"host_categories","type":"multi_select","value":[]},{"name":"service_categories","object_type":"service_categories","type":"multi_select","value":[]},{"name":"host_severities","object_type":"host_severities","type":"multi_select","value":[]},{"name":"host_severity_levels","object_type":"host_severity_levels","type":"multi_select","value":[]},{"name":"service_severities","object_type":"service_severities","type":"multi_select","value":[]},{"name":"service_severity_levels","object_type":"service_severity_levels","type":"multi_select","value":[]},{"name":"parent_names","object_type":"parent_names","type":"multi_select","value":[{"id":0,"name":"Server"}]},{"name":"names","object_type":"names","type":"multi_select","value":[{"id":0,"name":"Service"}]},{"name":"search","object_type":null,"type":"text","value":""},{"name":"sort","value":["status_severity_code","asc"]}],"id":0,"name":"My filter"}'
+      }
+    });
+
+    cy.makeSnapshot();
+  });
+
   it('populates filter with values from localStorage if available', () => {
     cy.waitForRequest('@filterRequest');
 
@@ -234,7 +246,7 @@ describe('Filter storage', () => {
 
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByLabelText(ResourceType.host).click();
+    cy.findByLabelText(labelHost).click();
     cy.waitForRequest('@getResourcesByHostType');
     const hostName = cy.findByText(resourcesByHostType.name);
     hostName.should('exist');
@@ -252,55 +264,7 @@ describe('Filter storage', () => {
     cy.contains(webAccessServiceGroup.name);
 
     cy.makeSnapshot();
-  });
 
-  it('stores filter values in localStorage when updated', () => {
-    const getAllEndpoint = getListingEndpoint({
-      resourceTypes: [],
-      states: [],
-      statusTypes: [],
-      statuses: []
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'getAllrequest',
-      method: Method.GET,
-      path: Ramda.replace('./api/latest/monitoring', '**', getAllEndpoint)
-    });
-    cy.waitForRequest('@filterRequest');
-    cy.findByLabelText(labelStateFilter).click();
-
-    cy.findByText(labelAll).click();
-
-    const searchField = cy.findByPlaceholderText(labelSearch);
-    searchField.clear();
-    searchField.type('searching...');
-
-    const criteriasSearch = allFilter?.criterias?.find(
-      (item) => item?.name === 'search'
-    );
-    const updatedSearch = omit(['search_data'], criteriasSearch);
-    const updatedCriterias = allFilter.criterias.map((element) =>
-      element.name === 'search' ? updatedSearch : element
-    );
-
-    cy.waitForRequest('@getAllrequest').then(() => {
-      expect(localStorage.getItem(filterKey)).to.deep.equal(
-        JSON.stringify(
-          getFilterWithUpdatedCriteria({
-            criteriaName: 'search',
-            criteriaValue: 'searching...',
-            filter: {
-              ...allFilter,
-              criterias: updatedCriterias,
-              id: '',
-              name: labelNewFilter
-            }
-          })
-        )
-      );
-    });
-
-    cy.makeSnapshot();
+    cy.findByLabelText(labelSearchOptions).click();
   });
 });

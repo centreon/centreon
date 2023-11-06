@@ -31,7 +31,7 @@ use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOCon
 };
 use Symfony\Component\HttpFoundation\Response;
 
-class FindWebSSOConfigurationController extends AbstractController
+final class FindWebSSOConfigurationController extends AbstractController
 {
     /**
      * @param FindWebSSOConfiguration $useCase

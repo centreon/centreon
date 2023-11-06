@@ -182,4 +182,14 @@ class WidgetSource extends SourceAbstract
 
         return $entity;
     }
+
+    /**
+     * @codeCoverageIgnore
+     *
+     * @return string
+     */
+    protected function getPath(): string
+    {
+        return $this->path . static::PATH;
+    }
 }

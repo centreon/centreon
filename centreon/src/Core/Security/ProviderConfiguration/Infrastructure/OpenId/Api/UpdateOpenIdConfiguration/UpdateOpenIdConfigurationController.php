@@ -33,7 +33,7 @@ use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdC
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateOpenIdConfigurationController extends AbstractController
+final class UpdateOpenIdConfigurationController extends AbstractController
 {
     /**
      * @param UpdateOpenIdConfiguration $useCase

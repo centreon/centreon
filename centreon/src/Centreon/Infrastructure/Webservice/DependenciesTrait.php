@@ -43,6 +43,9 @@ use Centreon\ServiceProvider;
 
 trait DependenciesTrait
 {
+    /** @var ServiceLocator */
+    protected $services;
+
     /**
      * List of dependencies
      *

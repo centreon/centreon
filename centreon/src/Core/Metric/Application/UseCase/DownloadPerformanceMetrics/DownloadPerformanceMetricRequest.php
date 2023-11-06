@@ -25,7 +25,7 @@ namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use DateTimeInterface;
 
-class DownloadPerformanceMetricRequest
+final class DownloadPerformanceMetricRequest
 {
     /**
      * @param int $hostId

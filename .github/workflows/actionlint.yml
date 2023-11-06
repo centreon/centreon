@@ -38,3 +38,33 @@ jobs:
           -pyflakes= \
           -color
         shell: bash
+  yaml-lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install Yaml
+        run: |
+          pip install yamllint==1.32.0
+
+      - name: Add Yaml Lint Rules
+        run: |
+          cat <<EOF >>./yamllint_rules.yml
+          extends: default
+
+          rules:
+            document-start: disable
+            line-length: disable
+            truthy:
+              check-keys: false
+              level: error
+            indentation:
+              spaces: 2
+              indent-sequences: true
+              check-multi-line-strings: false
+          EOF
+
+      - name: Lint YAML files
+        run: |
+          yamllint -c ./yamllint_rules.yml ./.github/actions/ ./.github/workflows/

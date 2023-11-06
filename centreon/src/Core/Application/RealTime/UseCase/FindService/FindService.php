@@ -46,7 +46,7 @@ use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
-class FindService
+final class FindService
 {
     use LoggerTrait;
 

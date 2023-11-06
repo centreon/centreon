@@ -38,6 +38,7 @@ export interface RichTextEditorProps {
   openLinkInNewTab?: boolean;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
+  toolbarClassName?: string;
   toolbarPositions?: 'start' | 'end';
 }
 
@@ -136,7 +137,8 @@ const RichTextEditor = ({
   disabled = false,
   openLinkInNewTab = true,
   initialize,
-  displayBlockButtons = true
+  displayBlockButtons = true,
+  toolbarClassName
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -175,6 +177,7 @@ const RichTextEditor = ({
       <div className={classes.container}>
         <div className={classes.toolbar}>
           <ToolbarPlugin
+            className={toolbarClassName}
             disabled={disabled}
             displayBlockButtons={displayBlockButtons}
             displayMacrosButton={displayMacrosButton}

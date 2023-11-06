@@ -23,7 +23,7 @@ namespace CentreonLegacy\Core\Install;
 
 class Factory
 {
-    /** @var Pimple\Container */
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
 
     /**

@@ -519,7 +519,6 @@ class Request
     public function getTabSvc(): array
     {
         $tab_id = preg_split("/\,/", $this->getOpenid());
-        /** @phpstan-ignore-next-line */
         foreach ($tab_id as $openid) {
             $openIdChunks = $this->splitOpenId($openid);
             $id = $openIdChunks['id'];
@@ -541,7 +540,6 @@ class Request
                     }
                 }
             } elseif ($type == 'SG' && (isset($this->lca["LcaSG"][$id]) || $this->is_admin)) {
-                /** @phpstan-ignore-next-line */
                 $services = getMyServiceGroupServices($id);
                 if (count($services) == 0) {
                     $this->tabSvc[] = "-1";

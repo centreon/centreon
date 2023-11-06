@@ -33,6 +33,8 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Application\UseCase\DeleteHost\DeleteHost;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\DeleteHost\DeleteHostPresenterStub;
@@ -45,7 +47,9 @@ beforeEach(closure: function (): void {
     $this->contact = $this->createMock(ContactInterface::class);
     $this->storageEngine = $this->createMock(DataStorageEngineInterface::class);
     $this->presenter = new DeleteHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
-
+    $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class);
+    
     $this->useCase = new DeleteHost(
         $this->readHostRepository,
         $this->writeHostRepository,
@@ -53,6 +57,8 @@ beforeEach(closure: function (): void {
         $this->writeServiceRepository,
         $this->contact,
         $this->storageEngine,
+        $this->readAccessGroupRepository,
+        $this->writeMonitoringServerRepository,
     );
 });
 

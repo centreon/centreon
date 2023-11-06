@@ -31,9 +31,8 @@ class Timezone
      * @param int $id
      * @param string $name
      * @param string $offset
-     * @param string $dstOffset
-     * @param string $description
      * @param string $daylightSavingTimeOffset
+     * @param string $description
      *
      * @throws \Assert\AssertionFailedException
      */

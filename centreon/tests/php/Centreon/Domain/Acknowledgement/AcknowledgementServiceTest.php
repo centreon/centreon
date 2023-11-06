@@ -281,7 +281,7 @@ class AcknowledgementServiceTest extends TestCase
             $this->entityValidator
         );
 
-        $this->assertNull($acknowledgementService->addHostAcknowledgement($this->hostAcknowledgement));
+        $acknowledgementService->addHostAcknowledgement($this->hostAcknowledgement);
     }
 
     /**
@@ -382,7 +382,7 @@ class AcknowledgementServiceTest extends TestCase
             $this->entityValidator
         );
 
-        $this->assertNull($acknowledgementService->addServiceAcknowledgement($this->serviceAcknowledgement));
+        $acknowledgementService->addServiceAcknowledgement($this->serviceAcknowledgement);
     }
 
     /**
@@ -559,7 +559,7 @@ class AcknowledgementServiceTest extends TestCase
             $this->entityValidator
         );
 
-        $this->assertNull($acknowledgementService->disacknowledgeHost(1));
+        $acknowledgementService->disacknowledgeHost(1);
     }
 
     /**
@@ -661,6 +661,6 @@ class AcknowledgementServiceTest extends TestCase
             $this->entityValidator
         );
 
-        $this->assertNull($acknowledgementService->disacknowledgeService(1, 1));
+        $acknowledgementService->disacknowledgeService(1, 1);
     }
 }

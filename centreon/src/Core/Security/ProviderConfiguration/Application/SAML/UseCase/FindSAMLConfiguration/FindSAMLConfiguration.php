@@ -30,7 +30,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-class FindSAMLConfiguration
+final class FindSAMLConfiguration
 {
     use LoggerTrait;
 

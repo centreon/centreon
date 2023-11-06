@@ -36,6 +36,7 @@ Depends:
   libauthen-simple-net-perl,
   libnet-curl-perl,
   libssh-session-perl,
+  libssh-4,
   libev-perl,
   libzmq-ffi-perl,
   sudo,

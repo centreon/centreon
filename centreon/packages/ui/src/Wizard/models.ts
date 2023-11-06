@@ -45,6 +45,7 @@ type ValueOf<T> = T[keyof T];
 export interface WizardProps {
   [key: string]: ValueOf<DialogProps>;
   actionsBarLabels?: ActionsBarLabels;
+  classNameDialogContent?: string;
   confirmDialogLabels?: ConfirmDialogLabels;
   displayConfirmDialog?: boolean;
   fullHeight?: boolean;

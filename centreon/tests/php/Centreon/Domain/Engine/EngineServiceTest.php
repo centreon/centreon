@@ -132,7 +132,7 @@ class EngineServiceTest extends TestCase
         );
 
         $engineService->filterByContact($this->adminContact);
-        $this->assertNull($engineService->addHostComment($this->hostComment, $this->host));
+        $engineService->addHostComment($this->hostComment, $this->host);
     }
 
     /**
@@ -172,7 +172,7 @@ class EngineServiceTest extends TestCase
         );
 
         $engineService->filterByContact($this->adminContact);
-        $this->assertNull($engineService->addServiceComment($this->serviceComment, $this->service));
+        $engineService->addServiceComment($this->serviceComment, $this->service);
     }
 
     /**
@@ -213,7 +213,7 @@ class EngineServiceTest extends TestCase
         );
 
         $engineService->filterByContact($this->adminContact);
-        $this->assertNull($engineService->submitHostResult($this->hostResult, $this->host));
+        $engineService->submitHostResult($this->hostResult, $this->host);
     }
 
     /**
@@ -255,7 +255,7 @@ class EngineServiceTest extends TestCase
         );
 
         $engineService->filterByContact($this->adminContact);
-        $this->assertNull($engineService->submitServiceResult($this->serviceResult, $this->service));
+        $engineService->submitServiceResult($this->serviceResult, $this->service);
     }
 
     /**
@@ -285,7 +285,7 @@ class EngineServiceTest extends TestCase
         );
 
         $engineService->filterByContact($this->adminContact);
-        $this->assertNull($engineService->disacknowledgeHost($this->host));
+        $engineService->disacknowledgeHost($this->host);
     }
 
     /**
@@ -316,6 +316,6 @@ class EngineServiceTest extends TestCase
         );
 
         $engineService->filterByContact($this->adminContact);
-        $this->assertNull($engineService->disacknowledgeService($this->service));
+        $engineService->disacknowledgeService($this->service);
     }
 }

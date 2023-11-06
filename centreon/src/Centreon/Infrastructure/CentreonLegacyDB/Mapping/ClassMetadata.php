@@ -69,7 +69,7 @@ class ClassMetadata
      * Set table name
      *
      * @param string $name
-     * @return \self
+     * @return self
      */
     public function setTableName($name): self
     {
@@ -96,7 +96,7 @@ class ClassMetadata
      * @param int $dataType         type of data use PDO::PARAM_*
      * @param callable $dataFormatter
      * @param bool $primaryKey      is it PK
-     * @return \self
+     * @return self
      */
     public function add(
         string $property,
@@ -196,7 +196,7 @@ class ClassMetadata
      * Get data type of the property
      *
      * @param string $property
-     * @return int|null
+     * @return int
      */
     public function getType(string $property): int
     {

@@ -22,6 +22,7 @@
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
 use FOS\RestBundle\View\View;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Contact\Contact;
 use Psr\Container\ContainerInterface;
@@ -47,9 +48,9 @@ class SubmitResultControllerTest extends TestCase
     private string $wrongJsonSubmitResult;
     private string $hostSubmitResultJson;
     private string $serviceSubmitResultJson;
-    private SubmitResultService $submitResultService;
+    private SubmitResultService&MockObject $submitResultService;
     private ContainerInterface $container;
-    private Request $request;
+    private Request&MockObject $request;
 
     protected function setUp(): void
     {

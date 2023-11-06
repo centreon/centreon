@@ -481,8 +481,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             foreach ($this->subRequestsInformation as $subRequestInformation) {
                 $boundValues[] = $subRequestInformation['bindValues'];
             }
-            $boundValues = array_merge(...$boundValues);
         }
+        $boundValues = array_merge(...$boundValues);
         foreach ($boundValues as $bindToken => $bindValueInformation){
             foreach ($bindValueInformation as $bindValue => $paramType) {
                 $statement->bindValue($bindToken, $bindValue, $paramType);
@@ -499,7 +499,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param RequestParametersInterface $requestParameters
      * @param \PDOStatement $statement
      *
-     * @return ResourceMetrics[]
+     * @return ResourceMetric[]
      */
     private function buildResourceMetrics(
         RequestParametersInterface $requestParameters,

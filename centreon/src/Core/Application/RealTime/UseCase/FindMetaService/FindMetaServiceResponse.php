@@ -29,7 +29,7 @@ use Core\Domain\RealTime\Model\Downtime;
 use Core\Domain\RealTime\Model\ResourceTypes\MetaServiceResourceType;
 use Core\Domain\RealTime\Model\ServiceStatus;
 
-class FindMetaServiceResponse
+final class FindMetaServiceResponse
 {
     use RealTimeResponseTrait;
 

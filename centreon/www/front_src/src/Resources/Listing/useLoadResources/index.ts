@@ -8,6 +8,7 @@ import {
   isEmpty,
   isNil,
   map,
+  mergeRight,
   not,
   pathEq,
   pathOr,
@@ -149,6 +150,7 @@ const useLoadResources = (): LoadResources => {
 
   const getSearch = (): Search | undefined => {
     const searchCriteria = getCriteriaValue('search');
+
     if (!searchCriteria) {
       return undefined;
     }
@@ -160,11 +162,24 @@ const useLoadResources = (): LoadResources => {
 
     if (!isEmpty(fieldMatches)) {
       const matches = fieldMatches.map((item) => {
-        return { field: item.field, values: item.value?.split(',') };
+        const field = item?.field;
+        const values = item.value?.split(',')?.join('|');
+
+        return { field, value: `${field}:${values}` };
+      });
+
+      const formattedValue = matches.reduce((accumulator, previousValue) => {
+        return {
+          ...accumulator,
+          value: `${accumulator.value} ${previousValue.value}`
+        };
       });
 
       return {
-        lists: matches.filter((item) => item.values)
+        regex: {
+          fields: matches.map(({ field }) => field),
+          value: formattedValue.value
+        }
       };
     }
 
@@ -192,7 +207,7 @@ const useLoadResources = (): LoadResources => {
         | Array<SelectEntry>
         | undefined;
 
-      return criteriaValue?.map(prop('name')) as Array<string>;
+      return (criteriaValue || []).map(prop('name')) as Array<string>;
     };
 
     const getCriteriaLevels = (name: string): Array<number> => {
@@ -209,6 +224,9 @@ const useLoadResources = (): LoadResources => {
       return;
     }
 
+    const names = getCriteriaNames('names');
+    const parentNames = getCriteriaNames('parent_names');
+
     sendRequest({
       endpoint: resourcesEndpoint,
       hostCategories: getCriteriaNames('host_categories'),
@@ -219,7 +237,22 @@ const useLoadResources = (): LoadResources => {
       monitoringServers: getCriteriaNames('monitoring_servers'),
       page,
       resourceTypes: getCriteriaIds('resource_types'),
-      search: getSearch(),
+      search: mergeRight(getSearch() || {}, {
+        conditions: [
+          ...names.map((name) => ({
+            field: 'name',
+            values: {
+              $rg: name
+            }
+          })),
+          ...parentNames.map((name) => ({
+            field: 'parent_name',
+            values: {
+              $rg: name
+            }
+          }))
+        ]
+      }),
       serviceCategories: getCriteriaNames('service_categories'),
       serviceGroups: getCriteriaNames('service_groups'),
       serviceSeverities: getCriteriaNames('service_severities'),

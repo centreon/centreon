@@ -53,7 +53,7 @@ class Installer extends Module
     }
 
     /**
-     * @var bool Indicates whether or not it is a pre-installation
+     * Indicates whether it is a pre-installation.
      *
      * @param bool $isPreInstallation
      *

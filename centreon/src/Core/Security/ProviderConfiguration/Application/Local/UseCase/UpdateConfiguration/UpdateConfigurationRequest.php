@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration;
 
-class UpdateConfigurationRequest
+final class UpdateConfigurationRequest
 {
     /** @var int */
     public int $passwordMinimumLength;

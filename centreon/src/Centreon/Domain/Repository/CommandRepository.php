@@ -157,7 +157,7 @@ SQL;
     /**
      * Export
      *
-     * @param int[] $ids
+     * @param int[] $list
      * @return array
      */
     public function exportList(array $list): array
