@@ -80,7 +80,7 @@ jobs:
     uses: ./.github/workflows/check-pkg-availability.yml
     with:
       module: widget-single-metric
-      version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
+      major_version: ${{ needs.get-version.outputs.major_version }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
