@@ -207,7 +207,11 @@ const ExtensionsHolder = ({
                             <CheckIcon style={{ color: '#FFFFFF' }} />
                           )
                         }
-                        deleteIcon={<DeleteIcon style={{ color: '#FFFFFF' }} />}
+                        deleteIcon={
+                          entity.is_internal ? (
+                            <DeleteIcon style={{ color: '#FFFFFF' }} />
+                          ) : undefined
+                        }
                         disabled={isLoading}
                         label={entity.version.current}
                         style={{

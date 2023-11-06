@@ -46,9 +46,9 @@ class Installer extends Widget
     protected function installConfiguration()
     {
         $query = 'INSERT INTO widget_models '
-            . '(title, description, url, version, directory, author, '
+            . '(title, description, url, version, is_internal, directory, author, '
             . 'email, website, keywords, thumbnail, autoRefresh) '
-            . 'VALUES (:title, :description, :url, :version, :directory, :author, '
+            . 'VALUES (:title, :description, :url, :version, :is_internal, :directory, :author, '
             . ':email, :website, :keywords, :thumbnail, :autoRefresh) ';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
@@ -57,6 +57,7 @@ class Installer extends Widget
         $sth->bindParam(':description', $this->widgetConfiguration['description'], \PDO::PARAM_STR);
         $sth->bindParam(':url', $this->widgetConfiguration['url'], \PDO::PARAM_STR);
         $sth->bindParam(':version', $this->widgetConfiguration['version'], \PDO::PARAM_STR);
+        $sth->bindParam(':is_internal', $this->widgetConfiguration['version'] === null ? '1' : '0', \PDO::PARAM_STR);
         $sth->bindParam(':directory', $this->widgetConfiguration['directory'], \PDO::PARAM_STR);
         $sth->bindParam(':author', $this->widgetConfiguration['author'], \PDO::PARAM_STR);
         $sth->bindParam(':email', $this->widgetConfiguration['email'], \PDO::PARAM_STR);

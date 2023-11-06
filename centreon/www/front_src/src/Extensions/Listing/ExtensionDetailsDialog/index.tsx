@@ -161,7 +161,8 @@ const ExtensionDetailPopup = ({
                 <UpdateIcon />
               </IconButton>
             )}
-          {extensionDetails.version.installed ? (
+          {!extensionDetails.is_internal &&
+          extensionDetails.version.installed ? (
             <Button
               color="primary"
               disabled={isLoading}
@@ -193,20 +194,22 @@ const ExtensionDetailPopup = ({
           ) : (
             <>
               <Typography variant="h5">{extensionDetails.title}</Typography>
-              <Grid container spacing={1}>
-                <Grid item>
-                  <Chip
-                    label={
-                      (!extensionDetails.version.installed
-                        ? `${t(labelAvailable)} `
-                        : '') + extensionDetails.version.available
-                    }
-                  />
+              {!extensionDetails.is_internal ? (
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <Chip
+                      label={
+                        (!extensionDetails.version.installed
+                          ? `${t(labelAvailable)} `
+                          : '') + extensionDetails.version.available
+                      }
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Chip label={extensionDetails.stability} />
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <Chip label={extensionDetails.stability} />
-                </Grid>
-              </Grid>
+              ) : null}
             </>
           )}
         </Grid>
