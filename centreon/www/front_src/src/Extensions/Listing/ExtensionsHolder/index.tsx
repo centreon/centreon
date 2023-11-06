@@ -32,6 +32,7 @@ import {
   labelLicenseExpired,
   labelLicenseNotValid
 } from '../../translatedLabels';
+import { ReactElement } from 'react';
 
 const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
@@ -163,6 +164,26 @@ const ExtensionsHolder = ({
 
             const licenseInfo = getPropsFromLicense(entity.license);
 
+            let ChipAvatar: ReactElement | undefined;
+            if (entity.version.outdated) {
+              ChipAvatar = (
+                <UpdateIcon
+                  style={{
+                    color: '#FFFFFF',
+                    cursor: 'pointer'
+                  }}
+                  onClick={(e): void => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    onUpdate(entity.id, type);
+                  }}
+                />
+              );
+            } else if (entity.is_internal) {
+              ChipAvatar = <CheckIcon style={{ color: '#FFFFFF' }} />;
+            }
+
             return (
               <Grid
                 item
@@ -189,39 +210,31 @@ const ExtensionsHolder = ({
                   <CardActions style={{ justifyContent: 'center' }}>
                     {entity.version.installed ? (
                       <Chip
-                        avatar={
-                          entity.version.outdated ? (
-                            <UpdateIcon
-                              style={{
-                                color: '#FFFFFF',
-                                cursor: 'pointer'
-                              }}
-                              onClick={(e): void => {
-                                e.preventDefault();
-                                e.stopPropagation();
-
-                                onUpdate(entity.id, type);
-                              }}
-                            />
-                          ) : (
-                            <CheckIcon style={{ color: '#FFFFFF' }} />
-                          )
-                        }
+                        avatar={ChipAvatar}
                         deleteIcon={
                           entity.is_internal ? (
                             <DeleteIcon style={{ color: '#FFFFFF' }} />
                           ) : undefined
                         }
                         disabled={isLoading}
-                        label={entity.version.current}
+                        label={
+                          entity.is_internal ? (
+                            <CheckIcon style={{ color: '#FFFFFF' }} />
+                          ) : (
+                            entity.version.current
+                          )
+                        }
                         style={{
                           backgroundColor: entity.version.outdated
                             ? '#FF9A13'
                             : '#84BD00',
                           color: '#FFFFFF'
                         }}
-                        onDelete={(): void =>
-                          onDelete(entity.id, type, entity.description)
+                        onDelete={
+                          entity.is_internal
+                            ? (): void =>
+                                onDelete(entity.id, type, entity.description)
+                            : undefined
                         }
                       />
                     ) : (
