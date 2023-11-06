@@ -10,6 +10,15 @@ inputs:
   gh_token:
     description: "The gh service token"
     required: true
+  jira_token:
+    description: "The jira service token"
+    required: true
+  jira_project_id:
+    description: "The jira project id"
+    required: true
+  jira_user:
+    description: "The jira user"
+    required: true
 
 runs:
   using: "composite"
@@ -27,11 +36,18 @@ runs:
         PR_BODY="REF #MON-21407"
         PR_TITLE="MON-21407 Sync Centreon OSS next 22.10"
         RELEASE_ISSUE_ID=""
+        RELEASE_ISSUE_JIRA_FILTER="project%3DMON%20and%20status%20not%20in%20(%27RELEASED%27%2C%20%27Archived%27)%20and%20issuetype%20%3D%20Release%20order%20by%20created%20DESC"
 
         # Get major version from .env file from repository
          VERSION=$(cat .env)
 
         # Get release JIRA issue ID
+        RELEASE_ISSUE_ID=$(curl -v -L \
+          -X GET \
+          --header 'Accept: application/json' \
+          --user 'user@domain.com:<jira_token>'
+          'https://centreon.atlassian.net/rest/api/3/search?jql=${RELEASE_ISSUE_JIRA_FILTER}' \
+          )
 
         # Check vars and exit if one of them is empty
         if [[ -z ${PR_BASE_BRANCH} | -z ${PR_REVIEWERS} | -z ${PR_BODY} | -z ${PR_TITLE} ]]; then
