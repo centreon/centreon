@@ -25,6 +25,7 @@ namespace Core\Metric\Infrastructure\API\FindMetricsByService;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Metric\Application\UseCase\FindMetricsByService\{FindMetricsByService};
+use Symfony\Component\HttpFoundation\Response;
 
 final class FindMetricsByServiceController extends AbstractController
 {
@@ -39,7 +40,7 @@ final class FindMetricsByServiceController extends AbstractController
         int $serviceId,
         FindMetricsByService $useCase,
         FindMetricsByServicePresenter $presenter
-    ) {
+    ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
         $useCase($hostId, $serviceId, $presenter);
