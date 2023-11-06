@@ -117,7 +117,6 @@ const useGraphQuery = ({
         startAndEnd.end
       }&metric_names=[${definedMetrics.join(',')}]`;
     },
-
     getQueryKey: () => [
       'graph',
       JSON.stringify(definedMetrics),
