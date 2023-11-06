@@ -114,13 +114,19 @@ class PlatformController extends AbstractController
      *     fix: string
      * } (ex: [ 'version' => '1.2.09', 'major' => '1', 'minor' => '2', 'fix' => '09'])
      */
-    private function extractVersion(string $version): array
+    private function extractVersion(?string $version): array
     {
-        [$major, $minor, $fix] = explode(
-            '.',
-            VersionHelper::regularizeDepthVersion($version),
-            3
-        );
+        $major = null;
+        $minor = null;
+        $fix = null;
+
+        if ($version !== null) {
+            [$major, $minor, $fix] = explode(
+                '.',
+                VersionHelper::regularizeDepthVersion($version),
+                3
+            );
+        }
 
         return compact('version', 'major', 'minor', 'fix');
     }
