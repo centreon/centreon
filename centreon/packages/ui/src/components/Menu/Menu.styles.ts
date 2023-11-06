@@ -58,7 +58,6 @@ export const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.menu.background,
       borderRadius: '4px',
       boxShadow: theme.shadows[8],
-      minWidth: '240px',
       transform: `translateY(${theme.spacing(0.5)}) !important`
     },
     '& ul, & ul.MuiMenu-list': {

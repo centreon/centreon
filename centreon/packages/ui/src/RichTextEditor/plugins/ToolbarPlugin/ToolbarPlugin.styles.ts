@@ -6,17 +6,9 @@ export const useBlockButtonsStyles = makeStyles()((theme) => ({
   }
 }));
 
-export const useAlignPickerStyles = makeStyles()((theme) => ({
-  button: {
-    alignItems: 'center',
+export const useStyles = makeStyles()(() => ({
+  menu: {
     display: 'flex',
-    flexDirection: 'row',
-    gap: theme.spacing(1)
-  },
-  option: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'row',
-    gap: theme.spacing(2)
+    flexDirection: 'row'
   }
 }));

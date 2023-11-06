@@ -5,8 +5,10 @@ import { Divider } from '@mui/material';
 import FormatButtons from './FormatButtons';
 import UndoRedoButtons from './UndoRedoButtons';
 import MacrosButton from './MacrosButton';
-import BlockButtons from './BlockButtons';
 import AlignPicker from './AlignPicker';
+import TextSizeButtons from './TextSizeButtons';
+import ListButton from './ListButton';
+import LinkButton from './LinkButton';
 
 interface Props {
   className?: string;
@@ -48,12 +50,13 @@ const ToolbarPlugin = ({
       {displayBlockButtons && (
         <>
           <Divider flexItem orientation="vertical" />
-          <BlockButtons disabled={disabled} />
+          <TextSizeButtons disabled={disabled} />
         </>
       )}
-      <Divider flexItem orientation="vertical" />
       <FormatButtons disabled={disabled} />
       <AlignPicker disabled={disabled} />
+      <ListButton disabled={disabled} />
+      <LinkButton disabled={disabled} />
       {displayMacrosButton && (
         <>
           <Divider flexItem orientation="vertical" />
