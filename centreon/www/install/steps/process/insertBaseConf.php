@@ -95,7 +95,7 @@ try {
     $moduleService = \Centreon\LegacyContainer::getInstance()[ServiceProvider::CENTREON_MODULE];
     $widgets = $moduleService->getList(null, false, false, 'widget');
     foreach ($widgets['widget'] as $widget) {
-        $moduleService->install($widget->getName(), 'widget');
+        $moduleService->install($widget->getName(), ['widget']);
     }
 } catch (\Exception $e) {
     $return['msg'] = $e->getMessage();
