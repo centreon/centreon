@@ -105,7 +105,7 @@ jobs:
               fi
             ;;
             debian:bullseye:23.10 | debian:bullseye:23.04 | debian:bullseye:22.10 | debian:bullseye:22.04)
-              apt update && apt upgrade -y
+              apt update
               apt update && apt install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
               echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
               wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
