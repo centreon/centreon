@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 
 import { importRemote } from '@module-federation/utilities';
 import { equals, isEmpty, isNil } from 'ramda';
@@ -19,12 +19,14 @@ interface RemoteProps {
   moduleFederationName: string;
   moduleName: string;
   remoteEntry: string;
+  remoteUrl?: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 export const Remote = ({
   component,
   remoteEntry,
+  remoteUrl,
   moduleName,
   moduleFederationName,
   isFederatedComponent,
@@ -44,10 +46,10 @@ export const Remote = ({
               module: component,
               remoteEntryFileName: remoteEntry,
               scope: moduleFederationName,
-              url: `./${prefix}/${moduleName}/static`
+              url: remoteUrl ?? `./${prefix}/${moduleName}/static`
             })
       ),
-    [component, moduleName, remoteEntry, moduleFederationName]
+    [component, moduleName, remoteEntry, moduleFederationName, remoteUrl]
   );
 
   const fallback = isFederatedComponent ? (
