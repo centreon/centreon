@@ -112,11 +112,13 @@ class CentreonConfigPoller
     }
 
     /**
+     * Check for the existence of poller with ID or name $poller, and return
+     * the ID of that poller. If the poller does not exist, raise an exception.
      *
-     * @param type $poller
-     * @return type
+     * @param string $poller
+     * @return int
      */
-    private function testPollerId($poller)
+    private function ensurePollerId($poller)
     {
         if (is_numeric($poller)) {
             $sQuery = "SELECT id FROM nagios_server WHERE `id` = '" . $this->DB->escape($poller) . "'";
@@ -125,12 +127,11 @@ class CentreonConfigPoller
         }
 
         $DBRESULT = $this->DB->query($sQuery);
-        if ($DBRESULT->rowCount() != 0) {
-            return;
+        if ($DBRESULT->rowCount() > 0) {
+            $row = $DBRESULT->fetchRow();
+            return $row['id'];
         } else {
-            print "ERROR: Unknown poller...\n";
-            $this->getPollerList('');
-            exit(1);
+            throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
         }
     }
 
@@ -164,8 +165,7 @@ class CentreonConfigPoller
             exit(1);
         }
 
-        $poller_id = $this->getPollerId($variables);
-        $this->testPollerId($poller_id);
+        $poller_id = $this->ensurePollerId($variables);
 
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
@@ -202,15 +202,13 @@ class CentreonConfigPoller
      */
     public function execCmd($pollerId)
     {
-        $this->testPollerId($pollerId);
-
         $instanceClassFile = $this->centreon_path . 'www/class/centreonInstance.class.php';
         if (!is_file($instanceClassFile)) {
             throw new CentreonClapiException('This action is not available in the version of Centreon you are using');
         }
         require_once $instanceClassFile;
 
-        $pollerId = $this->getPollerId($pollerId);
+        $pollerId = $this->ensurePollerId($pollerId);
 
         $instanceObj = new \CentreonInstance($this->DB);
         $cmds = $instanceObj->getCommandData($pollerId);
@@ -242,8 +240,7 @@ class CentreonConfigPoller
             exit(1);
         }
 
-        $this->testPollerId($variables);
-        $poller_id = $this->getPollerId($variables);
+        $poller_id = $this->ensurePollerId($variables);
 
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
@@ -285,9 +282,7 @@ class CentreonConfigPoller
             exit(1);
         }
 
-        $this->testPollerId($variables);
-
-        $idPoller = $this->getPollerId($variables);
+        $idPoller = $this->ensurePollerId($variables);
 
         /**
          * Get Nagios Bin
@@ -378,11 +373,7 @@ class CentreonConfigPoller
 
         $config_generate = new \Generate($this->dependencyInjector);
 
-        $this->testPollerId($variables);
-
-        $poller_id = $this->getPollerId($variables);
-        //sanitize poller id against traversal path vulnerability
-        $poller_id = basename($poller_id);
+        $poller_id = $this->ensurePollerId($variables);
         $config_generate->configPollerFromId($poller_id, $login);
 
         /* Change files owner */
@@ -447,12 +438,7 @@ class CentreonConfigPoller
 
         $return = 0;
 
-        /**
-         * Check poller existence
-         */
-        $this->testPollerId($variables);
-
-        $pollerId = $this->getPollerId($variables);
+        $pollerId = $this->ensurePollerId($variables);
 
         $statement = $pearDB->prepare("SELECT * FROM `nagios_server` WHERE `id` = :pollerId");
         $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
@@ -672,9 +658,7 @@ class CentreonConfigPoller
         if (is_null($pollerId)) {
             throw new CentreonClapiException(self::MISSING_POLLER_ID);
         }
-        $this->testPollerId($pollerId);
-        /* $pollerId could be a name; make sure we have an ID */
-        $pollerId = $this->getPollerId($pollerId);
+        $pollerId = $this->ensurePollerId($pollerId);
 
         $centreonDir = $this->centreon_path;
         $pearDB = $this->dependencyInjector['configuration_db'];
@@ -708,27 +692,6 @@ class CentreonConfigPoller
         }
         $str = "- " . $filename . " -> " . $status . "\n";
         return $str;
-    }
-
-    /**
-     *
-     * @param string $poller
-     * @return int
-     */
-    private function getPollerId($poller)
-    {
-        if (is_numeric($poller)) {
-            return (int) $poller;
-        }
-
-        $sQuery = "SELECT id FROM nagios_server WHERE `name` = '" . $this->DB->escape($poller) . "'";
-        $DBRESULT = $this->DB->query($sQuery);
-        if ($DBRESULT->rowCount() > 0) {
-            $row = $DBRESULT->fetchRow();
-            return $row['id'];
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
-        }
     }
 
     public function getPollerState()
