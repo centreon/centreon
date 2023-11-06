@@ -187,7 +187,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      * @param array<
      *  array{
      *    id: int,
-     *    name: string
+     *    name: string,
      *    unit_name: string,
      *    current_value: float|null,
      *    warn: float|null,

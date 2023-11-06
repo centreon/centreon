@@ -181,15 +181,15 @@ class FileDataStoreEngine implements DataStorageEngineInterface
 
     /**
      * @param string $from
-     * @param string $to
+     * @param string $destination
      *
      * @throws \Exception
      */
-    private function copyFile(string $from, string $to): void
+    private function copyFile(string $from, string $destination): void
     {
-        if (! copy($from, $to)) {
+        if (! copy($from, $destination)) {
             throw new \Exception(
-                sprintf('Unable to copy file from \'%s\' to \'%s\'', $from, $to)
+                sprintf('Unable to copy file from \'%s\' to \'%s\'', $from, $destination)
             );
         }
     }

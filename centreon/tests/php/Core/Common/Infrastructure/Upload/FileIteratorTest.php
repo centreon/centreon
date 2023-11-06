@@ -38,7 +38,7 @@ it('should iterate on each files of ZIP archive and others', function(): void {
     }
     $files = [];
     foreach($fileManager->getFiles() as $filename => $contentFile) {
-        /** @var File $file */
+        /** @var list<array{filename: string, md5: string}> $files */
         $files[] = [
             'filename' => $filename,
             'md5' => md5($contentFile)
