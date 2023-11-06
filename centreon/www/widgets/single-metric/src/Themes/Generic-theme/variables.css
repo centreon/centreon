@@ -1,0 +1,9 @@
+@import "color-variables.css";
+
+:root {
+    --metric-links-font-color: var(--color-martar);
+    --state-ok-font-color: var(--color-ok);
+    --state-warning-font-color: var(--color-warning);
+    --state-critical-font-color: var(--color-critical);
+    --metric-coloring-font-color: var(--color-black);
+}

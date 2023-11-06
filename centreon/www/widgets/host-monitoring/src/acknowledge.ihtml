@@ -1,0 +1,43 @@
+<form id='Form'>
+	<div class="colorbox-popin">
+		 <table class="table" style="font-size: 11px;">
+			<tr>
+				<td colspan="2" class="FormHeader"><h3 style="color: #00bfb3;">{$titleLabel}</h3></td>
+			</tr>
+			<tr>
+				<td class="FormRowField">{$stickyLabel}</td>
+				<td class="FormRowValue"><input type='checkbox' name='sticky' {$sticky_checked}/></td>
+			</tr>
+			<tr>
+				<td class="FormRowField">{$notifyLabel}</td>
+				<td class="FormRowValue"><input type='checkbox' name='notify' {$notify_checked}/></td>
+			</tr>
+			<tr>
+				<td class="FormRowField">{$persistentLabel}</td>
+				<td class="FormRowValue"><input type='checkbox' name='persistent' {$persistent_checked}/></td>
+			</tr>
+			<tr>
+				<td class="FormRowField">{$authorLabel}</td>
+				<td class="FormRowValue"><input type='text' value='{$author}' disabled /><input name='author' type='hidden' value='{$author}'/></td>
+			</tr>
+			<tr>
+				<td class="FormRowField">{$commentLabel}<span style='color: red;'>*</span></td>
+				<td class="FormRowValue"><textarea id='comment' name='comment' cols='30' rows='3'>{$defaultMessage}</textarea></td>
+			</tr>
+			<tr>
+				<td class="FormRowField">{$ackHostSvcLabel}</td>
+				<td class="FormRowValue"><input type='checkbox' name='processServices' {$process_service_checked} /></td>
+			</tr>
+			<tr>
+				<td class="FormRowField">{$forceCheckLabel}</td>
+				<td class="FormRowValue"><input type='checkbox' name='forcecheck' {$force_active_checked} /></td>
+			</tr>
+		</table>
+		<div id="validForm">
+			<input type='hidden' name='hosts' value='{$hosts}' />
+			<input type='hidden' name='cmdType' value='ack' />
+			<input type='button' id='submit' class="btc bt_success" value='{$submitLabel}'/>
+		</div>
+	</div>
+</form>
+

@@ -53,7 +53,7 @@ class WidgetSource extends SourceAbstract
     {
         $this->info = $this->db
             ->getRepository(WidgetModelsRepository::class)
-            ->getAllWidgetVsVersion();
+            ->getAllWidgetsVersion();
     }
 
     /**
@@ -134,7 +134,7 @@ class WidgetSource extends SourceAbstract
         $entity->setName($xml->title->__toString());
         $entity->setDescription($xml->description->__toString());
         $entity->setAuthor($xml->author->__toString());
-        $entity->setVersion($xml->version->__toString());
+        $entity->setVersion($xml->version ? $xml->version->__toString() : null);
         $entity->setKeywords($xml->keywords->__toString());
 
         if ($xml->stability) {

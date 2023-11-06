@@ -1,0 +1,68 @@
+<form id='Form'>
+	<table class="table">
+		<tr>
+			<td style="color: #00bfb3;" class ="FormHeader" colspan="2">
+				<h3>{$titleLabel}</h3>
+			</td>
+		</tr>
+		<tr>
+			<td class="FormRowField">{$startLabel}<span style='color: red;'> *</span></td>
+			<td class="FormRowValue">
+				<input type='text' class="datepicker" id='downtimestart' name='start' value='' size='9' />
+				<input id="start_time" size="5" class="timepicker" name="start_time" type="text" value=''>
+				<input type='hidden' class='alternativeDate' id='altDateStart' size='10' name="alternativeDateStart" />
+			</td>
+		</tr>
+		<tr>
+			<td class="FormRowField">{$endLabel}<span style='color: red;'> *</span></td>
+			<td class="FormRowValue">
+				<input class="datepicker" type='text' id='downtimeend' name='end' value='' size='9' />
+				<input id="end_time" size="5" class="timepicker" name="end_time" type="text" value=''>
+				<input type='hidden' class='alternativeDate' id='altDateEnd' size='10' name="alternativeDateEnd" />
+			</td>
+		</tr>
+		<tr>
+			<td class="FormRowField">{$durationLabel}</td>
+			<td class="FormRowValue">
+				<input type='text' id='duration' name='duration' width='30' value='{$defaultDuration}' />
+				<select id="duration_scale" name="duration_scale">
+					<option value="s" {$sDefaultScale}>{$sDurationLabel}</option>
+					<option value="m" {$mDefaultScale}>{$mDurationLabel}</option>
+					<option value="h" {$hDefaultScale}>{$hDurationLabel}</option>
+					<option value="d" {$dDefaultScale}>{$dDurationLabel}</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td class="FormRowField">{$fixedLabel}</td>
+			<td class="FormRowValue">
+				<input type='checkbox' name='fixed' {$fixed_checked} />
+			</td>
+		</tr>
+		<tr>
+			<td class="FormRowField">{$authorLabel}</td>
+			<td class="FormRowValue">
+				<input type='text' value='{$author}' disabled />
+				<input name='author' type='hidden' value='{$author}'/>
+			</td>
+		</tr>
+		<tr>
+			<td class="FormRowField">{$commentLabel}<span style='color: red;'> *</span></td>
+			<td class="FormRowValue">
+				<textarea id='comment' name='comment' cols='30' rows='5'>{$defaultMessage}</textarea>
+			</td>
+		</tr>
+        {if $cmd == 75}
+			<tr>
+				<td class="FormRowField">{$downtimeHostSvcLabel}</td>
+				<td class="FormRowField"><input type='checkbox' name='processServices' {$process_service_checked}/></td>
+			</tr>
+		{/if}
+	</table>
+	<div id="validForm">
+		<input type='hidden' name='selection' value='{$selection}' />
+		<input type='hidden' name='cmd' value='{$cmd}' />
+		<input type='hidden' name='cmdType' value='downtime' />
+		<input class="btc bt_info" type='button' id='submit' value='{$submitLabel}'/>
+	</div>
+</form>

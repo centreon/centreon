@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Servicegroup Monitoring</title>
+        <link href="../../include/common/javascript/jquery/plugins/pagination/pagination.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}/variables.css"
+              rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        {if $preferences.more_views == 1}
+        <div id='actionBar' style='width:100%; float:left; height:30px;'>
+            <a href='./src/export.php?widgetId={$widgetId}' class="btc bt_success" style="float:right; margin-top: 0px;">Export</a>
+            <div id='pagination' class="pagination" style='float:left;text-align:right;margin:12px 0px 10px 12px;'></div>
+        </div>
+        {/if}
+        <div id='hgMonitoringTable'></div>
+        <script type="text/javascript">
+            var widgetId = {$widgetId};
+            var autoRefresh = {$autoRefresh};
+            var timeout;
+            var itemsPerPage = {$preferences.entries};
+            var pageNumber = 0;
+            var clickedCb = new Array();
+        </script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/treeTable/jquery.treeTable.min.js"></script>
+        <script type="text/javascript" src="data.js"></script>
+    </body>
+</html>

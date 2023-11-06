@@ -49,10 +49,10 @@ class Module implements SourceDataInterface
     /** @var string */
     private $author;
 
-    /** @var string */
+    /** @var string|null */
     private $version;
 
-    /** @var string */
+    /** @var string|null */
     private $versionCurrent;
 
     /** @var string */
@@ -179,7 +179,7 @@ class Module implements SourceDataInterface
     /**
      * @return string
      */
-    public function getVersion(): string
+    public function getVersion(): ?string
     {
         return $this->version;
     }
@@ -187,7 +187,7 @@ class Module implements SourceDataInterface
     /**
      * @param string $version
      */
-    public function setVersion(string $version): void
+    public function setVersion(?string $version): void
     {
         $this->version = $version;
     }
@@ -203,7 +203,7 @@ class Module implements SourceDataInterface
     /**
      * @param string $versionCurrent
      */
-    public function setVersionCurrent(string $versionCurrent): void
+    public function setVersionCurrent(?string $versionCurrent): void
     {
         $this->versionCurrent = $versionCurrent;
     }

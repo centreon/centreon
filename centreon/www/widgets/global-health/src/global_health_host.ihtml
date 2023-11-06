@@ -1,0 +1,123 @@
+<style>
+        <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+        <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+        <link href="{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}"  rel="stylesheet" type="text/css"/>
+</style>
+    <h3 style="text-align: center;"> Global health of Hosts </h3>
+    <div id="container" style="text-align:center">
+        <div id="global_health_host_div" style="text-align:center;display:inline-block;vertical-align: middle;"></div>
+        {if $preferences.hide_table != 1}<div id="global_health_table_div" class="global_health_div_tab" style="display:inline-block;vertical-align: middle;" >
+            <table>
+                <thead>
+                    <th>
+                    </th>
+                    <th>
+                        <small>Number</small>
+                    </th>
+                    <th>
+                        <small>Ack</small>
+                    </th>
+                    <th>
+                        <small>DT</small>
+                    </th>
+                    <th>
+                        <small>%</small>
+                    </th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td> <span class="ListColCenter state_badge host_up" ></span> <b> Up </b> </td>
+                        <td> {$hosts.UP.value} </td>
+                        <td> {$hosts.UP.acknowledged} </td>
+                        <td> {$hosts.UP.downtime} </td>
+                        <td> {$hosts.UP.percent}  </td>
+                    </tr>
+                    <tr>
+
+                        <td> <span class="ListColCenter state_badge host_down" ></span> <b> Down </b> </td>
+                        <td> {$hosts.DOWN.value} </td>
+                        <td> {$hosts.DOWN.acknowledged} </td>
+                        <td> {$hosts.DOWN.downtime} </td>
+                        <td> {$hosts.DOWN.percent} </td>
+                    </tr>
+                    <tr>
+
+                        <td> <span class="ListColCenter state_badge host_unreachable" ></span> <b> Unreachable </b> </td>
+                        <td> {$hosts.UNREACHABLE.value} </td>
+                        <td> {$hosts.UNREACHABLE.acknowledged} </td>
+                        <td> {$hosts.UNREACHABLE.downtime} </td>
+                        <td> {$hosts.UNREACHABLE.percent} </td>
+                    </tr>
+                    <tr>
+                        <td> <span class="ListColCenter state_badge pending" ></span> <b> Pending </b> </td>
+                        <td> {$hosts.PENDING.value} </td>
+                        <td> {$hosts.PENDING.acknowledged} </td>
+                        <td> {$hosts.PENDING.downtime} </td>
+                        <td> {$hosts.PENDING.percent} </td>
+                    </tr>
+                </tbody>
+            </table>
+        {/if}</div>
+    </div>
+<script>
+    {literal}
+        (() => {
+            let UP = {/literal}{$hosts.UP.percent}{literal};
+            let DOWN = {/literal}{$hosts.DOWN.percent}{literal};
+            let UNREACHABLE = {/literal}{$hosts.UNREACHABLE.percent}{literal};
+            let PENDING = {/literal}{$hosts.PENDING.percent}{literal};
+
+            let options = {
+                chart: {
+                    id:'hosts',
+                    width:260,
+                    type:'pie',
+                    height:200,
+                },
+                legend: {
+                    show:false,
+                    position:'bottom',
+                },
+                responsive: [{
+                    breakpoint:480,
+                    options: {
+                        chart: {
+                            width:230
+                        }
+                    }
+                }],
+                dataLabels: {
+                    style: {
+                        fontSize:'12px',
+                        fontFamily:'Arial, sans-serif',
+                        colors:['#000000']
+                    },
+                },
+                tooltip: {
+                    fillSeriesColor: false,
+                },
+                plotOptions: {
+                    pie: {
+                        dataLabels: {
+                            offset:0,
+                            minAngleToShowLabel:25
+                        },
+                    },
+                },
+                labels:['Up', 'Down', 'Unreachable', 'Pending'],
+                series:[UP, DOWN, UNREACHABLE, PENDING],
+                colors:['#88B922', '#FF4A4A', '#757575','#1EBEB3']
+            };
+            //The legend appear when the user hide the table because the table include it originally
+            {/literal}{if $preferences.hide_table}
+                options.legend.show = true;
+            {/if}{literal}
+
+            const chart = new ApexCharts(
+                document.querySelector("#global_health_host_div"),
+                options
+            );
+            chart.render();
+        })()
+    {/literal}
+</script>

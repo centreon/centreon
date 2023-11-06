@@ -1,0 +1,85 @@
+<html>
+<head>
+    <title>tactical-overview</title>
+    <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/{$theme}/variables.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    <div id="tactical-overview">
+        <table class='StyleTable ListTable'>
+            <tr class="ListHeader">
+                <td class='ListColHeaderLeft'>
+                    <a href='{$dataCRI[0].listing_uri}' target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].status}</span>Critical</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href='{$dataWA[0].listing_uri}' target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].status}</span>Warning</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href='{$dataUNK[0].listing_uri}' target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].status}</span>Unknown</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href='{$dataOK[0].listing_uri}' target="_blank"><span class="badge service_ok margin_right">{$dataOK[0].status}</span>Ok</a>
+                </td>
+                <td class='ListColHeaderLeft'>
+                    <a href='{$dataPEND[0].listing_uri}' target="_blank"><span class="badge pending margin_right">{$dataPEND[0].status}</span>Pending</a>
+                </td>
+            </tr>
+            <tr class="line_ack">
+                <td class='ListColLeft'>
+                    <a href='{$dataCRI[0].listing_ack_uri}' target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].ack}</span>Acknowledge</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataWA[0].listing_ack_uri}' target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].ack}</span>Acknowledge</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataUNK[0].listing_ack_uri}' target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].ack}</span>Acknowledge</a>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class ="line_downtime">
+                <td class='ListColLeft'>
+                    <a href='{$dataCRI[0].listing_downtime_uri}' target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].down}</span>Downtimes</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataWA[0].listing_downtime_uri}' target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].down}</span>Downtimes</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataUNK[0].listing_downtime_uri}' target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].down}</span>Downtimes</a>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="list_two">
+                <td class='ListColLeft'>
+                    <a href='{$dataCRI[0].listing_unhandled_uri}' target="_blank"><span class="badge service_critical margin_right">{$dataCRI[0].un}</span>Unhandled</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataWA[0].listing_unhandled_uri}' target="_blank"><span class="badge service_warning margin_right">{$dataWA[0].un}</span>Unhandled</a>
+                </td>
+                <td class='ListColLeft'>
+                    <a href='{$dataUNK[0].listing_unhandled_uri}' target="_blank"><span class="badge service_unknown margin_right">{$dataUNK[0].un}</span>Unhandled</a>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="list_one">
+                <td class="ListColLeft"><span class="badge service_critical margin_right">{$dataCRI[0].pb}</span>Problem on host</td>
+                <td class="ListColLeft"><span class="badge service_warning margin_right">{$dataWA[0].pb}</span>Problem on host</td>
+                <td class="ListColLeft"><span class="badge service_unknown margin_right">{$dataUNK[0].pb}</span>Problem on host</td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        var widgetId = "{$widgetId}";
+        var autoRefresh = "{$autoRefresh}";
+    </script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+    <script type="text/javascript" src="src/data_js.js"></script>
+</body>
+</html>
