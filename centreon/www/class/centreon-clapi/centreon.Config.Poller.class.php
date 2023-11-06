@@ -673,6 +673,9 @@ class CentreonConfigPoller
             throw new CentreonClapiException(self::MISSING_POLLER_ID);
         }
         $this->testPollerId($pollerId);
+        /* $pollerId could be a name; make sure we have an ID */
+        $pollerId = (int) $this->getPollerId($pollerId);
+
         $centreonDir = $this->centreon_path;
         $pearDB = $this->dependencyInjector['configuration_db'];
         $res = $pearDB->query("SELECT snmp_trapd_path_conf FROM nagios_server WHERE id = '" . $pollerId . "'");
