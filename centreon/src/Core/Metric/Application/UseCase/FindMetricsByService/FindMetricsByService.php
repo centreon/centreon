@@ -51,12 +51,9 @@ final class FindMetricsByService
     }
 
     /**
-     * Undocumented function
-     *
      * @param integer $hostId
      * @param integer $serviceId
      * @param FindMetricsByServicePresenterInterface $presenter
-     * @return void
      */
     public function __invoke(
         int $hostId,
