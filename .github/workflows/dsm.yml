@@ -163,3 +163,15 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  check-stable-packages:
+    needs: [get-version, promote]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+
+    uses: ./.github/workflows/check-pkg-availability.yml
+    with:
+      module: dsm
+      major_version: ${{ needs.get-version.outputs.major_version }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
