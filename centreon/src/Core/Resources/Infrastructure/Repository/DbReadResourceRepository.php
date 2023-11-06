@@ -242,19 +242,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * Only return resources that has performance data available in order to display graphs.
-     */
-    public function extractResourcesWithGraphData(): void
-    {
-        $this->resources = array_values(
-            array_filter(
-                $this->resources,
-                static fn (ResourceEntity $resource) => $resource->hasGraph(),
-            )
-        );
-    }
-
-    /**
      * This adds the subrequest filter for tags (servicegroups, hostgroups).
      *
      * @param ResourceFilter $filter
@@ -459,6 +446,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             AND resources.parent_name NOT LIKE '\_Module\_BAM%'
             AND resources.enabled = 1 AND resources.type != 3";
 
+        // Apply only_with_performance_data
+        if ($filter->getOnlyWithPerformanceData() === true) {
+            $request .= ' AND resources.has_graph = 1';
+        }
+
         $request .= $accessGroupRequest;
 
         $request .= $this->addResourceParentIdSubRequest($filter, $collector);
@@ -562,12 +554,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         while ($resourceRecord = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var array<string,int|string|null> $resourceRecord */
             $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
-        }
-
-        // Apply only_with_performance_data
-        if ($filter->getOnlyWithPerformanceData() === true) {
-            $this->extractResourcesWithGraphData();
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) count($this->resources));
         }
 
         $iconIds = $this->getIconIdsFromResources();
