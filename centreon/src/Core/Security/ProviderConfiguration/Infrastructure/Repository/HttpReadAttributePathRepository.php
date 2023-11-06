@@ -24,11 +24,13 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Infrastructure\Repository;
 
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidContentException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidResponseException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidStatusCodeException;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\OpenIdCustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
@@ -93,6 +95,9 @@ final class HttpReadAttributePathRepository implements ReadAttributePathReposito
         string $endpointType
     ): ResponseInterface {
         $customConfiguration = $configuration->getCustomConfiguration();
+        if (! $customConfiguration instanceof OpenIdCustomConfigurationInterface) {
+            throw ConfigurationException::unexpectedCustomConfiguration($customConfiguration::class);
+        }
         $headers = ['Authorization' => 'Bearer ' . trim($token)];
         $options = ['verify_peer' => $customConfiguration->verifyPeer(), 'headers' => $headers];
         if ($endpointType !== Endpoint::CUSTOM) {

@@ -137,7 +137,7 @@ class ContactGroupsWebservice extends Webservice\WebServiceAbstract implements
      * Get contact groups list
      *
      * @throws \RestBadRequestException
-     * @return array
+     * @return Response
      */
     public function getList(): Response
     {

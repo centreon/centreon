@@ -31,6 +31,9 @@ use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId as OpenIdProvider;
+use Core\Security\Authentication\Infrastructure\Provider\SAML as SamlProvider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 class AclUpdater implements AclUpdaterInterface
@@ -66,6 +69,12 @@ class AclUpdater implements AclUpdaterInterface
             $aclConditions = $customConfiguration->getACLConditions();
             if ($aclConditions->isEnabled()) {
                 $aclConditionMatches = $provider->getAclConditionsMatches();
+                if (
+                    ! $this->provider instanceof OpenIdProvider
+                    && ! $this->provider instanceof SamlProvider
+                ) {
+                    throw ProviderException::unexpectedProvider(($this->provider)::class);
+                }
                 $userAccessGroups = $this->provider->getUserAccessGroupsFromClaims($aclConditionMatches);
                 $this->updateAccessGroupsForUser($user, $userAccessGroups);
             }

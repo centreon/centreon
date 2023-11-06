@@ -133,8 +133,7 @@ class TaskService
      */
     public function getStatus(string $taskId)
     {
-        $task = $this->getDbManager()->getAdapter('configuration_db')->getRepository(TaskRepository::class)
-            ->findOneById($taskId);
+        $task = $this->getRepository()->findOneById($taskId);
 
         return $task ? $task->getStatus() : null;
     }
@@ -146,8 +145,7 @@ class TaskService
      */
     public function getStatusByParent(int $parentId)
     {
-        $task = $this->getDbManager()->getAdapter('configuration_db')
-            ->getRepository(TaskRepository::class)
+        $task = $this->getRepository()
             ->findOneByParentId($parentId);
 
         return $task ? $task->getStatus() : null;
@@ -166,18 +164,26 @@ class TaskService
      */
     public function updateStatus(string $taskId, string $status)
     {
-        $task = $this->getDbManager()
-            ->getAdapter('configuration_db')
-            ->getRepository(TaskRepository::class)
+        $task = $this->getRepository()
             ->findOneById($taskId);
 
         if (! in_array($status, $task->getStatuses())) {
             return false;
         }
 
-        return $this->getDbManager()
-            ->getAdapter('configuration_db')
-            ->getRepository(TaskRepository::class)
+        return $this->getRepository()
             ->updateStatus($status, $taskId);
+    }
+
+    /**
+     * @return TaskRepository
+     */
+    private function getRepository()
+    {
+        /** @var TaskRepository */
+        return $this
+            ->getDbManager()
+            ->getAdapter('configuration_db')
+            ->getRepository(TaskRepository::class);
     }
 }

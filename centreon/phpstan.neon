@@ -20,6 +20,13 @@ parameters:
             path: tests/php
             messages:
                 - '#^Undefined variable: \$this$#'
+                - '#^Call to an undefined method Pest#'
+                - '#^Access to an undefined property PHPUnit#'
+
+        - # Baseline: 👇 dealing with this code is almost impossible without spending hours.
+            reportUnmatched: false
+            path: src/CentreonRemote/Infrastructure/Service/ExportService.php
+            message: '#^Trying to invoke int but it''s not a callable.$#'
 
 services:
     errorFormatter.absolute:

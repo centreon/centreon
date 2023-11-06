@@ -19,26 +19,21 @@
  *
  */
 
-namespace CentreonLegacy\Core\Install;
+declare(strict_types=1);
 
-class Factory
+namespace Core\Security\Authentication\Domain\Exception;
+
+class ProviderException extends \Exception
 {
-    /** @var \Pimple\Container */
-    protected $dependencyInjector;
-
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * Exception thrown when a Provider class was unexpected.
+     *
+     * @param class-string $class
+     *
+     * @return self
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public static function unexpectedProvider(string $class): self
     {
-        $this->dependencyInjector = $dependencyInjector;
-    }
-
-    /**
-     * @return \CentreonLegacy\Core\Install\Information
-     */
-    public function newInformation()
-    {
-        return new Information($this->dependencyInjector);
+        return new self(sprintf(_('Must not Happen, got unexpected Provider type %s'), $class));
     }
 }

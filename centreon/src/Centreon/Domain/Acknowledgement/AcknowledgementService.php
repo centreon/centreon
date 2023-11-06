@@ -95,7 +95,7 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
     /**
      * {@inheritDoc}
      * @param Contact $contact
-     * @return AcknowledgementServiceInterface
+     * @return self
      */
     public function filterByContact($contact): self
     {
