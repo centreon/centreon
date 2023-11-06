@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 
 import { importRemote } from '@module-federation/utilities';
 import { equals, isEmpty, isNil } from 'ramda';
