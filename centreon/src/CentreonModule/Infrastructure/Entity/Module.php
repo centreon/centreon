@@ -220,7 +220,7 @@ class Module implements SourceDataInterface
     }
 
     /**
-     * @param string $isInternal
+     * @param bool $isInternal
      */
     public function setInternal(bool $isInternal): void
     {

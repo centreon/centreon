@@ -274,6 +274,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $configuration['upgradeable'] = false;
         $configuration['installed_version'] = '1.0.0';
         $configuration['available_version'] = '1.0.0';
+        $configuration['is_internal'] = false;
         $configuration['id'] = 1;
         unset($configuration['version']);
 
@@ -290,6 +291,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
                     'description' => 'my description',
                     'url' => '',
                     'version' => '1.0.0',
+                    'is_internal' => '0',
                     'directory' => 'my-widget',
                     'author' => 'phpunit',
                     'email' => 'root@localhost',
