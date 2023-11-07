@@ -54,7 +54,7 @@ contents:
   - src: "../gorgoned"
     dst: "/usr/bin/"
 
-  - src: "./contrib/gorgone_config_init.pl"
+  - src: "../contrib/gorgone_config_init.pl"
     dst: "/usr/local/bin/"
     file_info:
       mode: 0755
