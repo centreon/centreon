@@ -1,0 +1,9 @@
+in: query
+name: host_severity_levels
+required: false
+description: "Filter the resources by host severity levels"
+schema:
+  type: string
+  pattern: '^\[\d+(,\d+)*\]$'
+  description: should be in form [<int1>,<int2>,<int3>]
+  example: '[50, 75]'
