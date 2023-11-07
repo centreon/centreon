@@ -186,6 +186,57 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
     /**
      * @inheritDoc
      */
+    public function findByIds(array $commandIds): array
+    {
+        $sqlConcatenator = new SqlConcatenator();
+        $sqlConcatenator->defineSelect(
+            <<<'SQL'
+                SELECT
+                    command.command_id,
+                    command.command_name,
+                    command.command_line,
+                    command.command_example,
+                    command.command_type,
+                    command.enable_shell,
+                    command.command_activate,
+                    command.command_locked,
+                    command.connector_id,
+                    connector.name as connector_name,
+                    command.graph_id as graph_template_id,
+                    giv_graphs_template.name as graph_template_name
+                FROM `:db`.command
+                LEFT JOIN `:db`.connector
+                    ON command.connector_id = connector.id
+                LEFT JOIN `:db`.giv_graphs_template
+                    ON command.graph_id = giv_graphs_template.graph_id
+                SQL
+        );
+        $sqlConcatenator->appendWhere('command_id IN (:command_ids)');
+        $sqlConcatenator->storeBindValueMultiple(
+            ':command_ids',
+            $commandIds,
+            \PDO::PARAM_INT
+        );
+
+        $statement = $this->db->prepare($this->translateDbName((string) $sqlConcatenator));
+        $sqlConcatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $commands = [];
+        foreach ($statement as $result) {
+            /** @var _Command $result */
+            $command = $this->createCommand($result);
+
+            $commands[$command->getId()] = $command;
+        }
+
+        return $commands;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameterAndTypes(
         RequestParametersInterface $requestParameters,
         array $commandTypes

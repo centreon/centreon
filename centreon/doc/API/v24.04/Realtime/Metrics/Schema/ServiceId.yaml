@@ -1,0 +1,8 @@
+in: path
+name: service_id
+required: true
+description: "Service ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

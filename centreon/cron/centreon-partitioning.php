@@ -41,21 +41,18 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-partition/config.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-partition/mysqlTable.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-partition/options.class.php';
 
-echo "[" . date(DATE_RFC822) . "] PARTITIONING STARTED\n";
-
 /* Create partitioned tables */
 $centreonDb = new CentreonDB('centreon');
 $centstorageDb = new CentreonDB('centstorage', 3);
 $partEngine = new PartEngine();
 
 if (!$partEngine->isCompatible($centstorageDb)) {
-    exitProcess(
-        PROCESS_ID,
-        1,
-        "[" . date(DATE_RFC822) . "] "
-        . "CRITICAL: MySQL server is not compatible with partitionning. MySQL version must be greater or equal to 5.1\n"
-    );
+    echo "[" . date(DATE_RFC822) . "] "
+         . "CRITICAL: MySQL server is not compatible with partitionning. MySQL version must be greater or equal to 5.1\n";
+    exit(1);
 }
+
+echo "[" . date(DATE_RFC822) . "] PARTITIONING STARTED\n";
 
 $tables = [
     'data_bin',

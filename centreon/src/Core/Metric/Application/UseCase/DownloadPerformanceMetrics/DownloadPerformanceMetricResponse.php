@@ -25,7 +25,7 @@ namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use Core\Metric\Domain\Model\PerformanceMetric;
 
-class DownloadPerformanceMetricResponse
+final class DownloadPerformanceMetricResponse
 {
     /** @var PerformanceMetric[] */
     public iterable $performanceMetrics = [];

@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\GraphTemplate\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\GraphTemplate\Domain\Model\GraphTemplate;
+
 interface ReadGraphTemplateRepositoryInterface
 {
     /**
@@ -35,4 +38,15 @@ interface ReadGraphTemplateRepositoryInterface
      * @return bool
      */
     public function exists(int $id): bool;
+
+    /**
+     * Search for all commands based on request parameters.
+     *
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return GraphTemplate[]
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
 }
