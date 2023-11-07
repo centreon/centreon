@@ -6,7 +6,7 @@ get:
     List all of the metrics of a services with their threshold and current value
   parameters:
     - 'Schema/HostId.yaml'
-    - 'Schema/HostId.yaml'
+    - 'Schema/ServiceId.yaml'
   responses:
     '200':
       description: "OK"
