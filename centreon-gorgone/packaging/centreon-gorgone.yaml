@@ -43,7 +43,7 @@ contents:
     dst: "/etc/logrotate.d/gorgoned"
     type: config|noreplace
 
-  - src: "../gorgone/*"
+  - src: "../gorgone/"
     dst: "${PERL_VENDORLIB}/gorgone/"
 
   - src: "../gorgoned"
