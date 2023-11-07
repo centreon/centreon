@@ -4,6 +4,7 @@ info:
   description: |
     # New features
     + Added media endpoint (POST)
+    + Added metrics by service listing endpoint (GET)
     +
     # Updated features
     +
@@ -3479,6 +3480,8 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/hosts/{host_id}/services/{service_id}/metrics:
+    $ref: './v24.04/Realtime/Metrics/FindMetricsByService.yaml'
   /monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}:
     get:
       tags:
