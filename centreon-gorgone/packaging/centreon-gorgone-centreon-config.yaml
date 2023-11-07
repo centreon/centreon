@@ -1,0 +1,45 @@
+name: "centreon-gorgone-centreon-config"
+arch: "${ARCH}"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Move Centreon Gorgone packaging to nfpm
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+contents:
+
+ - src: "centreon-gorgone/packaging/centreon.yaml"
+    dst: "/etc/centreon-gorgone/config.d/30-centreon.yaml"
+    type: config|noreplace
+
+  - src: "centreon-gorgone/packaging/centreon-api.yaml"
+    dst: "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"
+    type: config|noreplace
+
+  - src: "centreon-gorgone/packaging/centreon-audit.yaml"
+    dst: "/etc/centreon-gorgone/config.d/50-centreon-audit.yaml"
+    type: config|noreplace
+
+  - src: "centreon-gorgone/packaging/sudoers.d/centreon-gorgone"
+    dst: "/etc/sudoers.d/centreon-gorgone"
+    file_info:
+      mode: 0600
+      owner: root
+      group: root
+
+scripts:
+  postinstall: ./scripts/centreon-gorgone-postinstall.sh
+
+rpm:
+  summary: centreon gorgone packaging to nfpm
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

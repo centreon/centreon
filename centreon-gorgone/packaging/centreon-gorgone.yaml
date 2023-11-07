@@ -74,28 +74,8 @@ contents:
     file_info:
       mode: 0644
 
-  - src: "centreon-gorgone/packaging/centreon.yaml"
-    dst: "/etc/centreon-gorgone/config.d/30-centreon.yaml"
-    type: config|noreplace
-
-  - src: "centreon-gorgone/packaging/centreon-api.yaml"
-    dst: "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"
-    type: config|noreplace
-  
-  - src: "centreon-gorgone/packaging/centreon-audit.yaml"
-    dst: "/etc/centreon-gorgone/config.d/50-centreon-audit.yaml"
-    type: config|noreplace
-
-  - src: "centreon-gorgone/packaging/sudoers.d/centreon-gorgone"
-    dst: "/etc/sudoers.d/centreon-gorgone"
-    file_info:
-      mode: 0600
-      owner: root
-      group: root
-
 scripts:
   preinstall: ./scripts/centreon-gorgone-preinstall.sh
-  postinstall: ./scripts/centreon-gorgone-postinstall.sh
 
 overrides:
   rpm:
@@ -164,4 +144,3 @@ rpm:
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
-

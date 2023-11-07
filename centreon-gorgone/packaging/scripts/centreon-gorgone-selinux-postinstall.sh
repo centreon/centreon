@@ -1,0 +1,1 @@
+semodule -i %{_datadir}/selinux/packages/ent/ent-gorgoned.pp > /dev/null 2>&1
