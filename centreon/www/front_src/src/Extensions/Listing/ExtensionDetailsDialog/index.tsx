@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import Carousel from 'react-material-ui-carousel';
 import { useTranslation } from 'react-i18next';
-import { equals, length } from 'ramda';
+import { equals, isEmpty, length, not } from 'ramda';
 
 import {
   Chip,
@@ -51,6 +51,8 @@ interface Props {
   onUpdate: (id: string, type: string) => void;
   type: string;
 }
+
+const hasImages = (images: Array<string>): boolean => not(isEmpty(images));
 
 const hasOneImage = (images: Array<string>): boolean =>
   equals(1, length(images));
@@ -123,37 +125,39 @@ const ExtensionDetailPopup = ({
       onConfirm={onClose}
     >
       <Grid container direction="column" spacing={2} sx={{ width: 540 }}>
-        <Grid item>
-          <ParentSize>
-            {({ width }): JSX.Element =>
-              extensionDetails.images ? (
-                <Carousel
-                  cycleNavigation
-                  fullHeightHover
-                  animation="slide"
-                  autoPlay={false}
-                  height={imageHeight}
-                  indicators={!hasOneImage(extensionDetails.images)}
-                  navButtonsAlwaysInvisible={hasOneImage(
-                    extensionDetails.images
-                  )}
-                >
-                  {extensionDetails.images?.map((image) => (
-                    <img
-                      alt={image}
-                      height="100%"
-                      key={image}
-                      src={image}
-                      width="100%"
-                    />
-                  ))}
-                </Carousel>
-              ) : (
-                <SliderSkeleton width={width} />
-              )
-            }
-          </ParentSize>
-        </Grid>
+        {hasImages(extensionDetails.images) && (
+          <Grid item>
+            <ParentSize>
+              {({ width }): JSX.Element =>
+                extensionDetails.images ? (
+                  <Carousel
+                    cycleNavigation
+                    fullHeightHover
+                    animation="slide"
+                    autoPlay={false}
+                    height={imageHeight}
+                    indicators={!hasOneImage(extensionDetails.images)}
+                    navButtonsAlwaysInvisible={hasOneImage(
+                      extensionDetails.images
+                    )}
+                  >
+                    {extensionDetails.images?.map((image) => (
+                      <img
+                        alt={image}
+                        height="100%"
+                        key={image}
+                        src={image}
+                        width="100%"
+                      />
+                    ))}
+                  </Carousel>
+                ) : (
+                  <SliderSkeleton width={width} />
+                )
+              }
+            </ParentSize>
+          </Grid>
+        )}
         <Grid item>
           {extensionDetails.version.installed &&
             extensionDetails.version.outdated && (

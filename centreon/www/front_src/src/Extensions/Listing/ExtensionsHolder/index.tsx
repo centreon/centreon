@@ -1,3 +1,5 @@
+import { ReactElement } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
@@ -32,7 +34,6 @@ import {
   labelLicenseExpired,
   labelLicenseNotValid
 } from '../../translatedLabels';
-import { ReactElement } from 'react';
 
 const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
@@ -180,7 +181,7 @@ const ExtensionsHolder = ({
                   }}
                 />
               );
-            } else if (entity.is_internal) {
+            } else if (!entity.is_internal) {
               ChipAvatar = <CheckIcon style={{ color: '#FFFFFF' }} />;
             }
 
@@ -195,6 +196,7 @@ const ExtensionsHolder = ({
                 }}
               >
                 <Card
+                  raised
                   style={{ display: 'grid', height: '100%' }}
                   variant="outlined"
                 >
@@ -211,17 +213,13 @@ const ExtensionsHolder = ({
                     {entity.version.installed ? (
                       <Chip
                         avatar={ChipAvatar}
-                        deleteIcon={
-                          entity.is_internal ? (
-                            <DeleteIcon style={{ color: '#FFFFFF' }} />
-                          ) : undefined
-                        }
+                        deleteIcon={<DeleteIcon style={{ color: '#FFFFFF' }} />}
                         disabled={isLoading}
                         label={
-                          entity.is_internal ? (
-                            <CheckIcon style={{ color: '#FFFFFF' }} />
-                          ) : (
+                          !entity.is_internal ? (
                             entity.version.current
+                          ) : (
+                            <CheckIcon style={{ color: '#FFFFFF' }} />
                           )
                         }
                         style={{
@@ -231,7 +229,7 @@ const ExtensionsHolder = ({
                           color: '#FFFFFF'
                         }}
                         onDelete={
-                          entity.is_internal
+                          !entity.is_internal
                             ? (): void =>
                                 onDelete(entity.id, type, entity.description)
                             : undefined
