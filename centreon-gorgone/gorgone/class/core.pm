@@ -43,13 +43,6 @@ use base qw(gorgone::class::script);
 my $VERSION = '23.10.0';
 my %handlers = (TERM => {}, HUP => {}, CHLD => {}, DIE => {});
 
-sub debug {
-    my $param = shift;
-    open(F, '>>', '/tmp/logs/gorgone_class_core.log');
-    print F $param . "\n";
-    close F;
-}
-
 sub new {
     my $class = shift;
     my $self = $class->SUPER::new(
@@ -95,7 +88,6 @@ sub get_version {
 
 sub init_server_keys {
     my ($self, %options) = @_;
-    debug("[init_server_keys] start");
 
     my ($code, $content_privkey, $content_pubkey);
     $self->{logger}->writeLogInfo("[core] Initialize server keys");
@@ -156,13 +148,10 @@ sub init_server_keys {
     $self->{logger}->writeLogInfo("[core] Public key file '$self->{config}->{configuration}->{gorgone}->{gorgonecore}->{pubkey}' loaded");
 
     $self->{keys_loaded} = 1;
-    debug("[init_server_keys] end");
 }
 
 sub init {
     my ($self) = @_;
-
-    debug("[init] start");
     $self->SUPER::init();
 
     # redefine to avoid out when we try modules
@@ -292,12 +281,10 @@ sub init {
     $self->load_modules();
 
     $self->set_signal_handlers();
-    debug("[init] end");
 }
 
 sub init_external_informations {
     my ($self) = @_;
-    debug("[init_external_informations] start");
 
     my ($status, $sth) = $self->{db_gorgone}->query({
         query => "SELECT `identity`, `ctime`, `mtime`, `key`, `oldkey`, `iv`, `oldiv` FROM gorgone_identity ORDER BY id DESC"
@@ -327,12 +314,10 @@ sub init_external_informations {
         $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_cipher},
         $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_padding}
     );
-    debug("[init_external_informations] end");
 }
 
 sub set_signal_handlers {
     my ($self) = @_;
-    debug("[set_signal_handlers] start");
 
     $SIG{TERM} = \&class_handle_TERM;
     $handlers{TERM}->{$self} = sub { $self->handle_TERM() };
@@ -342,62 +327,48 @@ sub set_signal_handlers {
     $handlers{CHLD}->{$self} = sub { $self->handle_CHLD() };
     $SIG{__DIE__} = \&class_handle_DIE;
     $handlers{DIE}->{$self} = sub { $self->handle_DIE($_[0]) };
-    debug("[set_signal_handlers] end");
 }
 
 sub class_handle_TERM {
-    debug("[class_handle_TERM] start");
     foreach (keys %{$handlers{TERM}}) {
         &{$handlers{TERM}->{$_}}();
     }
-    debug("[class_handle_TERM] end");
 }
 
 sub class_handle_HUP {
-    debug("[class_handle_HUP] start");
     foreach (keys %{$handlers{HUP}}) {
         &{$handlers{HUP}->{$_}}();
     }
-    debug("[class_handle_HUP] end");
 }
 
 sub class_handle_CHLD {
-    debug("[class_handle_CHLD] start");
     foreach (keys %{$handlers{CHLD}}) {
         &{$handlers{CHLD}->{$_}}();
     }
-    debug("[class_handle_CHLD] start");
 }
 
 sub class_handle_DIE {
-    debug("[class_handle_DIE] start");
     my ($msg) = @_;
 
     foreach (keys %{$handlers{DIE}}) {
         &{$handlers{DIE}->{$_}}($msg);
     }
-    debug("[class_handle_DIE] end");
 }
 
 sub handle_TERM {
-    debug("[handle_TERM] start");
     my ($self) = @_;
     $self->{logger}->writeLogInfo("[core] $$ Receiving order to stop...");
 
     $self->{stop} = 1;
-    debug("[handle_TERM] end");
 }
 
 sub handle_HUP {
-    debug("[handle_HUP] start");
     my $self = shift;
     $self->{logger}->writeLogInfo("[core] $$ Receiving order to reload...");
     # TODO
-    debug("[handle_HUP] end");
 }
 
 sub handle_CHLD {
-    debug("[handle_CHLD] start");
     my $self = shift;
     my $child_pid;
 
@@ -407,21 +378,17 @@ sub handle_CHLD {
     }
     
     $SIG{CHLD} = \&class_handle_CHLD;
-    debug("[handle_CHLD] end");
 }
 
 sub handle_DIE {
-    debug("[handle_DIE] start");
     my $self = shift;
     my $msg = shift;
 
     $self->{logger}->writeLogError("[core] Receiving DIE: $msg");
-    debug("[handle_DIE] end");
 }
 
 sub unload_module {
     my ($self, %options) = @_;
-    debug("[unload_module] start");
 
     foreach my $event (keys %{$self->{modules_events}}) {
         if ($self->{modules_events}->{$event}->{module}->{package} eq $options{package}) {
@@ -437,12 +404,10 @@ sub unload_module {
         }
     }
     $self->{logger}->writeLogInfo("[core] Module '" . $options{package} . "' is unloaded");
-    debug("[unload_module] end");
 }
 
 sub load_module {
     my ($self, %options) = @_;
-    debug("[load_module] start");
 
     if (!defined($options{config_module}->{name}) || $options{config_module}->{name} eq '') {
         $self->{logger}->writeLogError('[core] No module name');
@@ -507,13 +472,11 @@ sub load_module {
     }
 
     $self->{logger}->writeLogInfo("[core] Module '" . $options{config_module}->{name} . "' is loaded");
-    debug("[load_module] end");
     return 1;
 }
 
 sub load_modules {
     my ($self) = @_;
-    debug("[load_modules] start");
     return if (!defined($self->{config}->{configuration}->{gorgone}->{modules}));
 
     foreach my $module (@{$self->{config}->{configuration}->{gorgone}->{modules}}) {
@@ -531,12 +494,10 @@ sub load_modules {
             exit(1);
         }
     }
-    debug("[load_modules] end");
 }
 
 sub broadcast_core_key {
     my ($self, %options) = @_;
-    debug("[broadcast_core_key] start");
 
     my ($rv, $key) = gorgone::standard::library::generate_symkey(
         keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_keysize}
@@ -552,12 +513,10 @@ sub broadcast_core_key {
             router_type => 'internal'
         }
     );
-    debug("[broadcast_core_key] end");
 }
 
 sub decrypt_internal_message {
     my ($self, %options) = @_;
-    debug("[decrypt_internal_message] start");
 
     if ($self->{internal_crypt}->{enabled} == 1) {
         my $id = pack('H*', $options{identity});
@@ -576,17 +535,14 @@ sub decrypt_internal_message {
         }
 
         $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $options{frame}->getLastError());
-    debug("[decrypt_internal_message] end");
         return 1;
     }
-    debug("[decrypt_internal_message] end");
 
     return 0;
 }
 
 sub send_internal_response {
     my ($self, %options) = @_;
-    debug("[send_internal_response] start");
 
     my $response_type = defined($options{response_type}) ? $options{response_type} : 'ACK';
     my $data = gorgone::standard::library::json_encode(data => { code => $options{code}, data => $options{data} });
@@ -611,12 +567,10 @@ sub send_internal_response {
     $self->{internal_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
     $self->router_internal_event();
-    debug("[send_internal_response] end");
 }
 
 sub send_internal_message {
     my ($self, %options) = @_;
-    debug("[send_internal_message] start");
 
     my $message = $options{message};
     if (!defined($message)) {
@@ -641,36 +595,25 @@ sub send_internal_message {
     $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
     $self->router_internal_event() if (!defined($options{nosync}));
-    debug("[send_internal_message] end");
 }
 
 sub broadcast_run {
     my ($self, %options) = @_;
-    debug("[broadcast_run] broadcast_run start");
 
     my $data = $options{frame}->decodeData();
-    debug("[broadcast_run] data decoded");
     return if (!defined($data));
-    debug("[broadcast_run] data defined");
 
     if ($options{action} eq 'BCASTLOGGER') {
-        debug("[broadcast_run] bcastlogger");
         if (defined($data->{content}->{severity}) && $data->{content}->{severity} ne '') {
-            debug('[broadcast_run] $data->{content}->{severity} : ' . $data->{content}->{severity});
             if ($data->{content}->{severity} eq 'default') {
-                debug('[broadcast_run] $data->{content}->{severity} : ' . $data->{content}->{severity});
                 $self->{logger}->set_default_severity();
-                debug("[broadcast_run] default severity set");
             } else {
-                debug('[broadcast_run] $data->{content}->{severity} : ' . $data->{content}->{severity});
                 $self->{logger}->severity($data->{content}->{severity});
             }
         }
     }
-    debug("[broadcast_run] after bcastlogger");
 
     foreach (keys %{$self->{modules_register}}) {
-        debug("[broadcast_run] broadcast module : " . $_);
         $self->{modules_register}->{$_}->{broadcast}->(
             gorgone => $self,
             dbh => $self->{db_gorgone},
@@ -680,19 +623,16 @@ sub broadcast_run {
             token => $options{token}
         );
     }
-    debug("[broadcast_run] after foreach");
 
     if ($options{action} eq 'BCASTCOREKEY') {
         $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_key_ctime} = time();
         $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_oldkey} = $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_key};
         $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_key} = pack('H*', $data->{key});
     }
-    debug("[broadcast_run] broadcast_run end");
 }
 
 sub message_run {
     my ($self, $options) = (shift, shift);
-    debug("[message_run] start");
 
     if ($self->{logger}->is_debug()) {
         my $frame_ref = $options->{frame}->getFrame();
@@ -771,11 +711,7 @@ sub message_run {
         return ($token, 0);
     }
 
-    $self->{logger}->writeLogDebug('[core - message_run] ACTION');
     if ($action =~ /^(?:ADDLISTENER|PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SETMODULEKEY|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/) {
-        $self->{logger}->writeLogDebug('[core - message_run] action1 : ' . $action. ' start');
-        $self->{logger}->writeLogDebug('[core - message_run] action1 : ' . $self->{internal_register});
-        $self->{logger}->writeLogDebug('[core - message_run] action1 : ' . $self->{internal_register}->{lc($action)});
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
             gorgone        => $self,
             gorgone_config => $self->{config}->{configuration}->{gorgone},
@@ -786,7 +722,6 @@ sub message_run {
             token          => $token,
             logger         => $self->{logger}
         );
-        $self->{logger}->writeLogDebug('[core - message_run] action1 : ' . $action. ' middle');
 
         if ($action =~ /^(?:CONSTATUS|INFORMATION|GETTHUMBPRINT)$/) {
             gorgone::standard::library::add_history({
@@ -797,24 +732,16 @@ sub message_run {
                 json_encode => 1
             });
         }
-        $self->{logger}->writeLogDebug('[core - message_run] action1 : ' . $action. ' end');
 
         return ($token, $code, $response, $response_type);
-    }
-    elsif ($action =~ /^BCAST(.*)$/) {
-        $self->{logger}->writeLogDebug('[core - message_run] action2 : ' . $action. ' start');
+    } elsif ($action =~ /^BCAST(.*)$/) {
         return (undef, 1, { message => "action '$action' is not known" }) if ($1 !~ /^(?:LOGGER|COREKEY)$/);
-        $self->{logger}->writeLogDebug('[core - message_run] action2 : ' . $action. ' middle');
         $self->broadcast_run(
             action => $action,
             frame  => $options->{frame},
             token  => $token
         );
-        $self->{logger}->writeLogDebug('[core - message_run] action2 : ' . $action . ' end');
-    }
-    else {
-        $self->{logger}->writeLogDebug('[core - message_run] action3 : ' . $action . ' start');
-        $self->{logger}->writeLogDebug('[core - message_run] action3 : routing ' . $self->{modules_events}->{$action}->{module}->{package});
+    } else {
         $self->{modules_register}->{ $self->{modules_events}->{$action}->{module}->{package} }->{routing}->(
             gorgone  => $self,
             dbh      => $self->{db_gorgone},
@@ -825,17 +752,13 @@ sub message_run {
             frame    => $options->{frame},
             hostname => $self->{hostname}
         );
-        $self->{logger}->writeLogDebug('[core - message_run] action3 : ' . $action . ' end');
     }
 
-    $self->{logger}->writeLogDebug('[core - message_run] END');
-    debug("[message_run] end");
     return ($token, 0);
 }
 
 sub router_internal_event {
     my ($self, %options) = @_;
-    debug("[router_internal_event] start");
 
     $self->{recursion_ievents}++;
     while ($self->{internal_socket}->has_pollin()) {
@@ -870,24 +793,20 @@ sub router_internal_event {
         );
     }
     $self->{recursion_ievents}--;
-    debug("[router_internal_event] end");
 }
 
 sub is_handshake_done {
     my ($self, %options) = @_;
-    debug("[is_handshake_done] start");
 
     if (defined($self->{identity_infos}->{ $options{identity} })) {
         return (1, $self->{identity_infos}->{ $options{identity} });
     }
-    debug("[is_handshake_done] end");
 
     return 0;
 }
 
 sub check_external_rotate_keys {
     my ($self, %options) = @_;
-    debug("[check_external_rotate_keys] start");
 
     my $time = time();
     my ($rv, $key, $iv);
@@ -941,12 +860,10 @@ sub check_external_rotate_keys {
         $self->{identity_infos}->{$id}->{key} = $key;
         $self->{identity_infos}->{$id}->{iv} = $iv;
     }
-    debug("[check_external_rotate_keys] end");
 }
 
 sub external_decrypt_message {
     my ($self, %options) = @_;
-    debug("[external_decrypt_message] start");
 
     my $message = $options{frame}->getFrame();
 
@@ -963,19 +880,16 @@ sub external_decrypt_message {
         };
         if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
             $options{frame}->setFrame(\$plaintext);
-            debug("[external_decrypt_message] end");
             return 0;
         }
     }
 
     $self->{logger}->writeLogError("[core] external decrypt issue: " .  ($_ ? $_ : 'no message'));
-    debug("[external_decrypt_message] end");
     return -1;
 }
 
 sub external_core_response {
     my ($self, %options) = @_;
-    debug("[external_core_response] start");
 
     my $message = $options{message};
     if (!defined($message)) {
@@ -1003,12 +917,10 @@ sub external_core_response {
     $self->{external_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT|ZMQ_SNDMORE);
     $self->{external_socket}->send($message, ZMQ_DONTWAIT);
     $self->router_external_event();
-    debug("[external_core_response] end");
 }
 
 sub external_core_key_response {
     my ($self, %options) = @_;
-    debug("[external_core_key_response] start");
 
     my $data = gorgone::standard::library::json_encode(
         data => {
@@ -1032,13 +944,11 @@ sub external_core_key_response {
     $self->{external_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{external_socket}->send(MIME::Base64::encode_base64($crypttext, ''), ZMQ_DONTWAIT);
     $self->router_external_event();
-    debug("[external_core_key_response] end");
     return 0;
 }
 
 sub handshake {
     my ($self, %options) = @_;
-    debug("[handshake] start");
 
     my ($rv, $cipher_infos);
     my $first_message = $options{frame}->getFrame();
@@ -1051,7 +961,6 @@ sub handshake {
             pubkey => $self->{server_pubkey}
         );
         $self->router_external_event();
-        debug("[handshake] end");
         return 1;
     }
 
@@ -1069,7 +978,6 @@ sub handshake {
         if ($rv == 0 && $$message =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
             $self->{identity_infos}->{ $options{identity} }->{mtime} = time();
             gorgone::standard::library::update_identity_mtime(dbh => $self->{db_gorgone}, identity => $options{identity});
-            debug("[handshake] end");
             return (0, $cipher_infos);
         }
 
@@ -1093,7 +1001,6 @@ sub handshake {
                 code => GORGONE_ACTION_FINISH_KO,
                 data => { message => 'handshake issue' }
             );
-            debug("[handshake] end");
             return -1;
         }
         ($rv, $key) = gorgone::standard::library::generate_symkey(
@@ -1132,14 +1039,12 @@ sub handshake {
             );
         }
     }
-    debug("[handshake] end");
 
     return -1;
 }
 
 sub send_message_parent {
     my (%options) = @_;
-    debug("[send_message_parent] start");
 
     if ($options{router_type} eq 'internal') {
         $gorgone->send_internal_response(
@@ -1162,12 +1067,10 @@ sub send_message_parent {
             data => $options{data}
         );
     }
-    debug("[send_message_parent] end");
 }
 
 sub router_external_event {
     my ($self, %options) = @_;
-    debug("[router_external_event] start");
 
     while ($self->{external_socket}->has_pollin()) {
         my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
@@ -1198,12 +1101,10 @@ sub router_external_event {
             );
         }
     }
-    debug("[router_external_event] end");
 }
 
 sub waiting_ready_pool {
     my (%options) = @_;
-    debug("[waiting_ready_pool] start");
 
     my $name = $gorgone->{modules_id}->{$gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name}};
     my $method = $name->can('is_all_proxy_ready');
@@ -1216,61 +1117,44 @@ sub waiting_ready_pool {
     while ($iteration > 0) {
         my $watcher_timer = $gorgone->{loop}->timer(1, 0, \&stop_ev);
         $gorgone->{loop}->run();
-        # $iteration--;
+        $iteration--;
         if ($method->() > 0) {
             return 1;
         }
     }
-    debug("[waiting_ready_pool] end");
 
     return 0;
 }
 
 sub stop_ev {
-    debug("[stop_ev] start");
     $gorgone->{loop}->break();
     $gorgone->check_exit_modules();
-    debug("[stop_ev] end");
 }
 
 sub waiting_ready {
     my (%options) = @_;
-    debug("[waiting_ready] waiting_ready start");
 
     if (${$options{ready}} == 1) {
-        debug("[waiting_ready] ready");
-        debug("[waiting_ready] waiting_ready end");
         return 1 ;
     }
-    debug("[waiting_ready] not ready");
 
     my $iteration = 10;
     while ($iteration > 0) {
-        debug("[waiting_ready] start iteration $iteration");
-        debug("[waiting_ready] set loop timer");
         my $watcher_timer = $gorgone->{loop}->timer(1, 0, \&stop_ev);
-        debug("[waiting_ready] loop run : " . $watcher_timer);
         my $count_iteration = $gorgone->{loop}->iteration;
-        debug("[waiting_ready] loop iteration : " . $count_iteration);
         my $count_pending = $gorgone->{loop}->pending_count;
-        debug("[waiting_ready] loop pending_count : " . $count_pending);
         $gorgone->{loop}->run();
-        debug("[waiting_ready] after loop - if ready");
         if (${$options{ready}} == 1) {
-            debug("[waiting_ready] ready");
             return 1;
         }
-        debug("[waiting_ready] end iteration $iteration");
         $iteration --;
     }
-    debug("[waiting_ready] waiting_ready end");
 
     return 0;
 }
 
 sub quit {
     my ($self, %options) = @_;
-    debug("[quit] start");
     
     $self->{logger}->writeLogInfo("[core] Quit main process");
 
@@ -1282,14 +1166,12 @@ sub quit {
     if (defined($self->{external_socket})) {
         $self->{external_socket}->close();
     }
-    debug("[quit] end");
 
     exit(0);
 }
 
 sub check_exit_modules {
     my ($self, %options) = @_;
-    debug("[check_exit_modules] start");
 
     my $current_time = time();
 
@@ -1350,23 +1232,19 @@ sub check_exit_modules {
             $self->quit();
         }
     }
-    debug("[check_exit_modules] end");
 }
 
 sub periodic_exec {
-    debug("[periodic_exec] start");
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
     $gorgone->router_internal_event();
     if (defined($gorgone->{external_socket})) {
         $gorgone->router_external_event();
     }
-    debug("[periodic_exec] end");
 }
 
 sub run {
     $gorgone = shift;
-    debug("[run] start");
 
     $gorgone->SUPER::run();
     $gorgone->{logger}->redirect_output();
@@ -1374,7 +1252,6 @@ sub run {
     $gorgone->{logger}->writeLogInfo("[core] Gorgoned started");
     $gorgone->{logger}->writeLogInfo("[core] PID $$");
 
-    debug("[run] if add_history");
     if (gorgone::standard::library::add_history({
         dbh => $gorgone->{db_gorgone},
         code => GORGONE_STARTED,
@@ -1390,7 +1267,6 @@ sub run {
         $gorgone->{zmq_context} = ZMQ::FFI->new();
     }
 
-    debug("[run] create_com");
     $gorgone->{internal_socket} = gorgone::standard::library::create_com(
         context => $gorgone->{zmq_context},
         type => $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type},
@@ -1401,7 +1277,6 @@ sub run {
         logger => $gorgone->{logger}
     );
 
-    debug("[run] if external_com_type");
     if (defined($gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type}) && $gorgone->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_type} ne '') {
         if ($gorgone->{keys_loaded}) {
             $gorgone->init_external_informations();
@@ -1423,7 +1298,6 @@ sub run {
     }
 
     # init all modules
-    debug("[run] init all modules");
     foreach my $name (keys %{$gorgone->{modules_register}}) {
         $gorgone->{logger}->writeLogDebug("[core] Call init function from module '$name'");
         $gorgone->{modules_register}->{$name}->{init}->(
@@ -1438,7 +1312,6 @@ sub run {
         );
     }
 
-    debug("[run] listener");
     $gorgone->{listener} = gorgone::class::listener->new(
         gorgone => $gorgone,
         logger => $gorgone->{logger}
@@ -1455,9 +1328,7 @@ sub run {
         $gorgone->{watcher_io_external} = $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub { $gorgone->router_external_event() });
     }
 
-    debug("[run] loop");
     $gorgone->{loop}->run();
-    debug("[run] end");
 }
 
 1;

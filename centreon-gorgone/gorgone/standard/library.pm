@@ -45,13 +45,6 @@ $YAML::XS::LoadBlessed = 1;
 our $listener;
 my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 
-sub debug {
-    my $param = shift;
-    open(F, '>>', '/tmp/logs/gorgone_standard_library.log');
-    print F $param . "\n";
-    close F;
-}
-
 sub read_config {
     my (%options) = @_;
     
@@ -473,16 +466,12 @@ sub ping {
 
 sub putlog {
     my (%options) = @_;
-    debug("putlog start");
 
     my $data = $options{frame}->decodeData();
-    debug("data decoded");
     if (!defined($data)) {
-        debug("no data");
         return (GORGONE_ACTION_FINISH_KO, { message => 'request not well formatted' });
     }
 
-    debug("add history");
     my $status = add_history({
         dbh => $options{gorgone}->{db_gorgone}, 
         etime => $data->{etime},
@@ -491,12 +480,9 @@ sub putlog {
         data => json_encode(data => $data->{data}, logger => $options{logger}),
         code => $data->{code}
     });
-    debug("history added");
     if ($status == -1) {
-        debug("putlog end ko");
         return (GORGONE_ACTION_FINISH_KO, { message => 'database issue' });
     }
-    debug("putlog end\n");
     return (GORGONE_ACTION_BEGIN, { message => 'message inserted' });
 }
 

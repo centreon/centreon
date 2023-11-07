@@ -45,13 +45,6 @@ my ($config_db_centreon, $config_db_centstorage);
 my $autodiscovery = {};
 my $stop = 0;
 
-sub debug {
-    my $param = shift;
-    open(F, '>>', '/tmp/logs/gorgone_modules_centreon_autodiscovery_hooks.log');
-    print F $param . "\n";
-    close F;
-}
-
 sub register {
     my (%options) = @_;
     
@@ -70,18 +63,13 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-    debug("routing start");
 
     if ($options{action} eq 'AUTODISCOVERYREADY') {
-        debug("action AUTODISCOVERYREADY");
         $autodiscovery->{ready} = 1;
-        debug("return undef");
         return undef;
     }
 
-    debug("before action waiting_ready");
     if (gorgone::class::core::waiting_ready(ready => \$autodiscovery->{ready}) == 0) {
-        debug("action waiting_ready");
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
@@ -89,19 +77,15 @@ sub routing {
             data => { msg => 'gorgoneautodiscovery: still no ready' },
             json_encode => 1
         });
-        debug("history added");
-        debug("return undef");
         return undef;
     }
 
-    debug("send_internal_message");
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-autodiscovery',
         action => $options{action},
         raw_data_ref => $options{frame}->getRawData(),
         token => $options{token}
     );
-    debug("routing end");
 }
 
 sub gently {
