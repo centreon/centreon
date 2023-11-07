@@ -4,6 +4,7 @@ info:
   description: |
     # New features
     + Added media endpoint (POST)
+    + Added metrics by service listing endpoint (GET)
     +
     # Updated features
     +
