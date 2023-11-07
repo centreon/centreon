@@ -274,7 +274,6 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $configuration['upgradeable'] = false;
         $configuration['installed_version'] = '1.0.0';
         $configuration['available_version'] = '1.0.0';
-        $configuration['is_internal'] = false;
         $configuration['id'] = 1;
         unset($configuration['version']);
 
