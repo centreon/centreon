@@ -90,6 +90,7 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
             'command.name' => 'command.command_name',
         ]);
 
+        $commandTypeFilter = '';
         if ($commandTypes !== []) {
             $commandTypeFilter = <<<'SQL'
                 AND `command`.command_type IN (:command_type)
