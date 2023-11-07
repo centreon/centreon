@@ -1,11 +1,14 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { equals } from 'ramda';
+import { useAtomValue } from 'jotai';
 
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { TextFieldProps } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
@@ -45,6 +48,9 @@ const DateTimePickerInput = ({
   setDate,
 }: Props): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
+  const { timezone } = useAtomValue(userAtom);
+
+  const isUTC = equals(timezone, 'UTC');
   const { getDestinationAndConfiguredTimezoneOffset, formatKeyboardValue } =
     useDateTimePickerAdapter();
 
@@ -70,19 +76,28 @@ const DateTimePickerInput = ({
     changeDate({ date, property });
   };
 
+  const formatDate = useCallback(
+    (currentDate: Date | null): Dayjs => {
+      return isUTC ? dayjs.utc(currentDate) : dayjs.tz(currentDate, timezone);
+    },
+    [isUTC, timezone],
+  );
+
   return (
     <DateTimePicker<dayjs.Dayjs>
       hideTabs
       PopperProps={{
         open: isOpen,
       }}
-      dayOfWeekFormatter={(day): string => day.substring(0, 2).toUpperCase()}
-      maxDate={maxDate && dayjs(maxDate)}
-      minDate={minDate && dayjs(minDate)}
+      dayOfWeekFormatter={(day): string =>
+        day.substring(0, 2).toLocaleUpperCase()
+      }
+      maxDate={maxDate && formatDate(maxDate)}
+      minDate={minDate && formatDate(minDate)}
       open={isOpen}
       renderInput={renderDateTimePickerTextField(blur)}
       showToolbar={false}
-      value={date}
+      value={formatDate(date)}
       onChange={changeTime}
       onClose={(): void => setIsOpen(false)}
       onOpen={(): void => setIsOpen(true)}
