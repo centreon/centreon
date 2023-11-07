@@ -30,7 +30,7 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "../centreon-gorgone/config/systemd/gorgoned-service"
+  - src: "centreon-gorgone/config/systemd/gorgoned-service"
     dst: "/etc/systemd/system/gorgoned.service"
     file_info:
       mode: 0755
