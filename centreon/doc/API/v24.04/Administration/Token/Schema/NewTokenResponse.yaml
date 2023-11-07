@@ -1,0 +1,8 @@
+type: object
+allOf:
+  - $ref: 'Token.yaml'
+  - properties:
+      token:
+        type: string
+        description: "Authentication token"
+        example: "xxxxxxx"

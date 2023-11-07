@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\PlatformInformation\Model;
 
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 use PHPUnit\Framework\TestCase;
 use Centreon\Domain\PlatformInformation\Model\PlatformInformationFactory;
 

@@ -1,0 +1,23 @@
+type: object
+required:
+  - id
+  - name
+  - role
+
+properties:
+
+  id:
+    type: integer
+    description: "Contact group ID"
+    example: 1
+
+  name:
+    type: string
+    description: "Name of the contact group"
+    example: "John Doe"
+
+  role:
+    type: string
+    enum: [ viewer, editor ]
+    description: "The role of the contact group for this dashboard."
+    example: "viewer"
