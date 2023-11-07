@@ -25,7 +25,7 @@ namespace Core\Contact\Application\UseCase\FindContactTemplates;
 
 use Core\Contact\Domain\Model\ContactTemplate;
 
-class FindContactTemplatesResponse
+final class FindContactTemplatesResponse
 {
     /** @var array<array<string,string|int>> */
     public array $contactTemplates;

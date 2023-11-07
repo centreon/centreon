@@ -23,6 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Application\Common\UseCase;
 
-class ErrorAuthenticationConditionsResponse extends ForbiddenResponse
+final class ErrorAuthenticationConditionsResponse extends ForbiddenResponse
 {
 }

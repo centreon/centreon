@@ -46,6 +46,8 @@ use Pimple\Psr11\ServiceLocator;
 class CentreonI18n extends Webservice\WebServiceAbstract implements
     Webservice\WebserviceAutorizePublicInterface
 {
+    private ?ServiceLocator $services = null;
+
     /**
      * Name of web service object
      *
@@ -68,7 +70,7 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
             $translation = $this->services
                 ->get(ServiceProvider::CENTREON_I18N_SERVICE)
                 ->getTranslation();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new \Exception("Translation files does not exists");
         }
 

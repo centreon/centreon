@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\RealTime\UseCase\FindService\FindService;
 use Core\Application\RealTime\UseCase\FindService\FindServicePresenterInterface;
 
-class FindServiceController extends AbstractController
+final class FindServiceController extends AbstractController
 {
     public function __invoke(
         int $hostId,

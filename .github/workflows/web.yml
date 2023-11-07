@@ -1,5 +1,8 @@
 name: web
-
+run-name: ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
+          github.event_name == 'pull_request' && github.event.pull_request.title ||
+          github.event_name == 'push' && github.event.head_commit.message ||
+          github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -7,7 +10,7 @@ concurrency:
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: "0 3 * * *"
   pull_request:
     paths:
       - "centreon/**"
@@ -64,6 +67,7 @@ jobs:
               - '**/config/**'
               - '**/composer.*'
               - '**/tests/api/**'
+              - '**/tests/rest_api/collections/**'
               - '**/tests/php/**'
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
@@ -92,7 +96,6 @@ jobs:
   frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -124,7 +127,6 @@ jobs:
   backend-dependencies:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -136,7 +138,6 @@ jobs:
 
   translation-build:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     runs-on: ubuntu-22.04
     container:
@@ -169,8 +170,8 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -183,8 +184,8 @@ jobs:
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -197,8 +198,8 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -232,8 +233,8 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
@@ -243,8 +244,8 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -300,6 +301,14 @@ jobs:
 
       - name: Run of php-cs-fixer without strict_type
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
+        working-directory: centreon
+
+      - name: Run of phpstan on /src at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+        working-directory: centreon
+
+      - name: Run of phpstan on /src/Core at level 2 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.core.neon
         working-directory: centreon
 
   package:
@@ -494,9 +503,31 @@ jobs:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
-  api-integration-test:
+  newman-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/newman.yml
+    with:
+      collection_path: centreon/tests/rest_api/collections
+      image_name: centreon-web
+      os: alma9
+      container_name: my_centreon_container
+      centreon_url: http://localhost
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      client_id: ${{ secrets.CLIENT_ID }}
+      client_secret: ${{ secrets.CLIENT_SECRET }}
+      jira_user: ${{ secrets.JIRA_USER }}
+      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
+
+  api-integration-test:
+    needs: [get-version, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     strategy:
       fail-fast: false
       matrix:
@@ -517,7 +548,7 @@ jobs:
 
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
@@ -551,6 +582,7 @@ jobs:
       os: ${{ matrix.os }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/fixtures/packages

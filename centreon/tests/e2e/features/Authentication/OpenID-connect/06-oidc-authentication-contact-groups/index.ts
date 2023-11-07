@@ -60,19 +60,14 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Groups mapping and saves',
   () => {
+    configureOpenIDConnect();
+
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
-    }).check({ force: true });
-    cy.getByLabel({ label: 'Identity provider' })
-      .eq(0)
-      .contains('Identity provider')
-      .click({ force: true });
-    configureOpenIDConnect();
-    cy.getByLabel({ label: 'Groups mapping' })
-      .eq(0)
-      .contains('Groups mapping')
-      .click({ force: true });
+    }).check();
+
+    cy.getByLabel({ label: 'Groups mapping' }).click();
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'
@@ -97,7 +92,7 @@ When(
     cy.getByLabel({
       label: 'Contact group',
       tag: 'input'
-    }).click({ force: true });
+    }).click();
 
     cy.wait('@getListContactsGroups')
       .get('div[role="presentation"] ul li')

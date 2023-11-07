@@ -37,7 +37,7 @@ use Tests\Core\Notification\Application\UseCase\DeleteNotification\DeleteNotific
 
 beforeEach(function () {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
-    $this->presenter = new DeleteNotificationPresenterStub($this->presenterFormatter);
+    $this->presenter = new DeleteNotificationPresenterStub();
     $this->writeRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
 });
 

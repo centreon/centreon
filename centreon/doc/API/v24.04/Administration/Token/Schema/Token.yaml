@@ -1,0 +1,43 @@
+type: object
+properties:
+  name:
+    type: string
+    description: "Token name."
+    example: "my-api-token"
+  user:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Linked user ID"
+        example: 23
+      name:
+        type: string
+        description: "Linked user name"
+        example: "Jane Doe"
+  creator:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "Token creator ID"
+        example: 23
+        nullable: true
+      name:
+        type: string
+        description: "Token creator name"
+        example: "Jane Doe"
+  creation_date:
+    type: string
+    description: "Creation date of the API authentication token"
+    format: date-time
+    example: '2023-08-31T15:46:00+02:00'
+  expiration_date:
+    type: string
+    description: "Expiration date of the API authentication token"
+    format: date-time
+    example: '2024-08-31T00:00:00+00:00'
+  is_revoked:
+    type: boolean
+    description: "Indicate if the token has been revoked"
+    example: false

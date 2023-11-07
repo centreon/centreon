@@ -99,7 +99,6 @@ const resourceQueryParameters = [
 const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
-
   const singleResourceTypeSelection = useAtomValue(
     singleResourceTypeSelectionAtom
   );
@@ -192,7 +191,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     };
 
   useEffect(() => {
-    if (!singleResourceTypeSelection || !isEmpty(value)) {
+    if (!isEmpty(value)) {
       return;
     }
 
@@ -202,7 +201,7 @@ const useResources = (propertyName: string): UseResourcesState => {
         resources: []
       }
     ]);
-  }, [singleResourceTypeSelection]);
+  }, [values.moduleName]);
 
   return {
     addResource,

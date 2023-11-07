@@ -164,12 +164,6 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
         // comment events
         $subRequests[] = $this->prepareQueryForTimelineCommentEvents($collector, $hostId, $serviceId);
 
-        if (empty($subRequests)) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal(0);
-
-            return [];
-        }
-
         $request .= implode('UNION ALL ', $subRequests);
 
         $request .= ') AS `log` ';
