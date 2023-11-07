@@ -35,6 +35,11 @@ contents:
     file_info:
       mode: 0755
 
+  - dst: "${PERL_VENDORLIB}/gorgone/"
+    type: dir
+    file_info:
+      mode: 0775
+
   - src: "../config/systemd/gorgoned-sysconfig"
     dst: "/etc/sysconfig/gorgoned"
     type: config|noreplace
