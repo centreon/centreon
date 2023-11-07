@@ -3479,6 +3479,8 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/hosts/{host_id}/services/{service_id}/metrics:
+    
   /monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}:
     get:
       tags:
