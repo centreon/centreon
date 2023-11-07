@@ -45,21 +45,35 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
 
   const [editor] = useLexicalComposerContext();
 
-  const [elementList, setElementList] = useState('bullet');
+  const [elementList, setElementList] = useState(null);
 
-  const formatList = (value): void => {
-    if (value === 'bullet') {
+  const formatBulletList = (): void => {
+    if (elementList !== 'bullet') {
       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-
-      return;
+    } else {
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
     }
-    if (value === 'number') {
+  };
+
+  const formatNumberedList = (): void => {
+    if (elementList !== 'number') {
       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    } else {
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+    }
+  };
+
+  const formatList = (type): void => {
+    if (equals(type, elementList)) {
+      setElementList(null);
+    }
+
+    if (equals(type, 'bullet')) {
+      formatBulletList();
 
       return;
     }
-
-    editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+    formatNumberedList();
   };
 
   const updateToolbar = useCallback(() => {
@@ -111,8 +125,8 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button ariaLabel={elementList} disabled={disabled}>
-        {selectedList && <selectedList.Icon />}
+      <Menu.Button disabled={disabled}>
+        {selectedList ? <selectedList.Icon /> : <UnorderedListIcon />}
       </Menu.Button>
       <Menu.Items>
         <div className={classes.menu}>
