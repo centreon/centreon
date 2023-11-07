@@ -18,10 +18,10 @@ contents:
   - dst: "/usr/share/selinux/packages/centreon"
     type: dir
 
-  - src: "./selinux/centreon-gorgoned.pp"
-    dst: "/usr/share/selinux/packages/centreon/centreon-gorgoned.pp"
-    file_info:
-      mode: 0655
+  # - src: "./selinux/centreon-gorgoned.pp"
+  #   dst: "/usr/share/selinux/packages/centreon/centreon-gorgoned.pp"
+  #   file_info:
+  #     mode: 0655
 
 scripts:
   postinstall: ./scripts/centreon-gorgone-selinux-postinstall.sh
