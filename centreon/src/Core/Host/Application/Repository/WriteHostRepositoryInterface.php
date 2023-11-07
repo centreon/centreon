@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Host\Application\Repository;
 
+use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\NewHost;
 
 interface WriteHostRepositoryInterface
@@ -39,6 +40,15 @@ interface WriteHostRepositoryInterface
     public function add(NewHost $host): int;
 
     /**
+     * Update host.
+     *
+     * @param Host $host
+     *
+     * @throws \Throwable
+     */
+    public function update(Host $host): void;
+
+    /**
      * Link a parent template to a child host.
      *
      * @param int $childId host to be linked as a child
@@ -48,6 +58,15 @@ interface WriteHostRepositoryInterface
      * @throws \Throwable
      */
     public function addParent(int $childId, int $parentId, int $order): void;
+
+    /**
+     * Unlink parent templates from a child host.
+     *
+     * @param int $childId host to be unlinked as a child
+     *
+     * @throws \Throwable
+     */
+    public function deleteParents(int $childId): void;
 
     /**
      * Delete a host by ID.

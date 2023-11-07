@@ -52,7 +52,7 @@ use Utility\SqlConcatenator;
  *     monitoring_server_id: int,
  *     host_name: string,
  *     host_address: string,
- *     host_alias: string,
+ *     host_alias: string|null,
  *     host_snmp_version: string|null,
  *     host_snmp_community: string|null,
  *     geo_coords: string|null,
@@ -639,7 +639,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             monitoringServerId: $result['monitoring_server_id'],
             name: $result['host_name'],
             address: $result['host_address'],
-            alias: $result['host_alias'],
+            alias: $result['host_alias'] ?? '',
             geoCoordinates: match ($geoCoords = $result['geo_coords']) {
                 null, '' => null,
                 default => GeoCoords::fromString($geoCoords),

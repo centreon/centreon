@@ -60,4 +60,14 @@ interface WriteHostGroupRepositoryInterface
      * @throws \Throwable
      */
     public function linkToHost(int $hostId, array $groupIds): void;
+
+    /**
+     * Unlink a list of groups from a host.
+     *
+     * @param int $hostId
+     * @param int[] $groupIds
+     *
+     * @throws \Throwable
+     */
+    public function unlinkFromHost(int $hostId, array $groupIds): void;
 }
