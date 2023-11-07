@@ -16565,3 +16565,9 @@ msgstr "Modo avanzado"
 
 #  msgid "Error while searching for connectors"
 #  msgstr ""
+
+#  msgid "Error while updating an host"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a host"
+#  msgstr ""
