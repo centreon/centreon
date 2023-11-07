@@ -15,6 +15,7 @@ info:
     + Added resources by parent endpoint (GET)
     + Added command endpoint (ADD)
     + Added notifiable contact group endpoint (GET)
+    + Added metrics by service listing endpoint (GET)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -3488,6 +3489,8 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/hosts/{host_id}/services/{service_id}/metrics:
+    $ref: './v23.10/Realtime/Metrics/FindMetricsByService.yaml'
   /monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}:
     get:
       tags:
