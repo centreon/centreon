@@ -15,7 +15,6 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-
   - src: "centreon-gorgone/packaging/configuration/centreon.yaml"
     dst: "/etc/centreon-gorgone/config.d/30-centreon.yaml"
     type: config|noreplace
