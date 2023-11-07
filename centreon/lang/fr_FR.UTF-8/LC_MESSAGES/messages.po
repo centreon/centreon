@@ -18308,3 +18308,9 @@ msgstr "Extension de fichier non autorisée"
 
 msgid "Media already exists"
 msgstr "Le média existe déjà"
+
+msgid "You are not allowed to access graph templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
+
+msgid "Error while searching for graph templates"
+msgstr "Erreur lors de la recherche de modèles de graphique"
