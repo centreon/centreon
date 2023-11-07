@@ -19,9 +19,9 @@ export const getNavigationFunction =
   (e) => {
     e.preventDefault();
 
+    navigate(link);
+
     if (!useDeprecatedPages) {
       applyFilter({ criterias, id: '', name: 'New Filter' });
     }
-
-    navigate(link);
   };

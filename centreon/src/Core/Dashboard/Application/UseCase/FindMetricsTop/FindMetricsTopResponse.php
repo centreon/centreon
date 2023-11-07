@@ -25,7 +25,7 @@ namespace Core\Dashboard\Application\UseCase\FindMetricsTop;
 
 use Core\Dashboard\Application\UseCase\FindMetricsTop\Response\MetricInformationDto;
 
-class FindMetricsTopResponse
+final class FindMetricsTopResponse
 {
     public string $metricName;
 

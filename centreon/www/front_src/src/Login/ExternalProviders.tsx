@@ -36,15 +36,23 @@ const ExternalProviders = ({
       <Divider>
         <Typography>{t(labelOr)}</Typography>
       </Divider>
-      {providersConfiguration?.map(({ name, authenticationUri }) => (
-        <Button
-          aria-label={`${t(labelLoginWith)} ${name}`}
-          color="primary"
-          href={authenticationUri}
-          key={name}
-          variant="contained"
-        >{`${t(labelLoginWith)} ${name}`}</Button>
-      ))}
+      {providersConfiguration?.map(({ name, authenticationUri }) => {
+        const dataTestId = `${labelLoginWith} ${name}`;
+        const data = `${t(labelLoginWith)} ${name}`;
+
+        return (
+          <Button
+            aria-label={data}
+            color="primary"
+            data-testid={dataTestId}
+            href={authenticationUri}
+            key={name}
+            variant="contained"
+          >
+            {data}
+          </Button>
+        );
+      })}
     </div>
   );
 };
