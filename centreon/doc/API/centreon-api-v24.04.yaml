@@ -4,6 +4,8 @@ info:
   description: |
     # New features
     + Added media endpoint (POST)
+    + Added metrics by service listing endpoint (GET)
+    + Added graph template endpoint (GET)
     +
     # Updated features
     +
@@ -246,6 +248,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/commands:
     $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
+  /configuration/graphs/templates:
+    $ref: "./v24.04/Configuration/GraphTemplate/FindGraphTemplates.yaml"
   /configuration/notifications:
     $ref: "./v24.04/Configuration/Notification/Notifications.yaml"
   /configuration/notifications/_delete:
@@ -3479,6 +3483,8 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/hosts/{host_id}/services/{service_id}/metrics:
+    $ref: './v24.04/Realtime/Metrics/FindMetricsByService.yaml'
   /monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}:
     get:
       tags:

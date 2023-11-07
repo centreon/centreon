@@ -1,0 +1,24 @@
+get:
+  tags:
+    - Metrics
+  summary: "List all metrics of a service"
+  description:
+    List all of the metrics of a services with their threshold and current value
+  parameters:
+    - $ref: 'Schema/HostId.yaml'
+    - $ref: 'Schema/ServiceId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: 'Schema/Metric.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
