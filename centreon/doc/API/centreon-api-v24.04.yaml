@@ -3480,7 +3480,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/{host_id}/services/{service_id}/metrics:
-    
+    $ref: './v24.04/Realtime/Metrics/FindMetricsByService.yaml'
   /monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}:
     get:
       tags:
