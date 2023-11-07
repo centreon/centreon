@@ -1,0 +1,45 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Connector ID"
+    example: 1
+  name:
+    type: string
+    description: "Connector name"
+    example: "SSH Connector"
+  command_line:
+    type: string
+    description: "Command line to be executed by the poller"
+  description:
+    type: string
+    nullable: true
+    description: "A short description of the connector"
+    example: "some description"
+  is_activated:
+    type: boolean
+    description: "Indicates whether the connector is activated or not"
+    example: true
+  commands:
+    type: array
+    description: "Commands linked to the connector"
+    items:
+      properties:
+        id:
+          type: integer
+          description: "Command ID"
+          example: 1
+        name:
+          type: string
+          description: "Command name"
+          example: "check_host_alive"
+        type:
+          type: integer
+          description: |
+            Indicates the type of command
+
+            * `1` - NOTIFICATION
+            * `2` - CHECK
+            * `3` - MISCELLANEOUS
+            * `4` - DISCOVERY
+          example: 2

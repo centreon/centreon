@@ -18314,3 +18314,9 @@ msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
 
 msgid "Error while searching for graph templates"
 msgstr "Erreur lors de la recherche de modèles de graphique"
+
+msgid "You are not allowed to access connectors"
+msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
+
+msgid "Error while searching for connectors"
+msgstr "Erreur lors de la recherche de connecteurs"
