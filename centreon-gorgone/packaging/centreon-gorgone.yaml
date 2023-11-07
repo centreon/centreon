@@ -30,23 +30,23 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "./config/systemd/gorgoned-service"
+  - src: "../config/systemd/gorgoned-service"
     dst: "/etc/systemd/system/gorgoned.service"
     file_info:
       mode: 0755
 
-  - src: "./config/systemd/gorgoned-sysconfig"
+  - src: "../config/systemd/gorgoned-sysconfig"
     dst: "/etc/sysconfig/gorgoned"
     type: config|noreplace
 
-  - src: "./config/logrotate/gorgoned"
+  - src: "../config/logrotate/gorgoned"
     dst: "/etc/logrotate.d/gorgoned"
     type: config|noreplace
 
-  - src: "./gorgone/*"
+  - src: "../gorgone/*"
     dst: "${PERL_VENDORLIB}/gorgone/"
 
-  - src: "./gorgoned"
+  - src: "../gorgoned"
     dst: "usr/bin/"
 
   - src: "./contrib/gorgone_config_init.pl"
@@ -54,17 +54,17 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "./contrib/gorgone_audit.pl"
+  - src: "../contrib/gorgone_audit.pl"
     dst: "/usr/local/bin/"
     file_info:
       mode: 0755
 
-  - src: "./contrib/gorgone_install_plugins.pl"
+  - src: "../contrib/gorgone_install_plugins.pl"
     dst: "/usr/local/bin/"
     file_info:
       mode: 0755
 
-  - src: "./contrib/gorgone_key_thumbprint.pl"
+  - src: "../contrib/gorgone_key_thumbprint.pl"
     dst: "/usr/local/bin/"
     file_info:
       mode: 0755
