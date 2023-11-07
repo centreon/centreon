@@ -76,20 +76,16 @@ jobs:
 
       - name: Set package version and paths according to distrib
         run: |
-          VERSION="${{ needs.get-version.outputs.major_version }}"
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             PERL_VENDORLIB="/usr/share/perl5"
           else
-            VERSION="${{ needs.get-version.outputs.minor_version }}"
             PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
           fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
         shell: bash
 
       - name: check environment variables are used correctly
         run: |
-          echo "VERSION=$VERSION"
           echo "PERL_VENDORLIB=$PERL_VENDORLIB"
         shell: bash
 
@@ -99,6 +95,8 @@ jobs:
           nfpm_file_pattern: "centreon-gorgone/packaging/*.yaml"
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: cache-${{ github.sha }}-${{ matrix.package_extension}}-centreon-gorgone-${{ matrix.distrib }}-${{ github.head_ref || github.ref_name }}
