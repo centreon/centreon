@@ -53,7 +53,7 @@ $installCoreWidgets = function(): void {
             $moduleService->install($widget->getId(), 'widget');
         }
     }
-}
+};
 
 try {
     $errorMessage = "Could not update widget_models table";
