@@ -25,7 +25,8 @@ const ConnectedAutocomplete = ({
   connectedAutocomplete,
   change,
   additionalMemoProps,
-  type
+  type,
+  disableSortedOptions = false
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -106,6 +107,7 @@ const ConnectedAutocomplete = ({
       <AutocompleteField
         dataTestId={dataTestId}
         disableClearable={false}
+        disableSortedOptions={disableSortedOptions}
         disabled={disabled}
         error={error}
         field={filterKey}
