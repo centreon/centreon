@@ -5,8 +5,8 @@ get:
   description:
     List all of the metrics of a services with their threshold and current value
   parameters:
-    - 'Schema/HostId.yaml'
-    - 'Schema/ServiceId.yaml'
+    - $ref: 'Schema/HostId.yaml'
+    - $ref: 'Schema/ServiceId.yaml'
   responses:
     '200':
       description: "OK"
