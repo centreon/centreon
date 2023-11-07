@@ -16,7 +16,7 @@ license: "Apache-2.0"
 
 contents:
 
- - src: "centreon-gorgone/packaging/centreon.yaml"
+  - src: "centreon-gorgone/packaging/centreon.yaml"
     dst: "/etc/centreon-gorgone/config.d/30-centreon.yaml"
     type: config|noreplace
 
