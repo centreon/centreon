@@ -264,6 +264,10 @@ function updateContactGroup($cgId = null, $params = array())
         $ret = $form->getSubmitValues();
     }
 
+    if (isCloudPlatform() && isset($ret['cg_acl_groups'])) {
+        unset($ret['cg_acl_groups']);
+    }
+
     $cgName = $centreon->checkIllegalChar(
         \HtmlAnalyzer::sanitizeAndRemoveTags($ret["cg_name"])
     );
