@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AddMediaController extends AbstractController
+final class AddMediaController extends AbstractController
 {
     use LoggerTrait;
 

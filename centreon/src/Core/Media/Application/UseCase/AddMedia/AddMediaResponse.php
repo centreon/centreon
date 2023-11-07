@@ -36,7 +36,7 @@ namespace Core\Media\Application\UseCase\AddMedia;
  *     reason: string,
  *  }
  */
-class AddMediaResponse
+final class AddMediaResponse
 {
     /** @var list<_MediaRecorded> */
     public array $mediasRecorded;

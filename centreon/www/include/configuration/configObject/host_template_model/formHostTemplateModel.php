@@ -1027,7 +1027,7 @@ if ($valid) {
     $tpl->assign('select_template', _('Select a template'));
     $tpl->assign("seconds", _("seconds"));
     $tpl->assign("isHostTemplate", 1);
-    $tpl->display("formHost.ihtml");
+    $tpl->display("formHostOnPrem.ihtml");
 
     ?>
     <script type="text/javascript">

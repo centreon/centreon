@@ -17006,3 +17006,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Media already exists"
 #  msgstr ""
+
+#  msgid "You are not allowed to access graph templates"
+#  msgstr ""
+
+#  msgid "Error while searching for graph templates"
+#  msgstr ""

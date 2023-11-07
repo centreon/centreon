@@ -42,7 +42,7 @@ use Symfony\Component\Mime\MimeTypes;
  * @phpstan-import-type _MediaRecorded from AddMediaResponse
  * @phpstan-import-type _Errors from AddMediaResponse
  */
-class AddMedia
+final class AddMedia
 {
     use LoggerTrait;
 
