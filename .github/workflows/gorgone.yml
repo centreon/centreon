@@ -97,6 +97,7 @@ jobs:
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: cache-${{ github.sha }}-${{ matrix.package_extension}}-centreon-gorgone-${{ matrix.distrib }}-${{ github.head_ref || github.ref_name }}
