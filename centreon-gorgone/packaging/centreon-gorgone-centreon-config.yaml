@@ -16,15 +16,15 @@ license: "Apache-2.0"
 
 contents:
 
-  - src: "packaging/centreon.yaml"
+  - src: "centreon-gorgone/packaging/configuration/centreon.yaml"
     dst: "/etc/centreon-gorgone/config.d/30-centreon.yaml"
     type: config|noreplace
 
-  - src: "centreon-gorgone/packaging/centreon-api.yaml"
+  - src: "centreon-gorgone/packaging/configuration/centreon-api.yaml"
     dst: "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"
     type: config|noreplace
 
-  - src: "centreon-gorgone/packaging/centreon-audit.yaml"
+  - src: "centreon-gorgone/packaging/configuration/centreon-audit.yaml"
     dst: "/etc/centreon-gorgone/config.d/50-centreon-audit.yaml"
     type: config|noreplace
 
