@@ -19,16 +19,14 @@
  *
  */
 
+require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
-
-use CentreonModule\ServiceProvider;
 
 $centreonLog = new CentreonLog();
 
 //error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.04.0: ';
 $errorMessage = '';
-
 
 $updateWidgetModelsTable = function(CentreonDB $pearDB): void {
     if (!$pearDB->isColumnExist('widget_models', 'is_internal')) {
@@ -40,13 +38,17 @@ $updateWidgetModelsTable = function(CentreonDB $pearDB): void {
                 SQL
         );
     }
+
+    $pearDB->query(
+        <<<'SQL'
+            ALTER TABLE `widget_models`
+            MODIFY COLUMN `version` varchar(255) DEFAULT NULL
+            SQL
+    );
 };
 
 $installCoreWidgets = function(): void {
-    /**
-     * @var CentreonModuleService
-     */
-    $moduleService = \Centreon\LegacyContainer::getInstance()[ServiceProvider::CENTREON_MODULE];
+    $moduleService = \Centreon\LegacyContainer::getInstance()[\CentreonModule\ServiceProvider::CENTREON_MODULE];
     $widgets = $moduleService->getList(null, false, null, ['widget']);
     foreach ($widgets['widget'] as $widget) {
         if ($widget->isInternal()) {
@@ -55,12 +57,46 @@ $installCoreWidgets = function(): void {
     }
 };
 
+$setCoreWidgetsToInternal = function(CentreonDB $pearDB): void {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `widget_models`
+            SET version = NULL, is_internal = '1'
+            WHERE `directory` IN (
+                'engine-status',
+                'global-health',
+                'graph-monitoring',
+                'grid-map',
+                'httploader',
+                'host-monitoring',
+                'hostgroup-monitoring',
+                'live-top10-cpu-usage',
+                'live-top10-memory-usage',
+                'ntopng-listing',
+                'service-monitoring',
+                'servicegroup-monitoring',
+                'single-metric',
+                'tactical-overview'
+            )
+            SQL
+    );
+};
+
 try {
     $errorMessage = "Could not update widget_models table";
     $updateWidgetModelsTable($pearDB);
 
     $errorMessage = "Could not install core widgets";
     $installCoreWidgets();
+
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $errorMessage = "Could not set core widgets to internal";
+    $setCoreWidgetsToInternal($pearDB);
+
+    $pearDB->commit();
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
