@@ -35,7 +35,7 @@ contents:
     file_info:
       mode: 0755
 
-  - dst: "${PERL_VENDORLIB}/gorgone/"
+  - dst: "${PERL_VENDORLIB}/gorgone"
     type: dir
     file_info:
       mode: 0775
@@ -48,11 +48,11 @@ contents:
     dst: "/etc/logrotate.d/gorgoned"
     type: config|noreplace
 
-  - src: "../gorgone/*"
-    dst: "${PERL_VENDORLIB}/gorgone/"
+  - src: "../gorgone"
+    dst: "${PERL_VENDORLIB}/gorgone"
 
   - src: "../gorgoned"
-    dst: "usr/bin/"
+    dst: "/usr/bin/"
 
   - src: "./contrib/gorgone_config_init.pl"
     dst: "/usr/local/bin/"
