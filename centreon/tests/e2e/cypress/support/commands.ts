@@ -186,7 +186,7 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
 });
 
 Cypress.Commands.add(
-  'insertDashboardWithDoubleWidget',
+  'insertDashboardWithSingleMetricWidget',
   (dashboardBody, patchBody) => {
     cy.request({
       body: {
@@ -263,7 +263,7 @@ declare global {
         tag,
         testId
       }: GetByTestIdProps) => Cypress.Chainable;
-      insertDashboardWithDoubleWidget: (
+      insertDashboardWithSingleMetricWidget: (
         dashboard: Dashboard,
         patch: any
       ) => Cypress.Chainable;

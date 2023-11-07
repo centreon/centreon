@@ -58,11 +58,11 @@ Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
 
           cy.get('[class*="MuiTypography-h5"]')
             .eq(0)
-            .should('contain', singleMetricWidget.rtaValues.warning);
+            .should('contain', singleMetricWidget.plValues.warning);
 
           cy.get('[class*="MuiTypography-h5"]')
             .eq(1)
-            .should('contain', singleMetricWidget.rtaValues.critical);
+            .should('contain', singleMetricWidget.plValues.critical);
         });
     });
 });
