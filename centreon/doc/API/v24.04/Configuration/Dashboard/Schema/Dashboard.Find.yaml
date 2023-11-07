@@ -1,0 +1,14 @@
+allOf:
+  - $ref: 'Dashboard.Listing.One.yaml'
+  - type: object
+    required:
+      - panels
+
+    properties:
+
+      panels:
+        type: array
+        items:
+          allOf:
+            - $ref: 'Panel/DashboardPanel.WithoutId.yaml'
+            - $ref: 'Panel/DashboardPanel.IdRequired.yaml'

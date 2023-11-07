@@ -1,0 +1,9 @@
+in: query
+name: service_severity_names
+required: false
+description: "Filter the resources by service severity names"
+schema:
+  type: string
+  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+  description: should be in form ["<str1>","<str2>"]
+  example: '["Ping", "CPUs"]'
