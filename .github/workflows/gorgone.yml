@@ -78,10 +78,10 @@ jobs:
         run: |
           VERSION="${{ needs.get-version.outputs.major_version }}"
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
-          PERL_VENDORLIB="/usr/share/perl5"
+            PERL_VENDORLIB="/usr/share/perl5"
           else
-          VERSION="${{ needs.get-version.outputs.minor_version }}"
-          PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
+            VERSION="${{ needs.get-version.outputs.minor_version }}"
+            PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
