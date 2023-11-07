@@ -93,7 +93,7 @@ const useGraphQuery = ({
 
   const definedMetrics = metrics.filter((metric) => metric);
   const formattedDefinedMetrics = definedMetrics.map((metric) =>
-    metric.replace('#', '%23')
+    encodeURIComponent(metric)
   );
 
   const {
