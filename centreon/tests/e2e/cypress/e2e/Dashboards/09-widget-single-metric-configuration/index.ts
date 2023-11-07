@@ -10,13 +10,13 @@ import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/wid
 
 before(() => {
   cy.startWebContainer();
-  // cy.execInContainer({
-  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-  //   name: Cypress.env('dockerName')
-  // });
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-widget-metrics.json'
-  // );
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-widget-metrics.json'
+  );
   cy.execInContainer({
     command:
       'su -s /bin/sh apache -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"',
@@ -34,10 +34,6 @@ before(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
-  cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
-  });
 });
 
 beforeEach(() => {
@@ -57,6 +53,7 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
+  cy.visit('/centreon/home/dashboards');
 });
 
 afterEach(() => {
@@ -70,284 +67,284 @@ after(() => {
   cy.stopWebContainer();
 });
 
-// Given(
-//   "a dashboard in the dashboard administrator user's dashboard library",
-//   () => {
-//     cy.insertDashboard({ ...dashboards.default });
-//     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.default.name)
-//       .click();
-//   }
-// );
+Given(
+  "a dashboard in the dashboard administrator user's dashboard library",
+  () => {
+    cy.insertDashboard({ ...dashboards.default });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.default.name)
+      .click();
+  }
+);
 
-// When(
-//   'the dashboard administrator user selects the option to add a new widget',
-//   () => {
-//     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
-//     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-//     cy.getByTestId({ testId: 'AddIcon' }).click();
-//   }
-// );
+When(
+  'the dashboard administrator user selects the option to add a new widget',
+  () => {
+    cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
+    cy.getByTestId({ testId: 'edit_dashboard' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).click();
+  }
+);
 
-// When('selects the widget type "Single metric"', () => {
-//   cy.getByTestId({ testId: 'Widget type' }).click();
-//   cy.contains('Single metric').click();
-// });
+When('selects the widget type "Single metric"', () => {
+  cy.getByTestId({ testId: 'Widget type' }).click();
+  cy.contains('Single metric').click();
+});
 
-// Then(
-//   'configuration properties for the Single metric widget are displayed',
-//   () => {
-//     cy.contains('Widget properties').should('exist');
-//     cy.getByLabel({ label: 'Title' }).should('exist');
-//     cy.getByLabel({ label: 'RichTextEditor' }).should('exist');
-//     cy.contains('Value settings').should('exist');
-//     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
-//     cy.get('[class*="graphTypeContainer"]').should('be.visible');
-//   }
-// );
+Then(
+  'configuration properties for the Single metric widget are displayed',
+  () => {
+    cy.contains('Widget properties').should('exist');
+    cy.getByLabel({ label: 'Title' }).should('exist');
+    cy.getByLabel({ label: 'RichTextEditor' }).should('exist');
+    cy.contains('Value settings').should('exist');
+    cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
+    cy.get('[class*="graphTypeContainer"]').should('be.visible');
+  }
+);
 
-// When(
-//   'the dashboard administrator user selects a resource and the metric for the widget to report on',
-//   () => {
-//     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
-//     cy.getByLabel({ label: 'RichTextEditor' })
-//       .eq(0)
-//       .type(genericTextWidgets.default.description);
-//     cy.get('[class*="MuiSelect-select"]').click();
-//     cy.get('[class*="MuiMenuItem-gutters"]').eq(0).click();
-//     cy.getByTestId({ testId: 'Select resource' }).click();
-//     cy.get('[class^="MuiAutocomplete-listbox"]').click();
-//     cy.getByTestId({ testId: 'Select metric' }).click();
-//     cy.get('[class^="MuiAutocomplete-option"]').eq(0).click();
-//   }
-// );
+When(
+  'the dashboard administrator user selects a resource and the metric for the widget to report on',
+  () => {
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'RichTextEditor' })
+      .eq(0)
+      .type(genericTextWidgets.default.description);
+    cy.get('[class*="MuiSelect-select"]').click();
+    cy.get('[class*="MuiMenuItem-gutters"]').eq(0).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.get('[class^="MuiAutocomplete-listbox"]').click();
+    cy.getByTestId({ testId: 'Select metric' }).click();
+    cy.get('[class^="MuiAutocomplete-option"]').eq(0).click();
+  }
+);
 
-// Then('information about this metric is displayed in the widget preview', () => {
-//   cy.verifyGraphContainer(singleMetricWidget);
-// });
+Then('information about this metric is displayed in the widget preview', () => {
+  cy.verifyGraphContainer(singleMetricWidget);
+});
 
-// When('the user saves the Single metric widget', () => {
-//   cy.getByTestId({ testId: 'confirm' }).click();
-// });
+When('the user saves the Single metric widget', () => {
+  cy.getByTestId({ testId: 'confirm' }).click();
+});
 
-// Then("the Single metric widget is added in the dashboard's layout", () => {
-//   cy.get('[class*="graphContainer"]').should('be.visible');
-// });
+Then("the Single metric widget is added in the dashboard's layout", () => {
+  cy.get('[class*="graphContainer"]').should('be.visible');
+});
 
-// Then('the information about the selected metric is displayed', () => {
-//   cy.verifyGraphContainer(singleMetricWidget);
-// });
+Then('the information about the selected metric is displayed', () => {
+  cy.verifyGraphContainer(singleMetricWidget);
+});
 
-// Given('a dashboard featuring a single Single Metric widget', () => {
-//   cy.insertDashboardWithSingleMetricWidget(
-//     dashboards.default,
-//     singleMetricPayload
-//   );
-//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.default.name)
-//     .click();
-// });
+Given('a dashboard featuring a single Single Metric widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(
+    dashboards.default,
+    singleMetricPayload
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+});
 
-// When(
-//   'the dashboard administrator user duplicates the Single Metric widget',
-//   () => {
-//     cy.getByLabel({
-//       label: 'Edit dashboard',
-//       tag: 'button'
-//     }).click();
-//     cy.getByTestId({ testId: 'MoreVertIcon' }).click();
-//     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-//     cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
-//     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-//   }
-// );
+When(
+  'the dashboard administrator user duplicates the Single Metric widget',
+  () => {
+    cy.getByLabel({
+      label: 'Edit dashboard',
+      tag: 'button'
+    }).click();
+    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  }
+);
 
-// Then('a second Single Metric widget is displayed on the dashboard', () => {
-//   cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
-// });
+Then('a second Single Metric widget is displayed on the dashboard', () => {
+  cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
+});
 
-// Then('the second widget reports on the same metric as the first widget', () => {
-//   cy.get('[class*="MuiTypography-h2"]')
-//     .eq(1)
-//     .then(($element) => {
-//       const text = $element.text();
-//       expect(text).to.include('%');
-//     });
-// });
+Then('the second widget reports on the same metric as the first widget', () => {
+  cy.get('[class*="MuiTypography-h2"]')
+    .eq(1)
+    .then(($element) => {
+      const text = $element.text();
+      expect(text).to.include('%');
+    });
+});
 
-// Then('the second widget has the same properties as the first widget', () => {
-//   cy.verifyDuplicatesGraphContainer(singleMetricWidget);
-// });
+Then('the second widget has the same properties as the first widget', () => {
+  cy.verifyDuplicatesGraphContainer(singleMetricWidget);
+});
 
-// Given(
-//   'a dashboard with a Single Metric widget displaying a human-readable value format',
-//   () => {
-//     cy.insertDashboardWithSingleMetricWidget(
-//       dashboards.default,
-//       singleMetricPayloadRta
-//     );
-//     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//     cy.wait('@listAllDashboards');
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.default.name)
-//       .click();
-//     cy.getByLabel({
-//       label: 'Edit dashboard',
-//       tag: 'button'
-//     }).click();
-//     cy.getByTestId({ testId: 'MoreVertIcon' }).click();
-//     cy.getByLabel({
-//       label: 'Edit widget',
-//       tag: 'li'
-//     }).click();
-//   }
-// );
+Given(
+  'a dashboard with a Single Metric widget displaying a human-readable value format',
+  () => {
+    cy.insertDashboardWithSingleMetricWidget(
+      dashboards.default,
+      singleMetricPayloadRta
+    );
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.wait('@listAllDashboards');
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.default.name)
+      .click();
+    cy.getByLabel({
+      label: 'Edit dashboard',
+      tag: 'button'
+    }).click();
+    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByLabel({
+      label: 'Edit widget',
+      tag: 'li'
+    }).click();
+  }
+);
 
-// When(
-//   'the dashboard administrator user updates the value format of the Single Metric widget to "raw value"',
-//   () => {
-//     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
-//     cy.contains('Raw value').find('input').click();
-//   }
-// );
+When(
+  'the dashboard administrator user updates the value format of the Single Metric widget to "raw value"',
+  () => {
+    cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
+    cy.contains('Raw value').find('input').click();
+  }
+);
 
-// Then(
-//   'the displayed value format for this metric has been updated from human-readable to exhaustive',
-//   () => {
-//     cy.get('[class*="MuiTypography-h2"]')
-//       .invoke('text')
-//       .then((text) => {
-//         expect(text).to.match(/\d+\.\d{3,}/);
-//       });
-//   }
-// );
+Then(
+  'the displayed value format for this metric has been updated from human-readable to exhaustive',
+  () => {
+    cy.get('[class*="MuiTypography-h2"]')
+      .invoke('text')
+      .then((text) => {
+        expect(text).to.match(/\d+\.\d{3,}/);
+      });
+  }
+);
 
-// Given('a dashboard containing a Single Metric widget', () => {
-//   cy.insertDashboardWithSingleMetricWidget(
-//     dashboards.default,
-//     singleMetricPayloadRta
-//   );
-//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//   cy.wait('@listAllDashboards');
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.default.name)
-//     .click();
-//   cy.getByLabel({
-//     label: 'Edit dashboard',
-//     tag: 'button'
-//   }).click();
-//   cy.getByTestId({ testId: 'More actions' }).click();
-//   cy.get('li[aria-label="Edit widget"]').click('topRight');
-// });
+Given('a dashboard containing a Single Metric widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(
+    dashboards.default,
+    singleMetricPayloadRta
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.get('li[aria-label="Edit widget"]').click('topRight');
+});
 
-// When(
-//   'the dashboard administrator user updates the custom warning threshold to a value below the current value',
-//   () => {
-//     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
-//     cy.contains('Custom').find('input').eq(0).click();
-//     cy.getByLabel({
-//       label: 'Thresholds',
-//       tag: 'input'
-//     }).type('40');
-//   }
-// );
+When(
+  'the dashboard administrator user updates the custom warning threshold to a value below the current value',
+  () => {
+    cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
+    cy.contains('Custom').find('input').eq(0).click();
+    cy.getByLabel({
+      label: 'Thresholds',
+      tag: 'input'
+    }).type('40');
+  }
+);
 
-// Then(
-//   'the widget is refreshed to make it look like the metric is in a warning state',
-//   () => {
-//     cy.get('[class*="MuiTypography-h5"]')
-//       .invoke('show')
-//       .eq(3)
-//       .should('contain', singleMetricWidget.customValues.warning);
-//   }
-// );
+Then(
+  'the widget is refreshed to make it look like the metric is in a warning state',
+  () => {
+    cy.get('[class*="MuiTypography-h5"]')
+      .invoke('show')
+      .eq(3)
+      .should('contain', singleMetricWidget.customValues.warning);
+  }
+);
 
-// When(
-//   'the dashboard administrator user updates the custom critical threshold to a value below the current value',
-//   () => {
-//     cy.get('input[type="radio"][value="custom"]').eq(1).click({ force: true });
-//     cy.getByLabel({
-//       label: 'Thresholds',
-//       tag: 'input'
-//     })
-//       .eq(1)
-//       .type('40', { force: true });
-//   }
-// );
+When(
+  'the dashboard administrator user updates the custom critical threshold to a value below the current value',
+  () => {
+    cy.get('input[type="radio"][value="custom"]').eq(1).click({ force: true });
+    cy.getByLabel({
+      label: 'Thresholds',
+      tag: 'input'
+    })
+      .eq(1)
+      .type('40', { force: true });
+  }
+);
 
-// Then(
-//   'the widget is refreshed to make it look like the metric is in a critical state',
-//   () => {
-//     cy.get('[class*="MuiTypography-h5"]')
-//       .invoke('show')
-//       .eq(4)
-//       .should('contain', singleMetricWidget.customValues.critical);
-//   }
-// );
+Then(
+  'the widget is refreshed to make it look like the metric is in a critical state',
+  () => {
+    cy.get('[class*="MuiTypography-h5"]')
+      .invoke('show')
+      .eq(4)
+      .should('contain', singleMetricWidget.customValues.critical);
+  }
+);
 
-// Given('a dashboard featuring a Single Metric widget', () => {
-//   cy.insertDashboardWithSingleMetricWidget(
-//     dashboards.default,
-//     singleMetricPayloadRta
-//   );
-//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//   cy.wait('@listAllDashboards');
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.default.name)
-//     .click();
-//   cy.getByLabel({
-//     label: 'Edit dashboard',
-//     tag: 'button'
-//   }).click();
-//   cy.getByTestId({ testId: 'More actions' }).click();
-//   cy.get('li[aria-label="Edit widget"]').click();
-//   cy.get('.react-grid-item').invoke('css', 'display', 'none');
-// });
+Given('a dashboard featuring a Single Metric widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(
+    dashboards.default,
+    singleMetricPayloadRta
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.get('li[aria-label="Edit widget"]').click();
+  cy.get('.react-grid-item').invoke('css', 'display', 'none');
+});
 
-// When(
-//   'the dashboard administrator user changes the display type of the widget to a gauge',
-//   () => {
-//     cy.getByTestId({ testId: 'SpeedIcon' }).eq(1).click();
-//   }
-// );
+When(
+  'the dashboard administrator user changes the display type of the widget to a gauge',
+  () => {
+    cy.getByTestId({ testId: 'SpeedIcon' }).click();
+  }
+);
 
-// Then(
-//   'the information reported by the widget is now displayed as a gauge',
-//   () => {
-//     cy.get('[class="visx-group"]').should('exist');
-//   }
-// );
+Then(
+  'the information reported by the widget is now displayed as a gauge',
+  () => {
+    cy.get('[class="visx-group"]').should('exist');
+  }
+);
 
-// When(
-//   'the dashboard administrator user changes the display type of the widget to a bar chart',
-//   () => {
-//     cy.getByTestId({ testId: 'BarChartIcon' }).click();
-//   }
-// );
+When(
+  'the dashboard administrator user changes the display type of the widget to a bar chart',
+  () => {
+    cy.getByTestId({ testId: 'BarChartIcon' }).click();
+  }
+);
 
-// Then(
-//   'the information reported by the widget is now displayed as a bar chart',
-//   () => {
-//     cy.get('[class*="visx-bar"]').should('be.visible');
-//   }
-// );
+Then(
+  'the information reported by the widget is now displayed as a bar chart',
+  () => {
+    cy.get('[class*="visx-bar"]').should('be.visible');
+  }
+);
 
 Given('a dashboard featuring two Single Metric widgets', () => {
   cy.insertDashboardWithSingleMetricWidget(
@@ -366,7 +363,7 @@ Given('a dashboard featuring two Single Metric widgets', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
@@ -378,5 +375,5 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.get('[class*="addWidgetPanel"]').should('be.visible');
+  cy.get('.react-grid-item').should('be.visible');
 });
