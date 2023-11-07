@@ -21,32 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\GraphTemplate\Application\Repository;
+namespace Core\GraphTemplate\Application\Exception;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\GraphTemplate\Domain\Model\GraphTemplate;
-
-interface ReadGraphTemplateRepositoryInterface
+final class GraphTemplateException extends \Exception
 {
     /**
-     * Determine if a graph template exists by its ID.
-     *
-     * @param int $id
-     *
-     * @throws \Throwable
-     *
-     * @return bool
+     * @return self
      */
-    public function exists(int $id): bool;
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access graph templates'));
+    }
 
     /**
-     * Search for all commands based on request parameters.
+     * @param \Throwable $ex
      *
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @throws \Throwable
-     *
-     * @return GraphTemplate[]
+     * @return self
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
+    public static function errorWhileSearching(\Throwable $ex): self
+    {
+        return new self(_('Error while searching for graph templates'), 0, $ex);
+    }
 }
