@@ -18296,3 +18296,15 @@ msgstr "Erreur lors de la récuparation d'une commande"
 
 msgid "Error while retrieving contact groups"
 msgstr "Erreur lors de la récupération des groupes de contacts"
+
+msgid "Huge"
+msgstr "Très grande"
+
+msgid "Large"
+msgstr "Grande"
+
+msgid "Normal"
+msgstr "Normale"
+
+msgid "Small"
+msgstr "Petite"
