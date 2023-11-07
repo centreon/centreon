@@ -1,0 +1,8 @@
+FindMetricsByService:
+    methods: GET
+    path: /monitoring/hosts/{hostId}/services/{serviceId}/metrics
+    controller: 'Core\Metric\Infrastructure\API\FindMetricsByService\FindMetricsByServiceController'
+    requirements:
+        hostId: '\d+'
+        serviceId: '\d+'
+    condition: "request.attributes.get('version') >= 24.04"
