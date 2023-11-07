@@ -18319,4 +18319,4 @@ msgid "You are not allowed to access connectors"
 msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
 
 msgid "Error while searching for connectors"
-msgstr "Erreur lors de la recherche des connecteurs"
+msgstr "Erreur lors de la recherche de connecteurs"
