@@ -85,9 +85,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Navigate to Centreon E2E Tests Directory
-        run: cd centreon/tests/e2e
-
       - name: Install Gherkin Lint
         run: npm install gherkin-lint@4.2.2
 
