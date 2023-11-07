@@ -30,16 +30,16 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "centreon-gorgone/config/systemd/gorgoned-service"
+  - src: "./centreon-gorgone/config/systemd/gorgoned-service"
     dst: "/etc/systemd/system/gorgoned.service"
     file_info:
       mode: 0755
 
-  - src: "centreon-gorgone/config/systemd/gorgoned-sysconfig"
+  - src: "./centreon-gorgone/config/systemd/gorgoned-sysconfig"
     dst: "/etc/sysconfig/gorgoned"
     type: config|noreplace
 
-  - src: "centreon-gorgone/config/logrotate/gorgoned"
+  - src: "./centreon-gorgone/config/logrotate/gorgoned"
     dst: "/etc/logrotate.d/gorgoned"
     type: config|noreplace
 
