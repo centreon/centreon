@@ -17,20 +17,15 @@ import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InstallIcon from '@mui/icons-material/Add';
 
-import {
-  Dialog,
-  IconButton,
-  useRequest,
-  getData,
-  ParentSize
-} from '@centreon/ui';
+import { Dialog, useRequest, getData, ParentSize } from '@centreon/ui';
 
 import {
   labelAvailable,
   labelDescription,
   labelLastUpdate,
   labelInstall,
-  labelDelete
+  labelDelete,
+  labelUpdate
 } from '../../translatedLabels';
 import { Entity, ExtensionDetails } from '../models';
 import { buildEndPoint } from '../api/endpoint';
@@ -159,64 +154,82 @@ const ExtensionDetailPopup = ({
           </Grid>
         )}
         <Grid item>
-          {extensionDetails.version.installed &&
-            extensionDetails.version.outdated && (
-              <IconButton size="large" onClick={updateExtension}>
-                <UpdateIcon />
-              </IconButton>
-            )}
-          {!extensionDetails.is_internal &&
-          extensionDetails.version.installed ? (
-            <Button
-              color="primary"
-              disabled={isLoading}
-              endIcon={isLoading && <CircularProgress size={15} />}
-              size="small"
-              startIcon={<DeleteIcon />}
-              variant="contained"
-              onClick={deleteExtension}
-            >
-              {t(labelDelete)}
-            </Button>
-          ) : (
-            <Button
-              color="primary"
-              disabled={isLoading}
-              endIcon={isLoading && <CircularProgress size={15} />}
-              size="small"
-              startIcon={<InstallIcon />}
-              variant="contained"
-              onClick={installExtension}
-            >
-              {t(labelInstall)}
-            </Button>
-          )}
-        </Grid>
-        <Grid item>
           {loading ? (
             <HeaderSkeleton />
           ) : (
-            <>
-              <Typography variant="h5">{extensionDetails.title}</Typography>
-              {!extensionDetails.is_internal ? (
-                <Grid container spacing={1}>
+            <Grid container spacing={2}>
+              <Grid item>
+                <Typography variant="h5">{extensionDetails.title}</Typography>
+              </Grid>
+              {extensionDetails.version.installed &&
+                extensionDetails.version.outdated && (
                   <Grid item>
-                    <Chip
-                      label={
-                        (!extensionDetails.version.installed
-                          ? `${t(labelAvailable)} `
-                          : '') + extensionDetails.version.available
-                      }
-                    />
+                    <Button
+                      color="primary"
+                      disabled={isLoading}
+                      endIcon={isLoading && <CircularProgress size={15} />}
+                      size="small"
+                      startIcon={<UpdateIcon />}
+                      variant="contained"
+                      onClick={updateExtension}
+                    >
+                      {t(labelUpdate)}
+                    </Button>
                   </Grid>
+                )}
+              {!extensionDetails.is_internal &&
+                extensionDetails.version.installed && (
                   <Grid item>
-                    <Chip label={extensionDetails.stability} />
+                    <Button
+                      color="primary"
+                      disabled={isLoading}
+                      endIcon={isLoading && <CircularProgress size={15} />}
+                      size="small"
+                      startIcon={<DeleteIcon />}
+                      variant="contained"
+                      onClick={deleteExtension}
+                    >
+                      {t(labelDelete)}
+                    </Button>
                   </Grid>
-                </Grid>
-              ) : null}
-            </>
+                )}
+              {!extensionDetails.is_internal &&
+                !extensionDetails.version.installed && (
+                  <Grid item>
+                    <Button
+                      color="primary"
+                      disabled={isLoading}
+                      endIcon={isLoading && <CircularProgress size={15} />}
+                      size="small"
+                      startIcon={<InstallIcon />}
+                      variant="contained"
+                      onClick={installExtension}
+                    >
+                      {t(labelInstall)}
+                    </Button>
+                  </Grid>
+                )}
+            </Grid>
           )}
         </Grid>
+        {!extensionDetails.is_internal ? (
+          <Grid item>
+            <Grid container spacing={1}>
+              <Grid item>
+                <Chip
+                  label={
+                    (!extensionDetails.version.installed
+                      ? `${t(labelAvailable)} `
+                      : '') + extensionDetails.version.available
+                  }
+                />
+              </Grid>
+              <Grid item>
+                <Chip label={extensionDetails.stability} />
+              </Grid>
+            </Grid>
+          </Grid>
+        ) : null}
         <Grid item>
           {loading ? (
             <ContentSkeleton />
@@ -234,18 +247,22 @@ const ExtensionDetailPopup = ({
             </>
           )}
         </Grid>
-        <Grid item>
-          <Divider />
-        </Grid>
-        <Grid item>
-          {loading ? (
-            <ReleaseNoteSkeleton />
-          ) : (
-            <Link href={extensionDetails.release_note}>
-              <Typography>{extensionDetails.release_note}</Typography>
-            </Link>
-          )}
-        </Grid>
+        {extensionDetails.release_note && (
+          <>
+            <Grid item>
+              <Divider />
+            </Grid>
+            <Grid item>
+              {loading ? (
+                <ReleaseNoteSkeleton />
+              ) : (
+                <Link href={extensionDetails.release_note}>
+                  <Typography>{extensionDetails.release_note}</Typography>
+                </Link>
+              )}
+            </Grid>
+          </>
+        )}
       </Grid>
     </Dialog>
   );

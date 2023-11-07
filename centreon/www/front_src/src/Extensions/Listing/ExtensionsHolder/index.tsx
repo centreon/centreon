@@ -196,8 +196,11 @@ const ExtensionsHolder = ({
                 }}
               >
                 <Card
-                  raised
-                  style={{ display: 'grid', height: '100%' }}
+                  style={{
+                    display: 'grid',
+                    gridTemplateRows: '1fr 0.5fr min-content',
+                    height: '100%'
+                  }}
                   variant="outlined"
                 >
                   {isLoading && <LinearProgress />}
