@@ -22,7 +22,7 @@ contents:
 
 scripts:
   postinstall: ./scripts/centreon-gorgone-selinux-postinstall.sh
-  preremove: ./scripts/centreon-broker-selinux-preremove.sh
+  preremove: ./scripts/centreon-gorgone-selinux-preremove.sh
 
 rpm:
   summary: selinux for centreon-gorgone

@@ -69,7 +69,7 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "centreon-gorgone/packaging/config.yaml"
+  - src: "centreon-gorgone/packaging/configuration/config.yaml"
     dst: "/etc/centreon-gorgone/"
     file_info:
       mode: 0644

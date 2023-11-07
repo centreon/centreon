@@ -1,1 +1,0 @@
-semodule -r ent-gorgoned > /dev/null 2>&1
