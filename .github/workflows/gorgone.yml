@@ -76,13 +76,15 @@ jobs:
 
       - name: Set package version and paths according to distrib
         run: |
-          export VERSION="${{ needs.get-version.outputs.major_version }}"
+          VERSION="${{ needs.get-version.outputs.major_version }}"
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
-            export PERL_VENDORLIB="/usr/share/perl5"
+          PERL_VENDORLIB="/usr/share/perl5"
           else
-            export VERSION="${{ needs.get-version.outputs.minor_version }}"
-            export PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
+          VERSION="${{ needs.get-version.outputs.minor_version }}"
+          PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
           fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
         shell: bash
 
       - name: Package
