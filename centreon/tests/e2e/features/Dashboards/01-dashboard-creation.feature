@@ -6,7 +6,7 @@ Feature: Creating a new dashboard
 
   @TEST_MON-22158
   Scenario: Create a new dashboard with required fields only
-  Given a user with dashboard edition rights on the dashboard listing page
+    Given a user with dashboard edition rights on the dashboard listing page
     When the user opens the form to create a new dashboard
     Then the creation form is displayed and contains the fields to create a dashboard
     When the user fills in the required fields
