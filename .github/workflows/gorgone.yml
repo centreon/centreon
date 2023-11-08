@@ -96,7 +96,12 @@ jobs:
 
       - name: Remove selinux packaging files on debian
         if: ${{ matrix.package_extension == 'deb' }}
-        run: rm -f packaging/*-selinux.yaml
+        run: |
+          rm -f packaging/*-selinux.yaml
+          pwd
+          ls
+          echo "after ls"
+          ls packaging
         shell: bash
 
       - name: Package
