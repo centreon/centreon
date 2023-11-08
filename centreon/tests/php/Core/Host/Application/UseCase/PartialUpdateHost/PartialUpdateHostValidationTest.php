@@ -260,7 +260,7 @@ it('throws an exception when parent template ID does not exist', function (): vo
     HostException::idsDoNotExist('templates', [1,3])->getMessage()
 );
 
-it('throws an exception when parent template ID create a circular inheritance', function (): void {
+it('throws an exception when parent template ID creates a circular inheritance', function (): void {
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('exist')

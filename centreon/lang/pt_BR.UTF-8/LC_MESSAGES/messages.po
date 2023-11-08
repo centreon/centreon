@@ -17030,7 +17030,7 @@ msgstr ""
 #  msgid "Error while searching for connectors"
 #  msgstr ""
 
-#  msgid "Error while updating an host"
+#  msgid "Error while updating a host"
 #  msgstr ""
 
 #  msgid "You are not allowed to edit a host"

@@ -40,7 +40,7 @@ class HostException extends \Exception
      */
     public static function editHost(): self
     {
-        return new self(_('Error while updating an host'));
+        return new self(_('Error while updating a host'));
     }
 
     /**

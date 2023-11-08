@@ -665,7 +665,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         );
 });
 
-it('should present a ConflictResponse when a parent template create a circular inheritance', function (): void {
+it('should present a ConflictResponse when a parent template creates a circular inheritance', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
