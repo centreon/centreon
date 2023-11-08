@@ -81,9 +81,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Update core widgets
-     *
-     * @return void
+     * Update core widgets.
      */
     private function updateCoreWidgets(): void
     {
