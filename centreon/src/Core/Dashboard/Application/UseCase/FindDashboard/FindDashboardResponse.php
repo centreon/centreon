@@ -42,6 +42,7 @@ final class FindDashboardResponse
 
     public \DateTimeImmutable $updatedAt;
 
+    /** @var array<PanelResponseDto> */
     public array $panels = [];
 
     public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer;
