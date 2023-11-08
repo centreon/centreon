@@ -5,6 +5,6 @@ Scenario: Logging in
   Then I am redirected to the default page
 
 Scenario: Logging out
-Given I am logged in
+  Given I am logged in
   When I click on the logout action
   Then I am logged out and redirected to the login page
