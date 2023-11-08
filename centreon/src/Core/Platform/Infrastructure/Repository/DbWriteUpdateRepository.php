@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use CentreonModule\ServiceProvider;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\Filesystem\Filesystem;
@@ -69,12 +70,30 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      */
     public function runPostUpdate(string $currentVersion): void
     {
+        $this->updateCoreWigets();
+
         if (! $this->filesystem->exists($this->installDir)) {
             return;
         }
 
         $this->backupInstallDirectory($currentVersion);
         $this->removeInstallDirectory();
+    }
+
+    /**
+     * Update core widgets
+     *
+     * @return void
+     */
+    private function updateCoreWidgets(): void
+    {
+        $moduleService = $this->dependencyInjector[ServiceProvider::CENTREON_MODULE];
+        $widgets = $moduleService->getList(null, true, null, ['widget']);
+        foreach ($widgets['widget'] as $widget) {
+            if ($widget->isInternal()) {
+                $moduleService->update($widget->getId(), 'widget');
+            }
+        }
     }
 
     /**

@@ -144,6 +144,34 @@ Conflicts:  centreon-map4-web-client < %{thismajor}
 Conflicts:  centreon-poller-display
 Conflicts:  centreon-poller-display-central
 Conflicts:  centreon-pp-manager < %{thismajor}
+Provides:   centreon-widget-engine-status
+Obsoletes:  centreon-widget-engine-status
+Provides:   centreon-widget-global-health
+Obsoletes:  centreon-widget-global-health
+Provides:   centreon-widget-graph-monitoring
+Obsoletes:  centreon-widget-graph-monitoring
+Provides:   centreon-widget-grid-map
+Obsoletes:  centreon-widget-grid-map
+Provides:   centreon-widget-httploader
+Obsoletes:  centreon-widget-httploader
+Provides:   centreon-widget-host-monitoring
+Obsoletes:  centreon-widget-host-monitoring
+Provides:   centreon-widget-hostgroup-monitoring
+Obsoletes:  centreon-widget-hostgroup-monitoring
+Provides:   centreon-widget-live-top10-cpu-usage
+Obsoletes:  centreon-widget-live-top10-cpu-usage
+Provides:   centreon-widget-live-top10-memory-usage
+Obsoletes:  centreon-widget-live-top10-memory-usage
+Provides:   centreon-widget-ntopng-listing
+Obsoletes:  centreon-widget-ntopng-listing
+Provides:   centreon-widget-service-monitoring
+Obsoletes:  centreon-widget-service-monitoring
+Provides:   centreon-widget-servicegroup-monitoring
+Obsoletes:  centreon-widget-servicegroup-monitoring
+Provides:   centreon-widget-single-metric
+Obsoletes:  centreon-widget-single-metric
+Provides:   centreon-widget-tactical-overview
+Obsoletes:  centreon-widget-tactical-overview
 
 %description web
 %{COMMIT_HASH}

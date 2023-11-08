@@ -100,6 +100,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
         dnf install -y centreon-web-${version}
         dnf install -y centreon-broker-cbd
+        dnf install -y centreon-widget*
         echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
         /etc/init.d/mysql start
         mkdir -p /run/php-fpm
@@ -121,6 +122,7 @@ EOF`,
           centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
           centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
           centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}
+        apt-get install -y centreon-widget*
         mkdir -p /usr/lib/centreon-connector
         echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
         sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
