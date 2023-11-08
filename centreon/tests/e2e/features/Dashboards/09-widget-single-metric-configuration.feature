@@ -1,3 +1,4 @@
+@REQ_MON-24138
 Feature: Configuring a Single Metric Widget
   As a Centreon User with dashboard update rights,
   I need to configure a widget containing a single metric on a dashboard
