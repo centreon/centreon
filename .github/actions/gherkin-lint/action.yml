@@ -1,0 +1,10 @@
+name: gherkin-lint
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Gherkin Lint
+      run: npm install gherkin-lint@4.2.2
+
+    - name: Run Gherkin Lint
+      run: ./node_modules/.bin/gherkin-lint -c ./github/actions/gherkin-lint/.gherkin-lintrc centreon/tests/e2e/features
