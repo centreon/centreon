@@ -83,3 +83,11 @@ runs:
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
+
+    - if: ${{ false }}
+      name: Upload package artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: packages-${{ inputs.distrib }}
+        path: ./*.${{ inputs.package_extension}}
+        retention-days: 1

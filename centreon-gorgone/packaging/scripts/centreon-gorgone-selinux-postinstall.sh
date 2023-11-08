@@ -1,11 +1,10 @@
 
 
 
-#!/bin/sh
+#!/bin/bash
 
 install() {
   semodule -i /usr/share/selinux/packages/centreon/centreon-gorgoned.pp > /dev/null 2>&1 || :
-
 }
 
 upgrade() {

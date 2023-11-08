@@ -14,21 +14,51 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
+depends:
+  - centreon-common
+
 contents:
   - dst: "/etc/centreon-gorgone"
     type: dir
     file_info:
+      user: centreon-gorgone
+      group: centreon-gorgone
       mode: 0775
 
-  - dst: "/centreon-gorgone/config.d"
+  - dst: "/etc/centreon-gorgone/config.d"
     type: dir
     file_info:
-      mode: 0755
+      user: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0775
 
-  - dst: "/centreon-gorgone/config.d/cron.d"
+  - dst: "/etc/centreon-gorgone/config.d/cron.d"
     type: dir
     file_info:
-      mode: 0755
+      user: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0775
+
+  - dst: "/var/lib/centreon-gorgone"
+    type: dir
+    file_info:
+      user: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0775
+
+  - dst: "/var/log/centreon-gorgone"
+    type: dir
+    file_info:
+      user: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0775
+
+  - dst: "/var/cache/centreon-gorgone"
+    type: dir
+    file_info:
+      user: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0775
 
   - src: "../config/systemd/gorgoned-service"
     dst: "/etc/systemd/system/gorgoned.service"
@@ -67,20 +97,22 @@ contents:
   - src: "../contrib/gorgone_install_plugins.pl"
     dst: "/usr/local/bin/"
     file_info:
-      mode: 0755
+      mode: 0750
 
   - src: "../contrib/gorgone_key_thumbprint.pl"
     dst: "/usr/local/bin/"
     file_info:
-      mode: 0755
+      mode: 0750
 
   - src: "./configuration/config.yaml"
     dst: "/etc/centreon-gorgone/"
     file_info:
-      mode: 0644
+      mode: 0664
 
 scripts:
   preinstall: ./scripts/centreon-gorgone-preinstall.sh
+  postinstall: ./scripts/centreon-gorgone-postinstall.sh
+  preremove: ./scripts/centreon-gorgone-preremove.sh
 
 overrides:
   rpm:
@@ -119,7 +151,7 @@ overrides:
   deb:
     depends:   # those dependencies are taken from centreon-gorgone/packaging/debian/control
       - libdatetime-perl
-      - libtime-parsedate-perl  
+      - libtime-parsedate-perl
       - libtry-tiny-perl
       - libxml-simple-perl
       - libxml-libxml-simple-perl

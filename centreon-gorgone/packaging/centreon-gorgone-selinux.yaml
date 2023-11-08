@@ -14,12 +14,19 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
+depends:
+  - policycoreutils
+  - centreon-common-selinux
+replaces:
+  - centreon-gorgone-selinux-debuginfo
+conflicts:
+  - centreon-gorgone-selinux-debuginfo
+provides:
+  - centreon-gorgone-selinux-debuginfo
+
 contents:
   - src: "../selinux/centreon-gorgoned.pp"
     dst: "/usr/share/selinux/packages/centreon/centreon-gorgoned.pp"
-    packager: rpm
-    file_info:
-      mode: 0655
 
 scripts:
   postinstall: ./scripts/centreon-gorgone-selinux-postinstall.sh
