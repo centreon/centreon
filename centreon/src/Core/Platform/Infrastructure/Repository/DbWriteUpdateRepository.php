@@ -70,7 +70,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      */
     public function runPostUpdate(string $currentVersion): void
     {
-        $this->updateCoreWigets();
+        $this->updateCoreWidgets();
 
         if (! $this->filesystem->exists($this->installDir)) {
             return;
