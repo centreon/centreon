@@ -1,4 +1,4 @@
-name: "centreon-gorgone"
+name: "centreon-gorgone-selinux"
 arch: "${ARCH}"
 platform: "linux"
 version_schema: "none"
@@ -15,9 +15,6 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - dst: "/usr/share/selinux/packages/centreon"
-    type: dir
-
   - src: "../selinux/centreon-gorgoned.pp"
     dst: "/usr/share/selinux/packages/centreon/centreon-gorgoned.pp"
     packager: rpm

@@ -1,4 +1,4 @@
-name: "centreon-gorgone-selinux"
+name: "centreon-gorgone"
 arch: "${ARCH}"
 platform: "linux"
 version_schema: "none"
