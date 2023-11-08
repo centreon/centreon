@@ -562,11 +562,6 @@ final class PartialUpdateHost
                     ? $commandMacros[$macro->getName()]->getDescription()
                     : ''
                 );
-                // TODO : see which is better for phpstan / cs fixer
-                // $commandMacro = $commandMacros[$macro->getName()] ?? null;
-                // $macro->setDescription(
-                //     $commandMacro ? $commandMacro->getDescription() : ''
-                // );
             }
             $this->writeHostMacroRepository->add($macro);
         }
