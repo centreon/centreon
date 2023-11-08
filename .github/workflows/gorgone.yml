@@ -89,6 +89,22 @@ jobs:
           echo "PERL_VENDORLIB=$PERL_VENDORLIB"
         shell: bash
 
+      - name: Generate selinux binaries
+        if: ${{ matrix.package_extension == 'rpm' }}
+        run: |
+          cd selinux
+          MODULE="centreon-gorgone"
+          cd $MODULE
+          sed -i "s/${VERSION}/${{ inputs.major_version }}.${{ inputs.minor_version }}" $MODULE.te
+          make -f /usr/share/selinux/devel/Makefile
+          cd -
+        shell: bash
+
+      - name: Remove selinux packaging files on debian
+        if: ${{ matrix.package_extension == 'deb' }}
+        run: rm -f packaging/*-selinux.yaml
+        shell: bash
+
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:
