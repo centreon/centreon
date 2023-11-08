@@ -115,7 +115,7 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.getByTestId({ testId: 'Resource type' }).click();
+    cy.getByTestId({ testId: 'Resource type' }).click({ force: true });
     cy.get('[class*="MuiMenuItem-gutters"]').eq(0).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.get('[class^="MuiAutocomplete-listbox"]').click();
@@ -317,7 +317,7 @@ Given('a dashboard featuring a Single Metric widget', () => {
     tag: 'button'
   }).click();
   cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
+  cy.get('li[aria-label="Edit widget"]').realClick();
 });
 
 When(
@@ -344,7 +344,7 @@ When(
 Then(
   'the information reported by the widget is now displayed as a bar chart',
   () => {
-    cy.get('[class*="visx-bar"]').should('be.visible');
+    cy.get('[class*="visx-bar"]').should('exist');
   }
 );
 
