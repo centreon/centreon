@@ -85,6 +85,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: centreon/tests/e2e/features
 
   get-version:
     uses: ./.github/workflows/get-version.yml
