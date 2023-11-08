@@ -34,7 +34,7 @@ class RestApiContext extends CentreonContext
 
         // Copy MIB.
         $this->container->copyToContainer(
-            'tests/rest_api/IF-MIB.txt',
+            'tests/rest_api/behat-collections/IF-MIB.txt',
             '/usr/share/centreon/IF-MIB.txt',
             $this->webService
         );
@@ -70,7 +70,7 @@ class RestApiContext extends CentreonContext
      */
     public function callRestApi()
     {
-        $env = file_get_contents('tests/rest_api/rest_api.postman_environment.json');
+        $env = file_get_contents('tests/rest_api/behat-collections/rest_api.postman_environment.json');
         $env = str_replace(
             '@IP_CENTREON@',
             $this->container->getHost() . ':' . $this->container->getPort('80', $this->webService),
@@ -81,7 +81,7 @@ class RestApiContext extends CentreonContext
         $this->logfile = tempnam(sys_get_temp_dir(), $this->logFilePrefix);
         exec(
             'npm install -g newman && newman run' .
-            ' tests/rest_api/' . $this->restCollection .
+            ' tests/rest_api/behat-collections/' . $this->restCollection .
             ' --color off --disable-unicode --reporter-cli-no-assertions' .
             ' --timeout-script 60000' .
             ' --environment ' . $this->envfile .

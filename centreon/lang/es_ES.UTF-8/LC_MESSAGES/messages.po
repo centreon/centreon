@@ -16559,3 +16559,9 @@ msgstr "Modo avanzado"
 
 #  msgid "Error while searching for graph templates"
 #  msgstr ""
+
+#  msgid "You are not allowed to access connectors"
+#  msgstr ""
+
+#  msgid "Error while searching for connectors"
+#  msgstr ""
