@@ -671,7 +671,11 @@ class CentreonConfigPoller
         if (strpos($filename, '..') !== false) {
             throw new \Exception('Path traversal found');
         }
-        passthru("$centreonDir/bin/generateSqlLite '{$pollerId}' '{$filename}' 2>&1");
+        $cmd = sprintf('%s %d %s 2>&1',
+                       escapeshellarg($centreonDir . '/bin/generateSqlLite'),
+                       $pollerId,
+                       escapeshellarg($filename));
+        passthru($cmd);
         $return = $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
         return $return;
     }
