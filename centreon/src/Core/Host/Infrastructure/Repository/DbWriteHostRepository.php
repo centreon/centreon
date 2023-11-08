@@ -153,7 +153,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
                 $this->db->commit();
             }
         } catch (\Throwable $ex) {
-             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();

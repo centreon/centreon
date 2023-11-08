@@ -32,6 +32,7 @@ use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
@@ -68,6 +69,7 @@ use Utility\Difference\BasicDifference;
 final class PartialUpdateHost
 {
     use LoggerTrait;
+    private const VERTICAL_INHERITANCE_MODE = 1;
 
     /** @var AccessGroup[] */
     private array $accessGroups = [];
@@ -147,6 +149,9 @@ final class PartialUpdateHost
                 }
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        } catch (AssertionFailedException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse(HostException::editHost()));
             $this->error((string) $ex);
@@ -174,7 +179,7 @@ final class PartialUpdateHost
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
-            $this->error("Rollback of 'PartialUpdateHost' transaction.");
+            $this->error("Rollback of 'PartialUpdateHost' transaction", ['trace' => $ex->getTraceAsString()]);
             $this->dataStorageEngine->rollbackTransaction();
 
             throw $ex;
@@ -194,7 +199,7 @@ final class PartialUpdateHost
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])
             ? (int) $inheritanceMode[0]->getValue()
-            : 0;
+            : null;
 
         if (! $dto->name instanceOf NoValue) {
             $this->validation->assertIsValidName($dto->name, $host);
@@ -374,13 +379,13 @@ final class PartialUpdateHost
 
         if (! $dto->addInheritedContactGroup instanceOf NoValue) {
             $host->setAddInheritedContactGroup(
-                $inheritanceMode === 1 ? $dto->addInheritedContactGroup : false
+                $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->addInheritedContactGroup : false
             );
         }
 
         if (! $dto->addInheritedContact instanceOf NoValue) {
             $host->setAddInheritedContact(
-                $inheritanceMode === 1 ? $dto->addInheritedContact : false
+                $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->addInheritedContact : false
             );
         }
 
