@@ -18297,6 +18297,30 @@ msgstr "Erreur lors de la récuparation d'une commande"
 msgid "Error while retrieving contact groups"
 msgstr "Erreur lors de la récupération des groupes de contacts"
 
+msgid "You are not allowed to add media"
+msgstr "Vous n'êtes pas autorisé à ajouter des médias"
+
+msgid "Error while adding a media"
+msgstr "Erreur lors de l'ajout d'un média"
+
+msgid "File extension not authorized"
+msgstr "Extension de fichier non autorisée"
+
+msgid "Media already exists"
+msgstr "Le média existe déjà"
+
+msgid "You are not allowed to access graph templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
+
+msgid "Error while searching for graph templates"
+msgstr "Erreur lors de la recherche de modèles de graphique"
+
+msgid "You are not allowed to access connectors"
+msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
+
+msgid "Error while searching for connectors"
+msgstr "Erreur lors de la recherche de connecteurs"
+
 msgid "Huge"
 msgstr "Très grande"
 
