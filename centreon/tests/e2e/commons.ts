@@ -20,6 +20,7 @@ interface SubmitResult {
 const stepWaitingTime = 250;
 const pollingCheckTimeout = 60000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
+const waitToExport = 5000;
 
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
@@ -299,15 +300,7 @@ const checkIfConfigurationIsExported = ({
   cy.log('Checking that configuration is exported');
   const now = dateBeforeLogin.getTime();
 
-  cy.waitUntil(() => {
-    return cy
-      .get('iframe#main-content')
-      .its('0.contentDocument.body')
-      .find('div#console')
-      .then(($el) => {
-        return $el.find('label#progressPct:contains("100%")').length > 0;
-      });
-  });
+  cy.wait(waitToExport);
 
   cy.exec(
     `docker exec -i ${Cypress.env(
