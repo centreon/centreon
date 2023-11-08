@@ -150,7 +150,7 @@ class SAML implements ProviderAuthenticationInterface
         $this->info('User information: ', $this->auth->getAttributes());
 
         $attrs = $this->auth->getAttribute($customConfiguration->getUserIdAttribute());
-        if ($attrs === null) {
+        if (! is_array($attrs) || ! is_string($attrs[0] ?? null)) {
             throw InvalidUserIdAttributeException::create();
         }
 
@@ -172,12 +172,9 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function findUserOrFail(): ContactInterface
     {
-        $user = $this->contactRepository->findByEmail($this->username);
-        if ($user === null) {
-            throw SSOAuthenticationException::aliasNotFound($this->username);
-        }
-
-        return $user;
+        return $this->contactRepository->findByEmail($this->username)
+            ?? $this->contactRepository->findByName($this->username)
+            ?? throw SSOAuthenticationException::aliasNotFound($this->username);
     }
 
     /**
@@ -187,12 +184,9 @@ class SAML implements ProviderAuthenticationInterface
     public function getUser(): ?ContactInterface
     {
         $this->info('Searching user : ' . $this->username);
-        $user = $this->contactRepository->findByName($this->username);
-        if ($user === null) {
-            $user = $this->contactRepository->findByEmail($this->username);
-        }
 
-        return $user;
+        return $this->contactRepository->findByName($this->username)
+            ?? $this->contactRepository->findByEmail($this->username);
     }
 
     /**

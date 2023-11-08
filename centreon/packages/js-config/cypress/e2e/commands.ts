@@ -179,7 +179,20 @@ interface ExecInContainerProps {
 Cypress.Commands.add(
   'execInContainer',
   ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
-    return cy.exec(`docker exec -i ${name} ${command}`);
+    return cy
+      .exec(`docker exec -i ${name} ${command}`, { failOnNonZeroExit: false })
+      .then((result) => {
+        if (result.code) {
+          // output will not be truncated
+          throw new Error(`
+            Execution of "${command}" failed
+            Exit code: ${result.code}
+            Stdout:\n${result.stdout}
+            Stderr:\n${result.stderr}`);
+        }
+
+        return cy.wrap(result);
+      });
   }
 );
 
