@@ -31,6 +31,7 @@ use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidStatusCodeE
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\OpenIdCustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 
 class HttpUrlFetcher implements AttributePathFetcherInterface
@@ -57,9 +58,14 @@ class HttpUrlFetcher implements AttributePathFetcherInterface
         $scope = $configuration->getType();
         $customEndpoint = $endpoint->getUrl();
         $customConfiguration = $configuration->getCustomConfiguration();
-        $url = str_starts_with($customEndpoint, '/')
-            ? $customConfiguration->getBaseUrl() . $customEndpoint
-            : $customEndpoint;
+        if (
+            str_starts_with($customEndpoint, '/')
+            && $customConfiguration instanceof OpenIdCustomConfigurationInterface
+        ) {
+            $url = $customConfiguration->getBaseUrl() . $customEndpoint;
+        } else {
+            $url = $customEndpoint;
+        }
 
         try {
             return $this->attributePathRepository->getData($url, $accessToken, $configuration, $endpoint->getType());

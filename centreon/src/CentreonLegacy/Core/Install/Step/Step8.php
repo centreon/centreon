@@ -43,8 +43,7 @@ class Step8 extends AbstractStep
     public function getModules()
     {
         $utilsFactory = new \CentreonLegacy\Core\Utils\Factory($this->dependencyInjector);
-        $utils = $utilsFactory->newUtils();
-        $moduleFactory = new \CentreonLegacy\Core\Module\Factory($this->dependencyInjector, $utils);
+        $moduleFactory = new \CentreonLegacy\Core\Module\Factory($this->dependencyInjector);
         $module = $moduleFactory->newInformation();
 
         return $module->getList();
@@ -59,8 +58,7 @@ class Step8 extends AbstractStep
     public function getWidgets()
     {
         $utilsFactory = new \CentreonLegacy\Core\Utils\Factory($this->dependencyInjector);
-        $utils = $utilsFactory->newUtils();
-        $widgetFactory = new \CentreonLegacy\Core\Widget\Factory($this->dependencyInjector, $utils);
+        $widgetFactory = new \CentreonLegacy\Core\Widget\Factory($this->dependencyInjector);
         $widget = $widgetFactory->newInformation();
 
         return $widget->getList();

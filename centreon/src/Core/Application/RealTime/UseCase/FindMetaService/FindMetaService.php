@@ -37,7 +37,7 @@ use Core\Domain\RealTime\Model\MetaService;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-class FindMetaService
+final class FindMetaService
 {
     use LoggerTrait;
 

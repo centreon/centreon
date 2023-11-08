@@ -52,6 +52,7 @@ export interface InputProps {
     Component: React.ComponentType<InputPropsWithoutGroup>;
   };
   dataTestId?: string;
+  disableSortedOptions?: boolean;
   fieldName: string;
   fieldsTable?: {
     additionalFieldsToMemoize?: Array<string>;

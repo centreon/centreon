@@ -23,6 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Connector\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Command\Domain\Model\CommandType;
+use Core\Connector\Domain\Model\Connector;
+
 interface ReadConnectorRepositoryInterface
 {
     /**
@@ -35,4 +39,19 @@ interface ReadConnectorRepositoryInterface
      * @return bool
      */
     public function exists(int $id): bool;
+
+    /**
+     * Search for all connectors based on request parameters and filter their commands on command types.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param CommandType[] $commandTypes
+     *
+     * @throws \Throwable
+     *
+     * @return Connector[]
+     */
+    public function findByRequestParametersAndCommandTypes(
+        RequestParametersInterface $requestParameters,
+        array $commandTypes
+    ): array;
 }

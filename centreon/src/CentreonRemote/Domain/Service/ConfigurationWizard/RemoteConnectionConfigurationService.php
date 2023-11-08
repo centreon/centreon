@@ -79,7 +79,7 @@ class RemoteConnectionConfigurationService extends ServerConnectionConfiguration
      * insert broker information.
      *
      * @param int $configurationId
-     * @param array<string,array<string,mixed> $brokerInfo
+     * @param array<string,array<string,mixed>> $brokerInfo
      */
     private function insertBrokerInfo(int $configurationId, array $brokerInfo): void
     {

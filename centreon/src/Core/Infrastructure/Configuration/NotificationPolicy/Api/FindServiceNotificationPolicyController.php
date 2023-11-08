@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyPresenterInterface;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindServiceNotificationPolicy;
 
-class FindServiceNotificationPolicyController extends AbstractController
+final class FindServiceNotificationPolicyController extends AbstractController
 {
     /**
      * @param int $hostId
