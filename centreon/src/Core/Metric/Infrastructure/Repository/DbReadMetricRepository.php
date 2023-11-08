@@ -305,8 +305,8 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         $query .= <<<'SQL'
-            WHERE `:dbstg`.index_data.host_id = :hostId
-                AND `:dbstg`.index_data.service_id = :serviceId
+             WHERE `:dbstg`.index_data.host_id = :hostId
+             AND `:dbstg`.index_data.service_id = :serviceId
             SQL;
 
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
