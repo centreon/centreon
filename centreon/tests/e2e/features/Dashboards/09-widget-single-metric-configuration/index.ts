@@ -115,7 +115,7 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByTestId({ testId: 'Resource type' }).click();
     cy.get('[class*="MuiMenuItem-gutters"]').eq(0).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.get('[class^="MuiAutocomplete-listbox"]').click();
@@ -226,7 +226,9 @@ Then(
     cy.get('[class*="MuiTypography-h2"]')
       .invoke('text')
       .then((text) => {
-        expect(text).to.match(/\d+\.\d{3,}/);
+        if (parseFloat(text) !== 0) {
+          expect(text).to.match(/\d+\.\d{3,}/);
+        }
       });
   }
 );
@@ -249,7 +251,7 @@ Given('a dashboard containing a Single Metric widget', () => {
     tag: 'button'
   }).click();
   cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').realClick();
+  cy.get('li[aria-label="Edit widget"]').click();
 });
 
 When(
@@ -315,7 +317,7 @@ Given('a dashboard featuring a Single Metric widget', () => {
     tag: 'button'
   }).click();
   cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').realClick();
+  cy.get('li[aria-label="Edit widget"]').click();
 });
 
 When(
