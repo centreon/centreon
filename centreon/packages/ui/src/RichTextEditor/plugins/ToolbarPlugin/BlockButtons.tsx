@@ -17,30 +17,35 @@ import {
 import { $setBlocksType } from '@lexical/selection';
 import { T, always, cond, equals, isNil } from 'ramda';
 import { $findMatchingParent, mergeRegister } from '@lexical/utils';
+import { useTranslation } from 'react-i18next';
 
 import TextSizeIcon from '@mui/icons-material/TextFields';
 
 import { Menu } from '../../../components';
+
+import { useStyles } from './ToolbarPlugin.styles';
 
 interface Props {
   disabled: boolean;
 }
 
 const blockTypeToBlockName = {
-  h1: 'Huge',
-  h4: 'Large',
-  h6: 'Normal',
-  paragraph: 'Small'
+  h3: 'Huge',
+  h5: 'Large',
+  paragraph: 'Normal'
 };
 
-const blockTypes = ['h1', 'h4', 'h6', 'paragraph'];
+const blockTypes = ['h3', 'h5', 'paragraph'];
 
 const blockTypeOptions = blockTypes.map((blockType) => ({
   id: blockType,
   name: blockTypeToBlockName[blockType]
 }));
 
-const TextSizeButtons = ({ disabled }: Props): JSX.Element => {
+const BlockButtons = ({ disabled }: Props): JSX.Element => {
+  const { classes } = useStyles();
+  const { t } = useTranslation();
+
   const [blockType, setBlockType] =
     useState<keyof typeof blockTypeToBlockName>('paragraph');
 
@@ -66,9 +71,8 @@ const TextSizeButtons = ({ disabled }: Props): JSX.Element => {
 
   const changeBlockType = (newBlockType): void => {
     const formatFunction = cond<Array<string>, (value?) => void>([
-      [equals('h1'), always(() => formatHeading('h1'))],
-      [equals('h4'), always(() => formatHeading('h4'))],
-      [equals('h6'), always(() => formatHeading('h6'))],
+      [equals('h3'), always(() => formatHeading('h3'))],
+      [equals('h5'), always(() => formatHeading('h5'))],
       [T, always(formatParagraph)]
     ])(newBlockType || '');
 
@@ -94,6 +98,7 @@ const TextSizeButtons = ({ disabled }: Props): JSX.Element => {
     }
 
     const type = $isHeadingNode(element) ? element.getTag() : element.getType();
+
     if (type in blockTypeToBlockName) {
       setBlockType(type as keyof typeof blockTypeToBlockName);
     }
@@ -123,17 +128,17 @@ const TextSizeButtons = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button disabled={disabled}>
+      <Menu.Button className={classes.button} disabled={disabled}>
         <TextSizeIcon />
       </Menu.Button>
       <Menu.Items>
         {blockTypeOptions.map(({ id, name }) => (
           <Menu.Item
             isActive={equals(id, blockType)}
-            key={id}
+            key={name}
             onClick={() => changeBlockType(id)}
           >
-            {name}
+            {t(name)}
           </Menu.Item>
         ))}
       </Menu.Items>
@@ -141,4 +146,4 @@ const TextSizeButtons = ({ disabled }: Props): JSX.Element => {
   );
 };
 
-export default TextSizeButtons;
+export default BlockButtons;

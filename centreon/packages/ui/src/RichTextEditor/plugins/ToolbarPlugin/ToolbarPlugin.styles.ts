@@ -1,12 +1,17 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useBlockButtonsStyles = makeStyles()((theme) => ({
-  autocomplete: {
-    width: theme.spacing(17)
-  }
-}));
+import { alpha } from '@mui/system';
 
-export const useStyles = makeStyles()(() => ({
+export const useStyles = makeStyles()((theme) => ({
+  button: {
+    color: theme.palette.text.primary
+  },
+  buttonSelected: {
+    backgroundColor: alpha(
+      theme.palette.primary.main,
+      theme.palette.action.activatedOpacity
+    )
+  },
   menu: {
     display: 'flex',
     flexDirection: 'row'

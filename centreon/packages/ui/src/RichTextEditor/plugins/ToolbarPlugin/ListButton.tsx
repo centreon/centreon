@@ -125,7 +125,7 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button disabled={disabled}>
+      <Menu.Button className={classes.button} disabled={disabled}>
         {selectedList ? <selectedList.Icon /> : <UnorderedListIcon />}
       </Menu.Button>
       <Menu.Items>

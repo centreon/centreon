@@ -19,6 +19,8 @@ import { SvgIconTypeMap } from '@mui/material';
 import { Menu } from '../../../components';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 
+import { useStyles } from './ToolbarPlugin.styles';
+
 const formatOptions: Array<{
   Icon: OverridableComponent<SvgIconTypeMap<object, 'svg'>>;
   label: string;
@@ -46,6 +48,8 @@ interface Props {
 }
 
 const AlignPicker = ({ disabled }: Props): JSX.Element => {
+  const { classes } = useStyles();
+
   const [elementFormat, setElementFormat] = useState<ElementFormatType>('left');
 
   const [editor] = useLexicalComposerContext();
@@ -84,16 +88,15 @@ const AlignPicker = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button ariaLabel={elementFormat} disabled={disabled}>
+      <Menu.Button
+        ariaLabel={elementFormat}
+        className={classes.button}
+        disabled={disabled}
+      >
         {selectedFormat && <selectedFormat.Icon />}
       </Menu.Button>
       <Menu.Items>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row'
-          }}
-        >
+        <div className={classes.menu}>
           {formatOptions.map(({ Icon, value }) => (
             <Menu.Item
               isActive={equals(value, elementFormat)}

@@ -6,9 +6,9 @@ import FormatButtons from './FormatButtons';
 import UndoRedoButtons from './UndoRedoButtons';
 import MacrosButton from './MacrosButton';
 import AlignPicker from './AlignPicker';
-import TextSizeButtons from './TextSizeButtons';
 import ListButton from './ListButton';
 import LinkButton from './LinkButton';
+import BlockButtons from './BlockButtons';
 
 interface Props {
   className?: string;
@@ -50,7 +50,7 @@ const ToolbarPlugin = ({
       {displayBlockButtons && (
         <>
           <Divider flexItem orientation="vertical" />
-          <TextSizeButtons disabled={disabled} />
+          <BlockButtons disabled={disabled} />
         </>
       )}
       <FormatButtons disabled={disabled} />

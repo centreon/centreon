@@ -97,7 +97,7 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button disabled={disabled}>
+      <Menu.Button className={classes.button} disabled={disabled}>
         <FormatTextIcon />
       </Menu.Button>
       <Menu.Items>

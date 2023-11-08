@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
@@ -16,21 +15,13 @@ import { mergeRegister } from '@lexical/utils';
 import { useAtom } from 'jotai';
 
 import LinkIcon from '@mui/icons-material/Link';
-import { alpha } from '@mui/material';
 
 import { IconButton } from '../../..';
 import { isInsertingLinkAtom } from '../../atoms';
 
-const LowPriority = 1;
+import { useStyles } from './ToolbarPlugin.styles';
 
-const useStyles = makeStyles()((theme) => ({
-  buttonSelected: {
-    backgroundColor: alpha(
-      theme.palette.primary.main,
-      theme.palette.action.activatedOpacity
-    )
-  }
-}));
+const LowPriority = 1;
 
 const getSelectedNode = (selection: RangeSelection): ElementNode | TextNode => {
   const { anchor } = selection;
@@ -99,7 +90,7 @@ const LinkButton = ({ disabled }: Props): JSX.Element => {
   return (
     <IconButton
       ariaLabel="link"
-      className={cx(isLink && classes.buttonSelected)}
+      className={cx(classes.button, { [classes.buttonSelected]: isLink })}
       disabled={disabled}
       key="link"
       size="medium"
