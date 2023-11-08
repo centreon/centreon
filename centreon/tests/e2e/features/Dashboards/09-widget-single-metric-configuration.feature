@@ -1,8 +1,8 @@
 @REQ_MON-24138
 Feature: Configuring a Single Metric Widget
   As a Centreon User with dashboard update rights,
-  I need to configure a widget containing a single metric on a dashboard
-  So that this dashboard can feature information users can read and links they can click
+  I want to set up a widget displaying a single metric on a dashboard
+  To manipulate the properties of the Single Metric Widget and test the outcome of each manipulation.
 
   @TEST_MON-23784
   Scenario: Creating and configuring a new Single Metric widget on a dashboard
