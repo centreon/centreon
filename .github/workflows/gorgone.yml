@@ -93,8 +93,8 @@ jobs:
         if: ${{ matrix.package_extension == 'rpm' }}
         run: |
           cd centreon-gorgone/selinux
-          MODULE="centreon-gorgone"
-          sed -i "s/${VERSION}/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" $MODULE.te
+          MODULE="centreon-gorgoned"
+          sed -i "s/@VERSION@/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" $MODULE.te
           make -f /usr/share/selinux/devel/Makefile
           cd -
         shell: bash
