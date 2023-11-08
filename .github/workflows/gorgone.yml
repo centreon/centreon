@@ -95,7 +95,7 @@ jobs:
           cd selinux
           MODULE="centreon-gorgone"
           cd $MODULE
-          sed -i "s/${VERSION}/${{ inputs.major_version }}.${{ inputs.minor_version }}" $MODULE.te
+          sed -i "s/${VERSION}/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}" $MODULE.te
           make -f /usr/share/selinux/devel/Makefile
           cd -
         shell: bash
