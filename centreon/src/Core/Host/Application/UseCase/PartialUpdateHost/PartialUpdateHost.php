@@ -173,7 +173,7 @@ final class PartialUpdateHost
 
             $this->writeMonitoringServerRepository->notifyConfigurationChange($host->getMonitoringServerId());
             if ($previousMonitoringServer !== $host->getMonitoringServerId()) {
-                // Monitoring server has change, notify previous monitoring server of configuration changes.
+                // Monitoring server has changed, notify previous monitoring server of configuration changes.
                  $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer);
             }
 
@@ -211,6 +211,7 @@ final class PartialUpdateHost
         }
 
         if (! $dto->monitoringServerId instanceOf NoValue) {
+            $this->validation->assertIsValidMonitoringServer($dto->monitoringServerId);
             $host->setMonitoringServerId($dto->monitoringServerId);
         }
 
