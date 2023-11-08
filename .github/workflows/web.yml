@@ -243,6 +243,7 @@ jobs:
   package:
     needs:
       [
+        gherkin-lint,
         get-version,
         translation-build,
         backend-dependencies,
