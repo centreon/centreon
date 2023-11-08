@@ -29,7 +29,7 @@ use Core\Contact\Application\UseCase\FindContactTemplates\{
     FindContactTemplatesPresenterInterface
 };
 
-class FindContactTemplatesController extends AbstractController
+final class FindContactTemplatesController extends AbstractController
 {
     /**
      * @param FindContactTemplates $useCase

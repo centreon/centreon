@@ -90,7 +90,7 @@ When(
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
-    }).click({ force: true });
+    }).click();
 
     cy.wait('@getListAccessGroup');
 
@@ -113,7 +113,7 @@ When(
       tag: 'input'
     })
       .eq(1)
-      .click({ force: true });
+      .click();
 
     cy.get('div[role="presentation"] ul li').eq(0).click();
 

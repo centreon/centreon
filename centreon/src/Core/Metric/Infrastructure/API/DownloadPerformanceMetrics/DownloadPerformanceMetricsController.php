@@ -31,7 +31,7 @@ use DateTimeInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class DownloadPerformanceMetricsController extends AbstractController
+final class DownloadPerformanceMetricsController extends AbstractController
 {
     private const START_DATE_PARAMETER_NAME = 'start_date';
     private const END_DATE_PARAMETER_NAME = 'end_date';

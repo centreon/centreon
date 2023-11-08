@@ -69,9 +69,7 @@ class CommandServiceTest extends TestCase
         $service = new GorgoneService($responseRepository, $commandRepository);
         Response::setRepository($responseRepository);
 
-        /**
-         * @var $gorgoneResponse ResponseInterface
-         */
+        /** @var ResponseInterface $gorgoneResponse */
         $gorgoneResponse = $service->send($thumbprintCommand);
         do {
             $lastResponse = $gorgoneResponse->getLastActionLog();

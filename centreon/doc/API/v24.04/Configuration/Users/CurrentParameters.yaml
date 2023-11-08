@@ -1,0 +1,36 @@
+get:
+  tags:
+    - User
+  summary: "List user parameters"
+  description: "List configured parameters for the current user"
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/CurrentParameters.Get.yaml'
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+
+patch:
+  tags:
+    - User
+  summary: Update a user
+  description: |
+    Update a user
+    
+    The available parameters to be updated are :
+    
+    * theme
+    * user_interface_density
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/CurrentParameters.Patch.yaml'
+  responses:
+    '204': { description: "User updated" }
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

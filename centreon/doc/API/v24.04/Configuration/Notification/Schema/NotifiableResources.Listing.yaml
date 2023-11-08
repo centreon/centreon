@@ -1,0 +1,43 @@
+type: object
+properties:
+  notification_id:
+    type: integer
+    example: 2
+  hosts:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 13
+        name:
+          type: string
+          example: "Host 1"
+        alias:
+          type: string
+          example: "Host 1"
+          nullable: true
+        event:
+          type: integer
+          description: "Bitmask representing host's status triggering a notification"
+          example: 5
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 15
+              name:
+                type: string
+                example: "Ping"
+              alias:
+                type: string
+                example: "Ping"
+                nullable: true
+              event:
+                type: integer
+                description: "Bitmask representing service's status triggering a notification"
+                example: 5

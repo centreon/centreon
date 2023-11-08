@@ -1,0 +1,9 @@
+in: query
+name: status_types
+required: false
+description: "Filter the resources by status types"
+schema:
+  type: string
+  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+  description: should be in form ["<str1>","<str2>"] where strings can be one of "soft", "hard"
+  example: '["soft"]'

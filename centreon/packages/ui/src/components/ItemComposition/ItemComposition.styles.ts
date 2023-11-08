@@ -22,5 +22,8 @@ export const useItemStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     width: '100%'
+  },
+  visibilityHiden: {
+    visibility: 'hidden'
   }
 }));

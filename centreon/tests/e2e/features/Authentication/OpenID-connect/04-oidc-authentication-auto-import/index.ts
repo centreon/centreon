@@ -69,40 +69,27 @@ When(
       tag: 'input'
     }).check();
 
-    cy.getByLabel({ label: 'Identity provider' })
-      .eq(0)
-      .contains('Identity provider')
-      .click({ force: true });
-
     configureOpenIDConnect();
 
-    cy.getByLabel({ label: 'Auto import users' })
-      .eq(0)
-      .contains('Auto import users')
-      .click({ force: true });
-
+    // Auto import users section
+    cy.getByLabel({ label: 'Auto import users' }).click();
     cy.getByLabel({ label: 'Enable auto import', tag: 'input' }).check();
-
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
     }).type('{selectall}{backspace}contact_template');
-
     cy.wait('@getListContactTemplates')
       .get('div[role="presentation"] ul li')
       .eq(-1)
       .click();
-
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
     }).should('have.value', 'contact_template');
-
     cy.getByLabel({
       label: 'Email attribute path',
       tag: 'input'
     }).type('{selectall}{backspace}email');
-
     cy.getByLabel({
       label: 'Fullname attribute path',
       tag: 'input'

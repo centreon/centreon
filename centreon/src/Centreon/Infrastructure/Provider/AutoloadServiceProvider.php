@@ -57,7 +57,7 @@ class AutoloadServiceProvider
      */
     public static function register(Container $dependencyInjector): void
     {
-        $providers = static::getProviders($dependencyInjector['finder']);
+        $providers = self::getProviders($dependencyInjector['finder']);
 
         foreach ($providers as $provider) {
             $dependencyInjector->register(new $provider);
@@ -89,7 +89,7 @@ class AutoloadServiceProvider
                 continue;
             }
 
-            static::addProvider($providers, $object);
+            self::addProvider($providers, $object);
         }
 
         asort($providers);

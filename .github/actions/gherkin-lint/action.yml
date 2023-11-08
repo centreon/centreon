@@ -1,0 +1,17 @@
+name: gherkin-lint
+
+inputs:
+  features_path:
+    description: The path to the feature files
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Gherkin Lint
+      run: npm install gherkin-lint@4.2.2
+      shell: bash
+
+    - name: Run Gherkin Lint
+      run: ./node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc ${{ inputs.features_path }}
+      shell: bash

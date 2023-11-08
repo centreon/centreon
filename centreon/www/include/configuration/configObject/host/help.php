@@ -11,8 +11,10 @@ $help["mc_update"] = dgettext(
  */
 $help["host_name"] = dgettext(
     "help",
-    "The host name defined here is used in host group and service definitions to reference this particular host."
+    "Name of the host or template. The name defined here is used in host group and service definitions to reference this particular host. It must be unique and cannot contain white spaces, "
+    . "or special characters like ~!$%^&*\"|'<>?,()="
 );
+
 $help["alias"] = dgettext("help", "The alias is used to define a longer name or description for the host.");
 $help["address"] = dgettext(
     "help",

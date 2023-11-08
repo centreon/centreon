@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Application\Platform\UseCase\FindInstallationStatus;
 
-class FindInstallationStatusResponse
+final class FindInstallationStatusResponse
 {
     /** @var bool */
     public bool $isCentreonWebInstalled;
