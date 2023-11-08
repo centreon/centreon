@@ -242,6 +242,8 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
+    cy.log(`Starting container ${name} from image ${image}`);
+
     return cy.task(
       'startContainer',
       { image, name, portBindings },
@@ -362,6 +364,8 @@ interface StopContainerProps {
 Cypress.Commands.add(
   'stopContainer',
   ({ name }: StopContainerProps): Cypress.Chainable => {
+    cy.log(`Stopping container ${name}`);
+
     cy.exec(`docker logs ${name}`).then(({ stdout }) => {
       cy.writeFile(
         `cypress/results/logs/${Cypress.spec.name.replace(
