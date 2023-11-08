@@ -78,7 +78,7 @@ jobs:
 
       - uses: ./.github/actions/gherkin-lint
         with:
-          features_path: centreon/tests/e2e/features
+          features_path: centreon/tests/e2e
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -246,6 +246,7 @@ jobs:
   package:
     needs:
       [
+        gherkin-lint,
         get-version,
         translation-build,
         backend-dependencies,
