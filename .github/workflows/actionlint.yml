@@ -38,6 +38,7 @@ jobs:
           -pyflakes= \
           -color
         shell: bash
+
   yaml-lint:
     runs-on: ubuntu-22.04
     steps:
