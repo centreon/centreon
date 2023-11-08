@@ -38,7 +38,8 @@
     "on",
     {
       "tags": [
-        "@ignore"
+        "@ignore",
+        "@ignore-scenario"
       ],
       "patterns": [
         "^@REQ_MON-[1-9]\\d+$",
