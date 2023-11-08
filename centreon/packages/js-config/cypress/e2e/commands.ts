@@ -5,7 +5,7 @@ import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
-installLogsCollector();
+installLogsCollector({ enableExtendedCollector: true });
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
