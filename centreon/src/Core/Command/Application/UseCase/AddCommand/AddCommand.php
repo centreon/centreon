@@ -143,15 +143,15 @@ final class AddCommand
         }
 
         return new NewCommand(
-            name: new TrimmedString($request->name),
-            commandLine: new TrimmedString($request->commandLine),
-            type: $request->type,
-            isShellEnabled: $request->isShellEnabled,
-            argumentExample: new TrimmedString($request->argumentExample),
-            arguments: $arguments,
-            macros: $macros,
-            connectorId: $request->connectorId,
-            graphTemplateId: $request->graphTemplateId,
+            new TrimmedString($request->name),
+            new TrimmedString($request->commandLine),
+            $request->type,
+            $request->isShellEnabled,
+            new TrimmedString($request->argumentExample),
+            $arguments,
+            $macros,
+            $request->connectorId,
+            $request->graphTemplateId,
         );
     }
 
