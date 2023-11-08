@@ -241,8 +241,8 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
             : null;
     }
 
-        /**
-     * @param array $parameters
+    /**
+     * @param array<string,int> $parameters
      *
      * @return string
      */
