@@ -6,6 +6,7 @@ info:
     + Added media endpoint (POST)
     + Added metrics by service listing endpoint (GET)
     + Added graph template endpoint (GET)
+    + Added connector endpoint (GET)
     +
     # Updated features
     +
@@ -250,6 +251,8 @@ paths:
     $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/graphs/templates:
     $ref: "./v24.04/Configuration/GraphTemplate/FindGraphTemplates.yaml"
+  /configuration/connectors:
+    $ref: "./v24.04/Configuration/Connector/FindConnectors.yaml"
   /configuration/notifications:
     $ref: "./v24.04/Configuration/Notification/Notifications.yaml"
   /configuration/notifications/_delete:
