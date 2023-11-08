@@ -541,6 +541,7 @@ importers:
       '@types/cypress-cucumber-preprocessor': ^4.0.2
       '@types/node': ^20.6.3
       cypress: ^13.2.0
+      cypress-real-events: ^1.11.0
       cypress-wait-until: ^2.0.1
       path: ^0.12.7
       shell-exec: ^1.1.2
@@ -550,6 +551,7 @@ importers:
       '@types/cypress-cucumber-preprocessor': 4.0.2
       '@types/node': 20.6.3
       cypress: 13.2.0
+      cypress-real-events: 1.11.0_cypress@13.2.0
       cypress-wait-until: 2.0.1
       path: 0.12.7
       shell-exec: 1.1.2
@@ -9814,6 +9816,14 @@ packages:
       ally.js: 1.4.1
     dev: true
 
+  /cypress-real-events/1.11.0_cypress@13.2.0:
+    resolution: {integrity: sha512-4LXVRsyq+xBh5TmlEyO1ojtBXtN7xw720Pwb9rEE9rkJuXmeH3VyoR1GGayMGr+Itqf11eEjfDewtDmcx6PWPQ==}
+    peerDependencies:
+      cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x || ^13.x
+    dependencies:
+      cypress: 13.2.0
+    dev: true
+
   /cypress-terminal-report/5.3.6:
     resolution: {integrity: sha512-peKFSqxL9CDh/DHqahtbpF+vUZNiBW1N2HhlovpE8VGthuz7fM7hOyk5Bu/3llCP6PkQvvbIs/G0gxMfG5XKmA==}
     peerDependencies:
@@ -11245,7 +11255,7 @@ packages:
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.40.0
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
       object.assign: 4.1.4
       object.entries: 1.1.6
       semver: 6.3.1
@@ -11263,7 +11273,7 @@ packages:
     dependencies:
       eslint: 8.40.0
       eslint-config-airbnb-base: 15.0.0_e43qr7ng6kygh3xxr4conxr2wi
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
       eslint-plugin-jsx-a11y: 6.7.1_eslint@8.40.0
       eslint-plugin-react: 7.31.10_eslint@8.40.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.40.0
@@ -11286,7 +11296,7 @@ packages:
     peerDependencies:
       eslint-plugin-import: '>=1.4.0'
     dependencies:
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
     dev: true
 
   /eslint-import-resolver-node/0.3.7:

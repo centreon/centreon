@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import 'cypress-real-events/support';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -6,7 +7,7 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 import singleMetricWidget from '../../../fixtures/dashboards/creation/widgets/singleWidgetText.json';
 import singleMetricPayload from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
 import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
-import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboadWithDoubleWidget.json';
+import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboadWithTwoWidgets.json';
 
 before(() => {
   cy.startWebContainer();
@@ -114,7 +115,7 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.get('[class*="MuiSelect-select"]').click();
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.get('[class*="MuiMenuItem-gutters"]').eq(0).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.get('[class^="MuiAutocomplete-listbox"]').click();
@@ -207,7 +208,7 @@ Given(
     cy.getByLabel({
       label: 'Edit widget',
       tag: 'li'
-    }).click();
+    }).realClick();
   }
 );
 
@@ -248,7 +249,7 @@ Given('a dashboard containing a Single Metric widget', () => {
     tag: 'button'
   }).click();
   cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click('topRight');
+  cy.get('li[aria-label="Edit widget"]').realClick();
 });
 
 When(
@@ -314,8 +315,7 @@ Given('a dashboard featuring a Single Metric widget', () => {
     tag: 'button'
   }).click();
   cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
-  cy.get('.react-grid-item').invoke('css', 'display', 'none');
+  cy.get('li[aria-label="Edit widget"]').realClick();
 });
 
 When(
@@ -371,7 +371,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByLabel({
     label: 'Delete',
     tag: 'li'
-  }).click();
+  }).realClick();
 });
 
 Then('only the contents of the other widget are displayed', () => {

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import 'cypress-wait-until';
+import 'cypress-real-events/support';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import { apiActionV1 } from '../commons';
@@ -16,6 +17,10 @@ Cypress.Commands.add(
     return cy.get(`${tag}[aria-label${patternType}="${label}"]`);
   }
 );
+
+Cypress.Commands.add('realClick', { prevSubject: true }, (subject, options) => {
+  return cy.wrap(subject).trigger('click', options);
+});
 
 Cypress.Commands.add(
   'getByTestId',
@@ -279,6 +284,7 @@ declare global {
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => void;
       logoutViaAPI: () => Cypress.Chainable;
+      realClick: (options?: Partial<Cypress.ClickOptions>) => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
