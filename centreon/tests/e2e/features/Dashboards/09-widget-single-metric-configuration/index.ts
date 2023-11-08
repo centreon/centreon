@@ -7,7 +7,7 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 import singleMetricWidget from '../../../fixtures/dashboards/creation/widgets/singleWidgetText.json';
 import singleMetricPayload from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
 import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
-import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboadWithTwoWidgets.json';
+import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoWidgets.json';
 
 before(() => {
   cy.startWebContainer();
