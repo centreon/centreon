@@ -355,9 +355,10 @@ $form->addElement('text', 'host_snmp_community', _('SNMP Community'), $attrsText
 $form->addElement('select2', 'host_location', _('Timezone'), [], $attributes['timezones']);
 
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $mc_mod_tplp = [];
-    $mc_mod_tplp[] = $form->createElement('radio', 'mc_mod_tplp', null, _('Incremental'), '0');
-    $mc_mod_tplp[] = $form->createElement('radio', 'mc_mod_tplp', null, _('Replacement'), '1');
+    $mc_mod_tplp = [
+        $form->createElement('radio', 'mc_mod_tplp', null, _('Incremental'), '0'),
+        $form->createElement('radio', 'mc_mod_tplp', null, _('Replacement'), '1')
+    ];
     $form->addGroup($mc_mod_tplp, 'mc_mod_tplp', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_tplp' => '0']);
 }
@@ -443,9 +444,12 @@ if (! $isCloudPlatform) {
 
     $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
+    $hostEHE = [
+        $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1'),
+        $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0'),
+        $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2'),
+    ];
+
     $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
     if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
         $form->setDefaults(['host_event_handler_enabled' => '2']);
@@ -459,17 +463,23 @@ if (! $isCloudPlatform) {
 
     $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
 
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
+    $hostACE = [
+        $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1'),
+        $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0'),
+        $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2')
+    ];
+
     $form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
+
     if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
         $form->setDefaults(['host_active_checks_enabled' => '2']);
     }
 
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
+    $hostPCE = [
+        $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1'),
+        $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0'),
+        $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2')
+    ];
     $form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
     if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
         $form->setDefaults(['host_passive_checks_enabled' => '2']);
@@ -504,26 +514,31 @@ $dbResult = $pearDB->query('SELECT `value` FROM options WHERE `key` = "inheritan
 $inheritanceMode = $dbResult->fetch();
 
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $contactAdditive[] = $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('Yes'), '1');
-    $contactAdditive[] = $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('No'), '0');
-    $contactAdditive[] = $form->createElement(
-        'radio',
-        'mc_contact_additive_inheritance',
-        null,
-        _('Default'),
-        '2'
-    );
+    $contactAdditive = [
+        $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('Yes'), '1'),
+        $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('No'), '0'),
+        $form->createElement(
+            'radio',
+            'mc_contact_additive_inheritance',
+            null,
+            _('Default'),
+            '2'
+        )
+    ];
+
     $form->addGroup($contactAdditive, 'mc_contact_additive_inheritance', _('Contact additive inheritance'), '&nbsp;');
 
-    $contactGroupAdditive[] = $form->createElement('radio', 'mc_cg_additive_inheritance', null, _('Yes'), '1');
-    $contactGroupAdditive[] = $form->createElement('radio', 'mc_cg_additive_inheritance', null, _('No'), '0');
-    $contactGroupAdditive[] = $form->createElement(
-        'radio',
-        'mc_cg_additive_inheritance',
-        null,
-        _('Default'),
-        '2'
-    );
+    $contactGroupAdditive = [
+        $form->createElement('radio', 'mc_cg_additive_inheritance', null, _('Yes'), '1'),
+        $form->createElement('radio', 'mc_cg_additive_inheritance', null, _('No'), '0'),
+        $form->createElement(
+            'radio',
+            'mc_cg_additive_inheritance',
+            null,
+            _('Default'),
+            '2'
+        )
+    ];
     $form->addGroup(
         $contactGroupAdditive,
         'mc_cg_additive_inheritance',
@@ -535,21 +550,22 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
     $form->addElement('checkbox', 'cg_additive_inheritance', '', _('Contact group additive inheritance'));
 }
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $mc_mod_notifopt_first_notification_delay = [];
-    $mc_mod_notifopt_first_notification_delay[] = $form->createElement(
-        'radio',
-        'mc_mod_notifopt_first_notification_delay',
-        null,
-        _('Incremental'),
-        '0'
-    );
-    $mc_mod_notifopt_first_notification_delay[] = $form->createElement(
-        'radio',
-        'mc_mod_notifopt_first_notification_delay',
-        null,
-        _('Replacement'),
-        '1'
-    );
+    $mc_mod_notifopt_first_notification_delay = [
+        $form->createElement(
+            'radio',
+            'mc_mod_notifopt_first_notification_delay',
+            null,
+            _('Incremental'),
+            '0'
+        ),
+        $form->createElement(
+            'radio',
+            'mc_mod_notifopt_first_notification_delay',
+            null,
+            _('Replacement'),
+            '1'
+        )
+    ];
     $form->addGroup(
         $mc_mod_notifopt_first_notification_delay,
         'mc_mod_notifopt_first_notification_delay',
@@ -590,20 +606,22 @@ $form->addElement('select2', 'host_hcs', _('Host Categories'), [], $attributes['
 
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
     $mc_mod_notifopt_notification_interval = [];
-    $mc_mod_notifopt_notification_interval[] = $form->createElement(
-        'radio',
-        'mc_mod_notifopt_notification_interval',
-        null,
-        _('Incremental'),
-        '0'
-    );
-    $mc_mod_notifopt_notification_interval[] = $form->createElement(
-        'radio',
-        'mc_mod_notifopt_notification_interval',
-        null,
-        _('Replacement'),
-        '1'
-    );
+    $mc_mod_notifopt_notification_interval = [
+        $form->createElement(
+            'radio',
+            'mc_mod_notifopt_notification_interval',
+            null,
+            _('Incremental'),
+            '0'
+        ),
+        $form->createElement(
+            'radio',
+            'mc_mod_notifopt_notification_interval',
+            null,
+            _('Replacement'),
+            '1'
+        )
+    ];
     $form->addGroup(
         $mc_mod_notifopt_notification_interval,
         'mc_mod_notifopt_notification_interval',
@@ -616,21 +634,22 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
 $form->addElement('text', 'host_notification_interval', _('Notification Interval'), $attrsText2);
 
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $mc_mod_notifopt_timeperiod = [];
-    $mc_mod_notifopt_timeperiod[] = $form->createElement(
-        'radio',
-        'mc_mod_notifopt_timeperiod',
-        null,
-        _('Incremental'),
-        '0'
-    );
-    $mc_mod_notifopt_timeperiod[] = $form->createElement(
-        'radio',
-        'mc_mod_notifopt_timeperiod',
-        null,
-        _('Replacement'),
-        '1'
-    );
+    $mc_mod_notifopt_timeperiod = [
+        $form->createElement(
+            'radio',
+            'mc_mod_notifopt_timeperiod',
+            null,
+            _('Incremental'),
+            '0'
+        ),
+        $form->createElement(
+            'radio',
+            'mc_mod_notifopt_timeperiod',
+            null,
+            _('Replacement'),
+            '1'
+        )
+    ];
     $form->addGroup($mc_mod_notifopt_timeperiod, 'mc_mod_notifopt_timeperiod', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_notifopt_timeperiod' => '0']);
 }
@@ -638,60 +657,66 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
 $form->addElement('select2', 'timeperiod_tp_id2', _('Notification Period'), [], $attributes['notification_periods']);
 
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
-    $mc_mod_notifopts = [];
-    $mc_mod_notifopts[] = $form->createElement('radio', 'mc_mod_notifopts', null, _('Incremental'), '0');
-    $mc_mod_notifopts[] = $form->createElement('radio', 'mc_mod_notifopts', null, _('Replacement'), '1');
+    $mc_mod_notifopts = [
+        $form->createElement('radio', 'mc_mod_notifopts', null, _('Incremental'), '0'),
+        $form->createElement('radio', 'mc_mod_notifopts', null, _('Replacement'), '1')
+    ];
+
     $form->addGroup($mc_mod_notifopts, 'mc_mod_notifopts', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_notifopts' => '0']);
 }
+$hostNotifOpt = [
+    $form->createElement(
+        'checkbox',
+        'd',
+        '&nbsp;',
+        _('Down'),
+        ['id' => 'notifD', 'onClick' => 'uncheckNotifOption(this);']
+    ),
+    $form->createElement(
+        'checkbox',
+        'u',
+        '&nbsp;',
+        _('Unreachable'),
+        ['id' => 'notifU', 'onClick' => 'uncheckNotifOption(this);']
+    ),
+    $form->createElement(
+        'checkbox',
+        'r',
+        '&nbsp;',
+        _('Recovery'),
+        ['id' => 'notifR', 'onClick' => 'uncheckNotifOption(this);']
+    ),
+    $form->createElement(
+        'checkbox',
+        'f',
+        '&nbsp;',
+        _('Flapping'),
+        ['id' => 'notifF', 'onClick' => 'uncheckNotifOption(this);']
+    ),
+    $form->createElement(
+        'checkbox',
+        's',
+        '&nbsp;',
+        _('Downtime Scheduled'),
+        ['id' => 'notifDS', 'onClick' => 'uncheckNotifOption(this);']
+    ),
+    $form->createElement(
+        'checkbox',
+        'n',
+        '&nbsp;',
+        _('None'),
+        ['id' => 'notifN', 'onClick' => 'uncheckNotifOption(this);']
+    )
+];
 
-$hostNotifOpt[] = $form->createElement(
-    'checkbox',
-    'd',
-    '&nbsp;',
-    _('Down'),
-    ['id' => 'notifD', 'onClick' => 'uncheckNotifOption(this);']
-);
-$hostNotifOpt[] = $form->createElement(
-    'checkbox',
-    'u',
-    '&nbsp;',
-    _('Unreachable'),
-    ['id' => 'notifU', 'onClick' => 'uncheckNotifOption(this);']
-);
-$hostNotifOpt[] = $form->createElement(
-    'checkbox',
-    'r',
-    '&nbsp;',
-    _('Recovery'),
-    ['id' => 'notifR', 'onClick' => 'uncheckNotifOption(this);']
-);
-$hostNotifOpt[] = $form->createElement(
-    'checkbox',
-    'f',
-    '&nbsp;',
-    _('Flapping'),
-    ['id' => 'notifF', 'onClick' => 'uncheckNotifOption(this);']
-);
-$hostNotifOpt[] = $form->createElement(
-    'checkbox',
-    's',
-    '&nbsp;',
-    _('Downtime Scheduled'),
-    ['id' => 'notifDS', 'onClick' => 'uncheckNotifOption(this);']
-);
-$hostNotifOpt[] = $form->createElement(
-    'checkbox',
-    'n',
-    '&nbsp;',
-    _('None'),
-    ['id' => 'notifN', 'onClick' => 'uncheckNotifOption(this);']
-);
 $form->addGroup($hostNotifOpt, 'host_notifOpts', _('Notification Options'), '&nbsp;&nbsp;');
 
-$hostStalOpt[] = $form->createElement('checkbox', 'o', '&nbsp;', _('Up'));
-$hostStalOpt[] = $form->createElement('checkbox', 'd', '&nbsp;', _('Down'));
-$hostStalOpt[] = $form->createElement('checkbox', 'u', '&nbsp;', _('Unreachable'));
+$hostStalOpt = [
+    $form->createElement('checkbox', 'o', '&nbsp;', _('Up')),
+    $form->createElement('checkbox', 'd', '&nbsp;', _('Down')),
+    $form->createElement('checkbox', 'u', '&nbsp;', _('Unreachable'))
+];
 $form->addGroup($hostStalOpt, 'host_stalOpts', _('Stalking Options'), '&nbsp;&nbsp;');
 
 //
@@ -742,25 +767,33 @@ if ($o === HOST_TEMPLATE_ADD) {
 
 $form->addElement('header', 'treatment', _('Data Processing'));
 
-$hostOOH[] = $form->createElement('radio', 'host_obsess_over_host', null, _('Yes'), '1');
-$hostOOH[] = $form->createElement('radio', 'host_obsess_over_host', null, _('No'), '0');
-$hostOOH[] = $form->createElement('radio', 'host_obsess_over_host', null, _('Default'), '2');
+$hostOOH = [
+    $form->createElement('radio', 'host_obsess_over_host', null, _('Yes'), '1'),
+    $form->createElement('radio', 'host_obsess_over_host', null, _('No'), '0'),
+    $form->createElement('radio', 'host_obsess_over_host', null, _('Default'), '2'),
+];
 $form->addGroup($hostOOH, 'host_obsess_over_host', _('Obsess Over Host'), '&nbsp;');
 if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
     $form->setDefaults(['host_obsess_over_host' => '2']);
 }
 
-$hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Yes'), '1');
-$hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('No'), '0');
-$hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Default'), '2');
+$hostCF = [
+    $form->createElement('radio', 'host_check_freshness', null, _('Yes'), '1'),
+    $form->createElement('radio', 'host_check_freshness', null, _('No'), '0'),
+    $form->createElement('radio', 'host_check_freshness', null, _('Default'), '2')
+];
+
 $form->addGroup($hostCF, 'host_check_freshness', _('Check Freshness'), '&nbsp;');
 if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
     $form->setDefaults(['host_check_freshness' => '2']);
 }
 
-$hostFDE[] = $form->createElement('radio', 'host_flap_detection_enabled', null, _('Yes'), '1');
-$hostFDE[] = $form->createElement('radio', 'host_flap_detection_enabled', null, _('No'), '0');
-$hostFDE[] = $form->createElement('radio', 'host_flap_detection_enabled', null, _('Default'), '2');
+$hostFDE = [
+    $form->createElement('radio', 'host_flap_detection_enabled', null, _('Yes'), '1'),
+    $form->createElement('radio', 'host_flap_detection_enabled', null, _('No'), '0'),
+    $form->createElement('radio', 'host_flap_detection_enabled', null, _('Default'), '2'),
+];
+
 $form->addGroup($hostFDE, 'host_flap_detection_enabled', _('Flap Detection Enabled'), '&nbsp;');
 if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
     $form->setDefaults(['host_flap_detection_enabled' => '2']);
@@ -770,25 +803,31 @@ $form->addElement('text', 'host_freshness_threshold', _('Freshness Threshold'), 
 $form->addElement('text', 'host_low_flap_threshold', _('Low Flap Threshold'), $attrsText2);
 $form->addElement('text', 'host_high_flap_threshold', _('High Flap Threshold'), $attrsText2);
 
-$hostPPD[] = $form->createElement('radio', 'host_process_perf_data', null, _('Yes'), '1');
-$hostPPD[] = $form->createElement('radio', 'host_process_perf_data', null, _('No'), '0');
-$hostPPD[] = $form->createElement('radio', 'host_process_perf_data', null, _('Default'), '2');
+$hostPPD = [
+    $form->createElement('radio', 'host_process_perf_data', null, _('Yes'), '1'),
+    $form->createElement('radio', 'host_process_perf_data', null, _('No'), '0'),
+    $form->createElement('radio', 'host_process_perf_data', null, _('Default'), '2'),
+];
 $form->addGroup($hostPPD, 'host_process_perf_data', _('Process Perf Data'), '&nbsp;');
 if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
     $form->setDefaults(['host_process_perf_data' => '2']);
 }
 
-$hostRSI[] = $form->createElement('radio', 'host_retain_status_information', null, _('Yes'), '1');
-$hostRSI[] = $form->createElement('radio', 'host_retain_status_information', null, _('No'), '0');
-$hostRSI[] = $form->createElement('radio', 'host_retain_status_information', null, _('Default'), '2');
+$hostRSI = [
+    $form->createElement('radio', 'host_retain_status_information', null, _('Yes'), '1'),
+    $form->createElement('radio', 'host_retain_status_information', null, _('No'), '0'),
+    $form->createElement('radio', 'host_retain_status_information', null, _('Default'), '2'),
+];
 $form->addGroup($hostRSI, 'host_retain_status_information', _('Retain Status Information'), '&nbsp;');
 if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
     $form->setDefaults(['host_retain_status_information' => '2']);
 }
 
-$hostRNI[] = $form->createElement('radio', 'host_retain_nonstatus_information', null, _('Yes'), '1');
-$hostRNI[] = $form->createElement('radio', 'host_retain_nonstatus_information', null, _('No'), '0');
-$hostRNI[] = $form->createElement('radio', 'host_retain_nonstatus_information', null, _('Default'), '2');
+$hostRNI = [
+    $form->createElement('radio', 'host_retain_nonstatus_information', null, _('Yes'), '1'),
+    $form->createElement('radio', 'host_retain_nonstatus_information', null, _('No'), '0'),
+    $form->createElement('radio', 'host_retain_nonstatus_information', null, _('Default'), '2'),
+];
 $form->addGroup($hostRNI, 'host_retain_nonstatus_information', _('Retain Non Status Information'), '&nbsp;');
 if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
     $form->setDefaults(['host_retain_nonstatus_information' => '2']);
