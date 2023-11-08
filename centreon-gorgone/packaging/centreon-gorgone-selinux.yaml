@@ -20,6 +20,7 @@ contents:
 
   - src: "../selinux/centreon-gorgoned.pp"
     dst: "/usr/share/selinux/packages/centreon/centreon-gorgoned.pp"
+    packager: rpm
     file_info:
       mode: 0655
 
