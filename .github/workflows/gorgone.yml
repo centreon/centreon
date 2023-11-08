@@ -92,9 +92,8 @@ jobs:
       - name: Generate selinux binaries
         if: ${{ matrix.package_extension == 'rpm' }}
         run: |
-          cd selinux
+          cd centreon-gorgone/selinux
           MODULE="centreon-gorgone"
-          cd $MODULE
           sed -i "s/${VERSION}/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}" $MODULE.te
           make -f /usr/share/selinux/devel/Makefile
           cd -
