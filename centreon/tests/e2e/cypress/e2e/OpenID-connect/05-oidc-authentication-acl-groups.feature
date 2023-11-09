@@ -3,7 +3,7 @@ Feature: OpenID Connect authentication
     I want to be able to use an external authentication provider
     So that Platform users can use existing authentication services to authenticate
 
-Scenario: Assign users from third party authentication service to ACL groups
+  Scenario: Assign users from third party authentication service to ACL groups
     Given an administrator is logged in the platform
     When the administrator sets valid settings in the Roles mapping and saves
     Then the users from the 3rd party authentication service are affected to ACL groups

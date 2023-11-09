@@ -3,12 +3,12 @@ Feature: Generate poller configuration
   I want to generate the poller configuration
   So that the changes made in the configuration are deployed on my platform
 
-Background:
-  Given I am granted the rights to access the poller page and export the configuration
-  And I am logged in
-  And the platform is configured with some resources
-  And some pollers are created
-  And some post-generation commands are configured for each poller
+  Background:
+    Given I am granted the rights to access the poller page and export the configuration
+    And I am logged in
+    And the platform is configured with some resources
+    And some pollers are created
+    And some post-generation commands are configured for each poller
 
   Scenario: Generate the configuration on multiple pollers
     When I visit the export configuration page
