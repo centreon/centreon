@@ -49,7 +49,8 @@ runs:
 
     - name: Bump NPM package version
       run: |
-        npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        PREID=$(echo "${{ github.head_ref }}" | sed "s/\./-/g")
+        npm version prerelease --preid $PREID --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         echo "VERSION=$VERSION" >> $GITHUB_ENV
       working-directory: ${{ env.directory }}
