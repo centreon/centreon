@@ -161,7 +161,7 @@ Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
         }
       ]
     })
-    .then(() => {
+    .then({ timeout: 30000 }, () => {
       return cy.task('waitOn', 'http://127.0.0.1:8080/health/ready');
     })
     .then(() => {
