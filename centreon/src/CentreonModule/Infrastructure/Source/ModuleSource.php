@@ -388,7 +388,7 @@ class ModuleSource extends SourceAbstract
             ]);
         }
 
-            return $dependencies;
+        return $dependencies;
     }
 
     /**
