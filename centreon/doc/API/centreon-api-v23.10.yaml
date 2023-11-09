@@ -20,6 +20,7 @@ info:
     # Updated features
     + Updated host template endpoint (GET)
     + Updated JSON API returned keys for /monitoring/resources endpoint (GET)
+    + Added metrics by service listing endpoint to service resource type
     +
     # Information
     All dates are in **ISO 8601** format
@@ -7854,6 +7855,11 @@ components:
               nullable: true
               description: "Endpoint dedicated for checks (forced_check payload entry set to true)"
               example: "/centreon/api/latest/monitoring/hosts/17/services/23/check"
+            metrics:
+              type: string
+              nullable: true
+              description: "Endpoint dedicated for service metrics"
+              example: "/centreon/api/latest/monitoring/hosts/17/services/23/metrics"
         externals:
           type: object
           properties:
