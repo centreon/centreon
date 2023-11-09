@@ -1,0 +1,50 @@
+{
+  "no-files-without-scenarios": "on",
+  "no-unnamed-features": "on",
+  "no-unnamed-scenarios": "on",
+  "no-dupe-scenario-names": [
+    "on",
+    "in-feature"
+  ],
+  "no-partially-commented-tag-lines": "on",
+  "no-trailing-spaces": "on",
+  "no-multiple-empty-lines": "on",
+  "no-empty-file": "on",
+  "no-scenario-outlines-without-examples": "on",
+  "no-duplicate-tags": "on",
+  "no-superfluous-tags": "on",
+  "one-space-between-tags": "on",
+  "no-unused-variables": "on",
+  "no-empty-background": "on",
+  "indentation": [
+    "on",
+    {
+      "Feature": 0,
+      "Background": 2,
+      "Scenario": 2,
+      "Step": 4,
+      "Examples": 4,
+      "example": 6,
+      "given": 4,
+      "when": 4,
+      "then": 4,
+      "and": 4,
+      "but": 4,
+      "feature tag": 0,
+      "scenario tag": 2
+    }
+  ],
+  "allowed-tags": [
+    "on",
+    {
+      "tags": [
+        "@ignore"
+      ],
+      "patterns": [
+        "^@REQ_MON-[1-9]\\d+$",
+        "^@TEST_MON-[1-9]\\d+$",
+        "^@execTimeout\\([1-9]\\d+\\)$"
+      ]
+    }
+  ]
+}
