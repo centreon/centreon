@@ -11,13 +11,13 @@ import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/wid
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-widget-metrics.json'
-  );
+  // cy.execInContainer({
+  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+  //   name: Cypress.env('dockerName')
+  // });
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-widget-metrics.json'
+  // );
   cy.execInContainer({
     command:
       'su -s /bin/sh apache -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"',
@@ -115,7 +115,7 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.getByTestId({ testId: 'Resource type' }).click({ force: true });
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.get('[class^="MuiAutocomplete-listbox"]').click();
