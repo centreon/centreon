@@ -412,7 +412,6 @@ jobs:
         with:
           check_name: centreon-web-frontend-e2e-tests-report
           path: "centreon/tests/e2e/cypress-result.xml"
-          retention-days: 1
 
   performances-test:
     runs-on: ubuntu-22.04
