@@ -7,6 +7,7 @@ info:
     + Added metrics by service listing endpoint (GET)
     + Added graph template endpoint (GET)
     + Added connector endpoint (GET)
+    + Added metrics by service listing endpoint to service resource type
     +
     # Updated features
     +
@@ -7851,6 +7852,12 @@ components:
               nullable: true
               description: "Endpoint dedicated for checks (forced_check payload entry set to true)"
               example: "/centreon/api/latest/monitoring/hosts/17/services/23/check"
+            metrics:
+              type: string
+              nullable: true
+              description: "Endpoint dedicated for service metrics"
+              example: "/centreon/api/latest/monitoring/hosts/17/services/23/metrics"
+            
         externals:
           type: object
           properties:

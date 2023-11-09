@@ -666,7 +666,9 @@ Given(
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardViewerUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.logoutViaAPI();
     cy.loginByTypeOfUser({
       jsonName: dashboardViewerUser.login,
