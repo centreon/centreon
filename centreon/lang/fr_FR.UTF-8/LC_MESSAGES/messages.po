@@ -18320,3 +18320,9 @@ msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
 
 msgid "Error while searching for connectors"
 msgstr "Erreur lors de la recherche de connecteurs"
+
+msgid "Error while updating a host"
+msgstr "Erreur lors de la mise à jour d'un hôte"
+
+msgid "You are not allowed to edit a host"
+msgstr "Vous n'êtes pas autorisé à éditer un hôte"
