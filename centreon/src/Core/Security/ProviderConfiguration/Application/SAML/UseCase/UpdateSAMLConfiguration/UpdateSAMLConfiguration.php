@@ -203,10 +203,13 @@ class UpdateSAMLConfiguration
         foreach ($foundAccessGroups as $foundAccessGroup) {
             $foundAccessGroupsId[] = $foundAccessGroup->getId();
         }
+
         $nonExistentAccessGroupsIds = array_diff($accessGroupIdsFromRequest, $foundAccessGroupsId);
-        $this->error("Access Groups not found", [
-            "access_group_ids" => implode(', ', $nonExistentAccessGroupsIds)
-        ]);
+        if (! empty($nonExistentAccessGroupsIds)) {
+            $this->error('Access Groups not found', [
+                'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
+            ]);
+        }
     }
 
     /**
