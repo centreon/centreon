@@ -23,7 +23,6 @@ package gorgone::class::core;
 use strict;
 use warnings;
 use POSIX ":sys_wait_h";
-use Sys::Hostname;
 use MIME::Base64;
 use Crypt::Mode::CBC;
 use ZMQ::FFI qw(ZMQ_DONTWAIT ZMQ_SNDMORE);
@@ -74,7 +73,9 @@ sub new {
         'GET_/internal/information' => 'INFORMATION',
         'POST_/internal/logger' => 'BCASTLOGGER',
     };
-    $self->{config} = 
+
+    $self->{ievents} = [];
+    $self->{recursion_ievents} = 0;
 
     return $self;
 }
@@ -269,7 +270,8 @@ sub init {
 
     $self->{hostname} = $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{hostname};
     if (!defined($self->{hostname}) || $self->{hostname} eq '') {
-        $self->{hostname} = hostname();
+        my ($sysname, $nodename, $release, $version, $machine) = POSIX::uname();
+        $self->{hostname} = $sysname;
     }
 
     $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} = 
@@ -513,17 +515,11 @@ sub broadcast_core_key {
     );
 }
 
-sub read_internal_message {
+sub decrypt_internal_message {
     my ($self, %options) = @_;
 
-    my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
-        socket => $self->{internal_socket},
-        logger => $self->{logger}
-    );
-    return undef if (!defined($identity));
-
     if ($self->{internal_crypt}->{enabled} == 1) {
-        my $id = pack('H*', $identity);
+        my $id = pack('H*', $options{identity});
         my $keys;
         if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_identity_keys}->{$id})) {
             $keys = [ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_identity_keys}->{$id}->{key} ];
@@ -533,16 +529,16 @@ sub read_internal_message {
                 if (defined($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_core_oldkey}));
         }
         foreach my $key (@$keys) {
-            if ($frame->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
-                return ($identity, $frame);
+            if ($options{frame}->decrypt({ cipher => $self->{cipher}, key => $key, iv => $self->{internal_crypt}->{iv} }) == 0) {
+                return 0;
             }
         }
 
-        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $frame->getLastError());
-        return undef;
+        $self->{logger}->writeLogError("[core] decrypt issue ($id): " .  $options{frame}->getLastError());
+        return 1;
     }
 
-    return ($identity, $frame);
+    return 0;
 }
 
 sub send_internal_response {
@@ -640,7 +636,7 @@ sub message_run {
 
     if ($self->{logger}->is_debug()) {
         my $frame_ref = $options->{frame}->getFrame();
-        $self->{logger}->writeLogDebug('[core] Message received - ' . $$frame_ref);
+        $self->{logger}->writeLogDebug('[core] Message received ' . $options->{router_type} . ' - ' . $$frame_ref);
     }
     if ($options->{frame}->parse({ releaseFrame => 1 }) != 0) {
         return (undef, 1, { message => 'request not well formatted' });
@@ -714,46 +710,46 @@ sub message_run {
         );
         return ($token, 0);
     }
-    
+
     if ($action =~ /^(?:ADDLISTENER|PUTLOG|GETLOG|KILL|PING|CONSTATUS|SETCOREID|SETMODULEKEY|SYNCLOGS|LOADMODULE|UNLOADMODULE|INFORMATION|GETTHUMBPRINT)$/) {
         my ($code, $response, $response_type) = $self->{internal_register}->{lc($action)}->(
-            gorgone => $self,
+            gorgone        => $self,
             gorgone_config => $self->{config}->{configuration}->{gorgone},
-            identity => $options->{identity},
-            router_type => $options->{router_type},
-            id => $self->{id},
-            frame => $options->{frame},
-            token => $token,
-            logger => $self->{logger}
+            identity       => $options->{identity},
+            router_type    => $options->{router_type},
+            id             => $self->{id},
+            frame          => $options->{frame},
+            token          => $token,
+            logger         => $self->{logger}
         );
 
         if ($action =~ /^(?:CONSTATUS|INFORMATION|GETTHUMBPRINT)$/) {
             gorgone::standard::library::add_history({
-                dbh => $self->{db_gorgone},
-                code => $code,
-                token => $token,
-                data => $response,
+                dbh         => $self->{db_gorgone},
+                code        => $code,
+                token       => $token,
+                data        => $response,
                 json_encode => 1
             });
         }
-        
+
         return ($token, $code, $response, $response_type);
     } elsif ($action =~ /^BCAST(.*)$/) {
         return (undef, 1, { message => "action '$action' is not known" }) if ($1 !~ /^(?:LOGGER|COREKEY)$/);
         $self->broadcast_run(
             action => $action,
-            frame => $options->{frame},
-            token => $token
+            frame  => $options->{frame},
+            token  => $token
         );
     } else {
         $self->{modules_register}->{ $self->{modules_events}->{$action}->{module}->{package} }->{routing}->(
-            gorgone => $self,
-            dbh => $self->{db_gorgone},
-            logger => $self->{logger},
-            action => $action,
-            token => $token,
-            target => $target,
-            frame => $options->{frame},
+            gorgone  => $self,
+            dbh      => $self->{db_gorgone},
+            logger   => $self->{logger},
+            action   => $action,
+            token    => $token,
+            target   => $target,
+            frame    => $options->{frame},
             hostname => $self->{hostname}
         );
     }
@@ -764,25 +760,39 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
+    $self->{recursion_ievents}++;
     while ($self->{internal_socket}->has_pollin()) {
-        my ($identity, $frame) = $self->read_internal_message();
+        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
+            socket => $self->{internal_socket},
+            logger => $self->{logger}
+        );
         next if (!defined($identity));
+        push @{$self->{ievents}}, [ $identity, $frame ];
+    }
 
+    if ($self->{recursion_ievents} > 1) {
+        $self->{recursion_ievents}--;
+        return;
+    }
+
+    while (my $event = shift(@{$self->{ievents}})) {
+        next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
-                frame => $frame,
-                identity => $identity,
+                frame       => $event->[1],
+                identity    => $event->[0],
                 router_type => 'internal'
             }
         );
         $self->send_internal_response(
-            identity => $identity,
+            identity      => $event->[0],
             response_type => $response_type,
-            data => $response,
-            code => $code,
-            token => $token
+            data          => $response,
+            code          => $code,
+            token         => $token
         );
     }
+    $self->{recursion_ievents}--;
 }
 
 sub is_handshake_done {
@@ -1124,15 +1134,20 @@ sub stop_ev {
 sub waiting_ready {
     my (%options) = @_;
 
-    return 1 if (${$options{ready}} == 1);
+    if (${$options{ready}} == 1) {
+        return 1 ;
+    }
 
     my $iteration = 10;
     while ($iteration > 0) {
         my $watcher_timer = $gorgone->{loop}->timer(1, 0, \&stop_ev);
+        my $count_iteration = $gorgone->{loop}->iteration;
+        my $count_pending = $gorgone->{loop}->pending_count;
         $gorgone->{loop}->run();
         if (${$options{ready}} == 1) {
             return 1;
         }
+        $iteration --;
     }
 
     return 0;
