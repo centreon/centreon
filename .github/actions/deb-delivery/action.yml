@@ -4,9 +4,6 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
-  repository_name:
-    description: "The repository name (standard, business, ...)"
-    required: true
   distrib:
     description: "The distribution used for packaging"
     required: true
