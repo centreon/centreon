@@ -18,10 +18,6 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('realClick', { prevSubject: true }, (subject, options) => {
-  return cy.wrap(subject).trigger('click', options);
-});
-
 Cypress.Commands.add(
   'getByTestId',
   ({
@@ -284,7 +280,6 @@ declare global {
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => void;
       logoutViaAPI: () => Cypress.Chainable;
-      realClick: (options?: Partial<Cypress.ClickOptions>) => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
