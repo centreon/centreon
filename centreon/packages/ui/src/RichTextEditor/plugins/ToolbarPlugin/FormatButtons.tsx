@@ -100,7 +100,7 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
       <Menu.Button className={classes.button} disabled={disabled}>
         <FormatTextIcon />
       </Menu.Button>
-      <Menu.Items>
+      <Menu.Items className={classes.menuItems}>
         <div className={classes.menu}>
           {formatButtons.map(({ Icon, onClickFunction, isSelected, type }) => (
             <Menu.Item

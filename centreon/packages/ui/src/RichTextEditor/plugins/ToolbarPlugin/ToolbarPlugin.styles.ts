@@ -15,5 +15,13 @@ export const useStyles = makeStyles()((theme) => ({
   menu: {
     display: 'flex',
     flexDirection: 'row'
+  },
+  menuItems: {
+    '& > .MuiPaper-root.MuiMenu-paper': {
+      minWidth: 0
+    },
+    '& ul, & ul.MuiMenu-list': {
+      padding: 0
+    }
   }
 }));

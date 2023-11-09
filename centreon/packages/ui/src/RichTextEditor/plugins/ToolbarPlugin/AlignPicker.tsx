@@ -95,7 +95,7 @@ const AlignPicker = ({ disabled }: Props): JSX.Element => {
       >
         {selectedFormat && <selectedFormat.Icon />}
       </Menu.Button>
-      <Menu.Items>
+      <Menu.Items className={classes.menuItems}>
         <div className={classes.menu}>
           {formatOptions.map(({ Icon, value }) => (
             <Menu.Item

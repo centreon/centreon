@@ -32,10 +32,11 @@ interface Props {
 const blockTypeToBlockName = {
   h3: 'Huge',
   h5: 'Large',
+  h6: 'Small',
   paragraph: 'Normal'
 };
 
-const blockTypes = ['h3', 'h5', 'paragraph'];
+const blockTypes = ['h3', 'h5', 'paragraph', 'h6'];
 
 const blockTypeOptions = blockTypes.map((blockType) => ({
   id: blockType,
@@ -73,6 +74,7 @@ const BlockButtons = ({ disabled }: Props): JSX.Element => {
     const formatFunction = cond<Array<string>, (value?) => void>([
       [equals('h3'), always(() => formatHeading('h3'))],
       [equals('h5'), always(() => formatHeading('h5'))],
+      [equals('h6'), always(() => formatHeading('h6'))],
       [T, always(formatParagraph)]
     ])(newBlockType || '');
 
@@ -131,7 +133,7 @@ const BlockButtons = ({ disabled }: Props): JSX.Element => {
       <Menu.Button className={classes.button} disabled={disabled}>
         <TextSizeIcon />
       </Menu.Button>
-      <Menu.Items>
+      <Menu.Items className={classes.menuItems}>
         {blockTypeOptions.map(({ id, name }) => (
           <Menu.Item
             isActive={equals(id, blockType)}
