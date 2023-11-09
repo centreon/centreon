@@ -93,7 +93,7 @@ final class FindOpenIdConfigurationResponse
     public array $authenticationConditions = [];
 
     /**
-     * @var array{
+     * @var array{}|array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
      *  "endpoint": array{

@@ -416,6 +416,41 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'insertDashboardWithWidget',
+  (dashboardBody, patchBody) => {
+    cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        {
+          timeout: 10000
+        }
+      );
+      cy.request({
+        body: patchBody,
+        method: 'PATCH',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      });
+    });
+  }
+);
+
 interface ShareDashboardToUserProps {
   dashboardName: string;
   role: string;
@@ -428,6 +463,30 @@ interface ListingRequestResult {
       id: number;
     }>;
   };
+}
+
+interface PatchDashboardBody {
+  panels: Array<{
+    layout: {
+      height: number;
+      min_height: number;
+      min_width: number;
+      width: number;
+      x: number;
+      y: number;
+    };
+    name: string;
+    widget_settings: {
+      options: {
+        description: {
+          content: string;
+          enabled: boolean;
+        };
+        name: string;
+      };
+    };
+    widget_type: string;
+  }>;
 }
 
 Cypress.Commands.add(
@@ -502,6 +561,11 @@ declare global {
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
+      insertDashboardWithWidget: (
+        dashboard: Dashboard,
+        patch: PatchDashboardBody
+      ) => Cypress.Chainable;
+
       loginByTypeOfUser: ({
         jsonName,
         loginViaApi

@@ -11,18 +11,7 @@ parameters:
     level: max
     paths:
         - src
-        - tests/php/Core
-        - tests/php/Centreon
-        - tests/php/Security
-        - tests/php/Utility
     ignoreErrors:
-        -
-            path: tests/php
-            messages:
-                - '#^Undefined variable: \$this$#'
-                - '#^Call to an undefined method Pest#'
-                - '#^Access to an undefined property PHPUnit#'
-
         - # Baseline: 👇 dealing with this code is almost impossible without spending hours.
             reportUnmatched: false
             path: src/CentreonRemote/Infrastructure/Service/ExportService.php

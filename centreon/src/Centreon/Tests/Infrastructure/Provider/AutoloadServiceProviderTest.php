@@ -36,6 +36,7 @@
 
 namespace Centreon\Tests\Infrastructure\Provider;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Centreon\Infrastructure\Provider\AutoloadServiceProvider;
 use Centreon\Tests\Resources\Mock\ServiceProvider;
@@ -52,7 +53,7 @@ class AutoloadServiceProviderTest extends TestCase
     protected $checkPoint;
 
     /**
-     * @var Finder
+     * @var Finder&MockObject
      */
     protected $finder;
 

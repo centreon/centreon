@@ -73,7 +73,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *  }
  * @phpstan-type _MetricData array{
  *  global: array{
- *      base: int
+ *      base: int,
+ *      title: string
  *  },
  *  metrics: array<_Metrics>,
  *  times: string[]

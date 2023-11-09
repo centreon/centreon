@@ -1,0 +1,7 @@
+PartialUpdateHost:
+  methods: PATCH
+  path: /configuration/hosts/{hostId}
+  requirements:
+    hostId: '\d+'
+  controller: 'Core\Host\Infrastructure\API\PartialUpdateHost\PartialUpdateHostController'
+  condition: "request.attributes.get('version') >= 24.04"
