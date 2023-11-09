@@ -420,6 +420,11 @@ function updateDebugConfigData($gopt_id = null)
         "debug_centreontrapd",
         isset($ret["debug_centreontrapd"]) && $ret['debug_centreontrapd'] ? 1 : 0
     );
+    if (isset($ret['debug_application']) && $ret['debug_application']) {
+        enableApplicationDebug(true);
+    } else {
+        enableApplicationDebug(false);
+    }
 
     $centreon->initOptGen($pearDB);
 }
@@ -947,6 +952,16 @@ function updateRemoteAccessCredentials($db, $form, $centreonEncryption): void
         } catch (Exception $e) {
             $errorMsg = _('The password cannot be crypted. Please re-submit the form');
             echo "<div class='msg' align='center'>" . $errorMsg . "</div>";
+        }
+    }
+}
+
+function enableApplicationDebug(bool $enable) {
+    $environmentLines = file(_CENTREON_PATH_ . '/.env.local.php');
+    $alreadyHasAppDebug = false;
+    foreach($environmentLines as $index => $line) {
+        if (preg_match('/APP_DEBUG/', $line)) {
+            $alreadyHasAppDebug;
         }
     }
 }
