@@ -116,7 +116,7 @@ When(
       .eq(0)
       .type(genericTextWidgets.default.description);
     cy.getByTestId({ testId: 'Resource type' }).click({ force: true });
-    cy.get('[class*="MuiMenuItem-gutters"]').eq(0).click();
+    cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.get('[class^="MuiAutocomplete-listbox"]').click();
     cy.getByTestId({ testId: 'Select metric' }).click();
