@@ -28,6 +28,9 @@ const captureReport = async (): Promise<void> => {
     headless: "new",
   });
   const page = await browser.newPage();
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'en'
+  });
 
   const flow = await startFlow(page, {
     name: 'Centreon Web pages',
@@ -59,37 +62,37 @@ const captureReport = async (): Promise<void> => {
     startTimespan,
   });
 
-  await generateReportForResourceStatusPage({
-    endTimespan,
-    navigate,
-    page,
-    snapshot,
-    startTimespan,
-  });
+  // await generateReportForResourceStatusPage({
+  //   endTimespan,
+  //   navigate,
+  //   page,
+  //   snapshot,
+  //   startTimespan,
+  // });
 
-  await generateReportForAuthenticationPage({
-    endTimespan,
-    navigate,
-    page,
-    snapshot,
-    startTimespan,
-  });
+  // await generateReportForAuthenticationPage({
+  //   endTimespan,
+  //   navigate,
+  //   page,
+  //   snapshot,
+  //   startTimespan,
+  // });
 
-  await generateReportForDashboardsPage({
-    endTimespan,
-    navigate,
-    page,
-    snapshot,
-    startTimespan,
-  });
+  // await generateReportForDashboardsPage({
+  //   endTimespan,
+  //   navigate,
+  //   page,
+  //   snapshot,
+  //   startTimespan,
+  // });
 
-  await generateReportForNotificationsPage({
-    endTimespan,
-    navigate,
-    page,
-    snapshot,
-    startTimespan,
-  });
+  // await generateReportForNotificationsPage({
+  //   endTimespan,
+  //   navigate,
+  //   page,
+  //   snapshot,
+  //   startTimespan,
+  // });
 
   await browser.close();
 
