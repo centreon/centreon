@@ -382,12 +382,12 @@ class ModuleSource extends SourceAbstract
         foreach ($moduleDetails->getDependencies() as $dependency) {
             $dependencies[] = $dependency;
 
-
             $dependencies = array_unique([
                 ...$this->getSortedDependencies($dependency, $alreadyProcessed),
                 ...$dependencies,
             ]);
         }
+
             return $dependencies;
     }
 
