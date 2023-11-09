@@ -71,4 +71,3 @@ runs:
       if: ${{ inputs.distrib_debian }}
       run: docker push docker.centreon.com/centreon/${{ inputs.module_name }}-package-${{ inputs.distrib_deb }}:${{ github.head_ref || github.ref_name }}
       shell: bash
-

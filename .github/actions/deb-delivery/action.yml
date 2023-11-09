@@ -7,15 +7,6 @@ inputs:
   distrib:
     description: "The distribution used for packaging"
     required: true
-  repository_name:
-    description: "The repository name (standard, business, ...)"
-    required: true
-  nexus_username:
-    description: "Artifact Manager technical username"
-    required: true
-  nexus_password:
-    description: "Artifact Manager technical password"
-    required: true
   version:
     description: "Centreon packaged version"
     required: true
