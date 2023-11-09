@@ -17,9 +17,6 @@ inputs:
   version:
     description: The version
     default: latest
-  release_branch:
-    description: The release branch
-    required: true
 
 runs:
   using: "composite"
