@@ -173,6 +173,16 @@ When('I click on the export button', () => {
 });
 
 Then('the configuration is generated on selected pollers', () => {
+  cy.waitUntil(() => {
+    return cy
+      .get('iframe#main-content')
+      .its('0.contentDocument.body')
+      .find('div#console')
+      .then(($el) => {
+        return $el.find('label#progressPct:contains("100%")').length > 0;
+      });
+  });
+
   checkIfConfigurationIsExported({ dateBeforeLogin, hostName: testHostName });
 });
 
