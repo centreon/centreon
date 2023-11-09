@@ -21,7 +21,6 @@
 
 namespace CentreonModule\Infrastructure\Source;
 
-use _PHPStan_1a8f07040\Nette\Neon\Exception;
 use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
 use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Entity\Module;
