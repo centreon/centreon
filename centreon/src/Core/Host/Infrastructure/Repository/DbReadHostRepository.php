@@ -466,7 +466,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                             ON sev.hc_id = hcr.hostcategories_hc_id
                     WHERE sev.level IS NOT NULL
                       AND hcr.host_host_id = h.host_id {$hostSeveritiesAcl}
-                    ORDER BY sev.level
+                    ORDER BY sev.level, sev.hc_id
                     LIMIT 1
                 ) AS severity_id,
                 (
@@ -476,7 +476,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                             ON sev.hc_id = hcr.hostcategories_hc_id
                     WHERE sev.level IS NOT NULL
                       AND hcr.host_host_id = h.host_id {$hostSeveritiesAcl}
-                    ORDER BY sev.level
+                    ORDER BY sev.level, sev.hc_id
                     LIMIT 1
                 ) AS severity_name,
                 ns.id AS monitoring_server_id,

@@ -150,7 +150,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                                ON hc.hc_id = hcr.hostcategories_hc_id
                         WHERE hc.level IS NOT NULL
                           AND hcr.host_host_id = h.host_id
-                        ORDER BY hc.level
+                        ORDER BY hc.level, hc.hc_id
                         LIMIT 1
                     ) AS severity_id
                 FROM `:db`.host h
@@ -329,7 +329,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                                ON hc.hc_id = hcr.hostcategories_hc_id
                         WHERE hc.level IS NOT NULL
                           AND hcr.host_host_id = h.host_id
-                        ORDER BY hc.level
+                        ORDER BY hc.level, hc.hc_id
                         LIMIT 1
                     ) AS severity_id
                 FROM `:db`.host h
