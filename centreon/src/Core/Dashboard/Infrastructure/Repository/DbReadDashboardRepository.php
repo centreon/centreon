@@ -45,7 +45,9 @@ use Utility\SqlConcatenator;
  *     created_by: int,
  *     updated_by: int,
  *     created_at: int,
- *     updated_at: int
+ *     updated_at: int,
+ *     refresh_type: string,
+ *     refresh_interval: ?int
  * }
  */
 class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDashboardRepositoryInterface
@@ -307,9 +309,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
     }
 
     /**
-     * @param array $result
-     *
      * @phpstan-param DashboardResultSet $result
+     *
+     * @param array $result
      *
      * @throws \ValueError
      * @throws AssertionFailedException

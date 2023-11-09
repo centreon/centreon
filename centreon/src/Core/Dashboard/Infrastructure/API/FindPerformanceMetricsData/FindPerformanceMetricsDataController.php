@@ -61,7 +61,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
      * @return array{
      *  start: \DateTime,
      *  end: \DateTime,
-     *  metricIds: array<int>
+     *  metric_names: list<string>
      * }
      */
     private function validateAndRetrieveParametersFromRequest(Request $request): array
