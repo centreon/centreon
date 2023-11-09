@@ -103,7 +103,7 @@ use Utility\SqlConcatenator;
  *     check_timeperiod_name: string|null,
  *     notification_timeperiod_id: int|null,
  *     notification_timeperiod_name: string|null,
- *     severity_id: string|null,
+ *     severity_id: int|null,
  *     severity_name: string|null,
  *     monitoring_server_id: int,
  *     monitoring_server_name: string,
@@ -459,8 +459,26 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 ctime.tp_name AS check_timeperiod_name,
                 ntime.tp_id AS notification_timeperiod_id,
                 ntime.tp_name AS notification_timeperiod_name,
-                GROUP_CONCAT(sev.hc_id ORDER BY sev.level ASC LIMIT 1)  AS severity_id,
-                GROUP_CONCAT(sev.hc_name ORDER BY sev.level ASC LIMIT 1)  AS severity_name,
+                (
+                    SELECT sev.hc_id
+                    FROM `:db`.hostcategories sev
+                    INNER JOIN `:db`.hostcategories_relation hcr
+                            ON sev.hc_id = hcr.hostcategories_hc_id
+                    WHERE sev.level IS NOT NULL
+                      AND hcr.host_host_id = h.host_id {$hostSeveritiesAcl}
+                    ORDER BY sev.level
+                    LIMIT 1
+                ) AS severity_id,
+                (
+                    SELECT sev.hc_name
+                    FROM `:db`.hostcategories sev
+                    INNER JOIN `:db`.hostcategories_relation hcr
+                            ON sev.hc_id = hcr.hostcategories_hc_id
+                    WHERE sev.level IS NOT NULL
+                      AND hcr.host_host_id = h.host_id {$hostSeveritiesAcl}
+                    ORDER BY sev.level
+                    LIMIT 1
+                ) AS severity_name,
                 ns.id AS monitoring_server_id,
                 ns.name AS monitoring_server_name,
                 GROUP_CONCAT(DISTINCT hc.hc_id) AS category_ids,
@@ -469,9 +487,6 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             FROM `:db`.host h {$aclQuery}
             LEFT JOIN `:db`.hostcategories_relation hcr
                 ON hcr.host_host_id = h.host_id
-            LEFT JOIN `:db`.hostcategories sev
-                ON sev.hc_id = hcr.hostcategories_hc_id
-                AND sev.level IS NOT NULL {$hostSeveritiesAcl}
             LEFT JOIN `:db`.hostcategories hc
                 ON hc.hc_id = hcr.hostcategories_hc_id
                 AND hc.level IS NULL {$hostCategoriesAcl}
