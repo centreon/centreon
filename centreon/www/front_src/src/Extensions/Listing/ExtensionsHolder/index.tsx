@@ -74,9 +74,9 @@ const ChipAvatar = ({
   },
   onUpdate,
   type
-}: ChipAvatarProps): JSX.Element => {
+}: ChipAvatarProps): JSX.Element | null => {
   if (is_internal) {
-    return <CheckIcon style={{ color: '#FFFFFF' }} />;
+    return null;
   }
 
   if (outdated) {
