@@ -62,7 +62,7 @@ require_once './include/common/common-Func.php';
 
 global $isCloudPlatform;
 
-$isCloudPlatform = ! isCloudPlatform();
+$isCloudPlatform = isCloudPlatform();
 
 $select = filter_var_array(
     getSelectOption(),
