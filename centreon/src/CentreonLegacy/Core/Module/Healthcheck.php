@@ -92,7 +92,7 @@ class Healthcheck
                 $this->licenseExpiration = new DateTime(date(DateTime::W3C, $licenseExpiration));
             }
 
-            if (! $critical && ! $warning) {
+            if (! $critical && ! $warning) { // { critical: FALSE, warning: FALSE }
                 $this->setCustomAction($customAction);
 
                 return true;
@@ -100,12 +100,12 @@ class Healthcheck
 
             $this->setMessages($message);
 
-            if ($critical) {
-                throw new Exception\HealthcheckCriticalException();
-            }
-            if ($warning) {
+            if ($warning && ! $critical) { // { critical: FALSE, warning: TRUE }
                 throw new Exception\HealthcheckWarningException();
             }
+
+            // { critical: TRUE, warning: <FALSE|TRUE> }
+            throw new Exception\HealthcheckCriticalException();
         }
 
         throw new Exception\HealthcheckNotFoundException('The module\'s requirements did not exist');

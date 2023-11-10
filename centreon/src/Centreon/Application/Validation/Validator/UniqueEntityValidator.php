@@ -70,9 +70,13 @@ class UniqueEntityValidator extends ConstraintValidator implements CentreonValid
     {
         if (!$constraint instanceof UniqueEntity) {
             throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\UniqueEntity');
-        } elseif (!\is_array($constraint->fields) && !\is_string($constraint->fields)) {
+        }
+
+        if (!\is_array($constraint->fields) && !\is_string($constraint->fields)) {
             throw new UnexpectedTypeException($constraint->fields, 'array');
-        } elseif (null !== $constraint->errorPath && !\is_string($constraint->errorPath)) {
+        }
+
+        if (null !== $constraint->errorPath && !\is_string($constraint->errorPath)) {
             throw new UnexpectedTypeException($constraint->errorPath, 'string or null');
         }
 
