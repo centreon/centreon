@@ -308,7 +308,7 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+    const logDirectory = `results/logs/${Cypress.spec.name.replace(
       artifactIllegalCharactersMatcher,
       '_'
     )}/${Cypress.currentTest.title.replace(
