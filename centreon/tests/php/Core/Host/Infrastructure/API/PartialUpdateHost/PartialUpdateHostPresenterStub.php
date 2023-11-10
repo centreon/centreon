@@ -21,39 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\Exception\Http;
+namespace Tests\Core\Host\Infrastructure\API\PartialUpdateHost;
 
-class InvalidContentException extends \DomainException
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+class PartialUpdateHostPresenterStub extends AbstractPresenter
 {
-    /** @var array<mixed> */
-    private array $content = [];
+    public ?ResponseStatusInterface $response;
 
-    /**
-     * @param array<mixed> $content
-     *
-     * @return self
-     */
-    public static function createWithContent(array $content): self
+    public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
     {
-        $self = new self();
-        $self->setContent($content);
-
-        return $self;
-    }
-
-    /**
-     * @param array<mixed> $value
-     */
-    public function setContent(array $value): void
-    {
-        $this->content = $value;
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getContent(): array
-    {
-        return $this->content;
+        $this->response = $responseStatus;
     }
 }

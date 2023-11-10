@@ -16232,3 +16232,9 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Error while searching for connectors"
 #  msgstr ""
+
+#  msgid "Error while updating a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a host"
+#  msgstr ""
