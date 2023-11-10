@@ -1,9 +1,5 @@
 sleep 5
 
-systemctl restart gorgoned
-
-sleep 5
-
 su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 
 timeout 20 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost/centreon/api/latest/platform/versions)" != "200" ]]; do sleep 5; done'
