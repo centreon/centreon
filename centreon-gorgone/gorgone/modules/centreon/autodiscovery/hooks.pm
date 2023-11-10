@@ -68,7 +68,7 @@ sub routing {
         $autodiscovery->{ready} = 1;
         return undef;
     }
-
+    
     if (gorgone::class::core::waiting_ready(ready => \$autodiscovery->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -79,7 +79,7 @@ sub routing {
         });
         return undef;
     }
-
+    
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-autodiscovery',
         action => $options{action},
