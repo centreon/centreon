@@ -14,6 +14,7 @@ on:
     - cron: "0 3 * * *"
   pull_request:
     paths:
+      - "centreon-gorgone/**"
       - "centreon/**"
       - "!centreon/packages/**"
   push:
@@ -78,35 +79,15 @@ jobs:
               - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  gherkin-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/gherkin-lint
-        with:
-          features_path: centreon/tests/e2e/features
-
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
+  get-version-gorgone:
+    uses: ./.github/workflows/get-version.yml
     with:
-      module_directory: centreon
-      module_name: centreon-web
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+      version_file: centreon-gorgone/packaging/centreon-gorgone.spectemplate
 
   frontend-web-build:
     needs: [get-version]
@@ -183,168 +164,14 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-web-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.base_directory }}
-          module_name: centreon
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-
-  frontend-widgets-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.widgets_directory }}
-          module_name: centreon-widgets
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-
-  frontend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-          run_install: false
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: pnpm
-          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: centreon
-        env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-
-      - name: Unit test
-        run: pnpm t --silent --reporter=jest-junit
-        working-directory: centreon
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/junit.xml"
-
-  frontend-component-test:
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-    uses: ./.github/workflows/cypress-component-parallelization.yml
-    with:
-      name: component
-      module_name: centreon
-      specs_path: www/**
-      dependencies_lock_file: centreon/pnpm-lock.yaml
-
-  backend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          coverage: none
-        env:
-          runner: ubuntu-22.04
-
-      - name: Install dependencies
-        uses: ramsey/composer-install@v2
-        with:
-          working-directory: centreon
-          composer-options: "--optimize-autoloader"
-
-      - name: Unit test
-        run: XDEBUG_MODE=coverage composer run-script test:ci
-        working-directory: centreon
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/build/phpunit.xml"
-          format: "php-junit"
-
-  backend-lint:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          coverage: none
-        env:
-          runner: ubuntu-22.04
-
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
-        working-directory: centreon
-        shell: bash
-
-      - name: Run of php-cs-fixer with strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
-        working-directory: centreon
-
-      - name: Run of php-cs-fixer without strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-        working-directory: centreon
-
-      - name: Run of phpstan on /src at level 3
-        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.neon
-        working-directory: centreon
-
-      - name: Run of phpstan on /src/Core at level 3 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.core.neon
-        working-directory: centreon
-
-      - name: Run of phpstan on /tests at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
-        working-directory: centreon
-
   package:
     needs:
       [
-        gherkin-lint,
         get-version,
         translation-build,
         backend-dependencies,
-        backend-lint,
-        backend-unit-test,
         frontend-web-build,
-        frontend-web-lint,
         frontend-widgets-build,
-        frontend-widgets-lint,
-        frontend-unit-test,
-        frontend-component-test,
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
@@ -388,9 +215,44 @@ jobs:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+  package-gorgone:
+    needs: [get-version-gorgone]
+    if: ${{ needs.get-version-gorgone.outputs.stability != 'stable' }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        distrib: [el8, el9, bullseye]
+        include:
+          - package_extension: rpm
+            image: packaging-alma8
+            distrib: el8
+          - package_extension: rpm
+            image: packaging-alma9
+            distrib: el9
+          - package_extension: deb
+            image: packaging-bullseye
+            distrib: bullseye
+
+    uses: ./.github/workflows/package.yml
+    with:
+      base_directory: centreon-gorgone
+      spec_file: centreon-gorgone/packaging/centreon-gorgone.spectemplate
+      package_extension: ${{ matrix.package_extension }}
+      image_name: ${{ matrix.image }}
+      module_name: centreon-gorgone
+      major_version: ${{ needs.get-version-gorgone.outputs.major_version }}
+      minor_version: ${{ needs.get-version-gorgone.outputs.minor_version }}
+      release: ${{ needs.get-version-gorgone.outputs.release }}
+      commit_hash: ${{ github.sha }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}-gorgone-${{ matrix.package_extension }}-${{ matrix.distrib }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [get-version, package]
+    needs: [get-version, package, package-gorgone]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     env:
@@ -437,6 +299,13 @@ jobs:
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
+          fail-on-cache-miss: true
+
+      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} gorgone files
+        uses: actions/cache/restore@v3
+        with:
+          path: ./*.${{ steps.matrix_include.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-gorgone-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
       - uses: docker/setup-buildx-action@v2
