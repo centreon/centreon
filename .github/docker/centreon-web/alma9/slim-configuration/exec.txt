@@ -20,6 +20,8 @@ systemctl stop cbd
 systemctl stop gorgoned
 service mysql stop
 
+sleep 5
+
 rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
 
 sleep 5
