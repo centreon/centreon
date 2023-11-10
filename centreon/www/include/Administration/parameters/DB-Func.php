@@ -972,6 +972,12 @@ function updateRemoteAccessCredentials($db, $form, $centreonEncryption): void
     }
 }
 
+/**
+ * Add or remove the debug level from environments files.
+ *
+ * @param bool $enable
+ * @param int $level
+ */
 function enableApplicationDebug(bool $enable, int $level = 100) {
     $env = new \Utility\EnvironmentFileManager(_CENTREON_PATH_);
     $env->load();
