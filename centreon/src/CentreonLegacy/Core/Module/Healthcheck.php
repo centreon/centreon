@@ -92,7 +92,7 @@ class Healthcheck
                 $this->licenseExpiration = new DateTime(date(DateTime::W3C, $licenseExpiration));
             }
 
-            if (! $critical && ! $warning) { // { critical: FALSE, warning: FALSE }
+            if (! $critical && ! $warning) { // critical: FALSE, warning: FALSE
                 $this->setCustomAction($customAction);
 
                 return true;
@@ -100,11 +100,11 @@ class Healthcheck
 
             $this->setMessages($message);
 
-            if ($warning && ! $critical) { // { critical: FALSE, warning: TRUE }
+            if (! $critical && $warning) { // critical: FALSE, warning: TRUE
                 throw new Exception\HealthcheckWarningException();
             }
 
-            // { critical: TRUE, warning: <FALSE|TRUE> }
+            // critical: TRUE
             throw new Exception\HealthcheckCriticalException();
         }
 
