@@ -2260,6 +2260,75 @@
 					"response": []
 				},
 				{
+					"name": "List monitoring connectors",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"pm.test(\"The base monitoring connectors all have been successfully installed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    //pm.expect(responseJson.installed.length).to.eql(12);\r",
+									"    //pm.expect(responseJson.updated).to.be.empty;\r",
+									"    //pm.expect(responseJson.failed).to.be.empty;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonApi}}/internal.php?object=centreon_pp_manager_pluginpack&locale=en&action=ListInstalledOrdered",
+							"host": [
+								"{{baseUriCentreonApi}}"
+							],
+							"path": [
+								"internal.php"
+							],
+							"query": [
+								{
+									"key": "object",
+									"value": "centreon_pp_manager_pluginpack"
+								},
+								{
+									"key": "locale",
+									"value": "en"
+								},
+								{
+									"key": "action",
+									"value": "ListInstalledOrdered"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Install base monitoring connectors",
 					"event": [
 						{
@@ -2303,15 +2372,11 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/internal.php?object=centreon_pp_manager_pluginpack&action=installupdate",
-							"protocol": "{{protocol}}",
+							"raw": "{{baseUriCentreonApi}}/internal.php?object=centreon_pp_manager_pluginpack&action=installupdate",
 							"host": [
-								"{{server}}"
+								"{{baseUriCentreonApi}}"
 							],
-							"port": "{{port}}",
 							"path": [
-								"centreon",
-								"api",
 								"internal.php"
 							],
 							"query": [
