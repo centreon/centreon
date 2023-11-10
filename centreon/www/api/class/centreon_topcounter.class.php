@@ -609,9 +609,11 @@ class CentreonTopCounter extends CentreonWebService
             COALESCE(SUM(CASE WHEN h.state = 1 THEN 1 ELSE 0 END), 0) AS down_total,
             COALESCE(SUM(CASE WHEN h.state = 2 THEN 1 ELSE 0 END), 0) AS unreachable_total,
             COALESCE(SUM(CASE WHEN h.state = 4 THEN 1 ELSE 0 END), 0) AS pending_total,
-            COALESCE(SUM(CASE WHEN h.state = 1 AND (h.acknowledged = 0 AND h.scheduled_downtime_depth = 0)
+            COALESCE(SUM(CASE WHEN h.state = 1 AND (h.acknowledged = 0 AND h.scheduled_downtime_depth = 0
+                AND h.state_type = 1)
                 THEN 1 ELSE 0 END), 0) AS down_unhandled,
-            COALESCE(SUM(CASE WHEN h.state = 2 AND (h.acknowledged = 0 AND h.scheduled_downtime_depth = 0)
+            COALESCE(SUM(CASE WHEN h.state = 2 AND (h.acknowledged = 0 AND h.scheduled_downtime_depth = 0
+                AND h.state_type = 1)
                 THEN 1 ELSE 0 END), 0) AS unreachable_unhandled
             FROM hosts h, instances i';
         $query .= ' WHERE i.deleted = 0
