@@ -1,0 +1,35 @@
+parameters:
+    bootstrapFiles:
+        - config/centreon.config.php.template
+    scanFiles:
+        - config/centreon.config.php.template
+        - tests/phpstan_stubs/bootstrap.stub
+        - tests/phpstan_stubs/legacy.stub
+    level: 2
+    paths:
+        - src/Centreon/Tests
+        - tests/php/Core
+        - tests/php/Centreon
+        - tests/php/Security
+        - tests/php/Utility
+    ignoreErrors:
+        -
+            reportUnmatched: false
+            path: src/Centreon/Tests
+            messages:
+                - '#^Access to an undefined property#'
+        -
+            reportUnmatched: false
+            path: src/Centreon/Tests/Resources/Mock/ClapiMock.php
+            message: '#^Constructor of class Centreon\\Tests\\Resources\\Mock\\ClapiMock has an unused parameter \$di.$#'
+        -
+            reportUnmatched: false
+            path: tests/php
+            messages:
+                - '#^Undefined variable: \$this$#'
+                - '#^Call to an undefined method Pest#'
+                - '#^Access to an undefined property PHPUnit#'
+
+services:
+    errorFormatter.absolute:
+        class: Centreon\PHPStan\AbsolutePathErrorFormatter

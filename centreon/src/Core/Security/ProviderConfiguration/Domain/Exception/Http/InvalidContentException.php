@@ -25,12 +25,13 @@ namespace Core\Security\ProviderConfiguration\Domain\Exception\Http;
 
 class InvalidContentException extends \DomainException
 {
+    /** @var array<mixed> */
     private array $content = [];
 
     /**
-     * @param array $content
+     * @param array<mixed> $content
      *
-     * @return static
+     * @return self
      */
     public static function createWithContent(array $content): self
     {
@@ -41,7 +42,7 @@ class InvalidContentException extends \DomainException
     }
 
     /**
-     * @param array $value
+     * @param array<mixed> $value
      */
     public function setContent(array $value): void
     {
@@ -49,7 +50,7 @@ class InvalidContentException extends \DomainException
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     public function getContent(): array
     {

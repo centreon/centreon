@@ -176,7 +176,7 @@ class CentreonDBAdapter
             throw new \Exception('Query failed. ' . $e->getMessage());
         }
 
-        return $this->db->lastInsertId();
+        return (int) $this->db->lastInsertId();
     }
 
     /**

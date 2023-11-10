@@ -33,13 +33,13 @@ class Healthcheck
     /** @var string Path to the module */
     protected $modulePath;
 
-    /** @var array Collect error messages after check */
+    /** @var array|null Collect error messages after check */
     protected $messages;
 
-    /** @var array Collect a custom action after check */
+    /** @var array|null Collect a custom action after check */
     protected $customAction;
 
-    /** @var \DateTime Collect date and time of a license expiration */
+    /** @var \DateTime|null Collect date and time of a license expiration */
     protected $licenseExpiration;
 
     /**
