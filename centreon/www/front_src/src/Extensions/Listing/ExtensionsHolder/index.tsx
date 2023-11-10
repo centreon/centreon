@@ -1,5 +1,3 @@
-import { ReactElement } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
@@ -61,6 +59,45 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.success.main
   }
 }));
+
+interface ChipAvatarProps {
+  entity: Entity;
+  onUpdate: (id: string, type: string) => void;
+  type: string;
+}
+
+const ChipAvatar = ({
+  entity: {
+    id,
+    is_internal,
+    version: { outdated }
+  },
+  onUpdate,
+  type
+}: ChipAvatarProps): JSX.Element => {
+  if (is_internal) {
+    return <CheckIcon style={{ color: '#FFFFFF' }} />;
+  }
+
+  if (outdated) {
+    return (
+      <UpdateIcon
+        style={{
+          color: '#FFFFFF',
+          cursor: 'pointer'
+        }}
+        onClick={(e): void => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          onUpdate(id, type);
+        }}
+      />
+    );
+  }
+
+  return <CheckIcon style={{ color: '#FFFFFF' }} />;
+};
 
 interface Props {
   deletingEntityId: string | null;
@@ -165,26 +202,6 @@ const ExtensionsHolder = ({
 
             const licenseInfo = getPropsFromLicense(entity.license);
 
-            let ChipAvatar: ReactElement | undefined;
-            if (entity.version.outdated) {
-              ChipAvatar = (
-                <UpdateIcon
-                  style={{
-                    color: '#FFFFFF',
-                    cursor: 'pointer'
-                  }}
-                  onClick={(e): void => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    onUpdate(entity.id, type);
-                  }}
-                />
-              );
-            } else if (!entity.is_internal) {
-              ChipAvatar = <CheckIcon style={{ color: '#FFFFFF' }} />;
-            }
-
             return (
               <Grid
                 item
@@ -215,7 +232,13 @@ const ExtensionsHolder = ({
                   <CardActions style={{ justifyContent: 'center' }}>
                     {entity.version.installed ? (
                       <Chip
-                        avatar={ChipAvatar}
+                        avatar={
+                          <ChipAvatar
+                            entity={entity}
+                            type={type}
+                            onUpdate={onUpdate}
+                          />
+                        }
                         deleteIcon={<DeleteIcon style={{ color: '#FFFFFF' }} />}
                         disabled={isLoading}
                         label={
