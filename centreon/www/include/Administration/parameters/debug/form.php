@@ -56,6 +56,21 @@ $form->addElement('text', 'debug_path', _("Logs Directory"), $attrsText);
 
 $form->addElement('checkbox', 'debug_auth', _("Authentication debug"));
 $form->addElement('checkbox', 'debug_application', _("Application debug"));
+$form->addElement(
+    'select',
+    'debug_level',
+    _("Debug level"),
+    [
+        100 => 'Debug',
+        200 => 'Info',
+        250 => 'Notice',
+        300 => 'Warning',
+        400 => 'Error',
+        500 => 'Critical',
+        550 => 'Alert',
+        600 => 'Emergency'
+    ]
+);
 $form->addElement('checkbox', 'debug_sql', _("SQL debug"));
 $form->addElement('checkbox', 'debug_nagios_import', _("Monitoring Engine Import debug"));
 $form->addElement('checkbox', 'debug_rrdtool', _("RRDTool debug"));

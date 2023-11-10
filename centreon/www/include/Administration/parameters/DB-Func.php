@@ -420,9 +420,25 @@ function updateDebugConfigData($gopt_id = null)
         "debug_centreontrapd",
         isset($ret["debug_centreontrapd"]) && $ret['debug_centreontrapd'] ? 1 : 0
     );
-    if (isset($ret['debug_application']) && $ret['debug_application']) {
-        enableApplicationDebug(true);
+    updateOption(
+        $pearDB,
+        "debug_level",
+        isset($ret["debug_level"]) ? $ret['debug_level'] : '100'
+    );
+
+    if (isset($ret['debug_application']) && $ret['debug_application'] === "1") {
+        updateOption(
+            $pearDB,
+            "debug_application",
+            1
+        );
+        enableApplicationDebug(true, (int) $ret['debug_level']);
     } else {
+        updateOption(
+            $pearDB,
+            "debug_application",
+            0
+        );
         enableApplicationDebug(false);
     }
 
@@ -956,12 +972,13 @@ function updateRemoteAccessCredentials($db, $form, $centreonEncryption): void
     }
 }
 
-function enableApplicationDebug(bool $enable) {
-    $environmentLines = file(_CENTREON_PATH_ . '/.env.local.php');
-    $alreadyHasAppDebug = false;
-    foreach($environmentLines as $index => $line) {
-        if (preg_match('/APP_DEBUG/', $line)) {
-            $alreadyHasAppDebug;
-        }
+function enableApplicationDebug(bool $enable, int $level = 100) {
+    $env = new \Utility\EnvironmentFileManager(_CENTREON_PATH_);
+    $env->load();
+    if ($enable === true) {
+        $env->add('DEBUG_LEVEL', $level);
+    } else {
+        $env->delete('DEBUG_LEVEL');
     }
+    $env->save();
 }

@@ -8824,7 +8824,7 @@ msgstr "Macros"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:726
 msgid "Debug Level"
-msgstr "Niveau de débogage"
+msgstr "Niveau de debug"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:766
 msgid "Broker need options to be loaded"
@@ -18326,3 +18326,6 @@ msgstr "Erreur lors de la mise à jour d'un hôte"
 
 msgid "You are not allowed to edit a host"
 msgstr "Vous n'êtes pas autorisé à éditer un hôte"
+
+msgid "Application debug"
+msgstr "Debug Applicatif"

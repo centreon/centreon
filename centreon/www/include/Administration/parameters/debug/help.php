@@ -14,3 +14,5 @@ $help['tip_sql_debug'] = dgettext('help', 'Enables SQL debug.');
 $help['tip_centcore_debug'] = dgettext('help', 'Enables Centcore debug.');
 $help['tip_centstorage_debug'] = dgettext('help', 'Enables Centstorage debug.');
 $help['tip_centreontrapd_debug'] = dgettext('help', 'Enables Centreontrapd debug.');
+$help['tip_application_debug'] = dgettext('help', 'Enables application logs located in /var/log/centreon/centreon-web.log');
+$help['tip_debug_level'] = dgettext('help', 'Set the lowest log level: Debug => Info => Notice => Warning => Error => Critical => Alert => Emergency');
