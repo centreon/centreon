@@ -423,7 +423,7 @@ function updateDebugConfigData($gopt_id = null)
     updateOption(
         $pearDB,
         "debug_level",
-        isset($ret["debug_level"]) ? $ret['debug_level'] : '100'
+        $ret['debug_level']
     );
 
     if (isset($ret['debug_application']) && $ret['debug_application'] === "1") {
