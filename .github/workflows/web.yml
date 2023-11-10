@@ -1,8 +1,9 @@
 name: web
-run-name: ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
-          github.event_name == 'pull_request' && github.event.pull_request.title ||
-          github.event_name == 'push' && github.event.head_commit.message ||
-          github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
+run-name:
+  ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
+  github.event_name == 'pull_request' && github.event.pull_request.title ||
+  github.event_name == 'push' && github.event.head_commit.message ||
+  github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -37,6 +38,7 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
     steps:
       - uses: actions/checkout@v4
 
@@ -72,7 +74,20 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+            has_features_changes:
+              - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  gherkin-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: centreon/tests/e2e/features
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -303,17 +318,22 @@ jobs:
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
         working-directory: centreon
 
-      - name: Run of phpstan on /src at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+      - name: Run of phpstan on /src at level 3
+        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.neon
         working-directory: centreon
 
-      - name: Run of phpstan on /src/Core at level 2 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.core.neon
+      - name: Run of phpstan on /src/Core at level 3 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.core.neon
+        working-directory: centreon
+
+      - name: Run of phpstan on /tests at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
         working-directory: centreon
 
   package:
     needs:
       [
+        gherkin-lint,
         get-version,
         translation-build,
         backend-dependencies,

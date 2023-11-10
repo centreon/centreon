@@ -24,7 +24,7 @@ namespace CentreonLegacy\Core\Module;
 class Upgrader extends Module
 {
     /**
-     * @return bool
+     * @return int
      */
     public function upgrade()
     {

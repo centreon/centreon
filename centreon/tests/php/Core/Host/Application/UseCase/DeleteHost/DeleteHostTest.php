@@ -32,6 +32,7 @@ use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Application\UseCase\DeleteHost\DeleteHost;
+use Core\Host\Domain\Model\Host;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -40,25 +41,27 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\DeleteHost\DeleteHostPresenterStub;
 
 beforeEach(closure: function (): void {
-    $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class);
-    $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class);
-    $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class);
-    $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
-    $this->storageEngine = $this->createMock(DataStorageEngineInterface::class);
+
     $this->presenter = new DeleteHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class);
-    
+
     $this->useCase = new DeleteHost(
-        $this->readHostRepository,
-        $this->writeHostRepository,
-        $this->readServiceRepository,
-        $this->writeServiceRepository,
-        $this->contact,
-        $this->storageEngine,
-        $this->readAccessGroupRepository,
-        $this->writeMonitoringServerRepository,
+        readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+        writeHostRepository: $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
+        readServiceRepository: $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class),
+        writeServiceRepository: $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class),
+        contact: $this->contact = $this->createMock(ContactInterface::class),
+        storageEngine: $this->storageEngine = $this->createMock(DataStorageEngineInterface::class),
+        readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
+    );
+
+    $this->host = new Host(
+        id: 1,
+        monitoringServerId: 2,
+        name: 'host-name',
+        address: '127.0.0.1',
     );
 });
 
@@ -83,6 +86,11 @@ it('should present a NotFoundResponse when the service template is not found', f
         ->method('hasTopologyRole')
         ->willReturn(true);
 
+    $this->contact
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostRepository
         ->expects($this->once())
         ->method('exists')
@@ -105,11 +113,21 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->method('hasTopologyRole')
         ->willReturn(true);
 
+    $this->contact
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostRepository
         ->expects($this->once())
         ->method('exists')
         ->with($hostId)
         ->willReturn(true);
+
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->host);
 
     $this->storageEngine
         ->expects($this->once())
@@ -142,6 +160,11 @@ it('should present a NoContentResponse when the service template has been delete
         ->method('hasTopologyRole')
         ->willReturn(true);
 
+    $this->contact
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->storageEngine
         ->expects($this->once())
         ->method('startTransaction');
@@ -151,6 +174,11 @@ it('should present a NoContentResponse when the service template has been delete
         ->method('exists')
         ->with($hostId)
         ->willReturn(true);
+
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->host);
 
     $this->readServiceRepository
         ->expects($this->once())
