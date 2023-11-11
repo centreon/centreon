@@ -110,6 +110,9 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', (): void => {
+  // enable cookies debug to check if PHPSESSID is properly deleted
+  Cypress.Cookies.debug(true);
+
   cy.getByLabel({ label: 'Profile' }).should('exist').click();
 
   cy.intercept({
