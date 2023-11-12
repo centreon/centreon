@@ -71,7 +71,7 @@ Given('some post-generation commands are configured for each poller', () => {
 
   cy.get('@pollerId').then((pollerId) => {
     cy.executeSqlRequestInContainer(
-      `INSERT INTO poller_command_relations (poller_id, command_id, command_order) SELECT ${pollerId},c.command_id,1 FROM command WHERE command_name = 'post_command'`
+      `INSERT INTO poller_command_relations (poller_id, command_id, command_order) SELECT ${pollerId},c.command_id,1 FROM command c WHERE c.command_name = 'post_command'`
     );
   });
 });
