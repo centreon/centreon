@@ -63,9 +63,15 @@ Given('some pollers are created', () => {
 });
 
 Given('some post-generation commands are configured for each poller', () => {
+  cy.addCheckCommand({
+    command: 'echo "Post command"',
+    enableShell: true,
+    name: 'post_command'
+  });
+
   cy.get('@pollerId').then((pollerId) => {
     cy.executeSqlRequestInContainer(
-      `INSERT INTO poller_command_relations VALUES (${pollerId},39,1)`
+      `INSERT INTO poller_command_relations (poller_id, command_id, command_order) SELECT ${pollerId},c.command_id,1 FROM command WHERE command_name = 'post_command'`
     );
   });
 });
