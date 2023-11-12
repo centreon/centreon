@@ -15,9 +15,6 @@ apt-get update
 
 rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
-systemctl stop gorgoned
-systemctl stop centengine
-systemctl stop cbd
 
 echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
 

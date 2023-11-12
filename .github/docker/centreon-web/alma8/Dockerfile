@@ -11,9 +11,6 @@ RUN bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
-systemctl stop gorgoned
-systemctl stop centengine
-systemctl stop cbd
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 

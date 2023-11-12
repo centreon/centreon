@@ -115,6 +115,10 @@ Cypress.Commands.add('logout', (): void => {
 
   cy.getCookie('PHPSESSID').should('exist');
 
+  cy.getCookies().then((cookies) => {
+    cy.log(JSON.stringify(cookies));
+  });
+
   cy.getByLabel({ label: 'Profile' }).should('exist').click();
 
   cy.intercept({
@@ -127,9 +131,17 @@ Cypress.Commands.add('logout', (): void => {
 
   cy.wait('@logout').its('response.statusCode').should('eq', 302);
 
+  cy.getCookies().then((cookies) => {
+    cy.log(JSON.stringify(cookies));
+  });
+
   // https://github.com/cypress-io/cypress/issues/25841
   cy.clearCookie('PHPSESSID');
   cy.clearAllCookies();
+
+  cy.getCookies().then((cookies) => {
+    cy.log(JSON.stringify(cookies));
+  });
 
   cy.getCookie('PHPSESSID').should('not.exist');
 });
