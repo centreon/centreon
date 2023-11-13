@@ -426,21 +426,7 @@ function updateDebugConfigData($gopt_id = null)
         $ret['debug_level']
     );
 
-    if (isset($ret['debug_application']) && $ret['debug_application'] === "1") {
-        updateOption(
-            $pearDB,
-            "debug_application",
-            1
-        );
-        enableApplicationDebug(true, (int) $ret['debug_level']);
-    } else {
-        updateOption(
-            $pearDB,
-            "debug_application",
-            0
-        );
-        enableApplicationDebug(false);
-    }
+    enableApplicationDebug((int) $ret['debug_level']);
 
     $centreon->initOptGen($pearDB);
 }
@@ -978,10 +964,10 @@ function updateRemoteAccessCredentials($db, $form, $centreonEncryption): void
  * @param bool $enable
  * @param int $level
  */
-function enableApplicationDebug(bool $enable, int $level = 100) {
+function enableApplicationDebug(int $level = 100) {
     $env = new \Utility\EnvironmentFileManager(_CENTREON_PATH_);
     $env->load();
-    if ($enable === true) {
+    if ($level !== 0) {
         $env->add('DEBUG_LEVEL', $level);
     } else {
         $env->delete('DEBUG_LEVEL');

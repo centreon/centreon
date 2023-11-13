@@ -61,6 +61,7 @@ $form->addElement(
     'debug_level',
     _("Debug level"),
     [
+        000 => 'None',
         100 => 'Debug',
         200 => 'Info',
         250 => 'Notice',
