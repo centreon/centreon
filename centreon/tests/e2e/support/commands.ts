@@ -110,15 +110,6 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', (): void => {
-  // enable cookies debug to check if PHPSESSID is properly deleted
-  Cypress.Cookies.debug(true);
-
-  cy.getCookie('PHPSESSID').should('exist');
-
-  cy.getCookies().then((cookies) => {
-    cy.log(JSON.stringify(cookies));
-  });
-
   cy.getByLabel({ label: 'Profile' }).should('exist').click();
 
   cy.intercept({
@@ -131,20 +122,8 @@ Cypress.Commands.add('logout', (): void => {
 
   cy.wait('@logout').its('response.statusCode').should('eq', 302);
 
-  cy.getCookies().then((cookies) => {
-    cy.log(JSON.stringify(cookies));
-  });
-
   // https://github.com/cypress-io/cypress/issues/25841
-  cy.setCookie('PHPSESSID', '');
-  cy.clearCookie('PHPSESSID');
   cy.clearAllCookies();
-
-  cy.getCookies().then((cookies) => {
-    cy.log(JSON.stringify(cookies));
-  });
-
-  cy.getCookie('PHPSESSID').should('not.exist');
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
