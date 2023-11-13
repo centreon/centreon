@@ -67,6 +67,8 @@ class NewUser
 
     protected string $userInterfaceDensity = self::USER_INTERFACE_DENSITY_COMPACT;
 
+    protected bool $canReachFrontend = true;
+
     /**
      * @param string $alias
      * @param string $name
@@ -260,6 +262,26 @@ class NewUser
         }
 
         $this->userInterfaceDensity = $userInterfaceDensity;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canReachFrontend(): bool
+    {
+        return $this->canReachFrontend;
+    }
+
+    /**
+     * @param bool $canReachFrontend
+     *
+     * @return self
+     */
+    public function setCanReachFrontend(bool $canReachFrontend): self
+    {
+        $this->canReachFrontend = $canReachFrontend;
 
         return $this;
     }

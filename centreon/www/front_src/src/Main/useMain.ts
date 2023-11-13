@@ -16,6 +16,7 @@ import useFederatedModules from '../federatedModules/useFederatedModules';
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useUser, { areUserParametersLoadedAtom } from './useUser';
 import usePlatformVersions from './usePlatformVersions';
+import usePlatformFeatures from './usePlatformFeatures';
 import useInitializeTranslation from './useInitializeTranslation';
 
 export const router = {
@@ -47,6 +48,7 @@ const useMain = (): void => {
   const navigate = router.useNavigate();
   const [searchParameter] = useSearchParams();
   const { getPlatformVersions } = usePlatformVersions();
+  const { getPlatformFeatures } = usePlatformFeatures();
   useFederatedModules();
 
   const displayAuthenticationError = (): void => {
@@ -74,6 +76,7 @@ const useMain = (): void => {
       }
       loadUser();
       getPlatformVersions();
+      getPlatformFeatures();
     });
   }, []);
 

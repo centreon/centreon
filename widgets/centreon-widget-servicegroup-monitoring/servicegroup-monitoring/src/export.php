@@ -84,7 +84,7 @@ $serviceStateLabels = array(
     4 => "Pending"
 );
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name FROM servicegroups ";
+$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, name FROM servicegroups ";
 $whereConditions = [];
 $whereParams = [];
 
@@ -121,30 +121,30 @@ foreach ($whereParams as $key => $value) {
     $stmt->bindValue($key, $value, \PDO::PARAM_STR);
 }
 $stmt->execute();
-$nbRows = $stmt->rowCount();
+
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 $data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
     $detailMode = true;
 }
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    foreach ($row as $key => $value) {
-        $data[$row['name']][$key] = $value;
-        $data[$row['name']]['host_state'] = $sgMonObj->getHostStates(
-            $row['name'],
-            $centreon->user->admin,
-            $aclObj,
-            $preferences,
-            $detailMode
-        );
-        $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates(
-            $row['name'],
-            $centreon->user->admin,
-            $aclObj,
-            $preferences,
-            $detailMode
-        );
-    }
+    $data[$row['name']]['name'] = $row['name'];
+
+    $data[$row['name']]['host_state'] = $sgMonObj->getHostStates(
+        $row['name'],
+        $centreon->user->admin,
+        $aclObj,
+        $preferences,
+        $detailMode
+    );
+    $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates(
+        $row['name'],
+        $centreon->user->admin,
+        $aclObj,
+        $preferences,
+        $detailMode
+    );
 }
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);

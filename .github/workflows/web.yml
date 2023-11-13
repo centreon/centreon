@@ -1,5 +1,4 @@
 name: web
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -31,6 +30,7 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
     steps:
       - uses: actions/checkout@v4
 
@@ -65,7 +65,20 @@ jobs:
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+            has_features_changes:
+              - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  gherkin-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: centreon/tests/e2e
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -233,6 +246,7 @@ jobs:
   package:
     needs:
       [
+        gherkin-lint,
         get-version,
         translation-build,
         backend-dependencies,

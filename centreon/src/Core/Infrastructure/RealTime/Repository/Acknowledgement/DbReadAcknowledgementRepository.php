@@ -62,8 +62,8 @@ class DbReadAcknowledgementRepository extends AbstractRepositoryDRB implements R
     private function findOnGoingAcknowledegement(int $hostId, int $serviceId): ?Acknowledgement
     {
         $acknowledgement = null;
-        $sql = "SELECT ack.*, contact.contact_id AS author_id
-                    FROM `:dbstg`.acknowledgements ack
+        $sql = "SELECT 1 AS REALTIME, ack.*, contact.contact_id AS author_id
+                FROM `:dbstg`.acknowledgements ack
                 LEFT JOIN `:db`.contact ON contact.contact_alias = ack.author
                 INNER JOIN (
                     SELECT MAX(acknowledgement_id) AS acknowledgement_id
