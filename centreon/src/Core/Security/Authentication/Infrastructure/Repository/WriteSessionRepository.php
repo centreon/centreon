@@ -59,6 +59,8 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
         $this->writeTokenRepository->deleteExpiredSecurityTokens();
         $this->writeSessionTokenRepository->deleteSession($this->session->getId());
         $centreon = $this->session->get('centreon');
+
+        $this->info('[AUTHENTICATE] Invalidate session with id : ' . $this->session->getId());
         $this->session->invalidate();
 
         if ($centreon && $centreon->user->authType === Provider::SAML) {
@@ -94,6 +96,8 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
         $this->session->start();
         $this->session->set('centreon', $legacySession);
         $_SESSION['centreon'] = $legacySession;
+
+        $this->info('[AUTHENTICATE] Session created with id : ' . $this->session->getId());
 
         $isSessionStarted = $this->session->isStarted();
         if ($isSessionStarted === false) {
