@@ -385,7 +385,7 @@ class ModuleSource extends SourceAbstract
                 throw ModuleException::moduleIsMissing($dependency);
             }
             $dependencies = array_unique([
-                ...$this->getSortedDependencies($dependencyDetail->getId(), $alreadyProcessed),
+                ...$this->getSortedDependencies($dependencyDetails->getId(), $alreadyProcessed),
                 ...$dependencies,
             ]);
         }
