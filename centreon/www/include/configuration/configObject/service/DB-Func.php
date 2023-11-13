@@ -944,8 +944,18 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         ? $rq .= "'" . CentreonDB::escape($ret["service_alias"]) . "', "
         : $rq .= "NULL, ";
     $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
-    $rq .= "service_max_check_attempts = null, service_normal_check_interval = null, ";
-    $rq .= "service_retry_check_interval = null, service_active_checks_enabled = '2', ";
+    $rq .= "service_max_check_attempts = ";
+    isset($ret["service_max_check_attempts"]) && $ret["service_max_check_attempts"] != null
+        ? $rq .= "'" . $ret["service_max_check_attempts"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "service_normal_check_interval = ";
+    isset($ret["service_normal_check_interval"]) && $ret["service_normal_check_interval"] != null
+        ? $rq .= "'" . $ret["service_normal_check_interval"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "service_retry_check_interval = ";
+    isset($ret["service_retry_check_interval"]) && $ret["service_retry_check_interval"] != null
+        ? $rq .= "'" . $ret["service_retry_check_interval"] . "', "
+        : $rq .= "NULL, ";
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
     $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
     $rq .= "service_event_handler_enabled = '2', ";
@@ -1049,9 +1059,18 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $rq .= "service_alias = '" . $ret["service_alias"] . "', ";
     }
 
-    $rq .= "service_acknowledgement_timeout = null, ";
-    $rq .= "service_max_check_attempts = null, service_is_volatile = '2', ";
-    $rq .= 'service_normal_check_interval = null, service_retry_check_interval= null, ';
+    if (isset($ret["service_max_check_attempts"]) && $ret["service_max_check_attempts"] != null) {
+        $rq .= "service_max_check_attempts = '" . $ret["service_max_check_attempts"] . "', ";
+    }
+
+    if (isset($ret["service_normal_check_interval"]) && $ret["service_normal_check_interval"] != null) {
+        $rq .= "service_normal_check_interval = '" . $ret["service_normal_check_interval"] . "', ";
+    }
+    if (isset($ret["service_retry_check_interval"]) && $ret["service_retry_check_interval"] != null) {
+        $rq .= "service_retry_check_interval = '" . $ret["service_retry_check_interval"] . "', ";
+    }
+
+    $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
     $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
     $rq .= "service_freshness_threshold = null, service_event_handler_enabled = '2', ";
