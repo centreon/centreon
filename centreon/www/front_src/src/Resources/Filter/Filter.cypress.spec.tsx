@@ -578,7 +578,7 @@ describe('Criterias', () => {
 
   BasicCriteriasParams.forEach(([label, data]) => {
     data.forEach((element) => {
-      const { criteria, value, type, requestToWait, searchValue } = element;
+      const { criteria, value, type, searchValue } = element;
 
       it(`executes a listing request with current search and selected ${criteria} criteria value when ${label} has changed`, () => {
         cy.findByPlaceholderText(labelSearch).clear();

@@ -19,10 +19,10 @@ runs:
   using: "composite"
 
   steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: false
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        run_install: false
 
     - uses: actions/setup-node@v3
       with:
