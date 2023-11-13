@@ -1071,7 +1071,7 @@ if ($valid) {
     $tpl->assign('cloneSetMacro', $cloneSetMacro);
     $tpl->assign('centreon_path', $centreon->optGen['oreon_path']);
     $tpl->assign('isServiceTemplate', 1);
-    $tpl->display("formService.ihtml");
+    $tpl->display("formServiceOnPrem.ihtml");
     ?>
     <script type="text/javascript">
         setTimeout('transformForm()', 200);
