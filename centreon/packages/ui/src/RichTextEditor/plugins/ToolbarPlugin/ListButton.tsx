@@ -125,18 +125,22 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button className={classes.button} disabled={disabled}>
+      <Menu.Button
+        ariaLabel="list"
+        className={classes.button}
+        disabled={disabled}
+      >
         {selectedList ? <selectedList.Icon /> : <UnorderedListIcon />}
       </Menu.Button>
       <Menu.Items className={classes.menuItems}>
         <div className={classes.menu}>
-          {options.map(({ Icon, value }) => (
+          {options.map(({ Icon, value, label }) => (
             <Menu.Item
               isActive={equals(value, elementList)}
               key={value}
               onClick={() => formatList(value)}
             >
-              <Icon />
+              <Icon aria-label={label} />
             </Menu.Item>
           ))}
         </div>

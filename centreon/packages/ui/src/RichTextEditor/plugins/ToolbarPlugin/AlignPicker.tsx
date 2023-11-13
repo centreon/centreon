@@ -89,7 +89,7 @@ const AlignPicker = ({ disabled }: Props): JSX.Element => {
   return (
     <Menu>
       <Menu.Button
-        ariaLabel={elementFormat}
+        ariaLabel="align picker"
         className={classes.button}
         disabled={disabled}
       >
@@ -97,13 +97,13 @@ const AlignPicker = ({ disabled }: Props): JSX.Element => {
       </Menu.Button>
       <Menu.Items className={classes.menuItems}>
         <div className={classes.menu}>
-          {formatOptions.map(({ Icon, value }) => (
+          {formatOptions.map(({ Icon, value, label }) => (
             <Menu.Item
               isActive={equals(value, elementFormat)}
               key={value}
               onClick={dispatchAlignment(value)}
             >
-              <Icon />
+              <Icon aria-label={label} />
             </Menu.Item>
           ))}
         </div>

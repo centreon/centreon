@@ -97,7 +97,11 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button className={classes.button} disabled={disabled}>
+      <Menu.Button
+        ariaLabel="format"
+        className={classes.button}
+        disabled={disabled}
+      >
         <FormatTextIcon />
       </Menu.Button>
       <Menu.Items className={classes.menuItems}>
@@ -108,7 +112,7 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
               key={type}
               onClick={onClickFunction}
             >
-              <Icon />
+              <Icon aria-label={type} />
             </Menu.Item>
           ))}
         </div>

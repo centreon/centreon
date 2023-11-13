@@ -24,14 +24,6 @@ export const useStyles = makeStyles()((theme) => ({
     columnGap: theme.spacing(1),
     display: 'flex',
     marginBottom: theme.spacing(1)
-  },
-  macros: {
-    '& span': {
-      fontSize: theme.typography.caption.fontSize
-    }
-  },
-  macrosButton: {
-    marginBottom: theme.spacing(0.5)
   }
 }));
 

@@ -16,6 +16,11 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
+  menuItem: {
+    '&, &.MuiMenuItem-root': {
+      fontSize: theme.typography.body2.fontSize
+    }
+  },
   menuItems: {
     '& > .MuiPaper-root.MuiMenu-paper': {
       minWidth: 0
