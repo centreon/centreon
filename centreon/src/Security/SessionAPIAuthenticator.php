@@ -25,6 +25,7 @@ namespace Security;
 
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
@@ -58,21 +59,27 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
     /** @var SessionRepositoryInterface */
     private $sessionRepository;
 
+    /** @var WriteSessionRepositoryInterface */
+    private $writeSessionRepository;
+
     /**
      * SessionAPIAuthenticator constructor.
      *
      * @param AuthenticationServiceInterface $authenticationService
      * @param ContactRepositoryInterface $contactRepository
      * @param SessionRepositoryInterface $sessionRepository
+     * @param WriteSessionRepositoryInterface $writeSessionRepository
      */
     public function __construct(
         AuthenticationServiceInterface $authenticationService,
         ContactRepositoryInterface $contactRepository,
-        SessionRepositoryInterface $sessionRepository
+        SessionRepositoryInterface $sessionRepository,
+        WriteSessionRepositoryInterface $writeSessionRepository
     ) {
         $this->authenticationService = $authenticationService;
         $this->contactRepository = $contactRepository;
         $this->sessionRepository = $sessionRepository;
+        $this->writeSessionRepository = $writeSessionRepository;
     }
 
     /**
@@ -156,6 +163,7 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
         $this->sessionRepository->deleteExpiredSession();
 
         if (! $isValidToken) {
+            $this->writeSessionRepository->invalidate();
             throw new BadCredentialsException();
         }
 
