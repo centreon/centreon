@@ -21,6 +21,7 @@
 
 namespace CentreonModule\Infrastructure\Source;
 
+use _PHPStan_1a8f07040\Nette\Neon\Exception;
 use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
 use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Entity\Module;
@@ -380,15 +381,13 @@ class ModuleSource extends SourceAbstract
 
         foreach ($moduleDetails->getDependencies() as $dependency) {
             $dependencies[] = $dependency;
-            $dependencyDetails = $this->getDetail($dependency);
-            if (!$dependencyDetails) {
-                throw ModuleException::moduleIsMissing($moduleId);
-            }
+
             $dependencies = array_unique([
                 ...$this->getSortedDependencies($dependency, $alreadyProcessed),
                 ...$dependencies,
             ]);
         }
+
             return $dependencies;
     }
 
