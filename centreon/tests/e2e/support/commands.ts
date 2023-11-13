@@ -118,6 +118,21 @@ Cypress.Commands.add('logout', (): void => {
     url: '/centreon/api/latest/authentication/logout'
   }).as('logout');
 
+  cy.intercept(
+    '/centreon/api/latest/platform/installation/status',
+    {
+      method: 'GET',
+      times: 1
+    },
+    (request) => {
+      request.reply((response) => {
+        response.headers['set-cookie'] = ['PHPSESSID='];
+
+        return response;
+      });
+    }
+  );
+
   cy.contains(/^Logout$/).click();
 
   // cy.wait('@logout').its('response.statusCode').should('eq', 302);
@@ -133,7 +148,6 @@ Cypress.Commands.add('logout', (): void => {
   });
 
   // https://github.com/cypress-io/cypress/issues/25841
-  cy.wait(5000);
   cy.clearAllCookies();
 });
 
