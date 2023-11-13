@@ -1,0 +1,403 @@
+{$form.javascript}
+{$javascript}
+<div id="popin"><p id="msg-wrapper"></p></div>
+<form {$form.attributes}>
+<div class="headerTabContainer">
+    <div id="validFormTop">
+    {if $o == "a" || $o == "c" || $o == "mc"}
+        <p class="oreonbutton">
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {elseif isset($form.submitMC)}
+                {$form.submitMC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+            &nbsp;&nbsp;&nbsp;{$form.reset.html}
+        </p>
+    {else if $o == "w"}
+        <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
+    {/if}
+    </div>
+</div>
+<div id="tab1" class="tab">
+    <table class="formTable table">
+        <tr class="ListHeader" colspan="2">
+          <td class="FormHeader">
+            <h3>| {$form.header.title}</h3>
+          </td>
+        </tr>
+        <tr class="list_lvl_1">
+          <td class="ListColLvl1_name" colspan="2">
+            <h4>{$form.header.information}</h4>
+          </td>
+        </tr>
+
+        {if !$msg.tpl}
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="host_name"> {$form.service_hPars.label}</td><td class="FormRowValue"><p  class="oreonbutton">{$form.service_hPars.html}</p></td></tr>
+        {/if}
+        {if $o != "mc"}
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="service_description"> {$form.service_description.label}</td><td class="FormRowValue">{$form.service_description.html}</td></tr>
+        {/if}
+        {if $msg.tpl}
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="service_alias"> {$form.service_alias.label}</td><td class="FormRowValue">{$form.service_alias.html}</td></tr>
+        {/if}
+
+        <tr class="list_one">
+            <td class="FormRowField"><img class="helpTooltip" name="use">{$form.service_template_model_stm_id.label}</td>
+            <td class="FormRowValue">
+                {$form.service_template_model_stm_id.html}
+                {if $o == "a" || $o == "c"}
+                    &nbsp;<img src='./img/icons/show_template.png' title="Show template" class="ico-16"style='cursor:pointer;vertical-align:middle;' onClick="window.open('main.php?p=60206&service_id='+ document.Form.elements['service_template_model_stm_id'].options[document.Form.elements['service_template_model_stm_id'].selectedIndex].value + '&o=w&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=800, height=600');">
+                    &nbsp;<img src='./img/icons/edit_mode.png' title="Edit template" class="ico-14" style='cursor:pointer;vertical-align:middle;' onClick="window.open('main.php?p=60206&service_id='+ document.Form.elements['service_template_model_stm_id'].options[document.Form.elements['service_template_model_stm_id'].selectedIndex].value + '&o=c&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=800, height=600');">
+                {/if}
+            </td>
+        </tr>
+
+        {if $msg.tpl}
+            <tr class="list_one">
+                <td class="FormRowField"><img class="helpTooltip" name="host_templates"> {$form.service_hPars.label}</td>
+                <td class="FormRowValue">
+                    <p class="oreonbutton">{$form.service_hPars.html}</p>
+                </td>
+            </tr>
+        {/if}
+        {if !$msg.tpl}
+            <tr class="list_one">
+                <td class="FormRowField"><img class="helpTooltip" name="service_activate"> {$form.service_activate.label}</td>
+                <td class="FormRowValue">{$form.service_activate.html}</td>
+            </tr>
+        {/if}
+
+        <tr class="list_lvl_1">
+          <td class="ListColLvl1_name" colspan="2">
+            <h4>{t}Monitoring settings{/t}</h4>
+          </td>
+        </tr>
+        <tr class="list_one">
+            <td class="FormRowField"><img class="helpTooltip" name="macro"> {$custom_macro_label} <br>
+                <div class="macro_legend">
+                    <p><span class="state_badge" style="background-color: var(--custom-macros-template-background-color);"></span>{$template_inheritance}</p>
+                    <p><span class="state_badge" style="background-color: var(--custom-macros-command-background-color);"></span>{$command_inheritance}</p>
+                </div>
+            </td>
+            <td class="FormRowValue">
+                {include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}
+            </td>
+        </tr>
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_period"> {$form.timeperiod_tp_id.label}</td><td class="FormRowValue">{$form.timeperiod_tp_id.html}</td></tr>
+        <tr class="list_lvl_1">
+          <td class="ListColLvl1_name" colspan="2">
+            <h4>{t}Service Scheduling Options{/t}</h4>
+          </td>
+        </tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="max_check_attempts"> {$form.service_max_check_attempts.label}</td><td class="FormRowValue">{$form.service_max_check_attempts.html}</td></tr>
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="check_interval"> {$form.service_normal_check_interval.label}</td><td class="FormRowValue">{$form.service_normal_check_interval.html}&nbsp;{$time_unit}</td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="retry_interval"> {$form.service_retry_check_interval.label}</td><td class="FormRowValue">{$form.service_retry_check_interval.html}&nbsp;{$time_unit}</td></tr>
+
+        <tr class="list_lvl_1">
+          <td class="ListColLvl1_name" colspan="2">
+            <h4>{$form.header.classification}</h4>
+          </td>
+        </tr>
+        {if !$msg.tpl}
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="servicegroups"> {$form.service_sgs.label}</td><td class="FormRowValue"><p  class="oreonbutton">{$form.service_sgs.html}</p></td></tr>
+        {/if}
+
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="categories"> {$form.service_categories.label}</td><td class="FormRowValue">{$form.service_categories.html}</td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="criticality_id"> {$form.criticality_id.label}</td><td class="FormRowValue">{$form.criticality_id.html}</td></tr>
+
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" colspan="2">
+                <h4>{$form.header.furtherInfos}</h4>
+            </td>
+        </tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="icon_image"> {$form.esi_icon_image.label}</td><td class="FormRowValue">{$form.esi_icon_image.html}&nbsp;&nbsp;<img id='esi_icon_image_img' src='./img/blank.gif' class="img_box" ></td></tr>
+        {if $msg.nagios >= 2}
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="notes"> {$form.esi_notes.label}</td><td class="FormRowValue">{$form.esi_notes.html}</td></tr>
+        {/if}
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="notes_url"> {$form.esi_notes_url.label}</td><td class="FormRowValue">{$form.esi_notes_url.html}</td></tr>
+        {if $msg.nagios >= 2}
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="action_url"> {$form.esi_action_url.label}</td><td class="FormRowValue">{$form.esi_action_url.html}</td></tr>
+        {/if}
+        {if isset($form.geo_coords.label)}
+            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="geo_coords"> {$form.geo_coords.label}</td><td class="FormRowValue">{$form.geo_coords.html}</td></tr>
+        {/if}
+
+     </table>
+</div>
+<div id="validForm">
+{if $o == "a" || $o == "c" || $o == "mc"}
+    <p class="oreonbutton">
+        {if isset($form.submitC)}
+            {$form.submitC.html}
+        {elseif isset($form.submitMC)}
+            {$form.submitMC.html}
+        {else}
+            {$form.submitA.html}
+        {/if}
+        &nbsp;&nbsp;&nbsp;{$form.reset.html}
+    </p>
+{else if $o == "w"}
+    <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
+{/if}
+</div>
+{$form.hidden}
+</form>
+{$helptext}
+
+<script>
+var alert_check_interval = null;
+
+{if isset($alert_check_interval)}
+    var alert_check_interval = "{$alert_check_interval}";
+{/if}
+
+var alert_max_length_exceeded = null;
+{ if isset($alert_max_length_exceeded)}
+alert_max_length_exceeded = "{$alert_max_length_exceeded}";
+{/if}
+
+{literal}
+$('input[name=esi_notes_url], input[name=esi_action_url]').change(function () {
+    inputName = $(this).parent('td').prev().text();
+    if ($(this).val().length > 2048) {
+        alert(alert_max_length_exceeded.replace('%s', $.trim(inputName)).replace('%d', '2048'));
+    }
+});
+
+$('input[name=esi_notes]').change(function () {
+    inputName = $(this).parent('td').prev().text();
+    if ($(this).val().length > 512) {
+        alert(alert_max_length_exceeded.replace('%s', $.trim(inputName)).replace('%d', '512'));
+    }
+});
+
+jQuery(function() {
+
+    sheepIt = jQuery("#macro").sheepIt({
+        separator: '',
+        allowRemoveLast: true,
+        allowRemoveCurrent: true,
+        allowRemoveAll: true,
+        minFormsCount: 0,
+        maxFormsCount: 200,
+        continuousIndex : false,
+        iniFormsCount: jQuery("#clone-count-macro").data("clone-count-macro"),
+        data: jQuery("#clone-values-macro").data("clone-values-macro"),
+        afterAdd: function(source, newForm) {
+            jQuery(newForm).find("input[id^='macroPassword_']").parent().show();
+        }
+    });
+
+    /**
+    * Mechanism to clear the password input field when it gets focus
+    * and recover its previous value when it lost focus if no new value has been defined.
+    */
+    jQuery('ul#macro').find('input[id^=\'macroValue_\']').on('click', function () {
+    if ($(this).closest('div').find('input[type=\'checkbox\']:checked').val() === '1') {
+      // It's a password input
+      const actualValue = $(this).val();
+      $(this).val('');
+      $(this).one('focusout', function() {
+        if ($(this).val().length === 0) {
+          $(this).val(actualValue);
+        }
+      });
+    }
+    });
+
+    jQuery(".onemacro").each(function(idx,elem) {
+        var from = jQuery(elem).find('input[name^=macroFrom]').val();
+        if (from === "direct") {
+        } else if (from === "fromTpl") {
+            jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+            jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+        } else {
+            jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-command-background-color)',border : '1px solid var(--custom-macros-command-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+            jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-command-background-color)',border : '1px solid var(--custom-macros-command-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+        }
+
+        // Set a 'Macro value' field as password field, on edit mode
+        if (jQuery(elem).find("input[id^='macroPassword']").is(':checked')) {
+            jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
+        }
+
+        {/literal}{if $form.frozen == false}{literal}
+        // Display undo button on template macro
+        if (typeof jQuery(elem).find("input[name^='macroTplValToDisplay']") != 'undefined') {
+            if (jQuery(elem).find("input[name^='macroTplValToDisplay']").val() == "1") {
+                var tplValueField = jQuery(elem).find("input[name^='macroTplValue']");
+                var tplValue = tplValueField.val();
+
+                // Reset macro value on click on undo button
+                tplValueField.after(jQuery('<img/>',{src : './img/icons/undo.png', class : 'ico-14', style : 'vertical-align : middle;'}).on('click',function() {
+                    jQuery(elem).find("input[name^='macroValue']").val(tplValue);
+                    jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
+                    jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                    jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                }));
+            }
+        }
+        {/literal}{/if}{literal}
+
+        jQuery(elem).find("input[name^='macroInput']").on("input",function() {
+            jQuery(elem).find('input[name^=macroFrom]').val("direct");
+            jQuery(elem).find("input[name^='macroInput']").css({
+                "color" : "var(--custom-macros-font-color)",
+                "background" : "var(--input-select-background-color)"
+            });
+            jQuery(elem).find("input[name^='macroValue']").css({
+                "color" : "var(--custom-macros-font-color)",
+                "background" : "var(--input-select-background-color)"
+            });
+        });
+        jQuery(elem).find("input[name^='macroValue']").on("input",function() {
+            jQuery(elem).find('input[name^=macroFrom]').val("direct");
+            jQuery(elem).find("input[name^='macroInput']").css({
+                "color" : "var(--custom-macros-font-color)",
+                "background" : "var(--input-select-background-color)"
+            });
+            jQuery(elem).find("input[name^='macroValue']").css({
+                "color" : "var(--custom-macros-font-color)",
+                "background" : "var(--input-select-background-color)"
+            });
+        });
+
+        var $passwordCheckbox = jQuery(elem).find("input[id^='macroPassword_']");
+        {/literal}{if $form.frozen == true}{literal}
+        if ($passwordCheckbox.is(':checked')) {
+            $passwordCheckbox.replaceWith('[x]');
+        } else {
+            $passwordCheckbox.replaceWith('[ ]');
+        }
+        {/literal}{else}{literal}
+        if ($passwordCheckbox.is(':checked')) {
+            $passwordCheckbox.closest('span').hide();
+        }
+        {/literal}{/if}{literal}
+
+    });
+
+    jQuery(".macroclone").sortable({
+           handle: ".clonehandle",
+           axis: "y",
+           helper: "clone",
+           opacity: 0.5,
+           placeholder: "clone-placeholder",
+           tolerance: "pointer"
+        }
+    );
+
+    jQuery('select[name=service_template_model_stm_id]').on('change',function(event,data) {
+        if (typeof data != "undefined" && typeof data.origin != undefined && data.origin == "select2defaultinit") {
+            return false;
+    }
+    {/literal}{if $o != "mc"}{literal}
+    jQuery.ajax({
+        url: "./include/configuration/configObject/service/refreshMacroAjax.php",
+        type: "POST",
+        dataType : "json",
+        data: $(this.form).serialize(),
+        success : function(json) {
+            jQuery("#clone-count-macro").data("clone-count-macro",json.count);
+            jQuery("#clone-values-macro").data("clone-values-macro",json.macros);
+            sheepIt.removeAllForms();
+            for (i = 0; i < jQuery("#clone-count-macro").data("clone-count-macro"); i++) {
+                sheepIt.addForm();
+            }
+
+            sheepIt.inject(jQuery("#clone-values-macro").data("clone-values-macro"));
+
+            jQuery(".macroclone").sortable({
+                   handle: ".clonehandle",
+                   axis: "y",
+                   helper: "clone",
+                   opacity: 0.5,
+                   placeholder: "clone-placeholder",
+                   tolerance: "pointer"
+                }
+            );
+
+            jQuery(".onemacro").each(function(idx, elem) {
+                var from = jQuery(elem).find('input[name^=macroFrom]').val();
+                if (from === "fromTpl") {
+                    jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                    jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                } else {
+                    jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-command-background-color)',border : '1px solid var(--custom-macros-command-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                    jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-command-background-color)',border : '1px solid var(--custom-macros-command-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                }
+
+                if (jQuery(elem).find("input[id^='macroPassword_']").is(':checked')) {
+                    jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
+                }
+
+                {/literal}{if $form.frozen == false}{literal}
+                // Display undo button on template macro
+                if (typeof jQuery(elem).find("input[name^='macroTplValToDisplay']") != 'undefined') {
+                    if (jQuery(elem).find("input[name^='macroTplValToDisplay']").val() == "1") {
+                        var tplValueField = jQuery(elem).find("input[name^='macroTplValue']");
+                        var tplValue = tplValueField.val();
+
+                        var tplInputField = jQuery(elem).find("input[name^='macroInput']");
+                        var tplInput = tplInputField.val();
+
+                        // Reset macro value on click on undo button
+                        tplValueField.after(jQuery('<img/>',{src : './img/icons/undo.png', class : 'ico-14', style : 'vertical-align : middle;'}).on('click',function() {
+                            jQuery(elem).find("input[name^='macroValue']").val(tplValue);
+                            jQuery(elem).find("input[name^='macroInput']").val(tplInput);
+                            jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
+                            jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                            jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                        }));
+                    }
+                }
+                {/literal}{/if}{literal}
+
+                jQuery(elem).find("input[name^='macroInput']").on("input",function() {
+                    jQuery(elem).find('input[name^=macroFrom]').val("direct");
+                    jQuery(elem).find("input[name^='macroInput']").css({
+                        "color" : "var(--custom-macros-font-color)",
+                        "background" : "var(--input-select-background-color)"
+                    });
+                    jQuery(elem).find("input[name^='macroValue']").css({
+                        "color" : "var(--custom-macros-font-color)",
+                        "background" : "var(--input-select-background-color)"
+                    });
+                });
+                jQuery(elem).find("input[name^='macroValue']").on("input",function() {
+                    jQuery(elem).find('input[name^=macroFrom]').val("direct");
+                    jQuery(elem).find("input[name^='macroInput']").css({
+                        "color" : "var(--custom-macros-font-color)",
+                        "background" : "var(--input-select-background-color)"
+                    });
+                    jQuery(elem).find("input[name^='macroValue']").css({
+                        "color" : "var(--custom-macros-font-color)",
+                        "background" : "var(--input-select-background-color)"
+                    });
+                });
+
+                if (jQuery(elem).find("input[id^='macroPassword_']").is(':checked')) {
+                    jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
+                    jQuery(elem).find("input[id^='macroPassword_']").closest('span').hide();
+                }
+                });
+        },
+        error: function(jqXHR, data) {
+            let message = 'Internal error';
+            if (typeof(jqXHR.responseJSON) === 'object') {
+               if (typeof(jqXHR.responseJSON.message) !== "undefined") {
+                   message = jqXHR.responseJSON.message;
+               }
+            }
+            jQuery('#msg-wrapper').html('<span class="msg-field error">' + message + '</span>');
+            jQuery('#popin').centreonPopin("open");
+        }
+    });
+    {/literal}{/if}{literal}
+    });
+});
+
+{/literal}
+</script>
