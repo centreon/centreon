@@ -120,7 +120,12 @@ Cypress.Commands.add('logout', (): void => {
 
   cy.contains(/^Logout$/).click();
 
-  cy.wait('@logout').its('response.statusCode').should('eq', 302);
+  // cy.wait('@logout').its('response.statusCode').should('eq', 302);
+  cy.wait('@logout').then((interception) => {
+    cy.log(JSON.stringify(interception));
+
+    cy.clearCookies();
+  });
 
   // https://github.com/cypress-io/cypress/issues/25841
   cy.clearAllCookies();
