@@ -73,7 +73,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-   
+
       - name: Find and replace patterns in files
         run: |
           find . -type f \
