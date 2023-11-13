@@ -16,9 +16,9 @@ const useListingColumns = (): Array<Column> => {
     {
       disablePadding: false,
       getFormattedString: ({ name }): string => name,
-      id: 'rule',
+      id: 'name',
       label: t(labelRules),
-      sortField: 'rule',
+      sortField: 'name',
       sortable: true,
       type: ColumnType.string
     },
@@ -28,7 +28,7 @@ const useListingColumns = (): Array<Column> => {
       id: 'description',
       label: t(labelDescription),
       sortField: 'description',
-      sortable: true,
+      sortable: false,
       type: ColumnType.string
     },
     {
