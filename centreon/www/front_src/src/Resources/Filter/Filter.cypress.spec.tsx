@@ -28,6 +28,7 @@ import {
 } from '../translatedLabels';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { Visualization } from '../models';
+import { resourcesEndpoint } from '../api/endpoint';
 
 import { labelOpenMoreFilters } from './criteriasNewInterface/translatedLabels';
 import useFilter from './useFilter';
@@ -389,6 +390,20 @@ describe('Custom filters', () => {
       method: Method.GET,
       path: '**/events-view*',
       response: emptyListData
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getResources',
+      method: Method.GET,
+      path: `${resourcesEndpoint}**`,
+      response: {
+        meta: {
+          limit: 30,
+          page: 1,
+          total: 0
+        },
+        result: []
+      }
     });
 
     cy.mount({
