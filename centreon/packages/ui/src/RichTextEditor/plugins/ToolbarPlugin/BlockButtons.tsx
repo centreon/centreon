@@ -130,7 +130,11 @@ const BlockButtons = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button className={classes.button} disabled={disabled}>
+      <Menu.Button
+        ariaLabel="block"
+        className={classes.button}
+        disabled={disabled}
+      >
         <TextSizeIcon />
       </Menu.Button>
       <Menu.Items className={classes.menuItems}>
