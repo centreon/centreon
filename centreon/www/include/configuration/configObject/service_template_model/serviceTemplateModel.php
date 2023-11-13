@@ -59,6 +59,10 @@ $path2 = "./include/configuration/configObject/service/";
 require_once $path2 . "DB-Func.php";
 require_once "./include/common/common-Func.php";
 
+global $isCloudPlatform;
+
+$isCloudPlatform = isCloudPlatform();
+
 $select = filter_var_array(
     getSelectOption(),
     FILTER_VALIDATE_INT
