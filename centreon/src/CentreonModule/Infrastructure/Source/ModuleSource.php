@@ -381,7 +381,7 @@ class ModuleSource extends SourceAbstract
         foreach ($moduleDetails->getDependencies() as $dependency) {
             $dependencies[] = $dependency;
             $dependencyDetails = $this->getDetail($dependency);
-            if (!$dependencyDetails){
+            if (! $dependencyDetails){
                 throw ModuleException::moduleIsMissing($dependency);
             }
             $dependencies = array_unique([
