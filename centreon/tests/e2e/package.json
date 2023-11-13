@@ -11,10 +11,10 @@
     "eslint:fix": "pnpm eslint --fix"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^18.0.6",
-    "@types/cypress-cucumber-preprocessor": "^4.0.2",
-    "@types/node": "^20.6.3",
-    "cypress": "^13.2.0",
+    "@badeball/cypress-cucumber-preprocessor": "^19.1.0",
+    "@types/cypress-cucumber-preprocessor": "^4.0.5",
+    "@types/node": "^20.9.0",
+    "cypress": "^13.5.0",
     "cypress-wait-until": "^2.0.1",
     "path": "^0.12.7",
     "shell-exec": "^1.1.2",
