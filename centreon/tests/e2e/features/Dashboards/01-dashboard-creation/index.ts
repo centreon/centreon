@@ -2,7 +2,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import patchBody from '../../../fixtures/dashboards/creation/widgets/patchBody.json'
+import patchBody from '../../../fixtures/dashboards/creation/widgets/patchBody.json';
 
 before(() => {
   cy.startWebContainer();
@@ -200,33 +200,39 @@ Then('the form fields are empty', () => {
 Given(
   "a dashboard with existing widgets in the dashboard administrator user's dashboard library",
   () => {
-    cy.insertDashboardWithWidget(dashboards.fromDashboardCreatorUser, patchBody);
+    cy.insertDashboardWithWidget(
+      dashboards.fromDashboardCreatorUser,
+      patchBody
+    );
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
   }
 );
 
 When('the dashboard administrator user starts to edit the dashboard', () => {
   cy.getByLabel({ label: 'view', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'edit_dashboard' }).click();
+  cy.location('search').should('include', 'edit=true');
+  cy.get('button[type=button]').contains('Add a widget').should('exist');
 });
 
 Then("creates a new dashboard on the previous dashboard's edition page", () => {
-  cy.getByTestId({ testId: 'ArrowDropDownIcon' })
-    .click();
-  cy.getByTestId({ testId: 'AddIcon' })
-    .click();
-  cy.getByLabel({ label: 'Name', tag: 'input' })
-    .type(dashboards.default.name);
-  cy.getByLabel({ label: 'Description', tag: 'textarea' })
-    .type(dashboards.default.description);
-  cy.getByLabel({ label: 'Create', tag: 'button' })
-    .click()
-  cy.wait('@createDashboard')
+  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).click();
+  cy.getByTestId({ testId: 'AddIcon' }).click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type(dashboards.default.name);
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+    dashboards.default.description
+  );
+  cy.getByLabel({ label: 'Create', tag: 'button' }).click();
+  cy.wait('@createDashboard');
 });
 
-Then("the user is redirected to the newly created dashboard's edition page", () => {
-  cy.url().should('match', /\/dashboard.+edit=true/);
-});
+Then(
+  "the user is redirected to the newly created dashboard's edition page",
+  () => {
+    cy.url().should('match', /\/dashboards\/\d+\?edit=true/);
+  }
+);
 
-Then("the newly created dashboard is empty", () => {
+Then('the newly created dashboard is empty', () => {
   cy.get('[class*="addWidgetPanel"]').should('be.visible');
 });

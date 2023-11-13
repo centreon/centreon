@@ -38,6 +38,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
   }).as('postLocalAuthentification');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getFilters');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -128,7 +132,9 @@ Then(
 
     cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
     cy.loginKeycloak(username);
+
     cy.url().should('include', '/monitoring/resources');
+    cy.wait('@getFilters').its('response.statusCode').should('eq', 200);
   }
 );
 
