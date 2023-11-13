@@ -121,13 +121,19 @@ Cypress.Commands.add('logout', (): void => {
   cy.contains(/^Logout$/).click();
 
   // cy.wait('@logout').its('response.statusCode').should('eq', 302);
-  cy.wait('@logout').then((interception) => {
-    cy.log(JSON.stringify(interception));
+  cy.wait('@logout').then(({ request, response }) => {
+    cy.log(JSON.stringify(request));
+    if (response?.headers) {
+      cy.log(JSON.stringify(response.headers));
+    } else {
+      cy.log(JSON.stringify(response));
+    }
 
     cy.clearCookies();
   });
 
   // https://github.com/cypress-io/cypress/issues/25841
+  cy.wait(5000);
   cy.clearAllCookies();
 });
 

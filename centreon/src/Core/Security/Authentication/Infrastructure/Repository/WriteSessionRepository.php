@@ -88,7 +88,9 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function start(\Centreon $legacySession): bool
     {
+        $this->info('[AUTHENTICATE] Session id before creation : ' . \session_id());
         if ($this->session->isStarted()) {
+            $this->info('[AUTHENTICATE] Session already started');
             return true;
         }
 
@@ -97,7 +99,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
         $this->session->set('centreon', $legacySession);
         $_SESSION['centreon'] = $legacySession;
 
-        $this->info('[AUTHENTICATE] Session created with id : ' . $this->session->getId());
+        $this->info('[AUTHENTICATE] Session created with id : ' . $this->session->getId() . ' (' . \session_id() . ')');
 
         $isSessionStarted = $this->session->isStarted();
         if ($isSessionStarted === false) {
