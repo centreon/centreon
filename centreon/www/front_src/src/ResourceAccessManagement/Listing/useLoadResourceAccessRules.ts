@@ -29,7 +29,7 @@ const useLoadResourceAccessRules = (): LoadResourceAccessRules => {
 
   const search = {
     regex: {
-      fields: ['rule', 'description'],
+      fields: ['name'],
       value: searchValue
     }
   };

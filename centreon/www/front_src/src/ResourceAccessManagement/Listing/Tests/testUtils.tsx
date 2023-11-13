@@ -6,6 +6,8 @@ import {
   labelRules,
   labelStatus
 } from '../../translatedLabels';
+// TODO: replace Component once action endpoints are implemented
+import { Placeholder } from '../columns';
 
 export const defaultQueryParams = {
   limit: 10,
@@ -20,7 +22,7 @@ export const defaultQueryParams = {
   total: 64
 };
 
-export const fillResourceAccessRules = (numberOfRows: number): unknown => {
+const fillResourceAccessRules = (numberOfRows: number): unknown => {
   return Array.from(Array(numberOfRows).keys()).map((index) => ({
     description: `resourceAccessRule${index + 1}`,
     id: index + 1,
@@ -70,7 +72,8 @@ export const getListingColumns = (): Array<Column> => {
       type: ColumnType.string
     },
     {
-      // Component:
+      // TODO: replace Component once action endpoints are implemented
+      Component: Placeholder,
       clickable: true,
       disablePadding: true,
       id: 'actions',
@@ -78,12 +81,12 @@ export const getListingColumns = (): Array<Column> => {
       type: ColumnType.component
     },
     {
-      // Component:
+      // TODO: replace Component once action endpoints are implemented
+      Component: Placeholder,
       clickable: true,
       disablePadding: true,
       id: 'isEnabled',
       label: labelStatus,
-      // sorting ?
       type: ColumnType.component
     }
   ];

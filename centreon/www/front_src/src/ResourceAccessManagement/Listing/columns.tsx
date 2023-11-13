@@ -9,6 +9,9 @@ import {
   labelStatus
 } from '../translatedLabels';
 
+// TODO: remove this component once action endpoints are implemented
+export const Placeholder = (): JSX.Element => <div />;
+
 const useListingColumns = (): Array<Column> => {
   const { t } = useTranslation();
 
@@ -32,7 +35,8 @@ const useListingColumns = (): Array<Column> => {
       type: ColumnType.string
     },
     {
-      // Component:
+      // TODO: replace Component once action endpoints are implemented
+      Component: Placeholder,
       clickable: true,
       disablePadding: true,
       id: 'actions',
@@ -40,12 +44,12 @@ const useListingColumns = (): Array<Column> => {
       type: ColumnType.component
     },
     {
-      // Component:
+      // TODO: replace Component once action endpoints are implemented
+      Component: Placeholder,
       clickable: true,
       disablePadding: true,
       id: 'isEnabled',
       label: t(labelStatus),
-      // sorting ?
       type: ColumnType.component
     }
   ];
