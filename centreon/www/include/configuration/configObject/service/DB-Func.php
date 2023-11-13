@@ -3133,7 +3133,7 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
     $rq .= "esi_icon_image = ";
     isset($submittedValues["esi_icon_image"]) && $submittedValues["esi_icon_image"] != null
         ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "', "
-        : $rq .= "NULL ";
+        : $rq .= "NULL, ";
 
     if (! $isCloudPlatform) { 
         $rq .= "esi_icon_image_alt = ";
