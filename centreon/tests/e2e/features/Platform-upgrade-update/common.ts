@@ -314,8 +314,9 @@ When('administrator runs the update procedure', () => {
 
   cy.wait('@getStep3')
     .get('.btc.bt_info', { timeout: 15000 })
-    .should('be.visible')
-    .click();
+    .should('be.visible');
+
+  cy.get('.btc.bt_info').should('be.enabled').click();
 
   cy.wait('@generatingCache')
     .get('span[style]', { timeout: 15000 })

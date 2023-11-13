@@ -136,6 +136,7 @@ Cypress.Commands.add('logout', (): void => {
   });
 
   // https://github.com/cypress-io/cypress/issues/25841
+  cy.setCookie('PHPSESSID', '');
   cy.clearCookie('PHPSESSID');
   cy.clearAllCookies();
 
