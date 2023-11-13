@@ -151,6 +151,8 @@ Cypress.Commands.add('logout', (): void => {
   cy.clearAllCookies();
   cy.clearAllLocalStorage();
   cy.clearAllSessionStorage();
+
+  cy.reload();
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
