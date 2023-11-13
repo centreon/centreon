@@ -70,7 +70,45 @@ beforeEach(() => {
       url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
     }).as('generateAndReloadPollers');
 
-    return cy
+    // return cy
+    //   .startContainer({
+    //     image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
+    //       'WEB_IMAGE_OS'
+    //     )}:${major_version}`,
+    //     name: Cypress.env('dockerName'),
+    //     portBindings: [
+    //       {
+    //         destination: 4000,
+    //         source: 80
+    //       }
+    //     ]
+    //   })
+    //   .then(() => {
+    //     Cypress.config('baseUrl', 'http://127.0.0.1:4000');
+
+    //     return cy
+    //       .intercept('/waiting-page', {
+    //         headers: { 'content-type': 'text/html' },
+    //         statusCode: 200
+    //       })
+    //       .visit('/waiting-page');
+    //   });
+  });
+});
+
+Given(
+  'a running platform in {string} version',
+  (version_from_expression: string) => {
+    cy.getWebVersion().then(({ major_version, minor_version }) => {
+      if (minor_version === '0') {
+        cy.log(
+          `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
+        );
+
+        return Cypress.runner.stop();
+      }
+
+      cy
       .startContainer({
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
           'WEB_IMAGE_OS'
@@ -92,21 +130,9 @@ beforeEach(() => {
             statusCode: 200
           })
           .visit('/waiting-page');
-      });
-  });
-});
+      }).then(()=>{
 
-Given(
-  'a running platform in {string} version',
-  (version_from_expression: string) => {
-    cy.getWebVersion().then(({ major_version, minor_version }) => {
-      if (minor_version === '0') {
-        cy.log(
-          `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
-        );
 
-        return Cypress.runner.stop();
-      }
 
       return getCentreonStableMinorVersions(major_version).then(
         (stable_minor_versions) => {
@@ -152,6 +178,7 @@ Given(
           });
         }
       );
+    })
     });
   }
 );
