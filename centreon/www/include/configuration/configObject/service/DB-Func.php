@@ -3132,11 +3132,11 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
         : $rq .= "NULL, ";
     $rq .= "esi_icon_image = ";
     isset($submittedValues["esi_icon_image"]) && $submittedValues["esi_icon_image"] != null
-        ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "', "
-        : $rq .= "NULL, ";
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "' "
+        : $rq .= "NULL ";
 
     if (! $isCloudPlatform) { 
-        $rq .= "esi_icon_image_alt = ";
+        $rq .= ", esi_icon_image_alt = ";
         isset($submittedValues["esi_icon_image_alt"]) && $submittedValues["esi_icon_image_alt"] != null
             ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image_alt"]) . "', "
             : $rq .= "NULL, ";
