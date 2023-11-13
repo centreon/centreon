@@ -22,7 +22,7 @@ export const defaultQueryParams = {
   total: 64
 };
 
-const fillResourceAccessRules = (numberOfRows: number): unknown => {
+export const fillResourceAccessRules = (numberOfRows: number): unknown => {
   return Array.from(Array(numberOfRows).keys()).map((index) => ({
     description: `resourceAccessRule${index + 1}`,
     id: index + 1,
