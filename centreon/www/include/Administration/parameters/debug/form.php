@@ -55,7 +55,6 @@ $form->addElement('header', 'debug', _("Debug"));
 $form->addElement('text', 'debug_path', _("Logs Directory"), $attrsText);
 
 $form->addElement('checkbox', 'debug_auth', _("Authentication debug"));
-$form->addElement('checkbox', 'debug_application', _("Application debug"));
 $form->addElement(
     'select',
     'debug_level',
