@@ -15,7 +15,7 @@ import {
 } from '../atom';
 import { ResourceAccessRuleType } from '../models';
 
-import { useListingColumns } from './columns';
+import useListingColumns from './columns';
 import useLoadResourceAccessRules from './useLoadResourceAccessRules';
 
 const ResourceAccessRulesListing = (): JSX.Element => {

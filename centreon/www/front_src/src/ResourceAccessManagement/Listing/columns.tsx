@@ -9,7 +9,7 @@ import {
   labelStatus
 } from '../translatedLabels';
 
-export const useListingColumns = (): Array<Column> => {
+const useListingColumns = (): Array<Column> => {
   const { t } = useTranslation();
 
   return [
@@ -50,3 +50,5 @@ export const useListingColumns = (): Array<Column> => {
     }
   ];
 };
+
+export default useListingColumns;
