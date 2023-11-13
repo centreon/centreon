@@ -12,7 +12,7 @@ export const defaultQueryParams = {
   page: 1,
   search: {
     regex: {
-      fields: ['rule'],
+      fields: ['name'],
       value: ''
     }
   },
@@ -55,9 +55,9 @@ export const getListingColumns = (): Array<Column> => {
     {
       disablePadding: false,
       getFormattedString: ({ name }): string => name,
-      id: 'rule',
+      id: 'name',
       label: labelRules,
-      sortField: 'rule',
+      sortField: 'name',
       sortable: true,
       type: ColumnType.string
     },
@@ -66,7 +66,6 @@ export const getListingColumns = (): Array<Column> => {
       getFormattedString: ({ description }): string => description,
       id: 'description',
       label: labelDescription,
-      sortField: 'description',
       sortable: true,
       type: ColumnType.string
     },
