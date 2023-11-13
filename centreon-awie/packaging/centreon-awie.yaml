@@ -15,14 +15,13 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "/www/modules/centreon-awie/*"
+  - src: "centreon-awie/www/modules/centreon-awie/*"
     dst: "/usr/share/centreon/www/modules/centreon-awie"
     file_info:
       mode: 0664
 
 scripts:
   preinstall: ./scripts/centreon-awie-preinstall.sh
-
 
 overrides:
   deb:
