@@ -82,6 +82,14 @@ const ResourceAccessRulesListing = (): JSX.Element => {
       currentPage={(page || 1) - 1}
       limit={listingData?.meta.limit}
       loading={loading}
+      memoProps={[
+        columns,
+        page,
+        predefinedRowsSelection,
+        sortO,
+        sortF,
+        selectedRows
+      ]}
       predefinedRowsSelection={predefinedRowsSelection}
       rows={listingData?.result}
       selectedRows={selectedRows}
