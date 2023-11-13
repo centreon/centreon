@@ -20,15 +20,8 @@ contents:
     file_info:
       mode: 0664
 
-overrides:
-  deb:
-    depends:
-      - debhelper-compat (=12)
-      - lsb-base
-
 rpm:
   summary: centreon awie packaging to nfpm
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
-
