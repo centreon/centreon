@@ -23,10 +23,27 @@ declare(strict_types=1);
 
 namespace Core\Connector\Infrastructure\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Command\Domain\Model\CommandType;
+use Core\Command\Infrastructure\Model\CommandTypeConverter;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Connector\Application\Repository\ReadConnectorRepositoryInterface;
+use Core\Connector\Domain\Model\Connector;
+use Utility\SqlConcatenator;
 
+/**
+ * @phpstan-type _Connector array{
+ *     id: int,
+ *     name: string,
+ *     command_line: string,
+ *     description: string|null,
+ *     enabled: int,
+ *     command_ids:string|null
+ * }
+ */
 class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadConnectorRepositoryInterface
 {
     /**
@@ -54,5 +71,85 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndCommandTypes(
+        RequestParametersInterface $requestParameters,
+        array $commandTypes
+    ): array
+    {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'connector.id',
+            'name' => 'connector.name',
+            'command.id' => 'command.command_id',
+            'command.name' => 'command.command_name',
+        ]);
+
+        $commandTypeFilter = '';
+        if ($commandTypes !== []) {
+            $commandTypeFilter = <<<'SQL'
+                AND `command`.command_type IN (:command_type)
+                SQL;
+        }
+        $request = <<<SQL
+            SELECT
+                `connector`.id,
+                `connector`.name,
+                `connector`.command_line,
+                `connector`.description,
+                `connector`.enabled,
+                GROUP_CONCAT(DISTINCT `command`.command_id) AS command_ids
+            FROM `:db`.`connector`
+            LEFT JOIN `:db`.`command`
+                ON `command`.connector_id = `connector`.id
+                {$commandTypeFilter}
+            SQL;
+
+        $sqlConcatenator = new SqlConcatenator();
+        $sqlConcatenator->defineSelect($request);
+        $sqlConcatenator->appendGroupBy(
+            <<<'SQL'
+                GROUP BY `connector`.id
+                SQL
+        );
+
+        if ($commandTypes !== []) {
+            $sqlConcatenator->storeBindValueMultiple(
+                ':command_type',
+                array_map(
+                    fn(CommandType $commandType): int => CommandTypeConverter::toInt($commandType),
+                    $commandTypes
+                ),
+                \PDO::PARAM_INT
+            );
+        }
+        $sqlTranslator->translateForConcatenator($sqlConcatenator);
+        $statement = $this->db->prepare($this->translateDbName((string) $sqlConcatenator));
+        $sqlTranslator->bindSearchValues($statement);
+        $sqlConcatenator->bindValuesToStatement($statement);
+        $statement->execute();
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
+        $connectors = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _Connector $result */
+            $connectors[] = new Connector(
+                id: $result['id'],
+                name: $result['name'],
+                commandLine: $result['command_line'],
+                description: $result['description'] ?? '',
+                isActivated: (bool) $result['enabled'],
+                commandIds: $result['command_ids']
+                    ? array_map(fn(string $commandId) => (int) $commandId, explode(',', $result['command_ids']))
+                    : []
+            );
+        }
+
+        return $connectors;
     }
 }

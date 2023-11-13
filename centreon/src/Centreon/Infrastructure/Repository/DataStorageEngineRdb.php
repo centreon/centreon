@@ -33,16 +33,10 @@ use Centreon\Infrastructure\DatabaseConnection;
 class DataStorageEngineRdb implements DataStorageEngineInterface
 {
     /**
-     * @var DatabaseConnection
-     */
-    private $db;
-
-    /**
      * @param DatabaseConnection $db
      */
-    public function __construct(DatabaseConnection $db)
+    public function __construct(readonly private DatabaseConnection $db)
     {
-        $this->db = $db;
     }
 
     /**

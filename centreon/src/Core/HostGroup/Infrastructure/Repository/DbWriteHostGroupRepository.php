@@ -31,6 +31,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\NewHostGroup;
+use Utility\SqlConcatenator;
 
 class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteHostGroupRepositoryInterface
 {
@@ -155,6 +156,32 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unlinkFromHost(int $hostId, array $groupIds): void
+    {
+        if ($groupIds === []) {
+            return;
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator
+            ->appendWhere('host_host_id = :host_id')
+            ->appendWhere('hostgroup_hg_id in (:group_ids)')
+            ->storeBindValue(':host_id', $hostId, \PDO::PARAM_INT)
+            ->storeBindValueMultiple(':group_ids', $groupIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName(
+            'DELETE FROM `:db`.`hostgroup_relation`'
+            . $concatenator->__toString()
+        ));
+
+        $concatenator->bindValuesToStatement($statement);
 
         $statement->execute();
     }

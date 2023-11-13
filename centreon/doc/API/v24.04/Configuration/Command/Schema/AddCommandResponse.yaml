@@ -1,0 +1,110 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Command ID"
+    example: 1
+  name:
+    type: string
+    description: "Command name"
+    example: "check_host_alive"
+  type:
+    type: integer
+    description: |
+      Indicates the type of command
+
+      * `1` - NOTIFICATION
+      * `2` - CHECK
+      * `3` - MISCELLANEOUS
+      * `4` - DISCOVERY
+    example: 2
+  command_line:
+    type: string
+    description: "Command line to be executed by the poller"
+  is_shell:
+    type: boolean
+    description: |
+      Is required if your command requires shell features like pipes, redirections, globbing etc.
+
+      If you are using the monitoring engine this option cannot be disabled.
+
+      Note that commands that require the shell features are slowing down the poller server.
+    example: true
+  is_locked:
+    type: boolean
+    description: "Indicates whether the command can be updated or not"
+    example: false
+  is_activated:
+    type: boolean
+    description: "Indicates whether the command is activated or not"
+    example: true
+  argument_example:
+    type: string
+    nullable: true
+    description: "Example of command argument values"
+    example: "!80!90"
+  arguments:
+    type: array
+    description: "descriptions of arguments used in the command line"
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the argument"
+          example: "argument-name"
+        description:
+          type: string
+          nullable: true
+          description: "Description of the argument"
+          example: "argument-description"
+  macros:
+    type: array
+    description: "descriptions of macros used in the command line"
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the macro"
+          example: "macro-name"
+        type:
+          type: integer
+          description: |
+            Indicates the type of macro
+
+            * `1` - HOST
+            * `2` - SERVICE
+          example: 1
+        description:
+          type: string
+          nullable: true
+          description: "Description of the macro"
+          example: "macro-description"
+  connector:
+    type: object
+    nullable: true
+    description: |
+      A connector is run in background and executes specific commands without the need to execute a binary.
+    properties:
+      id:
+       type: integer
+       description: "Connector ID"
+       example: 12
+      name:
+        type: "string"
+        description: "Connector name"
+        example: "SSH Connector"
+  graph_template:
+    type: object
+    nullable: true
+    description: "Graph template for the command"
+    properties:
+      id:
+       type: integer
+       description: "Graph template ID"
+       example: 8
+      name:
+        type: "string"
+        description: "Graph template name"
+        example: "Default_Graph"

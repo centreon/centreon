@@ -20,7 +20,7 @@ interface SubmitResult {
 const stepWaitingTime = 250;
 const pollingCheckTimeout = 60000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
-const waitToExport = 3000;
+const waitToExport = 5000;
 
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
@@ -388,7 +388,9 @@ const configureACLGroups = (path: string): Cypress.Chainable => {
   cy.getByLabel({
     label: 'ACL access group',
     tag: 'input'
-  }).click({ force: true });
+  })
+    .should('be.visible')
+    .click();
 
   cy.wait('@getListAccessGroup');
 

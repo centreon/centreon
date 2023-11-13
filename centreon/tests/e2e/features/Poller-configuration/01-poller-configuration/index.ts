@@ -64,17 +64,9 @@ Given('some pollers are created', () => {
 
 Given('some post-generation commands are configured for each poller', () => {
   cy.get('@pollerId').then((pollerId) => {
-    cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
-
     cy.executeSqlRequestInContainer(
-      `INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`
+      `INSERT INTO poller_command_relations VALUES (${pollerId},39,1)`
     );
-
-    cy.getIframeBody()
-      .find('form input[name="submitC"]')
-      .eq(0)
-      .contains('Save')
-      .click({ force: true });
   });
 });
 
@@ -131,6 +123,7 @@ Then('the selected poller names are displayed', () => {
 });
 
 When('I select all action checkboxes', () => {
+  // forced check because legacy checkbox are hidden
   cy.getIframeBody()
     .find('form input[name="gen"]')
     .eq(0)
@@ -173,6 +166,19 @@ When('I click on the export button', () => {
 });
 
 Then('the configuration is generated on selected pollers', () => {
+  cy.waitUntil(
+    () => {
+      return cy
+        .get('iframe#main-content')
+        .its('0.contentDocument.body')
+        .find('div#console')
+        .then(($el) => {
+          return $el.find('label#progressPct:contains("100%")').length > 0;
+        });
+    },
+    { timeout: 10000 }
+  );
+
   checkIfConfigurationIsExported({ dateBeforeLogin, hostName: testHostName });
 });
 

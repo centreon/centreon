@@ -63,7 +63,7 @@ class CheckPoint
      * Add point
      *
      * @param string $name
-     * @return void
+     * @return self
      */
     public function add($name): self
     {

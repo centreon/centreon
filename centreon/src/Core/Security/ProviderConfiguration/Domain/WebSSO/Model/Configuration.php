@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\WebSSO\Model;
 
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 
 final class Configuration extends \Core\Security\ProviderConfiguration\Domain\Model\Configuration implements ProviderConfigurationInterface
@@ -32,7 +33,8 @@ final class Configuration extends \Core\Security\ProviderConfiguration\Domain\Mo
      */
     public function getCustomConfiguration(): CustomConfiguration
     {
-        /** @phpstan-ignore-next-line */
-        return $this->customConfiguration;
+        return $this->customConfiguration instanceof CustomConfiguration
+            ? $this->customConfiguration
+            : throw ConfigurationException::unexpectedCustomConfiguration(($this->customConfiguration)::class);
     }
 }

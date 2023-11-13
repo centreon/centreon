@@ -36,6 +36,7 @@
 
 namespace Centreon\Tests\Application\Webservice;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Centreon\ServiceProvider;
@@ -64,11 +65,11 @@ class CentreonFrontendComponentTest extends TestCase
     protected function setUp(): void
     {
         // dependencies
-        $container = new Container;
+        $container = new Container();
         $container[ServiceProvider::CENTREON_FRONTEND_COMPONENT_SERVICE] =
             $this->createMock(FrontendComponentService::class);
 
-        (function (FrontendComponentService $service) {
+        (function (FrontendComponentService&MockObject $service) {
             $service
                 ->method('getPages')
                 ->willReturn($this->getComponentsValues['pages']);

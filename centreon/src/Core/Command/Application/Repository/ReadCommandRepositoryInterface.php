@@ -76,6 +76,18 @@ interface ReadCommandRepositoryInterface
     public function findById(int $commandId): ?Command;
 
     /**
+     * Retrieve commands by their IDs.
+     * The array key is the command ID.
+     *
+     * @param int[] $commandIds
+     *
+     * @throws \Throwable
+     *
+     * @return Command[]
+     */
+    public function findByIds(array $commandIds): array;
+
+    /**
      * Search for all commands based on request parameters and command types.
      *
      * @param RequestParametersInterface $requestParameters
