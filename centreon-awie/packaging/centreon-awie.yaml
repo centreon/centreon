@@ -20,9 +20,6 @@ contents:
     file_info:
       mode: 0664
 
-scripts:
-  preinstall: ./scripts/centreon-awie-preinstall.sh
-
 overrides:
   deb:
     depends:
