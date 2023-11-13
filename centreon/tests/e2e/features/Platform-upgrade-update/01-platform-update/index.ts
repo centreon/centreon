@@ -7,14 +7,14 @@ import {
 } from '../common';
 
 beforeEach(() => {
-  cy.getWebVersion().then(({ major_version, minor_version }) => {
-    if (minor_version === '0') {
-      cy.log(
-        `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
-      );
+  // cy.getWebVersion().then(({ major_version, minor_version }) => {
+  //   if (minor_version === '0') {
+  //     cy.log(
+  //       `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
+  //     );
 
-      return Cypress.runner.stop();
-    }
+  //     return Cypress.runner.stop();
+  //   }
 
     cy.intercept({
       method: 'GET',
@@ -71,7 +71,7 @@ beforeEach(() => {
     }).as('generateAndReloadPollers');
 
   });
-});
+// });
 
 Given(
   'a running platform in {string} version',
