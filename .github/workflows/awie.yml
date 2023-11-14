@@ -77,9 +77,9 @@ jobs:
       - name: Set group and owner according to distrib
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
-            sed -i "s/@GROUP_OWNER@/www-data/g"
+            sed -i "s/@GROUP_OWNER@/www-data/g" ./centreon-awie/packaging/centreon-awie.yaml
           else
-            sed -i "s/@GROUP_OWNER@/apache/g"
+            sed -i "s/@GROUP_OWNER@/apache/g" ./centreon-awie/packaging/centreon-awie.yaml
           fi
         shell: bash
 
