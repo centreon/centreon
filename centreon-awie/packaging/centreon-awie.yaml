@@ -19,8 +19,8 @@ contents:
     dst: "/usr/share/centreon/www/modules/centreon-awie"
     file_info:
       mode: 0664
-      owner: @GROUP_OWNER@
-      group: @GROUP_OWNER@
+      owner: "@GROUP_OWNER@"
+      group: "@GROUP_OWNER@"
 
   - dst: /var/cache/centreon/filesUpload
     type: dir
