@@ -36,6 +36,7 @@ use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
 use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Exception\ConflictingHeadersException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -89,18 +90,18 @@ final class LoginController extends AbstractController
 
             case $response instanceof LoginResponse:
                 if ($response->redirectIsReact()) {
+                    $cookie = Cookie::create('PHPSESSID', $session->getId());
                     $this->info(
-                        'Set cookie to ' . $this->getBaseUrl() . $response->getRedirectUri()
-                            . ': PHPSESSID=' . $session->getId(),
-                        ['trace' => var_export(debug_backtrace(), true)]
+                        'Set cookie to ' . $this->getBaseUrl() . $response->getRedirectUri() . ' : ' . (string) $cookie,
+                        ['trace' => print_r(debug_backtrace(), true)]
                     );
                     return View::createRedirect(
                         $this->getBaseUrl() . $response->getRedirectUri(),
-                        headers: ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                        headers: ['Set-Cookie' => (string) $cookie]
                     );
                 }
 
-                $this->info('Redirect to login', ['trace' => var_export(debug_backtrace(), true)]);
+                $this->info('Redirect to login', ['trace' => print_r(debug_backtrace(), true)]);
                 return View::createRedirect(
                     $this->getBaseUrl() . '/login',
                     headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
