@@ -92,8 +92,7 @@ final class LoginController extends AbstractController
                 if ($response->redirectIsReact()) {
                     $cookie = Cookie::create('PHPSESSID', $session->getId());
                     $this->info(
-                        'Set cookie to ' . $this->getBaseUrl() . $response->getRedirectUri() . ' : ' . (string) $cookie,
-                        ['trace' => print_r(debug_backtrace(), true)]
+                        'Set cookie to ' . $this->getBaseUrl() . $response->getRedirectUri() . ' : ' . (string) $cookie
                     );
                     return View::createRedirect(
                         $this->getBaseUrl() . $response->getRedirectUri(),
@@ -101,7 +100,7 @@ final class LoginController extends AbstractController
                     );
                 }
 
-                $this->info('Redirect to login', ['trace' => print_r(debug_backtrace(), true)]);
+                $this->info('Redirect to login');
                 return View::createRedirect(
                     $this->getBaseUrl() . '/login',
                     headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
