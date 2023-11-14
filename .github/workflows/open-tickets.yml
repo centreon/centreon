@@ -83,13 +83,6 @@ jobs:
             echo "centreon_www=/usr/share/centreon/www" >> $GITHUB_ENV
         shell: bash
 
-      - name: Change CENTREON_ETC Macro
-        run: |
-          find . -type f \
-            -exec grep -qE '(@CENTREON_ETC@)' {} ';' \
-            -exec sed -i -e "s|@CENTREON_ETC@|'"/etc/centreon/"'|g" \
-                       {} ';'
-
       - name: Set group and owner according to distrib
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
@@ -114,13 +107,6 @@ jobs:
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-
-      - name: Upload package artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: packages-${{ matrix.distrib }}
-          path: ./*.${{ matrix.package_extension}}
-          retention-days: 1
 
   deliver-sources:
     runs-on: [self-hosted, common]
