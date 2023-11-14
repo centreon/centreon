@@ -97,7 +97,7 @@ jobs:
           else
             sed -i "s/@APACHE_OWNER@/apache/g" ./centreon-open-tickets/packaging/centreon-open-tickets.yaml
           fi
-        shell: bash  
+        shell: bash
 
       - name: Package
         uses: ./.github/actions/package-nfpm
