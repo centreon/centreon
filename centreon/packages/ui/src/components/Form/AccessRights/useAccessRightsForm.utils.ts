@@ -36,6 +36,6 @@ export const createInitialState = (
           contactAccessRight,
           state: 'unchanged',
           stateHistory: []
-        } as ContactAccessRightStateResource)
+        }) as ContactAccessRightStateResource
     )
     .sort(sortOnAddedStateFirstAndContactName);

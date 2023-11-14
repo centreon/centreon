@@ -33,19 +33,17 @@ const getBaseConfiguration = ({
         shared: [
           {
             '@centreon/ui-context': {
-              requiredVersion: '22.10.0',
               singleton: true
             }
           },
           {
             jotai: {
-              requiredVersion: '1.x',
+              requiredVersion: '2.x',
               singleton: true
             }
           },
           {
             'jotai-suspense': {
-              requiredVersion: '0.1.x',
               singleton: true
             }
           },

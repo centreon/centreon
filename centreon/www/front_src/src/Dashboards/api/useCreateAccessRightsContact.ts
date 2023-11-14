@@ -34,7 +34,7 @@ const useCreateAccessRightsContact = (): UseCreateAccessRightsContact => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
-  } = useMutationQuery<DashboardAccessRightsContact>({
+  } = useMutationQuery<DashboardAccessRightsContact, { dashboardId }>({
     decoder: dashboardAccessRightsContactDecoder,
     getEndpoint: ({ dashboardId }) =>
       getDashboardAccessRightsContactsEndpoint(dashboardId),
@@ -59,13 +59,18 @@ const useCreateAccessRightsContact = (): UseCreateAccessRightsContact => {
     const { onSettled, ...restOptions } = options || {};
 
     const onSettledWithInvalidateQueries = (
-      data: DashboardAccessRightsContact | undefined,
-      error: ResponseError | null,
-      vars: CreateAccessRightDto
+      data: DashboardAccessRightsContact | ResponseError | undefined,
+      error: Error | null,
+      vars: unknown
     ): void => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       invalidateQueries(vars as any);
-      onSettled?.(data, error, vars, undefined);
+      onSettled?.(
+        data as DashboardAccessRightsContact | undefined,
+        error,
+        vars as CreateAccessRightDto,
+        undefined
+      );
     };
 
     /* eslint-disable @typescript-eslint/no-explicit-any */

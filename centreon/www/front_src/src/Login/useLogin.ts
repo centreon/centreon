@@ -68,11 +68,11 @@ const getForcedProviders = filter<ProviderConfiguration>(
 );
 
 const getExternalProviders = reject<ProviderConfiguration>(
-  propEq('name', 'local')
+  propEq('local', 'name')
 );
 
 const getActiveProviders = filter<ProviderConfiguration>(
-  propEq('isActive', true)
+  propEq(true, 'isActive')
 );
 
 const defaultLoginPageCustomisation: LoginPageCustomisation = {
@@ -134,7 +134,7 @@ const useLogin = (): UseLoginState => {
 
   const checkPasswordExpiration = useCallback(
     ({ error, alias, setSubmitting }) => {
-      const isUserNotAllowed = propEq('statusCode', 401, error);
+      const isUserNotAllowed = propEq(401, 'statusCode', error);
 
       const { password_is_expired: passwordIsExpired } = prop(
         'additionalInformation',
@@ -176,10 +176,11 @@ const useLogin = (): UseLoginState => {
           return;
         }
         showSuccessMessage(t(labelLoginSucceeded));
-        getInternalTranslation().then(() =>
-          loadUser()?.then(() =>
-            navigate(prop('redirectUri', response as Redirect))
-          )
+        getInternalTranslation().then(
+          () =>
+            loadUser()?.then(() =>
+              navigate(prop('redirectUri', response as Redirect))
+            )
         );
       })
       .catch((error) =>
@@ -190,8 +191,8 @@ const useLogin = (): UseLoginState => {
   const getBrowserLocale = (): string => navigator.language.slice(0, 2);
 
   useEffect(() => {
-    getExternalTranslation().then(() =>
-      i18n.changeLanguage?.(getBrowserLocale())
+    getExternalTranslation().then(
+      () => i18n.changeLanguage?.(getBrowserLocale())
     );
   }, []);
 
