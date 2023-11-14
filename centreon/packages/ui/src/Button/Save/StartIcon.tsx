@@ -15,9 +15,9 @@ interface Props {
 
 const StartIcon = ({ startIconConfig }: Props): JSX.Element | null =>
   cond<Array<StartIconConfigProps>, JSX.Element | null>([
-    [pipe(propEq('hasLabel', true), not), always(null)],
-    [propEq('succeeded', true), always(<CheckIcon />)],
-    [propEq('loading', true), always(<SaveIcon />)],
+    [pipe(propEq(true, 'hasLabel'), not), always(null)],
+    [propEq(true, 'succeeded'), always(<CheckIcon />)],
+    [propEq(true, 'loading'), always(<SaveIcon />)],
     [T, always(<SaveIcon />)]
   ])(startIconConfig);
 

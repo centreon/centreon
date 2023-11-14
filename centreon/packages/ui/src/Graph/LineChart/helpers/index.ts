@@ -14,7 +14,7 @@ import { LineChartData } from '../../common/models';
 export const adjustGraphData = (graphData: LineChartData): LinesData => {
   const lines = getLineData(graphData);
   const sortedLines = sortBy(prop('name'), lines);
-  const displayedLines = reject(propEq('display', false), sortedLines);
+  const displayedLines = reject(propEq(false, 'display'), sortedLines);
 
   const timeSeries = getTimeSeries(graphData);
 

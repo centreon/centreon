@@ -12,8 +12,7 @@
     "pretty": true,
     "emitDeclarationOnly": true,
     "types": [],
-    "esModuleInterop": true,
-    "moduleResolution": "Node16"
+    "esModuleInterop": true
   },
   "include": [
     "./src"
