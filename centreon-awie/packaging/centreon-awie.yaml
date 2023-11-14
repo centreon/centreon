@@ -18,7 +18,6 @@ contents:
   - src: "../www/modules/centreon-awie/*"
     dst: "/usr/share/centreon/www/modules/centreon-awie"
     file_info:
-      mode: 0664
       owner: "@GROUP_OWNER@"
       group: "@GROUP_OWNER@"
 
