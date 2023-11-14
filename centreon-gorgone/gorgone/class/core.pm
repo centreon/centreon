@@ -769,8 +769,8 @@ sub router_internal_event {
         push @{$self->{ievents}}, [ $identity, $frame ];
     }
 
-    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-    if ($self->{recursion_ievents} > 10) {
+    if ($self->{recursion_ievents} > 2) {
+        $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
         $self->{recursion_ievents}--;
         return;
     }
@@ -1135,19 +1135,17 @@ sub waiting_ready {
     my (%options) = @_;
 
     if (${$options{ready}} == 1) {
-        return 1 ;
+        return 1;
     }
 
     my $iteration = 10;
     while ($iteration > 0) {
         my $watcher_timer = $gorgone->{loop}->timer(1, 0, \&stop_ev);
-        my $count_iteration = $gorgone->{loop}->iteration;
-        my $count_pending = $gorgone->{loop}->pending_count;
         $gorgone->{loop}->run();
         if (${$options{ready}} == 1) {
             return 1;
         }
-        $iteration --;
+        $iteration--;
     }
 
     return 0;
@@ -1155,7 +1153,7 @@ sub waiting_ready {
 
 sub quit {
     my ($self, %options) = @_;
-    
+
     $self->{logger}->writeLogInfo("[core] Quit main process");
 
     if ($self->{config}->{configuration}->{gorgone}->{gorgonecore}->{internal_com_type} eq 'ipc') {
