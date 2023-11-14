@@ -152,9 +152,6 @@ importers:
       pluralize:
         specifier: ^8.0.0
         version: 8.0.0
-      pptr-testing-library:
-        specifier: ^0.7.0
-        version: 0.7.0(puppeteer@19.11.1)
       ramda:
         specifier: 0.29.1
         version: 0.29.1
