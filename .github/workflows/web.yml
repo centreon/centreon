@@ -588,13 +588,18 @@ jobs:
 
   create-tp-te:
     needs: [get-version, dockerize]
-    # if: && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) 
+    # if: && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' )
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
     uses: ./.github/workflows/create-tp-te.yml
     with:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
+      os: ${{ matrix.os }}
     secrets:
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
