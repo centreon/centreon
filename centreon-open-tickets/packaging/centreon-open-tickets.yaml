@@ -15,23 +15,17 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - dst: /usr/share/centreon/www/modules/centreon-open-tickets
-    type: dir
-    file_info:
-      owner: "@APACHE_OWNER@"
-      group: "@APACHE_OWNER@"
-
-  - dst: /usr/share/centreon/www/widgets/open-tickets
-    type: dir
-    file_info:
-      owner: "@APACHE_OWNER@"
-      group: "@APACHE_OWNER@"
-
   - src: "../www/modules/centreon-open-tickets"
-    dst: "/usr/share/centreon/www/modules/"
+    dst: "/usr/share/centreon/www/modules/centreon-open-tickets"
+    file_info:
+      owner: "@APACHE_OWNER@"
+      group: "@APACHE_OWNER@"
 
-  - src: "centreon-open-tickets/widgets/open-tickets"
-    dst: "/usr/share/centreon/www/widgets/"
+  - src: "../widgets/open-tickets"
+    dst: "/usr/share/centreon/www/widgets/centreon-open-tickets"
+    file_info:
+      owner: "@APACHE_OWNER@"
+      group: "@APACHE_OWNER@"
 
 rpm:
   summary: centreon open tickets packaging to nfpm
