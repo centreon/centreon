@@ -11,7 +11,7 @@
     "eslint:fix": "pnpm eslint --fix"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^18.0.6",
+    "@badeball/cypress-cucumber-preprocessor": "^19.1.0",
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
     "@types/node": "^20.9.0",
     "cypress": "^13.5.0",
