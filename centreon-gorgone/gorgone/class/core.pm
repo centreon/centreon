@@ -566,7 +566,6 @@ sub send_internal_response {
 
     $self->{internal_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
-    $self->router_internal_event();
 }
 
 sub send_internal_message {
@@ -790,8 +789,7 @@ sub router_internal_event {
             response_type => $response_type,
             data          => $response,
             code          => $code,
-            token         => $token,
-            nosync        => 1
+            token         => $token
         );
     }
     $self->{recursion_ievents}--;
