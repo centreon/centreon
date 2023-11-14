@@ -149,10 +149,6 @@ Cypress.Commands.add('logout', (): void => {
 
   // https://github.com/cypress-io/cypress/issues/25841
   cy.clearAllCookies();
-  cy.clearAllLocalStorage();
-  cy.clearAllSessionStorage();
-
-  cy.reload();
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
