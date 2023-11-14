@@ -770,7 +770,7 @@ sub router_internal_event {
         push @{$self->{ievents}}, [ $identity, $frame ];
     }
 
-    if ($self->{recursion_ievents} > 1) {
+    if ($self->{recursion_ievents} > 10) {
         $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
         $self->{recursion_ievents}--;
         return;
