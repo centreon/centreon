@@ -771,6 +771,7 @@ sub router_internal_event {
     }
 
     if ($self->{recursion_ievents} > 1) {
+        $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
         $self->{recursion_ievents}--;
         return;
     }

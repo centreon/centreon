@@ -337,6 +337,7 @@ sub routing {
         );
     }
 
+    $options{logger}->writeLogError("[hooks] Calling router_internal_event from identity : " . $identity);
     $options{gorgone}->router_internal_event();
 }
 
