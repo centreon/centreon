@@ -770,8 +770,10 @@ sub router_internal_event {
         push @{$self->{ievents}}, [ $identity, $frame ];
     }
 
-    if ($self->{recursion_ievents} > 10) {
+    if ($self->{recursion_ievents} > 9) {
         $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
+    }
+    if ($self->{recursion_ievents} > 10) {
         $self->{recursion_ievents}--;
         return;
     }
@@ -1238,8 +1240,10 @@ sub check_exit_modules {
 sub periodic_exec {
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
+    $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from periodic_exec");
     $gorgone->router_internal_event();
     if (defined($gorgone->{external_socket})) {
+        $gorgone->{logger}->writeLogDebug("[core] Calling router_external_event from periodic_exec");
         $gorgone->router_external_event();
     }
 }
@@ -1324,9 +1328,15 @@ sub run {
 
     $gorgone->{loop} = new EV::Loop();
     $gorgone->{watcher_timer} = $gorgone->{loop}->timer(5, 5, \&periodic_exec);
-    $gorgone->{watcher_io_internal} = $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub { $gorgone->router_internal_event() });
+    $gorgone->{watcher_io_internal} = $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub {
+        $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
+        $gorgone->router_internal_event();
+    });
     if (defined($gorgone->{external_socket})) {
-        $gorgone->{watcher_io_external} = $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub { $gorgone->router_external_event() });
+        $gorgone->{watcher_io_external} = $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub {
+            $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_external");
+            $gorgone->router_external_event();
+        });
     }
 
     $gorgone->{loop}->run();
