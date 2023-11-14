@@ -18,13 +18,14 @@ contents:
   - src: "../www/modules/centreon-awie/*"
     dst: "/usr/share/centreon/www/modules/centreon-awie"
     file_info:
-      owner: "@GROUP_OWNER@"
-      group: "@GROUP_OWNER@"
+      owner: "@APACHE_OWNER@"
+      group: "@APACHE_OWNER@"
 
   - dst: /var/cache/centreon/filesUpload
     type: dir
     file_info:
-      mode: 0770
+      owner: "centreon"
+      group: "centreon"
 
 rpm:
   summary: centreon awie packaging to nfpm
