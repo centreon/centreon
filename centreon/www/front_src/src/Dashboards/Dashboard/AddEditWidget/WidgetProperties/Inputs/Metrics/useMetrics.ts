@@ -45,6 +45,7 @@ interface UseMetricsState {
   changeMetrics: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
+  deleteMetricItem: (index, option) => void;
   error: string | null;
   getMetricOptionDisabled: (metricOption) => boolean;
   getMetricsFromService: (serviceId: number) => Array<SelectEntry>;
@@ -213,6 +214,13 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
+  const deleteMetricItem = (index, option): void => {
+    const newMetric = value?.filter(({ id }) => !equals(id, option.id));
+
+    setFieldValue(`data.${propertyName}.${index}.metrics`, newMetric);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const changeMetric =
     (index) =>
     (_, newMetrics: SelectEntry | null): void => {
@@ -323,6 +331,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     changeMetrics,
     changeService,
     deleteMetric,
+    deleteMetricItem,
     error: errorToDisplay,
     getMetricOptionDisabled,
     getMetricsFromService,

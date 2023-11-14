@@ -35,6 +35,7 @@ interface UseResourcesState {
     index: number
   ) => (_, resources: Array<SelectEntry>) => void;
   deleteResource: (index: number) => () => void;
+  deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
   getOptionDisabled: (index: number) => (option) => boolean | undefined;
   getResourceResourceBaseEndpoint: (
@@ -154,6 +155,13 @@ const useResources = (propertyName: string): UseResourcesState => {
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
+  const deleteResourceItem = ({ index, option, resources }): void => {
+    const newResource = resources?.filter(({ id }) => !equals(id, option.id));
+
+    setFieldValue(`data.${propertyName}.${index}.resources`, newResource);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const getResourceResourceBaseEndpoint =
     (resourceType: string) =>
     (parameters): string => {
@@ -209,6 +217,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     changeResourceType,
     changeResources,
     deleteResource,
+    deleteResourceItem,
     error: errorToDisplay,
     getOptionDisabled,
     getResourceResourceBaseEndpoint,

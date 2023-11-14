@@ -38,6 +38,7 @@ import { labelIncludesXHost } from '../../../../translatedLabels';
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
   changeMetrics: (_, newMetrics: Array<SelectEntry> | null) => void;
+  deleteMetricItem: (index) => void;
   getMetricOptionDisabled: (metricOption) => boolean;
   getMultipleOptionLabel: (metric) => string;
   getOptionLabel: (metric) => string;
@@ -114,6 +115,13 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
+  const deleteMetricItem = (option): void => {
+    const newMetric = value?.filter(({ id }) => !equals(id, option.id));
+
+    setFieldValue(`data.${propertyName}`, newMetric);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const changeMetrics = (_, newMetrics: Array<SelectEntry> | null): void => {
     setFieldValue(`data.${propertyName}`, newMetrics || []);
     setFieldTouched(`data.${propertyName}`, true, false);
@@ -167,6 +175,7 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
   return {
     changeMetric,
     changeMetrics,
+    deleteMetricItem,
     getMetricOptionDisabled,
     getMultipleOptionLabel,
     getOptionLabel,
