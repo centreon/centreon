@@ -24,8 +24,6 @@ declare(strict_types=1);
 namespace Security;
 
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
@@ -48,8 +46,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
  */
 class SessionAPIAuthenticator extends AbstractAuthenticator
 {
-    use LoggerTrait;
-
     /** @var AuthenticationServiceInterface */
     private $authenticationService;
 
@@ -59,27 +55,21 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
     /** @var SessionRepositoryInterface */
     private $sessionRepository;
 
-    /** @var WriteSessionRepositoryInterface */
-    private $writeSessionRepository;
-
     /**
      * SessionAPIAuthenticator constructor.
      *
      * @param AuthenticationServiceInterface $authenticationService
      * @param ContactRepositoryInterface $contactRepository
      * @param SessionRepositoryInterface $sessionRepository
-     * @param WriteSessionRepositoryInterface $writeSessionRepository
      */
     public function __construct(
         AuthenticationServiceInterface $authenticationService,
         ContactRepositoryInterface $contactRepository,
-        SessionRepositoryInterface $sessionRepository,
-        WriteSessionRepositoryInterface $writeSessionRepository
+        SessionRepositoryInterface $sessionRepository
     ) {
         $this->authenticationService = $authenticationService;
         $this->contactRepository = $contactRepository;
         $this->sessionRepository = $sessionRepository;
-        $this->writeSessionRepository = $writeSessionRepository;
     }
 
     /**
@@ -126,8 +116,6 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
          */
         $sessionId = $request->getSession()->getId();
 
-        $this->info('authenticate using session id: ' . $sessionId);
-
         if (null === $sessionId) {
             // The token header was empty, authentication fails with HTTP Status
             // Code 401 "Unauthorized"
@@ -163,7 +151,6 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
         $this->sessionRepository->deleteExpiredSession();
 
         if (! $isValidToken) {
-            $this->writeSessionRepository->invalidate();
             throw new BadCredentialsException();
         }
 
