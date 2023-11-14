@@ -21,7 +21,7 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
 
   const {getDocument, queries} = pptrTestingLibrary;
   const $document = await getDocument(page);
-  const { getByText, getAllByRole, getByRole} = queries
+  const { getByText, getByRole, getByTestId} = queries
   
 
  
@@ -48,8 +48,8 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
 
 
   await startTimespan('Click host input');
-  const multiSelectInputs = await getAllByRole($document,'combobox')
-  multiSelectInputs[0].click()
+  const input = await getByTestId($document,'Host')
+  input.click()
   await endTimespan();
     
   await startTimespan('select host name');
