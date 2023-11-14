@@ -72,6 +72,24 @@
                 "string"
             ]
         },
+        "max_check_attempts": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "normal_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "retry_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
         "timezone_id": {
             "type": [
                 "null",
@@ -106,6 +124,12 @@
             "type": [
                 "null",
                 "string"
+            ]
+        },
+        "icon_id": {
+            "type": [
+                "null",
+                "integer"
             ]
         }
     }

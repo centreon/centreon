@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import * as Yup from 'yup';
+import { equals } from 'ramda';
+import { Schema, array, boolean, mixed, number, object, string } from 'yup';
 
 import { OpenidConfiguration, NamedEntity, EndpointType } from './models';
 import {
@@ -12,110 +13,109 @@ const IPAddressRegexp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,3})?$/;
 
 const urlRegexp = /https?:\/\/(\S+)/;
 
-const useValidationSchema = (): Yup.SchemaOf<OpenidConfiguration> => {
+const useValidationSchema = (): Schema<OpenidConfiguration> => {
   const { t } = useTranslation();
 
-  const namedEntitySchema: Yup.SchemaOf<NamedEntity> = Yup.object({
-    id: Yup.number().required(t(labelRequired)),
-    name: Yup.string().required(t(labelRequired))
+  const namedEntitySchema: Schema<NamedEntity> = object({
+    id: number().required(t(labelRequired)),
+    name: string().required(t(labelRequired))
   });
 
-  const rolesRelationSchema = Yup.object({
+  const rolesRelationSchema = object({
     accessGroup: namedEntitySchema.nullable().required(t(labelRequired)),
-    claimValue: Yup.string().required(t(labelRequired)),
-    priority: Yup.number().required(t(labelRequired))
+    claimValue: string().required(t(labelRequired)),
+    priority: number().required(t(labelRequired))
   });
 
-  const groupsRelationSchema = Yup.object({
+  const groupsRelationSchema = object({
     contactGroup: namedEntitySchema.nullable().required(t(labelRequired)),
-    groupValue: Yup.string().required(t(labelRequired))
+    groupValue: string().required(t(labelRequired))
   });
 
-  const endpointTypeSchema = Yup.mixed<EndpointType>()
+  const endpointTypeSchema = mixed<EndpointType>()
     .oneOf(Object.values(EndpointType))
     .required(t(labelRequired));
-  const switchSchema = Yup.boolean().required(t(labelRequired));
-  const endpointSchema = Yup.object({
-    customEndpoint: Yup.string().when('type', {
-      is: EndpointType.CustomEndpoint,
-      otherwise: (schema) => schema.nullable(),
-      then: (schema) => schema.required(t(labelRequired))
+  const switchSchema = boolean().required(t(labelRequired));
+  const endpointSchema = object({
+    customEndpoint: string().when('type', ([type], schema) => {
+      if (equals(type, EndpointType.CustomEndpoint)) {
+        return schema.required(t(labelRequired));
+      }
+
+      return schema.nullable();
     }),
     type: endpointTypeSchema
   });
 
-  return Yup.object({
-    authenticationConditions: Yup.object({
-      attributePath: Yup.string(),
-      authorizedValues: Yup.array().of(Yup.string().defined()),
-      blacklistClientAddresses: Yup.array().of(
-        Yup.string()
+  return object({
+    authenticationConditions: object({
+      attributePath: string(),
+      authorizedValues: array().of(string().defined()),
+      blacklistClientAddresses: array().of(
+        string()
           .matches(IPAddressRegexp, t(labelInvalidIPAddress))
           .required(t(labelRequired))
       ),
       endpoint: endpointSchema,
       isEnabled: switchSchema,
-      trustedClientAddresses: Yup.array().of(
-        Yup.string()
+      trustedClientAddresses: array().of(
+        string()
           .matches(IPAddressRegexp, t(labelInvalidIPAddress))
           .required(t(labelRequired))
       )
     }),
-    authenticationType: Yup.string().required(t(labelRequired)),
-    authorizationEndpoint: Yup.string().nullable().required(t(labelRequired)),
+    authenticationType: string().required(t(labelRequired)),
+    authorizationEndpoint: string().nullable().required(t(labelRequired)),
     autoImport: switchSchema,
-    baseUrl: Yup.string()
+    baseUrl: string()
       .matches(urlRegexp, t(labelInvalidURL))
       .nullable()
       .required(t(labelRequired)),
-    claimName: Yup.string().nullable(),
-    clientId: Yup.string().nullable().required(t(labelRequired)),
-    clientSecret: Yup.string().nullable().required(t(labelRequired)),
-    connectionScopes: Yup.array().of(Yup.string().required(t(labelRequired))),
+    claimName: string().nullable(),
+    clientId: string().nullable().required(t(labelRequired)),
+    clientSecret: string().nullable().required(t(labelRequired)),
+    connectionScopes: array().of(string().required(t(labelRequired))),
     contactTemplate: namedEntitySchema
-      .when('autoImport', (autoImport, schema) => {
+      .when('autoImport', ([autoImport], schema) => {
         return autoImport
           ? schema.nullable().required(t(labelRequired))
           : schema.nullable();
       })
       .defined(),
-    emailBindAttribute: Yup.string().when(
+    emailBindAttribute: string().when('autoImport', ([autoImport], schema) => {
+      return autoImport
+        ? schema.nullable().required(t(labelRequired))
+        : schema.nullable();
+    }),
+    endSessionEndpoint: string().nullable(),
+    fullnameBindAttribute: string().when(
       'autoImport',
-      (autoImport, schema) => {
+      ([autoImport], schema) => {
         return autoImport
           ? schema.nullable().required(t(labelRequired))
           : schema.nullable();
       }
     ),
-    endSessionEndpoint: Yup.string().nullable(),
-    fullnameBindAttribute: Yup.string().when(
-      'autoImport',
-      (autoImport, schema) => {
-        return autoImport
-          ? schema.nullable().required(t(labelRequired))
-          : schema.nullable();
-      }
-    ),
-    groupsMapping: Yup.object({
-      attributePath: Yup.string(),
+    groupsMapping: object({
+      attributePath: string(),
       endpoint: endpointSchema,
       isEnabled: switchSchema,
-      relations: Yup.array().of(groupsRelationSchema)
+      relations: array().of(groupsRelationSchema)
     }),
-    introspectionTokenEndpoint: Yup.string().nullable(),
+    introspectionTokenEndpoint: string().nullable(),
     isActive: switchSchema,
     isForced: switchSchema,
-    loginClaim: Yup.string().nullable(),
-    redirectUrl: Yup.string().nullable(),
-    rolesMapping: Yup.object({
+    loginClaim: string().nullable(),
+    redirectUrl: string().nullable(),
+    rolesMapping: object({
       applyOnlyFirstRole: switchSchema,
-      attributePath: Yup.string(),
+      attributePath: string(),
       endpoint: endpointSchema,
       isEnabled: switchSchema,
-      relations: Yup.array().of(rolesRelationSchema)
+      relations: array().of(rolesRelationSchema)
     }),
-    tokenEndpoint: Yup.string().nullable().required(t(labelRequired)),
-    userinfoEndpoint: Yup.string().nullable(),
+    tokenEndpoint: string().nullable().required(t(labelRequired)),
+    userinfoEndpoint: string().nullable(),
     verifyPeer: switchSchema
   });
 };
