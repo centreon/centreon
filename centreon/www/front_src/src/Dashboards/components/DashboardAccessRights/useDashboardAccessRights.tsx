@@ -66,11 +66,9 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
   /** options */
 
   const { data: dataContacts } = useListDashboardsContacts({
-    options: { suspense: false },
     params: { limit: 1000 }
   });
   const { data: dataContactGroups } = useListDashboardsContactGroups({
-    options: { suspense: false },
     params: { limit: 1000 }
   });
 
@@ -98,7 +96,6 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
     isFetching: isFetchingAccessRightsContacts
   } = useListAccessRightsContacts({
     dashboardId: (dialogState.dashboard?.id as number) ?? null,
-    options: { suspense: false },
     params: { limit: 1000 }
   });
   const {
@@ -106,7 +103,6 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
     isFetching: isFetchingAccessRightsContactGroups
   } = useListAccessRightsContactGroups({
     dashboardId: (dialogState.dashboard?.id as number) ?? null,
-    options: { suspense: false },
     params: { limit: 1000 }
   });
 

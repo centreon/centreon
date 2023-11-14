@@ -1,7 +1,8 @@
 import { ReactElement, useCallback, useMemo } from 'react';
 
-import * as Yup from 'yup';
+import { string, number, object } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { InputType } from '../../../Form/Inputs/models';
 import { Form, FormProps } from '../../../Form';
@@ -84,8 +85,8 @@ const DashboardForm = ({
         }
       ],
       submit: (values, bag) => onSubmit?.(values, bag),
-      validationSchema: Yup.object().shape({
-        description: Yup.string()
+      validationSchema: object({
+        description: string()
           .label(labels?.entity?.description || '')
           .max(
             180,
@@ -93,17 +94,19 @@ const DashboardForm = ({
               `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
           )
           .nullable(),
-        globalRefreshInterval: Yup.object().shape({
-          interval: Yup.number().when('type', {
-            is: 'global',
-            otherwise: Yup.number().nullable(),
-            then: Yup.number()
-              .min(1, ({ min }) => t(labelMustBeAtLeast, { min }))
-              .required(t(labelRequired) as string)
+        globalRefreshInterval: object({
+          interval: number().when('type', ([type], schema) => {
+            if (equals(type, 'manual')) {
+              schema
+                .min(1, ({ min }) => t(labelMustBeAtLeast, { min }))
+                .required(t(labelRequired) as string);
+            }
+
+            return schema.nullable();
           }),
-          type: Yup.string()
+          type: string()
         }),
-        name: Yup.string()
+        name: string()
           .label(labels?.entity?.name)
           .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
           .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))

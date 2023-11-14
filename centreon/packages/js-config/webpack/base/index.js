@@ -29,19 +29,17 @@ const getBaseConfiguration = ({
         shared: [
           {
             '@centreon/ui-context': {
-              requiredVersion: '22.10.0',
               singleton: true
             }
           },
           {
             jotai: {
-              requiredVersion: '1.x',
+              requiredVersion: '2.x',
               singleton: true
             }
           },
           {
             'jotai-suspense': {
-              requiredVersion: '0.1.x',
               singleton: true
             }
           },
@@ -75,10 +73,10 @@ const getBaseConfiguration = ({
   ].filter(Boolean),
   resolve: {
     alias: {
-      react: path.resolve('./node_modules/react'),
       '@centreon/ui/fonts': path.resolve(
         './node_modules/@centreon/ui/public/fonts'
-      )
+      ),
+      react: path.resolve('./node_modules/react')
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   }

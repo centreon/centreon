@@ -13,6 +13,7 @@
     </tr>
 	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_logs_directory">{$form.debug_path.label}</td><td class="FormRowValue">{$form.debug_path.html}</td></tr>
 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_authentication_debug">{$form.debug_auth.label}</td><td class="FormRowValue">{$form.debug_auth.html}</td></tr>
+	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_debug_level">{$form.debug_level.label}</td><td class="FormRowValue">{$form.debug_level.html}</td></tr>
 	<tr class="list_one">
 		<td class="FormRowField">
 			<div class="formRowLabel">

@@ -18,8 +18,5 @@
     "open": "^8.4.0",
     "pptr-testing-library": "^0.7.0",
     "puppeteer": "^19.7.0"
-  },
-  "dependencies": {
-    "node-fetch": "^3.3.2"
   }
 }

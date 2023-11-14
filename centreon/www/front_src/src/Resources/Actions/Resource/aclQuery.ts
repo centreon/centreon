@@ -53,7 +53,7 @@ const useAclQuery = (): AclQuery => {
   }): boolean => {
     return pipe(
       map(toType),
-      any((type) => pathEq(['actions', type, action], true)(acl))
+      any((type) => pathEq(true, ['actions', type, action])(acl))
     )(resources);
   };
 
@@ -63,7 +63,7 @@ const useAclQuery = (): AclQuery => {
       !can({ action, resources });
 
   const getDeniedTypeAlert = ({ resources, action }): string | undefined => {
-    const isHost = propEq('type', 'host');
+    const isHost = propEq('host', 'type');
 
     return pipe(
       partition(isHost),
@@ -96,7 +96,7 @@ const useAclQuery = (): AclQuery => {
   };
 
   const canDowntimeServices = (): boolean =>
-    pathEq(['actions', 'service', 'downtime'], true)(acl);
+    pathEq(true, ['actions', 'service', 'downtime'])(acl);
 
   const canAcknowledge = (resources: Array<Resource>): boolean => {
     return can({ action: 'acknowledgement', resources });
@@ -109,7 +109,7 @@ const useAclQuery = (): AclQuery => {
   };
 
   const canAcknowledgeServices = (): boolean =>
-    pathEq(['actions', 'service', 'acknowledgement'], true)(acl);
+    pathEq(true, ['actions', 'service', 'acknowledgement'])(acl);
 
   const canCheck = (resources: Array<Resource>): boolean => {
     return can({ action: 'check', resources });
@@ -123,7 +123,7 @@ const useAclQuery = (): AclQuery => {
   };
 
   const canDisacknowledgeServices = (): boolean =>
-    pathEq(['actions', 'service', 'disacknowledgement'], true)(acl);
+    pathEq(true, ['actions', 'service', 'disacknowledgement'])(acl);
 
   const getDisacknowledgementDeniedTypeAlert = (
     resources: Array<Resource>

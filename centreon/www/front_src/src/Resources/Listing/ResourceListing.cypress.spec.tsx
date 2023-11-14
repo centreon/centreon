@@ -172,7 +172,7 @@ describe('Resource Listing', () => {
     cy.makeSnapshot();
   });
 
-  it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
+  it('reorders columns when a drag handle is focused and an arrow is pressed', () => {
     interceptRequestsAndMountBeforeEach();
     cy.waitFiltersAndListingRequests();
 
@@ -627,7 +627,7 @@ describe('Display additional columns', () => {
 
       cy.findByLabelText('Add columns').click();
 
-      const column = Ramda.find(Ramda.propEq('id', columnId), columns);
+      const column = Ramda.find(Ramda.propEq(columnId, 'id'), columns);
       const columnLabel = column?.label as string;
 
       const columnShortLabel = column?.shortLabel as string;
