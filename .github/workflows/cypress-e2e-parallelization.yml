@@ -40,13 +40,13 @@ on:
         required: true
       registry_password:
         required: true
-      client_id:
+      xray_client_id:
         required: true
-      client_secret:
+      xray_client_secret:
         required: true
-      jira_user:
+      xray_jira_user_email:
         required: true
-      jira_token_test:
+      xray_jira_token:
         required: true
 
 jobs:
@@ -178,7 +178,7 @@ jobs:
       - name: Generate Xray Token
         id: generate-xray-token
         run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.CLIENT_ID }}\", \"client_secret\": \"${{ secrets.CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.XRAY_CLIENT_ID }}\", \"client_secret\": \"${{ secrets.XRAY_CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
           xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
@@ -194,8 +194,8 @@ jobs:
         id: import-reports
         uses: mikepenz/xray-action@v3.0.2
         with:
-          username: ${{ secrets.CLIENT_ID }}
-          password: ${{ secrets.CLIENT_SECRET }}
+          username: ${{ secrets.XRAY_CLIENT_ID }}
+          password: ${{ secrets.XRAY_CLIENT_SECRET }}
           testFormat: "cucumber"
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
           projectKey: "MON"
@@ -209,7 +209,7 @@ jobs:
         run: |
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
 
-          testExecution_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
+          testExecution_id=$(curl -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testExecution ID : $testExecution_id"
           echo "testExecution_id=$testExecution_id" >> $GITHUB_OUTPUT
         shell: bash
@@ -220,7 +220,7 @@ jobs:
           echo "getting the testPlanId for the testPlanKey: ${{ steps.determine-test-plan-key.outputs.test_plan_key }}"
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.determine-test-plan-key.outputs.test_plan_key }}"
 
-          testPlan_id=$(curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X GET -s "$jira_url" | jq -r '.id')
+          testPlan_id=$(curl -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testPlan ID : $testPlan_id"
           echo "testPlan_id=$testPlan_id" >> $GITHUB_OUTPUT
         shell: bash
@@ -262,11 +262,11 @@ jobs:
             }
           }"
 
-          curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" --data "${jira_payload}" "${jira_url}"
+          curl -X PUT -H "Content-Type: application/json" -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" --data "${jira_payload}" "${jira_url}"
 
       - name: Update the status of the TestExecution Issue
         run: |
-          curl -D- -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_TOKEN_TEST }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}/transitions?expand=transitions.fields
+          curl -D- -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}/transitions?expand=transitions.fields
 
       - name: Update the Test Environments of the TestExecution Issue
         run: |
