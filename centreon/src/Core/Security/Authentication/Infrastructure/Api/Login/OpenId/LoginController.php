@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Api\Login\OpenId;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
@@ -42,7 +43,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class LoginController extends AbstractController
 {
-    use HttpUrlTrait;
+    use HttpUrlTrait, LoggerTrait;
 
     /**
      * @param Request $request
@@ -88,12 +89,18 @@ final class LoginController extends AbstractController
 
             case $response instanceof LoginResponse:
                 if ($response->redirectIsReact()) {
+                    $this->info(
+                        'Set cookie to ' . $this->getBaseUrl() . $response->getRedirectUri()
+                            . ': PHPSESSID=' . $session->getId(),
+                        ['trace' => var_export(debug_backtrace(), true)]
+                    );
                     return View::createRedirect(
                         $this->getBaseUrl() . $response->getRedirectUri(),
                         headers: ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
                     );
                 }
 
+                $this->info('Redirect to login', ['trace' => var_export(debug_backtrace(), true)]);
                 return View::createRedirect(
                     $this->getBaseUrl() . '/login',
                     headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
