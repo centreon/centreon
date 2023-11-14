@@ -770,9 +770,7 @@ sub router_internal_event {
         push @{$self->{ievents}}, [ $identity, $frame ];
     }
 
-    if ($self->{recursion_ievents} > 9) {
-        $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-    }
+    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
     if ($self->{recursion_ievents} > 10) {
         $self->{recursion_ievents}--;
         return;
@@ -793,6 +791,7 @@ sub router_internal_event {
             data          => $response,
             code          => $code,
             token         => $token
+            nosync        => 1
         );
     }
     $self->{recursion_ievents}--;
@@ -985,7 +984,7 @@ sub handshake {
         }
 
         # Maybe he want to redo a handshake
-        $rv = 0;    
+        $rv = 0;
     }
 
     if ($rv == 0) {
@@ -1098,7 +1097,7 @@ sub router_external_event {
                 identity => $identity,
                 cipher_infos => $cipher_infos,
                 response_type => $response_type,
-                token => $token, 
+                token => $token,
                 code => $code,
                 data => $response
             );
