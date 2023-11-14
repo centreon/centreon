@@ -769,11 +769,13 @@ sub router_internal_event {
         push @{$self->{ievents}}, [ $identity, $frame ];
     }
 
-    if ($self->{recursion_ievents} > 2) {
-        $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-        $self->{recursion_ievents}--;
-        return;
-    }
+    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
+
+    # if ($self->{recursion_ievents} > 1) {
+    #     $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
+    #     $self->{recursion_ievents}--;
+    #     return;
+    # }
 
     while (my $event = shift(@{$self->{ievents}})) {
         next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
@@ -1323,6 +1325,7 @@ sub run {
 
     $gorgone->{loop} = new EV::Loop();
     $gorgone->{watcher_timer} = $gorgone->{loop}->timer(5, 5, \&periodic_exec);
+
     $gorgone->{watcher_io_internal} = $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub {
         $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
         $gorgone->router_internal_event();
