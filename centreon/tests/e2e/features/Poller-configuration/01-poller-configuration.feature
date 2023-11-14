@@ -2,7 +2,7 @@
 Feature: Generate poller configuration
   As a Centreon user
   I want to generate the poller configuration
-  So that the changes made in the configuration are deployed on my platformm
+  So that the changes made in the configuration are deployed on my platform
 
   Background:
     Given I am granted the rights to access the poller page and export the configuration
