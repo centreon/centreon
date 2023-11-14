@@ -31,7 +31,7 @@ const useListingColumns = (): Array<Column> => {
       id: 'description',
       label: t(labelDescription),
       sortField: 'description',
-      sortable: false,
+      sortable: true,
       type: ColumnType.string
     },
     {

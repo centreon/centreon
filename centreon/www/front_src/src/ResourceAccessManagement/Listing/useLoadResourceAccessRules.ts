@@ -21,19 +21,19 @@ interface LoadResourceAccessRules {
 }
 
 const useLoadResourceAccessRules = (): LoadResourceAccessRules => {
-  const limit = useAtomValue(limitAtom);
   const page = useAtomValue(pageAtom);
-  const searchValue = useAtomValue(searchAtom);
+  const limit = useAtomValue(limitAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
+  const searchValue = useAtomValue(searchAtom);
 
+  const sort = { [sortField]: sortOrder };
   const search = {
     regex: {
       fields: ['name'],
       value: searchValue
     }
   };
-  const sort = { [sortField]: sortOrder };
 
   const {
     data,

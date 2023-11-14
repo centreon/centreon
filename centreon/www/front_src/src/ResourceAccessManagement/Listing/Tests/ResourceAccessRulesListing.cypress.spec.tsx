@@ -37,7 +37,7 @@ const initialize = (): void => {
   });
 
   cy.interceptAPIRequest({
-    alias: 'secondPageReqest',
+    alias: 'secondPageRequest',
     method: Method.GET,
     path: buildResourceAccessRulesEndpoint({
       ...defaultQueryParams,
@@ -136,7 +136,7 @@ describe('Reasource Access Rules Listing', () => {
   it('executes a get resource access rules request after updating limit param', () => {
     cy.waitForRequest('@defaultRequest');
 
-    cy.get('#Rows\\ per \\ page').click();
+    cy.get('#Rows\\ per\\ page').click();
     cy.contains(/^20$/).click();
 
     cy.waitForRequestAndVerifyQueries({
@@ -144,12 +144,12 @@ describe('Reasource Access Rules Listing', () => {
       requestAlias: 'listingWithLimit'
     });
 
-    cy.get('#Rows\\ per \\ page').click();
+    cy.get('#Rows\\ per\\ page').click();
     cy.contains(/^10$/).click();
 
     cy.waitForRequestAndVerifyQueries({
       queries: [{ key: 'limit', value: '10' }],
-      requestAlias: 'defaultResquest'
+      requestAlias: 'defaultRequest'
     });
 
     cy.contains('rule1').should('be.visible');

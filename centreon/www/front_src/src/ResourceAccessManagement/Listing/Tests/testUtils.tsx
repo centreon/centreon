@@ -32,8 +32,8 @@ export const fillResourceAccessRules = (numberOfRows: number): unknown => {
 };
 
 export const getListingResponse = ({
-  limit = 10,
   page = 1,
+  limit = 10,
   rows = 64
 }: {
   limit?: number;
