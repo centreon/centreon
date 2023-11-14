@@ -790,7 +790,7 @@ sub router_internal_event {
             response_type => $response_type,
             data          => $response,
             code          => $code,
-            token         => $token
+            token         => $token,
             nosync        => 1
         );
     }
