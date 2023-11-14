@@ -15,13 +15,17 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  # - src: "../www/modules/centreon-awie/*"
-  #   dst: "/usr/share/centreon/www/modules/centreon-awie"
-  #   file_info:
-  #     mode: 0664
-  #     owner: "@GROUP_OWNER@"
-  #     group: "@GROUP_OWNER@"
+  - src: "../www/modules/centreon-open-tickets"
+    dst: "/usr/share/centreon/www/modules/"
+    file_info:
+      owner: "@GROUP_OWNER@"
+      group: "@GROUP_OWNER@"
 
+  - src: "centreon-open-tickets/widgets/open-tickets"
+    dst: "/usr/share/centreon/www/widgets/"
+    file_info:
+      owner: "@GROUP_OWNER@"
+      group: "@GROUP_OWNER@"
 
 rpm:
   summary: centreon open tickets packaging to nfpm

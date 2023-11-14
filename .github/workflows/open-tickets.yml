@@ -41,40 +41,6 @@ jobs:
       veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
-  # package:
-  #   needs: [get-version]
-  #   if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
-
-  #   strategy:
-  #     fail-fast: true
-  #     matrix:
-  #       include:
-  #         - package_extension: rpm
-  #           image: packaging-alma8
-  #           distrib: el8
-  #         - package_extension: rpm
-  #           image: packaging-alma9
-  #           distrib: el9
-  #         - package_extension: deb
-  #           image: packaging-bullseye
-  #           distrib: bullseye
-
-  #   uses: ./.github/workflows/package.yml
-  #   with:
-  #     base_directory: centreon-open-tickets
-  #     spec_file: centreon-open-tickets/packaging/centreon-open-tickets.spectemplate
-  #     package_extension: ${{ matrix.package_extension }}
-  #     image_name: ${{ matrix.image }}
-  #     module_name: open-tickets
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #     release: ${{ needs.get-version.outputs.release }}
-  #     commit_hash: ${{ github.sha }}
-  #     cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-
   package:
     needs: [get-version]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
@@ -123,6 +89,15 @@ jobs:
             -exec grep -qE '(@CENTREON_ETC@)' {} ';' \
             -exec sed -i -e "s|@CENTREON_ETC@|'"/etc/centreon/"'|g" \
                        {} ';'
+
+      - name: Set group and owner according to distrib
+        run: |
+          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+            sed -i "s/@APACHE_OWNER@/www-data/g" ./centreon-open-tickets/packaging/centreon-open-tickets.yaml
+          else
+            sed -i "s/@APACHE_OWNER@/apache/g" ./centreon-open-tickets/packaging/centreon-open-tickets.yaml
+          fi
+        shell: bash       
 
       - name: Package
         uses: ./.github/actions/package-nfpm
