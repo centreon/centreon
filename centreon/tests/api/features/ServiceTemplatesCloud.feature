@@ -235,7 +235,6 @@ Feature:
                 "normal_check_interval": null,
                 "retry_check_interval": null,
                 "icon_id": null,
-                "icon_id": null,
                 "note": "note",
                 "note_url": "note_url",
                 "action_url": "action url",
