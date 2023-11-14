@@ -26,6 +26,30 @@
                 "integer"
             ]
         },
+        "max_check_attempts": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "normal_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "retry_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "icon_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
         "note": {
             "type": [
                 "null",
