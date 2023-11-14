@@ -34,7 +34,7 @@ use Core\Domain\RealTime\Model\ServiceStatus;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
-class FindServiceResponse
+final class FindServiceResponse
 {
     use RealTimeResponseTrait;
 

@@ -54,8 +54,8 @@ interface IsAllowedPageProps {
 }
 
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
-  flatten(allowedPages || []).some((allowedPage) =>
-    path?.includes(allowedPage)
+  flatten(allowedPages || []).some(
+    (allowedPage) => path?.includes(allowedPage)
   );
 
 const getExternalPageRoutes = ({
@@ -112,9 +112,7 @@ const ReactRouterContent = ({
           {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
             const isLogoutPage = path === routeMap.logout;
             const isAllowed =
-              isLogoutPage ||
-              isNil(allowedPages) ||
-              isAllowedPage({ allowedPages, path });
+              isLogoutPage || isAllowedPage({ allowedPages, path });
 
             return (
               <Route
@@ -151,6 +149,10 @@ const ReactRouter = (): JSX.Element => {
   const { pathname } = useLocation();
 
   const transitions = useTransition(pathname, pageTransitionConfig);
+
+  if (isNil(allowedPages)) {
+    return <PageSkeleton />;
+  }
 
   const externalPagesFetched = not(isNil(federatedModules));
 

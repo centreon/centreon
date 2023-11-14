@@ -62,7 +62,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'fqdn' => 'resources.address',
         'type' => 'resources.type',
         'h.name' => 'CASE WHEN resources.type = 1 THEN resources.name ELSE resources.parent_name END',
-        'h.alias' => 'parent_resource.alias',
+        'h.alias' => 'CASE WHEN resources.type = 1 THEN resources.alias ELSE parent_resource.alias END',
         'h.address' => 'parent_resource.address',
         's.description' => 'resources.type IN (0,2) AND resources.name',
         'status_code' => 'resources.status',
@@ -112,6 +112,113 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->resourceTypes = iterator_to_array($resourceTypes);
     }
 
+    public function findParentResourcesById(ResourceFilter $filter): array
+    {
+        $this->resources = [];
+        $collector = new StatementCollector();
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+
+        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
+            resources.resource_id,
+            resources.name,
+            resources.alias,
+            resources.address,
+            resources.id,
+            resources.internal_id,
+            resources.parent_id,
+            resources.parent_name,
+            parent_resource.status AS `parent_status`,
+            parent_resource.alias AS `parent_alias`,
+            parent_resource.status_ordered AS `parent_status_ordered`,
+            parent_resource.address AS `parent_fqdn`,
+            severities.id AS `severity_id`,
+            severities.level AS `severity_level`,
+            severities.name AS `severity_name`,
+            severities.type AS `severity_type`,
+            severities.icon_id AS `severity_icon_id`,
+            resources.type,
+            resources.status,
+            resources.status_ordered,
+            resources.status_confirmed,
+            resources.in_downtime,
+            resources.acknowledged,
+            resources.passive_checks_enabled,
+            resources.active_checks_enabled,
+            resources.notifications_enabled,
+            resources.last_check,
+            resources.last_status_change,
+            resources.check_attempts,
+            resources.max_check_attempts,
+            resources.notes,
+            resources.notes_url,
+            resources.action_url,
+            resources.output,
+            resources.poller_id,
+            resources.has_graph,
+            instances.name AS `monitoring_server_name`,
+            resources.enabled,
+            resources.icon_id,
+            resources.severity_id
+        FROM `:dbstg`.`resources`
+        LEFT JOIN `:dbstg`.`resources` parent_resource
+            ON parent_resource.id = resources.parent_id
+            AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
+            . ' LEFT JOIN `:dbstg`.`severities`
+            ON `severities`.severity_id = `resources`.severity_id
+        LEFT JOIN `:dbstg`.`resources_tags` AS rtags
+            ON `rtags`.resource_id = `resources`.resource_id
+        INNER JOIN `:dbstg`.`instances`
+            ON `instances`.instance_id = `resources`.poller_id';
+
+        $request .= " WHERE resources.name NOT LIKE '\_Module\_%'
+            AND resources.parent_name NOT LIKE '\_Module\_BAM%'
+            AND resources.enabled = 1 AND resources.type != 3";
+
+        $request .= $this->addResourceParentIdSubRequest($filter, $collector);
+
+        /**
+         * Resource Type filter
+         * 'service', 'metaservice', 'host'.
+         */
+        $request .= $this->addResourceTypeSubRequest($filter);
+
+        /**
+         * Handle sort parameters.
+         */
+        $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
+            ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+
+        /**
+         * Handle pagination.
+         */
+        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare(
+            $this->translateDbName($request)
+        );
+
+        $collector->bind($statement);
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
+
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        while ($resourceRecord = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array<string,int|string|null> $resourceRecord */
+            $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
+        }
+
+        $iconIds = $this->getIconIdsFromResources();
+        $icons = $this->getIconsDataForResources($iconIds);
+        $this->completeResourcesWithIcons($icons);
+
+        return $this->resources;
+    }
+
     public function findResources(ResourceFilter $filter): array
     {
         $this->resources = [];
@@ -132,19 +239,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->fetchResources($filter, $request, $collector);
 
         return $this->resources;
-    }
-
-    /**
-     * Only return resources that has performance data available in order to display graphs.
-     */
-    public function extractResourcesWithGraphData(): void
-    {
-        $this->resources = array_values(
-            array_filter(
-                $this->resources,
-                static fn (ResourceEntity $resource) => $resource->hasGraph(),
-            )
-        );
     }
 
     /**
@@ -352,6 +446,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             AND resources.parent_name NOT LIKE '\_Module\_BAM%'
             AND resources.enabled = 1 AND resources.type != 3";
 
+        // Apply only_with_performance_data
+        if ($filter->getOnlyWithPerformanceData() === true) {
+            $request .= ' AND resources.has_graph = 1';
+        }
+
         $request .= $accessGroupRequest;
 
         $request .= $this->addResourceParentIdSubRequest($filter, $collector);
@@ -455,12 +554,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         while ($resourceRecord = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var array<string,int|string|null> $resourceRecord */
             $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
-        }
-
-        // Apply only_with_performance_data
-        if ($filter->getOnlyWithPerformanceData() === true) {
-            $this->extractResourcesWithGraphData();
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) count($this->resources));
         }
 
         $iconIds = $this->getIconIdsFromResources();

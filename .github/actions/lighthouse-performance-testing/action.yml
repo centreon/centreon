@@ -24,7 +24,7 @@ runs:
   steps:
     - uses: pnpm/action-setup@v2
       with:
-        version: 7
+        version: 8
         run_install: false
 
     - name: Install dependencies
@@ -47,10 +47,14 @@ runs:
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
+    - uses: actions/checkout@v4
+      with:
+        repository: centreon/centreon-injector
+        path: centreon-injector
+        ref: b942bbc0e93032b11bcaaed3e4cefc4bdd00c418
+
     - name: Setup and run centreon-injector
       run: |
-        rm -rf centreon-injector
-        git clone https://github.com/centreon/centreon-injector.git
         cd centreon-injector
         composer install
         cd ..

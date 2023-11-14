@@ -106,8 +106,10 @@ Description: This package add rights and default directories for a poller
 Package: centreon-web-common
 Architecture: all
 Depends:
+    centreon-poller-centreon-engine (>= ${centreon:version}~),
     centreon-common (>= ${centreon:version}~),
     centreon-perl-libs (>= ${centreon:version}~),
+    centreon-poller-centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-common (<< ${centreon:versionThreshold}~),
     centreon-perl-libs (<< ${centreon:versionThreshold}~),
     php8.1,

@@ -29,7 +29,7 @@ use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\{
     FindLocalUserAccessGroupsPresenterInterface
 };
 
-class FindLocalUserAccessGroupsController extends AbstractController
+final class FindLocalUserAccessGroupsController extends AbstractController
 {
     /**
      * @param FindLocalUserAccessGroups $useCase

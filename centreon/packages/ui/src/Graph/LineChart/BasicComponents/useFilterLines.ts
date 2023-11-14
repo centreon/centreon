@@ -28,7 +28,7 @@ const useFilterLines = ({
   linesGraph,
   setLinesGraph
 }: UseFilterLines): Result => {
-  const displayedLines = reject(propEq('display', false), linesGraph ?? lines);
+  const displayedLines = reject(propEq(false, 'display'), linesGraph ?? lines);
   const filterLines = (): Array<Line> => {
     const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
 

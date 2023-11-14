@@ -11,6 +11,8 @@ import { ThemeProvider } from '@centreon/ui';
 import '@testing-library/cypress/add-commands';
 import 'cypress-msw-interceptor';
 
+import disableMotion from './disableCssTransitions';
+
 interface MountProps {
   Component: React.ReactNode;
   options?: object;
@@ -94,20 +96,32 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('moveSortableElement', ({ element, direction }): void => {
-  const key = `{${direction}arrow}`;
+interface MoveSortableElementProps {
+  direction: 'up' | 'down' | 'left' | 'right';
+  element: Cypress.Chainable<JQuery<HTMLElement>>;
+  times?: number;
+}
 
-  element.type(' ', {
-    force: true,
-    scrollBehavior: false
-  });
-  element.eq(-1).type(key, {
-    scrollBehavior: false
-  });
-  element.eq(-1).type(' ', {
-    scrollBehavior: false
-  });
-});
+Cypress.Commands.add(
+  'moveSortableElement',
+  ({ element, direction, times = 1 }: MoveSortableElementProps): void => {
+    const key = `{${direction}arrow}`;
+
+    element.type(' ', {
+      force: true,
+      scrollBehavior: false
+    });
+
+    Array.from({ length: times }).forEach(() => {
+      element.eq(-1).type(key, {
+        scrollBehavior: false
+      });
+    });
+    element.eq(-1).type(' ', {
+      scrollBehavior: false
+    });
+  }
+);
 
 Cypress.Commands.add(
   'moveSortableElementUsingAriaLabel',
@@ -132,16 +146,27 @@ Cypress.Commands.add('makeSnapshot', (title?: string) => {
   cy.matchImageSnapshot(title);
 });
 
+Cypress.Commands.add('cssDisableMotion', (): void => {
+  Cypress.on('window:before:load', (cyWindow) => {
+    disableMotion(cyWindow);
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      cssDisableMotion: () => Cypress.Chainable;
       interceptAPIRequest: <T extends object>(
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
       makeSnapshot: (title?: string) => void;
       mount: ({ Component, options }: MountProps) => Cypress.Chainable;
-      moveSortableElement: ({ element, direction }) => void;
+      moveSortableElement: ({
+        element,
+        direction,
+        times
+      }: MoveSortableElementProps) => void;
       moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;
       waitForRequest: (alias) => Cypress.Chainable;
     }

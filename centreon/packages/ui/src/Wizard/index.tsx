@@ -29,6 +29,7 @@ const actionsBarLabelsDefaultValues = {
 };
 
 const Wizard = ({
+  classNameDialogContent,
   steps,
   onSubmit = undefined,
   initialValues = {},
@@ -41,7 +42,7 @@ const Wizard = ({
   displayConfirmDialog,
   ...rest
 }: WizardProps): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const [currentStep, setCurrentStep] = useState(0);
   const [sendingRequest, setSendingRequest] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -131,7 +132,9 @@ const Wizard = ({
           validationSchema={validationSchema}
           onSubmit={submit}
         >
-          <DialogContent className={classes.dialogContent}>
+          <DialogContent
+            className={cx(classes.dialogContent, classNameDialogContent)}
+          >
             <WizardContent
               actionsBarLabels={actionsBarLabels}
               currentStep={currentStep}

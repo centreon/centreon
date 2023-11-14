@@ -55,11 +55,13 @@ export default (): void =>
 
       it('hides top counters at very small size', () => {
         initialize();
-        getElements();
-
         cy.viewport(599, 300);
-        cy.get('@databaseIndicator').should('not.be.visible');
-        cy.get('@latencyIndicator').should('not.be.visible');
+        cy.findByRole('button', { name: labelPollers, timeout: 5000 }).should(
+          'be.visible'
+        );
+
+        cy.findByRole('status', { name: 'database' }).should('not.exist');
+        cy.findByRole('status', { name: 'latency' }).should('not.exist');
       });
     });
 

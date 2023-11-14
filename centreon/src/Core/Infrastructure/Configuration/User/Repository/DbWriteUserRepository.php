@@ -52,7 +52,8 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
                     contact_email = :email,
                     contact_admin = :is_admin,
                     contact_theme = :theme,
-                    user_interface_density = :userInterfaceDensity
+                    user_interface_density = :userInterfaceDensity,
+                    contact_oreon = :userCanReachFrontend
                 WHERE contact_id = :id'
             )
         );
@@ -62,6 +63,7 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
         $statement->bindValue(':is_admin', $user->isAdmin() ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':theme', $user->getTheme(), \PDO::PARAM_STR);
         $statement->bindValue(':userInterfaceDensity', $user->getUserInterfaceDensity(), \PDO::PARAM_STR);
+        $statement->bindValue(':userCanReachFrontend', $user->canReachFrontend() ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':id', $user->getId(), \PDO::PARAM_INT);
         $statement->execute();
     }
@@ -75,9 +77,9 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
             $this->translateDbName(
                 'INSERT INTO `:db`.contact
                     (contact_name, contact_alias, contact_email, contact_template_id,
-                    contact_admin, contact_theme, user_interface_density, contact_activate)
+                    contact_admin, contact_theme, user_interface_density, contact_activate, contact_oreon)
                     VALUES (:contactName, :contactAlias, :contactEmail, :contactTemplateId,
-                    :isAdmin, :contactTheme, :userInterfaceDensity, :isActivate)'
+                    :isAdmin, :contactTheme, :userInterfaceDensity, :isActivate, :userCanReachFrontend)'
             )
         );
         $statement->bindValue(':contactName', $user->getName(), \PDO::PARAM_STR);
@@ -88,6 +90,7 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
         $statement->bindValue(':contactTheme', $user->getTheme(), \PDO::PARAM_STR);
         $statement->bindValue(':userInterfaceDensity', $user->getUserInterfaceDensity(), \PDO::PARAM_STR);
         $statement->bindValue(':isActivate', $user->isActivate() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':userCanReachFrontend', $user->canReachFrontend() ? '1' : '0', \PDO::PARAM_STR);
         $statement->execute();
     }
 }

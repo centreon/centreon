@@ -1,0 +1,12 @@
+<?php
+
+// from: www/install/steps/functions.php
+function getTemplate(string $dir): SmartyBC
+{
+    return new \SmartyBC();
+}
+
+// from: www/install/steps/functions.php
+function checkPhpPrerequisite(): void
+{
+}

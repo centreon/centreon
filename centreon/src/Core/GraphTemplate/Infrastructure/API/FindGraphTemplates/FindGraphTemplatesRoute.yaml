@@ -1,0 +1,5 @@
+FindGraphTemplates:
+  methods: GET
+  path: /configuration/graphs/templates
+  controller: 'Core\GraphTemplate\Infrastructure\API\FindGraphTemplates\FindGraphTemplatesController'
+  condition: "request.attributes.get('version') >= 24.04"

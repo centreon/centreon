@@ -20,6 +20,9 @@ export const useStyles = makeStyles<StyleProps>()(
       paddingBottom: theme.spacing(1),
       paddingTop: theme.spacing(3)
     },
+    editorToolbar: {
+      flexWrap: 'wrap'
+    },
     emailTemplateTitle: {
       fontWeight: theme.typography.fontWeightBold
     },

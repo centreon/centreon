@@ -75,6 +75,6 @@ const last31Days: TimePeriod = {
 const timePeriods: Array<TimePeriod> = [lastDayPeriod, last7Days, last31Days];
 
 const getTimePeriodById = (id: TimePeriodId): TimePeriod =>
-  find<TimePeriod>(propEq('id', id))(timePeriods) as TimePeriod;
+  find<TimePeriod>(propEq(id, 'id'))(timePeriods) as TimePeriod;
 
 export { timePeriods, getTimePeriodById, lastDayPeriod, last7Days, last31Days };

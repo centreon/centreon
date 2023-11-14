@@ -202,9 +202,13 @@ final class AddHostTemplateController extends AbstractController
              *     timezone_id?: null|int,
              *     severity_id?: null|int,
              *     check_timeperiod_id?: null|int,
+             *     max_check_attempts?: null|int,
+             *     normal_check_interval?: null|int,
+             *     retry_check_interval?: null|int,
              *     note_url?: string,
              *     note?: string,
              *     action_url?: string,
+             *     icon_id?: null|int,
              *     categories?: int[],
              *     templates?: int[],
              *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>
@@ -217,6 +221,9 @@ final class AddHostTemplateController extends AbstractController
             $dto->alias = $data['alias'];
             $dto->snmpVersion = $data['snmp_version'] ?? '';
             $dto->snmpCommunity = $data['snmp_community'] ?? '';
+            $dto->maxCheckAttempts = $data['max_check_attempts'] ?? null;
+            $dto->normalCheckInterval = $data['normal_check_interval'] ?? null;
+            $dto->retryCheckInterval = $data['retry_check_interval'] ?? null;
             $dto->timezoneId = $data['timezone_id'] ?? null;
             $dto->severityId = $data['severity_id'] ?? null;
             $dto->checkTimeperiodId = $data['check_timeperiod_id'] ?? null;
@@ -226,6 +233,7 @@ final class AddHostTemplateController extends AbstractController
             $dto->categories = $data['categories'] ?? [];
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
+            $dto->iconId = $data['icon_id'] ?? null;
 
             $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {

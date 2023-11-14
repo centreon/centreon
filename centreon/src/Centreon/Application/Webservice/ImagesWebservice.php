@@ -137,7 +137,7 @@ class ImagesWebservice extends Webservice\WebServiceAbstract implements
      * Get images list
      *
      * @throws \RestBadRequestException
-     * @return array
+     * @return Response
      */
     public function getList(): Response
     {

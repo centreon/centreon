@@ -12095,7 +12095,7 @@ msgid "This Service is flapping"
 msgstr "Le statut du service bagote"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:172
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Servicio meta"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:194
@@ -16537,4 +16537,37 @@ msgstr "Modo avanzado"
 #  msgstr ""
 
 #  msgid "Error while retrieving a command"
+#  msgstr ""
+
+# msgid "Save as"
+# msgstr ""
+
+#  msgid "You are not allowed to add media"
+#  msgstr ""
+
+#  msgid "Error while adding a media"
+#  msgstr ""
+
+#  msgid "File extension not authorized"
+#  msgstr ""
+
+#  msgid "Media already exists"
+#  msgstr ""
+
+#  msgid "You are not allowed to access graph templates"
+#  msgstr ""
+
+#  msgid "Error while searching for graph templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access connectors"
+#  msgstr ""
+
+#  msgid "Error while searching for connectors"
+#  msgstr ""
+
+#  msgid "Error while updating a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a host"
 #  msgstr ""

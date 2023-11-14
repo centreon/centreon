@@ -38,9 +38,25 @@ class HostException extends \Exception
     /**
      * @return self
      */
+    public static function editHost(): self
+    {
+        return new self(_('Error while updating a host'));
+    }
+
+    /**
+     * @return self
+     */
     public static function deleteNotAllowed(): self
     {
         return new self(_('You are not allowed to delete a host'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function editNotAllowed(): self
+    {
+        return new self(_('You are not allowed to edit a host'));
     }
 
     /**

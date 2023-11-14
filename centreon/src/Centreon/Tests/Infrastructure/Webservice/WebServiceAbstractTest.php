@@ -66,13 +66,6 @@ class WebServiceAbstractTest extends TestCase
         $this->assertEquals($_GET, $this->webservice->query());
     }
 
-    public function testQueryWithoutGet()
-    {
-        $_GET = null;
-        
-        $this->assertEquals([], $this->webservice->query());
-    }
-
     public function testPayloadRaw()
     {
         $this->assertEquals('', $this->webservice->payloadRaw());

@@ -78,14 +78,12 @@ const isFilledCriteria = pipe(endsWith(':'), not);
 
 interface ParametersParse {
   criteriaName?: Record<string, string>;
-  currentFilter?: Array<Criteria>;
   search: string;
 }
 
 const parse = ({
   search,
-  criteriaName = criteriaValueNameById,
-  currentFilter
+  criteriaName = criteriaValueNameById
 }: ParametersParse): Array<Criteria> => {
   const [criteriaParts, rawSearchParts] = partition(
     allPass([includes(':'), isCriteriaPart, isFilledCriteria]),
@@ -98,20 +96,15 @@ const parse = ({
     const pluralizedKey = pluralize(unmappedCriteriaKey);
 
     const defaultCriteria = find(
-      propEq('name', pluralizedKey),
+      propEq(pluralizedKey, 'name'),
       getDefaultCriterias()
     );
 
     const objectType = defaultCriteria?.object_type || null;
-    const target = currentFilter?.find(
-      ({ name }) => name === defaultCriteria?.name
-    );
-    const search_data = target?.search_data;
 
     const result = {
       name: pluralizedKey,
       object_type: objectType,
-      search_data,
       type: 'multi_select',
       value: values?.split(',').map((value) => {
         const isStaticCriteria = isNil(objectType);
@@ -132,11 +125,7 @@ const parse = ({
       })
     };
 
-    if (!search_data) {
-      return { ...result, search_data: null };
-    }
-
-    return { ...result, search_data };
+    return result;
   });
 
   const criteriasWithSearch = [
@@ -160,7 +149,7 @@ const parse = ({
 
   return sortBy(
     ({ name }) => criteriaNameSortOrder[name],
-    reject(propEq('name', 'sort'), [
+    reject(propEq('sort', 'name'), [
       ...defaultCriterias,
       ...criteriasWithSearch
     ])
@@ -168,8 +157,8 @@ const parse = ({
 };
 
 const build = (criterias: Array<Criteria>): string => {
-  const nameEqualsSearch = propEq('name', 'search');
-  const nameEqualsSort = propEq('name', 'sort');
+  const nameEqualsSearch = propEq('search', 'name');
+  const nameEqualsSort = propEq('sort', 'name');
   const hasEmptyValue = propSatisfies(isEmpty, 'value');
 
   const rejectSearch = reject(nameEqualsSearch);

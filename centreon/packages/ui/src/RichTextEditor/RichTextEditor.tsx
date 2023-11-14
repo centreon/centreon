@@ -12,6 +12,7 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 import { Typography } from '@mui/material';
 
@@ -38,6 +39,8 @@ export interface RichTextEditorProps {
   openLinkInNewTab?: boolean;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
+  setHtmlString?: (htmlString: string) => void;
+  toolbarClassName?: string;
   toolbarPositions?: 'start' | 'end';
 }
 
@@ -136,7 +139,9 @@ const RichTextEditor = ({
   disabled = false,
   openLinkInNewTab = true,
   initialize,
-  displayBlockButtons = true
+  displayBlockButtons = true,
+  setHtmlString,
+  toolbarClassName
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -170,11 +175,19 @@ const RichTextEditor = ({
     }
   };
 
+  const change = (state: EditorState, editor: LexicalEditor): void => {
+    editor.update(() => {
+      setHtmlString?.($generateHtmlFromNodes(editor, null));
+    });
+    getEditorState?.(state, editor);
+  };
+
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes.container}>
         <div className={classes.toolbar}>
           <ToolbarPlugin
+            className={toolbarClassName}
             disabled={disabled}
             displayBlockButtons={displayBlockButtons}
             displayMacrosButton={displayMacrosButton}
@@ -209,7 +222,7 @@ const RichTextEditor = ({
           <HistoryPlugin />
           <LinkPlugin />
           <ListPlugin />
-          <OnChangePlugin onChange={getEditorState} />
+          <OnChangePlugin onChange={change} />
           <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
           <FloatingLinkEditorPlugin
             editable={editable}

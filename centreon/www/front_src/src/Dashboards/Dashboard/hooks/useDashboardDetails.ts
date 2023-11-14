@@ -42,7 +42,9 @@ export const formatPanel = ({
   );
 
   return {
-    data: panel.widgetSettings.data,
+    data: equals(panel.widgetSettings.data, [])
+      ? {}
+      : panel.widgetSettings.data || null,
     h: panel.layout.height,
     i: `${panel.id}`,
     minH: panel.layout.minHeight,
@@ -62,7 +64,7 @@ export const routerParams = {
   useParams
 };
 
-const getPanels = (dashboard?: Dashboard): Array<DashboardPanel> =>
+export const getPanels = (dashboard?: Dashboard): Array<DashboardPanel> =>
   propOr([] as Array<DashboardPanel>, 'panels', dashboard);
 
 type UseDashboardDetailsProps = {
@@ -89,13 +91,16 @@ const useDashboardDetails = ({
 
   const panels = getPanels(dashboard);
 
-  useEffect(() => {
-    setDashboard({
-      layout:
-        panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
-    });
-    setPanelsLength(panels.length);
-  }, useDeepCompare([panels, federatedWidgets]));
+  useEffect(
+    () => {
+      setDashboard({
+        layout:
+          panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
+      });
+      setPanelsLength(panels.length);
+    },
+    useDeepCompare([panels, federatedWidgets])
+  );
 
   useEffect(() => {
     if (!dashboard) {
@@ -108,7 +113,6 @@ const useDashboardDetails = ({
 
   useEffect(() => {
     return () => {
-      setHasEditPermission(false);
       setIsEditing(false);
       setDashboardRefreshInterval(undefined);
     };
