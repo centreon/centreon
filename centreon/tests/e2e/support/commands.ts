@@ -118,6 +118,7 @@ Cypress.Commands.add('logout', (): void => {
     url: '/centreon/api/latest/authentication/logout'
   }).as('logout');
 
+  /*
   cy.intercept(
     '/centreon/api/latest/platform/installation/status',
     {
@@ -132,6 +133,7 @@ Cypress.Commands.add('logout', (): void => {
       });
     }
   );
+  */
 
   cy.contains(/^Logout$/).click();
 
