@@ -19,6 +19,13 @@ contents:
     dst: "/usr/share/centreon/www/modules/centreon-awie"
     file_info:
       mode: 0664
+      owner: ${GROUP_OWNER}
+      group: ${GROUP_OWNER}
+
+  - dst: /var/cache/centreon/filesUpload
+    type: dir
+    file_info:
+      mode: 0770
 
 rpm:
   summary: centreon awie packaging to nfpm

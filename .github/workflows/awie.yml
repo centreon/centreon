@@ -74,18 +74,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Find and replace patterns in files
+      - name: Set group and owner according to distrib
         run: |
-          find . -type f \
-            -exec grep -qE '(@CENTREON_ETC@)|(@BIN_DIR@)|(CENTREON_DIR)|(CENTREON_LOG)|(CENTREON_VARLIB)|(MODULE_NAME)|(DB_CENTSTORAGE)' {} ';' \
-            -exec sed -i -e "s|@CENTREON_ETC@|${centreon_etc}|g" \
-                          -e "s|@BIN_DIR@|/usr/bin|g" \
-                          -e "s|@CENTREON_DIR@|${centreon_dir}|g" \
-                          -e "s|@CENTREON_LOG@|${centreon_log}|g" \
-                          -e "s|@CENTREON_VARLIB@|${centreon_varlib}|g" \
-                          -e "s|@MODULE_NAME@|centreon-awie|g" \
-                          -e "s|@DB_CENTSTORAGE@|centreon_storage|g" \
-                      {} ';'
+          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+            sed -i "s/@GROUP_OWNER@/www-data/g" $GROUP_OWNER
+          else
+            sed -i "s/@GROUP_OWNER@/apache/g" $GROUP_OWNER
+          fi
         shell: bash
 
       - name: Package
@@ -99,7 +94,7 @@ jobs:
           release: ${{ needs.get-version.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
-          cache_key: cache-${{ github.sha }}-${{ matrix.package_extension}}-centreon-awie-${{ matrix.distrib }}-${{ github.head_ref || github.ref_name }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
