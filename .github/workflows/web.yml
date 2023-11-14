@@ -586,8 +586,23 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  e2e-test:
+  create-tp-te:
     needs: [get-version, dockerize]
+    # if: && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) 
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+
+    uses: ./.github/workflows/create-tp-te.yml
+    with:
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  e2e-test:
+    needs: [get-version, dockerize, create-tp-te]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -607,13 +622,15 @@ jobs:
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
+      test_plan_key: ${{ needs.create-tp-te.outputs.test_plan_key }}
+      test_execution_key: ${{ needs.create-tp-te.outputs.test_execution_key }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      # xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      # xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04
