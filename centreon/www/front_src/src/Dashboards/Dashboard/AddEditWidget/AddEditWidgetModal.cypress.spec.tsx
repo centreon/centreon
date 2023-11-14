@@ -497,7 +497,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelTitle).type('Generic data');
 
-        cy.findByLabelText(labelAddResource).should('be.disabled');
+        cy.findByLabelText(labelRefineFilter).should('be.disabled');
         cy.findByLabelText(labelSave).should('be.disabled');
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
@@ -536,7 +536,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelTitle).type('Generic data');
 
-        cy.findByLabelText(labelAddResource).should('be.disabled');
+        cy.findByLabelText(labelRefineFilter).should('be.disabled');
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
@@ -567,7 +567,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelTitle).type('Generic data');
 
-        cy.findByLabelText(labelAddResource).should('be.disabled');
+        cy.findByLabelText(labelRefineFilter).should('be.disabled');
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
