@@ -92,7 +92,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
      */
     private function findAllByIteration(): \Iterator&\Countable
     {
-        $this->logger->debug(sprintf('Loading medias in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
+        $this->logger->debug(sprintf('Loading media in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
 
         return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createMedia(), $this->logger)
             extends AbstractRepositoryRDB
@@ -198,7 +198,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             {
                 $this->logger->debug(
                     sprintf(
-                        'Loading medias from %d/%d',
+                        'Loading media from %d/%d',
                         $this->requestIndex,
                         $this->maxItemByRequest
                     )

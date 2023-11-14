@@ -39,7 +39,7 @@ class MigrateAllMediasCommand extends AbstractMigrationCommand
 
     protected static $defaultName = 'media:all';
 
-    protected static $defaultDescription = 'Migrate all medias from the current platform to the defined target platform';
+    protected static $defaultDescription = 'Migrate all media from the current platform to the defined target platform';
 
     private int $maxFilesize;
 
@@ -63,7 +63,7 @@ class MigrateAllMediasCommand extends AbstractMigrationCommand
         $this->addArgument(
             'target-url',
             InputArgument::REQUIRED,
-            "The target platform base url to connect to the API (ex: 'http://localhost/centreon')"
+            "The target platform base URL to connect to the API (ex: 'http://localhost')"
         );
         $this->setHelp(
             "Migrates all media to the target platform.\r\n"

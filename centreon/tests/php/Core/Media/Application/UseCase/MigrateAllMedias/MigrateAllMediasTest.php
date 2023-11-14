@@ -58,7 +58,7 @@ it('should present an Exception if the user is not an administrator', function (
         ->toBe(MediaException::operationRequiresAdminUser()->getMessage());
 });
 
-it('should present an MigrateAllMediasResponse when the user is an admin', function (): void{
+it('should present a MigrateAllMediasResponse when the user is an admin', function (): void{
     $this->request->contact
         ->expects($this->once())
         ->method('isAdmin')

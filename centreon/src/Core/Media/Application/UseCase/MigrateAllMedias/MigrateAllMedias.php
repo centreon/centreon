@@ -68,7 +68,7 @@ final class MigrateAllMedias
      */
     private function migrateMedias(\Iterator&\Countable $medias, MigrationAllMediasResponse $response): void
     {
-        $response->results = new class($medias, $this->writeMediaRepository) implements \Iterator {
+        $response->results = new class($medias, $this->writeMediaRepository) implements \Iterator, \Countable {
             /**
              * @param \Iterator<int, Media>&\Countable $medias
              * @param WriteMediaRepositoryInterface $writeMediaRepository
@@ -119,12 +119,17 @@ final class MigrateAllMedias
 
             public function valid(): bool
             {
-                return $this->medias->key() < count($this->medias);
+                return $this->medias->key() < $this->medias->count();
             }
 
             public function rewind(): void
             {
                  $this->medias->rewind();
+            }
+
+            public function count(): int
+            {
+                return $this->medias->count();
             }
         };
     }

@@ -104,7 +104,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
 
             public function count(): int
             {
-                return count($this->medias);
+                return $this->medias->count();
             }
         };
     }

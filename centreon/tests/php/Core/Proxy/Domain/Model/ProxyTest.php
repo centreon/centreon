@@ -39,7 +39,7 @@ beforeEach(function (): void {
     };
 });
 
-it('should throw an exception when the url property is empty', function(): void {
+it('should throw an exception when the URL property is empty', function(): void {
     ($this->createProxy)(['url' => '    ']);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -67,7 +67,7 @@ it('should throw an exception when the password property is empty', function(): 
     AssertionException::notEmptyString('Proxy:password')->getMessage()
 );
 
-it('should be  an exception when the password property is empty', function(): void {
+it('should be generated correctly as a character string', function(): void {
     $proxy = new Proxy('localhost');
     expect((string) $proxy)->toBe('http://localhost');
     $proxy = new Proxy('localhost', 80);

@@ -39,7 +39,7 @@ beforeEach(function (): void {
     };
 });
 
-it('should throw an exception when the id property is lower than 1', function (): void {
+it('should throw an exception when the ID property is lower than 1', function (): void {
     ($this->createMedia)(['id' => 0]);
 })->throws(
     \Assert\InvalidArgumentException::class,

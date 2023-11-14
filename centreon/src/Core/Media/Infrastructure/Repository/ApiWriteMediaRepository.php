@@ -109,13 +109,13 @@ class ApiWriteMediaRepository implements WriteMediaRepositoryInterface
             /**
              * @var array{message: string} $content
              */
-            $content = json_decode($response->getContent(), true);
+            $content = $response->toArray(false);
             $this->debug('API error', [
                 'http_code' => $response->getStatusCode(),
                 'message' => $content['message'],
             ]);
 
-            throw new \Exception('Request error', $response->getStatusCode());
+            throw new \Exception(sprintf('Request error: %s', $content['message']), $response->getStatusCode());
         }
         /**
          * @var array{
@@ -123,8 +123,8 @@ class ApiWriteMediaRepository implements WriteMediaRepositoryInterface
          *     errors: array<int, array{reason: string}>
          * } $content
          */
-        $content = json_decode($response->getContent(), true);
-        if ($content['errors'] !== []) {
+        $content = $response->toArray(false);
+        if (isset($content['errors'][0]['reason'])) {
             throw new \Exception($content['errors'][0]['reason']);
         }
 
