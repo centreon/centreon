@@ -382,5 +382,13 @@ export const ListingWithSubItems = {
       rowProperty: 'subItems'
     },
     totalRows: 10
+  },
+  render: (args) => {
+    const {classes} = useStyles();
+    return (
+      <div className={classes.listing}>
+        <Listing {...args} />
+      </div>
+    )
   }
 };
