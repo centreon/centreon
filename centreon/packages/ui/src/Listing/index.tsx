@@ -69,7 +69,7 @@ const getVisibleColumns = ({
   }
 
   return selectedColumnIds.map((id) =>
-    columns.find(propEq('id', id))
+    columns.find(propEq(id, 'id'))
   ) as Array<Column>;
 };
 

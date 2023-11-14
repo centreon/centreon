@@ -46,10 +46,7 @@ const CheckboxGroup = ({
       return;
     }
 
-    setFieldValue(
-      fieldName,
-      value?.filter((elm) => !equals(elm, label))
-    );
+    setFieldValue(fieldName, value?.filter((elm) => !equals(elm, label)));
   };
 
   return useMemoComponent({
