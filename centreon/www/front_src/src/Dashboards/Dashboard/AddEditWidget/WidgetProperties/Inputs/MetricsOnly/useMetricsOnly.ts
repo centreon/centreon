@@ -12,6 +12,8 @@ import {
   length,
   pipe,
   pluck,
+  propEq,
+  reject,
   uniq,
   uniqBy
 } from 'ramda';
@@ -116,7 +118,7 @@ const useMetricsOnly = (propertyName: string): UseMetricsOnlyState => {
   };
 
   const deleteMetricItem = (option): void => {
-    const newMetric = value?.filter(({ id }) => !equals(id, option.id));
+    const newMetric = reject(propEq(option.id, 'id'), value || []);
 
     setFieldValue(`data.${propertyName}`, newMetric);
     setFieldTouched(`data.${propertyName}`, true, false);

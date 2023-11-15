@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, pluck } from 'ramda';
+import { T, always, cond, equals, isEmpty, pluck, propEq, reject } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
@@ -156,7 +156,7 @@ const useResources = (propertyName: string): UseResourcesState => {
   };
 
   const deleteResourceItem = ({ index, option, resources }): void => {
-    const newResource = resources?.filter(({ id }) => !equals(id, option.id));
+    const newResource = reject(propEq(option.id, 'id'), resources);
 
     setFieldValue(`data.${propertyName}.${index}.resources`, newResource);
     setFieldTouched(`data.${propertyName}`, true, false);

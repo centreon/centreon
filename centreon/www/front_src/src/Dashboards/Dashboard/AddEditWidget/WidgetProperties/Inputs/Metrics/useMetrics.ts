@@ -14,6 +14,8 @@ import {
   length,
   pipe,
   pluck,
+  propEq,
+  reject,
   uniq
 } from 'ramda';
 import { useAtomValue } from 'jotai';
@@ -215,7 +217,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     };
 
   const deleteMetricItem = (index, option): void => {
-    const newMetric = value?.filter(({ id }) => !equals(id, option.id));
+    const newMetric = reject(propEq(option.id, 'id'), value || []);
 
     setFieldValue(`data.${propertyName}.${index}.metrics`, newMetric);
     setFieldTouched(`data.${propertyName}`, true, false);
