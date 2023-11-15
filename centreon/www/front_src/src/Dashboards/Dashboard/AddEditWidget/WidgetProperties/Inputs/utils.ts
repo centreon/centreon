@@ -107,6 +107,10 @@ const getYupValidatorType = ({
           warning: Yup.number().nullable()
         })
       )
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
+      always(Yup.number().min(1))
     ]
   ])(widgetOptionType);
 
