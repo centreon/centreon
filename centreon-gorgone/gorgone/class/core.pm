@@ -763,6 +763,7 @@ sub router_internal_event {
 
     # There are two watchers : timer and io
     if ($self->{recursion_ievents} > 2) {
+        $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
         $self->{recursion_ievents}--;
         return;
     }
@@ -772,28 +773,28 @@ sub router_internal_event {
             socket => $self->{internal_socket},
             logger => $self->{logger}
         );
+
         next if (!defined($identity));
 
-        push(@{$self->{ievents}}, [$identity, $frame]);
-    }
+        next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
 
-    while (my $event = pop(@{$self->{ievents}})) {
-        next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
-                frame       => $event->[1],
-                identity    => $event->[0],
+                frame       => $frame,
+                identity    => $identity,
                 router_type => 'internal'
             }
         );
+
         $self->send_internal_response(
-            identity      => $event->[0],
+            identity      => $identity,
             response_type => $response_type,
             data          => $response,
             code          => $code,
             token         => $token
         );
     }
+
     $self->{recursion_ievents}--;
 }
 
