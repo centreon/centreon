@@ -44,15 +44,9 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
      */
     private $sqlRequestTranslator;
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    public function __construct(DatabaseConnection $db, SerializerInterface $serializer)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->serializer = $serializer;
     }
 
     /**

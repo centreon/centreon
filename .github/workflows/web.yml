@@ -409,10 +409,10 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
-      jira_user: ${{ secrets.JIRA_USER }}
-      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   api-integration-test:
     needs: [get-version, changes, dockerize]
@@ -479,10 +479,10 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
-      jira_user: ${{ secrets.JIRA_USER }}
-      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04
