@@ -759,9 +759,6 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    $self->{recursion_ievents}++;
-    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-
     if ($self->{socket_reading} == 0) {
         $self->{socket_reading} = 1;
 
@@ -773,14 +770,17 @@ sub router_internal_event {
 
             next if (!defined($identity));
 
+            $self->{logger}->writeLogDebug("[core] pushing new event");
             push(@{$self->{ievents}}, [$identity, $frame]);
         }
 
         $self->{socket_reading} = 0;
     }
 
+    $self->{recursion_ievents}++;
+    $self->{logger}->writeLogDebug("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
     if ($self->{recursion_ievents} > 1) {
-        $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
+        $self->{logger}->writeLogError("[core] too many calls of router_internal_event, skipping this call");
         $self->{recursion_ievents}--;
         return;
     }
@@ -1247,18 +1247,12 @@ sub check_exit_modules {
 }
 
 sub periodic_exec {
-    #my ($self) = @_;
-
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
 
-    #if ($self->{recursion_ievents} == 0) {
-        $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from periodic_exec");
-    #    $self->{recursion_ievents} = 1;
-        $gorgone->router_internal_event();
-    #    $self->{recursion_ievents} = 0;
-        $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from periodic_exec");
-    #}
+    $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from periodic_exec");
+    $gorgone->router_internal_event();
+    $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from periodic_exec");
 
     if (defined($gorgone->{external_socket})) {
         $gorgone->{logger}->writeLogDebug("[core] Calling router_external_event from periodic_exec");
@@ -1349,13 +1343,9 @@ sub run {
     $gorgone->{watcher_timer} = $gorgone->{loop}->timer(5, 5, \&periodic_exec);
 
     $gorgone->{watcher_io_internal} = $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub {
-        #if ($self->{recursion_ievents} == 0) {
-            $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
-        #    $self->{recursion_ievents} = 1;
-            $gorgone->router_internal_event();
-        #    $self->{recursion_ievents} = 0;
-            $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from watcher_io_internal");
-        #}
+        $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
+        $gorgone->router_internal_event();
+        $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from watcher_io_internal");
     });
     if (defined($gorgone->{external_socket})) {
         $gorgone->{watcher_io_external} = $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub {
