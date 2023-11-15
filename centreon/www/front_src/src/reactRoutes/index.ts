@@ -46,6 +46,10 @@ const reactRoutes = [
   {
     comp: lazy(() => import('../Dashboards/Dashboard')),
     path: routeMap.dashboard
+  },
+  {
+    comp: lazy(() => import('../AppTokens')),
+    path: routeMap.appTokens
   }
 ];
 
