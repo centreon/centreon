@@ -26,12 +26,16 @@ Feature:
           "alias": "htpl-alias-1",
           "snmp_version": null,
           "snmp_community": null,
+          "max_check_attempts": null,
+          "normal_check_interval": null,
+          "retry_check_interval": null,
           "timezone_id": null,
           "severity_id": null,
           "check_timeperiod_id": null,
           "note_url": null,
           "note": null,
           "action_url": null,
+          "icon_id": null,
           "is_locked": false
         }
       ],
@@ -90,9 +94,13 @@ Feature:
         "timezone_id": 1,
         "severity_id": 1,
         "check_timeperiod_id": 1,
+        "max_check_attempts": null,
+        "normal_check_interval": null,
+        "retry_check_interval": null,
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
+        "icon_id": null,
         "categories": [2],
         "templates": [],
         "macros": [
@@ -123,9 +131,13 @@ Feature:
         "timezone_id": 1,
         "severity_id": 1,
         "check_timeperiod_id": 1,
+        "max_check_attempts": null,
+        "normal_check_interval": null,
+        "retry_check_interval": null,
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
+        "icon_id": null,
         "is_locked": false,
         "categories": [
           {
@@ -266,9 +278,13 @@ Feature:
         "timezone_id": 1,
         "severity_id": 1,
         "check_timeperiod_id": 1,
+        "max_check_attempts": null,
+        "normal_check_interval": null,
+        "retry_check_interval": null,
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
+        "icon_id": null,
         "is_locked": false,
         "categories": [
           {
