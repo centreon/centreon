@@ -94,10 +94,11 @@ class HostEventConverter
                 self::CASE_RECOVERY_AS_STR => HostEvent::Recovery,
                 self::CASE_FLAPPING_AS_STR => HostEvent::Flapping,
                 self::CASE_DOWNTIME_SCHEDULED_AS_STR => HostEvent::DowntimeScheduled,
+                default => null,
             };
         }
 
-        return $events;
+        return array_values(array_filter($events));
     }
 
     /**
