@@ -774,7 +774,7 @@ sub router_internal_event {
         push(@{$self->{ievents}}, [$identity, $frame]);
     }
 
-    if ($self->{recursion_ievents} > 1) {
+    if ($self->{recursion_ievents} > 10) {
         $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
         return;
     }
