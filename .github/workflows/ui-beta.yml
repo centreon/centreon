@@ -51,6 +51,22 @@ jobs:
         run: pnpm t
         working-directory: ${{ env.directory }}
 
+  publish-snapshots:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - if: ${{ !github.event.pull_request.draft }}
+        uses: ./.github/actions/chromatic
+        with:
+          frontend_directory: ${{ env.directory }}
+          dependencies_lock_file: centreon/pnpm-lock.yaml
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          project_token: ${{ secrets.CHROMATIC }}
+
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
     needs: [lint, unit-test, cypress-component-testing, publish-snapshots]
