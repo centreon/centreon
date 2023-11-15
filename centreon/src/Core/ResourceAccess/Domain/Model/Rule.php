@@ -69,8 +69,9 @@ class Rule
     }
 
     /**
-     * @param null|string $description 
-     * @return self 
+     * @param null|string $description
+     *
+     * @return self
      */
     public function setDescription(?string $description): self
     {
