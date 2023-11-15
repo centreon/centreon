@@ -1237,11 +1237,11 @@ sub periodic_exec {
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
 
-    if ($self->{recursion_ievents} == 0) {
+    if ($gorgone->{recursion_ievents} == 0) {
         $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from periodic_exec");
-        $self->{recursion_ievents} = 1;
+        $gorgone->{recursion_ievents} = 1;
         $gorgone->router_internal_event();
-        $self->{recursion_ievents} = 0;
+        $gorgone->{recursion_ievents} = 0;
         $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from periodic_exec");
     }
 
@@ -1333,11 +1333,11 @@ sub run {
     $gorgone->{watcher_timer} = $gorgone->{loop}->timer(5, 5, \&periodic_exec);
 
     $gorgone->{watcher_io_internal} = $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub {
-        if ($self->{recursion_ievents} == 0) {
+        if ($gorgone->{recursion_ievents} == 0) {
             $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
-            $self->{recursion_ievents} = 1;
+            $gorgone->{recursion_ievents} = 1;
             $gorgone->router_internal_event();
-            $self->{recursion_ievents} = 0;
+            $gorgone->{recursion_ievents} = 0;
             $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from watcher_io_internal");
         }
     });
