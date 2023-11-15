@@ -35,7 +35,6 @@ class Rule
     /**
      * @param int $id
      * @param string $name
-     * @param null|string $description
      * @param bool $isEnabled
      *
      * @throws AssertionFailedException
