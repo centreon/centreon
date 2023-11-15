@@ -21,27 +21,15 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\Repository;
+namespace Core\Media\Application\UseCase\MigrateAllMedias;
 
-use Core\Media\Domain\Model\Media;
-
-interface ReadMediaRepositoryInterface
+class MediaRecordedDto
 {
-    /**
-     * Indicates whether the media exists using its path.
-     *
-     * @param string $path (ex: /logos/centreon_logo.png)
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function existsByPath(string $path): bool;
+    public int $id = 0;
 
-    /**
-     * @throws \Throwable
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    public function findAll(): \Iterator&\Countable;
+    public string $filename = '';
+
+    public string $directory = '';
+
+    public string $md5 = '';
 }

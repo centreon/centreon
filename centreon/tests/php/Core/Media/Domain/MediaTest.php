@@ -24,12 +24,13 @@ declare(strict_types = 1);
 namespace Tests\Core\Media\Domain;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Media\Domain\Model\NewMedia;
+use Core\Media\Domain\Model\Media;
 
 beforeEach(function (): void {
-    $this->createMedia = function (array $arguments = []): NewMedia
+    $this->createMedia = function (array $arguments = []): Media
     {
-        return new NewMedia(...[
+        return new Media(...[
+            'id' => 1,
             'filename' => 'filename',
             'directory' => 'directory',
             'data' => 'data',
@@ -38,39 +39,46 @@ beforeEach(function (): void {
     };
 });
 
+it('should throw an exception when the ID property is lower than 1', function (): void {
+    ($this->createMedia)(['id' => 0]);
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::positiveInt(0, 'Media::id')->getMessage()
+);
+
 it('should throw an exception when the filename property is empty', function (): void {
     ($this->createMedia)(['filename' => '']);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('NewMedia::filename')->getMessage()
+    AssertionException::notEmptyString('Media::filename')->getMessage()
 );
 
 it('should throw an exception when the directory property is empty', function (): void {
     ($this->createMedia)(['directory' => '']);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('NewMedia::directory')->getMessage()
+    AssertionException::notEmptyString('Media::directory')->getMessage()
 );
 
 it('should throw an exception when the data property is empty', function (): void {
     ($this->createMedia)(['data' => '']);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('NewMedia::data')->getMessage()
+    AssertionException::notEmptyString('Media::data')->getMessage()
 );
 
 it('should replace space characters by \'_\' in the filename property', function (): void {
-    $newMedia = ($this->createMedia)(['filename' => ' new filename.jpg ']);
-    expect($newMedia->getFilename())->toBe('new_filename.jpg');
+    $media = ($this->createMedia)(['filename' => ' new filename.jpg ']);
+    expect($media->getFilename())->toBe('new_filename.jpg');
 });
 
 it('should remove the space characters in the path property', function (): void {
-    $newMedia = ($this->createMedia)(['directory' => ' new path ']);
-    expect($newMedia->getDirectory())->toBe('newpath');
+    $media = ($this->createMedia)(['directory' => ' new path ']);
+    expect($media->getDirectory())->toBe('newpath');
 });
 
 it('should remove the space characters in the comment property', function (): void {
-    $newMedia = ($this->createMedia)([]);
-    $newMedia->setComment(' comments ');
-    expect($newMedia->getComment())->toBe('comments');
+    $media = ($this->createMedia)([]);
+    $media->setComment(' comments ');
+    expect($media->getComment())->toBe('comments');
 });
