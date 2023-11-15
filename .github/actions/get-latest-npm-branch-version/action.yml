@@ -1,4 +1,5 @@
 name: 'Get Latest NPM Branch Version'
+
 description: 'Get the latest version of a package based on the branch'
 
 inputs:
@@ -14,5 +15,5 @@ outputs:
     description: "The latest NPM version for the branch"
 
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'index.js'

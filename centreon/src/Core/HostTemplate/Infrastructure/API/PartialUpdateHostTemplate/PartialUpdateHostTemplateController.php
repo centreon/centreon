@@ -78,7 +78,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?:array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?: array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name?: string,
@@ -117,7 +117,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      action_url?: null|string,
          *      icon_id?: null|int,
          *      icon_alternative?: null|string,
-         *      comment?: string
+         *      comment?: string|null
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateOnPremSchema.json');
@@ -269,12 +269,16 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      alias: string,
          *      snmp_version?: null|string,
          *      snmp_community?: null|string,
+         *      max_check_attempts?: null|int,
+         *      normal_check_interval?: null|int,
+         *      retry_check_interval?: null|int,
          *      timezone_id?: null|int,
          *      severity_id?: null|int,
          *      check_timeperiod_id?: null|int,
          *      note_url?: null|string,
          *      note?: null|string,
-         *      action_url?: null|string
+         *      action_url?: null|string,
+         *      icon_id?: null|int
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateSaasSchema.json');
@@ -302,6 +306,15 @@ final class PartialUpdateHostTemplateController extends AbstractController
         if (\array_key_exists('snmp_community', $data)) {
             $dto->snmpCommunity = $data['snmp_community'] ?? '';
         }
+        if (\array_key_exists('max_check_attempts', $data)) {
+            $dto->maxCheckAttempts = $data['max_check_attempts'];
+        }
+        if (\array_key_exists('normal_check_interval', $data)) {
+            $dto->normalCheckInterval = $data['normal_check_interval'];
+        }
+        if (\array_key_exists('retry_check_interval', $data)) {
+            $dto->retryCheckInterval = $data['retry_check_interval'];
+        }
         if (\array_key_exists('timezone_id', $data)) {
             $dto->timezoneId = $data['timezone_id'];
         }
@@ -319,6 +332,9 @@ final class PartialUpdateHostTemplateController extends AbstractController
         }
         if (\array_key_exists('action_url', $data)) {
             $dto->actionUrl = $data['action_url'] ?? '';
+        }
+        if (\array_key_exists('icon_id', $data)) {
+            $dto->iconId = $data['icon_id'];
         }
 
         return $dto;

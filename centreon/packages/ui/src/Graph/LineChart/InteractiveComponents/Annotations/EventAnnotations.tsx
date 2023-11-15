@@ -26,7 +26,7 @@ const EventAnnotations = ({
   color,
   annotationHoveredId
 }: Props): JSX.Element => {
-  const events = filter(propEq('type', type), data);
+  const events = filter(propEq(type, 'type'), data);
 
   return (
     <>

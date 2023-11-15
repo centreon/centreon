@@ -221,7 +221,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
           run_install: false
 
       - uses: actions/setup-node@v3
@@ -318,12 +318,12 @@ jobs:
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
         working-directory: centreon
 
-      - name: Run of phpstan on /src at level 3
-        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.neon
+      - name: Run of phpstan on /src at level 4
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
         working-directory: centreon
 
-      - name: Run of phpstan on /src/Core at level 3 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.core.neon
+      - name: Run of phpstan on /src/Core at level 4 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.core.neon
         working-directory: centreon
 
       - name: Run of phpstan on /tests at level 2
@@ -540,10 +540,10 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
-      jira_user: ${{ secrets.JIRA_USER }}
-      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   api-integration-test:
     needs: [get-version, changes, dockerize]
@@ -610,10 +610,10 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
-      jira_user: ${{ secrets.JIRA_USER }}
-      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   performances-test:
     runs-on: ubuntu-22.04

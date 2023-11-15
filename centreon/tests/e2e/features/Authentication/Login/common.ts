@@ -71,11 +71,11 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayMonth',
-    value: '6'
+    value: '5'
   },
   {
     selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayDay',
-    value: '0'
+    value: '27'
   },
   {
     custom: (): void => {

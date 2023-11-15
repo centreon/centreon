@@ -178,13 +178,11 @@ Cypress.Commands.add(
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
 
-    return cy
-      .get('.SnackbarContent-root > .MuiPaper-root')
-      .then(($snackbar) => {
-        if ($snackbar.text().includes('Login succeeded')) {
-          cy.wait('@getNavigationList');
-        }
-      });
+    return cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.wait('@getNavigationList');
+      }
+    });
   }
 );
 
@@ -308,7 +306,7 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+    const logDirectory = `results/logs/${Cypress.spec.name.replace(
       artifactIllegalCharactersMatcher,
       '_'
     )}/${Cypress.currentTest.title.replace(
@@ -334,6 +332,11 @@ Cypress.Commands.add(
         name,
         source: '/var/log/centreon'
       })
+      .copyFromContainer({
+        destination: `${logDirectory}/centreon-gorgone`,
+        name,
+        source: '/var/log/centreon-gorgone'
+      })
       .then(() => {
         if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
           return cy.copyFromContainer({
@@ -348,6 +351,24 @@ Cypress.Commands.add(
             destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
             name,
             source: '/var/log/php8.1-fpm-centreon-error.log'
+          },
+          { failOnNonZeroExit: false }
+        );
+      })
+      .then(() => {
+        if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+          return cy.copyFromContainer({
+            destination: `${logDirectory}/httpd`,
+            name,
+            source: '/var/log/httpd'
+          });
+        }
+
+        return cy.copyFromContainer(
+          {
+            destination: `${logDirectory}/apache2`,
+            name,
+            source: '/var/log/apache2'
           },
           { failOnNonZeroExit: false }
         );
@@ -368,7 +389,7 @@ Cypress.Commands.add(
 
     cy.exec(`docker logs ${name}`).then(({ stdout }) => {
       cy.writeFile(
-        `cypress/results/logs/${Cypress.spec.name.replace(
+        `results/logs/${Cypress.spec.name.replace(
           artifactIllegalCharactersMatcher,
           '_'
         )}/${Cypress.currentTest.title.replace(

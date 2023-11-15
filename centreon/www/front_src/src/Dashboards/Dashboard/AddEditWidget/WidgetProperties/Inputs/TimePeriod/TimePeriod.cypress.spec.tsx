@@ -79,13 +79,10 @@ describe('Time Period', () => {
     cy.findByLabelText(labelFrom)
       .find('input')
       .click({ force: true })
-      .type('{leftarrow}{leftarrow}10');
-    cy.findByLabelText(labelTo)
-      .find('input')
-      .click({ force: true })
-      .type('{leftarrow}{leftarrow}05');
+      .type('04');
+    cy.findByLabelText(labelTo).find('input').click({ force: true }).type('05');
 
-    cy.get('input').eq(1).should('have.value', '06/05/2023 10:00 AM');
-    cy.get('input').eq(2).should('have.value', '06/05/2023 05:00 AM');
+    cy.get('input').eq(1).should('have.value', '04/05/2023 07:00 AM');
+    cy.get('input').eq(2).should('have.value', '05/05/2023 08:00 AM');
   });
 });

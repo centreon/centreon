@@ -7,7 +7,6 @@ import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   base: '/',
-  // TODO distribute a build / lib instead of source (including font assets)
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
@@ -24,7 +23,9 @@ export default defineConfig({
     },
     sourcemap: true
   },
-
+  define: {
+    'process.env.DEBUG_PRINT_LIMIT': 10000
+  },
   esbuild: {},
   plugins: smvp([
     svgr({

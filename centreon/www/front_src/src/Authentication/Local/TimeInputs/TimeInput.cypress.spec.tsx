@@ -1,87 +1,82 @@
-import userEvent from '@testing-library/user-event';
-
-import { render, RenderResult, screen } from '@centreon/ui/test/testRenderer';
-
 import { labelMinute, labelMinutes } from '../translatedLabels';
 
 import TimeInput, { TimeInputProps } from './TimeInput';
 
-const mockChange = jest.fn();
+const initialize = (props: Omit<TimeInputProps, 'onChange'>): unknown => {
+  const mockChange = cy.stub();
 
-const renderTimeInput = (props: TimeInputProps): RenderResult =>
-  render(<TimeInput {...props} />);
+  cy.mount({
+    Component: <TimeInput {...props} onChange={mockChange} />
+  });
+
+  return mockChange;
+};
 
 describe('Time input', () => {
   it('updates the time value to 2040000 milliseconds value when "34" is typed in the input', () => {
-    renderTimeInput({
+    const mockChange = initialize({
       inputLabel: 'input',
       labels: { plural: labelMinutes, singular: labelMinute },
       name: 'input',
-      onChange: mockChange,
       timeValue: 0,
       unit: 'minutes'
     });
 
-    userEvent.click(screen.getByLabelText(`input ${labelMinute}`));
-    userEvent.click(screen.getByText('34'));
+    cy.findByLabelText(`input ${labelMinute}`).click();
+    cy.findByText('34').click();
 
-    expect(mockChange).toHaveBeenCalledWith(2040000);
+    cy.wrap(mockChange).should('have.been.calledWith', 2040000);
   });
 
   it('does not display options below the configured min value except 0', () => {
-    renderTimeInput({
+    initialize({
       inputLabel: 'input',
       labels: { plural: labelMinutes, singular: labelMinute },
       minOption: 2,
       name: 'input',
-      onChange: mockChange,
       timeValue: 0,
       unit: 'minutes'
     });
 
-    userEvent.click(screen.getByLabelText(`input ${labelMinute}`));
-
-    expect(screen.getAllByText('0')[0]).toBeInTheDocument();
-    expect(screen.queryByText('1')).not.toBeInTheDocument();
-    expect(screen.getByText('2')).toBeInTheDocument();
+    cy.findByLabelText(`input ${labelMinute}`).click();
+    cy.findAllByText('0').first().should('exist');
+    cy.findByText('1').should('not.exist');
+    cy.findByText('2').should('exist');
   });
 
   it('displays the label text in singular when the input value is 0', () => {
-    renderTimeInput({
+    initialize({
       inputLabel: 'input',
       labels: { plural: labelMinutes, singular: labelMinute },
       name: 'input',
-      onChange: mockChange,
       timeValue: 0,
       unit: 'minutes'
     });
 
-    expect(screen.getByText(labelMinute)).toBeInTheDocument();
+    cy.findByText(labelMinute).should('be.visible');
   });
 
   it('displays the label text in singular when the input value is 1', () => {
-    renderTimeInput({
+    initialize({
       inputLabel: 'input',
       labels: { plural: labelMinutes, singular: labelMinute },
       name: 'input',
-      onChange: mockChange,
       timeValue: 60000,
       unit: 'minutes'
     });
 
-    expect(screen.getByText(labelMinute)).toBeInTheDocument();
+    cy.findByText(labelMinute).should('be.visible');
   });
 
   it('displays the label text in plural when the input value is 2', () => {
-    renderTimeInput({
+    initialize({
       inputLabel: 'input',
       labels: { plural: labelMinutes, singular: labelMinute },
       name: 'input',
-      onChange: mockChange,
       timeValue: 120000,
       unit: 'minutes'
     });
 
-    expect(screen.getByText(labelMinutes)).toBeInTheDocument();
+    cy.findByText(labelMinutes).should('be.visible');
   });
 });
