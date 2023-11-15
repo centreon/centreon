@@ -18329,3 +18329,6 @@ msgstr "Erreur lors de la mise à jour d'un hôte"
 
 msgid "You are not allowed to edit a host"
 msgstr "Vous n'êtes pas autorisé à éditer un hôte"
+
+msgid "Refine filter"
+msgstr "Affiner le filtre"
