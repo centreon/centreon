@@ -75,6 +75,7 @@ sub new {
     };
 
     $self->{ievents} = [];
+    $self->{socket_reading} = 0;
     $self->{recursion_ievents} = 0;
 
     return $self;
@@ -761,20 +762,26 @@ sub router_internal_event {
     $self->{recursion_ievents}++;
     $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
 
-    while ($self->{internal_socket}->has_pollin()) {
-        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
-            socket => $self->{internal_socket},
-            logger => $self->{logger}
-        );
+    if ($self->{socket_reading} == 0) {
+        $self->{socket_reading} = 1;
 
-        next if (!defined($identity));
+        while ($self->{internal_socket}->has_pollin()) {
+            my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
+                socket => $self->{internal_socket},
+                logger => $self->{logger}
+            );
 
-        next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
+            next if (!defined($identity));
 
-        push(@{$self->{ievents}}, [$identity, $frame]);
+            next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
+
+            push(@{$self->{ievents}}, [$identity, $frame]);
+        }
+
+        $self->{socket_reading} = 0;
     }
 
-    if ($self->{recursion_ievents} > 10) {
+    if ($self->{recursion_ievents} > 1) {
         $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
         return;
     }
