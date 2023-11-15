@@ -38,8 +38,8 @@ class NewCommand
     /**
      * @param TrimmedString $name
      * @param TrimmedString $commandLine
-     * @param CommandType $type
      * @param bool $isShellEnabled
+     * @param CommandType $type
      * @param TrimmedString $argumentExample
      * @param Argument[] $arguments
      * @param NewCommandMacro[] $macros
@@ -51,8 +51,8 @@ class NewCommand
     public function __construct(
         private readonly TrimmedString $name,
         private readonly TrimmedString $commandLine,
-        private readonly CommandType $type = CommandType::Check,
         private readonly bool $isShellEnabled = false,
+        private readonly CommandType $type = CommandType::Check,
         private readonly TrimmedString $argumentExample = new TrimmedString(''),
         private readonly array $arguments = [],
         private readonly array $macros = [],

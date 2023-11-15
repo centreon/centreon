@@ -110,35 +110,33 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
     public function findByContact(ContactInterface $contact): array
     {
         $accessGroups = [];
-        if (! is_null($contactId = $contact->getId())) {
-            /**
-             * Retrieve all access group from contact
-             * and contact groups linked to contact.
-             */
-            $statement = $this->db->prepare(
-                "SELECT * FROM acl_groups
-                WHERE acl_group_activate = '1'
-                AND (
-                  acl_group_id IN (
-                    SELECT acl_group_id FROM acl_group_contacts_relations
-                    WHERE contact_contact_id = :contact_id
-                  )
-                  OR acl_group_id IN (
-                    SELECT acl_group_id FROM acl_group_contactgroups_relations agcr
-                    INNER JOIN contactgroup_contact_relation cgcr
-                      ON cgcr.contactgroup_cg_id = agcr.cg_cg_id
-                    WHERE cgcr.contact_contact_id = :contact_id
-                  )
-                )"
-            );
-            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
-            if ($statement->execute()) {
-                while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                    $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
-                }
-
-                return $accessGroups;
+        /**
+         * Retrieve all access group from contact
+         * and contact groups linked to contact.
+         */
+        $statement = $this->db->prepare(
+            "SELECT * FROM acl_groups
+            WHERE acl_group_activate = '1'
+            AND (
+              acl_group_id IN (
+                SELECT acl_group_id FROM acl_group_contacts_relations
+                WHERE contact_contact_id = :contact_id
+              )
+              OR acl_group_id IN (
+                SELECT acl_group_id FROM acl_group_contactgroups_relations agcr
+                INNER JOIN contactgroup_contact_relation cgcr
+                  ON cgcr.contactgroup_cg_id = agcr.cg_cg_id
+                WHERE cgcr.contact_contact_id = :contact_id
+              )
+            )"
+        );
+        $statement->bindValue(':contact_id', $contact->getId(), \PDO::PARAM_INT);
+        if ($statement->execute()) {
+            while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
             }
+
+            return $accessGroups;
         }
 
         return $accessGroups;

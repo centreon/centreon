@@ -50,7 +50,7 @@ class AddServiceGroupPresenter extends AbstractPresenter
     }
 
     /**
-     * @param CreatedResponse<AddServiceGroupResponse> $createdResponse
+     * @param CreatedResponse<mixed, AddServiceGroupResponse> $createdResponse
      * @param AddServiceGroupResponse $addServiceGroupResponse
      */
     private function presentCreatedPayload(

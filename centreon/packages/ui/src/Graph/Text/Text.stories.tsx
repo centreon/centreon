@@ -54,14 +54,14 @@ export const warning: Story = {
       critical: [
         {
           label: 'Critical',
-          value: 0.5
+          value: 1.5
         }
       ],
       enabled: true,
       warning: [
         {
           label: 'Warning',
-          value: 0.2
+          value: 0.4
         }
       ]
     }
@@ -80,14 +80,14 @@ export const critical: Story = {
       critical: [
         {
           label: 'Critical',
-          value: 0.35
+          value: 0.3
         }
       ],
       enabled: true,
       warning: [
         {
           label: 'Warning',
-          value: 0.13
+          value: 0.2
         }
       ]
     }

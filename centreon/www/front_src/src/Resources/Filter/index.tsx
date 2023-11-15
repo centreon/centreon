@@ -140,7 +140,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const SaveFilter = lazy(() => import('./Save'));
+const SaveFilter = lazy(() => import('./Edit/EditButton'));
 const SelectFilter = lazy(() => import('./Fields/SelectFilter'));
 const Criterias = lazy(() => import('./Criterias'));
 
@@ -500,7 +500,7 @@ const Filter = (): JSX.Element => {
 
     const updatedFilter =
       standardFilterById[filterId] ||
-      customFilters?.find(propEq('id', filterId));
+      customFilters?.find(propEq(filterId, 'id'));
 
     applyFilter(updatedFilter);
   };
@@ -529,7 +529,7 @@ const Filter = (): JSX.Element => {
   ];
 
   const canDisplaySelectedFilter = find(
-    propEq('id', currentFilter.id),
+    propEq(currentFilter.id, 'id'),
     options
   );
 

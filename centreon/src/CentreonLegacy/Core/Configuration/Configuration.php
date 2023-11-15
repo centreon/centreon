@@ -93,8 +93,6 @@ class Configuration
     /**
      * Locate all yml files in src/ModuleFolder/config/ and parse them to array.
      *
-     * @var string
-     *
      * @param string $moduleFolder
      *
      * @return array

@@ -26,7 +26,7 @@ namespace Core\Security\ProviderConfiguration\Domain\SAML\Exception;
 class MissingLogoutUrlException extends \DomainException
 {
     /**
-     * @return static
+     * @return self
      */
     public static function create(): self
     {

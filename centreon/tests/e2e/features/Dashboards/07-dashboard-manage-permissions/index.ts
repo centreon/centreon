@@ -58,7 +58,9 @@ Given(
     cy.getByTestId({ testId: 'role-input' })
       .eq(2)
       .should('contain.text', 'editor');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
     cy.waitUntilForDashboardRoles('edit-access-rights', 3);
   }
@@ -71,7 +73,9 @@ When(
     cy.getByTestId({ testId: 'role-input' }).eq(2).contains('viewer').click();
     cy.get('[role="listbox"]').contains('editor').click();
     cy.get('[data-state="updated"]').should('exist');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
   }
 );
 
@@ -115,7 +119,9 @@ When(
     cy.getByTestId({ testId: 'role-input' }).eq(2).click();
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.get('[data-state="updated"]').should('exist');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
   }
 );
 
@@ -159,7 +165,9 @@ When(
   () => {
     cy.getByTestId({ testId: 'remove_user' }).eq(1).click();
     cy.get('[data-state="removed"]').should('exist');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
   }
 );
 
@@ -198,7 +206,9 @@ Given(
     cy.getByTestId({ testId: 'role-input' })
       .eq(2)
       .should('contain.text', 'editor');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
     cy.waitUntilForDashboardRoles('edit-access-rights', 3);
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(

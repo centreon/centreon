@@ -100,7 +100,7 @@ const CreateFilterDialog = ({
         autoFocus
         ariaLabel={t(labelName) as string}
         disabled={isUpdatingFilter}
-        error={form.errors.name}
+        error={form.touched.name ? form.errors.name : undefined}
         label={t(labelName)}
         value={form.values.name}
         onChange={form.handleChange('name') as InputChangeEvent}

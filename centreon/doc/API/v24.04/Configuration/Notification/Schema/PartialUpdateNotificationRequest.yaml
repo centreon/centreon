@@ -1,0 +1,5 @@
+type: object
+required: []
+properties:
+  is_activated:
+    type: boolean

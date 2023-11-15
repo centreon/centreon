@@ -35,7 +35,6 @@ class License extends Module
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface
      * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
@@ -64,26 +63,5 @@ class License extends Module
         }
 
         return null;
-    }
-
-    /**
-     * Parsing a license file.
-     *
-     * @param type $licenseFile
-     *
-     * @return array
-     */
-    private function parseLicenseFile($licenseFile)
-    {
-        $info = [];
-
-        $lines = preg_split('/\n/', file_get_contents($licenseFile));
-        foreach ($lines as $line) {
-            if (preg_match('/^([^= ]+)\s*=\s*(.+)$/', $line, $match)) {
-                $info[$match[1]] = $match[2];
-            }
-        }
-
-        return $info;
     }
 }

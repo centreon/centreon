@@ -30,7 +30,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 
-class FindOpenIdConfigurationResponse
+final class FindOpenIdConfigurationResponse
 {
     /** @var bool */
     public bool $isActive = false;
@@ -93,7 +93,7 @@ class FindOpenIdConfigurationResponse
     public array $authenticationConditions = [];
 
     /**
-     * @var array{
+     * @var array{}|array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
      *  "endpoint": array{

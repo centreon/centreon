@@ -28,6 +28,7 @@ import {
 } from '../translatedLabels';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { Visualization } from '../models';
+import { resourcesEndpoint } from '../api/endpoint';
 
 import { labelOpenMoreFilters } from './criteriasNewInterface/translatedLabels';
 import useFilter from './useFilter';
@@ -391,6 +392,20 @@ describe('Custom filters', () => {
       response: emptyListData
     });
 
+    cy.interceptAPIRequest({
+      alias: 'getResources',
+      method: Method.GET,
+      path: `${resourcesEndpoint}**`,
+      response: {
+        meta: {
+          limit: 30,
+          page: 1,
+          total: 0
+        },
+        result: []
+      }
+    });
+
     cy.mount({
       Component: <FilterWithProvider />
     });
@@ -422,6 +437,20 @@ describe('Criterias', () => {
       method: Method.GET,
       path: '**/events-view*',
       response: emptyListData
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getResources',
+      method: Method.GET,
+      path: `${resourcesEndpoint}**`,
+      response: {
+        meta: {
+          limit: 30,
+          page: 1,
+          total: 0
+        },
+        result: []
+      }
     });
 
     const endpointByHostType = getListingEndpoint({
@@ -555,7 +584,7 @@ describe('Criterias', () => {
     cy.findByLabelText(labelSearchOptions).click();
 
     cy.findByLabelText('Host').should('not.exist');
-    cy.contains(labelUp).should('not.exist');
+    cy.findByText(labelUp, { exact: true }).should('not.exist');
 
     cy.makeSnapshot();
 
@@ -564,7 +593,7 @@ describe('Criterias', () => {
 
   BasicCriteriasParams.forEach(([label, data]) => {
     data.forEach((element) => {
-      const { criteria, value, type, requestToWait, searchValue } = element;
+      const { criteria, value, type, searchValue } = element;
 
       it(`executes a listing request with current search and selected ${criteria} criteria value when ${label} has changed`, () => {
         cy.findByPlaceholderText(labelSearch).clear();
@@ -576,7 +605,7 @@ describe('Criterias', () => {
 
         if (equals(type, Type.select)) {
           cy.findByLabelText(criteria).click();
-          cy.waitForRequest(requestToWait);
+          cy.waitForRequest('@getResources');
           cy.findByText(value).click();
           cy.findByPlaceholderText(labelSearch).should(
             'have.value',
@@ -616,6 +645,20 @@ describe('Keyboard actions', () => {
     });
 
     cy.interceptAPIRequest({
+      alias: 'getResources',
+      method: Method.GET,
+      path: `${resourcesEndpoint}**`,
+      response: {
+        meta: {
+          limit: 30,
+          page: 1,
+          total: 0
+        },
+        result: []
+      }
+    });
+
+    cy.interceptAPIRequest({
       alias: 'hostgroupsRequest',
       method: Method.GET,
       path: '**/hostgroups?*',
@@ -643,6 +686,8 @@ describe('Keyboard actions', () => {
   });
 
   it('accepts the selected autocomplete suggestion when the beginning of a criteria is input and the "enter" key is pressed', () => {
+    cy.waitForRequest('@getResources');
+
     const searchBar = cy.findByPlaceholderText(labelSearch);
 
     searchBar.clear();

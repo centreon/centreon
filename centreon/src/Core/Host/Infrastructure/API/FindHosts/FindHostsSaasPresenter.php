@@ -61,6 +61,8 @@ final class FindHostsSaasPresenter extends AbstractPresenter implements FindHost
                         fn (SimpleDto $template) => ['id' => $template->id, 'name' => $template->name],
                         $dto->templateParents
                     ),
+                    'normal_check_interval' => $dto->normalCheckInterval,
+                    'retry_check_interval' => $dto->retryCheckInterval,
                     'check_timeperiod' => $dto->checkTimeperiod !== null
                         ? [
                             'id' => $dto->checkTimeperiod->id,

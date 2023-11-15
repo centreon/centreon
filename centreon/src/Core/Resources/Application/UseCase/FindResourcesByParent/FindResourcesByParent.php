@@ -95,7 +95,7 @@ final class FindResourcesByParent
 
                     // unset search provided in order to find parents linked to the resources found and restore sort
                     $this->prepareRequestParametersForParentSearch();
-                    $parents = $this->findResourcesAsAdmin($parentFilter);
+                    $parents = $this->findParentResources($parentFilter);
                 }
             } else {
                 $children = $this->findResourcesAsUser($filter);
@@ -109,7 +109,7 @@ final class FindResourcesByParent
 
                     // unset search provided in order to find parents linked to the resources found and restore sort
                     $this->prepareRequestParametersForParentSearch();
-                    $parents = $this->findResourcesAsUser($parentFilter);
+                    $parents = $this->findParentResources($parentFilter);
                 }
             }
 
@@ -165,6 +165,18 @@ final class FindResourcesByParent
     {
         return FindResourcesFactory::createResponse(
             $this->repository->findResources($filter)
+        );
+    }
+
+    /**
+     * @param ResourceFilter $filter
+     *
+     * @return FindResourcesResponse
+     */
+    private function findParentResources(ResourceFilter $filter): FindResourcesResponse
+    {
+        return FindResourcesFactory::createResponse(
+            $this->repository->findParentResourcesById($filter)
         );
     }
 

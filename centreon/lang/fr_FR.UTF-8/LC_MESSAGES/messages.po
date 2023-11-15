@@ -8824,7 +8824,7 @@ msgstr "Macros"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:726
 msgid "Debug Level"
-msgstr "Niveau de débogage"
+msgstr "Niveau de debug"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:766
 msgid "Broker need options to be loaded"
@@ -15459,6 +15459,9 @@ msgstr "Sauvegarder le filtre"
 msgid "Save as new"
 msgstr "Créer un nouveau filtre"
 
+msgid "Save as"
+msgstr "Enregistrer sous"
+
 msgid "My filters"
 msgstr "Mes filtres"
 
@@ -18255,6 +18258,9 @@ msgstr "Sélection d'un jeu de données"
 msgid "Select resource"
 msgstr "Sélectionner une ressource"
 
+msgid "Select type"
+msgstr "Sélectionner un type"
+
 msgid "Select metric"
 msgstr "Sélectionner une métrique"
 
@@ -18290,3 +18296,36 @@ msgstr "Erreur lors de la récuparation d'une commande"
 
 msgid "Error while retrieving contact groups"
 msgstr "Erreur lors de la récupération des groupes de contacts"
+
+msgid "If you leave without saving your dashboard, changes will be permanently lost."
+msgstr "Si vous quittez sans enregistrer votre tableau de bord, les modifications seront définitivement perdues."
+
+msgid "You are not allowed to add media"
+msgstr "Vous n'êtes pas autorisé à ajouter des médias"
+
+msgid "Error while adding a media"
+msgstr "Erreur lors de l'ajout d'un média"
+
+msgid "File extension not authorized"
+msgstr "Extension de fichier non autorisée"
+
+msgid "Media already exists"
+msgstr "Le média existe déjà"
+
+msgid "You are not allowed to access graph templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
+
+msgid "Error while searching for graph templates"
+msgstr "Erreur lors de la recherche de modèles de graphique"
+
+msgid "You are not allowed to access connectors"
+msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
+
+msgid "Error while searching for connectors"
+msgstr "Erreur lors de la recherche de connecteurs"
+
+msgid "Error while updating a host"
+msgstr "Erreur lors de la mise à jour d'un hôte"
+
+msgid "You are not allowed to edit a host"
+msgstr "Vous n'êtes pas autorisé à éditer un hôte"

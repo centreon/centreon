@@ -298,6 +298,16 @@ class ModuleSource extends SourceAbstract
     }
 
     /**
+     * @codeCoverageIgnore
+     *
+     * @return string
+     */
+    protected function getPath(): string
+    {
+        return $this->path . static::PATH;
+    }
+
+    /**
      * Return the number actively used.
      *
      * @return int|null
@@ -370,9 +380,10 @@ class ModuleSource extends SourceAbstract
 
         foreach ($moduleDetails->getDependencies() as $dependency) {
             $dependencies[] = $dependency;
-
             $dependencyDetails = $this->getDetail($dependency);
-
+            if (! $dependencyDetails){
+                throw ModuleException::moduleIsMissing($dependency);
+            }
             $dependencies = array_unique([
                 ...$this->getSortedDependencies($dependencyDetails->getId(), $alreadyProcessed),
                 ...$dependencies,

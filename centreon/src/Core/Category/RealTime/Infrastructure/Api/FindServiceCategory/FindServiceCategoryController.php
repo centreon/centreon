@@ -26,7 +26,7 @@ namespace Core\Category\RealTime\Infrastructure\Api\FindServiceCategory;
 use Centreon\Application\Controller\AbstractController;
 use Core\Category\RealTime\Application\UseCase\FindServiceCategory\FindServiceCategory;
 
-class FindServiceCategoryController extends AbstractController
+final class FindServiceCategoryController extends AbstractController
 {
     /**
      * @param FindServiceCategory $useCase

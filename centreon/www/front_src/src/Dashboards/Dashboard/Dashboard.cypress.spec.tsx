@@ -54,7 +54,8 @@ import {
   labelDuplicate,
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
-  labelInterval
+  labelInterval,
+  labelUnsavedChanges
 } from './translatedLabels';
 import { Dashboard } from './Dashboard';
 import { dashboardAtom } from './atoms';
@@ -297,6 +298,33 @@ describe('Dashboard', () => {
     });
   });
 
+  it('displays a warning message indicating unsaved changes in the dashboard when updating it', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.findByLabelText(labelEditDashboard).click();
+    cy.findByLabelText(labelAddAWidget).click();
+
+    cy.findByLabelText(labelWidgetType).click();
+    cy.contains('Generic input (example)').click();
+
+    cy.findByLabelText(labelTitle).type('Generic input');
+    cy.findByLabelText('Generic text').type('Text for the new widget');
+
+    cy.findAllByLabelText(labelSave).eq(1).click();
+
+    cy.contains(labelUnsavedChanges).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.contains(labelUnsavedChanges).should('not.exist');
+
+    cy.findByLabelText(labelEditDashboard).should('be.visible');
+  });
+
   describe('Add widget', () => {
     it('adds a widget when a widget type is selected and the submission button is clicked', () => {
       initializeAndMount(editorRoles);
@@ -376,22 +404,20 @@ describe('Dashboard', () => {
   });
 
   describe('View mode', () => {
-    it('displays the widget form in view mode when the user has editor role and the user is not editing the dashboard', () => {
+    it('displays the widget form in editor mode when the user has editor role and the user is not editing the dashboard', () => {
       initializeAndMount(editorRoles);
 
       cy.contains(labelCancel).click();
 
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
 
-      cy.findByLabelText(labelViewProperties).click();
+      cy.findByLabelText(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetType).should('be.disabled');
-      cy.findByLabelText(labelCancel).should('not.exist');
-      cy.findByLabelText(labelSave).should('not.exist');
+      cy.findByLabelText(labelWidgetType).should('be.enabled');
 
       cy.findByLabelText('close').click();
 
-      cy.findByLabelText(labelWidgetType).should('not.exist');
+      cy.findByLabelText(labelWidgetType).should('exist');
 
       cy.makeSnapshot();
     });
@@ -470,14 +496,16 @@ describe('Dashboard', () => {
     });
   });
 
-  it('displays the title and the description in the panel', () => {
+  it.only('displays the title and the description in the panel', () => {
     initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
 
     cy.contains('Generic text').should('be.visible');
     cy.contains('Description').should('be.visible');
   });
 
-  it.only('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
+  it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
     initializeAndMount(editorRoles);
 
     cy.waitForRequest('@getDashboardDetails');

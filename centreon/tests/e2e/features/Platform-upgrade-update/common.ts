@@ -65,7 +65,7 @@ EOF`,
     const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
     [...stdout.matchAll(versionsRegex)].forEach((result) => {
-      cy.log(`available version found : ${majorVersion}.${result[1]}`);
+      cy.log(`available version found: ${majorVersion}.${result[1]}`);
       stableVersions.push(Number(result[1]));
     });
 
@@ -312,10 +312,11 @@ When('administrator runs the update procedure', () => {
     cy.get('.btc.bt_info').should('be.visible').click();
   });
 
-  cy.wait('@getStep3')
-    .get('.btc.bt_info', { timeout: 15000 })
-    .should('be.visible')
-    .click();
+  cy.wait('@getStep3');
+  cy.contains('Release notes');
+  cy.get('#next', { timeout: 15000 }).should('not.be.enabled');
+  // button is disabled during 3s in order to read documentation
+  cy.get('#next', { timeout: 15000 }).should('be.enabled').click();
 
   cy.wait('@generatingCache')
     .get('span[style]', { timeout: 15000 })

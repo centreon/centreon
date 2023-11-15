@@ -28,7 +28,7 @@ use CentreonLegacy\ServiceProvider;
  */
 class Factory
 {
-    /** @var Pimple\Container */
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
     
     /**

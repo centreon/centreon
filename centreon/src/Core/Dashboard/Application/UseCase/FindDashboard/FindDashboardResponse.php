@@ -28,29 +28,30 @@ use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class FindDashboardResponse
 {
-    /**
-     * @param int $id
-     * @param string $name
-     * @param string $description
-     * @param UserResponseDto|null $createdBy
-     * @param UserResponseDto|null $updatedBy
-     * @param \DateTimeImmutable $createdAt
-     * @param \DateTimeImmutable $updatedAt
-     * @param array<PanelResponseDto> $panels
-     * @param DashboardSharingRole $ownRole
-     * @param RefreshResponseDto $refresh
-     */
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public string $description = '',
-        public ?UserResponseDto $createdBy = null,
-        public ?UserResponseDto $updatedBy = null,
-        public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-        public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
-        public array $panels = [],
-        public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
-        public RefreshResponseDto $refresh = new RefreshResponseDto(),
-    ) {
+    public int $id = 0;
+
+    public string $name = '';
+
+    public string $description = '';
+
+    public ?UserResponseDto $createdBy = null;
+
+    public ?UserResponseDto $updatedBy = null;
+
+    public \DateTimeImmutable $createdAt;
+
+    public \DateTimeImmutable $updatedAt;
+
+    /** @var array<PanelResponseDto> */
+    public array $panels = [];
+
+    public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer;
+
+    public RefreshResponseDto $refresh;
+
+    public function __construct() {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->refresh = new RefreshResponseDto();
     }
 }

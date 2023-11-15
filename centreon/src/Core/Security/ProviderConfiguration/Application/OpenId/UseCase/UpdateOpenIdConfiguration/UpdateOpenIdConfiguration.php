@@ -406,10 +406,13 @@ class UpdateOpenIdConfiguration
         foreach ($foundContactGroups as $foundAccessGroup) {
             $foundContactGroupsId[] = $foundAccessGroup->getId();
         }
-        $nonExistentAccessGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
-        $this->error('Access groups not found', [
-            'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
-        ]);
+        $nonExistentContactGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
+
+        if (! empty($nonExistentContactGroupsIds)) {
+            $this->error('Contact groups not found', [
+                'contact_group_ids' => implode(', ', $nonExistentContactGroupsIds),
+            ]);
+        }
     }
 
     /**

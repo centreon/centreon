@@ -12,7 +12,6 @@ import {
   not,
   pathEq,
   pathOr,
-  pipe,
   prop
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -59,7 +58,6 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-import { escapeRegExpSpecialChars } from '../../Filter/criteriasNewInterface/utils';
 
 import { Search } from './models';
 
@@ -75,7 +73,7 @@ const useLoadResources = (): LoadResources => {
 
   const { sendRequest, sending } = useRequest<ResourceListing>({
     getErrorMessage: ifElse(
-      pathEq(['response', 'status'], 404),
+      pathEq(404, ['response', 'status']),
       always(t(labelNoResourceFound)),
       pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
@@ -85,7 +83,7 @@ const useLoadResources = (): LoadResources => {
   const { sendRequest: sendLoadDetailsRequest, sending: sendingDetails } =
     useRequest<ResourceDetails>({
       getErrorMessage: ifElse(
-        pathEq(['response', 'status'], 404),
+        pathEq(404, ['response', 'status']),
         always(t(labelNoResourceFound)),
         pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
       ),
@@ -209,9 +207,7 @@ const useLoadResources = (): LoadResources => {
         | Array<SelectEntry>
         | undefined;
 
-      return (criteriaValue || []).map(
-        pipe(prop('name'), escapeRegExpSpecialChars)
-      ) as Array<string>;
+      return (criteriaValue || []).map(prop('name')) as Array<string>;
     };
 
     const getCriteriaLevels = (name: string): Array<number> => {
