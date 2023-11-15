@@ -366,7 +366,7 @@ const columnsWithSubItems = [
   }
 ];
 
-const TemplateSubItems = (args) => {
+const TemplateSubItems = (args): JSX.Element => {
   const { classes } = useStyles();
 
   return (
