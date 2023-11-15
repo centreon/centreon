@@ -74,6 +74,7 @@ sub new {
         'POST_/internal/logger' => 'BCASTLOGGER',
     };
 
+    $self->{ievents} = [];
     $self->{recursion_ievents} = 0;
 
     return $self;
@@ -757,11 +758,6 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    if ($self->{recursion_ievents} > 10) {
-        $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
-        return;
-    }
-
     $self->{recursion_ievents}++;
     $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
 
@@ -775,16 +771,25 @@ sub router_internal_event {
 
         next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
 
+        push(@{$self->{ievents}}, [$identity, $frame]);
+    }
+
+    if ($self->{recursion_ievents} > 1) {
+        $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
+        return;
+    }
+
+    while (my $event = shift(@{$self->{ievents}})) {
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
-                frame       => $frame,
-                identity    => $identity,
+                frame       => $event->[1],
+                identity    => $event->[0],
                 router_type => 'internal'
             }
         );
 
         $self->send_internal_response(
-            identity      => $identity,
+            identity      => $event->[0],
             response_type => $response_type,
             data          => $response,
             code          => $code,
