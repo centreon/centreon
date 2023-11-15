@@ -196,7 +196,9 @@ jobs:
               }
           }'
 
-          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate_xray_token.outputs.xray_token}}" --data "$xray_graphql_createTestExecution" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+          echo "this is the graphql mutation : $xray_graphql_createTestExecution"
+
+          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate_xray_token.outputs.xray_token}}" --data "$xray_graphql_createTestExecution" "https://xray.cloud.getxray.app/api/v2/graphql")
 
           echo "Response from Create Test Execution:"
           echo "$response"
