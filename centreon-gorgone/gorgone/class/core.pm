@@ -758,15 +758,14 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    $self->{recursion_ievents}++;
-    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-
     # There are two watchers : timer and io
-    if ($self->{recursion_ievents} > 2) {
+    if ($self->{recursion_ievents} == 2) {
         $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
-        $self->{recursion_ievents}--;
         return;
     }
+
+    $self->{recursion_ievents}++;
+    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
 
     while ($self->{internal_socket}->has_pollin()) {
         my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
