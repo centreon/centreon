@@ -209,10 +209,9 @@ jobs:
           password: ${{ secrets.XRAY_CLIENT_SECRET }}
           testFormat: "cucumber"
           testPaths: "${{ inputs.name }}-json-xray-reports/**/*.json"
+          testExecKey: ${{ inputs.test_execution_key }}
           projectKey: "MON"
           testPlanKey: ${{ inputs.test_plan_key }}
-          combineInSingleTestExec: true
-          testExecKey: ${{ inputs.test_execution_key }}
         timeout-minutes: 10
 
       # - name: Get TestExecution ID
