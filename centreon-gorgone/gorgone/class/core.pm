@@ -592,7 +592,6 @@ sub send_internal_message {
 
     $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
     $self->{internal_socket}->send($message, ZMQ_DONTWAIT);
-    $self->router_internal_event() if (!defined($options{nosync}));
 }
 
 sub broadcast_run {
@@ -758,8 +757,7 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    # There are two watchers : timer and io
-    if ($self->{recursion_ievents} == 2) {
+    if ($self->{recursion_ievents} == 1) {
         $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
         return;
     }
