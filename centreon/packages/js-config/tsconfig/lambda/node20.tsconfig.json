@@ -1,5 +1,5 @@
 {
-    "extends": "@tsconfig/node18/tsconfig.json",
+    "extends": "@tsconfig/node20/tsconfig.json",
     "compilerOptions": {
         "sourceMap": true,
         "allowJs": true,
@@ -7,9 +7,6 @@
         "declaration": false,
         "esModuleInterop": true,
         "strict": true,
-        "types": [
-            "@types/jest",
-            "node"
-        ]
+        "types": ["@types/jest", "node"]
     }
 }
