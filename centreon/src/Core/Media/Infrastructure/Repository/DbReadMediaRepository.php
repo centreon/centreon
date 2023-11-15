@@ -23,7 +23,10 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
@@ -77,24 +80,16 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     }
 
     /**
-     * @inheritDoc
+     * To avoid loading all database elements at once, this iterator allows you to retrieve them in blocks of
+     *  MAX_ITEMS_BY_REQUEST elements.
+     *
+     * {@inheritDoc}
      */
     public function findAll(): \Iterator&\Countable
     {
-        return $this->findAllByIteration();
-    }
-
-    /**
-     * To avoid loading all database elements at once, this iterator allows you to retrieve them in blocks of
-     * MAX_ITEMS_BY_REQUEST elements.
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    private function findAllByIteration(): \Iterator&\Countable
-    {
         $this->logger->debug(sprintf('Loading media in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
 
-        return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createMedia(), $this->logger)
+        return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createMedia(...), $this->logger)
             extends AbstractRepositoryRDB
             implements \Iterator, \Countable
         {
@@ -243,20 +238,159 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     }
 
     /**
-     * @return callable
+     * @inheritDoc
      */
-    private function createMedia(): callable
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Countable&\Iterator
     {
-        return function (array $data) {
-            $media = new Media(
-                $data['img_id'],
-                $data['img_path'],
-                $data['dir_name'],
-                null
-            );
-            $media->setComment($data['img_comment']);
+        return new class ($this->db, $this->createMedia(...), $requestParameters) extends AbstractRepositoryRDB
+            implements \Iterator, \Countable
+        {
+            private int $currentPosition = 0;
 
-            return $media;
+            private int $totalItems = -1;
+
+            /** @var array<string, int|string>|false */
+            private array|false $currentItem = false;
+
+            private \PDOStatement $statement;
+
+            /**
+             * @param DatabaseConnection $db
+             * @param \Closure(array<string, int|string>):Media $createMedia
+             * @param RequestParametersInterface $requestParameters
+             *
+             * @throws \Exception
+             */
+            public function __construct(
+                DatabaseConnection $db,
+                readonly private \Closure $createMedia,
+                readonly private RequestParametersInterface $requestParameters,
+            ) {
+                $this->db = $db;
+            }
+
+            /**
+             * @throws \Exception
+             *
+             * @return Media
+             */
+            public function current(): mixed
+            {
+                if (! $this->currentItem) {
+                    throw new \Exception('End of fetch data');
+                }
+
+                return ($this->createMedia)($this->currentItem);
+            }
+
+            public function next(): void
+            {
+                $this->currentPosition++;
+
+                /** @var array<string, int|string>|false $data */
+                $data = $this->statement->fetch();
+                $this->currentItem = $data;
+
+                if ($data === false && $this->valid()) {
+                    // There are still some items to be retrieved from the database
+                    $this->load();
+                }
+            }
+
+            public function key(): int
+            {
+                return $this->currentPosition;
+            }
+
+            public function valid(): bool
+            {
+                return $this->currentPosition < $this->totalItems && $this->currentItem !== false;
+            }
+
+            public function rewind(): void
+            {
+                $this->currentPosition = 0;
+                $this->totalItems = 0;
+                $this->load();
+            }
+
+            public function count(): int
+            {
+                if ($this->totalItems < 0) {
+                    $this->load();
+                }
+
+                return $this->totalItems;
+            }
+
+            private function load(): void
+            {
+                $sqlTranslator = new SqlRequestParametersTranslator($this->requestParameters);
+                $sqlTranslator->setConcordanceArray([
+                    'id' => 'img_id',
+                    'filename' => 'img_path',
+                    'directory' => 'dir_name',
+                ]);
+                $request = <<<'SQL'
+                    SELECT SQL_CALC_FOUND_ROWS
+                        `img`.img_id,
+                        `img`.img_path,
+                        `img`.img_comment,
+                        `dir`.dir_name
+                    FROM `:db`.`view_img` img
+                    INNER JOIN `:db`.`view_img_dir_relation` rel
+                        ON rel.img_img_id = img.img_id
+                    INNER JOIN `:db`.`view_img_dir` dir
+                        ON dir.dir_id = rel.dir_dir_parent_id
+                    SQL;
+
+                $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+                if ($searchRequest !== null) {
+                    $request .= $searchRequest;
+                }
+
+                // Handle sort
+                $sortRequest = $sqlTranslator->translateSortParameterToSql();
+                $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
+                $request .= $sqlTranslator->translatePaginationToSql();
+                $this->statement = $this->db->prepare($this->translateDbName($request));
+
+                foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+                    /** @var int $type */
+                    $type = key($data);
+                    $value = $data[$type];
+                    $this->statement->bindValue($key, $value, $type);
+                }
+                $this->statement->setFetchMode(\PDO::FETCH_ASSOC);
+                $this->statement->execute();
+                $result = $this->db->query('SELECT FOUND_ROWS()');
+
+                if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                    $this->totalItems = (int) $total;
+                    $sqlTranslator->getRequestParameters()->setTotal($this->totalItems);
+                }
+                /** @var array<string, int|string>|false $data */
+                $data = $this->statement->fetch();
+                $this->currentItem = $data;
+            }
         };
+    }
+
+    /**
+     * @param array<string, int|string> $data
+     *
+     * @throws AssertionFailedException
+     *
+     * @return Media
+     */
+    private function createMedia(array $data): Media
+    {
+        return new Media(
+            (int) $data['img_id'],
+            (string) $data['img_path'],
+            (string) $data['dir_name'],
+            (string) $data['img_comment'],
+            null
+        );
     }
 }

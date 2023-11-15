@@ -46,8 +46,11 @@ class NewMedia
         $this->directory = str_replace(' ', '', $this->directory);
         Assertion::notEmptyString($this->directory, "{$className}::directory");
         Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', "{$className}::directory");
-        $this->data = trim($this->data);
-        Assertion::notEmptyString($this->data, "{$className}::data");
+    }
+
+    public function setFilename(string $filename): void
+    {
+        $this->filename = $filename;
     }
 
     public function getFilename(): string
@@ -55,9 +58,19 @@ class NewMedia
         return $this->filename;
     }
 
+    public function setDirectory(string $directory): void
+    {
+        $this->directory = $directory;
+    }
+
     public function getDirectory(): string
     {
         return $this->directory;
+    }
+
+    public function setData(string $data): void
+    {
+        $this->data = $data;
     }
 
     public function getData(): string
@@ -87,10 +100,15 @@ class NewMedia
         $newMedia = new self(
             $media->getFilename(),
             $media->getDirectory(),
-            $media->getData() ?? 'fake_data',
+            $media->getData() ?? '',
         );
         $newMedia->setComment($media->getComment());
 
         return $newMedia;
+    }
+
+    public function hash(): string
+    {
+        return md5($this->data);
     }
 }

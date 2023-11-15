@@ -30,21 +30,21 @@ class Media
 {
     private string $className;
 
-    private ?string $comment = null;
-
     /**
      * @param int $id
      * @param string $filename
      * @param string $directory
+     * @param string|null $comment
      * @param string|null $data
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function __construct(
         readonly private int $id,
         private string $filename,
         private string $directory,
-        private ?string $data
+        private ?string $comment,
+        readonly private ?string $data
     ) {
         $this->className = (new \ReflectionClass($this))->getShortName();
         Assertion::positiveInt($this->id, "{$this->className}::id");
@@ -53,11 +53,10 @@ class Media
         $this->filename = str_replace(' ', '_', $this->filename);
         $this->directory = str_replace(' ', '', $this->directory);
         Assertion::notEmptyString($this->directory, "{$this->className}::directory");
-        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', "{$this->className}::directory");
-        if ($this->data !== null) {
-            $this->data = trim($this->data);
-            Assertion::notEmptyString($this->data, "{$this->className}::data");
+        if ($this->comment !== null) {
+            $this->comment = trim($this->comment);
         }
+        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', "{$this->className}::directory");
     }
 
     public function getId(): int
@@ -65,19 +64,9 @@ class Media
         return $this->id;
     }
 
-    public function setFilename(string $filename): void
-    {
-        $this->filename = $filename;
-    }
-
     public function getFilename(): string
     {
         return $this->filename;
-    }
-
-    public function setDirectory(string $directory): void
-    {
-        $this->directory = $directory;
     }
 
     public function getDirectory(): string
@@ -85,26 +74,9 @@ class Media
         return $this->directory;
     }
 
-    /**
-     * @param string $data
-     *
-     * @throws AssertionFailedException
-     */
-    public function setData(string $data): void
-    {
-        $data = trim($data);
-        Assertion::notEmptyString($data, "{$this->className}::data");
-        $this->data = $data;
-    }
-
     public function getData(): ?string
     {
         return $this->data;
-    }
-
-    public function setComment(?string $comment): void
-    {
-        $this->comment = $comment !== null ? trim($comment) : null;
     }
 
     public function getComment(): ?string
@@ -118,5 +90,10 @@ class Media
     public function getRelativePath(): string
     {
         return $this->directory . DIRECTORY_SEPARATOR . $this->filename;
+    }
+
+    public function hash(): ?string
+    {
+        return $this->data !== null ? md5($this->data) : null;
     }
 }

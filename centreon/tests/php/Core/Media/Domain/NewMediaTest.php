@@ -52,13 +52,6 @@ it('should throw an exception when the directory property is empty', function ()
     AssertionException::notEmptyString('NewMedia::directory')->getMessage()
 );
 
-it('should throw an exception when the data property is empty', function (): void {
-    ($this->createMedia)(['data' => '']);
-})->throws(
-    \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('NewMedia::data')->getMessage()
-);
-
 it('should replace space characters by \'_\' in the filename property', function (): void {
     $newMedia = ($this->createMedia)(['filename' => ' new filename.jpg ']);
     expect($newMedia->getFilename())->toBe('new_filename.jpg');

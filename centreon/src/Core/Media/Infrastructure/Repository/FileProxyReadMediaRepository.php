@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 
@@ -60,7 +61,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
         {
             /**
              * @param string $absoluteMediaPath
-             * @param \Iterator<int, Media>&\Countable $medias |\Countable
+             * @param \Iterator<int, Media>&\Countable $medias
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
@@ -70,10 +71,15 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
 
             public function current(): Media
             {
+                /** @var Media $media */
                 $media = $this->medias->current();
                 $absoluteMediaPath = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $media->getRelativePath();
                 if (file_exists($absoluteMediaPath)) {
-                    $media->setData(
+                    return new Media(
+                        $media->getId(),
+                        $media->getFilename(),
+                        $media->getDirectory(),
+                        $media->getComment(),
                         file_get_contents($absoluteMediaPath)
                             ?: throw new \Exception('Impossible to get content of file ' . $media->getRelativePath())
                     );
@@ -105,6 +111,75 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
             public function count(): int
             {
                 return $this->medias->count();
+            }
+        };
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Iterator&\Countable
+    {
+        return $this->createMediaIterator($this->dbReadMediaRepository->findByRequestParameters($requestParameters));
+    }
+
+    private function createMediaIterator(\Iterator&\Countable $iterator): \Iterator&\Countable
+    {
+        return new class ($this->absoluteMediaPath, $iterator)
+            implements \Iterator, \Countable
+        {
+            /**
+             * @param string $absoluteMediaPath
+             * @param \Iterator<int, Media>&\Countable $medias |\Countable
+             */
+            public function __construct(
+                readonly private string $absoluteMediaPath,
+                readonly private \Iterator&\Countable $medias
+            ) {
+            }
+
+            public function current(): Media
+            {
+                /** @var Media $media */
+                $media = $this->medias->current();
+                $absoluteMediaPath = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $media->getRelativePath();
+                if (file_exists($absoluteMediaPath)) {
+                    return new Media(
+                        $media->getId(),
+                        $media->getFilename(),
+                        $media->getDirectory(),
+                        $media->getComment(),
+                        file_get_contents($absoluteMediaPath)
+                            ?: throw new \Exception('Impossible to get content of file ' . $media->getRelativePath())
+                    );
+                }
+
+                return $media;
+            }
+
+            public function next(): void
+            {
+                $this->medias->next();
+            }
+
+            public function key(): int
+            {
+                return $this->medias->key();
+            }
+
+            public function valid(): bool
+            {
+                return $this->medias->valid();
+            }
+
+            public function rewind(): void
+            {
+                $this->medias->rewind();
+            }
+
+            public function count(): int
+            {
+                return count($this->medias);
             }
         };
     }
