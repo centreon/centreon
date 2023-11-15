@@ -18,5 +18,5 @@ jobs:
         with:
           frontend_directory: ${{ env.directory }}
           dependencies_lock_file: centreon/pnpm-lock.yaml
-          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           project_token: ${{ secrets.CHROMATIC }}
