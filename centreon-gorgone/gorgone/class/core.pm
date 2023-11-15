@@ -1237,9 +1237,6 @@ sub check_exit_modules {
 }
 
 sub periodic_exec {
-    my ($watcher, $revents) = @_;
-    $watcher->stop();
-
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
     $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from periodic_exec");
@@ -1249,8 +1246,6 @@ sub periodic_exec {
         $gorgone->{logger}->writeLogDebug("[core] Calling router_external_event from periodic_exec");
         $gorgone->router_external_event();
     }
-
-    $watcher->start();
 }
 
 sub run {
@@ -1335,16 +1330,9 @@ sub run {
     $gorgone->{watcher_timer} = $gorgone->{loop}->timer(5, 5, \&periodic_exec);
 
     $gorgone->{watcher_io_internal} = $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub {
-        $gorgone->{watcher_timer}->again();
-
-        my ($watcher, $revents) = @_;
-        $watcher->stop();
-
         $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
         $gorgone->router_internal_event();
         $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from watcher_io_internal");
-
-        $watcher->start();
     });
     if (defined($gorgone->{external_socket})) {
         $gorgone->{watcher_io_external} = $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub {
