@@ -18336,12 +18336,6 @@ msgstr "Le jeton ne peut pas être vide"
 msgid "This operation requires an admin user"
 msgstr "Cette opération requiert un utilisateur admin"
 
-msgid "The token cannot be empty"
-msgstr "Le jeton ne peut pas être vide"
-
-msgid "This operation requires an admin user"
-msgstr "Cette opération requiert un utilisateur admin"
-
 msgid "Huge"
 msgstr "Très grande"
 
