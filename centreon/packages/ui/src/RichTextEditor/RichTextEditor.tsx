@@ -94,9 +94,14 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
       lineHeight: theme.typography.h5.lineHeight
     },
     h6: {
-      fontSize: theme.typography.h6.fontSize,
-      fontWeight: theme.typography.h6.fontWeight,
-      lineHeight: theme.typography.h6.lineHeight
+      fontSize: theme.typography.body2.fontSize,
+      fontWeight: theme.typography.body2.fontWeight,
+      lineHeight: theme.typography.body2.lineHeight
+    },
+    paragraph : {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: theme.typography.body1.fontWeight,
+      lineHeight: theme.typography.body1.lineHeight
     },
     italic: {
       fontStyle: 'italic'
@@ -156,6 +161,7 @@ const RichTextEditor = ({
     nodes: [AutoLinkNode, LinkNode, HeadingNode, ListNode, ListItemNode],
     onError,
     theme: {
+      paragraph : classes.paragraph ,
       heading: {
         h1: classes.h1,
         h2: classes.h2,
