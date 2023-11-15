@@ -77,7 +77,7 @@ jobs:
   pipeline-scan:
     needs: [build]
     name: Run a pipeline scan
-    runs-on: [self-hosted, veracode]
+    runs-on: [self-hosted, common]
 
     steps:
       - name: Get build binary
@@ -89,6 +89,13 @@ jobs:
 
       - name: Get baseline files
         run: |
+          set -e
+          # Install aws cli
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          sudo unzip -q awscliv2.zip
+          sudo ./aws/install
+
+          # Find baseline file
           baseline_file_path=""
           create_baseline_from=""
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}"
