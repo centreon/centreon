@@ -78,7 +78,7 @@ class ProxyRepositoryRDB extends AbstractRepositoryDRB implements ProxyRepositor
             $proxyDetails = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
             if (!empty($proxyDetails)) {
                 $proxy->setUrl($proxyDetails['proxy_url'] ?? null);
-                $proxy->setPort(((int) $proxyDetails['proxy_port']) ?? null);
+                $proxy->setPort(isset($proxyDetails['proxy_port']) ? (int) $proxyDetails['proxy_port'] : null);
                 $proxy->setUser($proxyDetails['proxy_user'] ?? null);
                 $proxy->setPassword($proxyDetails['proxy_password'] ?? null);
             }

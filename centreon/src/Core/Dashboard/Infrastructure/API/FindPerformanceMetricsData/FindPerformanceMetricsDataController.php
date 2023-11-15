@@ -88,10 +88,6 @@ final class FindPerformanceMetricsDataController extends AbstractController
             throw new \InvalidArgumentException('Invalid parameters format');
         }
 
-        if (! is_array($metricNames) || [] === $metricNames)  {
-            throw new \InvalidArgumentException('Invalid metric names provided');
-        }
-
         $sanitizedMetricNames = [];
         foreach ($metricNames as $metricName) {
             $metricName = \trim($metricName, '"');
