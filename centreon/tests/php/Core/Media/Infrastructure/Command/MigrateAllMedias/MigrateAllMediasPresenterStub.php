@@ -21,27 +21,18 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\Repository;
+namespace Tests\Core\Media\Infrastructure\Command\MigrateAllMedias;
 
-use Core\Media\Domain\Model\Media;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMediasPresenterInterface;
+use Core\Media\Application\UseCase\MigrateAllMedias\MigrationAllMediasResponse;
 
-interface ReadMediaRepositoryInterface
+class MigrateAllMediasPresenterStub implements MigrateAllMediasPresenterInterface
 {
-    /**
-     * Indicates whether the media exists using its path.
-     *
-     * @param string $path (ex: /logos/centreon_logo.png)
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function existsByPath(string $path): bool;
+    public ResponseStatusInterface|MigrationAllMediasResponse $response;
 
-    /**
-     * @throws \Throwable
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    public function findAll(): \Iterator&\Countable;
+    public function presentResponse(MigrationAllMediasResponse|ResponseStatusInterface $response): void
+    {
+        $this->response = $response;
+    }
 }
