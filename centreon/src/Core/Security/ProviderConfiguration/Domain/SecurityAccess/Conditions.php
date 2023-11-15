@@ -31,7 +31,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
  * Configured conditions must be satisfied to be authorized.
@@ -44,7 +43,6 @@ class Conditions implements SecurityAccessInterface
 
     public function __construct(
         private readonly LoginLoggerInterface $loginLogger,
-        private readonly AttributePathFetcher $attributePathFetcher
     ) {
     }
 

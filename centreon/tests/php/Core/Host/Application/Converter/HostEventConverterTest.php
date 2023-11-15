@@ -45,6 +45,12 @@ it('remove duplicates when converting to legacy string', function (): void {
     expect($events)->toBe('d,u');
 });
 
+it('ignore unknown symbols when converting to legacy string', function (): void {
+    $events = HostEventConverter::fromString('d,x,y,z,foo,bar,u');
+
+    expect($events)->toBe([HostEvent::Down, HostEvent::Unreachable]);
+});
+
 it('throw an error when bitmask is invalid', function (): void {
     $events = HostEventConverter::fromBitFlag(HostEventConverter::MAX_BITFLAG | 0b100000);
 })->throws(

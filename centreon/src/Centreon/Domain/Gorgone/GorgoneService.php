@@ -38,10 +38,6 @@ use Centreon\Infrastructure\Gorgone\CommandRepositoryException;
 class GorgoneService implements GorgoneServiceInterface
 {
     /**
-     * @var ResponseRepositoryInterface
-     */
-    private $responseRepository;
-    /**
      * @var CommandRepositoryInterface
      */
     private $commandRepository;
@@ -54,7 +50,6 @@ class GorgoneService implements GorgoneServiceInterface
         ResponseRepositoryInterface $responseRepository,
         CommandRepositoryInterface $commandRepository
     ) {
-        $this->responseRepository = $responseRepository;
         $this->commandRepository = $commandRepository;
         Response::setRepository($responseRepository);
     }

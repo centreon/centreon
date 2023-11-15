@@ -7,15 +7,7 @@ import {
 } from '../common';
 
 beforeEach(() => {
-  cy.getWebVersion().then(({ major_version, minor_version }) => {
-    if (minor_version === '0') {
-      cy.log(
-        `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
-      );
-
-      return Cypress.runner.stop();
-    }
-
+  cy.getWebVersion().then(({ major_version }) => {
     cy.intercept({
       method: 'GET',
       url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -99,13 +91,13 @@ beforeEach(() => {
 Given(
   'a running platform in {string} version',
   (version_from_expression: string) => {
-    cy.getWebVersion().then(({ major_version, minor_version }) => {
+    return cy.getWebVersion().then(({ major_version, minor_version }) => {
       if (minor_version === '0') {
         cy.log(
           `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
         );
 
-        return Cypress.runner.stop();
+        return cy.wrap('skipped');
       }
 
       return getCentreonStableMinorVersions(major_version).then(
@@ -113,7 +105,7 @@ Given(
           if (stable_minor_versions.length === 0) {
             cy.log(`centreon web is currently not available as stable`);
 
-            return Cypress.runner.stop();
+            return cy.wrap('skipped');
           }
           let minor_version_index = 0;
           if (version_from_expression === 'first minor') {
@@ -135,7 +127,7 @@ Given(
             if (minor_version_index <= 0) {
               cy.log(`Not needed to test ${version_from_expression} version.`);
 
-              return Cypress.runner.stop();
+              return cy.wrap('skipped');
             }
           }
 
@@ -157,5 +149,5 @@ Given(
 );
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.visitEmptyPage().stopContainer({ name: Cypress.env('dockerName') });
 });
