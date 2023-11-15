@@ -334,6 +334,7 @@ sub routing {
             token => $options{token},
             target => $target_complete
         );
+        $options{gorgone}->router_internal_event();
     }
 }
 
