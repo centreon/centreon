@@ -196,6 +196,11 @@ jobs:
       #     major_version: ${{ inputs.major_version }}
       #     xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
 
+      - name: Keys
+        run: |
+          echo "The Test Execution KEY : ${{ inputs.test_execution_key }}"
+          echo "The Test Plan KEY: ${{ inputs.test_plan_key }}"
+
       - name: Import results to xray
         id: import-reports
         uses: mikepenz/xray-action@v3.0.2
@@ -213,12 +218,12 @@ jobs:
       # - name: Get TestExecution ID
       #   id: get-testExecution-id
       #   run: |
-        #   jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
+      #   jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.import-reports.outputs.testExecKey }}"
 
-        #   testExecution_id=$(curl -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X GET -s "$jira_url" | jq -r '.id')
-        #   echo "this is the testExecution ID : $testExecution_id"
-        #   echo "testExecution_id=$testExecution_id" >> $GITHUB_OUTPUT
-        # shell: bash
+      #   testExecution_id=$(curl -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X GET -s "$jira_url" | jq -r '.id')
+      #   echo "this is the testExecution ID : $testExecution_id"
+      #   echo "testExecution_id=$testExecution_id" >> $GITHUB_OUTPUT
+      # shell: bash
 
       # - name: Get TestPlan ID
       #   id: get-testPlan-id
