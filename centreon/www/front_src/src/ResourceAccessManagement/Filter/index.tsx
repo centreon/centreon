@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 
@@ -7,20 +5,23 @@ import debounce from '@mui/utils/debounce';
 
 import { SearchField } from '@centreon/ui';
 
-import { searchAtom } from '../atom';
+import { resourceAccessManagementSearchAtom } from '../atom';
 import { labelSearch } from '../translatedLabels';
 
 const Filter = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const setSearchValue = useSetAtom(searchAtom);
+  const setSearchValue = useSetAtom(resourceAccessManagementSearchAtom);
 
-  const searchDebounced = debounce<(search) => void>((debouncedSearch): void => {
+  const searchDebounced = debounce<(search: string) => void>(
+    (debouncedSearch): void => {
       setSearchValue(debouncedSearch);
-    }, 500);
+    },
+    500
+  );
 
   const onChange = ({ target }): void => {
-    searchDebounced.current(target.value);
+    searchDebounced(target.value);
   };
 
   return (

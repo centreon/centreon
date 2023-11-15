@@ -1,106 +1,40 @@
-import { useEffect, useState } from 'react';
-
-import { prop } from 'ramda';
-import { useSetAtom, useAtom } from 'jotai';
-
 import { MemoizedListing } from '@centreon/ui';
 
-import {
-  limitAtom,
-  pageAtom,
-  resourceAccessRulesNamesAtom,
-  selectedRowsAtom,
-  sortFieldAtom,
-  sortOrderAtom
-} from '../atom';
-import { ResourceAccessRuleType } from '../models';
-
-import useListingColumns from './columns';
-import useLoadResourceAccessRules from './useLoadResourceAccessRules';
+import useListing from './useListing';
 
 const ResourceAccessRulesListing = (): JSX.Element => {
-  const columns = useListingColumns();
-
-  const [selectedColumnIds, setSelectedColumnIds] = useState(
-    columns.map(prop('id'))
-  );
-
-  const resetColumns = (): void => {
-    setSelectedColumnIds(columns.map(prop('id')));
-  };
-
-  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
-  const [sortO, setSortO] = useAtom(sortOrderAtom);
-  const [sortF, setSortF] = useAtom(sortFieldAtom);
-  const [page, setPage] = useAtom(pageAtom);
-  const setResourceAccessRulesNames = useSetAtom(resourceAccessRulesNamesAtom);
-  const setLimit = useSetAtom(limitAtom);
-  const { data: listingData, loading, refetch } = useLoadResourceAccessRules();
-
-  useEffect(() => {
-    refetch();
-  }, []);
-
-  useEffect(() => {
-    if (listingData) {
-      const names = listingData.result.map((item) => ({
-        id: item.id,
-        name: item.name
-      }));
-      setResourceAccessRulesNames(names);
-    }
-  }, [listingData]);
-
-  const changeSort = ({ sortOrder, sortField }): void => {
-    setSortF(sortField);
-    setSortO(sortOrder);
-  };
-
-  const changePage = (updatedPage: number): void => {
-    setPage(updatedPage + 1);
-  };
-
-  const predefinedRowsSelection = [
-    {
-      label: 'activated',
-      rowCondition: (row: ResourceAccessRuleType): boolean => row.isActivated
-    },
-    {
-      label: 'deactivated',
-      rowCondition: (row: ResourceAccessRuleType): boolean => !row?.isActivated
-    }
-  ];
+  const listing = useListing();
 
   return (
     <MemoizedListing
       checkable
       columnConfiguration={{
-        selectedColumnIds,
+        selectedColumnIds: listing.selectedColumnIds,
         sortable: true
       }}
-      columns={columns}
-      currentPage={(page || 1) - 1}
-      limit={listingData?.meta.limit}
-      loading={loading}
+      columns={listing.columns}
+      currentPage={(listing.page || 1) - 1}
+      limit={listing.data?.meta.limit}
+      loading={listing.loading}
       memoProps={[
-        columns,
-        page,
-        predefinedRowsSelection,
-        sortO,
-        sortF,
-        selectedRows
+        listing.columns,
+        listing.page,
+        listing.predefinedRowsSelection,
+        listing.sortO,
+        listing.sortF,
+        listing.selectedRows
       ]}
-      predefinedRowsSelection={predefinedRowsSelection}
-      rows={listingData?.result}
-      selectedRows={selectedRows}
-      sortField={sortF}
-      sortOrder={sortO}
-      totalRows={listingData?.meta.total}
-      onLimitChange={setLimit}
-      onPaginate={changePage}
-      onResetColumns={resetColumns}
-      onSelectRows={setSelectedRows}
-      onSort={changeSort}
+      predefinedRowsSelection={listing.predefinedRowsSelection}
+      rows={listing.data?.result}
+      selectedRows={listing.selectedRows}
+      sortField={listing.sortF}
+      sortOrder={listing.sortO}
+      totalRows={listing.data?.meta.total}
+      onLimitChange={listing.setLimit}
+      onPaginate={listing.changePage}
+      onResetColumns={listing.resetColumns}
+      onSelectRows={listing.setSelectedRows}
+      onSort={listing.changeSort}
     />
   );
 };

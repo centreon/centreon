@@ -1,6 +1,6 @@
 import { ListingPage } from '@centreon/ui';
 
-import ResourceAccessRulesListing from './Listing';
+import { ResourceAccessRulesListing } from './Listing';
 import PageHeader from './PageHeader';
 
 const ResourceAccessManagementPage = (): JSX.Element => {

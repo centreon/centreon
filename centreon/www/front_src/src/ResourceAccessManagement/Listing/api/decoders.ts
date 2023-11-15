@@ -13,7 +13,7 @@ const resourceAccessesDecoder = JsonDecoder.object<ResourceAccessRuleType>(
   },
   'Resource Accesses Rules',
   {
-    isActivated: 'is_enabled',
+    isActivated: 'is_enabled'
   }
 );
 
