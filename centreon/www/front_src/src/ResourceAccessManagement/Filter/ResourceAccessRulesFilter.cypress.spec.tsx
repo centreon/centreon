@@ -1,17 +1,17 @@
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import useLoadResourceAccessRules from '../Listing/useLoadResourceAccessRules';
 import { buildResourceAccessRulesEndpoint } from '../Listing/api/endpoints';
 import {
   defaultQueryParams,
   getListingResponse
 } from '../Listing/Tests/testUtils';
 import { labelSearch } from '../translatedLabels';
+import useListing from '../Listing/useListing';
 
 import Filter from '.';
 
 const FilterTest = (): JSX.Element => {
-  useLoadResourceAccessRules();
+  useListing();
 
   return <Filter />;
 };
