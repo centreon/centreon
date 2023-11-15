@@ -757,12 +757,12 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    # if ($self->{recursion_ievents} == 1) {
-    #     $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
-    #     return;
-    # }
+    if ($self->{recursion_ievents} == 1) {
+        $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
+        return;
+    }
 
-    # $self->{recursion_ievents}++;
+    $self->{recursion_ievents} = 1;
     $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
 
     while ($self->{internal_socket}->has_pollin()) {
@@ -793,7 +793,7 @@ sub router_internal_event {
     }
 
     $self->{logger}->writeLogError("[core] ending router_internal_event");
-    # $self->{recursion_ievents}--;
+    $self->{recursion_ievents} = 0;
 }
 
 sub is_handshake_done {
