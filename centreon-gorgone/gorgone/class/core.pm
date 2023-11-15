@@ -773,8 +773,6 @@ sub router_internal_event {
 
             next if (!defined($identity));
 
-            next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
-
             push(@{$self->{ievents}}, [$identity, $frame]);
         }
 
@@ -783,10 +781,13 @@ sub router_internal_event {
 
     if ($self->{recursion_ievents} > 1) {
         $self->{logger}->writeLogInfo("[core] too many calls of router_internal_event, skipping this call");
+        $self->{recursion_ievents}--;
         return;
     }
 
     while (my $event = shift(@{$self->{ievents}})) {
+        next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
+
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
                 frame       => $event->[1],
