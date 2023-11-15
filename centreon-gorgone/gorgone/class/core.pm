@@ -785,7 +785,10 @@ sub router_internal_event {
         return;
     }
 
+    my $numEvents = 0;
     while (my $event = shift(@{$self->{ievents}})) {
+        $numEvents++;
+        $self->{logger}->writeLogDebug("[core] Managing event number : " . $numEvents);
         next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
 
         my ($token, $code, $response, $response_type) = $self->message_run(
