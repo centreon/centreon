@@ -762,8 +762,8 @@ sub router_internal_event {
     $self->{recursion_ievents}++;
     $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
 
-    if ($self->{recursion_ievents} > 1) {
-        $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
+    # There are two watchers : timer and io
+    if ($self->{recursion_ievents} > 2) {
         $self->{recursion_ievents}--;
         return;
     }
@@ -774,10 +774,10 @@ sub router_internal_event {
             logger => $self->{logger}
         );
         next if (!defined($identity));
-        push @{$self->{ievents}}, [ $identity, $frame ];
+        push(@{$self->{ievents}}, [$identity, $frame]);
     }
 
-    while (my $event = shift(@{$self->{ievents}})) {
+    while (my $event = pop(@{$self->{ievents}})) {
         next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
@@ -1239,6 +1239,7 @@ sub periodic_exec {
     $gorgone->{listener}->check();
     $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from periodic_exec");
     $gorgone->router_internal_event();
+    $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from periodic_exec");
     if (defined($gorgone->{external_socket})) {
         $gorgone->{logger}->writeLogDebug("[core] Calling router_external_event from periodic_exec");
         $gorgone->router_external_event();
@@ -1331,12 +1332,14 @@ sub run {
         $watcher->stop();
         $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
         $gorgone->router_internal_event();
+        $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from watcher_io_internal");
         $watcher->start();
     });
     if (defined($gorgone->{external_socket})) {
         $gorgone->{watcher_io_external} = $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub {
             $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_external");
             $gorgone->router_external_event();
+            $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from watcher_io_external");
         });
     }
 
