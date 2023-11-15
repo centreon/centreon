@@ -15,11 +15,9 @@ const Filter = (): JSX.Element => {
 
   const setSearchValue = useSetAtom(searchAtom);
 
-  const searchDebounced = useRef(
-    debounce<(search) => void>((debouncedSearch): void => {
+  const searchDebounced = debounce<(search) => void>((debouncedSearch): void => {
       setSearchValue(debouncedSearch);
-    }, 500)
-  );
+    }, 500);
 
   const onChange = ({ target }): void => {
     searchDebounced.current(target.value);
