@@ -180,21 +180,21 @@ jobs:
             esac
           fi
 
-          xray_graphql_createTestExecution='{
-              "query": "mutation CreateTestExecution($testIssueIds: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, jira: $jira) { testExecution { issueId jira(fields: [\"key\"]) } warnings createdTestEnvironments } }",
-              "variables": {
-                  "testEnvironments": ["\"$linux_distribution\"","MARIADB_10_5","CHROME"]
-                  "jira": {
-                      "fields": {
-                        "summary": "\"$input_summary\"",
-                        "description": "\"$workflow_run_url\"",
-                        "project": { "key": "MON" },
-                        "components": [{"name": "centreon-web"}],
-                        "priority":{"name":"Low"}
+          xray_graphql_createTestExecution="{
+              \"query\": \"mutation CreateTestExecution(\$testIssueIds: [String], \$jira: JSON!) { createTestExecution(testIssueIds: \$testIssueIds, jira: \$jira) { testExecution { issueId jira(fields: [\\\"key\\\"]) } warnings createdTestEnvironments } }\",
+              \"variables\": {
+                  \"testEnvironments\": [\"$linux_distribution\",\"MARIADB_10_5\",\"CHROME\"]
+                  \"jira\": {
+                      \"fields\": {
+                        \"summary\": \"$input_summary\",
+                        \"description\": \"$workflow_run_url\",
+                        \"project\": { \"key\": \"MON\" },
+                        \"components\": [{\"name\": \"centreon-web\"}],
+                        \"priority\":{\"name\":\"Low\"}
                       }
                   }
               }
-          }'
+          }"
 
           echo "this is the graphql mutation : $xray_graphql_createTestExecution"
 
