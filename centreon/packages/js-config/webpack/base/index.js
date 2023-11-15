@@ -18,13 +18,17 @@ const getBaseConfiguration = ({
   cache,
   module: getModuleConfiguration(jscTransformConfiguration),
   optimization,
-  output,
+  output: {
+    ...output,
+    library: moduleName,
+    uniqueName: moduleName
+  },
   plugins: [
     new CleanWebpackPlugin(),
     moduleName &&
       new ModuleFederationPlugin({
         filename: 'remoteEntry.[chunkhash:8].js',
-        library: { name: moduleName, type: 'var' },
+        library: { name: moduleName, type: 'umd' },
         name: moduleName,
         shared: [
           {
