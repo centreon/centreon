@@ -21,27 +21,15 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\Repository;
+namespace Core\Media\Infrastructure\Command\Exception;
 
-use Core\Media\Domain\Model\Media;
-
-interface ReadMediaRepositoryInterface
+class MediaMigrationCommandException extends \Exception
 {
     /**
-     * Indicates whether the media exists using its path.
-     *
-     * @param string $path (ex: /logos/centreon_logo.png)
-     *
-     * @throws \Throwable
-     *
-     * @return bool
+     * @return self
      */
-    public function existsByPath(string $path): bool;
-
-    /**
-     * @throws \Throwable
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    public function findAll(): \Iterator&\Countable;
+    public static function contactNotFound(): self
+    {
+        return new self(_('Contact not found'));
+    }
 }
