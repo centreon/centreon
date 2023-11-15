@@ -1234,18 +1234,20 @@ sub check_exit_modules {
 }
 
 sub periodic_exec {
+    $gorgone->check_exit_modules();
+    $gorgone->{listener}->check();
+
     if ($self->{recursion_ievents} == 0) {
-        $gorgone->check_exit_modules();
-        $gorgone->{listener}->check();
         $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from periodic_exec");
         $self->{recursion_ievents} = 1;
         $gorgone->router_internal_event();
-        $self->{recursion_ievents} = 10;
+        $self->{recursion_ievents} = 0;
         $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from periodic_exec");
-        if (defined($gorgone->{external_socket})) {
-            $gorgone->{logger}->writeLogDebug("[core] Calling router_external_event from periodic_exec");
-            $gorgone->router_external_event();
-        }
+    }
+
+    if (defined($gorgone->{external_socket})) {
+        $gorgone->{logger}->writeLogDebug("[core] Calling router_external_event from periodic_exec");
+        $gorgone->router_external_event();
     }
 }
 
