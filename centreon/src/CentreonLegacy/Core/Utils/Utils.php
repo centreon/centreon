@@ -149,7 +149,7 @@ class Utils
     }
 
     /**
-     * @param array $arrObjData
+     * @param array|object $arrObjData
      * @param array $skippedKeys
      *
      * @return string

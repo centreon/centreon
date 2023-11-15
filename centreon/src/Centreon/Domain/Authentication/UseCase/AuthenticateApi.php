@@ -181,9 +181,6 @@ class AuthenticateApi
             '[AUTHENTICATE API] Creating authentication tokens for user',
             ['user' => $contact->getAlias()]
         );
-        if ($providerConfiguration->getId() === null) {
-            throw new \InvalidArgumentException("Provider configuration can't be null");
-        }
         try {
             $this->writeTokenRepository->createAuthenticationTokens(
                 $token,
