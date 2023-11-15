@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2023 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -74,7 +74,6 @@ sub new {
         'POST_/internal/logger' => 'BCASTLOGGER',
     };
 
-    $self->{ievents} = [];
     $self->{recursion_ievents} = 0;
 
     return $self;
@@ -678,7 +677,7 @@ sub message_run {
         });
         return ($token, 1, { message => 'gorgone is stopping/restarting. Cannot proceed request.' });
     }
-    
+
     # Check Routing
     if (defined($target)) {
         if (!defined($self->{modules_id}->{ $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{proxy_name} }) || 
@@ -774,6 +773,7 @@ sub router_internal_event {
             logger => $self->{logger}
         );
         next if (!defined($identity));
+
         push(@{$self->{ievents}}, [$identity, $frame]);
     }
 
