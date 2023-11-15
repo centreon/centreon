@@ -781,11 +781,11 @@ sub router_internal_event {
 
     $self->{recursion_ievents}++;
     $self->{logger}->writeLogDebug("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-    #if ($self->{recursion_ievents} > 1) {
-    #    $self->{logger}->writeLogError("[core] too many calls of router_internal_event, skipping this call");
-    #    $self->{recursion_ievents}--;
-    #    return;
-    #}
+    if ($self->{recursion_ievents} > 1) {
+        $self->{logger}->writeLogError("[core] too many calls of router_internal_event, skipping this call");
+        $self->{recursion_ievents}--;
+        return;
+    }
 
     my $numEvents = 0;
     while (my $event = shift(@{$self->{ievents}})) {
