@@ -760,6 +760,7 @@ sub router_internal_event {
     my ($self, %options) = @_;
 
     if ($self->{socket_reading} == 0) {
+        $self->{logger}->writeLogDebug("[core] start reading socket");
         $self->{socket_reading} = 1;
 
         while ($self->{internal_socket}->has_pollin()) {
@@ -770,7 +771,7 @@ sub router_internal_event {
 
             next if (!defined($identity));
 
-            $self->{logger}->writeLogDebug("[core] pushing new event");
+            $self->{logger}->writeLogDebug("[core] pushing new event with identity : " . $identity);
             push(@{$self->{ievents}}, [$identity, $frame]);
         }
 
