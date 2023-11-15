@@ -760,6 +760,14 @@ sub router_internal_event {
     my ($self, %options) = @_;
 
     $self->{recursion_ievents}++;
+    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
+
+    if ($self->{recursion_ievents} > 1) {
+        $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
+        $self->{recursion_ievents}--;
+        return;
+    }
+
     while ($self->{internal_socket}->has_pollin()) {
         my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
             socket => $self->{internal_socket},
@@ -768,14 +776,6 @@ sub router_internal_event {
         next if (!defined($identity));
         push @{$self->{ievents}}, [ $identity, $frame ];
     }
-
-    $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-
-    # if ($self->{recursion_ievents} > 1) {
-    #     $self->{logger}->writeLogError("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-    #     $self->{recursion_ievents}--;
-    #     return;
-    # }
 
     while (my $event = shift(@{$self->{ievents}})) {
         next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
