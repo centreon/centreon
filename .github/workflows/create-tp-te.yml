@@ -183,7 +183,7 @@ jobs:
           xray_graphql_createTestExecution="{
               \"query\": \"mutation CreateTestExecution(\$testEnvironments: [String], \$jira: JSON!) { createTestExecution(testEnvironments: \$testEnvironments, jira: \$jira) { testExecution { issueId jira(fields: [\\\"key\\\"]) } warnings createdTestEnvironments } }\",
               \"variables\": {
-                  \"testEnvironments\": [\"$linux_distribution\",\"MARIADB_10_5\",\"CHROME\"]
+                  \"testEnvironments\": [\"$linux_distribution\",\"MARIADB_10_5\",\"CHROME\"],
                   \"jira\": {
                       \"fields\": {
                         \"summary\": \"$input_summary\",
