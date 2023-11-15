@@ -35,6 +35,7 @@ if [ "$1" = "configure" ] ; then
   # Replace macros ----
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/centreon
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/console
+  sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/migration
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/export-mysql-indexes
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/generateSqlLite
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/import-mysql-indexes
