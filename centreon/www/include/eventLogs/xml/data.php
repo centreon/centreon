@@ -133,6 +133,7 @@ $inputGet = [
     'critical' => isset($_GET['critical']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['critical']) : null,
     'unknown' => isset($_GET['unknown']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['unknown']) : null,
     'ack' => isset($_GET['ack']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['ack']) : null,
+    'notif' => isset($_GET['notif']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['notif']) : null,
     'notification' => isset($_GET['notification'])
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['notification'])
         : null,
@@ -172,6 +173,7 @@ $inputPost = [
     'critical' => isset($_POST['critical']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['critical']) : null,
     'unknown' => isset($_POST['unknown']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['unknown']) : null,
     'ack' => isset($_POST['ack']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['ack']) : null,
+    'notif' => isset($_POST['notif']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['notif']) : null,
     'notification' => isset($_POST['notification'])
         ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['notification'])
         : null,
@@ -260,6 +262,7 @@ $warning = isset($inputs["warning"]) ? htmlentities($inputs["warning"]) : "true"
 $critical = isset($inputs["critical"]) ? htmlentities($inputs["critical"]) : "true";
 $unknown = isset($inputs["unknown"]) ? htmlentities($inputs["unknown"]) : "true";
 $ack = isset($inputs["ack"]) ? htmlentities($inputs["ack"]) : "true";
+$notif = isset($inputs["notif"]) ? htmlentities($inputs["notif"]) : "true";
 $notification = isset($inputs["notification"]) ? htmlentities($inputs["notification"]) : "false";
 $alert = isset($inputs["alert"]) ? htmlentities($inputs["alert"]) : "true";
 $oh = isset($inputs["oh"]) ? htmlentities($inputs["oh"]) : "false";
@@ -283,6 +286,7 @@ if ($engine == "true") {
     $warning = "false";
     $critical = "false";
     $ack = "false";
+    $notif = "false";
     $oh = "false";
     $notification = "false";
     $alert = "false";
@@ -324,6 +328,7 @@ $tab_color_service = array(
     STATUS_CRITICAL => 'service_critical',
     STATUS_UNKNOWN => 'service_unknown',
     STATUS_ACK => 'service_ack',
+    STATUS_NOTIF => 'service_notif',
     STATUS_PENDING => 'pending'
 );
 $tab_color_host = array(
@@ -350,7 +355,8 @@ $tab_status_service = array(
     "1" => "WARNING",
     "2" => "CRITICAL",
     "3" => "UNKNOWN",
-    "3" => "ACK"
+    "5" => "ACK",
+    "6" => "NOTIF"
 );
 $acknowlegementMessageType = [
     'badgeColor' => 'ack',
@@ -389,6 +395,7 @@ $buffer->writeElement("warning", $warning);
 $buffer->writeElement("critical", $critical);
 $buffer->writeElement("unknown", $unknown);
 $buffer->writeElement("ack", $ack);
+$buffer->writeElement("notif", $notif);
 $buffer->writeElement("oh", $oh);
 $buffer->writeElement("search_H", $search_H);
 $buffer->writeElement("search_S", $search_S);
@@ -440,6 +447,9 @@ if ($unknown == 'true') {
 }
 if ($ack == 'true') {
     array_push($svc_msg_status_set, "'" . STATUS_ACK . "'");
+}
+if ($notif == 'true') {
+    array_push($svc_msg_status_set, "'" . STATUS_NOTIF . "'");
 }
 
 $flag_begin = 0;
@@ -674,7 +684,8 @@ if (count($tab_host_ids) == 0 && count($tab_svc) == 0) {
             $ok == 'true' || $warning == 'true' ||
             $critical == 'true' ||
             $unknown == 'true' ||
-            $ack == 'true'
+            $ack == 'true' ||
+            $notif == 'true'
         )
     ) {
         $req_append = "";

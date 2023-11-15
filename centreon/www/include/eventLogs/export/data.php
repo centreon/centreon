@@ -110,6 +110,8 @@ $queryGenerator->setSearchHost($requestHandler->getSearchHost());
 $queryGenerator->setTabSvc($requestHandler->getTabSvc());
 $queryGenerator->setSearchService($requestHandler->getSearchService());
 $queryGenerator->setExport($requestHandler->getExport());
+$queryGenerator->setAck($requestHandler->getAck());
+$queryGenerator->setNotif($requestHandler->getNotif());
 $stmt = $queryGenerator->getStatement();
 unset($queryGenerator);
 
@@ -141,6 +143,8 @@ $formatter->setOk($requestHandler->getOk());
 $formatter->setWarning($requestHandler->getWarning());
 $formatter->setCritical($requestHandler->getCritical());
 $formatter->setUnknown($requestHandler->getUnknown());
+$formatter->setAck($requestHandler->getAck());
+$formatter->setNotif($requestHandler->getNotif());
 $formattedLogs = $formatter->formatLogs($stmt);
 $logHeads = $formatter->getLogHeads();
 $metaData = $formatter->formatMetaData();
