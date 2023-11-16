@@ -684,6 +684,7 @@ describe('Notification column', () => {
 
     cy.findByTestId('Add columns').click();
 
+    cy.findByText('Severity (S)').should('exist');
     cy.findByText('Notification (Notif)').should('not.exist');
 
     cy.makeSnapshot();
