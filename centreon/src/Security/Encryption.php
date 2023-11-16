@@ -74,7 +74,7 @@ class Encryption implements EncryptionInterface
             throw new \Exception('Error when retrieving the cipher length', 10);
         }
         $iv = openssl_random_pseudo_bytes($ivLength);
-        if ($iv === false) {
+        if (! $iv) {
             throw new \Exception('Error on generated string of bytes', 11);
         }
 
@@ -107,17 +107,17 @@ class Encryption implements EncryptionInterface
         }
 
         $iv = substr($mix, 0, $ivLength);
-        if ($iv === false) {
+        if (! $iv) {
             throw new \Exception('Error during the decryption process', 21);
         }
 
         $encryptedFirstPart = substr($mix, $ivLength + 64);
-        if ($encryptedFirstPart === false) {
+        if (! $encryptedFirstPart) {
             throw new \Exception('Error during the decryption process', 22);
         }
 
         $encryptedSecondPart = substr($mix, $ivLength, 64);
-        if ($encryptedSecondPart === false) {
+        if (! $encryptedSecondPart) {
             throw new \Exception('Error during the decryption process', 23);
         }
 
@@ -158,7 +158,7 @@ class Encryption implements EncryptionInterface
     public static function generateRandomString(int $length = 64): string
     {
         $randomBytes = openssl_random_pseudo_bytes($length);
-        if ($randomBytes === false) {
+        if (! $randomBytes) {
             throw new \Exception('Error when generating random bytes', 30);
         }
         $encodedRandomBytes = base64_encode($randomBytes);

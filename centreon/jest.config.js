@@ -12,10 +12,7 @@ module.exports = mergeDeepRight(require('./packages/js-config/jest'), {
     'd3-time': '<rootDir>/node_modules/d3-time/dist/d3-time.min.js'
   },
   roots: ['<rootDir>/www/front_src/src/'],
-  setupFilesAfterEnv: [
-    '@testing-library/jest-dom/extend-expect',
-    '<rootDir>/setupTest.js'
-  ],
+  setupFilesAfterEnv: ['<rootDir>/setupTest.js'],
   testEnvironmentOptions: {
     url: 'http://localhost/'
   },

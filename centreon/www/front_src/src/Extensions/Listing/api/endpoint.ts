@@ -33,10 +33,10 @@ const buildExtensionEndPoint = ({
 
   const values = criteriaStatus.value as Array<SelectEntry>;
 
-  const installed = !!find(propEq('id', 'INSTALLED'), values);
-  const uninstalled = !!find(propEq('id', 'UNINSTALLED'), values);
-  const upToDate = !!find(propEq('id', 'UPTODATE'), values);
-  const outdated = !!find(propEq('id', 'OUTDATED'), values);
+  const installed = !!find(propEq('INSTALLED', 'id'), values);
+  const uninstalled = !!find(propEq('UNINSTALLED', 'id'), values);
+  const upToDate = !!find(propEq('UPTODATE', 'id'), values);
+  const outdated = !!find(propEq('OUTDATED', 'id'), values);
 
   if (!upToDate && outdated) {
     params += '&updated=false';

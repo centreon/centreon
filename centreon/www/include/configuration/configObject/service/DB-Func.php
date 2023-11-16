@@ -3338,3 +3338,28 @@ function getPollersForConfigChangeFlagFromServiceId(int $serviceId): array
     $hostIds = findHostsForConfigChangeFlagFromServiceIds([$serviceId]);
     return findPollersForConfigChangeFlagFromHostIds($hostIds);
 }
+
+/**
+ * Find all the host IDs for which the service is bound
+ *
+ * @param int $serviceId
+ * @return int[]
+ */
+function findHostsOfService(int $serviceId): array
+{
+    global $pearDB;
+    $statement = $pearDB->prepare(
+        'SELECT host.host_id
+        FROM host
+        INNER JOIN host_service_relation hsr
+          ON hsr.host_host_id = host.host_id
+        WHERE hsr.service_service_id = :service_id'
+    );
+    $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+    $statement->execute();
+    $hostIds = [];
+    while (($hostId = $statement->fetchColumn(0)) !== false) {
+        $hostIds[] = $hostId;
+    }
+    return $hostIds;
+}

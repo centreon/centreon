@@ -83,7 +83,7 @@ const getLoadableComponents = ({
 
   const components = path
     ? filter(
-        pathEq(['federatedComponentsConfiguration', 'path'], path),
+        pathEq(path, ['federatedComponentsConfiguration', 'path']),
         federatedModules
       )
     : federatedModules;

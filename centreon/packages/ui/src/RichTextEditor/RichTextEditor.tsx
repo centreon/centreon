@@ -12,6 +12,7 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 import { Typography } from '@mui/material';
 
@@ -38,6 +39,7 @@ export interface RichTextEditorProps {
   openLinkInNewTab?: boolean;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
+  setHtmlString?: (htmlString: string) => void;
   toolbarClassName?: string;
   toolbarPositions?: 'start' | 'end';
 }
@@ -138,6 +140,7 @@ const RichTextEditor = ({
   openLinkInNewTab = true,
   initialize,
   displayBlockButtons = true,
+  setHtmlString,
   toolbarClassName
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
@@ -170,6 +173,13 @@ const RichTextEditor = ({
         underlineStrikethrough: classes.underlineStrikethrough
       }
     }
+  };
+
+  const change = (state: EditorState, editor: LexicalEditor): void => {
+    editor.update(() => {
+      setHtmlString?.($generateHtmlFromNodes(editor, null));
+    });
+    getEditorState?.(state, editor);
   };
 
   return (
@@ -212,7 +222,7 @@ const RichTextEditor = ({
           <HistoryPlugin />
           <LinkPlugin />
           <ListPlugin />
-          <OnChangePlugin onChange={getEditorState} />
+          <OnChangePlugin onChange={change} />
           <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
           <FloatingLinkEditorPlugin
             editable={editable}

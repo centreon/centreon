@@ -30,11 +30,13 @@ const WebSSOForm = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { mutateAsync } = useMutationQuery<WebSSOConfigurationToAPI>({
-    defaultFailureMessage: t(labelFailedToSaveWebSSOConfiguration),
-    getEndpoint: () => authenticationProvidersEndpoint(Provider.WebSSO),
-    method: Method.PUT
-  });
+  const { mutateAsync } = useMutationQuery<WebSSOConfigurationToAPI, undefined>(
+    {
+      defaultFailureMessage: t(labelFailedToSaveWebSSOConfiguration),
+      getEndpoint: () => authenticationProvidersEndpoint(Provider.WebSSO),
+      method: Method.PUT
+    }
+  );
 
   const queryClient = useQueryClient();
 
@@ -48,7 +50,7 @@ const WebSSOForm = ({
   ): Promise<void> => {
     return mutateAsync(adaptWebSSOConfigurationToAPI(values))
       .then(() => {
-        queryClient.invalidateQueries([Provider.WebSSO]);
+        queryClient.invalidateQueries({ queryKey: [Provider.WebSSO] });
         loadWebSSOonfiguration();
         showSuccessMessage(t(labelWebSSOConfigurationSaved));
       })

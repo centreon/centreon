@@ -17,8 +17,5 @@
     "lighthouse": "^10.0.0",
     "open": "^8.4.0",
     "puppeteer": "^19.7.0"
-  },
-  "dependencies": {
-    "node-fetch": "^3.3.2"
   }
 }
