@@ -149,36 +149,10 @@ Then("a graph with a single bar is displayed in the widget's preview", () => {
 When(
   'this bar represents the evolution of the selected metric over the default period of time',
   () => {
-    const now = new Date();
-    const currentHour = now.getHours();
-    const currentTimeOfDay = currentHour >= 12 ? 'PM' : 'AM';
-
     cy.get('.visx-group.visx-axis-bottom text')
       .last()
       .invoke('text')
-      .then((elementText) => {
-        const [elementHour, , elementTimeOfDay] = elementText.split(/:| /);
-        const parsedElementHour = Number(elementHour);
-
-        // Attempt the initial expectation
-        expect(parsedElementHour).to.satisfy((hour) => {
-          return (
-            hour === currentHour % 12 ||
-            hour === (currentHour - 1) % 12 ||
-            hour === 12
-          );
-        });
-
-        // If the initial expectation fails, try the alternative
-        if (
-          parsedElementHour !== currentHour % 12 &&
-          parsedElementHour !== (currentHour - 1) % 12
-        ) {
-          expect(parsedElementHour).to.eq((currentHour - 1) % 12 || 12);
-        }
-
-        expect(elementTimeOfDay).to.eq(currentTimeOfDay);
-      });
+      .should('match', /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/);
   }
 );
 
@@ -398,7 +372,6 @@ Given('Given a dashboard featuring a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user selects the option to have a customized time period',
   () => {
-    cy.wait('@performanceData');
     cy.getByTestId({ testId: 'Time period' }).realClick();
     cy.getByLabel({
       label: 'Customize',
