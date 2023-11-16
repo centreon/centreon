@@ -63,7 +63,7 @@ describe('Rich Text Editor', () => {
       cy.makeSnapshot();
     });
 
-    it('displays all format actions when the format button was clicked', () => {
+    it('displays all format actions when the format button is clicked', () => {
       cy.findByLabelText('format').click();
 
       cy.findByLabelText('bold').should('be.visible');
