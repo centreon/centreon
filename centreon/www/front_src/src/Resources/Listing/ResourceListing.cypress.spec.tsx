@@ -656,7 +656,7 @@ describe('Display additional columns', () => {
   });
 });
 
-describe.only('Notification column', () => {
+describe('Notification column', () => {
   it('displays notification column if the cloud notification feature is disabled', () => {
     store.set(
       platformFeaturesAtom,
