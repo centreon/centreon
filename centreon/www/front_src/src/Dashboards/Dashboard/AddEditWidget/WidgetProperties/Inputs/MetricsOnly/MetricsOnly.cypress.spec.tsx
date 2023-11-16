@@ -99,4 +99,16 @@ describe('MetricsOnly', () => {
 
     cy.makeSnapshot();
   });
+
+  it('removes metrics item when the delete icon is clicked', () => {
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.findByText('rtmax (ms) / Includes 2 resources').click();
+    cy.findByText('rtmax (ms) / 2').should('be.visible');
+
+    cy.findByTestId('CancelIcon').click();
+    cy.findByText('rtmax (ms) / 2').should('not.exist');
+
+    cy.makeSnapshot();
+  });
 });
