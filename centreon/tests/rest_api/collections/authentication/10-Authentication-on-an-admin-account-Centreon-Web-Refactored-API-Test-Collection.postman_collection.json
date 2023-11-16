@@ -244,7 +244,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"old_password\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
+							"raw": "{\n  \"oldPassword\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -497,7 +497,7 @@
 									"if(!oldPassword) {\r",
 									"    oldPassword = pm.collectionVariables.get(\"passwordWithCorrectFormat\");\r",
 									"} else {\r",
-									"    old_password = pm.collectionVariables.get(\"current_password\");\r",
+									"    oldPassword = pm.collectionVariables.get(\"currentPassword\");\r",
 									"}\r",
 									"\r",
 									"let bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
@@ -508,8 +508,8 @@
 									"pm.collectionVariables.set(\"oldPassword\", oldPassword);\r",
 									"pm.collectionVariables.set(\"currentPassword\", bufferPasswords.shift());\r",
 									"pm.collectionVariables.set(\"bufferPasswords\", bufferPasswords);\r",
-									"console.log(\"old_password = \" + pm.collectionVariables.get(\"old_password\"));\r",
-									"console.log(\"current_password = \" + pm.collectionVariables.get(\"current_password\"));\r",
+									"console.log(\"oldPassword = \" + pm.collectionVariables.get(\"oldPassword\"));\r",
+									"console.log(\"currentPassword = \" + pm.collectionVariables.get(\"currentPassword\"));\r",
 									"console.log(\"bufferPasswords = \" + pm.collectionVariables.get(\"bufferPasswords\"));"
 								],
 								"type": "text/javascript"
@@ -530,7 +530,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"old_password\": \"{{oldPassword}}\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
+							"raw": "{\n  \"oldPassword\": \"{{oldPassword}}\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -765,7 +765,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"old_password\": \"Centreon!2021\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
+							"raw": "{\n \"oldPassword\": \"Centreon!2021\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -970,7 +970,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"old_password\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
+							"raw": "{\n  \"oldPassword\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1036,7 +1036,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"old_password\": \"{{passwordWithCorrectFormat}}\",\n  \"new_password\": \"{{api_password}}\"\n}",
+							"raw": "{\n  \"oldPassword\": \"{{passwordWithCorrectFormat}}\",\n  \"new_password\": \"{{api_password}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1073,17 +1073,17 @@
 								"exec": [
 									"const bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
 									"\r",
-									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"current_password\") + \".\", function () {\r",
+									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"currentPassword\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});\r",
 									"\r",
 									"if(bufferPasswords && bufferPasswords.length > 0) {\r",
-									"    pm.collectionVariables.set(\"old_password\", pm.collectionVariables.get(\"current_password\"));\r",
+									"    pm.collectionVariables.set(\"oldPassword\", pm.collectionVariables.get(\"currentPassword\"));\r",
 									"    setTimeout(function(){}, [pm.environment.get(\"exportTimeoutInMilliseconds\")]);\r",
 									"    postman.setNextRequest(\"[1004-cleanup] Revert to old password using bridge passwords\");\r",
 									"} else {\r",
-									"    pm.environment.unset(\"old_password\");\r",
-									"    pm.environment.unset(\"current_password\");\r",
+									"    pm.environment.unset(\"oldPassword\");\r",
+									"    pm.environment.unset(\"currentPassword\");\r",
 									"    pm.environment.unset(\"bufferPasswords\");\r",
 									"    pm.environment.unset(\"passwordWithCorrectFormat\");\r",
 									"    postman.setNextRequest(\"[1004-cleanup] Logout from admin user and clear collection variables\");\r",
@@ -1100,7 +1100,7 @@
 									"if(!oldPassword) {\r",
 									"    oldPassword = pm.collectionVariables.get(\"passwordWithCorrectFormat\");\r",
 									"} else {\r",
-									"    old_password = pm.collectionVariables.get(\"current_password\");\r",
+									"    oldPassword = pm.collectionVariables.get(\"currentPassword\");\r",
 									"}\r",
 									"\r",
 									"let bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
@@ -1111,8 +1111,8 @@
 									"pm.collectionVariables.set(\"oldPassword\", oldPassword);\r",
 									"pm.collectionVariables.set(\"currentPassword\", bufferPasswords.shift());\r",
 									"pm.collectionVariables.set(\"bufferPasswords\", bufferPasswords);\r",
-									"console.log(\"old_password = \" + pm.collectionVariables.get(\"old_password\"));\r",
-									"console.log(\"current_password = \" + pm.collectionVariables.get(\"current_password\"));\r",
+									"console.log(\"oldPassword = \" + pm.collectionVariables.get(\"oldPassword\"));\r",
+									"console.log(\"currentPassword = \" + pm.collectionVariables.get(\"currentPassword\"));\r",
 									"console.log(\"bufferPasswords = \" + pm.collectionVariables.get(\"bufferPasswords\"));"
 								],
 								"type": "text/javascript"
@@ -1133,7 +1133,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"old_password\": \"{{old_password}}\",\n  \"new_password\": \"{{current_password}}\"\n}",
+							"raw": "{\n  \"oldPassword\": \"{{oldPassword}}\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1309,11 +1309,11 @@
 			"value": ""
 		},
 		{
-			"key": "old_password",
+			"key": "oldPassword",
 			"value": ""
 		},
 		{
-			"key": "current_password",
+			"key": "currentPassword",
 			"value": ""
 		},
 		{
