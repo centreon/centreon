@@ -760,7 +760,7 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    #if ($self->{socket_reading} == 0) {
+    if ($self->{socket_reading} == 0) {
         $self->{logger}->writeLogDebug("[core] start reading socket");
         $self->{socket_reading} = 1;
 
@@ -779,15 +779,15 @@ sub router_internal_event {
         }
 
         $self->{socket_reading} = 0;
-    #}
+    }
 
     $self->{recursion_ievents}++;
     $self->{logger}->writeLogDebug("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
-    if ($self->{recursion_ievents} > 1) {
-        $self->{logger}->writeLogError("[core] too many calls of router_internal_event, skipping this call");
-        $self->{recursion_ievents}--;
-        return;
-    }
+    # if ($self->{recursion_ievents} > 1) {
+    #     $self->{logger}->writeLogError("[core] too many calls of router_internal_event, skipping this call");
+    #     $self->{recursion_ievents}--;
+    #     return;
+    # }
 
     my $numEvents = 0;
     while (my $event = shift(@{$self->{ievents}})) {
