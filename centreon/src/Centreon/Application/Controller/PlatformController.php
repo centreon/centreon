@@ -56,22 +56,13 @@ class PlatformController extends AbstractController
     {
         $webVersion = $this->informationService->getWebVersion();
         $modulesVersion = $this->informationService->getModulesVersion();
-        $widgetsVersion = $this->informationService->getWidgetsVersion();
+        $widgetsVersion = $this->informationService->getWidgetsVersion($webVersion);
 
         return new JsonResponse(
             [
                 'web' => (object) $this->extractVersion($webVersion),
                 'modules' => (object) array_map($this->extractVersion(...), $modulesVersion),
-                'widgets' => (object) array_map(
-                    function($widgetVersion) {
-                        if ($widgetVersion === null) {
-                            return null;
-                        }
-
-                        return $this->extractVersion($widgetVersion);
-                    },
-                    $widgetsVersion
-                ),
+                'widgets' => (object) array_map($this->extractVersion(...), $widgetsVersion),
             ]
         );
     }

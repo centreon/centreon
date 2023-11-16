@@ -69,7 +69,7 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
     /**
      * @inheritDoc
      */
-    public function getWidgetsVersion(): array
+    public function getWidgetsVersion(string $webVersion): array
     {
         $versions = [];
 
@@ -78,7 +78,7 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
             while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
                 $versions[(string) $result['title']] = $result['is_internal'] === 1
                     ? (string) $result['version']
-                    : null;
+                    : $webVersion;
             }
         }
 
@@ -88,6 +88,7 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
                 $versions[(string) $result['name']] = (string) $result['version'];
             }
         }
+
         return $versions;
     }
 }
