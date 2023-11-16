@@ -3,38 +3,53 @@ import { MemoizedListing } from '@centreon/ui';
 import useListing from './useListing';
 
 const ResourceAccessRulesListing = (): JSX.Element => {
-  const listing = useListing();
+  const {
+    changePage,
+    changeSort,
+    columns,
+    data,
+    loading,
+    page,
+    predefinedRowsSelection,
+    resetColumns,
+    selectedColumnIds,
+    selectedRows,
+    setLimit,
+    setSelectedRows,
+    sortF,
+    sortO
+  } = useListing();
 
   return (
     <MemoizedListing
       checkable
       columnConfiguration={{
-        selectedColumnIds: listing.selectedColumnIds,
+        selectedColumnIds,
         sortable: true
       }}
-      columns={listing.columns}
-      currentPage={(listing.page || 1) - 1}
-      limit={listing.data?.meta.limit}
-      loading={listing.loading}
+      columns={columns}
+      currentPage={(page || 1) - 1}
+      limit={data?.meta.limit}
+      loading={loading}
       memoProps={[
-        listing.columns,
-        listing.page,
-        listing.predefinedRowsSelection,
-        listing.sortO,
-        listing.sortF,
-        listing.selectedRows
+        columns,
+        page,
+        predefinedRowsSelection,
+        sortO,
+        sortF,
+        selectedRows
       ]}
-      predefinedRowsSelection={listing.predefinedRowsSelection}
-      rows={listing.data?.result}
-      selectedRows={listing.selectedRows}
-      sortField={listing.sortF}
-      sortOrder={listing.sortO}
-      totalRows={listing.data?.meta.total}
-      onLimitChange={listing.setLimit}
-      onPaginate={listing.changePage}
-      onResetColumns={listing.resetColumns}
-      onSelectRows={listing.setSelectedRows}
-      onSort={listing.changeSort}
+      predefinedRowsSelection={predefinedRowsSelection}
+      rows={data?.result}
+      selectedRows={selectedRows}
+      sortField={sortF}
+      sortOrder={sortO}
+      totalRows={data?.meta.total}
+      onLimitChange={setLimit}
+      onPaginate={changePage}
+      onResetColumns={resetColumns}
+      onSelectRows={setSelectedRows}
+      onSort={changeSort}
     />
   );
 };
