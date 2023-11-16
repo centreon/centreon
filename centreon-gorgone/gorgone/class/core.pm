@@ -1387,14 +1387,17 @@ sub run {
     $gorgone->{watcher_timer} = $gorgone->{loop}->timer(5, 5, \&periodic_exec);
 
     $gorgone->{watcher_io_internal} = $gorgone->{loop}->io($gorgone->{internal_socket}->get_fd(), EV::READ, sub {
-        #my ($watcher, $revents) = @_;
-        #$watcher->stop();
+        my ($watcher, $revents) = @_;
+
+        $watcher->stop();
+
+        $gorgone->{logger}->writeLogDebug("[core] SOCKET " . $watcher->path . " HAS CHANGED : " (scalar(@$reevents)) . " EVENTS");
 
         $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
         $gorgone->router_internal_event();
         $gorgone->{logger}->writeLogDebug("[core] router_internal_event ended from watcher_io_internal");
 
-        #$watcher->start();
+        $watcher->start();
     });
     if (defined($gorgone->{external_socket})) {
         $gorgone->{watcher_io_external} = $gorgone->{loop}->io($gorgone->{external_socket}->get_fd(), EV::READ, sub {
