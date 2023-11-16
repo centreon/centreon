@@ -344,7 +344,7 @@ Then(
   }
 );
 
-Given('Given a dashboard featuring a configured Metrics Graph widget', () => {
+Given('a dashboard featuring a configured Metrics Graph widget', () => {
   cy.insertDashboardWithMetricsGraphWidget(
     dashboards.default,
     metricsGraphWidget
@@ -377,6 +377,7 @@ When(
       label: 'Customize',
       tag: 'li'
     }).click();
+    cy.wait('@performanceData');
   }
 );
 
