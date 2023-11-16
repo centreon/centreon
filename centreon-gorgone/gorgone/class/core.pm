@@ -760,6 +760,41 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
+    while ($self->{internal_socket}->has_pollin()) {
+        my $start = Time::HiRes::time();
+
+        my ($identity, $frame) = gorgone::standard::library::zmq_read_message(
+            socket => $self->{internal_socket},
+            logger => $self->{logger}
+        );
+
+        next if (!defined($identity));
+
+        next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
+
+        my ($token, $code, $response, $response_type) = $self->message_run(
+            {
+                frame       => $frame,
+                identity    => $identity,
+                router_type => 'internal'
+            }
+        );
+
+        $self->send_internal_response(
+            identity      => $identity,
+            response_type => $response_type,
+            data          => $response,
+            code          => $code,
+            token         => $token
+        );
+
+        $self->{logger}->writeLogDebug("[core] Ellapsed milliseconds to send message : " . (Time::HiRes::time() - $start));
+    }
+}
+
+sub router_internal_event_bis {
+    my ($self, %options) = @_;
+
     #if ($self->{socket_reading} == 0) {
         $self->{logger}->writeLogDebug("[core] start reading socket");
         $self->{socket_reading} = 1;
