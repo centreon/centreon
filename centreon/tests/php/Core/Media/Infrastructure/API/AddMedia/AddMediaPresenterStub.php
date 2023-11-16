@@ -31,6 +31,7 @@ use Core\Media\Application\UseCase\AddMedia\AddMediaResponse;
 class AddMediaPresenterStub extends AbstractPresenter implements AddMediaPresenterInterface
 {
     public AddMediaResponse|ResponseStatusInterface $response;
+
     public function presentResponse(AddMediaResponse|ResponseStatusInterface $response): void
     {
         $this->response = $response;

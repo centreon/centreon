@@ -41,9 +41,31 @@ $insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB): void 
                     (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`,
                     `topology_order`, `topology_group`, `topology_feature_flag`)
                 VALUES
-                    ( 'Resource Access Management', '/administration/resource-access-rules', '1', '1', 502, 50206, 1, 1,
+                    ( 'Resource Access Management', '/administration/resource-access/rules', '1', '1', 502, 50206, 1, 1,
                     'resource_access_management');
                 SQL
+        );
+    }
+};
+
+$alterAclGroupsTable = function (CentreonDB $pearDB): void {
+    if (! $pearDB->isColumnExist('acl_groups', 'cloud_description')) {
+        $pearDB->query(
+            'ALTER TABLE `acl_groups` ADD COLUMN `cloud_description` TEXT DEFAULT NULL'
+        );
+    }
+
+    if (! $pearDB->isColumnExist('acl_groups', 'cloud_specific')) {
+        $pearDB->query(
+            'ALTER TABLE `acl_groups` ADD COLUMN `cloud_specific` BOOLEAN NOT NULL DEFAULT 0'
+        );
+    }
+};
+
+$alterAclResourceGroupRelation = function (CentreonDB $pearDB) {
+    if (! $pearDB->isColumnExist('acl_res_group_relations', 'order')) {
+        $pearDB->query(
+            'ALTER TABLE acl_res_group_relations ADD COLUMN `order` INT NOT NULL DEFAULT 0'
         );
     }
 };
@@ -58,6 +80,11 @@ try {
     $errorMessage = 'Unable to insert topology for Resource Access Management';
     $insertTopologyForResourceAccessManagement($pearDB);
 
+    $errorMessage = 'Unable to add columns cloud_description and cloud_specific to acl_groups table';
+    $alterAclGroupsTable($pearDB);
+
+    $errorMessage = 'Unable to add column order to acl_res_group_relations table';
+    $alterAclResourceGroupRelation($pearDB);
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();

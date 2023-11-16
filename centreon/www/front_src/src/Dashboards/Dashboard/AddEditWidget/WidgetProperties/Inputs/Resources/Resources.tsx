@@ -4,12 +4,13 @@ import { useAtomValue } from 'jotai';
 import { or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
+import FilterIcon from '@mui/icons-material/Tune';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  labelAddResource,
+  labelRefineFilter,
   labelDelete,
   labelResourceType,
   labelResources,
@@ -48,7 +49,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    getOptionDisabled
+    getOptionDisabled,
+    deleteResourceItem
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -65,9 +67,10 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <ItemComposition
+        IconAdd={<FilterIcon />}
         addButtonHidden={!canEditField}
         addbuttonDisabled={!areResourcesFullfilled(value)}
-        labelAdd={t(labelAddResource)}
+        labelAdd={t(labelRefineFilter)}
         onAddItem={addResource}
       >
         {value.map((resource, index) => (
@@ -91,7 +94,13 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               allowUniqOption
               get
               chipProps={{
-                color: 'primary'
+                color: 'primary',
+                onDelete: (_, option): void =>
+                  deleteResourceItem({
+                    index,
+                    option,
+                    resources: resource.resources
+                  })
               }}
               className={classes.resources}
               disabled={!canEditField || !resource.resourceType}

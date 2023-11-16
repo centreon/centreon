@@ -17035,3 +17035,9 @@ msgstr ""
 
 #  msgid "You are not allowed to edit a host"
 #  msgstr ""
+
+#  msgid "The token cannot be empty"
+#  msgstr ""
+
+#  msgid "This operation requires an admin user"
+#  msgstr ""

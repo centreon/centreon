@@ -37,15 +37,17 @@ class NewMedia
      *
      * @throws AssertionFailedException
      */
-    public function __construct(private string $filename, private string $directory, readonly private string $data)
+    public function __construct(private string $filename, private string $directory, private string $data)
     {
+        $className = (new \ReflectionClass($this))->getShortName();
         $this->filename = trim($this->filename);
-        Assertion::notEmptyString($this->filename, 'Media::filename');
+        Assertion::notEmptyString($this->filename, "{$className}::filename");
         $this->filename = str_replace(' ', '_', $this->filename);
         $this->directory = str_replace(' ', '', $this->directory);
-        Assertion::notEmptyString($this->directory, 'Media::directory');
-        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', 'Media::directory');
-        Assertion::notEmptyString($this->data, 'Media::data');
+        Assertion::notEmptyString($this->directory, "{$className}::directory");
+        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', "{$className}::directory");
+        $this->data = trim($this->data);
+        Assertion::notEmptyString($this->data, "{$className}::data");
     }
 
     public function getFilename(): string
@@ -71,5 +73,24 @@ class NewMedia
     public function getComment(): ?string
     {
         return $this->comment;
+    }
+
+    /**
+     * @param Media $media
+     *
+     * @throws AssertionFailedException
+     *
+     * @return NewMedia
+     */
+    public static function createFromMedia(Media $media): self
+    {
+        $newMedia = new self(
+            $media->getFilename(),
+            $media->getDirectory(),
+            $media->getData() ?? 'fake_data',
+        );
+        $newMedia->setComment($media->getComment());
+
+        return $newMedia;
     }
 }
