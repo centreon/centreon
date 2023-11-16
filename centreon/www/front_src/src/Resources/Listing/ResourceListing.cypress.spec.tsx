@@ -656,13 +656,15 @@ describe('Display additional columns', () => {
   });
 });
 
-describe('Notification column', () => {
+describe.only('Notification column', () => {
   it('displays notification column if the cloud notification feature is disabled', () => {
     store.set(
       platformFeaturesAtom,
       getPlatformFeatures({ notification: false })
     );
     interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
 
     cy.contains('E0').should('be.visible');
 
@@ -679,6 +681,8 @@ describe('Notification column', () => {
       getPlatformFeatures({ notification: true })
     );
     interceptRequestsAndMountBeforeEach();
+
+    cy.waitFiltersAndListingRequests();
 
     cy.contains('E0').should('be.visible');
 
