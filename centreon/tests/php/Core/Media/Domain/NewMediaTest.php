@@ -23,50 +23,54 @@ declare(strict_types = 1);
 
 namespace Tests\Core\Media\Domain;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Media\Domain\Model\NewMedia;
 
-/**
- * @throws AssertionFailedException
- */
-function createMedia(array $arguments = []): NewMedia
-{
-    return new NewMedia(...[
-        'filename' => 'filename',
-        'directory' => 'directory',
-        'data' => 'data',
-        ...$arguments
-    ]);
-}
+beforeEach(function (): void {
+    $this->createMedia = function (array $arguments = []): NewMedia
+    {
+        return new NewMedia(...[
+            'filename' => 'filename',
+            'directory' => 'directory',
+            'data' => 'data',
+            ...$arguments,
+        ]);
+    };
+});
 
-it('should throw an exception when the filename property is empty', function(): void {
-    createMedia(['filename' => '']);
+it('should throw an exception when the filename property is empty', function (): void {
+    ($this->createMedia)(['filename' => '']);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('Media::filename')->getMessage()
+    AssertionException::notEmptyString('NewMedia::filename')->getMessage()
 );
 
-it('should throw an exception when the directory property is empty', function(): void {
-    createMedia(['directory' => '']);
+it('should throw an exception when the directory property is empty', function (): void {
+    ($this->createMedia)(['directory' => '']);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('Media::directory')->getMessage()
+    AssertionException::notEmptyString('NewMedia::directory')->getMessage()
 );
 
-it('should throw an exception when the data property is empty', function(): void {
-    createMedia(['data' => '']);
+it('should throw an exception when the data property is empty', function (): void {
+    ($this->createMedia)(['data' => '']);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('Media::data')->getMessage()
+    AssertionException::notEmptyString('NewMedia::data')->getMessage()
 );
 
-it('should replace space characters by \'_\' in the filename property', function(): void {
-    $newMedia = createMedia(['filename' => ' new filename.jpg ']);
+it('should replace space characters by \'_\' in the filename property', function (): void {
+    $newMedia = ($this->createMedia)(['filename' => ' new filename.jpg ']);
     expect($newMedia->getFilename())->toBe('new_filename.jpg');
 });
 
-it('should remove the space characters in the path property', function(): void {
-    $newMedia = createMedia(['directory' => ' new path ']);
+it('should remove the space characters in the path property', function (): void {
+    $newMedia = ($this->createMedia)(['directory' => ' new path ']);
     expect($newMedia->getDirectory())->toBe('newpath');
+});
+
+it('should remove the space characters in the comment property', function (): void {
+    $newMedia = ($this->createMedia)([]);
+    $newMedia->setComment(' comments ');
+    expect($newMedia->getComment())->toBe('comments');
 });

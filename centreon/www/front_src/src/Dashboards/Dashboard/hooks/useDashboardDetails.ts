@@ -42,7 +42,9 @@ export const formatPanel = ({
   );
 
   return {
-    data: panel.widgetSettings.data || null,
+    data: equals(panel.widgetSettings.data, [])
+      ? {}
+      : panel.widgetSettings.data || null,
     h: panel.layout.height,
     i: `${panel.id}`,
     minH: panel.layout.minHeight,
@@ -89,13 +91,16 @@ const useDashboardDetails = ({
 
   const panels = getPanels(dashboard);
 
-  useEffect(() => {
-    setDashboard({
-      layout:
-        panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
-    });
-    setPanelsLength(panels.length);
-  }, useDeepCompare([panels, federatedWidgets]));
+  useEffect(
+    () => {
+      setDashboard({
+        layout:
+          panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
+      });
+      setPanelsLength(panels.length);
+    },
+    useDeepCompare([panels, federatedWidgets])
+  );
 
   useEffect(() => {
     if (!dashboard) {

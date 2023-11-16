@@ -75,6 +75,8 @@ class FindServicesSaasPresenter extends AbstractPresenter implements FindService
                         'host_id' => $group['hostId'],
                         'host_name' => $group['hostName'],
                     ], $dto->groups),
+                    'normal_check_interval' => $dto->normalCheckInterval,
+                    'retry_check_interval' => $dto->retryCheckInterval,
                     'is_activated' => $dto->isActivated,
                 ];
             }

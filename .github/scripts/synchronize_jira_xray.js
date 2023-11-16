@@ -3,10 +3,10 @@ const fs = require("fs");
 const FormData = require("form-data");
 const core = require("@actions/core");
 
-const JIRA_USER = process.env.JIRA_USER;
-const JIRA_TOKEN_TEST = process.env.JIRA_TOKEN_TEST;
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const XRAY_JIRA_USER_EMAIL = process.env.XRAY_JIRA_USER_EMAIL;
+const XRAY_JIRA_TOKEN = process.env.XRAY_JIRA_TOKEN;
+const XRAY_CLIENT_ID = process.env.XRAY_CLIENT_ID;
+const XRAY_CLIENT_SECRET = process.env.XRAY_CLIENT_SECRET;
 
 const XRAY_API_URL =
   "https://xray.cloud.getxray.app/api/v2/import/feature?projectKey=MON";
@@ -78,8 +78,8 @@ async function getJiraIssueId(testSetKey) {
           Accept: "application/json",
         },
         auth: {
-          username: JIRA_USER,
-          password: JIRA_TOKEN_TEST,
+          username: XRAY_JIRA_USER_EMAIL,
+          password: XRAY_JIRA_TOKEN,
         },
       }
     );
@@ -136,8 +136,8 @@ async function postIssueStatus(api, statusPayload) {
         Accept: "application/json",
       },
       auth: {
-        username: JIRA_USER,
-        password: JIRA_TOKEN_TEST,
+        username: XRAY_JIRA_USER_EMAIL,
+        password: XRAY_JIRA_TOKEN,
       },
     });
 
@@ -170,8 +170,8 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
           Accept: "application/json",
         },
         auth: {
-          username: JIRA_USER,
-          password: JIRA_TOKEN_TEST,
+          username: XRAY_JIRA_USER_EMAIL,
+          password: XRAY_JIRA_TOKEN,
         },
       });
 
@@ -223,8 +223,8 @@ async function updateJiraIssues(testSelfs, targetVersions, componentsList) {
           Accept: "application/json",
         },
         auth: {
-          username: JIRA_USER,
-          password: JIRA_TOKEN_TEST,
+          username: XRAY_JIRA_USER_EMAIL,
+          password: XRAY_JIRA_TOKEN,
         },
       });
 
@@ -292,7 +292,7 @@ async function main() {
 
   core.info(`Running script for ${FEATURE_FILE_PATH} on branch ${branchName}`);
 
-  const XRAY_TOKEN = await getXrayToken(CLIENT_ID, CLIENT_SECRET);
+  const XRAY_TOKEN = await getXrayToken(XRAY_CLIENT_ID, XRAY_CLIENT_SECRET);
 
   const responseData = await uploadFeatureFileToXray(
     FEATURE_FILE_PATH,

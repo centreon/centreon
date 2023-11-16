@@ -36,3 +36,4 @@
 /usr/lib/nagios/plugins
 /usr/lib/centreon/plugins
 /usr/share/perl
+/usr/share/perl5
