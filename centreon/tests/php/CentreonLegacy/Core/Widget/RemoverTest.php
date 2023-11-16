@@ -150,7 +150,7 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
     {
         $query = 'DELETE FROM widget_models '
             . 'WHERE directory = :directory '
-            . 'AND is_internal = "0" ';
+            . 'AND is_internal = FALSE ';
         $this->db->addResultSet(
             $query,
             array()

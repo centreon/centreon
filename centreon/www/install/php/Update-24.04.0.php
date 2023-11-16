@@ -33,7 +33,7 @@ $updateWidgetModelsTable = function(CentreonDB $pearDB): void {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `widget_models`
-                ADD COLUMN `is_internal` enum('0','1') NOT NULL DEFAULT '0'
+                ADD COLUMN `is_internal` BOOLEAN NOT NULL DEFAULT '0'
                 AFTER `version`
                 SQL
         );
@@ -61,7 +61,7 @@ $setCoreWidgetsToInternal = function(CentreonDB $pearDB): void {
     $pearDB->query(
         <<<'SQL'
             UPDATE `widget_models`
-            SET version = NULL, is_internal = '1'
+            SET version = NULL, is_internal = TRUE
             WHERE `directory` IN (
                 'engine-status',
                 'global-health',

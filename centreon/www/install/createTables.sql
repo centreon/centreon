@@ -2108,7 +2108,7 @@ CREATE TABLE `widget_models` (
   `title` varchar(255) NOT NULL,
   `description` TEXT NOT NULL,
   `url` varchar(255) NOT NULL,
-  `is_internal` enum('0','1') NOT NULL DEFAULT '0',
+  `is_internal` BOOLEAN NOT NULL DEFAULT FALSE,
   `version` varchar(255) DEFAULT NULL,
   `directory` varchar(255) NOT NULL,
   `author` varchar(255) NOT NULL,

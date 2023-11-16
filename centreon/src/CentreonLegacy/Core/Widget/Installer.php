@@ -57,7 +57,7 @@ class Installer extends Widget
         $sth->bindValue(':description', $this->widgetConfiguration['description'], \PDO::PARAM_STR);
         $sth->bindValue(':url', $this->widgetConfiguration['url'], \PDO::PARAM_STR);
         $sth->bindValue(':version', $this->widgetConfiguration['version'], \PDO::PARAM_STR);
-        $sth->bindValue(':is_internal', $this->widgetConfiguration['version'] === null ? '1' : '0', \PDO::PARAM_STR);
+        $sth->bindValue(':is_internal', $this->widgetConfiguration['version'] === null, \PDO::PARAM_BOOL);
         $sth->bindValue(':directory', $this->widgetConfiguration['directory'], \PDO::PARAM_STR);
         $sth->bindValue(':author', $this->widgetConfiguration['author'], \PDO::PARAM_STR);
         $sth->bindValue(':email', $this->widgetConfiguration['email'], \PDO::PARAM_STR);

@@ -76,7 +76,7 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
         $widgetModelsRequest = $this->translateDbName('SELECT `title`, `version`, `is_internal` FROM `:db`.widget_models');
         if (($statement = $this->db->query($widgetModelsRequest)) !== false) {
             while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                $versions[(string) $result['title']] = $result['is_internal'] === '0'
+                $versions[(string) $result['title']] = $result['is_internal'] === 1
                     ? (string) $result['version']
                     : null;
             }

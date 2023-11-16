@@ -338,7 +338,7 @@ class Information
         foreach ($widgets as $widget) {
             // we use lowercase to avoid problems if directory name have some letters in uppercase
             $installedWidgets[strtolower($widget['directory'])] = $widget;
-            $installedWidgets[strtolower($widget['directory'])]['is_internal'] = $widget['is_internal'] === '1';
+            $installedWidgets[strtolower($widget['directory'])]['is_internal'] = $widget['is_internal'] === 1;
         }
 
         return $installedWidgets;
