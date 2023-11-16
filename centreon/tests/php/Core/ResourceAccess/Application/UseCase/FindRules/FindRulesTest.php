@@ -78,7 +78,7 @@ it('should present an ErrorResponse when an exception occurs', function (): void
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(RuleException::errorWhileSearchingRules($exception)->getMessage());
+        ->toBe(RuleException::errorWhileSearchingRules()->getMessage());
 });
 
 it('should present a FindRulesResponse when no error occurs', function (): void {
