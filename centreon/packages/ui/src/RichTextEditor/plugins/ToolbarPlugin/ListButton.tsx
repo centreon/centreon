@@ -27,7 +27,7 @@ import { useStyles } from './ToolbarPlugin.styles';
 import {
   labelOrderedList,
   labelUnorderedList
-} from 'src/RichTextEditor/translatedLabels';
+} from '../../translatedLabels';
 
 const options = [
   {

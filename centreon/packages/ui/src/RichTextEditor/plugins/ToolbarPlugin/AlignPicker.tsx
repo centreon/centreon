@@ -21,7 +21,7 @@ import { getSelectedNode } from '../../utils/getSelectedNode';
 
 import { useStyles } from './ToolbarPlugin.styles';
 
-import { labelAlignPicker } from 'src/RichTextEditor/translatedLabels';
+import { labelAlignPicker } from '../../translatedLabels';
 
 const formatOptions: Array<{
   Icon: OverridableComponent<SvgIconTypeMap<object, 'svg'>>;
