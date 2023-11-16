@@ -41,7 +41,7 @@ const useListing = (): Listing => {
   const sort = { [sortF]: sortO };
   const search = {
     regex: {
-      fields: ['name'],
+      fields: ['name', 'description'],
       value: searchValue
     }
   };

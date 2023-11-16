@@ -14,7 +14,7 @@ export const defaultQueryParams = {
   page: 1,
   search: {
     regex: {
-      fields: ['name'],
+      fields: ['name', 'description'],
       value: ''
     }
   },

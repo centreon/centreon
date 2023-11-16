@@ -70,7 +70,10 @@ describe('Filter', () => {
         {
           key: 'search',
           value: {
-            $or: [{ name: { $rg: 'foobar' } }]
+            $or: [
+              { name: { $rg: 'foobar' } },
+              { description: { $rg: 'foobar' } }
+            ]
           }
         }
       ],
