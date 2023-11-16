@@ -220,7 +220,7 @@
 								"exec": [
 									"const nextRequestInCaseOfFailure = \"[1002-cleanup] Logout from admin user and clear collection variables\"\r",
 									"\r",
-									"pm.test(\"The password for admin user was successfully updated to \" + pm.environment.get(\"passwordWithCorrectFormat\") + \".\", function () {\r",
+									"pm.test(\"The password for admin user was successfully updated to \" + pm.collectionVariables.get(\"passwordWithCorrectFormat\") + \".\", function () {\r",
 									"    const expectedResponseCode = 204\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
@@ -233,7 +233,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.environment.set(\"passwordWithCorrectFormat\", \"Centreon!2022\");"
+									"pm.collectionVariables.set(\"passwordWithCorrectFormat\", \"Centreon!2022\");"
 								],
 								"type": "text/javascript"
 							}
@@ -468,21 +468,21 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const bufferPasswords = pm.environment.get(\"bufferPasswords\");\r",
+									"const buffer_passwords = pm.collectionVariables.get(\"bufferPasswords\");\r",
 									"\r",
-									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.environment.get(\"currentPassword\") + \".\", function () {\r",
+									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"currentPassword\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});\r",
 									"\r",
 									"if(bufferPasswords && bufferPasswords.length > 0) {\r",
-									"    pm.environment.set(\"oldPassword\", pm.environment.get(\"currentPassword\"));\r",
+									"    pm.collectionVariables.set(\"oldPassword\", pm.collectionVariables.get(\"currentPassword\"));\r",
 									"    setTimeout(function(){}, [pm.environment.get(\"exportTimeoutInMilliseconds\")]);\r",
 									"    postman.setNextRequest(\"[1002-cleanup] Revert to old password using bridge passwords\");\r",
 									"} else {\r",
-									"    pm.environment.unset(\"oldPassword\");\r",
-									"    pm.environment.unset(\"currentPassword\");\r",
-									"    pm.environment.unset(\"bufferPasswords\");\r",
-									"    pm.environment.unset(\"passwordWithCorrectFormat\");\r",
+									"    pm.collectionVariables.unset(\"oldPassword\");\r",
+									"    pm.collectionVariables.unset(\"currentPassword\");\r",
+									"    pm.collectionVariables.unset(\"bufferPasswords\");\r",
+									"    pm.collectionVariables.unset(\"passwordWithCorrectFormat\");\r",
 									"    postman.setNextRequest(\"[1002-cleanup] Logout from admin user and clear collection variables\");\r",
 									"}"
 								],
@@ -493,19 +493,19 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"let oldPassword = pm.environment.get(\"oldPassword\");\r",
+									"let oldPassword = pm.collectionVariables.get(\"oldPassword\");\r",
 									"if(!oldPassword) {\r",
-									"    oldPassword = pm.environment.get(\"passwordWithCorrectFormat\");\r",
+									"    oldPassword = pm.collectionVariables.get(\"passwordWithCorrectFormat\");\r",
 									"}\r",
 									"\r",
-									"let bufferPasswords = pm.environment.get(\"bufferPasswords\");\r",
+									"let bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
 									"if (!bufferPasswords || bufferPasswords.length == 0){\r",
 									"    bufferPasswords = [\"Centreon!2023\", \"Centreon!2024\", \"Centreon!2025\", \"Centreon!2026\", \"Centreon!2027\", pm.environment.get(\"api_password\")];\r",
 									"}\r",
 									"\r",
-									"pm.environment.set(\"oldPassword\", oldPassword);\r",
-									"pm.environment.set(\"currentPassword\", bufferPasswords.shift());\r",
-									"pm.environment.set(\"bufferPasswords\", bufferPasswords);"
+									"pm.collectionVariables.set(\"oldPassword\", oldPassword);\r",
+									"pm.collectionVariables.set(\"currentPassword\", bufferPasswords.shift());\r",
+									"pm.collectionVariables.set(\"bufferPasswords\", bufferPasswords);"
 								],
 								"type": "text/javascript"
 							}
@@ -707,7 +707,7 @@
 									"const responseJson = pm.response.json();\r",
 									"const nextRequestInCaseOfFailure = \"[1003-cleanup] Logout from admin user and clear collection variables\"\r",
 									"\r",
-									"pm.test(\"The update request with password \" + pm.environment.get(\"currentPassword\") + \" was unsuccessful.\", function () {\r",
+									"pm.test(\"The update request with password \" + pm.collectionVariables.get(\"currentPassword\") + \" was unsuccessful.\", function () {\r",
 									"    const expectedResponseCode = 400\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
@@ -717,14 +717,14 @@
 									"    pm.expect(responseJson.message).to.eql(\"Your password doesn't match the security policy\");\r",
 									"});\r",
 									"\r",
-									"const incorrectPasswords = pm.environment.get(\"incorrectPasswords\");\r",
+									"const incorrectPasswords = pm.collectionVariables.get(\"incorrectPasswords\");\r",
 									"\r",
 									"if(incorrectPasswords && incorrectPasswords.length > 0) {\r",
 									"    postman.setNextRequest(\"[1003] Update user's password with incorrect password format\");\r",
 									"} else {\r",
 									"    postman.setNextRequest(\"[1003-cleanup] Logout from admin user and clear collection variables\");\r",
-									"    pm.environment.unset(\"currentPassword\");\r",
-									"    pm.environment.unset(\"incorrectPasswords\");\r",
+									"    pm.collectionVariables.unset(\"currentPassword\");\r",
+									"    pm.collectionVariables.unset(\"incorrectPasswords\");\r",
 									"}"
 								],
 								"type": "text/javascript"
@@ -734,13 +734,13 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"let incorrectPasswords = pm.environment.get(\"incorrectPasswords\");\r",
+									"let incorrectPasswords = pm.collectionVariables.get(\"incorrectPasswords\");\r",
 									"if (!incorrectPasswords || incorrectPasswords.length == 0){\r",
 									"    incorrectPasswords = [\"Centreon2021\", \"centreon!2021\", \"20210102030405\", \"\", \"CENTREON!2021\", \"CentreonTwoThousandTwentyOne\", \"centreon\", \"Cent!2\"];\r",
 									"}\r",
 									"\r",
-									"pm.environment.set(\"currentPassword\", incorrectPasswords.shift());\r",
-									"pm.environment.set(\"incorrectPasswords\", incorrectPasswords);"
+									"pm.collectionVariables.set(\"currentPassword\", incorrectPasswords.shift());\r",
+									"pm.collectionVariables.set(\"incorrectPasswords\", incorrectPasswords);"
 								],
 								"type": "text/javascript"
 							}
@@ -954,7 +954,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.environment.set(\"passwordWithCorrectFormat\", \"Centreon!2022\");"
+									"pm.collectionVariables.set(\"passwordWithCorrectFormat\", \"Centreon!2022\");"
 								],
 								"type": "text/javascript"
 							}
@@ -1066,14 +1066,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const buffer_passwords = pm.environment.get(\"buffer_passwords\");\r",
+									"const buffer_passwords = pm.collectionVariables.get(\"buffer_passwords\");\r",
 									"\r",
-									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.environment.get(\"current_password\") + \".\", function () {\r",
+									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"current_password\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});\r",
 									"\r",
 									"if(buffer_passwords && buffer_passwords.length > 0) {\r",
-									"    pm.environment.set(\"old_password\", pm.environment.get(\"current_password\"));\r",
+									"    pm.collectionVariables.set(\"old_password\", pm.collectionVariables.get(\"current_password\"));\r",
 									"    setTimeout(function(){}, [pm.environment.get(\"exportTimeoutInMilliseconds\")]);\r",
 									"    postman.setNextRequest(\"[1004-cleanup] Revert to old password using bridge passwords\");\r",
 									"} else {\r",
@@ -1091,24 +1091,24 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"let old_password = pm.environment.get(\"old_password\");\r",
+									"let old_password = pm.collectionVariables.get(\"old_password\");\r",
 									"if(!old_password) {\r",
-									"    old_password = pm.environment.get(\"passwordWithCorrectFormat\");\r",
+									"    old_password = pm.collectionVariables.get(\"passwordWithCorrectFormat\");\r",
 									"}\r",
 									"\r",
-									"let buffer_passwords = pm.environment.get(\"buffer_passwords\");\r",
+									"let buffer_passwords = pm.collectionVariables.get(\"buffer_passwords\");\r",
 									"if (!buffer_passwords || buffer_passwords.length == 0){\r",
-									"    bufferPasswords = [\"Centreon!2023\", \"Centreon!2024\", \"Centreon!2025\", \"Centreon!2026\", \"Centreon!2027\", pm.environment.get(\"api_password\")];\r",
+									"    buffer_passwords = [\"Centreon!2023\", \"Centreon!2024\", \"Centreon!2025\", \"Centreon!2026\", \"Centreon!2027\", pm.environment.get(\"api_password\")];\r",
 									"}\r",
 									"\r",
 									"current_password = buffer_passwords.shift();\r",
 									"\r",
-									"pm.environment.set(\"old_password\", old_password);\r",
-									"pm.environment.set(\"current_password\", current_password);\r",
-									"pm.environment.set(\"buffer_passwords\", buffer_passwords);\r",
-									"console.log(\"old_password = \" + pm.environment.get(\"old_password\"));\r",
-									"console.log(\"current_password = \" + pm.environment.get(\"current_password\"));\r",
-									"console.log(\"buffer_passwords = \" + pm.environment.get(\"buffer_passwords\"));"
+									"pm.collectionVariables.set(\"old_password\", old_password);\r",
+									"pm.collectionVariables.set(\"current_password\", current_password);\r",
+									"pm.collectionVariables.set(\"buffer_passwords\", buffer_passwords);\r",
+									"console.log(\"old_password = \" + pm.collectionVariables.get(\"old_password\"));\r",
+									"console.log(\"current_password = \" + pm.collectionVariables.get(\"current_password\"));\r",
+									"console.log(\"buffer_passwords = \" + pm.collectionVariables.get(\"buffer_passwords\"));"
 								],
 								"type": "text/javascript"
 							}
