@@ -48,7 +48,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    getOptionDisabled
+    getOptionDisabled,
+    deleteResourceItem
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -91,7 +92,13 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               allowUniqOption
               get
               chipProps={{
-                color: 'primary'
+                color: 'primary',
+                onDelete: (_, option): void =>
+                  deleteResourceItem({
+                    index,
+                    option,
+                    resources: resource.resources
+                  })
               }}
               className={classes.resources}
               disabled={!canEditField || !resource.resourceType}
