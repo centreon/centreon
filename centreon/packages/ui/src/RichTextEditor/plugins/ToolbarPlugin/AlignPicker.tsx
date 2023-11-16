@@ -18,10 +18,9 @@ import { SvgIconTypeMap } from '@mui/material';
 
 import { Menu } from '../../../components';
 import { getSelectedNode } from '../../utils/getSelectedNode';
+import { labelAlignPicker } from '../../translatedLabels';
 
 import { useStyles } from './ToolbarPlugin.styles';
-
-import { labelAlignPicker } from '../../translatedLabels';
 
 const formatOptions: Array<{
   Icon: OverridableComponent<SvgIconTypeMap<object, 'svg'>>;

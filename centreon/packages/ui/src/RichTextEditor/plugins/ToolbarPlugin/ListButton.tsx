@@ -21,13 +21,9 @@ import UnorderedListIcon from '@mui/icons-material/FormatListBulleted';
 import OrderedListIcon from '@mui/icons-material/FormatListNumbered';
 
 import { Menu } from '../../../components';
+import { labelOrderedList, labelUnorderedList } from '../../translatedLabels';
 
 import { useStyles } from './ToolbarPlugin.styles';
-
-import {
-  labelOrderedList,
-  labelUnorderedList
-} from '../../translatedLabels';
 
 const options = [
   {
