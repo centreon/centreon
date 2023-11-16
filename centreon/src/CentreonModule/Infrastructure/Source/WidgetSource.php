@@ -177,7 +177,8 @@ class WidgetSource extends SourceAbstract
             $entity->setVersionCurrent($this->info[$entity->getId()]);
             $entity->setInstalled(true);
 
-            $isUpdated = $this->isUpdated($this->info[$entity->getId()], $entity->getVersion());
+            $isUpdated =
+                $entity->isInternal() || $this->isUpdated($this->info[$entity->getId()], $entity->getVersion());
             $entity->setUpdated($isUpdated);
         }
 
