@@ -20,6 +20,7 @@ import { Menu } from '../../../components';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 
 import { useStyles } from './ToolbarPlugin.styles';
+
 import { labelAlignPicker } from 'src/RichTextEditor/translatedLabels';
 
 const formatOptions: Array<{

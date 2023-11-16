@@ -15,6 +15,7 @@ import {
 } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import UnorderedListIcon from '@mui/icons-material/FormatListBulleted';
 import OrderedListIcon from '@mui/icons-material/FormatListNumbered';
@@ -22,8 +23,11 @@ import OrderedListIcon from '@mui/icons-material/FormatListNumbered';
 import { Menu } from '../../../components';
 
 import { useStyles } from './ToolbarPlugin.styles';
-import { useTranslation } from 'react-i18next';
-import { labelOrderedList, labelUnorderedList } from 'src/RichTextEditor/translatedLabels';
+
+import {
+  labelOrderedList,
+  labelUnorderedList
+} from 'src/RichTextEditor/translatedLabels';
 
 const options = [
   {
@@ -43,8 +47,8 @@ interface Props {
 }
 
 const ListButton = ({ disabled }: Props): JSX.Element => {
-  const {t}  = useTranslation();
   const { classes } = useStyles();
+  const { t } = useTranslation();
 
   const [editor] = useLexicalComposerContext();
 
