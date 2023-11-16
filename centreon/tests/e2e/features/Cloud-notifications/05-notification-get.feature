@@ -8,7 +8,7 @@ Feature: Get notification rules
   Background:
     Given a user with access to the notification rules page
     And the user is on the notification rules page
-    And a minimal one of notification rule is created
+    And  There is at least one minimum notification rule
     And pagination is defined to 10 items
 
   Scenario Outline: Getting notifications rules with pagination
