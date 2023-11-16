@@ -5,3 +5,5 @@ export const labelAllServicesAreWorkingFine =
   'All services on this host are working fine.';
 export const labelAcknowledged = 'Acknowledged';
 export const labelInDowntime = 'In downtime';
+export const labelAllMetricsAreWorkingFine =
+  'All metrics on this service are working fine.';

@@ -3,7 +3,11 @@ import { equals, isNil } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { useFetchQuery, useLocaleDateTimeFormat } from '@centreon/ui';
+import {
+  LoadingSkeleton,
+  useFetchQuery,
+  useLocaleDateTimeFormat
+} from '@centreon/ui';
 
 import { labelAcknowledged, labelInDowntime } from '../translatedLabels';
 
@@ -17,7 +21,7 @@ const State = ({ endpoint, type }: Props): JSX.Element | null => {
 
   const { format } = useLocaleDateTimeFormat();
 
-  const { data } = useFetchQuery({
+  const { data, isLoading } = useFetchQuery({
     getEndpoint: () => endpoint,
     getQueryKey: () => ['statusgrid', type, endpoint],
     queryOptions: {
@@ -26,6 +30,10 @@ const State = ({ endpoint, type }: Props): JSX.Element | null => {
   });
 
   const state = data?.result[0];
+
+  if (isLoading && isNil(data)) {
+    return <LoadingSkeleton variant="text" width="100%" />;
+  }
 
   if (isNil(data)) {
     return null;

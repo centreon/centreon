@@ -30,19 +30,23 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   },
   dot: {
     borderRadius: '50%',
-    height: theme.spacing(0.5),
-    width: theme.spacing(0.5)
+    height: theme.spacing(1),
+    width: theme.spacing(1)
   },
   header: {
+    alignItems: 'center',
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
     display: 'flex',
-    justifyContent: 'center',
-    padding: theme.spacing(1, 0),
+    flexDirection: 'column',
+    padding: theme.spacing(1),
     width: '100%'
   },
-  name: {
-    padding: theme.spacing(0, 1)
+  metric: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1),
+    justifyContent: 'space-between'
   },
   parent: {
     alignItems: 'center',

@@ -1,5 +1,5 @@
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { dec, equals, isEmpty } from 'ramda';
 import dayjs from 'dayjs';
 
 import {
@@ -15,30 +15,23 @@ import { SeverityCode, useLocaleDateTimeFormat } from '@centreon/ui';
 import { ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
 import { getColor } from '../utils';
-import {
-  labelAllServicesAreWorkingFine,
-  labelServiceName
-} from '../translatedLabels';
+import { labelAllMetricsAreWorkingFine } from '../translatedLabels';
 
-import { useHostTooltipContent } from './useHostTooltipContent';
+import useServiceTooltipContent from './useServiceTooltipContent';
 import States from './States';
 
 interface Props {
   data: ResourceData;
 }
 
-const HostTooltipContent = ({ data }: Props): JSX.Element => {
+const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
   const { classes } = useHostTooltipContentStyles();
   const { t } = useTranslation();
   const theme = useTheme();
 
+  const { problematicMetrics, isLoading } = useServiceTooltipContent(data);
+
   const { format } = useLocaleDateTimeFormat();
-
-  const { services, elementRef, isLoading } = useHostTooltipContent({
-    name: data.name
-  });
-
-  const hasServices = !isEmpty(services);
 
   const statusOk = equals(data.status, SeverityCode.OK);
 
@@ -50,13 +43,24 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
     <Box>
       <Box className={classes.header}>
         <Typography
-          className={classes.name}
           sx={{
             color: getColor({ severityCode: data.status, theme })
           }}
         >
           <strong>{data.name}</strong>
         </Typography>
+        <Box className={classes.parent}>
+          <Box
+            className={classes.dot}
+            sx={{
+              backgroundColor: getColor({
+                severityCode: data.parentStatus,
+                theme
+              })
+            }}
+          />
+          <Typography variant="body2">{data.parentName}</Typography>
+        </Box>
       </Box>
       <Box className={classes.body}>
         {mentionStatus && (
@@ -66,37 +70,23 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
         )}
         <States data={data} />
         <Box className={classes.servicesContainer}>
-          {hasServices && (
-            <div>
-              <Typography>
-                <strong>{t(labelServiceName)}</strong>
+          {problematicMetrics.map(({ name, status, value }) => (
+            <Box className={classes.metric} key={name}>
+              <Typography variant="body1">{name}</Typography>
+              <Typography
+                sx={{ color: getColor({ severityCode: status, theme }) }}
+                variant="body1"
+              >
+                {value}
               </Typography>
-              {services.map(({ name, status }, index) => {
-                const isLastElement = equals(dec(services.length), index);
-
-                return (
-                  <Typography
-                    key={name}
-                    ref={isLastElement ? elementRef : undefined}
-                    sx={{
-                      color: getColor({
-                        severityCode: status?.severity_code,
-                        theme
-                      })
-                    }}
-                  >
-                    {name}
-                  </Typography>
-                );
-              })}
-            </div>
-          )}
-          {!hasServices && !isLoading && statusOk && (
+            </Box>
+          ))}
+          {isLoading && <CircularProgress size={24} />}
+          {statusOk && (
             <Typography color="text.secondary">
-              {t(labelAllServicesAreWorkingFine)}
+              {t(labelAllMetricsAreWorkingFine)}
             </Typography>
           )}
-          {isLoading && <CircularProgress size={24} />}
         </Box>
         <Divider variant="middle" />
         <Typography
@@ -111,4 +101,4 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
   );
 };
 
-export default HostTooltipContent;
+export default ServiceTooltipContent;

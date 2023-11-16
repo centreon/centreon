@@ -37,7 +37,7 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const format = ({ date, formatString }: FormatParameters): string => {
     const normalizedLocale = locale.substring(0, 2);
 
-    const timezoneDate = dayjs.tz(date, timezone).locale(normalizedLocale);
+    const timezoneDate = dayjs(date).tz(timezone).locale(normalizedLocale);
 
     return timezoneDate.format(formatString);
   };

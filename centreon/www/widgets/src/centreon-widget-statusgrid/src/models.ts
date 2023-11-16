@@ -83,11 +83,23 @@ export interface ResourceData {
   acknowledgementEndpoint?: string;
   downtimeEndpoint?: string;
   information?: string;
-  is_acknowledged: boolean;
-  is_in_downtime: boolean;
+  is_acknowledged?: boolean;
+  is_in_downtime?: boolean;
+  metricsEndpoint?: string;
   name: string;
   parentName?: string;
   parentStatus?: number;
   status?: number;
   statusName?: string;
+}
+
+export interface MetricProps {
+  criticalHighThreshold: number | null;
+  criticalLowThreshold: number | null;
+  currentValue: number | null;
+  id: number;
+  name: string;
+  unit: string;
+  warningHighThreshold: number | null;
+  warningLowThreshold: number | null;
 }

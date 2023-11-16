@@ -100,6 +100,7 @@ const StatusGrid = ({
               information,
               is_acknowledged,
               is_in_downtime,
+              metricsEndpoint: links?.endpoints.metrics,
               name,
               parentName: parent?.name,
               parentStatus: parent?.status?.severity_code,

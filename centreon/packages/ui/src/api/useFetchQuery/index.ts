@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import 'ulog';
 import {
@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
-import { has, includes, not, omit } from 'ramda';
+import { has, includes, isNil, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
@@ -59,6 +59,8 @@ const useFetchQuery = <T extends object>({
   queryOptions,
   httpCodesBypassErrorSnackbar = []
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
+  const dataRef = useRef<T | undefined>(undefined);
+
   const { showErrorMessage } = useSnackbar();
 
   const queryData = useQuery<T | ResponseError, Error>({
@@ -154,6 +156,10 @@ const useFetchQuery = <T extends object>({
     [queryData.data]
   );
 
+  if (!isNil(data)) {
+    dataRef.current = data;
+  }
+
   const errorData = queryData.data as ResponseError | undefined;
 
   useEffect(() => {
@@ -171,7 +177,7 @@ const useFetchQuery = <T extends object>({
 
   return {
     ...omit(['data', 'error'], queryData),
-    data,
+    data: dataRef.current,
     error: errorData?.isError ? omit(['isError'], errorData) : null,
     fetchQuery,
     prefetchNextPage,
