@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "54b6b93f-f927-45e6-99c8-891bab656a6f",
+		"_postman_id": "0fad9f13-f419-44c9-a445-275ac4b8f8c5",
 		"name": "10 - Authentication on an admin account - Centreon Web Refactored API Test Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22770334"
@@ -496,6 +496,8 @@
 									"let oldPassword = pm.collectionVariables.get(\"oldPassword\");\r",
 									"if(!oldPassword) {\r",
 									"    oldPassword = pm.collectionVariables.get(\"passwordWithCorrectFormat\");\r",
+									"} else {\r",
+									"    old_password = pm.collectionVariables.get(\"current_password\");\r",
 									"}\r",
 									"\r",
 									"let bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
@@ -505,7 +507,10 @@
 									"\r",
 									"pm.collectionVariables.set(\"oldPassword\", oldPassword);\r",
 									"pm.collectionVariables.set(\"currentPassword\", bufferPasswords.shift());\r",
-									"pm.collectionVariables.set(\"bufferPasswords\", bufferPasswords);"
+									"pm.collectionVariables.set(\"bufferPasswords\", bufferPasswords);\r",
+									"console.log(\"old_password = \" + pm.collectionVariables.get(\"old_password\"));\r",
+									"console.log(\"current_password = \" + pm.collectionVariables.get(\"current_password\"));\r",
+									"console.log(\"bufferPasswords = \" + pm.collectionVariables.get(\"bufferPasswords\"));"
 								],
 								"type": "text/javascript"
 							}
@@ -1091,9 +1096,11 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"let old_password = pm.collectionVariables.get(\"old_password\");\r",
-									"if(!old_password) {\r",
-									"    old_password = pm.collectionVariables.get(\"passwordWithCorrectFormat\");\r",
+									"let oldPassword = pm.collectionVariables.get(\"oldPassword\");\r",
+									"if(!oldPassword) {\r",
+									"    oldPassword = pm.collectionVariables.get(\"passwordWithCorrectFormat\");\r",
+									"} else {\r",
+									"    old_password = pm.collectionVariables.get(\"current_password\");\r",
 									"}\r",
 									"\r",
 									"let bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
@@ -1101,11 +1108,8 @@
 									"    bufferPasswords = [\"Centreon!2023\", \"Centreon!2024\", \"Centreon!2025\", \"Centreon!2026\", \"Centreon!2027\", pm.environment.get(\"api_password\")];\r",
 									"}\r",
 									"\r",
-									"old_password = pm.collectionVariables.get(\"current_password\");\r",
-									"current_password = bufferPasswords.shift();\r",
-									"\r",
-									"pm.collectionVariables.set(\"old_password\", old_password);\r",
-									"pm.collectionVariables.set(\"current_password\", current_password);\r",
+									"pm.collectionVariables.set(\"oldPassword\", oldPassword);\r",
+									"pm.collectionVariables.set(\"currentPassword\", bufferPasswords.shift());\r",
 									"pm.collectionVariables.set(\"bufferPasswords\", bufferPasswords);\r",
 									"console.log(\"old_password = \" + pm.collectionVariables.get(\"old_password\"));\r",
 									"console.log(\"current_password = \" + pm.collectionVariables.get(\"current_password\"));\r",
