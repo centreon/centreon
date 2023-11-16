@@ -1392,7 +1392,7 @@ sub run {
         # $watcher->stop();
         $gorgone->{logger}->writeLogDebug("!!!!!! START !!!!!!");
 
-        $gorgone->{logger}->writeLogDebug("[core] SOCKET HAS CHANGED : " . (scalar(@$revents)) . " EVENTS");
+        $gorgone->{logger}->writeLogDebug("[core] SOCKET HAS CHANGED : EVENTS");
 
         $gorgone->{logger}->writeLogDebug("[core] Calling router_internal_event from watcher_io_internal");
         $gorgone->router_internal_event();
