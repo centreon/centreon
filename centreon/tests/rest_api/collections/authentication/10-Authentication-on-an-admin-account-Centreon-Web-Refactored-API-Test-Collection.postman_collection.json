@@ -1102,13 +1102,13 @@
 									"}\r",
 									"\r",
 									"current_password = buffer_passwords.shift();\r",
-									"console.log(\"old_password = \" + pm.environment.get(\"old_password\"));\r",
-									"console.log(\"current_password = \" + pm.environment.get(\"current_password\"));\r",
-									"console.log(\"buffer_passwords = \" + pm.environment.get(\"buffer_passwords\"));\r",
 									"\r",
 									"pm.environment.set(\"old_password\", old_password);\r",
 									"pm.environment.set(\"current_password\", current_password);\r",
-									"pm.environment.set(\"buffer_passwords\", buffer_passwords);"
+									"pm.environment.set(\"buffer_passwords\", buffer_passwords);\r",
+									"console.log(\"old_password = \" + pm.environment.get(\"old_password\"));\r",
+									"console.log(\"current_password = \" + pm.environment.get(\"current_password\"));\r",
+									"console.log(\"buffer_passwords = \" + pm.environment.get(\"buffer_passwords\"));"
 								],
 								"type": "text/javascript"
 							}
