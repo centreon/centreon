@@ -49,7 +49,7 @@ final class FindRulesPresenter extends AbstractPresenter implements FindRulesPre
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            foreach ($response->rulesDTO as $dto) {
+            foreach ($response->rulesDto as $dto) {
                 $result[] = [
                     'id' => $dto->id,
                     'name' => $dto->name,

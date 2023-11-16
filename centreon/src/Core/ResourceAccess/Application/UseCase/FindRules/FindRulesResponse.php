@@ -25,6 +25,6 @@ namespace Core\ResourceAccess\Application\UseCase\FindRules;
 
 final class FindRulesResponse
 {
-    /** @var RuleDTO[] */
-    public array $rulesDTO = [];
+    /** @var RuleDto[] */
+    public array $rulesDto = [];
 }

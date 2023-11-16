@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\ResourceAccess\Application\Exception\RuleException;
@@ -74,10 +75,11 @@ final class FindRules
             $presenter->presentResponse(
                 $this->createResponse($rules)
             );
+        } catch (RequestParametersTranslatorException $ex) {
+            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(
-                new ErrorResponse(RuleException::errorWhileSearchingRules())
-            );
+            $presenter->presentResponse(new ErrorResponse(RuleException::errorWhileSearchingRules()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
@@ -91,14 +93,14 @@ final class FindRules
     {
         $response = new FindRulesResponse();
         foreach ($rules as $rule) {
-            $dto = new RuleDTO(
+            $dto = new RuleDto(
                 $rule->getId(),
                 $rule->getName(),
                 $rule->isEnabled()
             );
 
             $dto->description = $rule->getDescription();
-            $response->rulesDTO[] = $dto;
+            $response->rulesDto[] = $dto;
         }
 
         return $response;

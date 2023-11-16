@@ -26,6 +26,7 @@ namespace Tests\Core\ResourceAccess\Application\UseCase\FindRules;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -81,6 +82,24 @@ it('should present an ErrorResponse when an exception occurs', function (): void
         ->toBe(RuleException::errorWhileSearchingRules()->getMessage());
 });
 
+it('should present an ErrorResponse when an error occurs concerning the request parameters', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->with(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+        ->willReturn(true);
+
+    $this->repository
+        ->expects($this->once())
+        ->method('findAllByRequestParameters')
+        ->with($this->requestParameters)
+        ->willThrowException(new RequestParametersTranslatorException());
+
+    ($this->useCase)($this->presenter);
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ErrorResponse::class);
+});
+
 it('should present a FindRulesResponse when no error occurs', function (): void {
     $this->user
         ->expects($this->once())
@@ -100,9 +119,9 @@ it('should present a FindRulesResponse when no error occurs', function (): void 
     ($this->useCase)($this->presenter);
     $response = $this->presenter->response;
     expect($response)->toBeInstanceOf(FindRulesResponse::class)
-        ->and($response->rulesDTO[0]->id)->toBe($rule->getId())
-        ->and($response->rulesDTO[0]->name)->toBe($rule->getName())
-        ->and($response->rulesDTO[0]->description)->toBe($rule->getDescription())
-        ->and($response->rulesDTO[0]->isEnabled)->toBe($rule->isEnabled());
+        ->and($response->rulesDto[0]->id)->toBe($rule->getId())
+        ->and($response->rulesDto[0]->name)->toBe($rule->getName())
+        ->and($response->rulesDto[0]->description)->toBe($rule->getDescription())
+        ->and($response->rulesDto[0]->isEnabled)->toBe($rule->isEnabled());
 });
 

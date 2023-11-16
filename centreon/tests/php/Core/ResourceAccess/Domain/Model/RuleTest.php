@@ -53,6 +53,17 @@ it('should return properly set Rule instance (mandatory properties only)', funct
         ->and($rule->isEnabled())->toBe(false);
 });
 
+it('should throw an exception when rules id is not a positive int', function (): void {
+    new Rule(
+        id: 0,
+        name: '',
+        isEnabled: false
+    );
+})->throws(
+    InvalidArgumentException::class,
+    AssertionException::positiveInt(0, 'Rule::id')->getMessage()
+);
+
 it('should throw an exception when rules name is an empty string', function (): void {
     new Rule(
         id: 1,
