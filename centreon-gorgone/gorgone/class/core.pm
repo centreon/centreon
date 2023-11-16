@@ -772,6 +772,8 @@ sub router_internal_event {
 
             next if (!defined($identity));
 
+            next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
+
             $self->{logger}->writeLogDebug("[core] pushing new event with identity : " . $identity);
             push(@{$self->{ievents}}, [$identity, $frame]);
         }
@@ -789,9 +791,10 @@ sub router_internal_event {
 
     my $numEvents = 0;
     while (my $event = shift(@{$self->{ievents}})) {
+        my $start = time();
         $numEvents++;
         $self->{logger}->writeLogDebug("[core] Managing event number : " . $numEvents);
-        next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
+        # next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
 
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
@@ -808,6 +811,7 @@ sub router_internal_event {
             code          => $code,
             token         => $token
         );
+        $self->{logger}->writeLogDebug("[core] Ellapsed milliseconds to send message : " . (time() - $start));
     }
 
     $self->{logger}->writeLogError("[core] ending router_internal_event");
