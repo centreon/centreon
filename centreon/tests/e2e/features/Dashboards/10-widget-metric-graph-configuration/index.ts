@@ -4,13 +4,15 @@ import { PatternType } from '../../../support/commands';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
+import metricsGraphDoublecWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 
 before(() => {
   cy.startWebContainer();
-  // cy.execInContainer({
-  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-  //   name: Cypress.env('dockerName')
-  // });
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
@@ -31,11 +33,14 @@ before(() => {
     method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
+  cy.intercept({
+    method: 'GET',
+    url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
+  }).as('performanceData');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.default });
   cy.logoutViaAPI();
 });
 
@@ -56,6 +61,10 @@ beforeEach(() => {
     method: 'PATCH',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
+  cy.intercept({
+    method: 'GET',
+    url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
+  }).as('performanceData');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
@@ -63,11 +72,14 @@ beforeEach(() => {
   cy.visit('/centreon/home/dashboards');
 });
 
-after(() => {
+afterEach(() => {
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
+});
+
+after(() => {
   cy.stopWebContainer();
 });
 
@@ -100,7 +112,7 @@ When('selects the widget type "Metrics graph"', () => {
 });
 
 Then(
-  'configuration properties for the Generic text widget are displayed',
+  'configuration properties for the Metrics graph widget are displayed',
   () => {
     cy.contains('Widget properties').should('exist');
     cy.getByLabel({ label: 'Title' }).should('exist');
@@ -117,39 +129,351 @@ When(
       .eq(0)
       .type(genericTextWidgets.default.description);
     cy.getByTestId({ testId: 'Resource type' }).realClick();
-    cy.get('[class*="MuiMenuItem-gutters"]').eq(0).click();
+    cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.get('[class^="MuiAutocomplete-listbox"]').click();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.get('[class^="MuiAutocomplete-option"]').eq(0).click();
-    cy.wait(3000)
+    cy.get('[class^="MuiAutocomplete-option"]').eq(0).realClick();
+    cy.wait('@performanceData');
   }
 );
 
-Then("the same text is displayed in the widget's preview", () => {
-  cy.getByLabel({ label: 'RichTextEditor' })
-    .eq(1)
-    .should('contain.text', genericTextWidgets.default.description);
+Then("a graph with a single bar is displayed in the widget's preview", () => {
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
+  cy.getByTestId({ testId: 'Min' }).should('exist');
+  cy.getByTestId({ testId: 'Max' }).should('exist');
+  cy.getByTestId({ testId: 'Avg' }).should('exist');
 });
 
-When('the user saves the widget containing the Generic text', () => {
+When(
+  'this bar represents the evolution of the selected metric over the default period of time',
+  () => {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentTimeOfDay = currentHour >= 12 ? 'PM' : 'AM';
+
+    cy.get('.visx-group.visx-axis-bottom text')
+      .last()
+      .invoke('text')
+      .then((elementText) => {
+        const [elementHour, , elementTimeOfDay] = elementText.split(/:| /);
+        const parsedElementHour = Number(elementHour);
+
+        // Attempt the initial expectation
+        expect(parsedElementHour).to.satisfy((hour) => {
+          return hour === currentHour % 12 || hour === (currentHour - 1) % 12 || hour === 12;
+        });
+
+        // If the initial expectation fails, try the alternative
+        if (parsedElementHour !== currentHour % 12 && parsedElementHour !== (currentHour - 1) % 12) {
+          expect(parsedElementHour).to.eq((currentHour - 1) % 12 || 12);
+        }
+
+        expect(elementTimeOfDay).to.eq(currentTimeOfDay);
+  }
+);
+
+When('the user saves the Metrics Graph widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();
 });
 
-Then("the Generic text widget is added in the dashboard's layout", () => {
-  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
-  cy.contains('Your widget has been created successfully!').should('exist');
-  cy.getByTestId({
-    patternType: PatternType.startsWith,
-    testId: 'panel_/widgets/generictext'
-  }).should('exist');
+Then("the Metrics Graph widget is added to the dashboard's layout", () => {
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
 });
 
-Then('its title and description are displayed', () => {
-  cy.contains(genericTextWidgets.default.title).should('exist');
-  cy.contains(genericTextWidgets.default.description).should('exist');
-  cy.getByTestId({ testId: 'save_dashboard' }).click();
-  cy.wait('@updateDashboard');
-  cy.contains(genericTextWidgets.default.title).should('exist');
-  cy.contains(genericTextWidgets.default.description).should('exist');
+Then('the information about the selected metric is displayed', () => {
+  cy.get('[data-testid^="warning-line-"][data-testid$="-tooltip"]').should(
+    'exist'
+  );
+  cy.getByTestId({ testId: 'Min' }).should('exist');
+  cy.getByTestId({ testId: 'Max' }).should('exist');
+  cy.getByTestId({ testId: 'Avg' }).should('exist');
 });
+
+Given('a dashboard featuring having Metrics Graph widget', () => {
+  cy.insertDashboardWithMetricsGraphWidget(
+    dashboards.default,
+    metricsGraphWidget
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.wait('@performanceData');
+  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+});
+
+When(
+  'the dashboard administrator user updates the custom warning threshold',
+  () => {
+    cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
+    cy.contains('Custom').find('input').eq(0).click();
+    cy.getByLabel({
+      label: 'Thresholds',
+      tag: 'input'
+    }).type('500');
+  }
+);
+
+Then(
+  'the Metrics Graph widget is refreshed to display the updated warning threshold horizontal bar',
+  () => {
+    cy.getByTestId({ testId: 'warning-line-500-tooltip' }).should('exist');
+  }
+);
+
+When(
+  'the dashboard administrator user updates the custom critical threshold',
+  () => {
+    cy.get('input[type="radio"][value="custom"]').eq(1).click({ force: true });
+    cy.getByLabel({
+      label: 'Thresholds',
+      tag: 'input'
+    })
+      .eq(1)
+      .type('300', { force: true });
+  }
+);
+
+Then(
+  'the Metrics Graph widget is refreshed to display the updated critical threshold horizontal bar',
+  () => {
+    cy.getByTestId({ testId: 'critical-line-300-tooltip' }).should('exist');
+  }
+);
+
+When(
+  'the dashboard administrator user updates a threshold to a value beyond the default range of the Y-axis',
+  () => {
+    cy.get('input[type="radio"][value="custom"]').eq(1).click({ force: true });
+    cy.getByLabel({
+      label: 'Thresholds',
+      tag: 'input'
+    })
+      .eq(1)
+      .clear();
+    cy.getByLabel({
+      label: 'Thresholds',
+      tag: 'input'
+    })
+      .eq(1)
+      .type('600', { force: true });
+  }
+);
+
+Then(
+  'the Y-axis of the Metrics Graph widget is updated to reflect the change in threshold',
+  () => {
+    cy.getByTestId({ testId: 'critical-line-600-tooltip' }).should('exist');
+  }
+);
+
+Given('a dashboard that includes a configured Metrics Graph widget', () => {
+  cy.insertDashboardWithMetricsGraphWidget(
+    dashboards.default,
+    metricsGraphWidget
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+});
+
+When(
+  'the dashboard administrator user duplicates the Metrics Graph widget',
+  () => {
+    cy.getByLabel({
+      label: 'Edit dashboard',
+      tag: 'button'
+    }).click();
+    cy.wait('@performanceData');
+    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  }
+);
+
+Then('a second Metrics Graph widget is displayed on the dashboard', () => {
+  cy.getByTestId({ testId: 'Min' }).eq(1).should('exist');
+  cy.getByTestId({ testId: 'Max' }).eq(1).should('exist');
+  cy.getByTestId({ testId: 'Avg' }).eq(1).should('exist');
+});
+
+Then('the second widget has the same properties as the first widget', () => {
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).eq(1).should('exist');
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).eq(1).should('exist');
+});
+
+Given('a dashboard featuring two Metrics Graph widgets', () => {
+  cy.insertDashboardWithMetricsGraphWidget(
+    dashboards.default,
+    metricsGraphDoublecWidget
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
+  cy.wait('@performanceData');
+});
+
+When(
+  'the dashboard administrator user deletes one of the Metrics Graph widgets',
+  () => {
+    cy.getByTestId({ testId: 'DeleteIcon' }).click();
+    cy.getByLabel({
+      label: 'Delete',
+      tag: 'li'
+    }).realClick();
+  }
+);
+
+Then(
+  'only the contents of the other Metrics Graph widget are displayed',
+  () => {
+    cy.getByTestId({ testId: 'Min' }).should('exist');
+    cy.getByTestId({ testId: 'Max' }).should('exist');
+    cy.getByTestId({ testId: 'Avg' }).should('exist');
+  }
+);
+
+Given('Given a dashboard featuring a configured Metrics Graph widget', () => {
+  cy.insertDashboardWithMetricsGraphWidget(
+    dashboards.default,
+    metricsGraphWidget
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.wait('@performanceData');
+  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+});
+
+When(
+  'the dashboard administrator user selects the option to have a customized time period',
+  () => {
+    cy.wait('@performanceData');
+    cy.getByTestId({ testId: 'Time period' }).realClick();
+    cy.getByLabel({
+      label: 'Customize',
+      tag: 'li'
+    }).click();
+  }
+);
+
+Then(
+  'additional options to configure a customized time period are displayed',
+  () => {
+    cy.getByTestId({ testId: 'CalendarIcon' }).eq(0).should('exist');
+    cy.getByTestId({ testId: 'CalendarIcon' }).eq(1).should('exist');
+  }
+);
+
+When('the dashboard administrator user inputs a customized time period', () => {
+  cy.getByTestId({ testId: 'CalendarIcon' }).eq(0).click();
+  cy.get('.MuiPickersDay-root[data-timestamp]').first().click();
+  cy.getByTestId({ testId: 'CalendarIcon' }).eq(1).click();
+  cy.get('.MuiPickersDay-root[data-timestamp]').last().click();
+});
+
+Then(
+  'the X-axis of the Metrics Graph widget is updated to reflect the customized time period',
+  () => {
+    cy.get('.visx-group.visx-axis-bottom text')
+      .last()
+      .invoke('text')
+      .should('match', /\d{2}\/\d{2}\/\d{4}/);
+  }
+);
+
+Given('a dashboard featuring a configured Metrics Graph widget', () => {
+  cy.insertDashboardWithMetricsGraphWidget(
+    dashboards.default,
+    metricsGraphWidget
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+  cy.wait('@performanceData');
+});
+
+When(
+  'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
+  () => {
+    cy.getByTestId({ testId: 'Select metric' }).click();
+    cy.get('[class^="MuiAutocomplete-option"]').eq(1).realClick();
+  }
+);
+
+Then(
+  'additional bars representing the metric behavior of these metrics are added to the Metrics Graph widget',
+  () => {
+    cy.getByTestId({ testId: 'Min' }).eq(1).should('exist');
+    cy.getByTestId({ testId: 'Max' }).eq(1).should('exist');
+    cy.getByTestId({ testId: 'Avg' }).eq(1).should('exist');
+  }
+);
+
+Then(
+  'an additional Y-axis based on the unit of these additional bars is displayed',
+  () => {
+    cy.get('p[aria-label="Centreon-Server: Packet Loss (%)"]').should('exist');
+  }
+);
+
+Then('the thresholds are automatically hidden', () => {
+  cy.get('span[data-checked="false"]').should('exist');
+ }
+);
