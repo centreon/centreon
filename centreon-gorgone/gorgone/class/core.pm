@@ -791,7 +791,7 @@ sub router_internal_event {
 
     my $numEvents = 0;
     while (my $event = shift(@{$self->{ievents}})) {
-        my $start = time();
+        my $start = time() * 1000;
         $numEvents++;
         $self->{logger}->writeLogDebug("[core] Managing event number : " . $numEvents);
         # next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
@@ -811,7 +811,7 @@ sub router_internal_event {
             code          => $code,
             token         => $token
         );
-        $self->{logger}->writeLogDebug("[core] Ellapsed milliseconds to send message : " . (time() - $start));
+        $self->{logger}->writeLogDebug("[core] Ellapsed milliseconds to send message : " . ((time() * 1000) - $start));
     }
 
     $self->{logger}->writeLogError("[core] ending router_internal_event");
