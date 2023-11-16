@@ -23,6 +23,10 @@
         "webpack",
         "cypress"
     ],
+    "peerDependencies": {
+        "prettier": "^3.0.0",
+        "eslint": "^8.53.0"
+    },
     "dependencies": {
         "@badeball/cypress-cucumber-preprocessor": "^19.1.0",
         "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
@@ -37,7 +41,7 @@
         "dockerode": "^4.0.0",
         "dotenv": "^16.3.1",
         "esbuild": "^0.19.5",
-        "eslint": "^8.17.0",
+        "eslint": "^8.53.0",
         "eslint-config-airbnb": "19.0.4",
         "eslint-config-prettier": "^8.5.0",
         "eslint-import-resolver-alias": "^1.1.2",
@@ -49,7 +53,7 @@
         "eslint-plugin-jsx-a11y": "^6.5.1",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-prefer-arrow-functions": "^3.1.4",
-        "eslint-plugin-prettier": "^4.0.0",
+        "eslint-plugin-prettier": "^5.0.0",
         "eslint-plugin-react": "^7.29.4",
         "eslint-plugin-react-hooks": "^4.5.0",
         "eslint-plugin-sort-keys-fix": "^1.1.2",
