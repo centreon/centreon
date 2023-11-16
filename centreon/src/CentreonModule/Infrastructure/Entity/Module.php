@@ -52,7 +52,7 @@ class Module implements SourceDataInterface
     /** @var string|null */
     private $version;
 
-    /** @var string */
+    /** @var string|null */
     private $versionCurrent;
 
     /** @var bool */
@@ -196,9 +196,9 @@ class Module implements SourceDataInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getVersionCurrent(): string
+    public function getVersionCurrent(): ?string
     {
         return $this->versionCurrent;
     }
