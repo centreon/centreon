@@ -468,8 +468,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
-									"\r",
 									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"currentPassword\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
@@ -1125,8 +1123,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
-									"\r",
 									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"currentPassword\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
