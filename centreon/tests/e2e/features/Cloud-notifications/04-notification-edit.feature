@@ -30,9 +30,9 @@ Feature: Editing notification rule configuration
     When the user selects the <action> action on a notification rule line
     Then <prefix> notification is sent for this rule once the notification refresh delay has been reached
     Examples:
-      | action   | prefix  |
-      | enables  | no more |
-      | disables |         |
+      | action  | prefix  |
+      | enable  | no more |
+      | disable |         |
 
   Scenario Outline: Toggling notification rule status on edition
     When the user selects the edition action on a notification rule
@@ -40,6 +40,6 @@ Feature: Editing notification rule configuration
     And the user saves and confirm the changes
     Then <prefix> notification is sent for this rule once the notification refresh delay has been reached
     Examples:
-      | action   | prefix  |
-      | enables  | no more |
-      | disables |         |
+      | action  | prefix  |
+      | enable  | no more |
+      | disable |         |
