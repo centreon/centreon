@@ -4,7 +4,12 @@ import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
-import { Widget, WidgetPropertyProps } from '../models';
+import {
+  ConditionalOptions,
+  ShowInput,
+  Widget,
+  WidgetPropertyProps
+} from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import {
   customBaseColorAtom,
@@ -37,10 +42,12 @@ export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
   key: string;
   props: {
+    defaultValue: unknown | ConditionalOptions<unknown>;
     label: string;
     propertyName: string;
     propertyType: string;
     required?: boolean;
+    show?: ShowInput;
     type: FederatedWidgetOptionType;
   };
 }
@@ -105,6 +112,7 @@ export const useWidgetInputs = (
                 propertyType: widgetKey,
                 required: value.required,
                 secondaryLabel: value.secondaryLabel,
+                show: value.show,
                 type: value.type
               }
             };

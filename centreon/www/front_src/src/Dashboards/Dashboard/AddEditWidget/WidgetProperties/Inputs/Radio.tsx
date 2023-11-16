@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo, useRef } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
@@ -20,6 +20,8 @@ const WidgetRadio = ({
   label,
   defaultValue
 }: WidgetPropertyProps): JSX.Element => {
+  const previousDependencyValue = useRef<undefined | unknown>(undefined);
+
   const { t } = useTranslation();
 
   const { values, setFieldValue, setFieldTouched } = useFormikContext<Widget>();
@@ -57,7 +59,16 @@ const WidgetRadio = ({
       return;
     }
 
+    const canApplyDefaultValue = !!previousDependencyValue.current;
+
+    if (!canApplyDefaultValue) {
+      previousDependencyValue.current = dependencyValue;
+
+      return;
+    }
+
     const { is, then, otherwise } = defaultValue as ConditionalOptions<unknown>;
+
     setFieldValue(
       `options.${propertyName}`,
       equals(is, dependencyValue) ? then : otherwise

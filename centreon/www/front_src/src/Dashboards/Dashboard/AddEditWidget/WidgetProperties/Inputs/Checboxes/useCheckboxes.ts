@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo, useRef } from 'react';
 
 import { useFormikContext } from 'formik';
 import {
@@ -12,7 +12,7 @@ import {
   reject
 } from 'ramda';
 
-import { SelectEntry } from '@centreon/ui';
+import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
 import { ConditionalOptions, Widget } from '../../../models';
 import { getProperty } from '../utils';
@@ -37,6 +37,8 @@ export const useCheckboxes = ({
   options,
   defaultValue
 }: UseCheckboxesProps): UseCheckboxesState => {
+  const previousDependencyValue = useRef<undefined | unknown>(undefined);
+
   const { values, setFieldValue } = useFormikContext<Widget>();
 
   const value = useMemo<Array<string> | undefined>(
@@ -87,18 +89,31 @@ export const useCheckboxes = ({
 
   const isChecked = (id: string): boolean => includes(id, value || []);
 
-  useEffect(() => {
-    if (isNil(dependencyValue)) {
-      return;
-    }
-    const { is, then, otherwise } = defaultValue as ConditionalOptions<
-      Array<SelectEntry>
-    >;
-    setFieldValue(
-      `options.${propertyName}`,
-      equals(is, dependencyValue) ? then : otherwise
-    );
-  }, [dependencyValue]);
+  useEffect(
+    () => {
+      if (isNil(dependencyValue)) {
+        return;
+      }
+
+      const canApplyDefaultValue = !!previousDependencyValue.current;
+
+      if (!canApplyDefaultValue) {
+        previousDependencyValue.current = dependencyValue;
+
+        return;
+      }
+
+      const { is, then, otherwise } = defaultValue as ConditionalOptions<
+        Array<SelectEntry>
+      >;
+      const defaultValueToApply = equals(is, dependencyValue)
+        ? then
+        : otherwise;
+
+      setFieldValue(`options.${propertyName}`, defaultValueToApply);
+    },
+    useDeepCompare([dependencyValue])
+  );
 
   return {
     areAllOptionsSelected,

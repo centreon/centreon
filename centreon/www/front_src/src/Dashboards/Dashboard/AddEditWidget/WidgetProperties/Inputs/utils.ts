@@ -1,6 +1,16 @@
-import { always, cond, equals, isEmpty, path, split } from 'ramda';
+import {
+  always,
+  cond,
+  equals,
+  includes,
+  isEmpty,
+  path,
+  pluck,
+  split
+} from 'ramda';
 import * as Yup from 'yup';
 import { TFunction } from 'i18next';
+import { FormikValues } from 'formik';
 
 import { FederatedWidgetOptionType } from '../../../../../federatedModules/models';
 import {
@@ -8,7 +18,11 @@ import {
   labelPleaseSelectAResource,
   labelRequired
 } from '../../../translatedLabels';
-import { WidgetDataResource, WidgetResourceType } from '../../models';
+import {
+  ShowInput,
+  WidgetDataResource,
+  WidgetResourceType
+} from '../../models';
 
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['options', ...split('.', propertyName)], obj);
@@ -155,4 +169,32 @@ export const resourceTypeQueryParameter = {
   [WidgetResourceType.serviceCategory]: 'servicecategory.id',
   [WidgetResourceType.serviceGroup]: 'servicegroup.id',
   [WidgetResourceType.service]: 'service.name'
+};
+
+interface ShowInputProps extends ShowInput {
+  values: FormikValues;
+}
+
+export const showInput = ({
+  when,
+  contains,
+  notContains,
+  values
+}: ShowInputProps): boolean => {
+  const dependencyValue = path(when.split('.'), values) as Array<object>;
+
+  if (notContains) {
+    return notContains.some(
+      ({ key, value }) =>
+        !includes(value, pluck(key, dependencyValue).join(','))
+    );
+  }
+
+  if (contains) {
+    return contains.some(({ key, value }) =>
+      includes(value, pluck(key, dependencyValue).join(','))
+    );
+  }
+
+  return true;
 };

@@ -19,9 +19,15 @@ export interface ConditionalOptions<T> {
   when: string;
 }
 
+export interface ShowInput {
+  contains?: Array<{ key: string; value: unknown }>;
+  notContains?: Array<{ key: string; value: unknown }>;
+  when: string;
+}
+
 export interface WidgetPropertyProps {
   className?: string;
-  defaultValue: unknown | ConditionalOptions<unknown>;
+  defaultValue?: unknown | ConditionalOptions<unknown>;
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
   endAdornment?: ReactNode;
@@ -30,6 +36,7 @@ export interface WidgetPropertyProps {
   propertyName: string;
   required?: boolean;
   secondaryLabel?: Array<string> | string;
+  show?: ShowInput;
   text?: {
     autoSize?: boolean;
     multiline?: boolean;

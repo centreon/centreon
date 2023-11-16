@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useSearchParams } from 'react-router-dom';
 
 import { Menu } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -26,7 +27,11 @@ import {
   labelRefresh,
   labelViewProperties
 } from '../../translatedLabels';
-import { dashboardAtom, isEditingAtom } from '../../atoms';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  switchPanelsEditionModeDerivedAtom
+} from '../../atoms';
 import useWidgetForm from '../../AddEditWidget/useWidgetModal';
 import { editProperties } from '../../hooks/useCanEditDashboard';
 import useDeleteWidgetModal from '../../hooks/useDeleteWidget';
@@ -57,10 +62,23 @@ const MorePanelActions = ({
 
   const { openModal } = useWidgetForm();
 
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
+
+  const switchPanelsEditionMode = useSetAtom(
+    switchPanelsEditionModeDerivedAtom
+  );
+
   const edit = (): void => {
     setIsEditing(true);
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
     close();
+    if (searchParams.get('edit') !== 'true') {
+      searchParams.set('edit', 'true');
+      setSearchParams(searchParams);
+      switchPanelsEditionMode(true);
+    }
   };
 
   const refresh = (): void => {

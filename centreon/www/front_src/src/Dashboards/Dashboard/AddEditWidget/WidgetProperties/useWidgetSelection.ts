@@ -99,10 +99,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
             [key]: value.defaultValue
           };
         }
-        console.log(
-          value,
-          selectedWidgetProperties.options[value.defaultValue.when]
-        );
 
         return {
           ...acc,
