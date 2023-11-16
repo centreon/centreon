@@ -472,19 +472,7 @@
 									"\r",
 									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"currentPassword\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"if(bufferPasswords && bufferPasswords.length > 0) {\r",
-									"    pm.collectionVariables.set(\"oldPassword\", pm.collectionVariables.get(\"currentPassword\"));\r",
-									"    setTimeout(function(){}, [pm.environment.get(\"exportTimeoutInMilliseconds\")]);\r",
-									"    postman.setNextRequest(\"[1002-cleanup] Revert to old password using bridge passwords\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"oldPassword\");\r",
-									"    pm.collectionVariables.unset(\"currentPassword\");\r",
-									"    pm.collectionVariables.unset(\"bufferPasswords\");\r",
-									"    pm.collectionVariables.unset(\"passwordWithCorrectFormat\");\r",
-									"    postman.setNextRequest(\"[1002-cleanup] Logout from admin user and clear collection variables\");\r",
-									"}"
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -553,6 +541,71 @@
 									"key": "alias",
 									"value": "{{currentUserLogin}}"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1002-cleanup] Login with admin user using the new password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1002-cleanup] Revert to old password using bridge passwords\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});\r",
+									"\r",
+									"if(bufferPasswords && bufferPasswords.length > 0) {\r",
+									"    pm.collectionVariables.set(\"oldPassword\", pm.collectionVariables.get(\"currentPassword\"));\r",
+									"    setTimeout(function(){}, [pm.environment.get(\"exportTimeoutInMilliseconds\")]);\r",
+									"    postman.setNextRequest(\"[1002-cleanup] Revert to old password using bridge passwords\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"oldPassword\");\r",
+									"    pm.collectionVariables.unset(\"currentPassword\");\r",
+									"    pm.collectionVariables.unset(\"bufferPasswords\");\r",
+									"    pm.collectionVariables.unset(\"passwordWithCorrectFormat\");\r",
+									"    postman.setNextRequest(\"[1002-cleanup] Logout from admin user and clear collection variables\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{currentPassword}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
 							]
 						}
 					},
@@ -1075,19 +1128,7 @@
 									"\r",
 									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"currentPassword\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"if(bufferPasswords && bufferPasswords.length > 0) {\r",
-									"    pm.collectionVariables.set(\"oldPassword\", pm.collectionVariables.get(\"currentPassword\"));\r",
-									"    setTimeout(function(){}, [pm.environment.get(\"exportTimeoutInMilliseconds\")]);\r",
-									"    postman.setNextRequest(\"[1004-cleanup] Revert to old password using bridge passwords\");\r",
-									"} else {\r",
-									"    pm.environment.unset(\"oldPassword\");\r",
-									"    pm.environment.unset(\"currentPassword\");\r",
-									"    pm.environment.unset(\"bufferPasswords\");\r",
-									"    pm.environment.unset(\"passwordWithCorrectFormat\");\r",
-									"    postman.setNextRequest(\"[1004-cleanup] Logout from admin user and clear collection variables\");\r",
-									"}"
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -1156,6 +1197,71 @@
 									"key": "alias",
 									"value": "{{currentUserLogin}}"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1004-cleanup] Login with admin user using the new password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1002-cleanup] Revert to old password using bridge passwords\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});\r",
+									"\r",
+									"if(bufferPasswords && bufferPasswords.length > 0) {\r",
+									"    pm.collectionVariables.set(\"oldPassword\", pm.collectionVariables.get(\"currentPassword\"));\r",
+									"    setTimeout(function(){}, [pm.environment.get(\"exportTimeoutInMilliseconds\")]);\r",
+									"    postman.setNextRequest(\"[1004-cleanup] Revert to old password using bridge passwords\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"oldPassword\");\r",
+									"    pm.collectionVariables.unset(\"currentPassword\");\r",
+									"    pm.collectionVariables.unset(\"bufferPasswords\");\r",
+									"    pm.collectionVariables.unset(\"passwordWithCorrectFormat\");\r",
+									"    postman.setNextRequest(\"[1004-cleanup] Logout from admin user and clear collection variables\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{currentPassword}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
 							]
 						}
 					},
