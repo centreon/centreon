@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "cdd0adde-a11f-4712-a5bd-302215541e0a",
+		"_postman_id": "54b6b93f-f927-45e6-99c8-891bab656a6f",
 		"name": "10 - Authentication on an admin account - Centreon Web Refactored API Test Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22770334"
@@ -1101,6 +1101,7 @@
 									"    buffer_passwords = [\"Centreon!2023\", \"Centreon!2024\", \"Centreon!2025\", \"Centreon!2026\", \"Centreon!2027\", pm.environment.get(\"api_password\")];\r",
 									"}\r",
 									"\r",
+									"old_password = pm.collectionVariables.get(\"current_password\");\r",
 									"current_password = buffer_passwords.shift();\r",
 									"\r",
 									"pm.collectionVariables.set(\"old_password\", old_password);\r",
@@ -1296,6 +1297,24 @@
 					"  }"
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "passwordWithCorrectFormat",
+			"value": ""
+		},
+		{
+			"key": "old_password",
+			"value": ""
+		},
+		{
+			"key": "current_password",
+			"value": ""
+		},
+		{
+			"key": "buffer_passwords",
+			"value": ""
 		}
 	]
 }
