@@ -78,7 +78,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?:array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?: array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name?: string,
@@ -117,7 +117,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      action_url?: null|string,
          *      icon_id?: null|int,
          *      icon_alternative?: null|string,
-         *      comment?: string
+         *      comment?: string|null
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateOnPremSchema.json');

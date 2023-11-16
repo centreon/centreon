@@ -97,6 +97,13 @@ $attributes = [
         'multiple' => true,
         'linkedObject' => 'centreonHost',
     ],
+    'hosts_cloud_specific' => [
+        'datasourceOrigin' => 'ajax',
+        'availableDatasetRoute' => $datasetRoutes['hosts'],
+        'defaultDatasetRoute' => $datasetRoutes['default_hosts'],
+        'multiple' => false,
+        'linkedObject' => 'centreonHost',
+    ],
     'host_groups' => [
         'datasourceOrigin' => 'ajax',
         'availableDatasetRoute' => $datasetRoutes['host_groups'],
@@ -784,12 +791,28 @@ if ($o === SERVICE_MASSIVE_CHANGE) {
 
 $sgReadOnly = false;
 if ($form_service_type === 'BYHOST') {
-    if (isset($service['service_hPars']) && count($service['service_hPars']) > 1) {
-        $sgReadOnly = true;
-    }
+    if ($isCloudPlatform) {
+        if ($service_id !== false) {
+            $hostsBounded = findHostsOfService($service_id);
+            $defaultDataset = (! empty($hostsBounded))
+            ? ['0' => $hostsBounded[0]]
+            : [];
+        };
+        $form->addElement(
+            'select2',
+            'service_hPars',
+            _('Host'),
+            [],
+            array_merge($attributes['hosts_cloud_specific'], ['defaultDataset' => $defaultDataset])
+        );
+    } else {
+        if (isset($service['service_hPars']) && count($service['service_hPars']) > 1) {
+            $sgReadOnly = true;
+        }
 
-    $form->addElement('select2', 'service_hPars', _('Hosts'), [], $attributes['hosts']);
-    $serviceHParsFieldIsAdded = true;
+        $form->addElement('select2', 'service_hPars', _('Hosts'), [], $attributes['hosts']);
+        $serviceHParsFieldIsAdded = true;
+    }
 }
 
 if ($form_service_type === 'BYHOSTGROUP') {

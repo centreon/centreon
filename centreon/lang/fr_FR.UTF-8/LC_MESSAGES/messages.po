@@ -18329,3 +18329,12 @@ msgstr "Erreur lors de la mise à jour d'un hôte"
 
 msgid "You are not allowed to edit a host"
 msgstr "Vous n'êtes pas autorisé à éditer un hôte"
+
+msgid "The token cannot be empty"
+msgstr "Le jeton ne peut pas être vide"
+
+msgid "This operation requires an admin user"
+msgstr "Cette opération requiert un utilisateur admin"
+
+msgid "Refine filter"
+msgstr "Affiner le filtre"
