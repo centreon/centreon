@@ -29,7 +29,7 @@ const initialize = (): void => {
   const searchValue = 'foobar';
   const search = {
     regex: {
-      fields: ['name'],
+      fields: ['name', 'description'],
       value: searchValue
     }
   };
