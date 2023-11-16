@@ -18336,6 +18336,8 @@ msgstr "Le jeton ne peut pas être vide"
 msgid "This operation requires an admin user"
 msgstr "Cette opération requiert un utilisateur admin"
 
+msgid "Refine filter"
+msgstr "Affiner le filtre"
 msgid "Huge"
 msgstr "Très grande"
 
