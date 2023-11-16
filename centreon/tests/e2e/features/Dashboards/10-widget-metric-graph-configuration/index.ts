@@ -344,68 +344,6 @@ Then(
   }
 );
 
-Given('a dashboard containing a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
-});
-
-When(
-  'the dashboard administrator user selects the option to have a customized time period',
-  () => {
-    cy.getByTestId({ testId: 'Time period' }).realClick();
-    cy.getByLabel({
-      label: 'Customize',
-      tag: 'li'
-    }).click();
-    cy.wait('@performanceData');
-  }
-);
-
-Then(
-  'additional options to configure a customized time period are displayed',
-  () => {
-    cy.getByTestId({ testId: 'CalendarIcon' }).eq(0).should('exist');
-    cy.getByTestId({ testId: 'CalendarIcon' }).eq(1).should('exist');
-  }
-);
-
-When('the dashboard administrator user inputs a customized time period', () => {
-  cy.getByTestId({ testId: 'CalendarIcon' }).eq(0).click();
-  cy.get('.MuiPickersDay-root[data-timestamp]').first().click();
-  cy.getByTestId({ testId: 'CalendarIcon' }).eq(1).click();
-  cy.get('.MuiPickersDay-root[data-timestamp]').last().click();
-});
-
-Then(
-  'the X-axis of the Metrics Graph widget is updated to reflect the customized time period',
-  () => {
-    cy.get('.visx-group.visx-axis-bottom text')
-      .last()
-      .invoke('text')
-      .should('match', /\d{2}\/\d{2}\/\d{4}/);
-  }
-);
-
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
   cy.insertDashboardWithMetricsGraphWidget(
     dashboards.default,
