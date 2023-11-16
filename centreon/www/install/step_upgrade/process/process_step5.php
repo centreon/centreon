@@ -64,7 +64,7 @@ try {
         throw new \Exception('Cannot get current version');
     }
 
-    $moduleService = $this->dependencyInjector[\CentreonModule\ServiceProvider::CENTREON_MODULE];
+    $moduleService = $dependencyInjector[\CentreonModule\ServiceProvider::CENTREON_MODULE];
     $widgets = $moduleService->getList(null, true, null, ['widget']);
     foreach ($widgets['widget'] as $widget) {
         if ($widget->isInternal()) {
