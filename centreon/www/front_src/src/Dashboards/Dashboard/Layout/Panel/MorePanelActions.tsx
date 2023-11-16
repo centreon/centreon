@@ -26,7 +26,7 @@ import {
   labelRefresh,
   labelViewProperties
 } from '../../translatedLabels';
-import { dashboardAtom, isEditingAtom } from '../../atoms';
+import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import useWidgetForm from '../../AddEditWidget/useWidgetModal';
 import { editProperties } from '../../hooks/useCanEditDashboard';
 import useDeleteWidgetModal from '../../hooks/useDeleteWidget';
@@ -49,7 +49,9 @@ const MorePanelActions = ({
   const { t } = useTranslation();
 
   const dashboard = useAtomValue(dashboardAtom);
-  const setIsEditing = useSetAtom(isEditingAtom);
+  const switchPanelsEditionMode = useSetAtom(
+    switchPanelsEditionModeDerivedAtom
+  );
 
   const { deleteWidget } = useDeleteWidgetModal();
 
@@ -58,8 +60,8 @@ const MorePanelActions = ({
   const { openModal } = useWidgetForm();
 
   const edit = (): void => {
-    setIsEditing(true);
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
+    switchPanelsEditionMode(true);
     close();
   };
 
