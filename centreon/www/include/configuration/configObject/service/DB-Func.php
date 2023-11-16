@@ -3342,7 +3342,7 @@ function getPollersForConfigChangeFlagFromServiceId(int $serviceId): array
 /**
  * Find all the host IDs for which the service is bound
  *
- * @param int $serviceid
+ * @param int $serviceId
  * @return int[]
  */
 function findHostsOfService(int $serviceId): array
