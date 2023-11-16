@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { equals, startsWith } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import { Method } from './useMutationQuery';
@@ -46,6 +46,12 @@ export const customFetch = <T>({
 }: CustomFetchProps<T>): Promise<T | ResponseError> => {
   const defaultOptions = { headers, method, signal };
 
+  const formattedEndpoint =
+    !startsWith('./api/latest', endpoint) &&
+    !startsWith('./api/internal.php', endpoint)
+      ? `./api/latest${endpoint}`
+      : endpoint;
+
   const options = isMutation
     ? {
         ...defaultOptions,
@@ -53,7 +59,7 @@ export const customFetch = <T>({
       }
     : defaultOptions;
 
-  return fetch(endpoint, options)
+  return fetch(formattedEndpoint, options)
     .then((response) => {
       if (equals(response.status, 204)) {
         return {

@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
 import humanizeDuration from 'humanize-duration';
 import { useAtomValue } from 'jotai';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -20,6 +23,10 @@ export interface LocaleDateTimeFormat {
   toTime: (date: Date | string) => string;
 }
 
+dayjs.extend(localizedFormat);
+dayjs.extend(timezonePlugin);
+dayjs.extend(utc);
+
 const dateFormat = 'L';
 const timeFormat = 'LT';
 const dateTimeFormat = `${dateFormat} ${timeFormat}`;
@@ -30,9 +37,7 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const format = ({ date, formatString }: FormatParameters): string => {
     const normalizedLocale = locale.substring(0, 2);
 
-    const timezoneDate = dayjs(
-      new Date(date).toLocaleString('en', { timeZone: timezone })
-    ).locale(normalizedLocale);
+    const timezoneDate = dayjs.tz(date, timezone).locale(normalizedLocale);
 
     return timezoneDate.format(formatString);
   };

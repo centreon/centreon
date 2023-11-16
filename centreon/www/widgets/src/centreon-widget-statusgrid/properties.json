@@ -81,7 +81,7 @@
           "name": "Acknowledged"
         },
         {
-          "id": "in-downtime",
+          "id": "in_downtime",
           "name": "In downtime"
         }
       ],
@@ -92,7 +92,7 @@
       "label": "Sort by",
       "options": [
         {
-          "id": "status",
+          "id": "status_severity_code",
           "name": "Status"
         },
         {
@@ -100,7 +100,7 @@
           "name": "Name" 
         }
       ],
-      "defaultValue": "status"
+      "defaultValue": "status_severity_code"
     },
     "tiles": {
       "type": "tiles",

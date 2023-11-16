@@ -2,30 +2,17 @@ import { createStore } from 'jotai';
 
 import { Module } from '@centreon/ui';
 
-import { GlobalRefreshInterval } from '../../models';
+import { StatusGridProps } from './models';
+import StatusGrid from './StatusGrid';
 
-import { Data, PanelOptions } from './models';
-
-interface Props {
-  globalRefreshInterval: GlobalRefreshInterval;
-  panelData: Data;
-  panelOptions: PanelOptions;
-  refreshCount: number;
+interface Props extends StatusGridProps {
   store: ReturnType<typeof createStore>;
 }
 
-const Widget = ({
-  store,
-  panelData,
-  panelOptions,
-  globalRefreshInterval,
-  refreshCount
-}: Props): JSX.Element => {
-  return (
-    <Module maxSnackbars={1} seedName="widget-statusgrid" store={store}>
-      <div />
-    </Module>
-  );
-};
+const Widget = ({ store, ...props }: Props): JSX.Element => (
+  <Module maxSnackbars={1} seedName="widget-statusgrid" store={store}>
+    <StatusGrid {...props} />
+  </Module>
+);
 
 export default Widget;
