@@ -39,7 +39,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     getOptionLabel,
     changeMetrics,
     getMetricOptionDisabled,
-    getMultipleOptionLabel
+    getMultipleOptionLabel,
+    deleteMetricItem
   } = useMetricsOnly(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -84,7 +85,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       {canDisplayMetricsSelection && !singleMetricSelection && (
         <MultiAutocompleteField
           chipProps={{
-            color: 'primary'
+            color: 'primary',
+            onDelete: (_, option): void => deleteMetricItem(option)
           }}
           className={classes.resources}
           disabled={!canEditField || isLoadingMetrics}
