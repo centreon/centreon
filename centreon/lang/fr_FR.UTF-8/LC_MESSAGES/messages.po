@@ -18338,6 +18338,7 @@ msgstr "Cette opération requiert un utilisateur admin"
 
 msgid "Refine filter"
 msgstr "Affiner le filtre"
+
 msgid "Huge"
 msgstr "Très grande"
 
