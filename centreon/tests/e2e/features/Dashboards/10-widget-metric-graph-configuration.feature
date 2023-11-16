@@ -42,7 +42,7 @@ Feature: Configuring metrics graph widget
 
   @TEST_MON-23898
   Scenario: Customizing the time period of a Metrics Graph widget
-    Given a dashboard featuring a configured Metrics Graph widget
+    Given a dashboard containing a configured Metrics Graph widget
     When the dashboard administrator user selects the option to have a customized time period
     Then additional options to configure a customized time period are displayed
     When the dashboard administrator user inputs a customized time period

@@ -344,7 +344,7 @@ Then(
   }
 );
 
-Given('a dashboard featuring a configured Metrics Graph widget', () => {
+Given('a dashboard containing a configured Metrics Graph widget', () => {
   cy.insertDashboardWithMetricsGraphWidget(
     dashboards.default,
     metricsGraphWidget
