@@ -22,16 +22,18 @@ import OrderedListIcon from '@mui/icons-material/FormatListNumbered';
 import { Menu } from '../../../components';
 
 import { useStyles } from './ToolbarPlugin.styles';
+import { useTranslation } from 'react-i18next';
+import { labelOrderedList, labelUnorderedList } from 'src/RichTextEditor/translatedLabels';
 
 const options = [
   {
     Icon: UnorderedListIcon,
-    label: 'Unordered List',
+    label: labelUnorderedList,
     value: 'bullet'
   },
   {
     Icon: OrderedListIcon,
-    label: 'Ordered List',
+    label: labelOrderedList,
     value: 'number'
   }
 ];
@@ -41,6 +43,7 @@ interface Props {
 }
 
 const ListButton = ({ disabled }: Props): JSX.Element => {
+  const {t}  = useTranslation();
   const { classes } = useStyles();
 
   const [editor] = useLexicalComposerContext();
@@ -140,7 +143,7 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
               key={value}
               onClick={() => formatList(value)}
             >
-              <Icon aria-label={label} />
+              <Icon aria-label={t(label)} />
             </Menu.Item>
           ))}
         </div>

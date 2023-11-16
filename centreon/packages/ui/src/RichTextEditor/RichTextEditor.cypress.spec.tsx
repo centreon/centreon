@@ -217,7 +217,7 @@ describe('Rich Text Editor', () => {
     it('displays editor when editable props is false and an initialState exist', () => {
       cy.findByLabelText('Undo').should('not.exist');
       cy.findByLabelText('Redo').should('not.exist');
-      cy.findByLabelText('align picker').should('not.exist');
+      cy.findByLabelText(labelAlignPicker).should('not.exist');
       cy.findByLabelText('block').should('not.exist');
       cy.findByLabelText('format').should('not.exist');
       cy.findByLabelText('link').should('not.exist');
@@ -241,7 +241,7 @@ describe('Rich Text Editor', () => {
     it('displays editor when editable props is false and an initialState exist', () => {
       cy.findByLabelText('Undo').should('be.disabled');
       cy.findByLabelText('Redo').should('be.disabled');
-      cy.findByLabelText('align picker').should('be.disabled');
+      cy.findByLabelText(labelAlignPicker).should('be.disabled');
       cy.findByLabelText('block').should('be.disabled');
       cy.findByLabelText('format').should('be.disabled');
       cy.findByLabelText('link').should('be.disabled');
@@ -392,7 +392,7 @@ describe('Rich Text Editor', () => {
       it(`aligns the text to the ${label} when the corresponding button is clicked`, () => {
         cy.get('[data-testid="RichTextEditor"]').type('Example');
 
-        cy.findByLabelText('align picker').click();
+        cy.findByLabelText(labelAlignPicker).click();
         cy.findByLabelText(label).click();
 
         cy.findByText('Example')
