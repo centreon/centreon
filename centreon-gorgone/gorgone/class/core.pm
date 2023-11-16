@@ -760,7 +760,7 @@ sub message_run {
 sub router_internal_event {
     my ($self, %options) = @_;
 
-    if ($self->{socket_reading} == 0) {
+    #if ($self->{socket_reading} == 0) {
         $self->{logger}->writeLogDebug("[core] start reading socket");
         $self->{socket_reading} = 1;
 
@@ -772,14 +772,12 @@ sub router_internal_event {
 
             next if (!defined($identity));
 
-            next if ($self->decrypt_internal_message(identity => $identity, frame => $frame));
-
             $self->{logger}->writeLogDebug("[core] pushing new event with identity : " . $identity);
             push(@{$self->{ievents}}, [$identity, $frame]);
         }
 
         $self->{socket_reading} = 0;
-    }
+    #}
 
     $self->{recursion_ievents}++;
     $self->{logger}->writeLogDebug("[core] recursion in router_internal_event is : " .  $self->{recursion_ievents});
@@ -794,7 +792,7 @@ sub router_internal_event {
         my $start = Time::HiRes::time();
         $numEvents++;
         $self->{logger}->writeLogDebug("[core] Managing event number : " . $numEvents);
-        # next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
+        next if ($self->decrypt_internal_message(identity => $event->[0], frame => $event->[1]));
 
         my ($token, $code, $response, $response_type) = $self->message_run(
             {
