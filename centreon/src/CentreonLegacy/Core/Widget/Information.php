@@ -74,6 +74,7 @@ class Information
 
         $conf['directory'] = $widgetDirectory;
         $conf['autoRefresh'] ??= 0;
+        $conf['version'] ??= null;
 
         return $conf;
     }

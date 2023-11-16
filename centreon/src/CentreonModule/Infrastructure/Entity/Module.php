@@ -204,9 +204,9 @@ class Module implements SourceDataInterface
     }
 
     /**
-     * @param string $versionCurrent
+     * @param string|null $versionCurrent
      */
-    public function setVersionCurrent(string $versionCurrent): void
+    public function setVersionCurrent(?string $versionCurrent): void
     {
         $this->versionCurrent = $versionCurrent;
     }
