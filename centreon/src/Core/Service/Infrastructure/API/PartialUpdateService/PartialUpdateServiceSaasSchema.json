@@ -1,0 +1,126 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Partial update of a service",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "host_id": {
+            "type": "integer"
+        },
+        "is_activated":  {
+            "type": "boolean"
+        },
+        "service_template_id": {
+            "type": [
+                "integer"
+            ]
+        },
+        "check_timeperiod_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "max_check_attempts": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "normal_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "retry_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "icon_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "note": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "note_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "action_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "severity_id": {
+             "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "geo_coords": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "service_categories": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "service_groups": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "macros": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "value",
+                    "is_password",
+                    "description"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "is_password": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
