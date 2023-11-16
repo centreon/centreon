@@ -8,14 +8,14 @@ Feature: Get notification rules
   Background:
     Given a user with access to the notification rules page
     And the user is on the notification rules page
-    And  There is at least one minimum notification rule
+    And There is at least one minimum notification rule
     And pagination is defined to 10 items
 
   Scenario Outline: Getting notifications rules with pagination
     When the user arrived on the listing notification rules page
     And the result items is <count>
     And I am on the actually page <page>
-    Then I should see a previous page link <previous_page> and next page link <next_page>
+    Then I see a previous page link <previous_page> and next page link <next_page>
 
     Examples:
       | count | page | previous_page | next_page |
