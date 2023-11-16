@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0fad9f13-f419-44c9-a445-275ac4b8f8c5",
+		"_postman_id": "07877664-11fa-4364-b7d2-d20dba314ce2",
 		"name": "10 - Authentication on an admin account - Centreon Web Refactored API Test Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22770334"
@@ -244,7 +244,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oldPassword\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
+							"raw": "{\n  \"old_password\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -530,7 +530,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oldPassword\": \"{{oldPassword}}\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
+							"raw": "{\n  \"old_password\": \"{{oldPassword}}\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -765,7 +765,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"oldPassword\": \"Centreon!2021\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
+							"raw": "{\n \"old_password\": \"Centreon!2021\",\n \"new_password\": \"{{currentPassword}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -970,7 +970,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oldPassword\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
+							"raw": "{\n  \"old_password\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1036,7 +1036,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oldPassword\": \"{{passwordWithCorrectFormat}}\",\n  \"new_password\": \"{{api_password}}\"\n}",
+							"raw": "{\n  \"old_password\": \"{{passwordWithCorrectFormat}}\",\n  \"new_password\": \"{{api_password}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1133,7 +1133,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"oldPassword\": \"{{oldPassword}}\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
+							"raw": "{\n  \"old_password\": \"{{oldPassword}}\",\n  \"new_password\": \"{{currentPassword}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
