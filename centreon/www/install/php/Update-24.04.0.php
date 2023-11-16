@@ -80,7 +80,7 @@ try {
     $errorMessage = 'Unable to insert topology for Resource Access Management';
     $insertTopologyForResourceAccessManagement($pearDB);
 
-    $errorMessage = 'Unable to add columns description and create_from_cloud to acl_groups table';
+    $errorMessage = 'Unable to add columns cloud_description and cloud_specific to acl_groups table';
     $alterAclGroupsTable($pearDB);
 
     $errorMessage = 'Unable to add column order to acl_res_group_relations table';
