@@ -40,6 +40,7 @@ use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToIntegerNormalizer;
+use Psr\Log\LoggerInterface;
 use Utility\SqlConcatenator;
 
 /**
@@ -60,12 +61,13 @@ use Utility\SqlConcatenator;
  */
 class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadCommandRepositoryInterface
 {
-    use LoggerTrait;
+
+    private const MAX_ITEMS_BY_REQUEST = 100;
 
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db, readonly private LoggerInterface $logger)
     {
         $this->db = $db;
     }
@@ -75,7 +77,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
      */
     public function exists(int $commandId): bool
     {
-        $this->info(sprintf('Check existence of command with ID #%d', $commandId));
+        $this->logger->info(sprintf('Check existence of command with ID #%d', $commandId));
 
         $request = $this->translateDbName(
             <<<'SQL'
@@ -96,7 +98,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
      */
     public function existsByIdAndCommandType(int $commandId, CommandType $commandType): bool
     {
-        $this->info(
+        $this->logger->info(
             sprintf(
                 'Check existence of command with ID #%d and type %s',
                 $commandId,
@@ -294,6 +296,167 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
         }
 
         return $commands;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(): \Iterator&\Countable {
+
+
+        $this->logger->debug(sprintf('Loading commands in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
+
+        return new class (
+            $this->db,
+            self::MAX_ITEMS_BY_REQUEST,
+            $this->createCommand(...),
+            $this->findArgumentsByCommandId(...),
+            $this->findMacrosByCommandId(...),
+            $this->logger
+        )   extends AbstractRepositoryRDB
+            implements \Iterator, \Countable
+        {
+            /** @var callable */
+            protected $createCommand;
+
+            /** @var callable */
+            protected $findArguments;
+
+            /** @var callable */
+            protected $findMacros;
+
+            private int $position = 0;
+
+            private int $requestIndex = 0;
+
+            private int $totalItems = 0;
+
+            private false|\PDOStatement $statement = false;
+
+            /**
+             * @var _Command
+             */
+            private array $currentItem;
+
+            public function __construct(
+                protected DatabaseConnection $db,
+                readonly private int $maxItemByRequest,
+                callable $createCommand,
+                callable $findArguments,
+                callable $findMacros,
+                readonly private LoggerInterface $logger
+            ) {
+                $this->createCommand = $createCommand;
+                $this->findArguments = $findArguments;
+                $this->findMacros = $findMacros;
+            }
+
+            public function current(): Command
+            {
+                return $this->createCommandWithArgumentsAndMacros();
+            }
+
+            public function next(): void
+            {
+                $this->position++;
+                if (! $this->statement | ($nextItem = $this->statement->fetch()) === false) {
+                    if ($this->valid()) {
+                        // There are still items to be retrieved
+                        $this->requestIndex += $this->maxItemByRequest;
+                        $this->loadDatabase();
+                    }
+                } else {
+                    /**
+                     * @var array $newItem
+                     */
+                    $this->currentItem = $nextItem;
+                }
+            }
+
+            public function key(): int
+            {
+                return $this->position;
+            }
+
+            public function valid(): bool
+            {
+                return $this->position < $this->totalItems;
+            }
+
+            public function rewind(): void
+            {
+                $this->position = 0;
+                $this->requestIndex = 0;
+                $this->totalItems = 0;
+                $this->loadDatabase();
+            }
+
+            public function count(): int
+            {
+                if (! $this->statement) {
+                    $request = <<<'SQL'
+                        SELECT COUNT(*)
+                        FROM `:db`.command
+                        SQL;
+
+                    $this->statement = $this->db->query($this->translateDbName($request))
+                        ?: throw new \Exception('Impossible to retrieve a PDO Statement');
+                    $this->totalItems = (int) $this->statement->fetchColumn();
+                }
+
+                return $this->totalItems;
+            }
+
+            private function loadDatabase(): void
+            {
+                $this->logger->debug(
+                    sprintf(
+                        'Loading commands from %d/%d',
+                        $this->requestIndex,
+                        $this->maxItemByRequest
+                    )
+                );
+                $request = <<<'SQL'
+                    SELECT SQL_CALC_FOUND_ROWS
+                        command_id,
+                        command_name,
+                        command_line,
+                        command_type,
+                        enable_shell,
+                        command_activate,
+                        command_locked
+                    FROM `:db`.command
+                    ORDER BY command_id
+                    LIMIT :from, :max_item_by_request
+                    SQL;
+
+                $this->statement = $this->db->prepare($this->translateDbName($request));
+                $this->statement->bindValue(':from', $this->requestIndex, \PDO::PARAM_INT);
+                $this->statement->bindValue(':max_item_by_request', $this->maxItemByRequest, \PDO::PARAM_INT);
+                $this->statement->setFetchMode(\PDO::FETCH_ASSOC);
+                $this->statement->execute();
+
+                $result = $this->db->query('SELECT FOUND_ROWS()');
+
+                if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                    $this->totalItems = (int) $total;
+                }
+                /**
+                 * @var _Command|false $result
+                 */
+                $result = $this->statement->fetch();
+                $this->currentItem = $result;
+            }
+
+            private function createCommandWithArgumentsAndMacros(): Command
+            {
+                $command = ($this->createCommand)($this->currentItem);
+                $command->setArguments(($this->findArguments)($command->getId()));
+                $command->setMacros(($this->findMacros)($command->getId()));
+
+                return $command;
+            }
+        };
     }
 
     /**
