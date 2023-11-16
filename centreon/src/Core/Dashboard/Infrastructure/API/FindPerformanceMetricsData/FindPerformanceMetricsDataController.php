@@ -61,7 +61,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
      * @return array{
      *  start: \DateTime,
      *  end: \DateTime,
-     *  metricIds: array<int>
+     *  metric_names: list<string>
      * }
      */
     private function validateAndRetrieveParametersFromRequest(Request $request): array
@@ -86,10 +86,6 @@ final class FindPerformanceMetricsDataController extends AbstractController
             $this->error('Invalid parameters format', ['trace' => (string) $ex]);
 
             throw new \InvalidArgumentException('Invalid parameters format');
-        }
-
-        if (! is_array($metricNames) || [] === $metricNames)  {
-            throw new \InvalidArgumentException('Invalid metric names provided');
         }
 
         $sanitizedMetricNames = [];

@@ -73,7 +73,7 @@ const useLoadResources = (): LoadResources => {
 
   const { sendRequest, sending } = useRequest<ResourceListing>({
     getErrorMessage: ifElse(
-      pathEq(['response', 'status'], 404),
+      pathEq(404, ['response', 'status']),
       always(t(labelNoResourceFound)),
       pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
@@ -83,7 +83,7 @@ const useLoadResources = (): LoadResources => {
   const { sendRequest: sendLoadDetailsRequest, sending: sendingDetails } =
     useRequest<ResourceDetails>({
       getErrorMessage: ifElse(
-        pathEq(['response', 'status'], 404),
+        pathEq(404, ['response', 'status']),
         always(t(labelNoResourceFound)),
         pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
       ),

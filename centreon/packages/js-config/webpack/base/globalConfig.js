@@ -1,5 +1,5 @@
 const excludeNodeModulesExceptCentreonUi =
-  /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon))/;
+  /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon|file\+packages\+ui-context))/;
 
 module.exports = {
   cache: false,

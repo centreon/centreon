@@ -11,22 +11,18 @@ parameters:
     level: max
     paths:
         - src
-        - tests/php/Core
-        - tests/php/Centreon
-        - tests/php/Security
-        - tests/php/Utility
     ignoreErrors:
-        -
-            path: tests/php
-            messages:
-                - '#^Undefined variable: \$this$#'
-                - '#^Call to an undefined method Pest#'
-                - '#^Access to an undefined property PHPUnit#'
-
         - # Baseline: 👇 dealing with this code is almost impossible without spending hours.
             reportUnmatched: false
             path: src/CentreonRemote/Infrastructure/Service/ExportService.php
             message: '#^Trying to invoke int but it''s not a callable.$#'
+
+        - # Baseline: 👇 leting this code is not risky, but fixing it, is too risky to my point of view.
+            reportUnmatched: false
+            path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
+            messages:
+                - '#^Negated boolean expression is always false.$#'
+                - '#^Result of && is always false.$#'
 
 services:
     errorFormatter.absolute:
