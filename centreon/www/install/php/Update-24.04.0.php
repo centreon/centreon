@@ -33,7 +33,7 @@ $updateWidgetModelsTable = function(CentreonDB $pearDB): void {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `widget_models`
-                ADD COLUMN `is_internal` BOOLEAN NOT NULL DEFAULT '0'
+                ADD COLUMN `is_internal` BOOLEAN NOT NULL DEFAULT FALSE
                 AFTER `version`
                 SQL
         );
