@@ -228,7 +228,6 @@ Cypress.Commands.add(
   }
 );
 
-
 export enum PatternType {
   contains = '*',
   endsWith = '$',

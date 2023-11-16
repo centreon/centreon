@@ -162,15 +162,23 @@ When(
 
         // Attempt the initial expectation
         expect(parsedElementHour).to.satisfy((hour) => {
-          return hour === currentHour % 12 || hour === (currentHour - 1) % 12 || hour === 12;
+          return (
+            hour === currentHour % 12 ||
+            hour === (currentHour - 1) % 12 ||
+            hour === 12
+          );
         });
 
         // If the initial expectation fails, try the alternative
-        if (parsedElementHour !== currentHour % 12 && parsedElementHour !== (currentHour - 1) % 12) {
+        if (
+          parsedElementHour !== currentHour % 12 &&
+          parsedElementHour !== (currentHour - 1) % 12
+        ) {
           expect(parsedElementHour).to.eq((currentHour - 1) % 12 || 12);
         }
 
         expect(elementTimeOfDay).to.eq(currentTimeOfDay);
+      });
   }
 );
 
@@ -475,5 +483,4 @@ Then(
 
 Then('the thresholds are automatically hidden', () => {
   cy.get('span[data-checked="false"]').should('exist');
- }
-);
+});
