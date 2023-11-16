@@ -7,7 +7,7 @@ const defaultCacheTime = 5 * 1_000;
 const client = new QueryClient({
   defaultOptions: {
     queries: {
-      cacheTime: defaultCacheTime,
+      gcTime: defaultCacheTime,
       refetchOnWindowFocus: false,
       staleTime: defaultCacheTime,
       suspense: true

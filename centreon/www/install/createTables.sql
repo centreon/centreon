@@ -80,6 +80,8 @@ CREATE TABLE `acl_groups` (
   `acl_group_alias` varchar(255) DEFAULT NULL,
   `acl_group_changed` int(11) NOT NULL DEFAULT 1,
   `acl_group_activate` enum('0','1','2') DEFAULT NULL,
+  `cloud_description` TEXT DEFAULT NULL,
+  `cloud_specific` boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (`acl_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -88,6 +90,7 @@ CREATE TABLE `acl_groups` (
 CREATE TABLE `acl_res_group_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
+  `order` int(11) NOT NULL DEFAULT 0,
   KEY `acl_res_id` (`acl_res_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_res_group_relations_ibfk_1` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,

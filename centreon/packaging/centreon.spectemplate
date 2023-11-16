@@ -447,6 +447,9 @@ sed -i 's#@VERSION@#%{version}#' centreon/selinux/*
 # Install Symfony console script
 %{__install} -m 0755 centreon/bin/console %buildroot%{_datadir}/centreon/bin/
 
+# Install migration console script
+%{__install} -m 0755 centreon/bin/migration %buildroot%{_datadir}/centreon/bin/
+
 # Install indexes template schema
 
 # Install examples.
@@ -662,6 +665,7 @@ fi
 %{_datadir}/centreon/bin/export-mysql-indexes
 %{_datadir}/centreon/bin/centreon
 %{_datadir}/centreon/bin/console
+%{_datadir}/centreon/bin/migration
 %{_bindir}/centreon
 %{_localstatedir}/lib/centreon/installs
 
