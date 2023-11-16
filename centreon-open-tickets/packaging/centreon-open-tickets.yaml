@@ -22,7 +22,7 @@ contents:
       group: "@APACHE_GROUP@"
 
   - src: "../widgets/open-tickets"
-    dst: "/usr/share/centreon/www/widgets/centreon-open-tickets"
+    dst: "/usr/share/centreon/www/widgets/open-tickets"
     file_info:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
