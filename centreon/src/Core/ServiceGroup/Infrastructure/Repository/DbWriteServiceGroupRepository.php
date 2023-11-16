@@ -203,7 +203,6 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
             }
             $statement = $this->db->prepare($this->translateDbName($request));
 
-
             $serviceId = null;
             $serviceGroupId = null;
             $hostId = null;
