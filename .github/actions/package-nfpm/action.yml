@@ -92,7 +92,6 @@ runs:
           sed -i "s/@APACHE_USER@/$APACHE_USER/g" $BASENAME
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
           sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME
-          cat $BASENAME
           nfpm package --config $BASENAME --packager ${{ inputs.package_extension }}
           cd -
           mv $DIRNAME/*.${{ inputs.package_extension }} ./
@@ -104,3 +103,12 @@ runs:
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
+
+    # Update if condition to true to get packages as artifacts
+    - if: ${{ false }}
+      name: Upload package artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: packages-${{ inputs.distrib }}
+        path: ./*.${{ inputs.package_extension}}
+        retention-days: 1
