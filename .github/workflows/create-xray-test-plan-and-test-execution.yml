@@ -98,7 +98,7 @@ jobs:
           echo "The test plan key for now is: $test_plan_key"
 
           # If no matching test plan was found, create one
-          if [ -z "$test_plan_key" ]; then
+          if [[ -z "$test_plan_key" ]]; then
             echo "TestPlan doesn't exist yet"
 
             # Create the test plan using a GraphQL mutation
