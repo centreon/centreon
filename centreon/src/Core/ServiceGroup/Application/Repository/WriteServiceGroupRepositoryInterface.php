@@ -61,5 +61,4 @@ interface WriteServiceGroupRepositoryInterface
      * @throws \Throwable
      */
     public function unlink(array $serviceGroupRelations): void;
-
 }
