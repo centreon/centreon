@@ -17030,3 +17030,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "This operation requires an admin user"
 #  msgstr ""
+
+# msgid "Resource access rules"
+# msgstr ""
+
+# msgid "Resource Access Management"
+# msgstr ""
