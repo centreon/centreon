@@ -21,6 +21,7 @@ export interface Listing {
   selectedColumnIds: Array<string>;
   selectedRows: Array<ResourceAccessRuleType>;
   setLimit: (limit: number | undefined) => void;
+  setSelectedColumnIds: (selectedColumnIds: Array<string>) => void;
   setSelectedRows: (selectedRows: Array<ResourceAccessRuleType>) => void;
   sortF: string;
   sortO: SortOrder;

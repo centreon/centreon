@@ -15,6 +15,7 @@ const ResourceAccessRulesListing = (): JSX.Element => {
     selectedColumnIds,
     selectedRows,
     setLimit,
+    setSelectedColumnIds,
     setSelectedRows,
     sortF,
     sortO
@@ -48,6 +49,7 @@ const ResourceAccessRulesListing = (): JSX.Element => {
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
+      onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}
     />

@@ -13,6 +13,7 @@ const Title = (): JSX.Element => {
   return (
     <Typography className={classes.title} variant="h5">
       {t(labelResourceAccessRules)}
+      <div id="ceip_badge" />
     </Typography>
   );
 };

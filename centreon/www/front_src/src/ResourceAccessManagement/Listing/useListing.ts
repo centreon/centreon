@@ -126,6 +126,7 @@ const useListing = (): Listing => {
     selectedColumnIds,
     selectedRows,
     setLimit,
+    setSelectedColumnIds,
     setSelectedRows,
     sortF,
     sortO
