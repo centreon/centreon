@@ -61,7 +61,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'fqdn' => 'resources.address',
         'type' => 'resources.type',
         'h.name' => 'CASE WHEN resources.type = 1 THEN resources.name ELSE resources.parent_name END',
-        'h.alias' => 'parent_resource.alias',
+        'h.alias' => 'CASE WHEN resources.type = 1 THEN resources.alias ELSE parent_resource.alias END',
         'h.address' => 'parent_resource.address',
         's.description' => 'resources.type IN (0,2) AND resources.name',
         'status_code' => 'resources.status',
@@ -270,6 +270,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
         $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            1 AS REALTIME,
             resources.resource_id,
             resources.name,
             resources.alias,
@@ -431,7 +432,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $collector->bind($statement);
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
 
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);

@@ -331,7 +331,7 @@
             <xsl:value-of select="ca"/>
         </td>
         <td class="ListColLeft" >
-            <xsl:value-of select="po" disable-output-escaping="yes" />
+            <xsl:value-of select="po" disable-output-escaping="no" />
         </td>
         <xsl:if test="//i/nc = 1">
         <td class="ListColCenter" style="white-space:nowrap;">

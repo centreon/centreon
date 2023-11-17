@@ -170,7 +170,7 @@ const TopCounterLayout = ({
               </Badge>
             </span>
             <span className={classes.textWrapper}>{title}</span>
-            {toggled ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+            {toggled ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </button>
         </div>
         <div
