@@ -1,22 +1,18 @@
-@ignore
-@REQ_MON-24183
-Feature: Get notification rules
-  As a Centreon user with access to the notification rules page
-  I need to see the list of notification rules
-  So that I can organize my alerts on my monitoring system
+Feature: List Notification Rules
+  As a Centreon user with access to the Notification Rules page
+  I want to view the list of notification rules
+  So that I can effectively organize my alerts in the monitoring system
 
   Background:
-    Given a user with access to the notification rules page
-    And the user is on the notification rules page
-    And There is at least one minimum notification rule
-    And pagination is defined to 10 items
+    Given a user with access to the Notification Rules page
+    And the user is on the Notification Rules page
+    And there is at least one minimum notification rule
+    And pagination is set to 10 items per page
 
-  Scenario Outline: Getting notifications rules with pagination
-    When the user arrived on the listing notification rules page
-    And the result items is <count>
-    And I am on the actually page <page>
-    Then I see a previous page link <previous_page> and next page link <next_page>
-
+  Scenario Outline: Listing Notification Rules with Pagination
+    When I am on listing page <page>
+    And the result shows <count> items
+    Then I should see a previous page link <previous_page> and next page link <next_page>
     Examples:
       | count | page | previous_page | next_page |
       | 1     | 1    | disabled      | disabled  |
