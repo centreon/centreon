@@ -5730,7 +5730,7 @@ msgstr "Modifié"
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:662
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:690
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:793
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Changement massif"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:132

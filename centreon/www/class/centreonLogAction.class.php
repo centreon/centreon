@@ -99,7 +99,7 @@ class CentreonLogAction
         global $pearDBO;
 
         // Check if audit log option is activated
-        $optLogs = $pearDBO->query("SELECT audit_log_option FROM `config`");
+        $optLogs = $pearDBO->query("SELECT 1 AS REALTIME, audit_log_option FROM `config`");
         $auditLog = $optLogs->fetchRow();
 
         if (($auditLog) && ($auditLog['audit_log_option'] == '1')) {
@@ -144,7 +144,7 @@ class CentreonLogAction
     }
 
     /*
-     * returns the list of actions ("create","delete","change","massive change", "enable", "disable")
+     * returns the list of actions ("create","delete","change","mass change", "enable", "disable")
      */
 
     public function listAction($id, $object_type): array
@@ -395,7 +395,7 @@ class CentreonLogAction
         $actionList["a"] = "Create";
         $actionList["disable"] = "Disable";
         $actionList["enable"] = "Enable";
-        $actionList["mc"] = "Massive change";
+        $actionList["mc"] = "Mass change";
 
         foreach ($actionList as $key => $value) {
             if ($action == $key) {

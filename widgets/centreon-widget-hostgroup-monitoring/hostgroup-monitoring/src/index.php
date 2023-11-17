@@ -114,8 +114,11 @@ $serviceStateLabels = array(
     4 => "Pending"
 );
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT name, hostgroup_id ";
-$query .= "FROM hostgroups ";
+$query = <<<'SQL'
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+        1 AS REALTIME, name, hostgroup_id
+    FROM hostgroups 
+    SQL;
 
 if (isset($preferences['hg_name_search']) && $preferences['hg_name_search'] != "") {
     $tab = explode(" ", $preferences['hg_name_search']);
@@ -143,7 +146,7 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != "") {
 $query .= "ORDER BY $orderby";
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 $res = $dbb->query($query);
-$nbRows = $dbb->query('SELECT FOUND_ROWS()')->fetchColumn();
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 $data = array();
 $detailMode = false;
 if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {

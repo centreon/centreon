@@ -3,6 +3,8 @@
 if [ "$1" = "configure" ] ; then
     update-alternatives --set php /usr/bin/php8.1
 
+    sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
+
     # Set locales on system to use in translation
     sed -i \
         -e '/^#.* en_US.UTF-8 /s/^#//' \

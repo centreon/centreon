@@ -1,32 +1,34 @@
 import { MouseEvent, useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { useAtomValue } from 'jotai';
 import { and, cond, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
-import { FormHelperText, Typography, Button, Popover } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import makeStyles from '@mui/styles/makeStyles';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { Button, FormHelperText, Popover, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
-  labelEndDate,
-  labelStartDate,
-  labelEndDateGreaterThanStartDate,
-  labelTo,
-  labelCompactTimePeriod,
-  labelFrom,
-} from '../../../translatedLabels';
-import {
   CustomTimePeriod,
   CustomTimePeriodProperty,
 } from '../../../Details/tabs/Graph/models';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
+import {
+  labelCompactTimePeriod,
+  labelEndDate,
+  labelEndDateGreaterThanStartDate,
+  labelFrom,
+  labelStartDate,
+  labelTo,
+} from '../../../translatedLabels';
 
 import DateTimePickerInput from './DateTimePickerInput';
 
@@ -42,6 +44,8 @@ interface Props {
 }
 
 dayjs.extend(isSameOrAfter);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -125,7 +129,6 @@ const CustomTimePeriodPickers = ({
   const [end, setEnd] = useState<Date>(customTimePeriod.end);
   const { format } = useLocaleDateTimeFormat();
   const { locale } = useAtomValue(userAtom);
-  const { Adapter } = useDateTimePickerAdapter();
 
   const isInvalidDate = ({ startDate, endDate }): boolean =>
     dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
@@ -241,7 +244,7 @@ const CustomTimePeriodPickers = ({
       >
         <LocalizationProvider
           adapterLocale={locale.substring(0, 2)}
-          dateAdapter={Adapter}
+          dateAdapter={AdapterDayjs}
         >
           <div className={classes.popover}>
             <div>

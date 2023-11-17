@@ -10,12 +10,6 @@ inputs:
   distrib:
     description: "The distribution used for packaging"
     required: true
-  nexus_username:
-    description: "Artifact Manager technical username"
-    required: true
-  nexus_password:
-    description: "Artifact Manager technical password"
-    required: true
   version:
     description: "Centreon packaged version"
     required: true
@@ -27,21 +21,6 @@ inputs:
     required: true
   cache_key:
     description: "The cached package key"
-    required: true
-  yum_repo_url:
-    description: "The legacy yum repo url"
-    required: true
-  update_repo_path:
-    description: "The update repo script path"
-    required: true
-  cloudfront_id:
-    description: "The cloudfront ID for repo url"
-    required: true
-  yum_repo_address:
-    description: "The legacy yum repo address"
-    required: true
-  yum_repo_key:
-    description: "The repo key"
     required: true
   stability:
     description: "The package stability (stable, testing, unstable)"
@@ -103,7 +82,7 @@ runs:
         for ARCH in "noarch" "x86_64"; do
           if [ "$(ls -A $ARCH)" ]; then
             if [ "${{ inputs.stability }}" == "stable" ]; then
-              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/" --flat
+              jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/" --flat
             else
               jf rt upload "$ARCH/*.rpm" "rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
             fi

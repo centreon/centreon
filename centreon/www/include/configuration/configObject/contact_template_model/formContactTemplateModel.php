@@ -195,7 +195,7 @@ switch ($o) {
         $eventDispatcher->notify($eventContext, EventDispatcher::EVENT_READ, $eventData);
         break;
     case 'mc':
-        $form->addElement('header', 'title', _("Massive Change"));
+        $form->addElement('header', 'title', _("Mass Change"));
         $eventDispatcher->notify($eventContext, EventDispatcher::EVENT_DISPLAY, $eventData);
         break;
 }

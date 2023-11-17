@@ -63,8 +63,8 @@ gorgone:
 We have installed a CentOS 7 server. We install Gorgone daemon:
 
 ```shell
-yum install http://yum.centreon.com/standard/20.04/el7/stable/noarch/RPMS/centreon-release-20.04-1.el7.centos.noarch.rpm
-yum install centreon-gorgone
+yum install yum-utils
+yum-config-manager --add-repo https://packages.centreon.com/rpm-standard/22.10/el7/centreon-22.10.repo
 ```
 
 ## Configuration

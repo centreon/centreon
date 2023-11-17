@@ -113,7 +113,8 @@ $aStateType = ['1' => 'H', '0' => 'S'];
 $mainQueryParameters = [];
 
 // Build Query
-$query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+$query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    1 AS REALTIME,
     h.host_id,
     h.name as hostname,
     h.alias as hostalias,
@@ -400,7 +401,7 @@ foreach ($mainQueryParameters as $parameter) {
 unset($parameter, $mainQueryParameters);
 $res->execute();
 
-$nbRows = $dbb->numberRows();
+$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 $data = [];
 $outputLength = $preferences['output_length'] ?: 50;
 $commentLength = $preferences['comment_length'] ?: 50;
@@ -579,13 +580,13 @@ while ($row = $res->fetch()) {
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
-        $commentSql = 'SELECT data FROM comments';
+        $commentSql = 'SELECT 1 AS REALTIME, data FROM comments';
         $comment = '-';
 
         if ((int) $row['s_acknowledged'] === 1) { // Service is acknowledged
-            $commentSql = 'SELECT comment_data AS data FROM acknowledgements';
+            $commentSql = 'SELECT 1 AS REALTIME, comment_data AS data FROM acknowledgements';
         } elseif ((int) $row['s_scheduled_downtime_depth'] === 1) { // Service is in downtime
-            $commentSql = 'SELECT comment_data AS data FROM downtimes';
+            $commentSql = 'SELECT 1 AS REALTIME, comment_data AS data FROM downtimes';
         }
 
         $commentSql .= " WHERE host_id = " . $row['host_id'] . " AND service_id = " . $row['service_id'];

@@ -83,7 +83,8 @@ if (!$isAdmin) {
 /**
  * Get Host status
  */
-$rq1 = "SELECT h.state,
+$rq1 = "SELECT 1 AS REALTIME, 
+    h.state,
     h.address,
     h.name,
     h.alias,

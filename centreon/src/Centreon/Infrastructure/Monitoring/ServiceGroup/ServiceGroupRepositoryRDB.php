@@ -106,7 +106,8 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT sg.* FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
+        $request = 'SELECT DISTINCT 1 AS REALTIME, sg.* FROM `:dbstg`.`servicegroups` sg ' .
+            $subRequest;
         $request = $this->translateDbName($request);
 
         $bindServiceGroupIds = [];
@@ -180,7 +181,7 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT sg.* FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
+        $request = 'SELECT DISTINCT sg.* FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
         $request = $this->translateDbName($request);
 
         $bindServiceGroupNames = [];

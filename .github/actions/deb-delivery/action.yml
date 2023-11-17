@@ -4,17 +4,8 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
-  repository_name:
-    description: "The repository name (standard, business, ...)"
-    required: true
   distrib:
     description: "The distribution used for packaging"
-    required: true
-  nexus_username:
-    description: "Artifact Manager technical username"
-    required: true
-  nexus_password:
-    description: "Artifact Manager technical password"
     required: true
   version:
     description: "Centreon packaged version"
@@ -63,6 +54,6 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash
