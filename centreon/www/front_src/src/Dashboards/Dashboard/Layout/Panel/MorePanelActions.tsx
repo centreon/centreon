@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useSearchParams } from 'react-router-dom';
 
 import { Menu } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -47,7 +48,9 @@ const MorePanelActions = ({
   duplicate
 }: Props): JSX.Element => {
   const { t } = useTranslation();
-
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
   const dashboard = useAtomValue(dashboardAtom);
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
@@ -61,8 +64,12 @@ const MorePanelActions = ({
 
   const edit = (): void => {
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
-    switchPanelsEditionMode(true);
+
     close();
+
+    switchPanelsEditionMode(true);
+    searchParams.set('edit', 'true');
+    setSearchParams(searchParams);
   };
 
   const refresh = (): void => {
