@@ -1232,7 +1232,6 @@ sub periodic_exec {
 }
 
 sub run {
-    my ($self) = @_;
     $gorgone = shift;
 
     $gorgone->SUPER::run();

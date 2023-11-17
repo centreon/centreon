@@ -6,9 +6,9 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   paths:
-  #     - "centreon-gorgone/**"
+  pull_request:
+    paths:
+      - "centreon-gorgone/**"
   push:
     branches:
       - develop
