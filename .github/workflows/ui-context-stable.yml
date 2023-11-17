@@ -25,7 +25,7 @@ jobs:
       - uses: ./.github/actions/npm-publish-package-stable
         with:
           directory: ${{ env.directory }}
-          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}

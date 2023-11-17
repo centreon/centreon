@@ -56,4 +56,9 @@ class MediaException extends \Exception
     {
         return new self(_('Media already exists'));
     }
+
+    public static function operationRequiresAdminUser(): self
+    {
+        return new self(_('This operation requires an admin user'));
+    }
 }
