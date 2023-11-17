@@ -1,6 +1,7 @@
 import { createStore } from 'jotai';
 
 import { Method } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { Data, PanelOptions } from '../models';
 import StatusGrid from '..';
@@ -28,6 +29,8 @@ interface Props {
 
 const initialize = ({ options, data }: Props): void => {
   const store = createStore();
+
+  store.set(userAtom, { locale: 'en_US', timezone: 'Europe/Paris' });
 
   cy.mount({
     Component: (
@@ -129,7 +132,7 @@ const servicesRequests = (): void => {
 describe('View by host', () => {
   describe('With Resources', () => {
     beforeEach(() => {
-      cy.clock(new Date(2021, 1, 1).getTime(), ['Date']);
+      cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
       hostsRequests();
       initialize({ data: { resources }, options: hostOptions });
     });
@@ -189,7 +192,7 @@ describe('View by host', () => {
       cy.contains(
         'In downtime (from November 17, 2023 6:11 PM to November 17, 2023 7:11 PM)'
       ).should('be.visible');
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -211,7 +214,7 @@ describe('View by host', () => {
 describe('View by service', () => {
   describe('With Resources', () => {
     beforeEach(() => {
-      cy.clock(new Date(2021, 1, 1).getTime(), ['Date']);
+      cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
       servicesRequests();
       initialize({ data: { resources }, options: serviceOptions });
     });
@@ -243,7 +246,7 @@ describe('View by service', () => {
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
       cy.contains(labelAllMetricsAreWorkingFine).should('be.visible');
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -260,7 +263,7 @@ describe('View by service', () => {
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.contains(labelMetricName).should('be.visible');
       cy.contains(labelValue).should('be.visible');
@@ -283,7 +286,7 @@ describe('View by service', () => {
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.contains(labelMetricName).should('be.visible');
       cy.contains(labelValue).should('be.visible');
@@ -304,7 +307,7 @@ describe('View by service', () => {
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.contains('unknown (Execute command failed)').should('be.visible');
       cy.contains('Acknowledged (Acknowledged by admin)').should('be.visible');
@@ -322,7 +325,7 @@ describe('View by service', () => {
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.contains('unknown (Execute command failed)').should('be.visible');
       cy.contains(
@@ -342,7 +345,7 @@ describe('View by service', () => {
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.contains('unknown (Execute command failed)').should('be.visible');
 

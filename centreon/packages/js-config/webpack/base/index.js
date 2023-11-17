@@ -33,6 +33,7 @@ const getBaseConfiguration = ({
         shared: [
           {
             '@centreon/ui-context': {
+              requiredVersion: '24.x',
               singleton: true
             }
           },
