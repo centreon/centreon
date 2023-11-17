@@ -7334,3 +7334,6 @@ msgstr "Coordonnées géographiques permettant à Centreon MAP de positionner le
 
 msgid "Provided that the user can access the API Tokens menu, this action will allow them to not only list, create and delete tokens for themselves, but also manage tokens for other users."
 msgstr "Si l'utilisateur peut accéder au menu des jetons API, cette action lui permettra non seulement de répertorier, de créer et de supprimer des jetons pour lui-même, mais aussi de gérer les jetons d'autres utilisateurs."
+
+msgid "Set the lowest log level: Debug => Info => Notice => Warning => Error => Critical => Alert => Emergency"
+msgstr "Définit le niveau de log le plus bas: Debug => Info => Notice => Warning => Error => Critical => Alert => Emergency"

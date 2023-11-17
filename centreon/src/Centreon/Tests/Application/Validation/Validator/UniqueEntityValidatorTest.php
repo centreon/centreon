@@ -66,7 +66,7 @@ class UniqueEntityValidatorTest extends TestCase
         // dependency
         $this->setUpCentreonDbManager($this->container);
 
-        $this->validator = new UniqueEntityValidator(new Psr11Container($this->container));
+        $this->validator = new UniqueEntityValidator();
         $this->validator->initialize($this->executionContext);
     }
 

@@ -75,8 +75,8 @@ const StatusColumnOnHover = ({
   const { canAcknowledge, canDowntime } = useAclQuery();
 
   const isResourceOk = pathEq(
-    ['status', 'severity_code'],
     SeverityCode.OK,
+    ['status', 'severity_code'],
     row
   );
 

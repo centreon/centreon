@@ -290,6 +290,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
                     'description' => 'my description',
                     'url' => '',
                     'version' => '1.0.0',
+                    'is_internal' => 0,
                     'directory' => 'my-widget',
                     'author' => 'phpunit',
                     'email' => 'root@localhost',

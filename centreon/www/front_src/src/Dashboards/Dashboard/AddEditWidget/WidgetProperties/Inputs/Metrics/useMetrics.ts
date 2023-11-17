@@ -14,6 +14,8 @@ import {
   length,
   pipe,
   pluck,
+  propEq,
+  reject,
   uniq
 } from 'ramda';
 import { useAtomValue } from 'jotai';
@@ -45,6 +47,7 @@ interface UseMetricsState {
   changeMetrics: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
+  deleteMetricItem: (index, option) => void;
   error: string | null;
   getMetricOptionDisabled: (metricOption) => boolean;
   getMetricsFromService: (serviceId: number) => Array<SelectEntry>;
@@ -213,6 +216,13 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
+  const deleteMetricItem = (index, option): void => {
+    const newMetric = reject(propEq(option.id, 'id'), value || []);
+
+    setFieldValue(`data.${propertyName}.${index}.metrics`, newMetric);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const changeMetric =
     (index) =>
     (_, newMetrics: SelectEntry | null): void => {
@@ -223,82 +233,85 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
-  useEffect(() => {
-    if (isNil(servicesMetrics)) {
-      return;
-    }
-
-    if (isEmpty(resources)) {
-      setFieldValue(`data.${propertyName}`, []);
-
-      return;
-    }
-
-    if (
-      equals(servicesMetrics.result.length, 1) &&
-      isEmpty(value?.[0].id) &&
-      isEmpty(value?.[0].metrics)
-    ) {
-      setFieldValue(`data.${propertyName}`, [
-        {
-          id: servicesMetrics.result[0].id,
-          metrics: [],
-          name: servicesMetrics.result[0].name
-        }
-      ]);
-
-      return;
-    }
-
-    const baseServiceIds = pluck('id', servicesMetrics?.result || []);
-
-    const intersectionBetweenServicesIdsAndValues = innerJoin(
-      (service, id) => equals(service.id, id),
-      value || [],
-      baseServiceIds
-    );
-
-    const newServiceMetrics = intersectionBetweenServicesIdsAndValues.map(
-      (service) => {
-        const newService = servicesMetrics.result.find(
-          (serviceMetric) => serviceMetric.id === service.id
-        );
-
-        return {
-          id: service.id,
-          metrics: service.metrics.map((metric) => {
-            const newMetric = newService?.metrics.find(
-              (metricFromService) => metricFromService.id === metric.id
-            );
-
-            return {
-              criticalHighThreshold: newMetric?.criticalHighThreshold || null,
-              criticalLowThreshold: newMetric?.criticalLowThreshold || null,
-              id: metric.id,
-              name: metric.name,
-              unit: metric.unit,
-              warningHighThreshold: newMetric?.warningHighThreshold || null,
-              warningLowThreshold: newMetric?.warningLowThreshold || null
-            };
-          }),
-          name: service.name
-        };
+  useEffect(
+    () => {
+      if (isNil(servicesMetrics)) {
+        return;
       }
-    );
 
-    setFieldValue(
-      `data.${propertyName}`,
-      isEmpty(newServiceMetrics)
-        ? [
-            {
-              id: '',
-              metrics: [],
-              name: ''
-            }
-          ]
-        : newServiceMetrics
-    );
-  }, useDeepCompare([servicesMetrics, resources]));
+      if (isEmpty(resources)) {
+        setFieldValue(`data.${propertyName}`, []);
+
+        return;
+      }
+
+      if (
+        equals(servicesMetrics.result.length, 1) &&
+        isEmpty(value?.[0].id) &&
+        isEmpty(value?.[0].metrics)
+      ) {
+        setFieldValue(`data.${propertyName}`, [
+          {
+            id: servicesMetrics.result[0].id,
+            metrics: [],
+            name: servicesMetrics.result[0].name
+          }
+        ]);
+
+        return;
+      }
+
+      const baseServiceIds = pluck('id', servicesMetrics?.result || []);
+
+      const intersectionBetweenServicesIdsAndValues = innerJoin(
+        (service, id) => equals(service.id, id),
+        value || [],
+        baseServiceIds
+      );
+
+      const newServiceMetrics = intersectionBetweenServicesIdsAndValues.map(
+        (service) => {
+          const newService = servicesMetrics.result.find(
+            (serviceMetric) => serviceMetric.id === service.id
+          );
+
+          return {
+            id: service.id,
+            metrics: service.metrics.map((metric) => {
+              const newMetric = newService?.metrics.find(
+                (metricFromService) => metricFromService.id === metric.id
+              );
+
+              return {
+                criticalHighThreshold: newMetric?.criticalHighThreshold || null,
+                criticalLowThreshold: newMetric?.criticalLowThreshold || null,
+                id: metric.id,
+                name: metric.name,
+                unit: metric.unit,
+                warningHighThreshold: newMetric?.warningHighThreshold || null,
+                warningLowThreshold: newMetric?.warningLowThreshold || null
+              };
+            }),
+            name: service.name
+          };
+        }
+      );
+
+      setFieldValue(
+        `data.${propertyName}`,
+        isEmpty(newServiceMetrics)
+          ? [
+              {
+                id: '',
+                metrics: [],
+                name: ''
+              }
+            ]
+          : newServiceMetrics
+      );
+    },
+    useDeepCompare([servicesMetrics, resources])
+  );
 
   useEffect(() => {
     if (hasNoResources() || !singleMetricSection) {
@@ -320,6 +333,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     changeMetrics,
     changeService,
     deleteMetric,
+    deleteMetricItem,
     error: errorToDisplay,
     getMetricOptionDisabled,
     getMetricsFromService,

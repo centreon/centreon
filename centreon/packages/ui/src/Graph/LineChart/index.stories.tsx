@@ -39,8 +39,7 @@ import { Interval, ThresholdType, TooltipData } from './models';
 import WrapperLineChart from './index';
 
 const meta: Meta<typeof WrapperLineChart> = {
-  component: WrapperLineChart,
-  tags: ['autodocs']
+  component: WrapperLineChart
 };
 export default meta;
 

@@ -901,42 +901,518 @@ function multipleServiceInDB(
     return ($maxId["MAX(service_id)"]);
 }
 
-function updateServiceInDB($service_id = null, $from_MC = false, $params = array())
+function updateServiceForCloud($serviceId = null, $massiveChange = false, $parameters = [])
 {
-    global $form;
+    global $form, $pearDB, $centreon;
 
-    if (!$service_id) {
+    if (! $serviceId) {
         return;
     }
 
-    if (count($params)) {
-        $ret = $params;
+    $service = new CentreonService($pearDB);
+
+    $ret = array();
+    if (count($parameters)) {
+        $ret = $parameters;
+    } else {
+        $ret = $form->getSubmitValues();
+    }
+
+    $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
+
+    $rq = "UPDATE service SET ";
+    $rq .= "service_template_model_stm_id = ";
+    isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
+        ? $rq .= "'" . $ret["service_template_model_stm_id"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "command_command_id = null, ";
+        $rq .= "timeperiod_tp_id = ";
+    isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
+        ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "command_command_id2 = null, ";
+
+    // If we are doing a MC, we don't have to set name and alias field
+    if (!$massiveChange) {
+        $rq .= "service_description = ";
+        isset($ret["service_description"]) && $ret["service_description"] != null
+            ? $rq .= "'" . CentreonDB::escape($ret["service_description"]) . "', "
+            : $rq .= "NULL, ";
+    }
+    $rq .= "service_alias = ";
+    isset($ret["service_alias"]) && $ret["service_alias"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["service_alias"]) . "', "
+        : $rq .= "NULL, ";
+    $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
+    $rq .= "service_max_check_attempts = ";
+    isset($ret["service_max_check_attempts"]) && $ret["service_max_check_attempts"] != null
+        ? $rq .= "'" . $ret["service_max_check_attempts"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "service_normal_check_interval = ";
+    isset($ret["service_normal_check_interval"]) && $ret["service_normal_check_interval"] != null
+        ? $rq .= "'" . $ret["service_normal_check_interval"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "service_retry_check_interval = ";
+    isset($ret["service_retry_check_interval"]) && $ret["service_retry_check_interval"] != null
+        ? $rq .= "'" . $ret["service_retry_check_interval"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
+    $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
+    $rq .= "service_event_handler_enabled = '2', ";
+    $rq .= "service_low_flap_threshold = null, service_high_flap_threshold = null, ";
+    $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
+    $rq .= "service_retain_nonstatus_information = '2', service_notifications_enabled = '2', ";
+    $rq .= 'service_recovery_notification_delay = null, service_use_only_contacts_from_host = null, ';
+    $rq .= 'contact_additive_inheritance = 0, cg_additive_inheritance = 0, ';
+    $rq .= 'service_stalking_options = null, service_comment = null, ';
+    $rq .= "geo_coords = ";
+    isset($ret["geo_coords"]) && $ret["geo_coords"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["geo_coords"]) . "', "
+        : $rq .= "NULL, ";
+    $rq .= "command_command_id_arg = null, ";
+    $rq .= "command_command_id_arg2 = null, service_register = ";
+    isset($ret["service_register"]) && $ret["service_register"] != null
+        ? $rq .= "'" . $ret["service_register"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "service_activate = ";
+    isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null
+        ? $rq .= "'" . $ret["service_activate"]["service_activate"] . "' "
+        : $rq .= "'1' ";
+    $rq .= "WHERE service_id = '" . $serviceId . "'";
+    $dbResult = $pearDB->query($rq);
+
+    /*
+     * Update demand macros
+     */
+    if (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
+        $macroDescription = array();
+        foreach ($_REQUEST as $nam => $ele) {
+            if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $macroDescription[$match[1]] = $ele;
+                }
+            }
+        }
+        $service->insertMacro(
+            $serviceId,
+            $_REQUEST['macroInput'],
+            $_REQUEST['macroValue'],
+            (!isset($_REQUEST['macroPassword']) ? 0 : $_REQUEST['macroPassword']),
+            $macroDescription,
+            $massiveChange
+        );
+    } else {
+        $query = "DELETE FROM on_demand_macro_service WHERE svc_svc_id = '" . CentreonDB::escape($serviceId) . "'";
+        $pearDB->query($query);
+    }
+
+    if (isset($ret['criticality_id'])) {
+        setServiceCriticality($serviceId, $ret['criticality_id']);
+    }
+
+    $centreon->user->access->updateACL(array("type" => 'SERVICE', 'id' => $serviceId, "action" => "UPDATE"));
+
+    /* Prepare value for changelog */
+    $fields = CentreonLogAction::prepareChanges($ret);
+    $centreon->CentreonLogAction->insertLog(
+        "service",
+        $serviceId,
+        CentreonDB::escape($ret["service_description"]),
+        "c",
+        $fields
+    );
+}
+
+function updateService_MCForCloud($serviceId = null, $parameters = [])
+{
+    if (!$serviceId) {
+        return;
+    }
+    global $form, $pearDB, $centreon;
+
+    $service = new CentreonService($pearDB);
+
+    $ret = array();
+    if (count($parameters)) {
+        $ret = $parameters;
+    } else {
+        $ret = $form->getSubmitValues();
+    }
+
+    if (isset($ret["sg_name"])) {
+        $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
+    }
+
+    $rq = "UPDATE service SET ";
+    if (isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null) {
+        $rq .= "service_template_model_stm_id = '" . $ret["service_template_model_stm_id"] . "', ";
+    }
+    if (isset($ret["command_command_id"]) && $ret["command_command_id"] != null) {
+        $rq .= "command_command_id = '" . $ret["command_command_id"] . "', ";
+    }
+    if (isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null) {
+        $rq .= "timeperiod_tp_id = '" . $ret["timeperiod_tp_id"] . "', ";
+    }
+    $rq .= 'command_command_id2 = null, ';
+
+    if (isset($ret["service_alias"]) && $ret["service_alias"] != null) {
+        $rq .= "service_alias = '" . $ret["service_alias"] . "', ";
+    }
+
+    if (isset($ret["service_max_check_attempts"]) && $ret["service_max_check_attempts"] != null) {
+        $rq .= "service_max_check_attempts = '" . $ret["service_max_check_attempts"] . "', ";
+    }
+
+    if (isset($ret["service_normal_check_interval"]) && $ret["service_normal_check_interval"] != null) {
+        $rq .= "service_normal_check_interval = '" . $ret["service_normal_check_interval"] . "', ";
+    }
+    if (isset($ret["service_retry_check_interval"]) && $ret["service_retry_check_interval"] != null) {
+        $rq .= "service_retry_check_interval = '" . $ret["service_retry_check_interval"] . "', ";
+    }
+
+    $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
+    $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
+    $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
+    $rq .= "service_freshness_threshold = null, service_event_handler_enabled = '2', ";
+    $rq .= 'service_low_flap_threshold = null, service_high_flap_threshold = null, ';
+    $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
+    $rq .= "service_retain_nonstatus_information = '2', ";
+    $rq .= "service_notifications_enabled = '2', service_recovery_notification_delay = null, ";
+    $rq .= 'cg_additive_inheritance = 0, service_use_only_contacts_from_host = null, ';
+    $rq .= 'service_stalking_options = null, service_comment = null, ';
+
+
+    $rq .= 'command_command_id_arg = null, command_command_id_arg2 = null, ';
+    if (isset($ret["service_register"]) && $ret["service_register"] != null) {
+        $rq .= "service_register = '" . $ret["service_register"] . "', ";
+    }
+    if (isset($ret["geo_coords"]) && $ret["geo_coords"] != null) {
+        $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
+    }
+    if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+        $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+    }
+
+    if (strcmp("UPDATE service SET ", $rq)) {
+        // Delete last ',' in request
+        $rq[strlen($rq) - 2] = " ";
+        $rq .= "WHERE service_id = '" . $serviceId . "'";
+        $dbResult = $pearDB->query($rq);
+    }
+
+    /*
+     *  Update on demand macros
+     */
+    $macroDescription = array();
+    foreach ($_REQUEST as $nam => $ele) {
+        if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $macroDescription[$match[1]] = $ele;
+            }
+        }
+    }
+    if (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
+        $service->insertMacro(
+            $serviceId,
+            $_REQUEST['macroInput'],
+            $_REQUEST['macroValue'],
+            $_REQUEST['macroPassword'] ?? [],
+            $macroDescription,
+            true,
+            false,
+            $_REQUEST['macroFrom']
+        );
+    }
+    if (isset($ret['criticality_id']) && $ret['criticality_id']) {
+        setServiceCriticality($serviceId, $ret['criticality_id']);
+    }
+
+    /* Prepare value for changelog */
+    $fields = CentreonLogAction::prepareChanges($ret);
+    $centreon->CentreonLogAction->insertLog(
+        "service",
+        $serviceId,
+        CentreonDB::escape($ret["service_description"] ?? ""),
+        "mc",
+        $fields
+    );
+}
+
+function updateServiceHostForCloud($serviceId = null, $submittedValues = [], $isMassiveChange = false)
+{
+    global $form, $pearDB;
+
+    if (!$serviceId) {
+        return;
+    }
+
+    $ret1 = array();
+    $ret2 = array();
+    if (isset($submittedValues["service_hPars"])) {
+        $ret1 = $submittedValues["service_hPars"];
+    } else {
+        $ret1 = CentreonUtils::mergeWithInitialValues($form, 'service_hPars');
+    }
+    if (isset($submittedValues["service_hgPars"])) {
+        $ret2 = $submittedValues["service_hgPars"];
+    } else {
+        $ret2 = CentreonUtils::mergeWithInitialValues($form, 'service_hgPars');
+    }
+
+    /*
+     * Get actual config
+     */
+    $rq = "SELECT host_host_id FROM escalation_service_relation " .
+        " WHERE service_service_id = :service_id";
+    $statement = $pearDB->prepare($rq);
+    $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+    $statement->execute();
+    $cacheEsc = array();
+    while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $cacheEsc[$data['host_host_id']] = 1;
+    }
+
+    /*
+     * Get actual config
+     */
+    $rq = "SELECT host_host_id FROM host_service_relation " .
+        " WHERE service_service_id = :service_id ";
+    $statement = $pearDB->prepare($rq);
+    $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+    $statement->execute();
+    $cache = array();
+    while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $cache[$data['host_host_id']] = 1;
+    }
+
+    if (count($ret1) == 1) {
+        foreach ($cache as $host_id => $flag) {
+            if (!isset($cacheEsc[$host_id]) && count($cacheEsc)) {
+                $query = "UPDATE escalation_service_relation
+                          SET host_host_id = :host_host_id
+                          WHERE service_service_id = :service_id";
+                $statement = $pearDB->prepare($query);
+                $statement->bindValue(':host_host_id', (int) $ret1[0], \PDO::PARAM_INT);
+                $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+                $statement->execute();
+            }
+        }
+    } else {
+        foreach ($cache as $host_id) {
+            if (!isset($cache[$host_id]) && count($cacheEsc)) {
+                $query = "DELETE FROM escalation_service_relation
+                    WHERE host_host_id = :host_host_id AND service_service_id = :service_id";
+                $statement = $pearDB->prepare($query);
+                $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+                $statement->bindValue(':host_host_id', (int) $ret1[0], \PDO::PARAM_INT);
+                $statement->execute();
+            }
+        }
+    }
+
+    if (!$isMassiveChange) {
+        $rq = "DELETE FROM host_service_relation "
+            . "WHERE service_service_id = :service_id ";
+        $statement = $pearDB->prepare($rq);
+        $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+        $statement->execute();
+    } else {
+        # Purge service to host relations
+        if (count($ret1)) {
+            $rq = "DELETE FROM host_service_relation "
+                . "WHERE service_service_id = :service_id "
+                . "AND host_host_id IS NOT NULL ";
+            $statement = $pearDB->prepare($rq);
+            $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+            $statement->execute();
+        }
+        # Purge service to hostgroup relations
+        if (count($ret2)) {
+            $rq = "DELETE FROM host_service_relation "
+                . "WHERE service_service_id = :service_id "
+                . "AND hostgroup_hg_id IS NOT NULL ";
+            $statement = $pearDB->prepare($rq);
+            $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+            $statement->execute();
+        }
+    }
+
+    if (count($ret2)) {
+        for ($i = 0; $i < count($ret2); $i++) {
+            $rq = "INSERT INTO host_service_relation ";
+            $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
+            $rq .= "VALUES ";
+            $rq .= "('" . $ret2[$i] . "', NULL, NULL, '" . $serviceId . "')";
+            $dbResult = $pearDB->query($rq);
+            setHostChangeFlag($pearDB, null, $ret2[$i]);
+        }
+    } elseif (count($ret1)) {
+        for ($i = 0; $i < count($ret1); $i++) {
+            $rq = "INSERT INTO host_service_relation ";
+            $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
+            $rq .= "VALUES ";
+            $rq .= "(NULL, '" . $ret1[$i] . "', NULL, '" . $serviceId . "')";
+            $dbResult = $pearDB->query($rq);
+            setHostChangeFlag($pearDB, $ret1[$i], null);
+        }
+    }
+}
+
+function updateServiceHost_MCForCloud($serviceId = null)
+{
+    global $form, $pearDB;
+
+    if (! $serviceId) {
+        return;
+    }
+
+    $rq = "SELECT * FROM host_service_relation ";
+    $rq .= "WHERE service_service_id = '" . $serviceId . "'";
+    $dbResult = $pearDB->query($rq);
+    $hsvs = array();
+    $hgsvs = array();
+    while ($arr = $dbResult->fetch()) {
+        if ($arr["host_host_id"]) {
+            $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];
+        }
+        if ($arr["hostgroup_hg_id"]) {
+            $hgsvs[$arr["hostgroup_hg_id"]] = $arr["hostgroup_hg_id"];
+        }
+    }
+    $ret1 = array();
+    $ret2 = array();
+    $ret1 = $form->getSubmitValue("service_hPars");
+    $ret2 = $form->getSubmitValue("service_hgPars");
+    if (is_array($ret2)) {
+        for ($i = 0; $i < count($ret2); $i++) {
+            if (!isset($hgsvs[$ret2[$i]])) {
+                $rq = "DELETE FROM host_service_relation ";
+                $rq .= "WHERE service_service_id = '" . $serviceId . "' AND host_host_id IS NOT NULL";
+                $dbResult = $pearDB->query($rq);
+                $rq = "INSERT INTO host_service_relation ";
+                $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
+                $rq .= "VALUES ";
+                $rq .= "('" . $ret2[$i] . "', NULL, NULL, '" . $serviceId . "')";
+                $dbResult = $pearDB->query($rq);
+                setHostChangeFlag($pearDB, null, $ret2[$i]);
+            }
+        }
+    } elseif (is_array($ret1)) {
+        for ($i = 0; $i < count($ret1); $i++) {
+            if (!isset($hsvs[$ret1[$i]])) {
+                $rq = "DELETE FROM host_service_relation ";
+                $rq .= "WHERE service_service_id = '" . $serviceId . "' AND hostgroup_hg_id IS NOT NULL";
+                $pearDB->query($rq);
+                $rq = "INSERT INTO host_service_relation ";
+                $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
+                $rq .= "VALUES ";
+                $rq .= "(NULL, '" . $ret1[$i] . "', NULL, '" . $serviceId . "')";
+                $pearDB->query($rq);
+                setHostChangeFlag($pearDB, $ret1[$i], null);
+            }
+        }
+    }
+}
+
+function updateServiceInDB($serviceId = null, $massiveChange = false, $parameters = [])
+{
+    global $isCloudPlatform;
+
+    $isCloudPlatform
+        ? updateServiceInDBForCloud($serviceId, $massiveChange, $parameters)
+        : updateServiceInDBForOnPrem($serviceId, $massiveChange, $parameters);
+}
+
+function updateServiceInDBForCloud($serviceId = null, $massiveChange = false, $parameters = [])
+{
+    global $form;
+
+    if (! $serviceId) {
+        return;
+    }
+
+    if (count($parameters)) {
+        $ret = $parameters;
     } else {
         $ret = $form->getSubmitValues();
     }
 
     $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
 
-    $previousPollerIds = getPollersForConfigChangeFlagFromServiceId($service_id);
+    $previousPollerIds = getPollersForConfigChangeFlagFromServiceId($serviceId);
 
-    if ($from_MC) {
-        updateService_MC($service_id);
+    if ($massiveChange) {
+        updateService_MCForCloud($serviceId);
     } else {
-        updateService($service_id, $from_MC, $params);
+        updateServiceForCloud($serviceId, $massiveChange, $parameters);
+    }
+
+    // Function for updating host/hg parent
+    if ($massiveChange) {
+        updateServiceHost_MCForCloud($serviceId);
+    } else {
+        updateServiceHostForCloud($serviceId, $parameters);
+    }
+
+    if (!$isServiceTemplate) {
+        if ($massiveChange) {
+            updateServiceServiceGroup_MC($serviceId);
+        } else {
+            updateServiceServiceGroup($serviceId);
+        }
+    }
+
+    if ($massiveChange) {
+        updateServiceExtInfos_MC($serviceId);
+    } else {
+        updateServiceExtInfos($serviceId);
+    }
+
+    if ($massiveChange) {
+        updateServiceCategories_MC($serviceId);
+    } else {
+        updateServiceCategories($serviceId);
+    }
+
+    signalConfigurationChange('service', $serviceId, $previousPollerIds);
+}
+
+function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $parameters = [])
+{
+    global $form;
+
+    if (!$serviceId) {
+        return;
+    }
+
+    if (count($parameters)) {
+        $ret = $parameters;
+    } else {
+        $ret = $form->getSubmitValues();
+    }
+
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
+
+    $previousPollerIds = getPollersForConfigChangeFlagFromServiceId($serviceId);
+
+    if ($massiveChange) {
+        updateService_MC($serviceId);
+    } else {
+        updateService($serviceId, $massiveChange, $parameters);
     }
     // Function for updating cg
     // 1 - MC with deletion of existing cg
     // 2 - MC with addition of new cg
     // 3 - Normal update
     if (isset($ret["mc_mod_cgs"]["mc_mod_cgs"]) && $ret["mc_mod_cgs"]["mc_mod_cgs"]) {
-        updateServiceContactGroup($service_id, $params);
-        updateServiceContact($service_id, $params);
+        updateServiceContactGroup($serviceId, $parameters);
+        updateServiceContact($serviceId, $parameters);
     } elseif (isset($ret["mc_mod_cgs"]["mc_mod_cgs"]) && !$ret["mc_mod_cgs"]["mc_mod_cgs"]) {
-        updateServiceContactGroup_MC($service_id, $params);
-        updateServiceContact_MC($service_id, $params);
+        updateServiceContactGroup_MC($serviceId, $parameters);
+        updateServiceContact_MC($serviceId, $parameters);
     } else {
-        updateServiceContactGroup($service_id, $params);
-        updateServiceContact($service_id, $params);
+        updateServiceContactGroup($serviceId, $parameters);
+        updateServiceContact($serviceId, $parameters);
     }
 
     // Function for updating notification options
@@ -944,11 +1420,11 @@ function updateServiceInDB($service_id = null, $from_MC = false, $params = array
     // 2 - MC with addition of new options (incremental)
     // 3 - Normal update
     if (isset($ret["mc_mod_notifopts"]["mc_mod_notifopts"]) && $ret["mc_mod_notifopts"]["mc_mod_notifopts"]) {
-        updateServiceNotifs($service_id);
+        updateServiceNotifs($serviceId);
     } elseif (isset($ret["mc_mod_notifopts"]["mc_mod_notifopts"]) && !$ret["mc_mod_notifopts"]["mc_mod_notifopts"]) {
-        updateServiceNotifs_MC($service_id);
+        updateServiceNotifs_MC($serviceId);
     } else {
-        updateServiceNotifs($service_id);
+        updateServiceNotifs($serviceId);
     }
 
     // Function for updating notification interval options
@@ -959,14 +1435,14 @@ function updateServiceInDB($service_id = null, $from_MC = false, $params = array
         isset($ret["mc_mod_notifopt_notification_interval"]["mc_mod_notifopt_notification_interval"])
         && $ret["mc_mod_notifopt_notification_interval"]["mc_mod_notifopt_notification_interval"]
     ) {
-        updateServiceNotifOptionInterval($service_id);
+        updateServiceNotifOptionInterval($serviceId);
     } elseif (
         isset($ret["mc_mod_notifopt_notification_interval"]["mc_mod_notifopt_notification_interval"])
         && !$ret["mc_mod_notifopt_notification_interval"]["mc_mod_notifopt_notification_interval"]
     ) {
-        updateServiceNotifOptionInterval_MC($service_id);
+        updateServiceNotifOptionInterval_MC($serviceId);
     } else {
-        updateServiceNotifOptionInterval($service_id);
+        updateServiceNotifOptionInterval($serviceId);
     }
 
     // Function for updating first notification delay options
@@ -977,14 +1453,14 @@ function updateServiceInDB($service_id = null, $from_MC = false, $params = array
         isset($ret["mc_mod_notifopt_first_notification_delay"]["mc_mod_notifopt_first_notification_delay"])
         && $ret["mc_mod_notifopt_first_notification_delay"]["mc_mod_notifopt_first_notification_delay"]
     ) {
-        updateServiceNotifOptionFirstNotificationDelay($service_id);
+        updateServiceNotifOptionFirstNotificationDelay($serviceId);
     } elseif (
         isset($ret["mc_mod_notifopt_first_notification_delay"]["mc_mod_notifopt_first_notification_delay"])
         && !$ret["mc_mod_notifopt_first_notification_delay"]["mc_mod_notifopt_first_notification_delay"]
     ) {
-        updateServiceNotifOptionFirstNotificationDelay_MC($service_id);
+        updateServiceNotifOptionFirstNotificationDelay_MC($serviceId);
     } else {
-        updateServiceNotifOptionFirstNotificationDelay($service_id);
+        updateServiceNotifOptionFirstNotificationDelay($serviceId);
     }
 
 
@@ -996,14 +1472,14 @@ function updateServiceInDB($service_id = null, $from_MC = false, $params = array
         isset($ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"])
         && $ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"]
     ) {
-        updateServiceNotifOptionTimeperiod($service_id);
+        updateServiceNotifOptionTimeperiod($serviceId);
     } elseif (
         isset($ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"])
         && !$ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"]
     ) {
-        updateServiceNotifOptionTimeperiod_MC($service_id);
+        updateServiceNotifOptionTimeperiod_MC($serviceId);
     } else {
-        updateServiceNotifOptionTimeperiod($service_id);
+        updateServiceNotifOptionTimeperiod($serviceId);
     }
 
 
@@ -1012,11 +1488,11 @@ function updateServiceInDB($service_id = null, $from_MC = false, $params = array
     // 2 - MC with addition of new host/hg parent
     // 3 - Normal update
     if (isset($ret["mc_mod_Pars"]["mc_mod_Pars"]) && $ret["mc_mod_Pars"]["mc_mod_Pars"]) {
-        updateServiceHost($service_id, $params, true);
+        updateServiceHost($serviceId, $parameters, true);
     } elseif (isset($ret["mc_mod_Pars"]["mc_mod_Pars"]) && !$ret["mc_mod_Pars"]["mc_mod_Pars"]) {
-        updateServiceHost_MC($service_id);
+        updateServiceHost_MC($serviceId);
     } else {
-        updateServiceHost($service_id, $params);
+        updateServiceHost($serviceId, $parameters);
     }
 
     // Function for updating sg
@@ -1025,86 +1501,285 @@ function updateServiceInDB($service_id = null, $from_MC = false, $params = array
     // 3 - Normal update
     if (!$isServiceTemplate) {
         if (isset($ret["mc_mod_sgs"]["mc_mod_sgs"]) && $ret["mc_mod_sgs"]["mc_mod_sgs"]) {
-            updateServiceServiceGroup($service_id);
+            updateServiceServiceGroup($serviceId);
         } elseif (isset($ret["mc_mod_sgs"]["mc_mod_sgs"]) && !$ret["mc_mod_sgs"]["mc_mod_sgs"]) {
-            updateServiceServiceGroup_MC($service_id);
+            updateServiceServiceGroup_MC($serviceId);
         } else {
-            updateServiceServiceGroup($service_id);
+            updateServiceServiceGroup($serviceId);
         }
     }
 
-    if ($from_MC) {
-        updateServiceExtInfos_MC($service_id);
+    if ($massiveChange) {
+        updateServiceExtInfos_MC($serviceId);
     } else {
-        updateServiceExtInfos($service_id);
+        updateServiceExtInfos($serviceId);
     }
     // Function for updating traps
     // 1 - MC with deletion of existing traps
     // 2 - MC with addition of new traps
     // 3 - Normal update
     if (isset($ret["mc_mod_traps"]["mc_mod_traps"]) && $ret["mc_mod_traps"]["mc_mod_traps"]) {
-        updateServiceTrap($service_id);
+        updateServiceTrap($serviceId);
     } elseif (isset($ret["mc_mod_traps"]["mc_mod_traps"]) && !$ret["mc_mod_traps"]["mc_mod_traps"]) {
-        updateServiceTrap_MC($service_id);
+        updateServiceTrap_MC($serviceId);
     } else {
-        updateServiceTrap($service_id);
+        updateServiceTrap($serviceId);
     }
     // Function for updating categories
     // 1 - MC with deletion of existing categories
     // 2 - MC with addition of new categories
     // 3 - Normal update
     if (isset($ret["mc_mod_sc"]["mc_mod_sc"]) && $ret["mc_mod_sc"]["mc_mod_sc"]) {
-        updateServiceCategories($service_id);
+        updateServiceCategories($serviceId);
     } elseif (isset($ret["mc_mod_sc"]["mc_mod_sc"]) && !$ret["mc_mod_sc"]["mc_mod_sc"]) {
-        updateServiceCategories_MC($service_id);
+        updateServiceCategories_MC($serviceId);
     } else {
-        updateServiceCategories($service_id);
+        updateServiceCategories($serviceId);
     }
 
-    signalConfigurationChange('service', $service_id, $previousPollerIds);
+    signalConfigurationChange('service', $serviceId, $previousPollerIds);
 }
 
-function insertServiceInDB($ret = array(), $macro_on_demand = null)
+function insertServiceInDB($submittedValues = [], $onDemandMacro = null)
+{
+    global $isCloudPlatform;
+
+    return $isCloudPlatform
+        ? insertServiceInDBForCloud($submittedValues, $onDemandMacro)
+        : insertServiceInDBForOnPremise($submittedValues, $onDemandMacro);
+}
+
+function insertServiceInDBForCloud($submittedValues = [], $onDemandMacro = null)
 {
     global $centreon;
 
-    $tmp_fields = insertService($ret, $macro_on_demand);
-    $service_id = $tmp_fields['service_id'];
-    updateServiceContactGroup($service_id, $ret);
-    updateServiceContact($service_id, $ret);
-    updateServiceNotifs($service_id, $ret);
-    updateServiceNotifOptionInterval($service_id, $ret);
-    updateServiceNotifOptionTimeperiod($service_id, $ret);
-    updateServiceNotifOptionFirstNotificationDelay($service_id, $ret);
-    updateServiceHost($service_id, $ret);
-    updateServiceServiceGroup($service_id, $ret);
-    insertServiceExtInfos($service_id, $ret);
-    updateServiceTrap($service_id, $ret);
-    updateServiceCategories($service_id, $ret);
+    $tmp_fields = insertServiceForCloud($submittedValues, $onDemandMacro);
+    $serviceId = $tmp_fields['service_id'];
+    updateServiceHost($serviceId, $submittedValues);
+    updateServiceServiceGroup($serviceId, $submittedValues);
+    insertServiceExtInfos($serviceId, $submittedValues);
+    updateServiceCategories($serviceId, $submittedValues);
 
-    signalConfigurationChange('service', $service_id);
-    $centreon->user->access->updateACL(array("type" => 'SERVICE', 'id' => $service_id, "action" => "ADD"));
-    return ($service_id);
+    signalConfigurationChange('service', $serviceId);
+    $centreon->user->access->updateACL(
+        [
+            'type' => 'SERVICE',
+            'id' => $serviceId,
+            'action' => 'ADD'
+        ]
+    );
+    return ($serviceId);
 }
 
-function insertService($ret = array(), $macro_on_demand = null)
+function insertServiceInDBForOnPremise($submittedValues = [], $onDemandMacro = null)
+{
+    global $centreon;
+
+    $tmp_fields = insertServiceForOnPremise($submittedValues, $onDemandMacro);
+    $serviceId = $tmp_fields['service_id'];
+    updateServiceContactGroup($serviceId, $submittedValues);
+    updateServiceContact($serviceId, $submittedValues);
+    updateServiceNotifs($serviceId, $submittedValues);
+    updateServiceNotifOptionInterval($serviceId, $submittedValues);
+    updateServiceNotifOptionTimeperiod($serviceId, $submittedValues);
+    updateServiceNotifOptionFirstNotificationDelay($serviceId, $submittedValues);
+    updateServiceHost($serviceId, $submittedValues);
+    updateServiceServiceGroup($serviceId, $submittedValues);
+    insertServiceExtInfos($serviceId, $submittedValues);
+    updateServiceTrap($serviceId, $submittedValues);
+    updateServiceCategories($serviceId, $submittedValues);
+
+    signalConfigurationChange('service', $serviceId);
+    $centreon->user->access->updateACL(
+        [
+            'type' => 'SERVICE',
+            'id' => $serviceId,
+            'action' => 'ADD'
+        ]
+    );
+    return ($serviceId);
+}
+
+function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
 {
     global $form, $pearDB, $centreon;
 
     $service = new CentreonService($pearDB);
 
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
+    if (! count($submittedValues)) {
+        $submittedValues = $form->getSubmitValues();
     }
 
-    $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
+    $submittedValues["service_description"] = $service->checkIllegalChar($submittedValues["service_description"]);
     $find = '/\s{2,}/';
-    $ret["service_description"] = preg_replace($find, ' ', $ret["service_description"]);
+    $submittedValues["service_description"] = preg_replace($find, ' ', $submittedValues["service_description"]);
 
-    if (isset($ret["command_command_id_arg2"]) && $ret["command_command_id_arg2"] != null) {
-        $ret["command_command_id_arg2"] = str_replace("\n", "//BR//", $ret["command_command_id_arg2"]);
-        $ret["command_command_id_arg2"] = str_replace("\t", "//T//", $ret["command_command_id_arg2"]);
-        $ret["command_command_id_arg2"] = str_replace("\r", "//R//", $ret["command_command_id_arg2"]);
+    $request = "INSERT INTO service " .
+        "(service_template_model_stm_id, command_command_id, timeperiod_tp_id, command_command_id2, " .
+        "timeperiod_tp_id2, service_description, service_alias, service_is_volatile, service_max_check_attempts, " .
+        "service_normal_check_interval, service_retry_check_interval, service_active_checks_enabled, " .
+        "service_passive_checks_enabled, service_obsess_over_service, service_check_freshness, " .
+        "service_freshness_threshold, service_event_handler_enabled, service_low_flap_threshold, " .
+        "service_high_flap_threshold, service_flap_detection_enabled, service_retain_status_information, " .
+        "service_retain_nonstatus_information, service_notification_interval, service_notification_options, " .
+        "service_notifications_enabled, contact_additive_inheritance, cg_additive_inheritance, " .
+        "service_use_only_contacts_from_host, service_stalking_options, " .
+        "service_first_notification_delay, service_recovery_notification_delay," .
+        "service_comment, geo_coords, command_command_id_arg, command_command_id_arg2, " .
+        "service_register, service_activate, service_acknowledgement_timeout) " .
+        "VALUES ( ";
+    isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null
+        ? $request .= "'" . $submittedValues["service_template_model_stm_id"] . "', "
+        : $request .= "NULL, ";
+    $request .= "null, "; // command_command_id => null
+
+    isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
+        ? $request .= "'" . $submittedValues["timeperiod_tp_id"] . "', "
+        : $request .= "NULL, ";
+    $request .= 'null, '; // command_command_id2 = null
+    $request .= 'null, '; // timeperiod_tp_id2 => null
+    isset($submittedValues["service_description"]) && $submittedValues["service_description"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["service_description"]) . "', "
+        : $request .= "NULL, ";
+    isset($submittedValues["service_alias"]) && $submittedValues["service_alias"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["service_alias"]) . "', "
+        : $request .= "NULL, ";
+
+    $request .= "'2', ";  // service_is_volatile = '2' (default)
+
+    isset($submittedValues["service_max_check_attempts"]) && $submittedValues["service_max_check_attempts"] != null
+        ? $request .= "'" . $submittedValues["service_max_check_attempts"] . "', "
+        : $request .= "NULL, ";
+    isset($submittedValues["service_normal_check_interval"]) && $submittedValues["service_normal_check_interval"] != null
+        ? $request .= "'" . $submittedValues["service_normal_check_interval"] . "', "
+        : $request .= "NULL, ";
+    isset($submittedValues["service_retry_check_interval"]) && $submittedValues["service_retry_check_interval"] != null
+        ? $request .= "'" . $submittedValues["service_retry_check_interval"] . "', "
+        : $request .= "NULL, ";
+
+    $request .= "'2', ";  // service_active_checks_enabled = '2' (default)
+    $request .= "'2', ";  // service_passive_checks_enabled = '2' (default)
+    $request .= "'2', ";  // service_obsess_over_service = '2' (default)
+    $request .= "'2', ";  // service_check_freshness = '2' (default)
+    $request .= 'null, '; // service_freshness_threshold = null
+    $request .= "'2', ";  // service_event_handler_enabled = '2' (default)
+    $request .= 'null, '; // service_low_flap_threshold = null
+    $request .= 'null, '; // service_high_flap_threshold = null
+    $request .= "'2', ";  // service_flap_detection_enabled = '2' (default)
+    $request .= "'2', ";  // service_retain_status_information = '2' (default)
+    $request .= "'2', ";  // service_retain_nonstatus_information = '2' (default)
+    $request .= 'null, '; // service_notification_interval => null
+    $request .= 'null, '; // service_notification_options => null
+    $request .= "'2', ";  // service_notifications_enabled => '2' (default)
+    $request .= '0, ';    // contact_additive_inheritance => 0 (default)
+    $request .= '0, ';    // cg_additive_inheritance => 0 (default)
+    $request .= 'null, '; // service_use_only_contacts_from_host = 0
+    $request .= 'null, '; // service_stalking_options = null
+    $request .= 'null, '; // service_first_notification_delay => null
+    $request .= 'null, '; // service_recovery_notification_delay => null
+    $request .= 'null, '; // service_comment = null
+
+    isset($submittedValues["geo_coords"]) && $submittedValues["geo_coords"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["geo_coords"]) . "', "
+        : $request .= "NULL, ";
+    $request .= "null, "; // command_command_id_arg = null
+    $request .= 'null, '; // command_command_id_arg2 = null
+    isset($submittedValues["service_register"]) && $submittedValues["service_register"] != null
+        ? $request .= "'" . $submittedValues["service_register"] . "', "
+        : $request .= "NULL, ";
+    isset($submittedValues["service_activate"]["service_activate"]) && $submittedValues["service_activate"]["service_activate"] != null
+        ? $request .= "'" . $submittedValues["service_activate"]["service_activate"] . "',"
+        : $request .= "'1',";
+    $request .= "NULL)"; // service_acknowledgement_timeout = null
+    $pearDB->query($request);
+    $dbResult = $pearDB->query("SELECT MAX(service_id) FROM service");
+    $service_id = $dbResult->fetch();
+
+    /*
+     *  Insert on demand macros
+     */
+    if (isset($onDemandMacro)) {
+        $my_tab = $onDemandMacro;
+        if (isset($my_tab['nbOfMacro'])) {
+            $already_stored = array();
+            for ($i = 0; $i <= $my_tab['nbOfMacro']; $i++) {
+                $macInput = "macroInput_" . $i;
+                $macValue = "macroValue_" . $i;
+                if (
+                    isset($my_tab[$macInput])
+                    && !isset($already_stored[strtolower($my_tab[$macInput])]) && $my_tab[$macInput]
+                ) {
+                    $my_tab[$macInput] = str_replace("\$_SERVICE", "", $my_tab[$macInput]);
+                    $my_tab[$macInput] = str_replace("\$", "", $my_tab[$macInput]);
+                    $macName = $my_tab[$macInput];
+                    $macVal = $my_tab[$macValue];
+                    $request = "INSERT INTO on_demand_macro_service (`svc_macro_name`, `svc_macro_value`, `svc_svc_id`, " .
+                        "`macro_order` ) VALUES (:svc_macro_name, :svc_macro_value, :svc_svc_id, :macro_order)";
+                    $statement = $pearDB->prepare($request);
+                    $statement->bindValue(':svc_macro_name', '$_SERVICE' . strtoupper($macName) . '$', \PDO::PARAM_STR);
+                    $statement->bindValue(':svc_macro_value', $macVal, \PDO::PARAM_STR);
+                    $statement->bindValue(':svc_svc_id', (int) $service_id["MAX(service_id)"], \PDO::PARAM_INT);
+                    $statement->bindValue(':macro_order', $i, \PDO::PARAM_INT);
+                    $statement->execute();
+                    $fields["_" . strtoupper($my_tab[$macInput]) . "_"] = $my_tab[$macValue];
+                    $already_stored[strtolower($my_tab[$macInput])] = 1;
+                }
+            }
+        }
+    } elseif (isset($_REQUEST['macroInput']) && isset($_REQUEST['macroValue'])) {
+        $macroDescription = array();
+        foreach ($_REQUEST as $nam => $ele) {
+            if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $macroDescription[$match[1]] = $ele;
+                }
+            }
+        }
+        $service->insertMacro(
+            $service_id["MAX(service_id)"],
+            $_REQUEST['macroInput'],
+            $_REQUEST['macroValue'],
+            isset($_REQUEST['macroPassword']) ? $_REQUEST['macroPassword'] : null,
+            $macroDescription,
+            false
+        );
+    }
+
+    if (isset($submittedValues['criticality_id'])) {
+        setServiceCriticality($service_id['MAX(service_id)'], $submittedValues['criticality_id']);
+    }
+
+    /* Prepare value for changelog */
+    $fields = CentreonLogAction::prepareChanges($submittedValues);
+    $centreon->CentreonLogAction->insertLog(
+        "service",
+        $service_id["MAX(service_id)"],
+        CentreonDB::escape($submittedValues["service_description"]),
+        "a",
+        $fields
+    );
+
+    return (array("service_id" => $service_id["MAX(service_id)"], "fields" => $fields));
+}
+
+function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
+{
+    global $form, $pearDB, $centreon;
+
+    $service = new CentreonService($pearDB);
+
+    if (!count($submittedValues)) {
+        $submittedValues = $form->getSubmitValues();
+    }
+
+    $submittedValues["service_description"] = $service->checkIllegalChar($submittedValues["service_description"]);
+    $find = '/\s{2,}/';
+    $submittedValues["service_description"] = preg_replace($find, ' ', $submittedValues["service_description"]);
+
+    if (isset($submittedValues["command_command_id_arg2"]) && $submittedValues["command_command_id_arg2"] != null) {
+        $submittedValues["command_command_id_arg2"] = str_replace("\n", "//BR//", $submittedValues["command_command_id_arg2"]);
+        $submittedValues["command_command_id_arg2"] = str_replace("\t", "//T//", $submittedValues["command_command_id_arg2"]);
+        $submittedValues["command_command_id_arg2"] = str_replace("\r", "//R//", $submittedValues["command_command_id_arg2"]);
     }
     $rq = "INSERT INTO service " .
         "(service_template_model_stm_id, command_command_id, timeperiod_tp_id, command_command_id2, " .
@@ -1120,126 +1795,126 @@ function insertService($ret = array(), $macro_on_demand = null)
         "service_comment, geo_coords, command_command_id_arg, command_command_id_arg2, " .
         "service_register, service_activate, service_acknowledgement_timeout) " .
         "VALUES ( ";
-    isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
-        ? $rq .= "'" . $ret["service_template_model_stm_id"] . "', "
+    isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null
+        ? $rq .= "'" . $submittedValues["service_template_model_stm_id"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["command_command_id"]) && $ret["command_command_id"] != null
-        ? $rq .= "'" . $ret["command_command_id"] . "', "
+    isset($submittedValues["command_command_id"]) && $submittedValues["command_command_id"] != null
+        ? $rq .= "'" . $submittedValues["command_command_id"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
-        ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
+    isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
+        ? $rq .= "'" . $submittedValues["timeperiod_tp_id"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
-        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+    isset($submittedValues["command_command_id2"]) && $submittedValues["command_command_id2"] != null
+        ? $rq .= "'" . $submittedValues["command_command_id2"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["timeperiod_tp_id2"]) && $ret["timeperiod_tp_id2"] != null
-        ? $rq .= "'" . $ret["timeperiod_tp_id2"] . "', "
+    isset($submittedValues["timeperiod_tp_id2"]) && $submittedValues["timeperiod_tp_id2"] != null
+        ? $rq .= "'" . $submittedValues["timeperiod_tp_id2"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_description"]) && $ret["service_description"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["service_description"]) . "', "
+    isset($submittedValues["service_description"]) && $submittedValues["service_description"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["service_description"]) . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_alias"]) && $ret["service_alias"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["service_alias"]) . "', "
+    isset($submittedValues["service_alias"]) && $submittedValues["service_alias"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["service_alias"]) . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_is_volatile"]) && $ret["service_is_volatile"]["service_is_volatile"] != 2
-        ? $rq .= "'" . $ret["service_is_volatile"]["service_is_volatile"] . "', "
+    isset($submittedValues["service_is_volatile"]) && $submittedValues["service_is_volatile"]["service_is_volatile"] != 2
+        ? $rq .= "'" . $submittedValues["service_is_volatile"]["service_is_volatile"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_max_check_attempts"]) && $ret["service_max_check_attempts"] != null
-        ? $rq .= "'" . $ret["service_max_check_attempts"] . "', "
+    isset($submittedValues["service_max_check_attempts"]) && $submittedValues["service_max_check_attempts"] != null
+        ? $rq .= "'" . $submittedValues["service_max_check_attempts"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_normal_check_interval"]) && $ret["service_normal_check_interval"] != null
-        ? $rq .= "'" . $ret["service_normal_check_interval"] . "', "
+    isset($submittedValues["service_normal_check_interval"]) && $submittedValues["service_normal_check_interval"] != null
+        ? $rq .= "'" . $submittedValues["service_normal_check_interval"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_retry_check_interval"]) && $ret["service_retry_check_interval"] != null
-        ? $rq .= "'" . $ret["service_retry_check_interval"] . "', "
+    isset($submittedValues["service_retry_check_interval"]) && $submittedValues["service_retry_check_interval"] != null
+        ? $rq .= "'" . $submittedValues["service_retry_check_interval"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_active_checks_enabled"]["service_active_checks_enabled"])
-    && $ret["service_active_checks_enabled"]["service_active_checks_enabled"] != 2
-        ? $rq .= "'" . $ret["service_active_checks_enabled"]["service_active_checks_enabled"] . "', "
+    isset($submittedValues["service_active_checks_enabled"]["service_active_checks_enabled"])
+    && $submittedValues["service_active_checks_enabled"]["service_active_checks_enabled"] != 2
+        ? $rq .= "'" . $submittedValues["service_active_checks_enabled"]["service_active_checks_enabled"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_passive_checks_enabled"]["service_passive_checks_enabled"])
-    && $ret["service_passive_checks_enabled"]["service_passive_checks_enabled"] != 2
-        ? $rq .= "'" . $ret["service_passive_checks_enabled"]["service_passive_checks_enabled"] . "', "
+    isset($submittedValues["service_passive_checks_enabled"]["service_passive_checks_enabled"])
+    && $submittedValues["service_passive_checks_enabled"]["service_passive_checks_enabled"] != 2
+        ? $rq .= "'" . $submittedValues["service_passive_checks_enabled"]["service_passive_checks_enabled"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_obsess_over_service"]["service_obsess_over_service"])
-    && $ret["service_obsess_over_service"]["service_obsess_over_service"] != 2
-        ? $rq .= "'" . $ret["service_obsess_over_service"]["service_obsess_over_service"] . "', "
+    isset($submittedValues["service_obsess_over_service"]["service_obsess_over_service"])
+    && $submittedValues["service_obsess_over_service"]["service_obsess_over_service"] != 2
+        ? $rq .= "'" . $submittedValues["service_obsess_over_service"]["service_obsess_over_service"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_check_freshness"]["service_check_freshness"])
-    && $ret["service_check_freshness"]["service_check_freshness"] != 2
-        ? $rq .= "'" . $ret["service_check_freshness"]["service_check_freshness"] . "', "
+    isset($submittedValues["service_check_freshness"]["service_check_freshness"])
+    && $submittedValues["service_check_freshness"]["service_check_freshness"] != 2
+        ? $rq .= "'" . $submittedValues["service_check_freshness"]["service_check_freshness"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_freshness_threshold"]) && $ret["service_freshness_threshold"] != null
-        ? $rq .= "'" . $ret["service_freshness_threshold"] . "', "
+    isset($submittedValues["service_freshness_threshold"]) && $submittedValues["service_freshness_threshold"] != null
+        ? $rq .= "'" . $submittedValues["service_freshness_threshold"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
-    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
-        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+    isset($submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_low_flap_threshold"]) && $ret["service_low_flap_threshold"] != null
-        ? $rq .= "'" . $ret["service_low_flap_threshold"] . "', "
+    isset($submittedValues["service_low_flap_threshold"]) && $submittedValues["service_low_flap_threshold"] != null
+        ? $rq .= "'" . $submittedValues["service_low_flap_threshold"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_high_flap_threshold"]) && $ret["service_high_flap_threshold"] != null
-        ? $rq .= "'" . $ret["service_high_flap_threshold"] . "', "
+    isset($submittedValues["service_high_flap_threshold"]) && $submittedValues["service_high_flap_threshold"] != null
+        ? $rq .= "'" . $submittedValues["service_high_flap_threshold"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_flap_detection_enabled"]["service_flap_detection_enabled"])
-    && $ret["service_flap_detection_enabled"]["service_flap_detection_enabled"] != 2
-        ? $rq .= "'" . $ret["service_flap_detection_enabled"]["service_flap_detection_enabled"] . "', "
+    isset($submittedValues["service_flap_detection_enabled"]["service_flap_detection_enabled"])
+    && $submittedValues["service_flap_detection_enabled"]["service_flap_detection_enabled"] != 2
+        ? $rq .= "'" . $submittedValues["service_flap_detection_enabled"]["service_flap_detection_enabled"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_retain_status_information"]["service_retain_status_information"])
-    && $ret["service_retain_status_information"]["service_retain_status_information"] != 2
-        ? $rq .= "'" . $ret["service_retain_status_information"]["service_retain_status_information"] . "', "
+    isset($submittedValues["service_retain_status_information"]["service_retain_status_information"])
+    && $submittedValues["service_retain_status_information"]["service_retain_status_information"] != 2
+        ? $rq .= "'" . $submittedValues["service_retain_status_information"]["service_retain_status_information"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_retain_nonstatus_information"]["service_retain_nonstatus_information"])
-    && $ret["service_retain_nonstatus_information"]["service_retain_nonstatus_information"] != 2
-        ? $rq .= "'" . $ret["service_retain_nonstatus_information"]["service_retain_nonstatus_information"] . "', "
+    isset($submittedValues["service_retain_nonstatus_information"]["service_retain_nonstatus_information"])
+    && $submittedValues["service_retain_nonstatus_information"]["service_retain_nonstatus_information"] != 2
+        ? $rq .= "'" . $submittedValues["service_retain_nonstatus_information"]["service_retain_nonstatus_information"] . "', "
         : $rq .= "'2', ";
-    isset($ret["service_notification_interval"]) && $ret["service_notification_interval"] != null
-        ? $rq .= "'" . $ret["service_notification_interval"] . "', "
+    isset($submittedValues["service_notification_interval"]) && $submittedValues["service_notification_interval"] != null
+        ? $rq .= "'" . $submittedValues["service_notification_interval"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_notifOpts"]) && $ret["service_notifOpts"] != null
-        ? $rq .= "'" . implode(",", array_keys($ret["service_notifOpts"])) . "', "
+    isset($submittedValues["service_notifOpts"]) && $submittedValues["service_notifOpts"] != null
+        ? $rq .= "'" . implode(",", array_keys($submittedValues["service_notifOpts"])) . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_notifications_enabled"]["service_notifications_enabled"])
-    && $ret["service_notifications_enabled"]["service_notifications_enabled"] != 2
-        ? $rq .= "'" . $ret["service_notifications_enabled"]["service_notifications_enabled"] . "', "
+    isset($submittedValues["service_notifications_enabled"]["service_notifications_enabled"])
+    && $submittedValues["service_notifications_enabled"]["service_notifications_enabled"] != 2
+        ? $rq .= "'" . $submittedValues["service_notifications_enabled"]["service_notifications_enabled"] . "', "
         : $rq .= "'2', ";
-    $rq .= (isset($ret["contact_additive_inheritance"]) ? 1 : 0) . ', ';
-    $rq .= (isset($ret["cg_additive_inheritance"]) ? 1 : 0) . ', ';
-    isset($ret["service_use_only_contacts_from_host"]["service_use_only_contacts_from_host"])
-    && $ret["service_use_only_contacts_from_host"]["service_use_only_contacts_from_host"] != null
-        ? $rq .= "'" . $ret["service_use_only_contacts_from_host"]["service_use_only_contacts_from_host"] . "', "
+    $rq .= (isset($submittedValues["contact_additive_inheritance"]) ? 1 : 0) . ', ';
+    $rq .= (isset($submittedValues["cg_additive_inheritance"]) ? 1 : 0) . ', ';
+    isset($submittedValues["service_use_only_contacts_from_host"]["service_use_only_contacts_from_host"])
+    && $submittedValues["service_use_only_contacts_from_host"]["service_use_only_contacts_from_host"] != null
+        ? $rq .= "'" . $submittedValues["service_use_only_contacts_from_host"]["service_use_only_contacts_from_host"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_stalOpts"]) && $ret["service_stalOpts"] != null
-        ? $rq .= "'" . implode(",", array_keys($ret["service_stalOpts"])) . "', "
+    isset($submittedValues["service_stalOpts"]) && $submittedValues["service_stalOpts"] != null
+        ? $rq .= "'" . implode(",", array_keys($submittedValues["service_stalOpts"])) . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_first_notification_delay"]) && $ret["service_first_notification_delay"] != null
-        ? $rq .= "'" . $ret["service_first_notification_delay"] . "', "
+    isset($submittedValues["service_first_notification_delay"]) && $submittedValues["service_first_notification_delay"] != null
+        ? $rq .= "'" . $submittedValues["service_first_notification_delay"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_recovery_notification_delay"]) && $ret["service_recovery_notification_delay"] != null
-        ? $rq .= $ret["service_recovery_notification_delay"] . ", "
+    isset($submittedValues["service_recovery_notification_delay"]) && $submittedValues["service_recovery_notification_delay"] != null
+        ? $rq .= $submittedValues["service_recovery_notification_delay"] . ", "
         : $rq .= "NULL, ";
-    isset($ret["service_comment"]) && $ret["service_comment"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["service_comment"]) . "', "
+    isset($submittedValues["service_comment"]) && $submittedValues["service_comment"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["service_comment"]) . "', "
         : $rq .= "NULL, ";
-    isset($ret["geo_coords"]) && $ret["geo_coords"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["geo_coords"]) . "', "
+    isset($submittedValues["geo_coords"]) && $submittedValues["geo_coords"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["geo_coords"]) . "', "
         : $rq .= "NULL, ";
-    $ret['command_command_id_arg'] = getCommandArgs($_POST, $ret);
-    isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg"]) . "', "
+    $submittedValues['command_command_id_arg'] = getCommandArgs($_POST, $submittedValues);
+    isset($submittedValues["command_command_id_arg"]) && $submittedValues["command_command_id_arg"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["command_command_id_arg"]) . "', "
         : $rq .= "NULL, ";
-    isset($ret["command_command_id_arg2"]) && $ret["command_command_id_arg2"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg2"]) . "', "
+    isset($submittedValues["command_command_id_arg2"]) && $submittedValues["command_command_id_arg2"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["command_command_id_arg2"]) . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_register"]) && $ret["service_register"] != null
-        ? $rq .= "'" . $ret["service_register"] . "', "
+    isset($submittedValues["service_register"]) && $submittedValues["service_register"] != null
+        ? $rq .= "'" . $submittedValues["service_register"] . "', "
         : $rq .= "NULL, ";
-    isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null
-        ? $rq .= "'" . $ret["service_activate"]["service_activate"] . "',"
+    isset($submittedValues["service_activate"]["service_activate"]) && $submittedValues["service_activate"]["service_activate"] != null
+        ? $rq .= "'" . $submittedValues["service_activate"]["service_activate"] . "',"
         : $rq .= "'1',";
-    isset($ret["service_acknowledgement_timeout"]) && $ret["service_acknowledgement_timeout"] != null
-        ? $rq .= "'" . $ret["service_acknowledgement_timeout"] . "'"
+    isset($submittedValues["service_acknowledgement_timeout"]) && $submittedValues["service_acknowledgement_timeout"] != null
+        ? $rq .= "'" . $submittedValues["service_acknowledgement_timeout"] . "'"
         : $rq .= "NULL";
     $rq .= ")";
     $dbResult = $pearDB->query($rq);
@@ -1249,8 +1924,8 @@ function insertService($ret = array(), $macro_on_demand = null)
     /*
      *  Insert on demand macros
      */
-    if (isset($macro_on_demand)) {
-        $my_tab = $macro_on_demand;
+    if (isset($onDemandMacro)) {
+        $my_tab = $onDemandMacro;
         if (isset($my_tab['nbOfMacro'])) {
             $already_stored = array();
             for ($i = 0; $i <= $my_tab['nbOfMacro']; $i++) {
@@ -1293,20 +1968,20 @@ function insertService($ret = array(), $macro_on_demand = null)
             isset($_REQUEST['macroPassword']) ? $_REQUEST['macroPassword'] : null,
             $macroDescription,
             false,
-            $ret["command_command_id"]
+            $submittedValues["command_command_id"]
         );
     }
 
-    if (isset($ret['criticality_id'])) {
-        setServiceCriticality($service_id['MAX(service_id)'], $ret['criticality_id']);
+    if (isset($submittedValues['criticality_id'])) {
+        setServiceCriticality($service_id['MAX(service_id)'], $submittedValues['criticality_id']);
     }
 
     /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
+    $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
         "service",
         $service_id["MAX(service_id)"],
-        CentreonDB::escape($ret["service_description"]),
+        CentreonDB::escape($submittedValues["service_description"]),
         "a",
         $fields
     );
@@ -1314,48 +1989,52 @@ function insertService($ret = array(), $macro_on_demand = null)
     return (array("service_id" => $service_id["MAX(service_id)"], "fields" => $fields));
 }
 
-function insertServiceExtInfos($service_id = null, $ret = array())
+function insertServiceExtInfos($serviceId = null, $submittedValues = [])
 {
-    if (!$service_id) {
+    if (! $serviceId) {
         return;
     }
-    global $form;
-    global $pearDB;
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
+    global $form, $pearDB, $isCloudPlatform;
+
+    if (! count($submittedValues)) {
+        $submittedValues = $form->getSubmitValues();
     }
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($ret["esi_icon_image"]) && strrchr("REP_", $ret["esi_icon_image"])) {
-        $ret["esi_icon_image"] = null;
+    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", $submittedValues["esi_icon_image"])) {
+        $submittedValues["esi_icon_image"] = null;
     }
     /*
      *
      */
-    $rq = "INSERT INTO `extended_service_information` " .
+    $request = "INSERT INTO `extended_service_information` " .
         "( `esi_id` , `service_service_id`, `esi_notes` , `esi_notes_url` , " .
         "`esi_action_url` , `esi_icon_image` , `esi_icon_image_alt`, `graph_id` )" .
         "VALUES ( ";
-    $rq .= "NULL, " . $service_id . ", ";
-    isset($ret["esi_notes"]) && $ret["esi_notes"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_notes"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["esi_notes_url"]) && $ret["esi_notes_url"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_notes_url"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["esi_action_url"]) && $ret["esi_action_url"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_action_url"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["esi_icon_image"]) && $ret["esi_icon_image"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_icon_image"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["esi_icon_image_alt"]) && $ret["esi_icon_image_alt"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_icon_image_alt"]) . "', "
-        : $rq .= "NULL, ";
-    isset($ret["graph_id"]) && $ret["graph_id"] != null ? $rq .= "'" . $ret["graph_id"] . "'" : $rq .= "NULL";
-    $rq .= ")";
-    $dbResult = $pearDB->query($rq);
+    $request .= "NULL, " . $serviceId . ", ";
+    isset($submittedValues["esi_notes"]) && $submittedValues["esi_notes"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["esi_notes"]) . "', "
+        : $request .= "NULL, ";
+    isset($submittedValues["esi_notes_url"]) && $submittedValues["esi_notes_url"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["esi_notes_url"]) . "', "
+        : $request .= "NULL, ";
+    isset($submittedValues["esi_action_url"]) && $submittedValues["esi_action_url"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["esi_action_url"]) . "', "
+        : $request .= "NULL, ";
+    isset($submittedValues["esi_icon_image"]) && $submittedValues["esi_icon_image"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "', "
+        : $request .= "NULL, ";
+    if (! $isCloudPlatform) {
+        isset($submittedValues["esi_icon_image_alt"]) && $submittedValues["esi_icon_image_alt"] != null
+            ? $request .= "'" . CentreonDB::escape($submittedValues["esi_icon_image_alt"]) . "', "
+            : $request .= "NULL, ";
+        isset($submittedValues["graph_id"]) && $submittedValues["graph_id"] != null ? $request .= "'" . $submittedValues["graph_id"] . "'" : $request .= "NULL";
+    } else {
+        $request .= 'NULL, NULL';
+    }
+    $request .= ")";
+    $pearDB->query($request);
 }
 
 /** *************************************
@@ -2439,63 +3118,66 @@ function updateServiceHost_MC($service_id = null)
     }
 }
 
-function updateServiceExtInfos($service_id = null, $ret = array())
+function updateServiceExtInfos($serviceId = null, $submittedValues = [])
 {
-    global $form, $pearDB;
+    global $form, $pearDB, $isCloudPlatform;
 
-    if (!$service_id) {
+    if (!$serviceId) {
         return;
     }
 
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
+    if (! count($submittedValues)) {
+        $submittedValues = $form->getSubmitValues();
     }
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($ret["esi_icon_image"]) && strrchr("REP_", $ret["esi_icon_image"])) {
-        $ret["esi_icon_image"] = null;
+    if (isset($submittedValues["esi_icon_image"]) && strrchr("REP_", $submittedValues["esi_icon_image"])) {
+        $submittedValues["esi_icon_image"] = null;
     }
 
     $rq = "UPDATE extended_service_information ";
     $rq .= "SET esi_notes = ";
-    isset($ret["esi_notes"]) && $ret["esi_notes"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_notes"]) . "', "
+    isset($submittedValues["esi_notes"]) && $submittedValues["esi_notes"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_notes"]) . "', "
         : $rq .= "NULL, ";
     $rq .= "esi_notes_url = ";
-    isset($ret["esi_notes_url"]) && $ret["esi_notes_url"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_notes_url"]) . "', "
+    isset($submittedValues["esi_notes_url"]) && $submittedValues["esi_notes_url"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_notes_url"]) . "', "
         : $rq .= "NULL, ";
     $rq .= "esi_action_url = ";
-    isset($ret["esi_action_url"]) && $ret["esi_action_url"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_action_url"]) . "', "
+    isset($submittedValues["esi_action_url"]) && $submittedValues["esi_action_url"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_action_url"]) . "', "
         : $rq .= "NULL, ";
     $rq .= "esi_icon_image = ";
-    isset($ret["esi_icon_image"]) && $ret["esi_icon_image"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_icon_image"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "esi_icon_image_alt = ";
-    isset($ret["esi_icon_image_alt"]) && $ret["esi_icon_image_alt"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["esi_icon_image_alt"]) . "', "
-        : $rq .= "NULL, ";
-    $rq .= "graph_id = ";
-    isset($ret["graph_id"]) && $ret["graph_id"] != null
-        ? $rq .= "'" . CentreonDB::escape($ret["graph_id"]) . "' "
+    isset($submittedValues["esi_icon_image"]) && $submittedValues["esi_icon_image"] != null
+        ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "' "
         : $rq .= "NULL ";
-    $rq .= "WHERE service_service_id = '" . $service_id . "'";
+
+    if (! $isCloudPlatform) { 
+        $rq .= ", esi_icon_image_alt = ";
+        isset($submittedValues["esi_icon_image_alt"]) && $submittedValues["esi_icon_image_alt"] != null
+            ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image_alt"]) . "', "
+            : $rq .= "NULL, ";
+        $rq .= "graph_id = ";
+        isset($submittedValues["graph_id"]) && $submittedValues["graph_id"] != null
+            ? $rq .= "'" . CentreonDB::escape($submittedValues["graph_id"]) . "' "
+        : $rq .= "NULL ";
+    }
+    $rq .= "WHERE service_service_id = '" . $serviceId . "'";
     $pearDB->query($rq);
 }
 
-function updateServiceExtInfos_MC($service_id = null, $params = array())
+function updateServiceExtInfos_MC($serviceId = null, $parameters = [])
 {
-    global $form, $pearDB;
+    global $form, $pearDB, $isCloudPlatform;
 
-    if (!$service_id) {
+    if (!$serviceId) {
         return;
     }
 
-    if (count($params)) {
-        $ret = $params;
+    if (count($parameters)) {
+        $ret = $parameters;
     } else {
         $ret = $form->getSubmitValues();
     }
@@ -2512,16 +3194,22 @@ function updateServiceExtInfos_MC($service_id = null, $params = array())
     if (isset($ret["esi_icon_image"]) && $ret["esi_icon_image"] != null) {
         $rq .= "esi_icon_image = '" . CentreonDB::escape($ret["esi_icon_image"]) . "', ";
     }
-    if (isset($ret["esi_icon_image_alt"]) && $ret["esi_icon_image_alt"] != null) {
-        $rq .= "esi_icon_image_alt = '" . CentreonDB::escape($ret["esi_icon_image_alt"]) . "', ";
+
+    if (! $isCloudPlatform) {
+        if (isset($ret["esi_icon_image_alt"]) && $ret["esi_icon_image_alt"] != null) {
+            $rq .= "esi_icon_image_alt = '" . CentreonDB::escape($ret["esi_icon_image_alt"]) . "', ";
+        }
+        if (isset($ret["graph_id"]) && $ret["graph_id"] != null) {
+            $rq .= "graph_id = '" . CentreonDB::escape($ret["graph_id"]) . "', ";
+        }
+    } else {
+        $rq .= 'esi_icon_image_alt = NULL, graph_id = NULL, ';
     }
-    if (isset($ret["graph_id"]) && $ret["graph_id"] != null) {
-        $rq .= "graph_id = '" . CentreonDB::escape($ret["graph_id"]) . "', ";
-    }
+
     if (strcmp("UPDATE extended_service_information SET ", $rq)) {
         // Delete last ',' in request
         $rq[strlen($rq) - 2] = " ";
-        $rq .= "WHERE service_service_id = '" . $service_id . "'";
+        $rq .= "WHERE service_service_id = '" . $serviceId . "'";
         $pearDB->query($rq);
     }
 }
@@ -2649,4 +3337,29 @@ function getPollersForConfigChangeFlagFromServiceId(int $serviceId): array
 {
     $hostIds = findHostsForConfigChangeFlagFromServiceIds([$serviceId]);
     return findPollersForConfigChangeFlagFromHostIds($hostIds);
+}
+
+/**
+ * Find all the host IDs for which the service is bound
+ *
+ * @param int $serviceId
+ * @return int[]
+ */
+function findHostsOfService(int $serviceId): array
+{
+    global $pearDB;
+    $statement = $pearDB->prepare(
+        'SELECT host.host_id
+        FROM host
+        INNER JOIN host_service_relation hsr
+          ON hsr.host_host_id = host.host_id
+        WHERE hsr.service_service_id = :service_id'
+    );
+    $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+    $statement->execute();
+    $hostIds = [];
+    while (($hostId = $statement->fetchColumn(0)) !== false) {
+        $hostIds[] = $hostId;
+    }
+    return $hostIds;
 }

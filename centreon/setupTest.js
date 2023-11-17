@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 import 'dayjs/locale/en';
 
 import i18n from 'i18next';
