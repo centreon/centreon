@@ -18,7 +18,7 @@ on:
       - "**/packaging/*.ya?ml"
 
 jobs:
-  actionlint:
+  action-lint:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
