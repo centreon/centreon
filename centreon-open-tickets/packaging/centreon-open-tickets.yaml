@@ -15,12 +15,12 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - dst: "/usr/share/centreon/www/modules/centreon-open-tickets"
-    type: dir
-    file_info:
-      mode: 0644
-      owner: "@APACHE_USER@"
-      group: "@APACHE_GROUP@"
+  # - dst: "/usr/share/centreon/www/modules/centreon-open-tickets"
+  #   type: dir
+  #   file_info:
+  #     mode: 0644
+  #     owner: "@APACHE_USER@"
+  #     group: "@APACHE_GROUP@"
 
   - src: "../www/modules/centreon-open-tickets/*"
     dst: "/usr/share/centreon/www/modules/centreon-open-tickets/"
