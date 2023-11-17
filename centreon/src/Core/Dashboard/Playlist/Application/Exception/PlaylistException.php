@@ -28,14 +28,6 @@ class PlaylistException extends \Exception
     public const CODE_CONFLICT = 1;
 
     /**
-     * @return self
-     */
-    public static function orderMustBeUnique(): self
-    {
-        return new self(_('Order must be unique'));
-    }
-
-    /**
      * @param int[] $dashboardIds
      *
      * @return self
