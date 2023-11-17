@@ -74,15 +74,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Set group and owner according to distrib
-        run: |
-          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
-            sed -i "s/@APACHE_OWNER@/www-data/g" ./centreon-awie/packaging/centreon-awie.yaml
-          else
-            sed -i "s/@APACHE_OWNER@/apache/g" ./centreon-awie/packaging/centreon-awie.yaml
-          fi
-        shell: bash
-
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:
@@ -94,17 +85,10 @@ jobs:
           release: ${{ needs.get-version.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-
-      - name: Upload package artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: packages-${{ matrix.distrib }}
-          path: ./*.${{ matrix.package_extension}}
-          retention-days: 1
 
   deliver-sources:
     runs-on: [self-hosted, common]
