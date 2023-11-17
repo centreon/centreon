@@ -95,6 +95,7 @@ describe('Rich Text Editor', () => {
 
     it('displays changes with bold, italic, underline and strikethrough buttons', () => {
       cy.get('[data-testid="RichTextEditor"]').type('cypress test');
+
       cy.get('[data-testid="RichTextEditor"]').focus().type('{selectAll}');
 
       cy.findByLabelText('format').click();
