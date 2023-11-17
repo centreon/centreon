@@ -48,7 +48,7 @@ class NewPlaylist
     /**
      * @param string $name
      * @param int $rotationTime
-     * @param boolean $isPublic
+     * @param bool $isPublic
      *
      * @throws \Assert\AssertionFailedException
      */
