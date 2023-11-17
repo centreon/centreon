@@ -32,6 +32,7 @@ import useFetchQuery from '../../../../api/useFetchQuery';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;
+  baseEndpoint?: string;
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
@@ -41,7 +42,6 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   labelKey?: string;
   queryKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
-  baseEndpoint?: string;
 }
 
 const ConnectedAutocompleteField = (
@@ -89,6 +89,7 @@ const ConnectedAutocompleteField = (
     const { fetchQuery, isFetching, prefetchNextPage } = useFetchQuery<
       ListingModel<TData>
     >({
+      baseEndpoint,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
         return getEndpoint({
@@ -102,7 +103,6 @@ const ConnectedAutocompleteField = (
         searchParameter
       ],
       isPaginated: true,
-      baseEndpoint,
       queryOptions: {
         cacheTime: 0,
         enabled: false,
