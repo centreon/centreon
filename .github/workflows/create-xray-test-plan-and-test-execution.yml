@@ -1,10 +1,9 @@
-name: create-TP-TE
+name: create-xray-test-plan-and-test-execution
 
 on:
   workflow_call:
     inputs:
       major_version:
-        description: The major version
         required: true
         type: string
       minor_version:
@@ -15,26 +14,26 @@ on:
         type: string
     outputs:
       test_plan_key:
-        value: ${{ jobs.create-tp-te.outputs.test_plan_key }}
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key }}
       test_plan_id:
-        value: ${{ jobs.create-tp-te.outputs.test_plan_id }}
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id }}
       test_execution_key:
-        value: ${{ jobs.create-tp-te.outputs.test_execution_key }}
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key }}
       test_execution_id:
-        value: ${{ jobs.create-tp-te.outputs.test_execution_id }}
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id }}
     secrets:
-      XRAY_JIRA_USER_EMAIL:
+      xray_jira_user_email:
         required: true
-      XRAY_JIRA_TOKEN:
+      xray_jira_token:
         required: true
-      XRAY_CLIENT_ID:
+      xray_client_id:
         required: true
-      XRAY_CLIENT_SECRET:
+      xray_client_secret:
         required: true
 
 # NIGHTLY <OSS|MODULES|COLLECT> <MAJOR_VERSION> (e.g., NIGHTLY OSS 23.10)
 jobs:
-  create-tp-te:
+  create-xray-test-plan-and-test-execution:
     runs-on: ubuntu-22.04
     outputs:
       test_plan_key: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
@@ -46,7 +45,7 @@ jobs:
       - name: Generate Xray Token
         id: generate_xray_token
         run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.XRAY_CLIENT_ID }}\", \"client_secret\": \"${{ secrets.XRAY_CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.xray_client_id }}\", \"client_secret\": \"${{ secrets.xray_client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
           xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
@@ -70,17 +69,17 @@ jobs:
           # Determine the summary's prefix
           summary_prefix=''
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-          summary_prefix="NIGHTLY"
+            summary_prefix="NIGHTLY"
           else
-          echo "The github_ref_name is: $GITHUB_REF_NAME"
-          case "$GITHUB_REF_NAME" in
+            echo "The github_ref_name is: $GITHUB_REF_NAME"
+            case "$GITHUB_REF_NAME" in
               hotfix*)
-                  summary_prefix="HOTFIX"
-                  ;;
+                summary_prefix="HOTFIX"
+                ;;
               release*)
-                  summary_prefix="RLZ"
-                  ;;
-          esac
+                summary_prefix="RLZ"
+                ;;
+            esac
           fi
 
           input_summary="$summary_prefix OSS ${{ inputs.major_version }}"
@@ -133,7 +132,7 @@ jobs:
           echo "getting the testPlanId for the testPlanKey: ${{ steps.get_test_plan_key.outputs.test_plan_key }}"
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.get_test_plan_key.outputs.test_plan_key }}"
 
-          test_plan_id=$(curl -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X GET -s "$jira_url" | jq -r '.id')
+          test_plan_id=$(curl -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testPlan ID : $test_plan_id"
           echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
         shell: bash
@@ -148,12 +147,12 @@ jobs:
           else
             echo "The github_ref_name is: $GITHUB_REF_NAME"
             case "$GITHUB_REF_NAME" in
-                hotfix*)
-                  summary_prefix="HOTFIX"
-                  ;;
-                release*)
-                  summary_prefix="RLZ"
-                  ;;
+              hotfix*)
+                summary_prefix="HOTFIX"
+                ;;
+              release*)
+                summary_prefix="RLZ"
+                ;;
             esac
           fi
 
@@ -214,14 +213,14 @@ jobs:
         run: |
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.get_test_execution_id.outputs.test_execution_id }}"
 
-          test_execution_key=$(curl -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X GET -s "$jira_url" | jq -r '.key')
+          test_execution_key=$(curl -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.key')
           echo "this is the TestExecutionKey: $test_execution_key"
           echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Update the status of the TestExecution Issue
         run: |
-          curl -D- -u "${{ secrets.XRAY_JIRA_USER_EMAIL }}:${{ secrets.XRAY_JIRA_TOKEN }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.get_test_execution_key.outputs.test_execution_key }}/transitions?expand=transitions.fields
+          curl -D- -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.get_test_execution_key.outputs.test_execution_key }}/transitions?expand=transitions.fields
 
       - name: Add the TestExecution Issue to the TestPlan
         run: |

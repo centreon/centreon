@@ -586,7 +586,7 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  create-tp-te:
+  create-xray-test-plan-and-test-execution:
     needs: [get-version, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
@@ -594,7 +594,7 @@ jobs:
       matrix:
         os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
-    uses: ./.github/workflows/create-tp-te.yml
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
     with:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
@@ -606,7 +606,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-version, dockerize, create-tp-te]
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -626,8 +626,8 @@ jobs:
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      test_plan_key: ${{ needs.create-tp-te.outputs.test_plan_key }}
-      test_execution_key: ${{ needs.create-tp-te.outputs.test_execution_key }}
+      test_plan_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_plan_key }}
+      test_execution_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_execution_key }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
