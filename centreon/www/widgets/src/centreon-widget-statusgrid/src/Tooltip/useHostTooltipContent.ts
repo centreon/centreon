@@ -1,6 +1,3 @@
-import { useEffect } from 'react';
-
-import { useResetAtom } from 'jotai/utils';
 import { equals } from 'ramda';
 
 import { SeverityCode, useInfiniteScrollListing } from '@centreon/ui';
@@ -18,8 +15,6 @@ interface UseHostTooltipContentState {
 }
 
 export const useHostTooltipContent = ({ name }): UseHostTooltipContentState => {
-  const resetTooltipPage = useResetAtom(tooltipPageAtom);
-
   const { elementRef, elements, isLoading, total } =
     useInfiniteScrollListing<ResourceStatus>({
       customQueryParameters: [
@@ -45,12 +40,6 @@ export const useHostTooltipContent = ({ name }): UseHostTooltipContentState => {
       queryKeyName: `statusgrid_${name}`,
       suspense: false
     });
-
-  useEffect(() => {
-    return () => {
-      resetTooltipPage();
-    };
-  });
 
   const serviceswithProblems = elements.filter(
     ({ status }) =>

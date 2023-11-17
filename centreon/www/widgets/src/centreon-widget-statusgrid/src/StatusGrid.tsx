@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { isNil } from 'ramda';
+
 import { useTheme } from '@mui/material';
 
 import {
@@ -118,7 +120,7 @@ const StatusGrid = ({
     return <NoResources />;
   }
 
-  if (isLoading) {
+  if (isLoading && isNil(data)) {
     return <HeatMapSkeleton />;
   }
 

@@ -108,6 +108,10 @@ export const useInfiniteScrollListing = <T>({
     });
   }, [data]);
 
+  useEffect(() => {
+    return () => setPage(1);
+  }, []);
+
   return {
     elementRef,
     elements: elements.current || [],

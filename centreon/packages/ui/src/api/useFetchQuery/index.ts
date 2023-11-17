@@ -17,6 +17,7 @@ import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
 
 export interface UseFetchQueryProps<T> {
+  baseEndpoint?: string;
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
@@ -57,7 +58,8 @@ const useFetchQuery = <T extends object>({
   fetchHeaders,
   isPaginated,
   queryOptions,
-  httpCodesBypassErrorSnackbar = []
+  httpCodesBypassErrorSnackbar = [],
+  baseEndpoint
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const dataRef = useRef<T | undefined>(undefined);
 
@@ -66,6 +68,7 @@ const useFetchQuery = <T extends object>({
   const queryData = useQuery<T | ResponseError, Error>({
     queryFn: ({ signal }): Promise<T | ResponseError> =>
       customFetch<T>({
+        baseEndpoint,
         catchError,
         decoder,
         defaultFailureMessage,
@@ -98,6 +101,7 @@ const useFetchQuery = <T extends object>({
     queryClient.prefetchQuery({
       queryFn: ({ signal }): Promise<T | ResponseError> =>
         customFetch<T>({
+          baseEndpoint,
           catchError,
           decoder,
           defaultFailureMessage,
@@ -139,6 +143,7 @@ const useFetchQuery = <T extends object>({
     return queryClient.fetchQuery({
       queryFn: ({ signal }): Promise<T | ResponseError> =>
         customFetch<T>({
+          baseEndpoint,
           catchError,
           decoder,
           defaultFailureMessage,

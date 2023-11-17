@@ -43,14 +43,13 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
   const statusOk = equals(data.status, SeverityCode.OK);
 
   const mentionStatus =
-    equals(data.status, SeverityCode.None) ||
-    equals(data.status, SeverityCode.Pending);
+    equals(data.status, SeverityCode.Low) ||
+    equals(data.status, SeverityCode.None);
 
   return (
     <Box>
       <Box className={classes.header}>
         <Typography
-          className={classes.name}
           sx={{
             color: getColor({ severityCode: data.status, theme })
           }}
@@ -60,15 +59,15 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
       </Box>
       <Box className={classes.body}>
         {mentionStatus && (
-          <Typography className={classes.servicesContainer}>
-            {data.statusName} ({data.information})
+          <Typography className={classes.listContainer}>
+            {data.statusName} {data.information}
           </Typography>
         )}
         <States data={data} />
-        <Box className={classes.servicesContainer}>
+        <Box className={classes.listContainer}>
           {hasServices && (
             <div>
-              <Typography>
+              <Typography className={classes.listHeader}>
                 <strong>{t(labelServiceName)}</strong>
               </Typography>
               {services.map(({ name, status }, index) => {

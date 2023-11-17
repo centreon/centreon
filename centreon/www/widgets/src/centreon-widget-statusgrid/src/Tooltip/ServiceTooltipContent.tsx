@@ -36,8 +36,8 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
   const statusOk = equals(data.status, SeverityCode.OK);
 
   const mentionStatus =
-    equals(data.status, SeverityCode.None) ||
-    equals(data.status, SeverityCode.Pending);
+    equals(data.status, SeverityCode.Low) ||
+    equals(data.status, SeverityCode.None);
 
   return (
     <Box>
@@ -64,12 +64,12 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
       </Box>
       <Box className={classes.body}>
         {mentionStatus && (
-          <Typography className={classes.servicesContainer}>
-            {data.statusName} ({data.information})
+          <Typography className={classes.listContainer}>
+            {data.statusName} {data.information}
           </Typography>
         )}
         <States data={data} />
-        <Box className={classes.servicesContainer}>
+        <Box className={classes.listContainer}>
           {problematicMetrics.map(({ name, status, value }) => (
             <Box className={classes.metric} key={name}>
               <Typography variant="body1">{name}</Typography>

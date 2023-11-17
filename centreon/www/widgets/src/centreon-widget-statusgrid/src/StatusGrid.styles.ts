@@ -21,7 +21,6 @@ export const useNoResourcesStyles = makeStyles()({
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   body: {
-    maxHeight: theme.spacing(22),
     padding: theme.spacing(1),
     textAlign: 'center'
   },
@@ -42,6 +41,18 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1),
     width: '100%'
   },
+  listContainer: {
+    maxHeight: theme.spacing(20),
+    overflowY: 'auto',
+    padding: theme.spacing(0, 1, 1),
+    textAlign: 'start'
+  },
+  listHeader: {
+    backgroundColor: theme.palette.background.paper,
+    position: 'sticky',
+    top: 0,
+    width: '100%'
+  },
   metric: {
     display: 'flex',
     flexDirection: 'row',
@@ -53,9 +64,5 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(1)
-  },
-  servicesContainer: {
-    padding: theme.spacing(0, 1, 1),
-    textAlign: 'start'
   }
 }));

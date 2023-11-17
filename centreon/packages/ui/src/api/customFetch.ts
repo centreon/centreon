@@ -22,6 +22,7 @@ export interface CatchErrorProps {
 }
 
 interface CustomFetchProps<T> {
+  baseEndpoint?: string;
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
@@ -42,14 +43,16 @@ export const customFetch = <T>({
   defaultFailureMessage = 'Something went wrong',
   isMutation = false,
   payload,
-  method = 'GET'
+  method = 'GET',
+  baseEndpoint = './api/latest'
 }: CustomFetchProps<T>): Promise<T | ResponseError> => {
   const defaultOptions = { headers, method, signal };
 
   const formattedEndpoint =
-    !startsWith('./api/latest', endpoint) &&
+    baseEndpoint &&
+    !startsWith(baseEndpoint, endpoint) &&
     !startsWith('./api/internal.php', endpoint)
-      ? `./api/latest${endpoint}`
+      ? `${baseEndpoint}${endpoint}`
       : endpoint;
 
   const options = isMutation
