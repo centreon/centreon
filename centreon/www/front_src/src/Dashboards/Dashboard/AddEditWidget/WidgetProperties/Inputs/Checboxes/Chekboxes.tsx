@@ -35,6 +35,7 @@ const WidgetCheckboxes = ({
     <div>
       <Subtitle secondaryLabel={secondaryLabel}>{t(label)}</Subtitle>
       <Button
+        disabled={!canEditField}
         size="small"
         variant="ghost"
         onClick={areAllOptionsSelected ? unselectAll : selectAll}

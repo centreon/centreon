@@ -10,6 +10,7 @@ import { TextField } from '@centreon/ui';
 
 import { getProperty } from '../utils';
 import { Widget, WidgetPropertyProps } from '../../../models';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 import { useTilesStyles } from './Tiles.styles';
@@ -19,6 +20,8 @@ const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useTilesStyles();
 
   const { values, setFieldValue } = useFormikContext<Widget>();
+
+  const { canEditField } = editProperties.useCanEditProperties();
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),
@@ -43,6 +46,7 @@ const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         autoSize
         autoSizeDefaultWidth={10}
         dataTestId={labelTiles}
+        disabled={!canEditField}
         inputProps={{
           'aria-label': t(labelTiles),
           min: 1

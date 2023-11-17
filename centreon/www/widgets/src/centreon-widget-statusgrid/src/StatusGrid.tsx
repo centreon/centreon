@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { isNil } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -46,12 +46,14 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
-  const areResourcesOk = areResourcesFullfilled(resources);
+  const areResourcesOk =
+    !isEmpty(resources) && areResourcesFullfilled(resources);
 
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       buildResourcesEndpoint({
         limit: tiles,
+        resources,
         sortBy,
         states,
         statuses,

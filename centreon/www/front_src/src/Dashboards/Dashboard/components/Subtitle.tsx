@@ -23,6 +23,11 @@ const Subtitle = ({ children, secondaryLabel }: Props): JSX.Element => {
       <strong>{children}</strong>
       {secondaryLabel && (
         <Tooltip
+          aria-label={
+            containsSeveralSecondaryLabels
+              ? secondaryLabel[0]
+              : (secondaryLabel as string)
+          }
           followCursor={false}
           label={
             containsSeveralSecondaryLabels ? (

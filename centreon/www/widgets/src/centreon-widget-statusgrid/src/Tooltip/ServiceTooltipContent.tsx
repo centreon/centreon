@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
@@ -15,7 +15,11 @@ import { SeverityCode, useLocaleDateTimeFormat } from '@centreon/ui';
 import { ResourceData } from '../models';
 import { useHostTooltipContentStyles } from '../StatusGrid.styles';
 import { getColor } from '../utils';
-import { labelAllMetricsAreWorkingFine } from '../translatedLabels';
+import {
+  labelAllMetricsAreWorkingFine,
+  labelMetricName,
+  labelValue
+} from '../translatedLabels';
 
 import useServiceTooltipContent from './useServiceTooltipContent';
 import States from './States';
@@ -25,7 +29,7 @@ interface Props {
 }
 
 const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
-  const { classes } = useHostTooltipContentStyles();
+  const { classes, cx } = useHostTooltipContentStyles();
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -43,6 +47,7 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
     <Box>
       <Box className={classes.header}>
         <Typography
+          data-resourceName={data.name}
           sx={{
             color: getColor({ severityCode: data.status, theme })
           }}
@@ -52,6 +57,7 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
         <Box className={classes.parent}>
           <Box
             className={classes.dot}
+            data-parentstatus={data.parentStatus}
             sx={{
               backgroundColor: getColor({
                 severityCode: data.parentStatus,
@@ -70,6 +76,16 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
         )}
         <States data={data} />
         <Box className={classes.listContainer}>
+          {!isEmpty(problematicMetrics) && (
+            <Box className={cx(classes.listHeader, classes.metric)}>
+              <Typography className={classes.metric}>
+                <strong>{t(labelMetricName)}</strong>
+              </Typography>
+              <Typography>
+                <strong>{t(labelValue)}</strong>
+              </Typography>
+            </Box>
+          )}
           {problematicMetrics.map(({ name, status, value }) => (
             <Box className={classes.metric} key={name}>
               <Typography variant="body1">{name}</Typography>

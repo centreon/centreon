@@ -8,11 +8,14 @@ import { RadioGroup, FormControlLabel, Radio } from '@mui/material';
 
 import { SelectEntry } from '@centreon/ui';
 
-import { ConditionalOptions, Widget, WidgetPropertyProps } from '../../models';
-import { editProperties } from '../../../hooks/useCanEditDashboard';
-import Subtitle from '../../../components/Subtitle';
-
-import { getProperty } from './utils';
+import {
+  ConditionalOptions,
+  Widget,
+  WidgetPropertyProps
+} from '../../../models';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import Subtitle from '../../../../components/Subtitle';
+import { getProperty } from '../utils';
 
 const WidgetRadio = ({
   propertyName,

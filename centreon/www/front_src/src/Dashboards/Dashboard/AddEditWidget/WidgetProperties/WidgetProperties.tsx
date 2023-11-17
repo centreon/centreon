@@ -71,7 +71,7 @@ const WidgetProperties = (): JSX.Element => {
           <div className={classes.widgetProperties}>
             {(widgetProperties || []).map(({ Component, key, props }) => (
               <div key={key}>
-                <ShowInputWrapper show={props.show}>
+                <ShowInputWrapper {...props}>
                   <Component {...props} />
                 </ShowInputWrapper>
               </div>

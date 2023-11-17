@@ -10,22 +10,19 @@ interface Props {
   isSmallestSize: boolean;
 }
 
-const Tile = ({
-  isSmallestSize,
-  data: { name, parentName }
-}: Props): JSX.Element | null => {
+const Tile = ({ isSmallestSize, data }: Props): JSX.Element | null => {
   const { classes } = useTileStyles();
   if (isSmallestSize) {
     return null;
   }
 
   return (
-    <Box className={classes.container}>
+    <Box className={classes.container} data-status={data.statusName}>
       <EllipsisTypography className={classes.resourceName} textAlign="center">
-        {name}
+        {data.name}
       </EllipsisTypography>
       <EllipsisTypography textAlign="center" variant="body2">
-        {parentName}
+        {data.parentName}
       </EllipsisTypography>
     </Box>
   );

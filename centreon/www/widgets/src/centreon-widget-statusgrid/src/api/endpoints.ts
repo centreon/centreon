@@ -1,34 +1,80 @@
+import { equals, flatten, groupBy, includes, pluck } from 'ramda';
+
 import { buildListingEndpoint } from '@centreon/ui';
+
+import { Resource } from '../../../models';
 
 export const resourcesEndpoint = '/monitoring/resources';
 
 interface BuildResourcesEndpointProps {
   limit: number;
+  resources: Array<Resource>;
   sortBy: string;
   states: Array<string>;
   statuses: Array<string>;
   type: string;
 }
 
+const resourceTypesCustomParameters = [
+  'host-group',
+  'host-category',
+  'service-group',
+  'service-category'
+];
+const resourceTypesSearchParameters = ['host', 'service'];
+
+const resourcesSearchMapping = {
+  host: 'parent_name',
+  service: 'name'
+};
+
 export const buildResourcesEndpoint = ({
   type,
   statuses,
   states,
   sortBy,
-  limit
+  limit,
+  resources
 }: BuildResourcesEndpointProps): string => {
   const formattedStatuses = statuses.map((state) => state.toLocaleUpperCase());
+
+  const resourcesToApplyToCustomParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
+  );
+  const resourcesToApplyToSearchParameters = resources.filter(
+    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+  );
+
+  const searchConditions = resourcesToApplyToSearchParameters.map(
+    ({ resourceType, resources }) => {
+      return resources.map((resource) => ({
+        field: resourcesSearchMapping[resourceType],
+        values: {
+          $rg: `^${resource.name}$`
+        }
+      }));
+    }
+  );
 
   return buildListingEndpoint({
     baseEndpoint: resourcesEndpoint,
     customQueryParameters: [
       { name: 'types', value: [type] },
       { name: 'statuses', value: formattedStatuses },
-      { name: 'states', value: states }
+      { name: 'states', value: states },
+      ...resourcesToApplyToCustomParameters.map(
+        ({ resourceType, resources }) => ({
+          name: `${resourceType.replace('-', '')}_names`,
+          value: pluck('name', resources)
+        })
+      )
     ],
     parameters: {
       limit,
       page: 1,
+      search: {
+        conditions: flatten(searchConditions)
+      },
       sort: {
         [sortBy]: 'ASC'
       }

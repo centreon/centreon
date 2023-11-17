@@ -50,6 +50,7 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
     <Box>
       <Box className={classes.header}>
         <Typography
+          data-resourceName={data.name}
           sx={{
             color: getColor({ severityCode: data.status, theme })
           }}
@@ -75,6 +76,7 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
 
                 return (
                   <Typography
+                    data-serviceName={name}
                     key={name}
                     ref={isLastElement ? elementRef : undefined}
                     sx={{
