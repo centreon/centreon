@@ -22,6 +22,7 @@ const renderMultiAutocompleteField = (): RenderResult =>
         label={label}
         placeholder="Type here..."
         value={[optionsData.result[0]]}
+        baseEndpoint=''
       />
     </TestQueryProvider>
   );
