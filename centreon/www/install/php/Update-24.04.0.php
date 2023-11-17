@@ -168,6 +168,8 @@ try {
 
     $errorMessage = 'Unable to add column order to acl_res_group_relations table';
     $alterAclResourceGroupRelation($pearDB);
+
+    $pearDB->commit();
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
