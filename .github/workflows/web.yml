@@ -588,8 +588,7 @@ jobs:
 
   create-tp-te:
     needs: [get-version, dockerize]
-    # if: && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' )
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
       matrix:
