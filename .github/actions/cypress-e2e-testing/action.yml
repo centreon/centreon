@@ -77,7 +77,7 @@ runs:
         report_path="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json"
         report_path_updated="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json"
 
-        jq '.[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end))' "$report_path" > "$report_path_updated"
+        jq '.[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end))' "$report_path" > "$report_path_updated"
 
         rm "$report_path"
 
