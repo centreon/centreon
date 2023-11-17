@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Platform\Application\UseCase\UpdateVersions;
 
+use CentreonModule\Infrastructure\Service\CentreonModuleService;
+use CentreonModule\ServiceProvider;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersions;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInterface;
 use Core\Platform\Application\Validator\RequirementException;
@@ -33,6 +35,7 @@ use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Pimple\Container;
 
 beforeEach(function () {
     $this->requirementValidators =  $this->createMock(RequirementValidatorsInterface::class);
@@ -41,6 +44,8 @@ beforeEach(function () {
     $this->readUpdateRepository = $this->createMock(ReadUpdateRepositoryInterface::class);
     $this->writeUpdateRepository = $this->createMock(WriteUpdateRepositoryInterface::class);
     $this->presenter = $this->createMock(UpdateVersionsPresenterInterface::class);
+    $this->centreonModuleService = $this->createMock(CentreonModuleService::class);
+    $this->dependencyInjector = new Container([ServiceProvider::CENTREON_MODULE => $this->centreonModuleService]);
 });
 
 it('should stop update process when an other update is already started', function () {
@@ -50,6 +55,7 @@ it('should stop update process when an other update is already started', functio
         $this->readVersionRepository,
         $this->readUpdateRepository,
         $this->writeUpdateRepository,
+        $this->dependencyInjector,
     );
 
     $this->updateLockerRepository
@@ -72,6 +78,7 @@ it('should present an error response if a requirement is not validated', functio
         $this->readVersionRepository,
         $this->readUpdateRepository,
         $this->writeUpdateRepository,
+        $this->dependencyInjector,
     );
 
     $this->requirementValidators
@@ -94,6 +101,7 @@ it('should present an error response if current centreon version is not found', 
         $this->readVersionRepository,
         $this->readUpdateRepository,
         $this->writeUpdateRepository,
+        $this->dependencyInjector,
     );
 
     $this->updateLockerRepository
@@ -121,6 +129,7 @@ it('should run found updates', function () {
         $this->readVersionRepository,
         $this->readUpdateRepository,
         $this->writeUpdateRepository,
+        $this->dependencyInjector,
     );
 
     $this->updateLockerRepository
@@ -138,6 +147,11 @@ it('should run found updates', function () {
         ->method('findOrderedAvailableUpdates')
         ->with('22.04.0')
         ->willReturn(['22.10.0-beta.1', '22.10.0', '22.10.1']);
+
+    $this->centreonModuleService
+        ->expects($this->once())
+        ->method('getList')
+        ->willReturn(['widget' => []]);
 
     $this->writeUpdateRepository
         ->expects($this->exactly(3))

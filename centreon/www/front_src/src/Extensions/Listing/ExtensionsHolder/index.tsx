@@ -60,6 +60,45 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
+interface ChipAvatarProps {
+  entity: Entity;
+  onUpdate: (id: string, type: string) => void;
+  type: string;
+}
+
+const ChipAvatar = ({
+  entity: {
+    id,
+    is_internal,
+    version: { outdated }
+  },
+  onUpdate,
+  type
+}: ChipAvatarProps): JSX.Element | null => {
+  if (is_internal) {
+    return null;
+  }
+
+  if (outdated) {
+    return (
+      <UpdateIcon
+        style={{
+          color: '#FFFFFF',
+          cursor: 'pointer'
+        }}
+        onClick={(e): void => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          onUpdate(id, type);
+        }}
+      />
+    );
+  }
+
+  return <CheckIcon style={{ color: '#FFFFFF' }} />;
+};
+
 interface Props {
   deletingEntityId: string | null;
   entities: Array<Entity>;
@@ -174,7 +213,11 @@ const ExtensionsHolder = ({
                 }}
               >
                 <Card
-                  style={{ display: 'grid', height: '100%' }}
+                  style={{
+                    display: 'grid',
+                    gridTemplateRows: '1fr 0.5fr min-content',
+                    height: '100%'
+                  }}
                   variant="outlined"
                 >
                   {isLoading && <LinearProgress />}
@@ -190,34 +233,32 @@ const ExtensionsHolder = ({
                     {entity.version.installed ? (
                       <Chip
                         avatar={
-                          entity.version.outdated ? (
-                            <UpdateIcon
-                              style={{
-                                color: '#FFFFFF',
-                                cursor: 'pointer'
-                              }}
-                              onClick={(e): void => {
-                                e.preventDefault();
-                                e.stopPropagation();
-
-                                onUpdate(entity.id, type);
-                              }}
-                            />
+                          <ChipAvatar
+                            entity={entity}
+                            type={type}
+                            onUpdate={onUpdate}
+                          />
+                        }
+                        deleteIcon={<DeleteIcon style={{ color: '#FFFFFF' }} />}
+                        disabled={isLoading}
+                        label={
+                          !entity.is_internal ? (
+                            entity.version.current
                           ) : (
                             <CheckIcon style={{ color: '#FFFFFF' }} />
                           )
                         }
-                        deleteIcon={<DeleteIcon style={{ color: '#FFFFFF' }} />}
-                        disabled={isLoading}
-                        label={entity.version.current}
                         style={{
                           backgroundColor: entity.version.outdated
                             ? '#FF9A13'
                             : '#84BD00',
                           color: '#FFFFFF'
                         }}
-                        onDelete={(): void =>
-                          onDelete(entity.id, type, entity.description)
+                        onDelete={
+                          !entity.is_internal
+                            ? (): void =>
+                                onDelete(entity.id, type, entity.description)
+                            : undefined
                         }
                       />
                     ) : (
