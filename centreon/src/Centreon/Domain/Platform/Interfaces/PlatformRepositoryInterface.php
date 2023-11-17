@@ -43,8 +43,9 @@ interface PlatformRepositoryInterface
     /**
      * Retrieves the version of each widget installed on the Centreon platform.
      *
+     * @param string $webVersion Centreon web version
      * @return array<string, string> Version of the widgets on the Centreon platform
      * @throws \Exception
      */
-    public function getWidgetsVersion(): array;
+    public function getWidgetsVersion(string $webVersion): array;
 }
