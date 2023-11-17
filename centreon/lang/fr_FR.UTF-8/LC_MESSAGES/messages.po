@@ -18341,3 +18341,6 @@ msgstr "Règles d'accès aux ressources"
 
 msgid "Resource Access Management"
 msgstr "Gestion de l'accès aux ressources"
+
+msgid "Refine filter"
+msgstr "Affiner le filtre"
