@@ -50,6 +50,7 @@ const renderSingleConnectedAutocompleteField = (
         label={label}
         placeholder="Type here..."
         searchConditions={searchConditions}
+        baseEndpoint=''
       />
     </TestQueryProvider>
   );

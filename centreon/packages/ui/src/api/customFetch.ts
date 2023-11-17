@@ -1,4 +1,4 @@
-import { equals, startsWith } from 'ramda';
+import { equals, isNil, startsWith } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import { Method } from './useMutationQuery';
@@ -49,7 +49,7 @@ export const customFetch = <T>({
   const defaultOptions = { headers, method, signal };
 
   const formattedEndpoint =
-    baseEndpoint &&
+    !isNil(baseEndpoint) &&
     !startsWith(baseEndpoint, endpoint) &&
     !startsWith('./api/internal.php', endpoint)
       ? `${baseEndpoint}${endpoint}`

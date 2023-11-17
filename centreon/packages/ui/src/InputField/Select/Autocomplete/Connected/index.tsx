@@ -41,6 +41,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   labelKey?: string;
   queryKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
+  baseEndpoint?: string;
 }
 
 const ConnectedAutocompleteField = (
@@ -60,6 +61,7 @@ const ConnectedAutocompleteField = (
     displayOptionThumbnail,
     queryKey,
     allowUniqOption,
+    baseEndpoint,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -100,6 +102,7 @@ const ConnectedAutocompleteField = (
         searchParameter
       ],
       isPaginated: true,
+      baseEndpoint,
       queryOptions: {
         cacheTime: 0,
         enabled: false,
