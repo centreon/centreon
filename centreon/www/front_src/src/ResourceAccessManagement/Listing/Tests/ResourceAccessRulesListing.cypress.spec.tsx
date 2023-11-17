@@ -122,7 +122,7 @@ const initializeSorting = (): void => {
   cy.render(ListingWithQueryProvider);
 };
 
-describe('Reasource Access Rules Listing', () => {
+describe('Resource Access Rules Listing', () => {
   beforeEach(initialize);
 
   it('displays the first page of the resource access rules listing', () => {
