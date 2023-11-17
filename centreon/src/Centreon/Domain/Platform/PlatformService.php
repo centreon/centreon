@@ -73,10 +73,10 @@ class PlatformService implements PlatformServiceInterface
     /**
      * @inheritDoc
      */
-    public function getWidgetsVersion(): array
+    public function getWidgetsVersion(string $webVersion): array
     {
         try {
-            return $this->platformRepository->getWidgetsVersion();
+            return $this->platformRepository->getWidgetsVersion($webVersion);
         } catch (\Exception $ex) {
             throw new PlatformException('Error while searching for the widgets version of the Centreon platform');
         }
