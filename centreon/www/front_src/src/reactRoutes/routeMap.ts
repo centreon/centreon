@@ -13,6 +13,7 @@ const routeMap = {
   pollerList: '/main.php?p=60901',
   pollerWizard: '/poller-wizard/1',
   resetPassword: '/reset-password',
+  resourceAccessManagement: '/administration/resource-access/rules',
   resources: '/monitoring/resources',
   upgrade: '/install/upgrade.php'
 };
