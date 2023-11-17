@@ -25,6 +25,7 @@ contents:
   - src: "../www/modules/centreon-open-tickets/*"
     dst: "/usr/share/centreon/www/modules/centreon-open-tickets/"
     file_info:
+      type: tree
       mode: 0644
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
