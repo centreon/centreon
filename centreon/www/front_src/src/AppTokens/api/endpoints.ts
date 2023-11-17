@@ -1,14 +1,18 @@
-import { buildListingEndpoint, ListingParameters } from '@centreon/ui';
+import { buildListingEndpoint } from '@centreon/ui';
+
+import { BuildListTokensEndpoint } from './models';
 
 const baseEndpoint = './api/latest';
 
 const listTokensEndpoint = `${baseEndpoint}/administration/tokens`;
 export const createTokenEndpoint = `${baseEndpoint}/administration/tokens`;
 
-export const buildListTokensEndpoint = (
-  parameters: ListingParameters
-): string =>
+export const buildListTokensEndpoint = ({
+  parameters,
+  customQueryParameters
+}: BuildListTokensEndpoint): string =>
   buildListingEndpoint({
     baseEndpoint: listTokensEndpoint,
+    customQueryParameters,
     parameters
   });

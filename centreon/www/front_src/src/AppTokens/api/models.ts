@@ -1,1 +1,6 @@
-export const defaultParameters = { limit: 10, page: 1 };
+import { ListingParameters, QueryParameter } from '@centreon/ui';
+
+export interface BuildListTokensEndpoint {
+  customQueryParameters?: Array<QueryParameter>;
+  parameters: ListingParameters;
+}

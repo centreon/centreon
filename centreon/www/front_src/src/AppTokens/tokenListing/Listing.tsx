@@ -1,14 +1,15 @@
-import { Listing as TokenListing } from '@centreon/ui';
+import { MemoizedListing as TokenListing } from '@centreon/ui';
 
-import { useColumns } from './useColumns';
+import { useColumns } from './componentsColumn/useColumns';
 import { useTokenListing } from './useTokenListing';
 
 const Listing = (): JSX.Element | null => {
-  const columns = useColumns();
-  const { limitListing, pageListing, isLoading, rows, isError } =
+  const { dataListing, changePage, changeLimit, onSort, sortField, sortOrder } =
     useTokenListing();
 
-  if (isError) {
+  const { columns, selectedColumnIds, onSelectColumns } = useColumns();
+
+  if (dataListing?.isError) {
     return null;
   }
 
@@ -16,13 +17,20 @@ const Listing = (): JSX.Element | null => {
     <div style={{ height: 1000, margin: '54px 24px 0px 24px' }}>
       <TokenListing
         checkable
+        columnConfiguration={{ selectedColumnIds, sortable: true }}
         columns={columns}
-        limit={limitListing}
-        loading={isLoading}
-        page={pageListing}
-        rows={rows}
+        currentPage={(dataListing?.page || 1) - 1}
+        limit={dataListing?.limit}
+        loading={dataListing?.isLoading}
+        rows={dataListing?.rows}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        totalRows={dataListing?.total}
+        onLimitChange={changeLimit}
+        onPaginate={changePage}
+        onSelectColumns={onSelectColumns}
+        onSort={onSort}
       />
-      ;
     </div>
   );
 };

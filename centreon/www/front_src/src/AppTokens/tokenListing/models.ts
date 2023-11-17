@@ -1,5 +1,20 @@
+import { Fields, SortOrder, SortParameters } from './filter/models';
+
+export interface DataListing {
+  isError: boolean;
+  isLoading: boolean;
+  limit?: number;
+  page?: number;
+  rows?: Array<Token>;
+  total?: number;
+}
 export interface UseTokenListing {
-  data: Array<unknown>;
+  changeLimit: (value: number) => void;
+  changePage: (value: number) => void;
+  dataListing: DataListing;
+  onSort: (sortParameters: SortParameters) => void;
+  sortField: Fields;
+  sortOrder: SortOrder;
 }
 
 export interface PersonalInformation {
@@ -7,15 +22,6 @@ export interface PersonalInformation {
   name: string;
 }
 
-export enum Columns {
-  actions = 'Actions',
-  creationDate = 'Creation Date',
-  creator = 'Creator',
-  expirationDate = 'Expiration Date',
-  name = 'Name',
-  status = 'Status',
-  user = 'User'
-}
 export interface Token {
   creation_date: string;
   creator: PersonalInformation;
