@@ -66,7 +66,7 @@
                     {else}
                         <img src="{$elemArr[elem].RowMenu_icone}" class="ico-18  margin_right"/>
                     {/if}
-                    {$elemArr[elem].RowMenu_name}
+                    {$elemArr[elem].RowMenu_name|escape}
                 </a>
             </td>
             <td class="ListColCenter">
@@ -77,7 +77,7 @@
                 </a>
             </td>
             <td class="ListColLeft resizeTitle">
-                <a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_desc}</a>
+                <a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_desc|escape}</a>
             </td>
             <td class="ListColCenter">{$elemArr[elem].RowMenu_address}</td>
             <td class="ListColCenter">{$elemArr[elem].RowMenu_poller}</td>

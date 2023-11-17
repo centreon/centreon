@@ -22,7 +22,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 //error specific content
-$versionOfTheUpgrade = 'UPGRADE - 23.10.0: ';
+$versionOfTheUpgrade = 'UPGRADE - 23.10.1: ';
 $errorMessage = '';
 
 
@@ -353,10 +353,10 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
                 <<<'SQL'
                     INSERT INTO `dashboard_widgets` (`name`, `version`)
                     VALUES
-                        ('centreon-widget-generictext', '23.10.0'),
-                        ('centreon-widget-singlemetric', '23.10.0'),
-                        ('centreon-widget-graph', '23.10.0'),
-                        ('centreon-widget-topbottom', '23.10.0')
+                        ('centreon-widget-generictext', '23.10.1'),
+                        ('centreon-widget-singlemetric', '23.10.1'),
+                        ('centreon-widget-graph', '23.10.1'),
+                        ('centreon-widget-topbottom', '23.10.1')
                     SQL
             );
         }

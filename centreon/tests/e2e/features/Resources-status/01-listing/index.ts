@@ -167,7 +167,9 @@ Given('a saved custom filter', () => {
     '@monitoringEndpoint'
   ]);
 
-  cy.contains('Unhandled alerts').should('be.visible').click();
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
 
   cy.contains('OK services');
 });

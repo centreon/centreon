@@ -5,7 +5,7 @@ import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
-installLogsCollector();
+installLogsCollector({ enableExtendedCollector: true });
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
@@ -211,7 +211,20 @@ interface ExecInContainerProps {
 Cypress.Commands.add(
   'execInContainer',
   ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
-    return cy.exec(`docker exec -i ${name} ${command}`);
+    return cy
+      .exec(`docker exec -i ${name} ${command}`, { failOnNonZeroExit: false })
+      .then((result) => {
+        if (result.code) {
+          // output will not be truncated
+          throw new Error(`
+            Execution of "${command}" failed
+            Exit code: ${result.code}
+            Stdout:\n${result.stdout}
+            Stderr:\n${result.stderr}`);
+        }
+
+        return cy.wrap(result);
+      });
   }
 );
 
@@ -229,6 +242,8 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
+    cy.log(`Starting container ${name} from image ${image}`);
+
     return cy.task(
       'startContainer',
       { image, name, portBindings },
@@ -293,7 +308,7 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+    const logDirectory = `results/logs/${Cypress.spec.name.replace(
       artifactIllegalCharactersMatcher,
       '_'
     )}/${Cypress.currentTest.title.replace(
@@ -349,6 +364,8 @@ interface StopContainerProps {
 Cypress.Commands.add(
   'stopContainer',
   ({ name }: StopContainerProps): Cypress.Chainable => {
+    cy.log(`Stopping container ${name}`);
+
     cy.exec(`docker logs ${name}`).then(({ stdout }) => {
       cy.writeFile(
         `cypress/results/logs/${Cypress.spec.name.replace(

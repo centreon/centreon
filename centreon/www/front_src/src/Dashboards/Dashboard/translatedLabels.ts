@@ -38,6 +38,7 @@ export const labelService = 'Service';
 export const labelDelete = 'Delete';
 export const labelResourceType = 'Resource type';
 export const labelSelectAResource = 'Select resource';
+export const labelSelectResourceType = 'Select type';
 export const labelMetrics = 'Metrics';
 export const labelPleaseSelectAResource = 'Please select a resource';
 export const labelYouHaveTooManyMetrics =
@@ -118,3 +119,5 @@ export const labelBottom = 'Bottom';
 export const labelIncludesXHost = 'Includes {{count}} resources';
 export const labelNumberOfValues = 'Number of values';
 export const labelViewWidgetProperties = 'View widget properties';
+export const labelUnsavedChanges =
+  'If you leave without saving your dashboard, changes will be permanently lost.';

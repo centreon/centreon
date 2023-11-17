@@ -140,7 +140,9 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
     .should('contain', `${dashboardViewerUser.login}`);
 
   cy.get('[data-state="added"]').should('exist');
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Update', tag: 'button' })
+    .should('be.enabled')
+    .click();
   cy.wait('@addContactToDashboardShareList');
   cy.waitUntilForDashboardRoles('share', 3);
 });
@@ -244,7 +246,9 @@ When(
       .eq(0)
       .should('contain', `${dashboardCreatorUser.login}`);
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -344,7 +348,9 @@ When(
       .eq(0)
       .should('contain', 'dashboard-contact-group-viewer');
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactGroupToDashboardShareList');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -454,7 +460,9 @@ When(
       .eq(0)
       .should('contain', 'dashboard-contact-group-creator');
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactGroupToDashboardShareList');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -561,7 +569,9 @@ Given(
       .eq(0)
       .should('contain', 'dashboard-contact-group-creator');
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactGroupToDashboardShareList');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -589,7 +599,9 @@ When(
       .eq(0)
       .should('contain', `${dashboardCGMember3.login}`);
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
   }
 );
@@ -679,7 +691,9 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.getByTestId({ testId: 'role-input' }).eq(0).click();
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Update', tag: 'button' })
+    .should('be.enabled')
+    .click();
   cy.wait('@addContactToDashboardShareList');
 });
 
@@ -709,7 +723,9 @@ Then(
     cy.get('[role="listbox"]').contains('editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
     cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
@@ -735,7 +751,9 @@ Then(
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
     cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
