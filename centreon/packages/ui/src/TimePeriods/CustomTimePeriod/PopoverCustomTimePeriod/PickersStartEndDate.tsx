@@ -2,12 +2,15 @@ import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 import { userAtom } from '@centreon/ui-context';
-import { useDateTimePickerAdapter } from '@centreon/ui';
 
 import DateTimePickerInput from '../../DateTimePickerInput';
 import {
@@ -19,6 +22,9 @@ import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 import ErrorText from './ErrorText';
 import { PickersData, PickersStartEndDateDirection } from './models';
 import { PickersStartEndDateModel } from './usePickersStartEndDate';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const useStyles = makeStyles()((theme) => ({
   error: {
@@ -104,7 +110,6 @@ const PickersStartEndDate = ({
   direction = PickersStartEndDateDirection.column
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
-  const { Adapter } = useDateTimePickerAdapter();
 
   const { locale } = useAtomValue(userAtom);
   const error = useAtomValue(errorTimePeriodAtom);
@@ -126,7 +131,7 @@ const PickersStartEndDate = ({
   return (
     <LocalizationProvider
       adapterLocale={locale.substring(0, 2)}
-      dateAdapter={Adapter}
+      dateAdapter={AdapterDayjs}
     >
       <div className={styleContainer}>
         <PickerDateWithLabel

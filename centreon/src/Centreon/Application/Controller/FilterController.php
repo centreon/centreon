@@ -179,9 +179,6 @@ class FilterController extends AbstractController
          */
         $filterCriterias = $this->createFilterCriterias($payload);
 
-        /**
-         * @var Filter $filter    
-         */
         $filter = $this->filterService->findFilterByUserId($user->getId(), $pageName, $filterId);
         if ($filter === null) {
             throw new EntityNotFoundException(

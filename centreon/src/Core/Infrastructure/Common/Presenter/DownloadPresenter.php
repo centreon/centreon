@@ -30,8 +30,6 @@ class DownloadPresenter implements PresenterFormatterInterface
     private const CSV_FILE_EXTENSION = 'csv';
     private const JSON_FILE_EXTENSION = 'json';
 
-    private string $downloadFileName = '';
-
     public function __construct(readonly private PresenterFormatterInterface $formatter)
     {
     }

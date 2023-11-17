@@ -6,8 +6,11 @@ info:
     + Added media endpoint (POST)
     + Added metrics by service listing endpoint (GET)
     + Added graph template endpoint (GET)
+    + Added connector endpoint (GET)
+    + Added host endpoint (PATCH)
     +
     # Updated features
+    + Added metrics by service listing endpoint to service resource type
     +
     +
     # Information
@@ -250,6 +253,8 @@ paths:
     $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/graphs/templates:
     $ref: "./v24.04/Configuration/GraphTemplate/FindGraphTemplates.yaml"
+  /configuration/connectors:
+    $ref: "./v24.04/Configuration/Connector/FindConnectors.yaml"
   /configuration/notifications:
     $ref: "./v24.04/Configuration/Notification/Notifications.yaml"
   /configuration/notifications/_delete:
@@ -263,7 +268,7 @@ paths:
   /configuration/notifications/contact_groups:
     $ref: "./v24.04/Configuration/Notification/FindNotifiableContactGroups.yaml"
   /configuration/hosts/{host_id}:
-    $ref: './v24.04/Configuration/Host/DeleteHost.yaml'
+    $ref: './v24.04/Configuration/Host/DeleteAndPartialUpdateHost.yaml'
   /configuration/hosts/templates:
     $ref: './v24.04/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
@@ -7848,6 +7853,12 @@ components:
               nullable: true
               description: "Endpoint dedicated for checks (forced_check payload entry set to true)"
               example: "/centreon/api/latest/monitoring/hosts/17/services/23/check"
+            metrics:
+              type: string
+              nullable: true
+              description: "Endpoint dedicated for service metrics"
+              example: "/centreon/api/latest/monitoring/hosts/17/services/23/metrics"
+
         externals:
           type: object
           properties:

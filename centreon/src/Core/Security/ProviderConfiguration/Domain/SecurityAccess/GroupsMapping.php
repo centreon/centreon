@@ -33,7 +33,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
  * Configured conditions must be satisfied to be authorized and map IDP's groups and Centreon's groups.
@@ -52,11 +51,9 @@ class GroupsMapping implements SecurityAccessInterface
 
     /**
      * @param LoginLoggerInterface $loginLogger
-     * @param AttributePathFetcher $attributePathFetcher
      */
     public function __construct(
         private readonly LoginLoggerInterface $loginLogger,
-        private readonly AttributePathFetcher $attributePathFetcher
     ) {
     }
 

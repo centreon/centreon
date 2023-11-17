@@ -1,0 +1,36 @@
+get:
+  tags:
+    - Connector
+  summary: "Find all connectors"
+  description: |
+    Return all connector configurations.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * command.id
+    * command.name
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/FindConnectorsResponse.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
