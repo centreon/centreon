@@ -390,7 +390,7 @@ describe('Rich Text Editor', () => {
     const testCases = ['Center', 'Right', 'Left'];
 
     testCases.forEach((label) => {
-      it(`aligns the text to the ${label} when the corresponding button is clicked`, () => {
+      it(`aligns the text to the ${label} when the corresponding button was clicked`, () => {
         cy.get('[data-testid="RichTextEditor"]').type('Example');
 
         cy.findByLabelText(labelAlignPicker).click();
