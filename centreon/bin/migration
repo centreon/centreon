@@ -1,3 +1,4 @@
+#!@PHP_BIN@
 <?php
 
 /*
@@ -21,27 +22,11 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\Repository;
+use Symfony\Component;
 
-use Core\Media\Domain\Model\Media;
+require __DIR__ . '/../vendor/autoload.php';
 
-interface ReadMediaRepositoryInterface
-{
-    /**
-     * Indicates whether the media exists using its path.
-     *
-     * @param string $path (ex: /logos/centreon_logo.png)
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function existsByPath(string $path): bool;
-
-    /**
-     * @throws \Throwable
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    public function findAll(): \Iterator&\Countable;
-}
+$kernel = \App\Kernel::createForWeb();
+$container = $kernel->getContainer();
+$app = $container->get(\Core\Common\Infrastructure\CommandInitializer::class);
+$app->run();

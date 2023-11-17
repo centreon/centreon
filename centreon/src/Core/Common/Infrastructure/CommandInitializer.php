@@ -21,27 +21,22 @@
 
 declare(strict_types = 1);
 
-namespace Core\Media\Application\Repository;
+namespace Core\Common\Infrastructure;
 
-use Core\Media\Domain\Model\Media;
+use Symfony\Component\Console\Application;
 
-interface ReadMediaRepositoryInterface
+class CommandInitializer extends Application
 {
-    /**
-     * Indicates whether the media exists using its path.
-     *
-     * @param string $path (ex: /logos/centreon_logo.png)
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function existsByPath(string $path): bool;
+    public function __construct(iterable $commands)
+    {
+        $commands = $commands instanceof \Traversable
+            ? iterator_to_array($commands)
+            : $commands;
 
-    /**
-     * @throws \Throwable
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    public function findAll(): \Iterator&\Countable;
+        foreach ($commands as $command) {
+            $this->add($command);
+        }
+
+        parent::__construct();
+    }
 }
