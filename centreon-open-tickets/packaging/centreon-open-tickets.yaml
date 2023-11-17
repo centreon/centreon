@@ -15,9 +15,8 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "../www/modules/centreon-open-tickets/"
+  - src: "../www/modules/centreon-open-tickets"
     dst: "/usr/share/centreon/www/modules/centreon-open-tickets"
-    type: tree
     file_info:
       mode: 0644
       owner: "@APACHE_USER@"
