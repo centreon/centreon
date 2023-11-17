@@ -1,4 +1,4 @@
-import { equals, flatten, groupBy, includes, pluck } from 'ramda';
+import { flatten, includes, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
@@ -46,8 +46,8 @@ export const buildResourcesEndpoint = ({
   );
 
   const searchConditions = resourcesToApplyToSearchParameters.map(
-    ({ resourceType, resources }) => {
-      return resources.map((resource) => ({
+    ({ resourceType, resources: resourcesToApply }) => {
+      return resourcesToApply.map((resource) => ({
         field: resourcesSearchMapping[resourceType],
         values: {
           $rg: `^${resource.name}$`
@@ -63,9 +63,9 @@ export const buildResourcesEndpoint = ({
       { name: 'statuses', value: formattedStatuses },
       { name: 'states', value: states },
       ...resourcesToApplyToCustomParameters.map(
-        ({ resourceType, resources }) => ({
+        ({ resourceType, resources: resourcesToApply }) => ({
           name: `${resourceType.replace('-', '')}_names`,
-          value: pluck('name', resources)
+          value: pluck('name', resourcesToApply)
         })
       )
     ],
