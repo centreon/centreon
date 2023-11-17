@@ -155,6 +155,12 @@ $alterAclResourceGroupRelation = function (CentreonDB $pearDB) {
 try {
     $createDashboardsPlaylistTables($pearDB);
 
+    $errorMessage = 'Unable to add columns cloud_description and cloud_specific to acl_groups table';
+    $alterAclGroupsTable($pearDB);
+
+    $errorMessage = 'Unable to add column order to acl_res_group_relations table';
+    $alterAclResourceGroupRelation($pearDB);
+
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
@@ -163,11 +169,6 @@ try {
     $errorMessage = 'Unable to insert topology for Resource Access Management';
     $insertTopologyForResourceAccessManagement($pearDB);
 
-    $errorMessage = 'Unable to add columns cloud_description and cloud_specific to acl_groups table';
-    $alterAclGroupsTable($pearDB);
-
-    $errorMessage = 'Unable to add column order to acl_res_group_relations table';
-    $alterAclResourceGroupRelation($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
