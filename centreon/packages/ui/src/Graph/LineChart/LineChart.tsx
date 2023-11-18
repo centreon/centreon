@@ -168,8 +168,6 @@ const LineChart = ({
     );
   }
 
-  console.log(graphWidth);
-
   return (
     <>
       <Header
