@@ -17047,3 +17047,6 @@ msgstr ""
 
 # msgid "Resource Access Management"
 # msgstr ""
+
+# msgid "You must add resources to filter on a single metric."
+# msgstr ""

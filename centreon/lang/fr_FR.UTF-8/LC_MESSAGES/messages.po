@@ -18344,3 +18344,6 @@ msgstr "Gestion de l'accès aux ressources"
 
 msgid "Refine filter"
 msgstr "Affiner le filtre"
+
+msgid "You must add resources to filter on a single metric."
+msgstr "Vous devez ajouter des ressources afin de filtrer sur une seule métrique."
