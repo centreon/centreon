@@ -92,7 +92,7 @@ const LineChart = ({
     showTooltip: showThresholdTooltip
   } = Tooltip.useTooltip();
 
-  const graphWidth = width > 0 ? width - margin.left - margin.right - 20 : 0;
+  const graphWidth = width > 0 ? width - margin.left - margin.right - 30 : 0;
   const graphHeight =
     (height || 0) > 0
       ? (height || 0) -
