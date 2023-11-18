@@ -18344,3 +18344,48 @@ msgstr "Gestion de l'accès aux ressources"
 
 msgid "Refine filter"
 msgstr "Affiner le filtre"
+
+msgid "Unselect all"
+msgstr "Tout désélectionner"
+
+msgid "Display up to"
+msgstr "Afficher jusqu'à"
+
+msgid "tiles"
+msgstr "tuiles"
+
+msgid "Waiting for fullfilled resources."
+msgstr "En attente de ressources remplies."
+
+msgid "All services on this host are working fine."
+msgstr "Tous les services de cet hôtes fonctionnent correctement."
+
+msgid "All metrics on this service are working fine."
+msgstr "Toutes les métriques de ce service fonctionnent correctement."
+
+msgid "Metric name"
+msgstr "Nom de la métrique"
+
+msgid "Status grid"
+msgstr "Grille de statut"
+
+msgid "Displays a status overview for selected resources."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
+
+msgid "Display with this resource type"
+msgstr "Afficher avec ce type de ressource"
+
+msgid "Display resources with this status"
+msgstr "Afficher les ressources avec ce status"
+
+msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
+msgstr "Pour un hôte, le statut affiché dans la tuile est le pire parmi son propre statut et les statuts de ses services."
+
+msgid "For a service, the service status is displayed."
+msgstr "Pour un service, le statut du service est affiché."
+
+msgid "Display resources with this state"
+msgstr "Afficher les ressources avec cet état"
+
+msgid "Sort by"
+msgstr "Trier par"
