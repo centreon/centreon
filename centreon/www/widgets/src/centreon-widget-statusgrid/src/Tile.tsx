@@ -1,18 +1,68 @@
-import { Box } from '@mui/material';
+import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+
+import { Box, CardActionArea, Typography } from '@mui/material';
+import DvrIcon from '@mui/icons-material/Dvr';
 
 import { EllipsisTypography } from '@centreon/ui';
 
+import { Resource } from '../../models';
+
 import { useTileStyles } from './StatusGrid.styles';
 import { ResourceData } from './models';
+import { labelSeeMore } from './translatedLabels';
+import { getResourcesUrl } from './utils';
 
 interface Props {
-  data: ResourceData;
+  data: ResourceData | null;
   isSmallestSize: boolean;
+  resources: Array<Resource>;
+  states: Array<string>;
+  statuses: Array<string>;
+  type: string;
 }
 
-const Tile = ({ isSmallestSize, data }: Props): JSX.Element | null => {
+const Tile = ({
+  isSmallestSize,
+  data,
+  type,
+  states,
+  statuses,
+  resources
+}: Props): JSX.Element | null => {
+  const { t } = useTranslation();
   const { classes } = useTileStyles();
-  if (isSmallestSize) {
+
+  const navigate = useNavigate();
+
+  const goToResourceStatus = (): void => {
+    navigate(
+      getResourcesUrl({
+        resources,
+        states,
+        statuses,
+        type
+      })
+    );
+  };
+
+  if (isNil(data)) {
+    return (
+      <CardActionArea
+        className={classes.seeMoreContainer}
+        onClick={goToResourceStatus}
+      >
+        <DvrIcon
+          color="primary"
+          fontSize={isSmallestSize ? 'medium' : 'large'}
+        />
+        {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
+      </CardActionArea>
+    );
+  }
+
+  if (isSmallestSize && !isNil(data)) {
     return null;
   }
 

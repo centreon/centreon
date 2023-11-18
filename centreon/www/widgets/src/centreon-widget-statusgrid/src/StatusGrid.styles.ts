@@ -7,6 +7,14 @@ export const useTileStyles = makeStyles()((theme) => ({
   },
   resourceName: {
     fontWeight: theme.typography.fontWeightMedium
+  },
+  seeMoreContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    justifyContent: 'center',
+    width: '100%'
   }
 }));
 

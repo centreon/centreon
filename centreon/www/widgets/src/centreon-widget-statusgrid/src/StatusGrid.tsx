@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { isEmpty, isNil } from 'ramda';
+import { gt, isEmpty, isNil } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -76,6 +76,8 @@ const StatusGrid = ({
     }
   });
 
+  const hasMoreResources = gt(data?.meta.total || 0, tiles);
+
   const resourceTiles = useMemo(
     () =>
       (data?.result || []).map(
@@ -126,13 +128,29 @@ const StatusGrid = ({
     return <HeatMapSkeleton />;
   }
 
+  const seeMoreTile = hasMoreResources
+    ? {
+        backgroundColor: theme.palette.background.paper,
+        data: null,
+        id: 'see-more'
+      }
+    : undefined;
+
   return (
-    <HeatMap<ResourceData>
-      tiles={resourceTiles}
+    <HeatMap<ResourceData | null>
+      displayTooltipCondition={(resourceData) => !isNil(resourceData)}
+      tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={Tooltip(resourceType)}
     >
       {({ isSmallestSize, data: resourceData }) => (
-        <Tile data={resourceData} isSmallestSize={isSmallestSize} />
+        <Tile
+          data={resourceData}
+          isSmallestSize={isSmallestSize}
+          resources={resources}
+          states={states}
+          statuses={statuses}
+          type={resourceType}
+        />
       )}
     </HeatMap>
   );
