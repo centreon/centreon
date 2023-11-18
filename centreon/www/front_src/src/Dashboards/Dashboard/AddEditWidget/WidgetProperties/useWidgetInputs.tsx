@@ -24,8 +24,7 @@ import {
   WidgetThreshold,
   WidgetValueFormat,
   WidgetTimePeriod,
-  WidgetTopBottomSettings,
-  WidgetMetric
+  WidgetTopBottomSettings
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
