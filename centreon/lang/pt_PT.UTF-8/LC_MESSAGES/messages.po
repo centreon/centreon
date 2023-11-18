@@ -17081,3 +17081,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Sort by"
 # msgstr ""
+
+# msgid "See more on the Resource status page"
+# msgstr ""

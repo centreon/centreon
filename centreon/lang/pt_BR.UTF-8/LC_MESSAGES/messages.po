@@ -17092,3 +17092,6 @@ msgstr ""
 
 # msgid "Sort by"
 # msgstr ""
+
+# msgid "See more on the Resource status page"
+# msgstr ""

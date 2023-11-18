@@ -1,4 +1,5 @@
 import { createStore } from 'jotai';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -9,15 +10,18 @@ import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelNoResources,
+  labelSeeMore,
   labelServiceName,
   labelValue
 } from '../translatedLabels';
 import { resourcesEndpoint } from '../api/endpoints';
+import { router } from '../Tile';
 
 import {
   hostOptions,
   noResources,
   resources,
+  seeMoreOptions,
   serviceOptions,
   services
 } from './testUtils';
@@ -34,18 +38,20 @@ const initialize = ({ options, data }: Props): void => {
 
   cy.mount({
     Component: (
-      <div style={{ height: '100vh', width: '100vw' }}>
-        <StatusGrid
-          globalRefreshInterval={{
-            interval: 30,
-            type: 'manual'
-          }}
-          panelData={data}
-          panelOptions={options}
-          refreshCount={0}
-          store={store}
-        />
-      </div>
+      <BrowserRouter>
+        <div style={{ height: '100vh', width: '100vw' }}>
+          <StatusGrid
+            globalRefreshInterval={{
+              interval: 30,
+              type: 'manual'
+            }}
+            panelData={data}
+            panelOptions={options}
+            refreshCount={0}
+            store={store}
+          />
+        </div>
+      </BrowserRouter>
     )
   });
 };
@@ -363,5 +369,37 @@ describe('View by service', () => {
 
       cy.makeSnapshot();
     });
+  });
+});
+
+const initializeSeeMore = (): void => {
+  const useNavigate = cy.stub().as('navigate');
+  cy.stub(router, 'useNavigate').returns(useNavigate);
+  cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
+  servicesRequests();
+  initialize({
+    data: { resources },
+    options: seeMoreOptions
+  });
+};
+
+describe('See more', () => {
+  beforeEach(initializeSeeMore);
+
+  it('displays a see more tile when not all resources are displayed', () => {
+    cy.contains('Ping').should('be.visible');
+    cy.contains(labelSeeMore).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('navigates to resources with predefined filters when the see more tile is clicked', () => {
+    cy.contains('Ping').should('be.visible');
+    cy.contains(labelSeeMore).click();
+
+    cy.get('@navigate').should(
+      'be.calledWith',
+      '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[{"id":"OK","name":"Ok"},{"id":"CRITICAL","name":"Critical"}]},{"name":"states","value":[{"id":"acknowledged","name":"Acknowledged"}]},{"name":"parent_name","value":[{"id":"Host","name":"Host"}]},{"name":"host_group","value":[{"id":"HG1","name":"HG1"},{"id":"HG2","name":"HG2"}]},{"name":"search","value":""}]}&fromTopCounter=true'
+    );
   });
 });

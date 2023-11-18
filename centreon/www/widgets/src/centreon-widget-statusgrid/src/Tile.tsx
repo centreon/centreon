@@ -23,6 +23,10 @@ interface Props {
   type: string;
 }
 
+export const router = {
+  useNavigate
+};
+
 const Tile = ({
   isSmallestSize,
   data,
@@ -34,7 +38,7 @@ const Tile = ({
   const { t } = useTranslation();
   const { classes } = useTileStyles();
 
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
 
   const goToResourceStatus = (): void => {
     navigate(

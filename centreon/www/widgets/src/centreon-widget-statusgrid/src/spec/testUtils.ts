@@ -47,6 +47,16 @@ export const serviceOptions: PanelOptions = {
   tiles: 20
 };
 
+export const seeMoreOptions: PanelOptions = {
+  refreshInterval: 'manual',
+  refreshIntervalCustom: 30,
+  resourceType: 'service',
+  sortBy: 'status',
+  states: ['acknowledged'],
+  statuses: ['ok', 'critical'],
+  tiles: 1
+};
+
 export const services = [
   {
     color: 'rgb(136, 185, 34)',
