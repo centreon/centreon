@@ -27,21 +27,21 @@ use Psr\Container\ContainerInterface;
 
 class Widget
 {
-    /** @var \CentreonLegacy\Core\Module\Information */
+    /** @var \CentreonLegacy\Core\Widget\Information */
     protected $informationObj;
-    
+
     /** @var string */
     protected $widgetName;
-    
+
     /** @var \CentreonLegacy\Core\Utils\Utils */
     protected $utils;
-    
+
     /** @var array */
     protected $widgetConfiguration;
-    
-    /** @var Pimple\Container */
+
+    /** @var ContainerInterface */
     protected $services;
-    
+
     /**
      * Construct.
      *
@@ -62,7 +62,7 @@ class Widget
         $this->utils = $utils ?? $services->get(ServiceProvider::CENTREON_LEGACY_UTILS);
         $this->widgetConfiguration = $this->informationObj->getConfiguration($this->widgetName);
     }
-    
+
     /**
      * @param string $widgetName
      *

@@ -1,7 +1,7 @@
 {
   "name": "@centreon/js-config",
   "description": "Centreon Frontend shared build configuration",
-  "version": "23.10.0",
+  "version": "24.4.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-frontend.git"
@@ -44,16 +44,17 @@
     "cypress"
   ],
   "dependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^18.0.6",
+    "@badeball/cypress-cucumber-preprocessor": "^19.1.0",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
-    "@types/cypress-cucumber-preprocessor": "^4.0.2",
-    "@types/dockerode": "^3.3.19",
-    "cypress-multi-reporters": "^1.6.3",
-    "cypress-terminal-report": "^5.3.6",
-    "dockerode": "^3.3.5",
-    "esbuild": "^0.19.3",
+    "@types/cypress-cucumber-preprocessor": "^4.0.5",
+    "@types/dockerode": "^3.3.23",
+    "cypress-multi-reporters": "^1.6.4",
+    "cypress-terminal-report": "^5.3.9",
+    "dockerode": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "esbuild": "^0.19.5",
     "mochawesome": "^7.1.3"
   }
 }

@@ -105,7 +105,7 @@ final class AddServiceGroup
      * @throws ServiceGroupException
      * @throws \Throwable
      *
-     * @return CreatedResponse<AddServiceGroupResponse>
+     * @return CreatedResponse<int, AddServiceGroupResponse>
      */
     private function addServiceGroupAsAdmin(AddServiceGroupRequest $request): CreatedResponse
     {
@@ -125,7 +125,7 @@ final class AddServiceGroup
      * @throws ServiceGroupException
      * @throws \Throwable
      *
-     * @return CreatedResponse<AddServiceGroupResponse>
+     * @return CreatedResponse<int, AddServiceGroupResponse>
      */
     private function addServiceGroupAsContact(AddServiceGroupRequest $request): CreatedResponse
     {
@@ -210,7 +210,7 @@ final class AddServiceGroup
     /**
      * @param ServiceGroup $serviceGroup
      *
-     * @return CreatedResponse<AddServiceGroupResponse>
+     * @return CreatedResponse<int, AddServiceGroupResponse>
      */
     private function createResponse(ServiceGroup $serviceGroup): CreatedResponse
     {

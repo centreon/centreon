@@ -19,10 +19,10 @@ runs:
     - uses: pnpm/action-setup@v2
       with:
         version: 8
-        run_install: true
 
     - name: Build storybook
       run: |
+        pnpm i
         pnpm build:storybook
       shell: bash
       working-directory: ${{ inputs.directory }}

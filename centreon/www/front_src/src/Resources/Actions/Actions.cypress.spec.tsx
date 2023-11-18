@@ -68,9 +68,9 @@ const mockAcknowledgement = {
 };
 
 const host = {
+  has_passive_checks_enabled: true,
   id: 0,
   parent: null,
-  passive_checks: true,
   type: 'host'
 };
 

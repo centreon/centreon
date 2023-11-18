@@ -30,7 +30,8 @@ import {
   labelDiscard,
   labelNotificationDuplicated,
   labelSearchBusinessViews,
-  labelBusinessViewsEvents
+  labelBusinessViewsEvents,
+  labelSearchContacts
 } from '../../translatedLabels';
 import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
@@ -76,6 +77,10 @@ const initialize = ({
 }: {
   isBamModuleInstalled: boolean;
 }): void => {
+  cy.cssDisableMotion();
+
+  cy.viewport(1280, 590);
+
   cy.interceptAPIRequest({
     alias: 'getNotificationRequest',
     method: Method.GET,
@@ -104,11 +109,10 @@ const initialize = ({
     path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport('macbook-13');
 };
 
 describe('Edit Panel', () => {
@@ -290,7 +294,7 @@ describe('Edit Panel', () => {
     Array(4)
       .fill(0)
       .forEach(() => {
-        cy.findAllByTestId('CancelIcon').eq(0).click();
+        cy.findAllByLabelText('Clear').eq(0).click({ force: true });
       });
 
     cy.findByTestId('Host groups events').within(() => {
@@ -331,11 +335,7 @@ describe('Edit Panel', () => {
   it('ensures that when the Service Groups field is empty, all associated events are disabled and unchecked', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    Array(3)
-      .fill(0)
-      .forEach(() => {
-        cy.findAllByTestId('CancelIcon').eq(4).click();
-      });
+    cy.findAllByLabelText('Clear').eq(1).click({ force: true });
 
     cy.findByTestId('Service groups events').within(() => {
       cy.findAllByRole('checkbox').each(($checkbox) => {
@@ -351,11 +351,9 @@ describe('Edit Panel', () => {
   it('validates that when both resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    Array(7)
-      .fill(0)
-      .forEach(() => {
-        cy.findAllByTestId('CancelIcon').eq(0).click();
-      });
+    cy.findAllByLabelText('Clear').eq(0).click({ force: true });
+    cy.findAllByLabelText('Clear').eq(0).click({ force: true });
+    cy.findByTestId(labelSearchHostGroups).click();
 
     cy.findAllByText(labelChooseAtLeastOneResource).should('have.length', 2);
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -400,11 +398,9 @@ describe('Edit Panel', () => {
   it('validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    Array(4)
-      .fill(0)
-      .forEach(() => {
-        cy.findAllByTestId('CancelIcon').eq(7).click();
-      });
+    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
+    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
+    cy.findByTestId(labelSearchContacts).click();
 
     cy.clickOutside();
 
@@ -447,7 +443,7 @@ describe('Edit Panel', () => {
       cy.findByRole('checkbox').should('not.be.checked').and('be.disabled');
     });
 
-    cy.get('#panel-content').scrollTo('bottom');
+    cy.get('div[aria-label="Notification settings"]').scrollIntoView();
 
     cy.makeSnapshot();
   });
@@ -587,9 +583,11 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.findByTestId(labelDuplicate).should('not.be.disabled');
 
-    cy.findAllByTestId('CancelIcon').eq(0).click();
+    cy.findAllByLabelText('Clear').eq(0).click({ force: true });
 
     cy.findByTestId(labelDuplicate).should('be.disabled');
+
+    cy.get('#panel-content').scrollTo('top');
   });
 
   it('displays confirmation dialog with new notification name field on Duplicate button click', () => {
@@ -670,6 +668,8 @@ describe('Edit Panel: Duplicate button', () => {
     cy.waitForRequest('@duplicateNotificationtRequest');
 
     cy.findByText(errorMessage).should('be.visible');
+
+    cy.get('#panel-content').scrollTo('top');
   });
 });
 
@@ -701,11 +701,7 @@ describe('Edit Panel: Business Views', () => {
   it('ensures that when the BA field is empty, all associated events are disabled and unchecked', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    Array(3)
-      .fill(0)
-      .forEach(() => {
-        cy.findAllByTestId('CancelIcon').eq(7).click();
-      });
+    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
 
     cy.findByTestId(labelBusinessViewsEvents).within(() => {
       cy.findAllByRole('checkbox').each(($checkbox) => {
@@ -720,11 +716,10 @@ describe('Edit Panel: Business Views', () => {
   it('validates that when all resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    Array(9)
-      .fill(0)
-      .forEach(() => {
-        cy.findAllByTestId('CancelIcon').eq(0).click();
-      });
+    cy.findAllByLabelText('Clear').eq(0).click({ force: true });
+    cy.findAllByLabelText('Clear').eq(0).click({ force: true });
+    cy.findAllByLabelText('Clear').eq(0).click({ force: true });
+    cy.findByTestId(labelSearchServiceGroups).click({ force: true });
 
     cy.findAllByText(labelChooseAtLeastOneResource).should('have.length', 3);
     cy.findByLabelText(labelSave).should('be.disabled');

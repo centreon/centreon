@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, propEq, reject } from 'ramda';
 
 import { Variant } from '@mui/material/styles/createTypography';
 
@@ -9,6 +9,7 @@ import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
 import {
   ChangedCriteriaParams,
+  DeactivateProps,
   SectionType,
   SelectedResourceType
 } from '../../model';
@@ -31,8 +32,9 @@ const CheckBoxSection = ({
   data,
   filterName,
   changeCriteria,
-  resourceType
-}: Props): JSX.Element | null => {
+  resourceType,
+  isDeactivated
+}: Props & DeactivateProps): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -60,7 +62,7 @@ const CheckBoxSection = ({
     setSelectedStatusByResourceType
   });
 
-  if (!dataByFilterName) {
+  if (!dataByFilterName || isDeactivated) {
     return null;
   }
 
@@ -68,6 +70,18 @@ const CheckBoxSection = ({
     input: Array<SelectEntry>
   ): Array<string> | undefined => {
     return input?.map((item) => item?.name);
+  };
+
+  const changeFilter = (selectedStatus: Array<SelectedResourceType>): void => {
+    const checkedData = selectedStatus?.filter((item) => item?.checked);
+    const updatedValue = checkedData?.map((element) => ({
+      id: element?.id,
+      name: element?.name
+    }));
+    changeCriteria({
+      filterName,
+      updatedValue
+    });
   };
 
   const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
@@ -99,19 +113,24 @@ const CheckBoxSection = ({
         byFields: ['id', 'resourceType']
       });
       setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
+      changeFilter(result as Array<SelectedResourceType>);
 
       return;
     }
 
     const currentItem = { ...item, checked: false, resourceType };
 
-    const result = removeDuplicateFromObjectArray({
-      array: selectedStatusByResourceType
-        ? [...selectedStatusByResourceType, currentItem]
-        : [currentItem],
-      byFields: ['id', 'resourceType']
-    });
+    const result = reject(
+      propEq('id', item?.id),
+      removeDuplicateFromObjectArray({
+        array: selectedStatusByResourceType
+          ? [...selectedStatusByResourceType, currentItem]
+          : [currentItem],
+        byFields: ['id', 'resourceType']
+      })
+    );
     setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
+    changeFilter(result as Array<SelectedResourceType>);
   };
 
   return (
@@ -122,7 +141,7 @@ const CheckBoxSection = ({
       labelProps={labelProps}
       options={transformData(translatedOptions) || []}
       values={transformData(translatedValues) || []}
-      onChange={(event) => handleChangeStatus(event)}
+      onChange={handleChangeStatus}
     />
   );
 };

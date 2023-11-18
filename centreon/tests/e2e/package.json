@@ -3,18 +3,19 @@
   "version": "21.04.0",
   "description": "centreon web package",
   "scripts": {
-    "cypress:open": "cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e",
-    "cypress:run": "cypress run --env tags='not @ignore' --config-file cypress.dev.config.ts --browser=chrome --e2e",
-    "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json --browser=chrome 2> ./cypress/results/logs.txt",
-    "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e",
-    "eslint": "eslint ./cypress",
+    "cypress:open": "cypress open --config-file cypress.dev.config.ts --e2e",
+    "cypress:run": "cypress run --env tags='not @ignore' --config-file cypress.dev.config.ts --e2e",
+    "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json 2> ./cypress/results/logs.txt",
+    "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --e2e",
+    "eslint": "eslint ./features",
     "eslint:fix": "pnpm eslint --fix"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^18.0.6",
-    "@types/cypress-cucumber-preprocessor": "^4.0.2",
-    "@types/node": "^20.6.3",
-    "cypress": "^13.2.0",
+    "@badeball/cypress-cucumber-preprocessor": "^19.1.0",
+    "@types/cypress-cucumber-preprocessor": "^4.0.5",
+    "@types/node": "^20.9.0",
+    "cypress": "^13.5.0",
+    "cypress-real-events": "^1.11.0",
     "cypress-wait-until": "^2.0.1",
     "path": "^0.12.7",
     "shell-exec": "^1.1.2",
@@ -24,6 +25,10 @@
     "filterSpecs": false,
     "nonGlobalStepDefinitions": true,
     "omitFiltered": true,
+    "json": {
+      "enabled": true,
+      "output": "cypress/cucumber-logs/report.json"
+    },
     "pretty": {
       "enabled": true
     }

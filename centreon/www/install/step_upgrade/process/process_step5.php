@@ -64,6 +64,14 @@ try {
         throw new \Exception('Cannot get current version');
     }
 
+    $moduleService = $dependencyInjector[\CentreonModule\ServiceProvider::CENTREON_MODULE];
+    $widgets = $moduleService->getList(null, true, null, ['widget']);
+    foreach ($widgets['widget'] as $widget) {
+        if ($widget->isInternal()) {
+            $moduleService->update($widget->getId(), 'widget');
+        }
+    }
+
     $updateWriteRepository->runPostUpdate($_SESSION['CURRENT_VERSION']);
 } catch (\Throwable $e) {
     exitUpgradeProcess(

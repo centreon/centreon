@@ -49,11 +49,14 @@ class Module implements SourceDataInterface
     /** @var string */
     private $author;
 
-    /** @var string */
+    /** @var string|null */
     private $version;
 
-    /** @var string */
+    /** @var string|null */
     private $versionCurrent;
+
+    /** @var bool */
+    private $isInternal = false;
 
     /** @var string */
     private $path;
@@ -177,23 +180,23 @@ class Module implements SourceDataInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getVersion(): string
+    public function getVersion(): ?string
     {
         return $this->version;
     }
 
     /**
-     * @param string $version
+     * @param string|null $version
      */
-    public function setVersion(string $version): void
+    public function setVersion(?string $version): void
     {
         $this->version = $version;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getVersionCurrent(): ?string
     {
@@ -201,11 +204,27 @@ class Module implements SourceDataInterface
     }
 
     /**
-     * @param string $versionCurrent
+     * @param string|null $versionCurrent
      */
-    public function setVersionCurrent(string $versionCurrent): void
+    public function setVersionCurrent(?string $versionCurrent): void
     {
         $this->versionCurrent = $versionCurrent;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInternal(): bool
+    {
+        return $this->isInternal;
+    }
+
+    /**
+     * @param bool $isInternal
+     */
+    public function setInternal(bool $isInternal): void
+    {
+        $this->isInternal = $isInternal;
     }
 
     /**
@@ -314,17 +333,12 @@ class Module implements SourceDataInterface
 
     /**
      * @param bool $value
-     *
-     * @return bool
      */
     public function setInstalled(bool $value): void
     {
         $this->isInstalled = $value;
     }
 
-    /**
-     * @return string
-     */
     public function isUpdated(): bool
     {
         return $this->isUpdated;
@@ -332,8 +346,6 @@ class Module implements SourceDataInterface
 
     /**
      * @param bool $value
-     *
-     * @return bool
      */
     public function setUpdated(bool $value): void
     {

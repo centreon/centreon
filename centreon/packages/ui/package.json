@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.10.0",
+  "version": "24.4.0",
   "description": "Centreon UI Components",
   "scripts": {
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
@@ -110,7 +110,7 @@
     "@lexical/rich-text": "^0.12.2",
     "@lexical/selection": "^0.12.2",
     "@lexical/utils": "^0.12.2",
-    "@react-spring/web": "9.6.0",
+    "@react-spring/web": "^9.7.3",
     "@visx/curve": "^2.1.0",
     "@visx/group": "^3.3.0",
     "@visx/pattern": "^3.0.0",

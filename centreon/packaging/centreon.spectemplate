@@ -1,8 +1,8 @@
 %define name centreon
 %define version %{PACKAGE_VERSION}
 %define release %{PACKAGE_RELEASE}%{?dist}
-%define thismajor 23.10.0
-%define nextmajor 23.11.0
+%define thismajor 24.04.0
+%define nextmajor 24.05.0
 
 %define selinuxdevel %{_datadir}/selinux/devel
 
@@ -144,6 +144,34 @@ Conflicts:  centreon-map4-web-client < %{thismajor}
 Conflicts:  centreon-poller-display
 Conflicts:  centreon-poller-display-central
 Conflicts:  centreon-pp-manager < %{thismajor}
+Provides:   centreon-widget-engine-status
+Obsoletes:  centreon-widget-engine-status
+Provides:   centreon-widget-global-health
+Obsoletes:  centreon-widget-global-health
+Provides:   centreon-widget-graph-monitoring
+Obsoletes:  centreon-widget-graph-monitoring
+Provides:   centreon-widget-grid-map
+Obsoletes:  centreon-widget-grid-map
+Provides:   centreon-widget-httploader
+Obsoletes:  centreon-widget-httploader
+Provides:   centreon-widget-host-monitoring
+Obsoletes:  centreon-widget-host-monitoring
+Provides:   centreon-widget-hostgroup-monitoring
+Obsoletes:  centreon-widget-hostgroup-monitoring
+Provides:   centreon-widget-live-top10-cpu-usage
+Obsoletes:  centreon-widget-live-top10-cpu-usage
+Provides:   centreon-widget-live-top10-memory-usage
+Obsoletes:  centreon-widget-live-top10-memory-usage
+Provides:   centreon-widget-ntopng-listing
+Obsoletes:  centreon-widget-ntopng-listing
+Provides:   centreon-widget-service-monitoring
+Obsoletes:  centreon-widget-service-monitoring
+Provides:   centreon-widget-servicegroup-monitoring
+Obsoletes:  centreon-widget-servicegroup-monitoring
+Provides:   centreon-widget-single-metric
+Obsoletes:  centreon-widget-single-metric
+Provides:   centreon-widget-tactical-overview
+Obsoletes:  centreon-widget-tactical-overview
 
 %description web
 %{COMMIT_HASH}
@@ -419,6 +447,9 @@ sed -i 's#@VERSION@#%{version}#' centreon/selinux/*
 # Install Symfony console script
 %{__install} -m 0755 centreon/bin/console %buildroot%{_datadir}/centreon/bin/
 
+# Install migration console script
+%{__install} -m 0755 centreon/bin/migration %buildroot%{_datadir}/centreon/bin/
+
 # Install indexes template schema
 
 # Install examples.
@@ -428,6 +459,7 @@ sed -i 's#@VERSION@#%{version}#' centreon/selinux/*
 %{__cp} additional/centreon-apache-https.conf %buildroot%{_datadir}/centreon/examples/centreon.apache.https.conf
 
 # Copy base files.
+%{__rm} -rf centreon/www/front_src
 %{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/composer.json centreon/composer.lock centreon/symfony.lock centreon/container.php centreon/package.json centreon/pnpm-lock.yaml centreon/pnpm-workspace.yaml centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
 
 # Install configuration files.
@@ -633,6 +665,7 @@ fi
 %{_datadir}/centreon/bin/export-mysql-indexes
 %{_datadir}/centreon/bin/centreon
 %{_datadir}/centreon/bin/console
+%{_datadir}/centreon/bin/migration
 %{_bindir}/centreon
 %{_localstatedir}/lib/centreon/installs
 
@@ -704,6 +737,14 @@ systemctl try-restart httpd || :
 systemctl try-restart php-fpm || :
 
 %posttrans web
+
+# Change right for Centreon Engine and Centreon Broker configuration files
+if [ -d /etc/centreon-broker ] && [ "$(getent passwd centreon-broker)" ]; then
+    chown centreon-broker:centreon /etc/centreon-broker/*
+fi
+if [ -d /etc/centreon-engine ] && [ "$(getent passwd centreon-engine)" ]; then
+    chown centreon-engine:centreon /etc/centreon-engine/*
+fi
 
 # rebuild symfony cache on upgrade
 if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
@@ -853,13 +894,13 @@ fi
 %{_sbindir}/usermod -a -G centreon-engine centreon-gorgone
 %{_sbindir}/usermod -a -G centreon-broker centreon-gorgone
 
-# Change right for Centreon Engine and Centreon Broker
+# Change right for Centreon Engine and Centreon Broker configuration files
 if [ -d /etc/centreon-broker ]; then
-    chown -R centreon-broker: /etc/centreon-broker
+    chown -R centreon-broker:centreon-broker /etc/centreon-broker
     chmod -R g+w /etc/centreon-broker
 fi
 if [ -d /etc/centreon-engine ]; then
-    chown -R centreon-engine: /etc/centreon-engine
+    chown -R centreon-engine:centreon-engine /etc/centreon-engine
     chmod -R g+w /etc/centreon-engine
 fi
 

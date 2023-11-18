@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\UpdateWebSSOConfiguration;
 
-class UpdateWebSSOConfigurationRequest
+final class UpdateWebSSOConfigurationRequest
 {
     /** @var bool */
     public bool $isActive;

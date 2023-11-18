@@ -290,7 +290,7 @@ $enableDisabledHostTemplates = function(CentreonDB $pearDB): void {
     );
 };
 
-$updateTopologyForDashboards = function(CentreonDb $pearDB): void {
+$updateTopologyForDashboards = function(CentreonDB $pearDB): void {
     $statement = $pearDB->query(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Dashboards'

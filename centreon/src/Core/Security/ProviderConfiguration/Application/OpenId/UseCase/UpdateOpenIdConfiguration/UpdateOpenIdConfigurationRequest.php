@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration;
 
-class UpdateOpenIdConfigurationRequest
+final class UpdateOpenIdConfigurationRequest
 {
     /** @var bool */
     public bool $isActive = false;

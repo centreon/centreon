@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - name
+properties:
+  id:
+    type: integer
+    description: "Contact group ID"
+    example: 1
+  name:
+    type: string
+    description: "Contact group name"
+    example: "Contact group"

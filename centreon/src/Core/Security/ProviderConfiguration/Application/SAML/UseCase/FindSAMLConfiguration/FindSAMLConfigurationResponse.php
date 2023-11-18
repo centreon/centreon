@@ -30,7 +30,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 
-class FindSAMLConfigurationResponse
+final class FindSAMLConfigurationResponse
 {
     /** @var bool */
     public bool $isActive = false;
@@ -75,10 +75,10 @@ class FindSAMLConfigurationResponse
     public array $authenticationConditions = [];
 
     /**
-     * @var array{
+     * @var array{}|array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
-     *  "endpoint": array{
+     *  "endpoint"?: array{
      *      "type": string,
      *      "custom_endpoint": string|null
      *  },
@@ -131,13 +131,7 @@ class FindSAMLConfigurationResponse
      * @return array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  },
      *  "authorized_values": string[],
-     *  "trusted_client_addresses": string[],
-     *  "blacklist_client_addresses": string[]
      * }
      */
     public static function authenticationConditionsToArray(AuthenticationConditions $authenticationConditions): array
@@ -155,10 +149,6 @@ class FindSAMLConfigurationResponse
      * @return array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint": string|null
-     *  },
      *  "relations": array<array{
      *      "group_value": string,
      *      "contact_group": array{

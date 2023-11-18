@@ -39,8 +39,6 @@ class UserController extends AbstractController
      */
     public function getActionsAuthorization(): View
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
         $actions = [
             'host' => [
                 'check' => $this->getAuthorizationForRole(Contact::ROLE_HOST_CHECK),

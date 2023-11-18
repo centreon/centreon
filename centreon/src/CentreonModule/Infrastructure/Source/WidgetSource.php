@@ -53,7 +53,7 @@ class WidgetSource extends SourceAbstract
     {
         $this->info = $this->db
             ->getRepository(WidgetModelsRepository::class)
-            ->getAllWidgetVsVersion();
+            ->getAllWidgetsVersion();
     }
 
     /**
@@ -134,7 +134,8 @@ class WidgetSource extends SourceAbstract
         $entity->setName($xml->title->__toString());
         $entity->setDescription($xml->description->__toString());
         $entity->setAuthor($xml->author->__toString());
-        $entity->setVersion($xml->version->__toString());
+        $entity->setVersion($xml->version ? $xml->version->__toString() : null);
+        $entity->setInternal($xml->version ? false : true);
         $entity->setKeywords($xml->keywords->__toString());
 
         if ($xml->stability) {
@@ -176,10 +177,21 @@ class WidgetSource extends SourceAbstract
             $entity->setVersionCurrent($this->info[$entity->getId()]);
             $entity->setInstalled(true);
 
-            $isUpdated = $this->isUpdated($this->info[$entity->getId()], $entity->getVersion());
+            $isUpdated
+                = $entity->isInternal() || $this->isUpdated($this->info[$entity->getId()], $entity->getVersion());
             $entity->setUpdated($isUpdated);
         }
 
         return $entity;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     *
+     * @return string
+     */
+    protected function getPath(): string
+    {
+        return $this->path . static::PATH;
     }
 }

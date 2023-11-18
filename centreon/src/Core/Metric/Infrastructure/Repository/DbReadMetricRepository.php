@@ -28,6 +28,7 @@ use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -85,9 +86,9 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             return [];
         }
 
-        $request = $this->buildQuery($requestParameters, [], $metricNames);
+        $request = $this->buildQueryForFindServices($requestParameters, [], $metricNames);
         $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->excuteQuery($statement, $metricNames);
+        $statement = $this->executeQueryForFindServices($statement, $metricNames);
 
         $records = $statement->fetchAll();
         $services = [];
@@ -107,6 +108,30 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * @inheritDoc
      */
+    public function findByHostIdAndServiceId(int $hostId, int $serviceId, RequestParametersInterface $requestParameters): array
+    {
+        $query = $this->buildQueryForFindMetrics($requestParameters);
+        $statement = $this->executeQueryForFindMetrics($query, $hostId, $serviceId);
+        $records = $statement->fetchAll();
+
+        return $this->createMetricsFromRecords($records);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostIdAndServiceIdAndAccessGroups(int $hostId, int $serviceId, array $accessGroups, RequestParametersInterface $requestParameters): array
+    {
+        $query = $this->buildQueryForFindMetrics($requestParameters, $accessGroups);
+        $statement = $this->executeQueryForFindMetrics($query, $hostId, $serviceId);
+        $records = $statement->fetchAll();
+
+        return $this->createMetricsFromRecords($records);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
         array $metricNames,
         array $accessGroups,
@@ -116,9 +141,9 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             return [];
         }
 
-        $request = $this->buildQuery($requestParameters, $accessGroups, $metricNames);
+        $request = $this->buildQueryForFindServices($requestParameters, $accessGroups, $metricNames);
         $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->excuteQuery($statement, $metricNames);
+        $statement = $this->executeQueryForFindServices($statement, $metricNames);
 
         $records = $statement->fetchAll();
         $services = [];
@@ -136,6 +161,59 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     }
 
     /**
+     * Execute SQL Query to find Metrics.
+     *
+     * @param string $query
+     * @param int $hostId
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return \PDOStatement
+     */
+    private function executeQueryForFindMetrics(string $query, int $hostId, int $serviceId): \PDOStatement
+    {
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement;
+    }
+
+    /**
+     * Create Metrics Instances from database records.
+     *
+     * @param array<
+     *  array{
+     *    id: int,
+     *    name: string,
+     *    unit_name: string,
+     *    current_value: float|null,
+     *    warn: float|null,
+     *    warn_low: float|null,
+     *    crit: float|null,
+     *    crit_low: float|null
+     *  }
+     * > $records
+     *
+     * @return Metric[]
+     */
+    private function createMetricsFromRecords(array $records): array
+    {
+        if ([] === $records) {
+            return [];
+        }
+
+        $metrics = [];
+        foreach ($records as $record) {
+            $metrics[] = DbMetricFactory::createFromRecord($record);
+        }
+
+        return $metrics;
+    }
+
+    /**
      * Build the SQL Query.
      *
      * @param RequestParametersInterface $requestParameters
@@ -144,7 +222,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      *
      * @return string
      */
-    private function buildQuery(
+    private function buildQueryForFindServices(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
         array $metricNames
@@ -195,6 +273,49 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     }
 
     /**
+     * Build Query For Find Metrics.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return string
+     */
+    private function buildQueryForFindMetrics(RequestParametersInterface $requestParameters, array $accessGroups = []): string
+    {
+        $query = <<<'SQL'
+            SELECT DISTINCT metric_id as id, metric_name as name, unit_name, current_value, warn,
+            warn_low, crit, crit_low
+            FROM  `:dbstg`.metrics m
+                INNER JOIN  `:dbstg`.index_data ON m.index_id =  `:dbstg`.index_data.id
+            SQL;
+
+        $accessGroupIds = \array_map(
+            fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ([] !== $accessGroupIds) {
+            $accessGroupIdsQuery = \implode(',', $accessGroupIds);
+            $query .= <<<SQL
+                    INNER JOIN `:dbstg`.`centreon_acl` acl ON acl.`service_id` = id.`service_id`
+                    AND acl.`group_id` IN ({$accessGroupIdsQuery})
+                SQL;
+        }
+
+        $query .= <<<'SQL'
+             WHERE `:dbstg`.index_data.host_id = :hostId
+             AND `:dbstg`.index_data.service_id = :serviceId
+            SQL;
+
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $query .= $sqlTranslator->translatePaginationToSql();
+
+        return $query;
+    }
+
+    /**
      * Execute the SQL Query.
      *
      * @param \PDOStatement $statement
@@ -204,7 +325,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      *
      * @return \PDOStatement
      */
-    private function excuteQuery(\PDOStatement $statement, array $metricNames): \PDOStatement
+    private function executeQueryForFindServices(\PDOStatement $statement, array $metricNames): \PDOStatement
     {
         $bindValues = [];
         foreach ($metricNames as $index => $metricName) {
