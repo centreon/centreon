@@ -10,7 +10,7 @@ import { WidgetDataResource } from '../../../models';
 import { labelSelectMetric } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
-import MetricsOnly from './MetricsOnly';
+import Metrics from './Metrics';
 
 const emptyMetrics = [];
 
@@ -66,7 +66,7 @@ const initializeComponent = ({ metrics, resources }): void => {
             }}
             onSubmit={cy.stub()}
           >
-            <MetricsOnly label="" propertyName="metrics" />
+            <Metrics label="" propertyName="metrics" />
           </Formik>
         </QueryProvider>
       </Provider>
@@ -74,7 +74,7 @@ const initializeComponent = ({ metrics, resources }): void => {
   });
 };
 
-describe('MetricsOnly', () => {
+describe('Metrics', () => {
   beforeEach(() => {
     initializeComponent({ metrics: emptyMetrics, resources: defaultResources });
   });

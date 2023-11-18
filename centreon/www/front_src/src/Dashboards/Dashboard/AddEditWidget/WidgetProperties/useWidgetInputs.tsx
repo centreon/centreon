@@ -8,6 +8,7 @@ import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import {
   customBaseColorAtom,
+  singleHostPerMetricAtom,
   singleMetricSelectionAtom,
   singleResourceTypeSelectionAtom,
   widgetPropertiesAtom
@@ -53,8 +54,7 @@ export const propertiesInputType = {
     WidgetSingleMetricGraphType,
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
   [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
-  [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
-  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric
+  [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
@@ -73,6 +73,7 @@ export const useWidgetInputs = (
     singleResourceTypeSelectionAtom
   );
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
+  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
 
   const selectedWidget = find(
     propEq(values.moduleName, 'moduleName'),
@@ -128,6 +129,7 @@ export const useWidgetInputs = (
       setSingleResourceTypeSelection(
         selectedWidget.singleResourceTypeSelection
       );
+      setSingleHostPerMetric(selectedWidget.singleHostPerMetric);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },
     useDeepCompare([selectedWidget])

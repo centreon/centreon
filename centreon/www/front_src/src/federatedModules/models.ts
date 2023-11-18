@@ -27,7 +27,6 @@ export interface StyleMenuSkeleton {
 
 export enum FederatedWidgetOptionType {
   metrics = 'metrics',
-  metricsOnly = 'metrics-only',
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
@@ -56,6 +55,7 @@ export interface FederatedWidgetProperties {
   options: {
     [key: string]: FederatedWidgetOption;
   };
+  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
   singleResourceTypeSelection?: boolean;
   title: string;

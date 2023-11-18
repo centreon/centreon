@@ -17,6 +17,7 @@ import {
 } from '../../../../federatedModules/atoms';
 import {
   customBaseColorAtom,
+  singleHostPerMetricAtom,
   singleMetricSelectionAtom,
   singleResourceTypeSelectionAtom
 } from '../atoms';
@@ -41,6 +42,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const setSingleResourceTypeSelection = useSetAtom(
     singleResourceTypeSelectionAtom
   );
+  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { setValues, values } = useFormikContext<Widget>();
@@ -114,6 +116,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     setSingleResourceTypeSelection(
       selectedWidgetProperties.singleResourceTypeSelection
     );
+    setSingleHostPerMetric(selectedWidgetProperties.singleHostPerMetric);
     setCustomBaseColor(selectedWidgetProperties.customBaseColor);
 
     setValues((currentValues) => ({

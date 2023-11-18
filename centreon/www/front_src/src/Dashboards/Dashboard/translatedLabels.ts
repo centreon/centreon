@@ -121,3 +121,5 @@ export const labelNumberOfValues = 'Number of values';
 export const labelViewWidgetProperties = 'View widget properties';
 export const labelUnsavedChanges =
   'If you leave without saving your dashboard, changes will be permanently lost.';
+export const labelYouMustAddMoreResources =
+  'You must add resources to filter on a single metric.';

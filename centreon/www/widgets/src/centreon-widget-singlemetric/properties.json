@@ -39,6 +39,7 @@
       "defaultValue": []
     }
   },
+  "singleHostPerMetric": true,
   "singleMetricSelection": true,
   "singleResourceTypeSelection": true,
   "customBaseColor": true,

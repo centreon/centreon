@@ -1,13 +1,17 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { or } from 'ramda';
+import { equals, or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 import FilterIcon from '@mui/icons-material/Tune';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
-import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  SelectField,
+  SingleConnectedAutocompleteField
+} from '@centreon/ui';
 
 import {
   labelRefineFilter,
@@ -50,7 +54,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getSearchField,
     error,
     getOptionDisabled,
-    deleteResourceItem
+    deleteResourceItem,
+    changeResource
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -63,7 +68,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Avatar compact className={avatarClasses.widgetAvatar}>
           2
         </Avatar>
-        <Typography>{t(labelResources)}</Typography>
+        <Typography className={classes.resourceTitle}>
+          {t(labelResources)}
+        </Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <ItemComposition
@@ -77,7 +84,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
             deleteButtonHidden={deleteButtonHidden}
-            key={`${index}`}
+            key={`${index}${resource.resources[0]}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
           >
@@ -90,31 +97,50 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}
             />
-            <MultiConnectedAutocompleteField
-              allowUniqOption
-              get
-              chipProps={{
-                color: 'primary',
-                onDelete: (_, option): void =>
-                  deleteResourceItem({
-                    index,
-                    option,
-                    resources: resource.resources
-                  })
-              }}
-              className={classes.resources}
-              disabled={!canEditField || !resource.resourceType}
-              field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceResourceBaseEndpoint(
-                resource.resourceType
-              )}
-              getOptionDisabled={getOptionDisabled(index)}
-              label={t(labelSelectAResource)}
-              limitTags={2}
-              queryKey={`${resource.resourceType}-${index}`}
-              value={resource.resources || []}
-              onChange={changeResources(index)}
-            />
+            {singleResourceTypeSelection ? (
+              <SingleConnectedAutocompleteField
+                allowUniqOption
+                className={classes.resources}
+                disabled={!canEditField || !resource.resourceType}
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceResourceBaseEndpoint(
+                  resource.resourceType
+                )}
+                isOptionEqualToValue={(option, selectedValue) =>
+                  equals(option?.id, selectedValue?.id)
+                }
+                label={t(labelSelectAResource)}
+                queryKey={`${resource.resourceType}-${index}`}
+                value={resource.resources[0]}
+                onChange={changeResource(index)}
+              />
+            ) : (
+              <MultiConnectedAutocompleteField
+                allowUniqOption
+                get
+                chipProps={{
+                  color: 'primary',
+                  onDelete: (_, option): void =>
+                    deleteResourceItem({
+                      index,
+                      option,
+                      resources: resource.resources
+                    })
+                }}
+                className={classes.resources}
+                disabled={!canEditField || !resource.resourceType}
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceResourceBaseEndpoint(
+                  resource.resourceType
+                )}
+                getOptionDisabled={getOptionDisabled(index)}
+                label={t(labelSelectAResource)}
+                limitTags={2}
+                queryKey={`${resource.resourceType}-${index}`}
+                value={resource.resources || []}
+                onChange={changeResources(index)}
+              />
+            )}
           </ItemComposition.Item>
         ))}
       </ItemComposition>

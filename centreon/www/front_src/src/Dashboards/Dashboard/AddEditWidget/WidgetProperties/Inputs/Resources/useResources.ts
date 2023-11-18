@@ -128,12 +128,16 @@ const useResources = (propertyName: string): UseResourcesState => {
 
   const changeResources =
     (index: number) => (_, resources: Array<SelectEntry>) => {
-      setFieldValue(`data.${propertyName}.${index}.resources`, resources);
+      setFieldValue(
+        `data.${propertyName}.${index}.resources`,
+        resources,
+        false
+      );
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
-    setFieldValue(`data.${propertyName}.${index}.resources`, [resource]);
+    setFieldValue(`data.${propertyName}.${index}.resources`, [resource], false);
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 

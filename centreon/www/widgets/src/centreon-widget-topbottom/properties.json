@@ -40,7 +40,7 @@
       "defaultValue": []
     },
     "metrics": {
-      "type": "metrics-only",
+      "type": "metrics",
       "defaultValue": []
     }
   },
