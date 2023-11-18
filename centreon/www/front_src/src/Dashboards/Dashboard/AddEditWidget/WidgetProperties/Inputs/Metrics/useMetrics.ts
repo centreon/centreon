@@ -140,8 +140,8 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     uniqBy(({ name }) => name)
   )(servicesMetrics?.result || []);
 
-  const validateMetrics = (selectedMetrics: Array<Metric>): void => {
-    if (isEmpty(selectedMetrics)) {
+  const validateMetrics = (selectedMetrics?): void => {
+    if (isEmpty(selectedMetrics) || !selectedMetrics) {
       setFieldError(`data.${propertyName}`, t(labelPleaseSelectAMetric));
 
       return;
@@ -173,6 +173,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
     setFieldValue(`data.${propertyName}`, [newMetric], false);
     setFieldTouched(`data.${propertyName}`, true, false);
+    validateMetrics([newMetric]);
   };
 
   const deleteMetricItem = (option): void => {
@@ -180,11 +181,13 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
     setFieldValue(`data.${propertyName}`, newMetrics, false);
     setFieldTouched(`data.${propertyName}`, true, false);
+    validateMetrics(newMetrics);
   };
 
   const changeMetrics = (_, newMetrics: Array<SelectEntry> | null): void => {
     setFieldValue(`data.${propertyName}`, newMetrics || [], false);
     setFieldTouched(`data.${propertyName}`, true, false);
+    validateMetrics(newMetrics);
   };
 
   const getMetricOptionDisabled = (metricOption): boolean => {

@@ -7,8 +7,16 @@ import { Method, QueryProvider } from '@centreon/ui';
 
 import { metricsEndpoint } from '../../../api/endpoints';
 import { WidgetDataResource } from '../../../models';
-import { labelSelectMetric } from '../../../../translatedLabels';
+import {
+  labelPleaseSelectAMetric,
+  labelSelectMetric,
+  labelYouMustAddMoreResources
+} from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import {
+  singleHostPerMetricAtom,
+  singleMetricSelectionAtom
+} from '../../../atoms';
 
 import Metrics from './Metrics';
 
@@ -30,8 +38,8 @@ const defaultResources: Array<WidgetDataResource> = [
   }
 ];
 
+const store = createStore();
 const initializeComponent = ({ metrics, resources }): void => {
-  const store = createStore();
   store.set(hasEditPermissionAtom, true);
   store.set(isEditingAtom, true);
 
@@ -108,6 +116,36 @@ describe('Metrics', () => {
 
     cy.findByTestId('CancelIcon').click();
     cy.findByText('rtmax (ms) / 2').should('not.exist');
+
+    cy.contains(labelPleaseSelectAMetric).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays an error message when the corresponding atom is set and the selected metric is available on several resources', () => {
+    store.set(singleHostPerMetricAtom, true);
+
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.findByText('rtmax (ms) / Includes 2 resources').click();
+
+    cy.contains(labelYouMustAddMoreResources).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a single autocomplete when the corresponding atom is set', () => {
+    store.set(singleHostPerMetricAtom, false);
+    store.set(singleMetricSelectionAtom, true);
+
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.findByText('rtmax (ms) / Includes 2 resources').click();
+
+    cy.findByLabelText(labelSelectMetric).should(
+      'have.value',
+      'rtmax (ms) / Includes 2 resources'
+    );
 
     cy.makeSnapshot();
   });
