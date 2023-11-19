@@ -53,6 +53,7 @@ interface UseMetricsOnlyState {
   getMultipleOptionLabel: (metric) => string;
   getOptionLabel: (metric) => string;
   hasNoResources: () => boolean;
+  hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   isTouched?: boolean;
@@ -248,6 +249,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     getMultipleOptionLabel,
     getOptionLabel,
     hasNoResources,
+    hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
     isTouched,

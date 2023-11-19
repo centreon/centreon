@@ -12,6 +12,7 @@ import {
   labelAvailable,
   labelMetrics,
   labelSelectMetric,
+  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
@@ -42,7 +43,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     getMultipleOptionLabel,
     deleteMetricItem,
     error,
-    isTouched
+    isTouched,
+    hasReachedTheLimitOfUnits
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -66,6 +68,11 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         {error && isTouched && (
           <Typography className={classes.warningText} variant="body2">
             {error}
+          </Typography>
+        )}
+        {hasReachedTheLimitOfUnits && (
+          <Typography className={classes.warningText} variant="body2">
+            {t(labelYouCanSelectUpToTwoMetricUnits)}
           </Typography>
         )}
       </div>
