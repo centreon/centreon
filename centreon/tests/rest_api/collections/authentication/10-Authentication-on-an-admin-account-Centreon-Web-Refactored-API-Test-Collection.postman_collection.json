@@ -672,7 +672,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"old_password\": \"Centreon!2021\",\n \"new_password\": \"{{currentPassword}}\"\n}",
+							"raw": "{\n \"old_password\": \"{{api_password}}\",\n \"new_password\": \"{{currentPassword}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
