@@ -2,10 +2,11 @@ import { MemoizedListing as TokenListing } from '@centreon/ui';
 
 import { useColumns } from './componentsColumn/useColumns';
 import { useTokenListing } from './useTokenListing';
+import Actions from './actions';
 
 const Listing = (): JSX.Element | null => {
   const { dataListing, changePage, changeLimit, onSort, sortField, sortOrder } =
-    useTokenListing();
+    useTokenListing({});
 
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
@@ -17,6 +18,7 @@ const Listing = (): JSX.Element | null => {
   return (
     <div style={{ height: 1000, margin: '54px 24px 0px 24px' }}>
       <TokenListing
+        actions={<Actions />}
         columnConfiguration={{ selectedColumnIds, sortable: true }}
         columns={columns}
         currentPage={(dataListing?.page || 1) - 1}

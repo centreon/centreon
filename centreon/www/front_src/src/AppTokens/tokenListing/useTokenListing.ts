@@ -7,11 +7,17 @@ import { useFetchQuery } from '@centreon/ui';
 import { listTokensDecoder } from '../api/decoder';
 import { buildListTokensEndpoint } from '../api/endpoints';
 
-import { currentFilterAtom } from './filter/atoms';
-import { Fields, SortOrder } from './filter/models';
 import { DataListing, UseTokenListing } from './models';
+import { currentFilterAtom } from './actions/search/filter/atoms';
+import { Fields, SortOrder } from './actions/search/filter/models';
 
-export const useTokenListing = (): UseTokenListing => {
+interface Props {
+  refresh?: boolean;
+}
+
+export const useTokenListing = ({
+  refresh = false
+}: Props): UseTokenListing => {
   const [dataListing, setDataListing] = useState<DataListing | undefined>();
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
 
@@ -26,7 +32,8 @@ export const useTokenListing = (): UseTokenListing => {
       'listTokens',
       currentFilter.limit,
       currentFilter.page,
-      currentFilter.sort
+      currentFilter.sort,
+      refresh
     ],
     queryOptions: {
       suspense: false
