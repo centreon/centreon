@@ -14,9 +14,6 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
-depends:
-  - centreon-common
-
 contents:
   - dst: "/etc/centreon-gorgone"
     type: dir
@@ -85,10 +82,6 @@ contents:
     dst: "/etc/logrotate.d/gorgoned"
     type: config|noreplace
 
-  - src: "../gorgone"
-    dst: "${PERL_VENDORLIB}/gorgone"
-    expand: true
-
   - src: "../gorgoned"
     dst: "/usr/bin/"
 
@@ -120,6 +113,7 @@ scripts:
 overrides:
   rpm:
     depends:
+      - centreon-common
       - bzip2
       - perl-Libssh-Session >= 0.8
       - perl-CryptX
@@ -153,6 +147,7 @@ overrides:
       - tar
   deb:
     depends:   # those dependencies are taken from centreon-gorgone/packaging/debian/control
+      - centreon-common
       - libdatetime-perl
       - libtime-parsedate-perl
       - libtry-tiny-perl
