@@ -18344,3 +18344,16 @@ msgstr "Gestion de l'accès aux ressources"
 
 msgid "Refine filter"
 msgstr "Affiner le filtre"
+
+
+msgid "Huge"
+msgstr "Très grande"
+
+msgid "Large"
+msgstr "Grande"
+
+msgid "Normal"
+msgstr "Normale"
+
+msgid "Small"
+msgstr "Petite"
