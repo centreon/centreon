@@ -1456,7 +1456,7 @@
 			]
 		},
 		{
-			"name": "Admin",
+			"name": "By Admin",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -1607,7 +1607,7 @@
 					"response": []
 				},
 				{
-					"name": "Create token for myself",
+					"name": "Create token by admin for admin",
 					"event": [
 						{
 							"listen": "test",
@@ -1619,6 +1619,22 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"Token1Name\", response.name);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"name\":pm.collectionVariables.get(\"Token1Name\"),\r",
+									"        \"expiration_date\": \"2025-12-31T00:00:00+01:00\",\r",
+									"        \"is_revoked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.user).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Admin_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"Admin_Name\")\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.creator).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Admin_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"Admin_Name\")\r",
+									"    });\r",
 									"});\r",
 									""
 								],
@@ -1655,7 +1671,81 @@
 					"response": []
 				},
 				{
-					"name": "Create token for someone else",
+					"name": "List tokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of token has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The tokens retrieved are listed with expected informations\", function() {\r",
+									"    // Check the number of tokens (1)\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    // Check the properties of each token\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"Token1Name\")}).\r",
+									"            and.to.include({expiration_date:\"2025-12-31T00:00:00+01:00\"}).\r",
+									"            and.to.include({is_revoked:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[0].user).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"    \r",
+									"    pm.expect(responseJson.result[0].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true,
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"tokens"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"token_name\":\"ASC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create token by admin for User_Menu",
 					"event": [
 						{
 							"listen": "test",
@@ -1667,6 +1757,22 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"Token2Name\", response.name);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"name\":pm.collectionVariables.get(\"Token2Name\"),\r",
+									"        \"expiration_date\": \"2099-12-31T00:00:00+01:00\",\r",
+									"        \"is_revoked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.user).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Admin_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"Admin_Name\")\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.creator).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Name\")\r",
+									"    });\r",
 									"});\r",
 									""
 								],
@@ -1703,7 +1809,91 @@
 					"response": []
 				},
 				{
-					"name": "Create token for someone else",
+					"name": "List tokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of token has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The tokens retrieved are listed with expected informations\", function() {\r",
+									"    // Check the number of tokens (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each token\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"Token1Name\")}).\r",
+									"            and.to.include({expiration_date:\"2025-12-31T00:00:00+01:00\"}).\r",
+									"            and.to.include({is_revoked:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[0].user).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"    \r",
+									"    pm.expect(responseJson.result[0].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"Token2Name\")}).\r",
+									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
+									"            and.to.include({is_revoked:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"User_Menu_Name\")});\r",
+									"    \r",
+									"    pm.expect(responseJson.result[1].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true,
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"tokens"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"token_name\":\"ASC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create token by admin for User_Menu_Action",
 					"event": [
 						{
 							"listen": "test",
@@ -1715,6 +1905,22 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"Token3Name\", response.name);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"name\":pm.collectionVariables.get(\"Token3Name\"),\r",
+									"        \"expiration_date\": \"2099-12-31T00:00:00+01:00\",\r",
+									"        \"is_revoked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.user).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Action_Name\")\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.creator).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Admin_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"Admin_Name\")\r",
+									"    });\r",
 									"});\r",
 									""
 								],
@@ -1745,6 +1951,245 @@
 							"path": [
 								"administration",
 								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List tokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of token has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The tokens retrieved are listed with expected informations\", function() {\r",
+									"    // Check the number of tokens (3)\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    // Check the properties of each token\r",
+									"    pm.expect(responseJson.result[0]).to.include({name:pm.collectionVariables.get(\"Token1Name\")}).\r",
+									"            and.to.include({expiration_date:\"2025-12-31T00:00:00+01:00\"}).\r",
+									"            and.to.include({is_revoked:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[0].user).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"    \r",
+									"    pm.expect(responseJson.result[0].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"Token2Name\")}).\r",
+									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
+									"            and.to.include({is_revoked:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"User_Menu_Name\")});\r",
+									"    \r",
+									"    pm.expect(responseJson.result[1].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"Token3Name\")}).\r",
+									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
+									"            and.to.include({is_revoked:false});\r",
+									"\r",
+									"    pm.expect(responseJson.result[1].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"User_Menu_Action_Name\")});\r",
+									"    \r",
+									"    pm.expect(responseJson.result[1].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true,
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"tokens"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"token_name\":\"ASC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create token with duplicated name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The token has not been created, because the name already exist.\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"\r",
+									"    var response = pm.response.json();\r",
+									"    pm.expect(response.message).to.include(\r",
+									"        \"The token name '\" + pm.collectionVariables.get(\"Token3Name\") +\"' already exists\"\r",
+									"    );\r",
+									"\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-admin-for-user-with-menu-action\",\r\n  \"user_id\": {{User_Menu_Action_Id}},\r\n  \"expiration_date\": \"2099-12-31T00:00:00+02:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/tokens",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create token without name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The token has not been created, because the name already exist.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    var response = pm.response.json();\r",
+									"    pm.expect(response.message).to.include(\"[NewToken::name] The string is empty, but non empty string was expected\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"expiration_date\": \"2099-12-31T00:00:00+02:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/tokens",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete someone else token without complete endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The token with name '\" + pm.collectionVariables.get(\"Token3Name\") + \"has not been deleted, because the endpoint is not complete.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"\r",
+									"    var response = pm.response.json();\r",
+									"    pm.expect(response.message).to.include(\"Token not found\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/tokens/{{Token3Name}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"tokens",
+								"{{Token3Name}}"
 							]
 						}
 					},
@@ -1882,7 +2327,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user and clear collection variables",
+					"name": "Logout from admin user",
 					"event": [
 						{
 							"listen": "test",
@@ -1962,7 +2407,7 @@
 			]
 		},
 		{
-			"name": "User with Menu",
+			"name": "By User with Menu",
 			"item": [
 				{
 					"name": "Login with user with menu",
@@ -2013,7 +2458,7 @@
 					"response": []
 				},
 				{
-					"name": "Create token",
+					"name": "Create token by User_Menu for User_Menu",
 					"event": [
 						{
 							"listen": "test",
@@ -2025,6 +2470,22 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"Token4Name\", response.name);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"name\":pm.collectionVariables.get(\"Token4Name\"),\r",
+									"        \"expiration_date\": \"3051-06-02T00:00:00+02:00\",\r",
+									"        \"is_revoked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.user).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Name\")\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.creator).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Name\")\r",
+									"    });\r",
 									"});\r",
 									""
 								],
@@ -2187,7 +2648,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete my token",
+					"name": "Deletion of User_Menu token by User_Menu",
 					"event": [
 						{
 							"listen": "test",
@@ -2232,7 +2693,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete my token",
+					"name": "Deletion Admin token without manage tokens rights",
 					"event": [
 						{
 							"listen": "test",
@@ -2431,7 +2892,7 @@
 			]
 		},
 		{
-			"name": "User with No Access",
+			"name": "By User with No Access",
 			"item": [
 				{
 					"name": "Login with user with no access",
@@ -2708,7 +3169,7 @@
 			]
 		},
 		{
-			"name": "User with Menu & Action",
+			"name": "By User with Menu & Action",
 			"item": [
 				{
 					"name": "Login with user with menu & action",
@@ -2759,7 +3220,7 @@
 					"response": []
 				},
 				{
-					"name": "Create a token for me",
+					"name": "Create a token by User_Menu_Action for User_Menu_Action",
 					"event": [
 						{
 							"listen": "test",
@@ -2771,6 +3232,22 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"Token5Name\", response.name);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"name\":pm.collectionVariables.get(\"Token5Name\"),\r",
+									"        \"expiration_date\": \"2024-08-27T00:00:00+02:00\",\r",
+									"        \"is_revoked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.user).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Action_Name\")\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.creator).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Action_Name\")\r",
+									"    });\r",
 									"});\r",
 									""
 								],
@@ -2861,7 +3338,7 @@
 					"response": []
 				},
 				{
-					"name": "Create a token for someone else",
+					"name": "Create a token bu User_Menu_Action for Admin",
 					"event": [
 						{
 							"listen": "test",
@@ -2873,6 +3350,22 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"Token6Name\", response.name);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"name\":pm.collectionVariables.get(\"Token6Name\"),\r",
+									"        \"expiration_date\": \"9999-12-02T00:00:00+01:00\",\r",
+									"        \"is_revoked\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.user).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Admin_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"Admin_Name\")\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(response.creator).to.include({\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Action_Name\")\r",
+									"    });\r",
 									"});\r",
 									""
 								],
@@ -3348,14 +3841,6 @@
 			"value": ""
 		},
 		{
-			"key": "Token4Name",
-			"value": ""
-		},
-		{
-			"key": "Token1Name",
-			"value": ""
-		},
-		{
 			"key": "api_login_user_menu_action",
 			"value": ""
 		},
@@ -3389,6 +3874,14 @@
 		},
 		{
 			"key": "api_password_user_Nothing_Token",
+			"value": ""
+		},
+		{
+			"key": "Token1Name",
+			"value": ""
+		},
+		{
+			"key": "Token3Name",
 			"value": ""
 		}
 	]
