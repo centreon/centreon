@@ -28,7 +28,6 @@ import {
   labelResourceType,
   labelSelectAResource,
   labelSelectAWidgetType,
-  labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
   labelWidgetType,
   labelCancel,
