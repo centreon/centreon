@@ -269,6 +269,7 @@ export enum PatternType {
   equals = '',
   startsWith = '^'
 }
+
 interface Dashboard {
   description?: string;
   name: string;
