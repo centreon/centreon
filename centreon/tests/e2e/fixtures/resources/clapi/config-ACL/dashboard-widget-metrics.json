@@ -58,16 +58,5 @@
         "action": "SETCONTACT",
         "object": "ACLGROUP",
         "values": "name-administrator-ACLGROUP;user-dashboard-administrator;"
-    },
-    {
-        "action": "ADD",
-        "object": "HOST",
-        "values": "Centreon-Server;Monitoring Server host;127.0.0.1;generic-host;Central;Linux-Servers"
-    },
-    {
-        "action": "ADD",
-        "object": "HOST",
-        "values": "Centreon-Server;Monitoring Server host;127.0.0.1;generic-host;Central;Linux-Servers"
     }
-
 ]

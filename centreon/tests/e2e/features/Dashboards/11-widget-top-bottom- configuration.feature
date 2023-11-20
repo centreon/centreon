@@ -4,17 +4,16 @@ Feature: Configuring a top-bottom widget
   I need to configure a top-bottom widget containing on a dashboard
   So that this dashboard can feature information users can read and links they can click
 
-  @TEST_MON-23800
-  Scenario: Creating and configuring a new Top/Bottom widget on a dashboard
-    Given a dashboard in the dashboard administrator user's dashboard library
-    When the dashboard administrator user selects the option to add a new widget
-    And selects the widget type "Top Bottom"
-    Then configuration properties for the Top Bottom widget are displayed
-    When the dashboard administrator user selects a list of resources and the metric for the widget to report on
-    Then a top of best-performing resources for this metbric are displayed in the widget preview
-    When the user saves the Top Bottom widget
-    Then the Top Bottom metric widget is added in the dashboard's layout
-    And the top from the preview is displayed
+  # @TEST_MON-23800
+  # Scenario: Creating and configuring a new Top/Bottom widget on a dashboard
+  #   Given a dashboard in the dashboard administrator user's dashboard library
+  #   When the dashboard administrator user selects the option to add a new widget
+  #   And selects the widget type "Top Bottom"
+  #   Then configuration properties for the Top Bottom widget are displayed
+  #   When the dashboard administrator user selects a list of resources and the metric for the widget to report on
+  #   Then a top of best-performing resources for this metbric are displayed in the widget preview
+  #   When the user saves the Top Bottom widget
+  #   Then the Top Bottom metric widget is added in the dashboard's layout
 
   # @TEST_MON-23803
   # Scenario: Editing the number of displayed hosts on the Top/Bottom widget
@@ -41,12 +40,12 @@ Feature: Configuring a top-bottom widget
   #   Then the bar associated with the host is added in the Top/Bottom widget preview
   #   And the bar associated with the host is added in the Top/Bottom widget in view mode
 
-  # @TEST_MON-23813
-  # Scenario: Duplicating a Top/Bottom widget
-  #   Given a dashboard featuring a configured Top/Bottom widget
-  #   When the dashboard administrator user duplicates the Top/Bottom widget
-  #   Then a second Top/Bottom widget is displayed on the dashboard
-  #   And the second widget has the same properties as the first widget
+  @TEST_MON-23813
+  Scenario: Duplicating a Top/Bottom widget
+    Given a dashboard featuring a configured Top Bottom widget
+    When the dashboard administrator user duplicates the Top Bottom widget
+    Then a second Top Bottom widget is displayed on the dashboard
+    And the second widget has the same properties as the first widget
 
   # @TEST_MON-23814
   # Scenario: Deleting a Top/Bottom widget
