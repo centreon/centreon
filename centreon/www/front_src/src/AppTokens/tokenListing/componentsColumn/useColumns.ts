@@ -7,7 +7,7 @@ import { selectedColumnIdsAtom } from '../atoms';
 import ActionsColumn from './ActionsColumn';
 import StatusColumn from './StatusColumn';
 import UserColumn from './UserColumn';
-import { Columns, UseColumns } from './models';
+import { Columns, UseColumns, defaultSelectedColumnIds } from './models';
 
 const columns: Array<Column> = [
   {
@@ -73,5 +73,9 @@ export const useColumns = (): UseColumns => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
-  return { columns, onSelectColumns, selectedColumnIds };
+  const onResetColumns = (): void => {
+    setSelectedColumnIds(defaultSelectedColumnIds);
+  };
+
+  return { columns, onResetColumns, onSelectColumns, selectedColumnIds };
 };

@@ -7,7 +7,8 @@ const Listing = (): JSX.Element | null => {
   const { dataListing, changePage, changeLimit, onSort, sortField, sortOrder } =
     useTokenListing();
 
-  const { columns, selectedColumnIds, onSelectColumns } = useColumns();
+  const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
+    useColumns();
 
   if (dataListing?.isError) {
     return null;
@@ -16,7 +17,6 @@ const Listing = (): JSX.Element | null => {
   return (
     <div style={{ height: 1000, margin: '54px 24px 0px 24px' }}>
       <TokenListing
-        checkable
         columnConfiguration={{ selectedColumnIds, sortable: true }}
         columns={columns}
         currentPage={(dataListing?.page || 1) - 1}
@@ -28,6 +28,7 @@ const Listing = (): JSX.Element | null => {
         totalRows={dataListing?.total}
         onLimitChange={changeLimit}
         onPaginate={changePage}
+        onResetColumns={onResetColumns}
         onSelectColumns={onSelectColumns}
         onSort={onSort}
       />
