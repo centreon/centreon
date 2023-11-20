@@ -64,7 +64,7 @@ overrides:
 
 deb:
   breaks:
-      - centreon-gorgone (<< ${MAJOR_VERSION}~)
+    - centreon-gorgone (<< ${MAJOR_VERSION}~)
 
 rpm:
   summary: centreon gorgone packaging to nfpm
