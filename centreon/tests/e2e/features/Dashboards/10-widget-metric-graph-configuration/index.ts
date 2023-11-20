@@ -367,7 +367,7 @@ When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.contains('pl (%) / Includes 1 resources').realClick();
   }
 );
 
@@ -383,7 +383,10 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.get('p[aria-label="Centreon-Server: Packet Loss (%)"]').should('exist');
+    cy.getByLabel({
+      label: 'Centreon-Server: Packet Loss (%)',
+      tag: 'p'
+    }).should('exist');
   }
 );
 
