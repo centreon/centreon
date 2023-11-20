@@ -6,6 +6,7 @@ import { useStyles } from './Menu.styles';
 
 type MenuItemProps = {
   children?: ReactNode;
+  className?: string;
   isActive?: boolean;
   isDisabled?: boolean;
   onClick?: () => void;
@@ -15,13 +16,14 @@ const MenuItem = ({
   children,
   onClick,
   isActive = false,
-  isDisabled = false
+  isDisabled = false,
+  className
 }: MenuItemProps): ReactElement => {
-  const { classes } = useStyles();
+  const { cx, classes } = useStyles();
 
   return (
     <MuiMenuItem
-      className={classes.menuItem}
+      className={cx(classes.menuItem, className)}
       data-is-active={isActive}
       data-is-disabled={isDisabled}
       disabled={isDisabled}
