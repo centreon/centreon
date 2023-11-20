@@ -215,7 +215,7 @@ jobs:
     needs: [build]
     name: Run a sandbox scan
     # only stable and unstable maintenances branches will produce a report
-    if: needs.build.outputs.development_stage != 'Deprecated'
+    if: needs.build.outputs.development_stage == 'Deprecated'
     runs-on: ubuntu-latest
 
     steps:
