@@ -2,8 +2,8 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import { PatternType } from '../../../support/commands';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
+import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
 
 before(() => {
   cy.startWebContainer();
@@ -37,11 +37,6 @@ before(() => {
     method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
-  cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
-    loginViaApi: true
-  });
-  cy.logoutViaAPI();
 });
 
 beforeEach(() => {
@@ -152,16 +147,14 @@ after(() => {
 //   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
 // });
 
-Given(
-  "a dashboard featuring a configured Top Bottom widget",
-  () => {
-    cy.insertDashboard({ ...dashboards.default });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
-  }
-);
+Given('a dashboard featuring a configured Top Bottom widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+    cy.wait(30000)
+});
