@@ -95,7 +95,10 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
   {
     modules: JsonDecoder.dictionary(versionDecoder, 'Modules'),
     web: versionDecoder,
-    widgets: JsonDecoder.dictionary(versionDecoder, 'Widgets')
+    widgets: JsonDecoder.dictionary(
+      JsonDecoder.nullable(versionDecoder),
+      'Widgets'
+    )
   },
   'Platform versions',
   {

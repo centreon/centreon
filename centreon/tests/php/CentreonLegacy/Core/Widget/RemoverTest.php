@@ -148,8 +148,9 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
 
     public function testRemove()
     {
-        $query = 'DELETE FROM widget_models ' .
-            'WHERE directory = :directory ';
+        $query = 'DELETE FROM widget_models '
+            . 'WHERE directory = :directory '
+            . 'AND is_internal = FALSE ';
         $this->db->addResultSet(
             $query,
             array()

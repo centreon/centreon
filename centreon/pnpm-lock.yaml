@@ -862,6 +862,9 @@ importers:
       cypress:
         specifier: ^13.5.0
         version: 13.5.0
+      cypress-real-events:
+        specifier: ^1.11.0
+        version: 1.11.0(cypress@13.5.0)
       cypress-wait-until:
         specifier: ^2.0.1
         version: 2.0.1
@@ -11373,6 +11376,14 @@ packages:
     resolution: {integrity: sha512-QtTJcifOVwwbeMP3hsOzQOKf3EqKsLyjtg9ZAGlYDntrCRXrsQhe4ZQGIthRMRLKpnP6/tTk6G0gJ2sZUfRliQ==}
     dependencies:
       ally.js: 1.4.1
+    dev: true
+
+  /cypress-real-events@1.11.0(cypress@13.5.0):
+    resolution: {integrity: sha512-4LXVRsyq+xBh5TmlEyO1ojtBXtN7xw720Pwb9rEE9rkJuXmeH3VyoR1GGayMGr+Itqf11eEjfDewtDmcx6PWPQ==}
+    peerDependencies:
+      cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x || ^13.x
+    dependencies:
+      cypress: 13.5.0
     dev: true
 
   /cypress-terminal-report@5.3.9(cypress@13.5.0):

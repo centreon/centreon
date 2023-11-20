@@ -7,6 +7,8 @@ import {
   RoleResource
 } from '../AccessRights.resource';
 
+faker.seed(42);
+
 export const rolesMock = (): Array<RoleResource> => [
   { role: 'viewer' },
   { role: 'editor' }
