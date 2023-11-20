@@ -20,6 +20,6 @@ systemctl stop centengine
 systemctl stop cbd
 service mysql stop
 
-rm -f /tmp/gorgone/*.ipc /val/log/centreon*/*.log
+rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
 
 sleep 5
