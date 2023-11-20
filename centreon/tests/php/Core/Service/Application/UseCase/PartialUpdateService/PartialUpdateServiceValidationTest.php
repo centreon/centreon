@@ -56,7 +56,7 @@ beforeEach(closure: function (): void {
     );
 });
 
-it('should raise an exception when the new name already exist', function (): void {
+it('should raise an exception when the new name already exists', function (): void {
     $serviceNamesByHost = new ServiceNamesByHost(hostId: 1, servicesName: ['new_name']);
     $request = new PartialUpdateServiceRequest();
     $request->hostId = 1;
@@ -233,7 +233,7 @@ void {
     ServiceException::idsDoNotExist('service_categories', [1])->getMessage()
 );
 
-it('should raise an exception when the service groups IDs do not exist, as an administrator', function (): void {
+it('should raise an exception when the service group IDs do not exist, as an administrator', function (): void {
     $serviceGroupIds = [1, 2, 3];
 
     $this->contact
@@ -252,7 +252,7 @@ it('should raise an exception when the service groups IDs do not exist, as an ad
     ServiceException::idsDoNotExist('service_groups', [1, 3])->getMessage()
 );
 
-it('should raise an exception when the service groups IDs do not exist, as a non-administrator', function (): void {
+it('should raise an exception when the service group IDs do not exist, as a non-administrator', function (): void {
     $serviceGroupIds = [1, 2, 3];
 
     $this->contact
