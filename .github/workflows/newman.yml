@@ -371,6 +371,10 @@ jobs:
               exit 1
           fi
 
+      - name: Display container logs
+        if: failure()
+        run: docker logs $CONTAINER_NAME
+
       - name: Upload HTML Reports
         if: failure()
         uses: actions/upload-artifact@v3

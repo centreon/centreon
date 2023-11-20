@@ -1,13 +1,11 @@
-import { useState } from 'react';
-
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { createCommand, LexicalCommand } from 'lexical';
 
 import MacrosIcon from '@mui/icons-material/TerminalOutlined';
 
-import { ActionsList, IconButton, PopoverMenu } from '../../..';
+import { Menu } from '../../../components';
 
-import { useStyles } from '.';
+import { useStyles } from './ToolbarPlugin.styles';
 
 const LowPriority = 1;
 
@@ -27,15 +25,12 @@ export const standardMacros = [
 
 const MacrosButton = ({ disabled }: Props): JSX.Element => {
   const { classes } = useStyles();
-  const [arMacrosDiplayed, setAreMacrosDiplayed] = useState(false);
 
   const [editor] = useLexicalComposerContext();
 
   const INSERT_MACROS_COMMAND: LexicalCommand<string> = createCommand();
 
-  const onClick = (e): void => {
-    const macro = e.target.id || e.target.textContent.trim();
-
+  const onClick = (macro): void => {
     editor.dispatchCommand(INSERT_MACROS_COMMAND, macro);
   };
 
@@ -53,38 +48,27 @@ const MacrosButton = ({ disabled }: Props): JSX.Element => {
     LowPriority
   );
 
-  const displayMacros = (): void => {
-    setAreMacrosDiplayed(true);
-  };
-
-  const actions = standardMacros.map((macro) => ({
-    label: macro,
-    onClick
-  }));
-
   return (
-    <PopoverMenu
-      icon={
-        <IconButton
-          ariaLabel="Macros"
-          className={classes.macrosButton}
-          disabled={disabled}
-          title="Macros"
-          tooltipPlacement="top"
-          onClick={displayMacros}
-        >
-          <MacrosIcon />
-        </IconButton>
-      }
-    >
-      {(): JSX.Element => (
-        <div>
-          {arMacrosDiplayed && (
-            <ActionsList actions={actions} listItemClassName={classes.macros} />
-          )}
-        </div>
-      )}
-    </PopoverMenu>
+    <Menu>
+      <Menu.Button
+        ariaLabel="Macros"
+        className={classes.button}
+        disabled={disabled}
+      >
+        <MacrosIcon />
+      </Menu.Button>
+      <Menu.Items className={classes.menuItems}>
+        {standardMacros.map((name) => (
+          <Menu.Item
+            className={classes.menuItem}
+            key={name}
+            onClick={(): void => onClick(name)}
+          >
+            {name}
+          </Menu.Item>
+        ))}
+      </Menu.Items>
+    </Menu>
   );
 };
 
