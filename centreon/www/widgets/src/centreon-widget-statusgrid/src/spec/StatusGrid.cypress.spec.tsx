@@ -165,7 +165,7 @@ describe('View by host', () => {
       cy.get('[data-status="unknown"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(240, 233, 248)');
+        .should('have.css', 'background-color', 'rgb(229, 216, 243)');
 
       cy.makeSnapshot();
     });

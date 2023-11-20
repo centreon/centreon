@@ -65,7 +65,7 @@ export const services = [
     status: 'ok'
   },
   {
-    color: 'rgb(240, 233, 248)',
+    color: 'rgb(229, 216, 243)',
     eq: 0,
     name: 'Disk-/',
     status: 'unknown'
@@ -77,7 +77,7 @@ export const services = [
     status: 'unknown'
   },
   {
-    color: 'rgb(245, 241, 233)',
+    color: 'rgb(223, 210, 185)',
     eq: 2,
     name: 'Memory',
     status: 'unknown'
