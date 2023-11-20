@@ -18336,6 +18336,12 @@ msgstr "Le jeton ne peut pas être vide"
 msgid "This operation requires an admin user"
 msgstr "Cette opération requiert un utilisateur admin"
 
+msgid "Resource access rules"
+msgstr "Règles d'accès aux ressources"
+
+msgid "Resource Access Management"
+msgstr "Gestion de l'accès aux ressources"
+
 msgid "Refine filter"
 msgstr "Affiner le filtre"
 
@@ -18362,3 +18368,15 @@ msgstr " Accès non autorisé"
 
 msgid "Dashboard not shared: [%d]"
 msgstr "Tablaux de bord non partagés: [%d]"
+
+msgid "Huge"
+msgstr "Très grande"
+
+msgid "Large"
+msgstr "Grande"
+
+msgid "Normal"
+msgstr "Normale"
+
+msgid "Small"
+msgstr "Petite"

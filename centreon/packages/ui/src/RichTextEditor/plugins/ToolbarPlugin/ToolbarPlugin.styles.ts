@@ -1,22 +1,32 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useBlockButtonsStyles = makeStyles()((theme) => ({
-  autocomplete: {
-    width: theme.spacing(17)
-  }
-}));
+import { alpha } from '@mui/system';
 
-export const useAlignPickerStyles = makeStyles()((theme) => ({
+export const useStyles = makeStyles()((theme) => ({
   button: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'row',
-    gap: theme.spacing(1)
+    color: theme.palette.text.primary
   },
-  option: {
-    alignItems: 'center',
+  buttonSelected: {
+    backgroundColor: alpha(
+      theme.palette.primary.main,
+      theme.palette.action.activatedOpacity
+    )
+  },
+  menu: {
     display: 'flex',
-    flexDirection: 'row',
-    gap: theme.spacing(2)
+    flexDirection: 'row'
+  },
+  menuItem: {
+    '&, &.MuiMenuItem-root': {
+      fontSize: theme.typography.body2.fontSize
+    }
+  },
+  menuItems: {
+    '& > .MuiPaper-root.MuiMenu-paper': {
+      minWidth: 0
+    },
+    '& ul, & ul.MuiMenu-list': {
+      padding: 0
+    }
   }
 }));
