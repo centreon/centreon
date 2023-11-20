@@ -60,7 +60,7 @@ overrides:
     depends:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
     replaces:
-      - centreon-gorgone (<< ${MAJOR_VERSION}~)
+      - centreon-gorgone (<< 24.04~)
 
 deb:
   breaks:

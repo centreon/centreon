@@ -184,7 +184,7 @@ overrides:
       - libev-perl
       - libzmq-ffi-perl
     suggests:
-      - centreon-gorgone-centreon-config
+      - centreon-gorgone-centreon-config (>= 24.04~)
 
 rpm:
   summary: centreon gorgone packaging to nfpm
