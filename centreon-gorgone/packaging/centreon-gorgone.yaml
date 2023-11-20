@@ -69,11 +69,6 @@ contents:
     file_info:
       mode: 0755
 
-  - dst: "${PERL_VENDORLIB}/gorgone"
-    type: dir
-    file_info:
-      mode: 0775
-
   - src: "../config/systemd/gorgoned-sysconfig"
     dst: "/etc/sysconfig/gorgoned"
     type: config|noreplace
@@ -84,6 +79,10 @@ contents:
 
   - src: "../gorgoned"
     dst: "/usr/bin/"
+
+  - src: "../gorgone"
+    dst: "${PERL_VENDORLIB}/gorgone"
+    expand: true
 
   - src: "../contrib/gorgone_config_init.pl"
     dst: "/usr/local/bin/"
