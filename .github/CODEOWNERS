@@ -44,6 +44,6 @@ tsconfig.json           @centreon/owners-react
 **/tests/e2e/**         @centreon/owners-cypress-e2e
 **/cypress/**           @centreon/owners-cypress-e2e
 
-**/features/            @centreon/owners-gherkin
+*.feature               @centreon/owners-gherkin
 
 *.py                    @centreon/owners-python
