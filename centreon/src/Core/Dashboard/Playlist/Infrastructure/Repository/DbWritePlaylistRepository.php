@@ -36,6 +36,9 @@ class DbWritePlaylistRepository extends AbstractRepositoryRDB implements WritePl
         $this->db = $db;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function add(NewPlaylist $playlist): int
     {
         $query = <<<'SQL'
