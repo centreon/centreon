@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Platform\Application\UseCase\UpdateVersions;
 
 use Centreon\Domain\Log\LoggerTrait;
+use CentreonModule\Infrastructure\Service\CentreonModuleService;
+use CentreonModule\ServiceProvider;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -33,10 +35,14 @@ use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\Validator\RequirementValidatorsInterface;
+use Pimple\Container;
 
 final class UpdateVersions
 {
     use LoggerTrait;
+
+    /** CentreonModuleService $moduleService */
+    private CentreonModuleService $moduleService;
 
     /**
      * @param RequirementValidatorsInterface $requirementValidators
@@ -44,6 +50,7 @@ final class UpdateVersions
      * @param ReadVersionRepositoryInterface $readVersionRepository
      * @param ReadUpdateRepositoryInterface $readUpdateRepository
      * @param WriteUpdateRepositoryInterface $writeUpdateRepository
+     * @param Container $dependencyInjector
      */
     public function __construct(
         private RequirementValidatorsInterface $requirementValidators,
@@ -51,7 +58,9 @@ final class UpdateVersions
         private ReadVersionRepositoryInterface $readVersionRepository,
         private ReadUpdateRepositoryInterface $readUpdateRepository,
         private WriteUpdateRepositoryInterface $writeUpdateRepository,
+        Container $dependencyInjector,
     ) {
+        $this->moduleService = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
     }
 
     /**
@@ -213,6 +222,13 @@ final class UpdateVersions
         $this->info('Running post update actions');
 
         try {
+            $widgets = $this->moduleService->getList(null, true, null, ['widget']);
+            foreach ($widgets['widget'] as $widget) {
+                if ($widget->isInternal()) {
+                    $this->moduleService->update($widget->getId(), 'widget');
+                }
+            }
+
             $this->writeUpdateRepository->runPostUpdate($currentVersion);
         } catch (\Throwable $exception) {
             throw UpdateVersionsException::errorWhenApplyingPostUpdate($exception);

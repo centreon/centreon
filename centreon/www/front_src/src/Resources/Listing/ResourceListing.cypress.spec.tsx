@@ -664,6 +664,8 @@ describe('Notification column', () => {
     );
     interceptRequestsAndMountBeforeEach();
 
+    cy.waitFiltersAndListingRequests();
+
     cy.contains('E0').should('be.visible');
 
     cy.findByTestId('Add columns').click();
@@ -680,10 +682,13 @@ describe('Notification column', () => {
     );
     interceptRequestsAndMountBeforeEach();
 
+    cy.waitFiltersAndListingRequests();
+
     cy.contains('E0').should('be.visible');
 
     cy.findByTestId('Add columns').click();
 
+    cy.findByText('Severity (S)').should('exist');
     cy.findByText('Notification (Notif)').should('not.exist');
 
     cy.makeSnapshot();

@@ -211,6 +211,10 @@ final class AddHostController extends AbstractController
              *     alias?: string,
              *     snmp_version?: string,
              *     snmp_community?: string,
+             *     icon_id?: null|int,
+             *     max_check_attempts?: null|int,
+             *     normal_check_interval?: null|int,
+             *     retry_check_interval?: null|int,
              *     note_url?: string,
              *     note?: string,
              *     action_url?: string,
@@ -246,6 +250,10 @@ final class AddHostController extends AbstractController
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
             $dto->isActivated = $data['is_activated'] ?? true;
+            $dto->maxCheckAttempts = $data['max_check_attempts'] ?? null;
+            $dto->normalCheckInterval = $data['normal_check_interval'] ?? null;
+            $dto->retryCheckInterval = $data['retry_check_interval'] ?? null;
+            $dto->iconId = $data['icon_id'] ?? null;
 
             $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {

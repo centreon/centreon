@@ -12,6 +12,7 @@ bin/centreon_health                                             usr/share/centre
 bin/centreon_trap_send                                          usr/share/centreon/bin
 bin/changeRrdDsName.pl                                          usr/share/centreon/bin
 bin/console                                                     usr/share/centreon/bin
+bin/migration                                                   usr/share/centreon/bin
 bin/export-mysql-indexes                                        usr/share/centreon/bin
 bin/generateSqlLite                                             usr/share/centreon/bin
 bin/import-mysql-indexes                                        usr/share/centreon/bin

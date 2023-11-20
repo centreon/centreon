@@ -38,6 +38,8 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
 
+use CentreonModule\ServiceProvider;
+
 $return = array(
     'id' => 'baseconf',
     'result' => 1,
@@ -86,6 +88,17 @@ try {
     $utils->executeSqlFile(__DIR__ . '/../../var/baseconf/centreon-broker.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertTopology.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertBaseConf.sql', $macros);
+
+    /**
+     * @var CentreonModuleService
+     */
+    $moduleService = \Centreon\LegacyContainer::getInstance()[ServiceProvider::CENTREON_MODULE];
+    $widgets = $moduleService->getList(null, false, null, ['widget']);
+    foreach ($widgets['widget'] as $widget) {
+        if ($widget->isInternal()) {
+            $moduleService->install($widget->getId(), 'widget');
+        }
+    }
 } catch (\Exception $e) {
     $return['msg'] = $e->getMessage();
     echo json_encode($return);

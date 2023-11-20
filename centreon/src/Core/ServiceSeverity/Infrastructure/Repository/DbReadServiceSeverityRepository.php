@@ -266,7 +266,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
 
         // Settup for search, pagination, order
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator?->setConcordanceArray([
+        $sqlTranslator->setConcordanceArray([
             'id' => 'sc.sc_id',
             'name' => 'sc.sc_name',
             'alias' => 'sc.sc_description',

@@ -26,10 +26,10 @@ class Menu
     /** @var \CentreonDB The configuration database connection */
     protected $db;
 
-    /** @var string The query filter for ACL */
+    /** @var string|null The query filter for ACL */
     protected $acl = null;
 
-    /** @var int The current topology page */
+    /** @var int|null The current topology page */
     protected $currentPage = null;
 
     /**
