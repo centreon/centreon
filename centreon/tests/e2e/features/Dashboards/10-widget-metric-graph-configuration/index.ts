@@ -125,7 +125,7 @@ When(
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.get('[class^="MuiAutocomplete-listbox"]').click();
+    cy.contains('Linux-Servers').realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
     cy.contains('rta (ms) / Includes 1 resources').realClick();
     cy.wait('@performanceData');
