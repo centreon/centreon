@@ -59,6 +59,12 @@ overrides:
   deb:
     depends:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
+    conflicts:
+      - centreon-gorgone (<< ${MAJOR_VERSION}~)
+    replaces:
+      - centreon-gorgone (<< ${MAJOR_VERSION}~)
+    provides:
+      - centreon-gorgone (<< ${MAJOR_VERSION}~)
 
 rpm:
   summary: centreon gorgone packaging to nfpm
