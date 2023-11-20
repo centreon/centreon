@@ -575,7 +575,6 @@
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
 									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"    console.log(\"API PASSWORD = \" + pm.environment.get(\"api_password\"));\r",
 									"});"
 								],
 								"type": "text/javascript"
