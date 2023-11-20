@@ -50,7 +50,7 @@ contents:
       group: centreon-gorgone
 
 scripts:
-  postinstall: ./scripts/centreon-gorgone-config-postinstall.sh
+  postinstall: ./scripts/centreon-gorgone-centreon-config-postinstall.sh
 
 overrides:
   rpm:
