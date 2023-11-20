@@ -56,7 +56,7 @@ class PlatformController extends AbstractController
     {
         $webVersion = $this->informationService->getWebVersion();
         $modulesVersion = $this->informationService->getModulesVersion();
-        $widgetsVersion = $this->informationService->getWidgetsVersion();
+        $widgetsVersion = $this->informationService->getWidgetsVersion($webVersion);
 
         return new JsonResponse(
             [
