@@ -216,7 +216,7 @@ const formData = {
     {
       channel: 'Email',
       formatted_message:
-        '<p dir="ltr"><b><strong class="css-1jxftah-bold">Centreon notification</strong></b><br><br><span>Notification Type: </span><b><strong class="css-1jxftah-bold">{{NOTIFICATIONTYPE}}</strong></b><br><br><span>Resource: {{NAME}}</span><br><br><span>State: </span><b><strong class="css-1jxftah-bold">{{STATE}}</strong></b><br><br><span>Date/Time: {{SHORTDATETIME}}</span><br><br><span>Additional Info: {{OUTPUT}}</span></p>',
+        '<p class="css-1qf631s-paragraph" dir="ltr"><b><strong class="css-1jxftah-bold" style="white-space: pre-wrap;">Centreon notification</strong></b><br><br><span style="white-space: pre-wrap;">Notification Type: </span><b><strong class="css-1jxftah-bold" style="white-space: pre-wrap;">{{NOTIFICATIONTYPE}}</strong></b><br><br><span style="white-space: pre-wrap;">Resource: {{NAME}}</span><br><br><span style="white-space: pre-wrap;">State: </span><b><strong class="css-1jxftah-bold" style="white-space: pre-wrap;">{{STATE}}</strong></b><br><br><span style="white-space: pre-wrap;">Date/Time: {{SHORTDATETIME}}</span><br><br><span style="white-space: pre-wrap;">Additional Info: {{OUTPUT}}</span></p>',
       message: defaultEmailBody,
       subject: defaultEmailSubject
     }
