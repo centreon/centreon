@@ -225,6 +225,7 @@
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"    pm.collectionVariables.set(\"oldPassword\", pm.environment.get(\"api_password\"));\r",
+									"    pm.environment.unset(\"api_password\");\r",
 									"    pm.environment.set(\"api_password\", pm.collectionVariables.get(\"passwordWithCorrectFormat\"));\r",
 									"});"
 								],
@@ -856,6 +857,7 @@
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"    pm.collectionVariables.set(\"oldPassword\", pm.environment.get(\"api_password\"));\r",
+									"    pm.environment.unset(\"api_password\");\r",
 									"    pm.environment.set(\"api_password\", pm.collectionVariables.get(\"passwordWithCorrectFormat\"));\r",
 									"});"
 								],
