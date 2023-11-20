@@ -52,6 +52,10 @@ jobs:
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Release"
             DISPLAY_SUMMARY="false"
+          elif [[ $CHECK_BRANCH = "merge" && '${{ github.ref_name }}' == release* && '${{ inputs.stability }}' == 'unstable' ]]; then
+            FAIL_BUILD="false"
+            DEVELOPMENT_STAGE="Testing"
+            DISPLAY_SUMMARY="false"
           elif [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
             FAIL_BUILD="${{ vars.VERACODE_QUALITY_GATE }}"
             DEVELOPMENT_STAGE="Testing"
@@ -61,14 +65,11 @@ jobs:
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="true"
           fi
+
           echo "fail_build=$FAIL_BUILD" >> $GITHUB_OUTPUT
           echo "development_stage=$DEVELOPMENT_STAGE" >> $GITHUB_OUTPUT
           echo "display_summary=$DISPLAY_SUMMARY" >> $GITHUB_OUTPUT
-
-          echo "[INFO] - fail_build = $FAIL_BUILD"
-          echo "[INFO] - development_stage = $DEVELOPMENT_STAGE"
-          echo "[INFO] - display_summary = $DISPLAY_SUMMARY"
-          echo "[INFO] - check if PR branch = $CHECK_BRANCH"
+          cat $GITHUB_OUTPUT
 
   pipeline-scan:
     needs: [build]
