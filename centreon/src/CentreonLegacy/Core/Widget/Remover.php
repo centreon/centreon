@@ -29,7 +29,8 @@ class Remover extends Widget
     public function remove()
     {
         $query = 'DELETE FROM widget_models '
-            . 'WHERE directory = :directory ';
+            . 'WHERE directory = :directory '
+            . 'AND is_internal = FALSE ';
 
         $sth = $this->services->get('configuration_db')->prepare($query);
 

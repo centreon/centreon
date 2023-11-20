@@ -74,6 +74,7 @@ class Information
 
         $conf['directory'] = $widgetDirectory;
         $conf['autoRefresh'] ??= 0;
+        $conf['version'] ??= null;
 
         return $conf;
     }
@@ -239,10 +240,12 @@ class Information
                 $widgets[$name]['id'] = $installedWidgets[$name]['widget_model_id'];
                 $widgets[$name]['is_installed'] = true;
                 $widgets[$name]['installed_version'] = $installedWidgets[$name]['version'];
-                $widgetIsUpgradable = $this->isUpgradeable(
-                    $widgets[$name]['available_version'],
-                    $widgets[$name]['installed_version']
-                );
+                $widgetIsUpgradable = $installedWidgets[$name]['is_internal']
+                    ? false
+                    : $this->isUpgradeable(
+                        $widgets[$name]['available_version'],
+                        $widgets[$name]['installed_version']
+                    );
                 $widgets[$name]['upgradeable'] = $widgetIsUpgradable;
                 $this->hasWidgetsForUpgrade = $widgetIsUpgradable ?: $this->hasWidgetsForUpgrade;
             }
@@ -279,7 +282,7 @@ class Information
 
         return $sth->fetch();
     }
-    
+
     /**
      * @param string $widgetName
      *
@@ -336,6 +339,7 @@ class Information
         foreach ($widgets as $widget) {
             // we use lowercase to avoid problems if directory name have some letters in uppercase
             $installedWidgets[strtolower($widget['directory'])] = $widget;
+            $installedWidgets[strtolower($widget['directory'])]['is_internal'] = $widget['is_internal'] === 1;
         }
 
         return $installedWidgets;

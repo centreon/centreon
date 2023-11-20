@@ -19,12 +19,68 @@
  *
  */
 
+require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
+
 $centreonLog = new CentreonLog();
 
 //error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.04.0: ';
 $errorMessage = '';
+
+$updateWidgetModelsTable = function(CentreonDB $pearDB): void {
+    if (!$pearDB->isColumnExist('widget_models', 'is_internal')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `widget_models`
+                ADD COLUMN `is_internal` BOOLEAN NOT NULL DEFAULT FALSE
+                AFTER `version`
+                SQL
+        );
+    }
+
+    $pearDB->query(
+        <<<'SQL'
+            ALTER TABLE `widget_models`
+            MODIFY COLUMN `version` varchar(255) DEFAULT NULL
+            SQL
+    );
+};
+
+$installCoreWidgets = function(): void {
+    $moduleService = \Centreon\LegacyContainer::getInstance()[\CentreonModule\ServiceProvider::CENTREON_MODULE];
+    $widgets = $moduleService->getList(null, false, null, ['widget']);
+    foreach ($widgets['widget'] as $widget) {
+        if ($widget->isInternal()) {
+            $moduleService->install($widget->getId(), 'widget');
+        }
+    }
+};
+
+$setCoreWidgetsToInternal = function(CentreonDB $pearDB): void {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `widget_models`
+            SET version = NULL, is_internal = TRUE
+            WHERE `directory` IN (
+                'engine-status',
+                'global-health',
+                'graph-monitoring',
+                'grid-map',
+                'httploader',
+                'host-monitoring',
+                'hostgroup-monitoring',
+                'live-top10-cpu-usage',
+                'live-top10-memory-usage',
+                'ntopng-listing',
+                'service-monitoring',
+                'servicegroup-monitoring',
+                'single-metric',
+                'tactical-overview'
+            )
+            SQL
+    );
+};
 
 // ------------ INSERT / UPDATE / DELETE
 $insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB): void {
@@ -71,20 +127,30 @@ $alterAclResourceGroupRelation = function (CentreonDB $pearDB) {
 };
 
 try {
-    $errorMessage = '';
-    // Tansactional queries
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
-    }
+    $errorMessage = "Unable update widget_models table";
+    $updateWidgetModelsTable($pearDB);
 
-    $errorMessage = 'Unable to insert topology for Resource Access Management';
-    $insertTopologyForResourceAccessManagement($pearDB);
+    $errorMessage = "Unable to install core widgets";
+    $installCoreWidgets();
 
     $errorMessage = 'Unable to add columns cloud_description and cloud_specific to acl_groups table';
     $alterAclGroupsTable($pearDB);
 
     $errorMessage = 'Unable to add column order to acl_res_group_relations table';
     $alterAclResourceGroupRelation($pearDB);
+
+    // Tansactional queries
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $errorMessage = "Could not set core widgets to internal";
+    $setCoreWidgetsToInternal($pearDB);
+
+    $errorMessage = 'Unable to insert topology for Resource Access Management';
+    $insertTopologyForResourceAccessManagement($pearDB);
+
+    $pearDB->commit();
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
