@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "929b4617-1606-476e-a53d-19b9405fd497",
+		"_postman_id": "a14087e9-4fe4-4fb5-b449-5c6853c10f44",
 		"name": "1 - Tokens",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-929b4617-1606-476e-a53d-19b9405fd497?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-a14087e9-4fe4-4fb5-b449-5c6853c10f44?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -1765,13 +1765,13 @@
 									"    });\r",
 									"\r",
 									"    pm.expect(response.user).to.include({\r",
-									"        \"id\": parseInt(pm.collectionVariables.get(\"Admin_Id\")),\r",
-									"        \"name\": pm.collectionVariables.get(\"Admin_Name\")\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"User_Menu_Name\")\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(response.creator).to.include({\r",
-									"        \"id\": parseInt(pm.collectionVariables.get(\"User_Menu_Id\")),\r",
-									"        \"name\": pm.collectionVariables.get(\"User_Menu_Name\")\r",
+									"        \"id\": parseInt(pm.collectionVariables.get(\"Admin_Id\")),\r",
+									"        \"name\": pm.collectionVariables.get(\"Admin_Name\")\r",
 									"    });\r",
 									"});\r",
 									""
@@ -1999,14 +1999,14 @@
 									"    pm.expect(responseJson.result[1].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
 									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({name:pm.collectionVariables.get(\"Token3Name\")}).\r",
+									"    pm.expect(responseJson.result[2]).to.include({name:pm.collectionVariables.get(\"Token3Name\")}).\r",
 									"            and.to.include({expiration_date:\"2099-12-31T00:00:00+01:00\"}).\r",
 									"            and.to.include({is_revoked:false});\r",
 									"\r",
-									"    pm.expect(responseJson.result[1].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\"))}).\r",
+									"    pm.expect(responseJson.result[2].user).to.include({id:parseInt(pm.collectionVariables.get(\"User_Menu_Action_Id\"))}).\r",
 									"            and.to.include({name:pm.collectionVariables.get(\"User_Menu_Action_Name\")});\r",
 									"    \r",
-									"    pm.expect(responseJson.result[1].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
+									"    pm.expect(responseJson.result[2].creator).to.include({id:parseInt(pm.collectionVariables.get(\"Admin_Id\"))}).\r",
 									"            and.to.include({name:pm.collectionVariables.get(\"Admin_Name\")});\r",
 									"    \r",
 									"})"
