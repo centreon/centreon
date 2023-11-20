@@ -60,9 +60,7 @@ const dashboardPanelDecoder = JsonDecoder.object<DashboardPanel>(
 export const dashboardEntityDecoder = {
   ...namedEntityDecoder,
   createdAt: JsonDecoder.string,
-  createdBy: JsonDecoder.nullable(
-    JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By')
-  ),
+  createdBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By'),
   description: JsonDecoder.nullable(JsonDecoder.string),
   ownRole: JsonDecoder.enumeration<DashboardRole>(
     DashboardRole,
@@ -72,9 +70,7 @@ export const dashboardEntityDecoder = {
     JsonDecoder.array(dashboardPanelDecoder, 'Panels')
   ),
   updatedAt: JsonDecoder.string,
-  updatedBy: JsonDecoder.nullable(
-    JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
-  )
+  updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(
