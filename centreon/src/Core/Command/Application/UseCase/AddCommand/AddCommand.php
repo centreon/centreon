@@ -145,8 +145,8 @@ final class AddCommand
         return new NewCommand(
             name: new TrimmedString($request->name),
             commandLine: new TrimmedString($request->commandLine),
-            type: $request->type,
             isShellEnabled: $request->isShellEnabled,
+            type: $request->type,
             argumentExample: new TrimmedString($request->argumentExample),
             arguments: $arguments,
             macros: $macros,

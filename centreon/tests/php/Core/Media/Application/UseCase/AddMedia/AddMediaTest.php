@@ -144,7 +144,7 @@ it('should present an InvalidArgumentResponse when a field assert of NewMedia fa
         ->toBe(AssertionException::matchRegex(
             $request->directory,
             '/^[a-zA-Z0-9_-]+$/',
-            'Media::directory',
+            'NewMedia::directory',
         )->getMessage());
 });
 

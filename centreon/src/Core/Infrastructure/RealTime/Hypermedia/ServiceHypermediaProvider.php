@@ -246,7 +246,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
      *
      * @return string
      */
-    private function generateMetricsByServiceEndpoint(array $parameters): ?string
+    private function generateMetricsByServiceEndpoint(array $parameters): string
     {
         return $this->generateEndpoint(self::ENDPOINT_SERVICE_METRICS, $parameters);
     }

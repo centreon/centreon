@@ -30,7 +30,7 @@ class WidgetModelsRepository extends ServiceEntityRepository
      *
      * @return string[]
      */
-    public function getAllWidgetVsVersion(): array
+    public function getAllWidgetsVersion(): array
     {
         $sql = 'SELECT `directory` AS `id`, `version` FROM `widget_models`';
 

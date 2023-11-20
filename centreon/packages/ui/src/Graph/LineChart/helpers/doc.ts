@@ -69,21 +69,24 @@ export const getDescription = ({ sections }: Description): string => {
       })}<br></details>`;
     }
 
-    const formattedProps = props.reduce((accumulator, currentValue, index) => {
-      const key = Object.keys(currentValue)[0];
-      const { description, type } = currentValue[key];
-      const body = `${accumulator} ${getBodyDescription({
-        description,
-        key,
-        type
-      })}`;
+    const formattedProps = props.reduce(
+      (accumulator, currentValue, index) => {
+        const key = Object.keys(currentValue)[0];
+        const { description, type } = currentValue[key];
+        const body = `${accumulator} ${getBodyDescription({
+          description,
+          key,
+          type
+        })}`;
 
-      if (!equals(index, props.length - 1)) {
-        return body;
-      }
+        if (!equals(index, props.length - 1)) {
+          return body;
+        }
 
-      return `${body}</details>`;
-    }, getInitialValue({ section: name, type: item?.type }));
+        return `${body}</details>`;
+      },
+      getInitialValue({ section: name, type: item?.type })
+    );
 
     return formattedProps as string;
   });

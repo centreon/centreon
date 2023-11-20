@@ -210,17 +210,29 @@ class CentreonWidget
         static $tabId;
 
         if (!isset($tabId) || !isset($tabDir)) {
-            $query = 'SELECT description, directory, title, widget_model_id, url, version, author, ' .
+            $query = 'SELECT description, directory, title, widget_model_id, url, version, is_internal, author, ' .
                 'email, website, keywords, screenshot, thumbnail, autoRefresh ' .
                 'FROM widget_models';
             $res = $this->db->query($query);
             while ($row = $res->fetch()) {
-                $tabDir[$row['directory']] = array();
-                $tabId[$row['widget_model_id']] = array();
-                foreach ($row as $key => $value) {
-                    $tabDir[$row['directory']][$key] = $value;
-                    $tabId[$row['widget_model_id']][$key] = $value;
-                }
+                $widgetInformation = [
+                    'description' => $row['description'],
+                    'directory' => $row['directory'],
+                    'title' => $row['title'],
+                    'widget_model_id' => $row['widget_model_id'],
+                    'url' => $row['url'],
+                    'version' => $row['is_internal'] === 0 ? $row['version'] : null,
+                    'is_internal' => $row['is_internal'] === 1,
+                    'author' => $row['author'],
+                    'email' => $row['email'],
+                    'website' => $row['website'],
+                    'keywords' => $row['keywords'],
+                    'screenshot' => $row['screenshot'],
+                    'thumbnail' => $row['thumbnail'],
+                    'autoRefresh' => $row['autoRefresh'],
+                ];
+                $tabDir[$row['directory']] = $widgetInformation;
+                $tabId[$row['widget_model_id']] = $widgetInformation;
             }
         }
         if ($type == "directory" && isset($tabDir[$param])) {

@@ -51,21 +51,6 @@ use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterf
 class RepositoryCallbackValidator extends CallbackValidator implements CentreonValidatorInterface
 {
     /**
-     * @var CentreonDBManagerService
-     */
-    private $db;
-
-    /**
-     * Construct
-     *
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->db = $container->get(ServiceProvider::CENTREON_DB_MANAGER);
-    }
-
-    /**
      * {@inheritdoc}
      * @return void
      */

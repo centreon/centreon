@@ -17029,3 +17029,21 @@ msgstr ""
 
 #  msgid "Error while searching for connectors"
 #  msgstr ""
+
+#  msgid "Error while updating a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a host"
+#  msgstr ""
+
+#  msgid "The token cannot be empty"
+#  msgstr ""
+
+#  msgid "This operation requires an admin user"
+#  msgstr ""
+
+# msgid "Resource access rules"
+# msgstr ""
+
+# msgid "Resource Access Management"
+# msgstr ""

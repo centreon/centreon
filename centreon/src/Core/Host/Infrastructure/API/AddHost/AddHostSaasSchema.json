@@ -36,6 +36,30 @@
                 "string"
             ]
         },
+        "icon_id": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
+        "max_check_attempts": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
+        "normal_check_interval": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
+        "retry_check_interval": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
         "timezone_id": {
             "type": [
                 "null",

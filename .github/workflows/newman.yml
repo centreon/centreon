@@ -301,7 +301,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
           run_install: false
 
       - uses: actions/setup-node@v3
@@ -370,6 +370,10 @@ jobs:
               echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
               exit 1
           fi
+
+      - name: Display container logs
+        if: failure()
+        run: docker logs $CONTAINER_NAME
 
       - name: Upload HTML Reports
         if: failure()
