@@ -58,7 +58,6 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
      */
     public function find(int $playlistId): ?Playlist
     {
-        // TODO Check if request return result with a deleted content
         $query = <<<'SQL'
                 SELECT
                     dpl.*, c.contact_alias, dplr.*
