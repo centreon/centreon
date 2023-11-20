@@ -21,42 +21,49 @@ contents:
   - dst: "/etc/centreon-gorgone"
     type: dir
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0775
 
   - dst: "/etc/centreon-gorgone/config.d"
     type: dir
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0775
 
   - dst: "/etc/centreon-gorgone/config.d/cron.d"
     type: dir
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0775
+
+  - src: "./configuration/config.yaml"
+    dst: "/etc/centreon-gorgone/"
+    file_info:
+      owner: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0664
 
   - dst: "/var/lib/centreon-gorgone"
     type: dir
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0775
 
   - dst: "/var/log/centreon-gorgone"
     type: dir
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0775
 
   - dst: "/var/cache/centreon-gorgone"
     type: dir
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0775
 
@@ -104,11 +111,6 @@ contents:
     dst: "/usr/local/bin/"
     file_info:
       mode: 0750
-
-  - src: "./configuration/config.yaml"
-    dst: "/etc/centreon-gorgone/"
-    file_info:
-      mode: 0664
 
 scripts:
   preinstall: ./scripts/centreon-gorgone-preinstall.sh

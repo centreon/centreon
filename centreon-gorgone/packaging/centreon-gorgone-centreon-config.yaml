@@ -19,14 +19,14 @@ contents:
     dst: "/etc/centreon-gorgone/config.d/30-centreon.yaml"
     type: config|noreplace
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0664
 
   - src: "./configuration/centreon-api.yaml"
     dst: "/etc/centreon-gorgone/config.d/centreon-api.yaml" # managed in postinstall script
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0664
 
@@ -34,7 +34,7 @@ contents:
     dst: "/etc/centreon-gorgone/config.d/50-centreon-audit.yaml"
     type: config|noreplace
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
       mode: 0664
 
@@ -46,7 +46,7 @@ contents:
   - dst: "/var/cache/centreon-gorgone/autodiscovery"
     type: dir
     file_info:
-      user: centreon-gorgone
+      owner: centreon-gorgone
       group: centreon-gorgone
 
 scripts:
