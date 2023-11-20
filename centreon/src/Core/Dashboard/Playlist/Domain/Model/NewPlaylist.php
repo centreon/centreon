@@ -28,12 +28,12 @@ use Core\Dashboard\Playlist\Domain\Exception\NewPlaylistException;
 
 class NewPlaylist
 {
-    private const NAME_MIN_LENGTH = 1;
-    private const NAME_MAX_LENGTH = 255;
-    private const DESCRIPTION_MIN_LENGTH = 1;
-    private const DESCRIPTION_MAX_LENGTH = 65535;
-    private const MINIMUM_ROTATION_TIME = 10; // time in seconds
-    private const MAXIMUM_ROTATION_TIME = 60; // time in seconds
+    public const NAME_MIN_LENGTH = 1;
+    public const NAME_MAX_LENGTH = 255;
+    public const DESCRIPTION_MIN_LENGTH = 1;
+    public const DESCRIPTION_MAX_LENGTH = 65535;
+    public const MINIMUM_ROTATION_TIME = 10; // time in seconds
+    public const MAXIMUM_ROTATION_TIME = 60; // time in seconds
 
     /** @var DashboardOrder[] */
     protected array $dashboardsOrder = [];
