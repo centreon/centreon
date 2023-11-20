@@ -13,6 +13,8 @@ RUN bash -e <<EOF
 
 apt-get update
 
+apt-get install -y centreon-gorgone
+
 apt-get install -y /tmp/debs-centreon-gorgone/*.deb
 
 apt-get clean

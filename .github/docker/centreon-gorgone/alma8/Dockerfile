@@ -9,6 +9,8 @@ COPY *.rpm /tmp/rpms-centreon-gorgone/
 
 RUN bash -e <<EOF
 
+dnf install -y centreon-gorgone
+
 dnf install -y /tmp/rpms-centreon-gorgone/*.rpm
 
 dnf clean all --enablerepo=*
