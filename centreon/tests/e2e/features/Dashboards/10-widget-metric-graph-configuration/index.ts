@@ -9,10 +9,7 @@ import metricsGraphDoublecWidget from '../../../fixtures/dashboards/creation/wid
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.updateCentreonConfig();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
@@ -39,11 +36,6 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
-  cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
-    loginViaApi: true
-  });
-  cy.logoutViaAPI();
 });
 
 beforeEach(() => {
@@ -135,7 +127,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.get('[class^="MuiAutocomplete-listbox"]').click();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.get('[class^="MuiAutocomplete-option"]').eq(0).realClick();
+    cy.contains('rta (ms) / Includes 1 resources').realClick();
     cy.wait('@performanceData');
   }
 );
@@ -375,7 +367,7 @@ When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.get('[class^="MuiAutocomplete-option"]').eq(1).realClick();
+    cy.contains('rta (ms) / Includes 1 resources').realClick();
   }
 );
 

@@ -263,6 +263,13 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('updateCentreonConfig', () => {
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
+});
+
 export enum PatternType {
   contains = '*',
   endsWith = '$',
@@ -329,6 +336,7 @@ declare global {
       setUserTokenApiV1: (fixtureFile?: string) => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
+      updateCentreonConfig: () => Cypress.Chainable;
     }
   }
 }
