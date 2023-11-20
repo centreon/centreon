@@ -15,7 +15,6 @@
 /etc/sudoers
 /etc/sudoers.d
 /etc/pam.d
-/etc/centreon-gorgone
 /usr/lib/sudo
 /usr/lib/x86_64-linux-gnu/perl5
 /var/www/html
