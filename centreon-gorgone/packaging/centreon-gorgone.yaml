@@ -68,10 +68,21 @@ contents:
     dst: "/etc/systemd/system/gorgoned.service"
     file_info:
       mode: 0755
+    packager: rpm
+  - src: "../config/systemd/gorgoned-service"
+    dst: "/lib/systemd/system/gorgoned.service"
+    file_info:
+      mode: 0755
+    packager: deb
 
   - src: "../config/systemd/gorgoned-sysconfig"
     dst: "/etc/sysconfig/gorgoned"
     type: config|noreplace
+    packager: rpm
+  - src: "../config/systemd/gorgoned-sysconfig"
+    dst: "/etc/default/gorgoned"
+    type: config|noreplace
+    packager: deb
 
   - src: "../config/logrotate/gorgoned"
     dst: "/etc/logrotate.d/gorgoned"
@@ -172,6 +183,8 @@ overrides:
       - libssh-session-perl
       - libev-perl
       - libzmq-ffi-perl
+    suggests:
+      - centreon-gorgone-centreon-config
 
 rpm:
   summary: centreon gorgone packaging to nfpm

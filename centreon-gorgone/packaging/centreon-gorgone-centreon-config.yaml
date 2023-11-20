@@ -59,11 +59,9 @@ overrides:
   deb:
     depends:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
-    conflicts:
-      - centreon-gorgone (<< ${MAJOR_VERSION}~)
     replaces:
       - centreon-gorgone (<< ${MAJOR_VERSION}~)
-    provides:
+    breaks:
       - centreon-gorgone (<< ${MAJOR_VERSION}~)
 
 rpm:
