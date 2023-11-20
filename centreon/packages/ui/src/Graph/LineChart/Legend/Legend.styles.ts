@@ -6,8 +6,9 @@ interface MakeStylesProps {
   limitLegendRows?: boolean;
 }
 
-const legendWidth = 21;
+export const legendWidth = 21;
 const legendItemHeight = 5.25;
+const legendItemHeightCompact = 1.75;
 
 export const useStyles = makeStyles<MakeStylesProps>()(
   (theme, { limitLegendRows }) => ({
@@ -18,6 +19,9 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       minWidth: theme.spacing(legendWidth)
     },
     items: {
+      '&[data-mode="compact"]': {
+        gridAutoRows: theme.spacing(legendItemHeightCompact)
+      },
       display: 'grid',
       gap: theme.spacing(1),
       gridAutoRows: theme.spacing(legendItemHeight),
@@ -32,20 +36,6 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       marginLeft: margin.left,
       marginRight: margin.right,
       overflow: 'hidden'
-    },
-    legendData: {
-      display: 'flex',
-      flexDirection: 'column'
-    },
-    legendUnit: {
-      justifyContent: 'start',
-      marginLeft: 'auto',
-      marginRight: theme.spacing(0.5),
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    },
-    legendValue: {
-      fontWeight: theme.typography.body1.fontWeight
     },
     minMaxAvgContainer: {
       columnGap: theme.spacing(0.5),
@@ -72,6 +62,7 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       display: 'flex',
       flexDirection: 'row',
       gap: theme.spacing(0.5),
+      justifyContent: 'space-between',
       width: '100%'
     },
     disabled: {
@@ -81,9 +72,13 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       backgroundColor: color,
       borderRadius: theme.shape.borderRadius,
       height: theme.spacing(1.5),
+      minWidth: theme.spacing(1.5),
       width: theme.spacing(1.5)
     },
     legendName: {
+      '&[data-mode="compact"]': {
+        width: theme.spacing(legendWidth * 0.5)
+      },
       width: theme.spacing(legendWidth * 0.75)
     },
     markerAndLegendName: {

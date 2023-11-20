@@ -288,6 +288,7 @@ const LineChart = ({
           <Legend
             base={baseAxis}
             displayAnchor={displayAnchor?.displayGuidingLines ?? true}
+            graphWidth={graphWidth}
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}
