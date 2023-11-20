@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
-import { prop, slice, sortBy } from 'ramda';
+import { concat, prop, slice, sortBy } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { Box, alpha, useTheme } from '@mui/material';
@@ -15,7 +15,7 @@ import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtom
 
 import InteractiveValue from './InteractiveValue';
 import { useStyles } from './Legend.styles';
-import LegendHeader from './LegendHeader';
+import LegendHeader from './LegendHeaderNew';
 import LegendMarker from './Marker';
 import { GetMetricValueProps } from './models';
 import useInteractiveValues from './useInteractiveValues';
@@ -88,7 +88,13 @@ const MainLegend = ({
   return (
     <div className={classes.legend}>
       <div className={classes.items}>
-        {displayedLines.map((line) => {
+        {concat(
+          displayedLines,
+          concat(
+            displayedLines,
+            concat(displayedLines, concat(displayedLines, displayedLines))
+          )
+        ).map((line) => {
           const { color, display, highlight, metric_id } = line;
 
           const markerColor = display
@@ -126,9 +132,12 @@ const MainLegend = ({
               onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
             >
-              <LegendMarker color={markerColor} disabled={!display} />
-              <div className={classes.legendData}>
-                <LegendHeader line={line} />
+              <LegendHeader
+                color={markerColor}
+                disabled={!display}
+                line={line}
+              />
+              <div>
                 {displayAnchor && <InteractiveValue value={interactiveValue} />}
                 {!interactiveValue && (
                   <div className={classes.minMaxAvgContainer}>
@@ -150,6 +159,25 @@ const MainLegend = ({
     </div>
   );
 };
+
+{
+  /* <LegendMarker color={markerColor} disabled={!display} />
+<div className={classes.legendData}>
+  <LegendHeader line={line} />
+  {displayAnchor && <InteractiveValue value={interactiveValue} />}
+  {!interactiveValue && (
+    <div className={classes.minMaxAvgContainer}>
+      {minMaxAvg.map(({ label, value }) => (
+        <LegendContent
+          data={getMetricValue({ unit: line.unit, value })}
+          key={label}
+          label={label}
+        />
+      ))}
+    </div>
+  )}
+</div> */
+}
 
 const Legend = (props: Props): JSX.Element => {
   const { toggable, limitLegendRows, timeSeries, lines, base, displayAnchor } =

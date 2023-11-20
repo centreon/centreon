@@ -51,9 +51,7 @@ const useFilterLines = ({
       return;
     }
 
-    const sortedLines = sortBy(compose(toLower, prop('name')), filteredLines);
-
-    setLinesGraph(sortedLines);
+    setLinesGraph(filteredLines);
   }, [lines, displayThreshold]);
 
   return { displayedLines, newLines: linesGraph ?? lines };

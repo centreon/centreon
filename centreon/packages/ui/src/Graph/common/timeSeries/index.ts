@@ -391,6 +391,8 @@ const getLeftScale = ({
       })
     : [0];
 
+  console.log(graphValues);
+
   return getScale({
     graphValues,
     height: valueGraphHeight,
