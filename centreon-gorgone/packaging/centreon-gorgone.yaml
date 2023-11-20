@@ -80,6 +80,7 @@ contents:
 
   - src: "../gorgone"
     dst: "${PERL_VENDORLIB}/gorgone"
+    expand: true
 
   - src: "../gorgoned"
     dst: "/usr/bin/"

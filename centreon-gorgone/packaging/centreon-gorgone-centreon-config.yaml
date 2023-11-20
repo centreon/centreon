@@ -14,9 +14,6 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
-depends:
-  - centreon-gorgone
-
 contents:
   - src: "./configuration/centreon.yaml"
     dst: "/etc/centreon-gorgone/config.d/30-centreon.yaml"
@@ -27,8 +24,7 @@ contents:
       mode: 0664
 
   - src: "./configuration/centreon-api.yaml"
-    dst: "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"
-    type: config|noreplace
+    dst: "/etc/centreon-gorgone/config.d/centreon-api.yaml" # managed in postinstall script
     file_info:
       user: centreon-gorgone
       group: centreon-gorgone
@@ -55,6 +51,14 @@ contents:
 
 scripts:
   postinstall: ./scripts/centreon-gorgone-config-postinstall.sh
+
+overrides:
+  rpm:
+    depends:
+      - centreon-gorgone = ${VERSION}-${RELEASE}${DIST}
+  deb:
+    depends:
+      - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
 
 rpm:
   summary: centreon gorgone packaging to nfpm
