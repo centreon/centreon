@@ -61,7 +61,9 @@ overrides:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
     replaces:
       - centreon-gorgone (<< ${MAJOR_VERSION}~)
-    breaks:
+
+deb:
+  breaks:
       - centreon-gorgone (<< ${MAJOR_VERSION}~)
 
 rpm:
