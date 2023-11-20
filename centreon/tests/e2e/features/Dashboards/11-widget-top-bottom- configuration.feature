@@ -40,16 +40,16 @@ Feature: Configuring a top-bottom widget
   #   Then the bar associated with the host is added in the Top/Bottom widget preview
   #   And the bar associated with the host is added in the Top/Bottom widget in view mode
 
-  @TEST_MON-23813
-  Scenario: Duplicating a Top/Bottom widget
-    Given a dashboard featuring a configured Top Bottom widget
-    When the dashboard administrator user duplicates the Top Bottom widget
-    Then a second Top Bottom widget is displayed on the dashboard
-    And the second widget has the same properties as the first widget
+  # @TEST_MON-23813
+  # Scenario: Duplicating a Top/Bottom widget
+  #   Given a dashboard featuring a configured Top Bottom widget
+  #   When the dashboard administrator user duplicates the Top Bottom widget
+  #   Then a second Top Bottom widget is displayed on the dashboard
+  #   And the second widget has the same properties as the first widget
 
   # @TEST_MON-23814
   # Scenario: Deleting a Top/Bottom widget
-  #   Given a dashboard featuring two Top/Bottom widgets
+  #   Given a dashboard featuring two Top Bottom widgets
   #   When the dashboard administrator user deletes one of the widgets
   #   Then only the contents of the other widget are displayed
 

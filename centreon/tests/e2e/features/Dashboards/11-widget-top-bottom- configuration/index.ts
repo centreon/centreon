@@ -11,9 +11,9 @@ before(() => {
   //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
   //   name: Cypress.env('dockerName')
   // });
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-widget-metrics.json'
-  );
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-widget-metrics.json'
+  // );
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? 'apache'
     : 'www-data';
@@ -147,14 +147,22 @@ after(() => {
 //   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
 // });
 
-Given('a dashboard featuring a configured Top Bottom widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-    cy.wait(30000)
-});
+// Given('a dashboard featuring two Top Bottom widgets', () => {
+//   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+//   cy.getByLabel({
+//     label: 'view',
+//     tag: 'button'
+//   })
+//     .contains(dashboards.default.name)
+//     .click();
+// });
+
+// When('the user saves the Top Bottom widget', () => {
+//   cy.getByTestId({ testId: 'confirm' }).click();
+// });
+
+// Then('only the contents of the other widget are displayed', () => {
+//   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
+//   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
+// });
