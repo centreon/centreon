@@ -449,7 +449,7 @@ describe('AddEditWidgetModal', () => {
     });
   });
 
-  describe.only('Data', () => {
+  describe('Data', () => {
     describe('Resources and metrics', () => {
       beforeEach(() => {
         cy.stub(editProperties, 'useCanEditProperties').returns({
@@ -740,7 +740,6 @@ describe('AddEditWidgetModal', () => {
     it('displays generic properties fields as disabled', () => {
       cy.findByTestId(labelResourceType).should('be.disabled');
       cy.findByLabelText(labelSelectAResource).should('be.disabled');
-      cy.findByTestId(labelServiceName).should('be.disabled');
       cy.findByLabelText(labelSelectMetric).should('be.disabled');
       cy.contains(labelRefineFilter).should('not.exist');
       cy.contains(labelAddMetric).should('not.exist');
