@@ -29,6 +29,16 @@ contents:
       owner: "centreon"
       group: "centreon"
 
+overrides:
+  rpm:
+    depends:
+      - centreon-web >= ${MAJOR_VERSION}
+      - centreon-web < ${NEXT_MAJOR_VERSION}
+  deb:
+    depends:
+      - "centreon-web (>= ${MAJOR_VERSION}~)"
+      - "centreon-web (<< ${NEXT_MAJOR_VERSION}~)"
+
 rpm:
   summary: Centreon API Web Import Export
   signature:
