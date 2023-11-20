@@ -58,7 +58,7 @@ jobs:
             FAIL_BUILD="${{ vars.VERACODE_QUALITY_GATE }}"
             DEVELOPMENT_STAGE="Testing"
             DISPLAY_SUMMARY="false"
-          elif [[ $CHECK_BRANCH = "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
+          elif [[ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
             # e.g release-23.04-next
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Testing"
