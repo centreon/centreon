@@ -488,7 +488,7 @@
 									"\r",
 									"let bufferPasswords = pm.collectionVariables.get(\"bufferPasswords\");\r",
 									"if (!bufferPasswords || bufferPasswords.length == 0){\r",
-									"    bufferPasswords = [\"Centreon!2022\", \"Centreon!2023\", \"Centreon!2024\", \"Centreon!2025\", pm.environment.get(\"api_password\")];\r",
+									"    bufferPasswords = [\"Centreon!2023\", \"Centreon!2024\", \"Centreon!2025\", pm.environment.get(\"api_password\")];\r",
 									"}\r",
 									"\r",
 									"pm.collectionVariables.set(\"oldPassword\", oldPassword);\r",
