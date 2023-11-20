@@ -140,7 +140,6 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
 
             public function current(): Media
             {
-                /** @var Media $media */
                 $media = $this->medias->current();
                 $absoluteMediaPath = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $media->getRelativePath();
                 if (file_exists($absoluteMediaPath)) {
