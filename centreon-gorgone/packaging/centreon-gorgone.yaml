@@ -186,6 +186,10 @@ overrides:
     recommends:
       - centreon-gorgone-centreon-config (>= 24.04~)
 
+deb:
+  breaks:
+    - centreon-gorgone (<< 24.04~)
+
 rpm:
   summary: centreon gorgone packaging to nfpm
   signature:
