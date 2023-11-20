@@ -18345,6 +18345,7 @@ msgstr "Gestion de l'accès aux ressources"
 msgid "Refine filter"
 msgstr "Affiner le filtre"
 
+<<<<<<< HEAD
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -18369,6 +18370,8 @@ msgstr " Accès non autorisé"
 msgid "The following dashboard is not shared with you: [%d]."
 msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
 
+=======
+>>>>>>> 4465e0205c (Adding translation)
 msgid "Huge"
 msgstr "Très grande"
 
@@ -18386,3 +18389,9 @@ msgstr "Vous n'êtes pas autorisé à éditer un service"
 
 msgid "Error while updating a service"
 msgstr "Erreur lors de la mise à jour d'un service"
+
+msgid "Error while searching for media"
+msgstr "Erreur lors de la recherche des médias"
+
+msgid "You are not allowed to list media"
+msgstr "Vous n'êtes pas autorisé à lister les médias"

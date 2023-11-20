@@ -46,7 +46,7 @@ class MediaException extends \Exception
      */
     public static function errorWhileSearchingForMedias(): self
     {
-        return new self(_('Error while searching for media configurations'));
+        return new self(_('"Error while searching for media"'));
     }
 
     /**
@@ -62,7 +62,7 @@ class MediaException extends \Exception
      */
     public static function listingNotAllowed(): self
     {
-        return new self(_('You are not allowed to list medias'));
+        return new self(_('You are not allowed to list media'));
     }
 
     /**
