@@ -25,11 +25,11 @@ namespace Core\Media\Application\UseCase\FindMedias;
 
 class MediaDto
 {
-    public int $id;
+    public int $id = 0;
 
-    public string $filename;
+    public string $filename = '';
 
-    public string $directory;
+    public string $directory = '';
 
-    public ?string $md5;
+    public ?string $md5 = null;
 }
