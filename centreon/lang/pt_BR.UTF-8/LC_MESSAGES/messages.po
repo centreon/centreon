@@ -17050,3 +17050,9 @@ msgstr ""
 
 # msgid "You must add resources to filter on a single metric."
 # msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""

@@ -344,9 +344,13 @@ describe('AddEditWidgetModal', () => {
       cy.contains(/^Generic text$/).click();
 
       cy.findAllByLabelText('RichTextEditor').eq(0).type('Hello ');
+      cy.findByLabelText('format').click();
       cy.findByLabelText('bold').click();
+
       cy.findAllByLabelText('RichTextEditor').eq(0).type('World');
+      cy.findByLabelText('format').click();
       cy.findByLabelText('bold').click();
+
       cy.findAllByLabelText('RichTextEditor').eq(0).type(`
       
       
@@ -367,9 +371,13 @@ describe('AddEditWidgetModal', () => {
       cy.contains(/^Generic text$/).click();
 
       cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
+      cy.findByLabelText('format').click();
       cy.findByLabelText('bold').click();
+
       cy.findAllByLabelText('RichTextEditor').eq(1).type('World');
+      cy.findByLabelText('format').click();
       cy.findByLabelText('bold').click();
+
       cy.findAllByLabelText('RichTextEditor').eq(1).type(`
       
       

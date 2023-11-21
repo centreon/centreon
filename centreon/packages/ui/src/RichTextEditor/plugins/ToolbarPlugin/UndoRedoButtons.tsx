@@ -16,6 +16,8 @@ import RedoIcon from '@mui/icons-material/Redo';
 import { IconButton } from '../../..';
 import { labelRedo, labelUndo } from '../../translatedLabels';
 
+import { useStyles } from './ToolbarPlugin.styles';
+
 const LowPriority = 1;
 
 interface Props {
@@ -23,6 +25,8 @@ interface Props {
 }
 
 const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
+  const { classes } = useStyles();
+
   const { t } = useTranslation();
 
   const [canUndo, setCanUndo] = useState(false);
@@ -68,6 +72,7 @@ const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
     <>
       <IconButton
         ariaLabel={translatedUndo}
+        className={classes.button}
         disabled={!canUndo || disabled}
         title={translatedUndo}
         tooltipPlacement="top"
@@ -77,6 +82,7 @@ const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
       </IconButton>
       <IconButton
         ariaLabel={translatedRedo}
+        className={classes.button}
         disabled={!canRedo || disabled}
         title={translatedRedo}
         tooltipPlacement="top"

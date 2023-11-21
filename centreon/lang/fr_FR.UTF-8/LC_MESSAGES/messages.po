@@ -18347,3 +18347,21 @@ msgstr "Affiner le filtre"
 
 msgid "You must add resources to filter on a single metric."
 msgstr "Vous devez ajouter des ressources afin de filtrer sur une seule métrique."
+
+msgid "Huge"
+msgstr "Très grande"
+
+msgid "Large"
+msgstr "Grande"
+
+msgid "Normal"
+msgstr "Normale"
+
+msgid "Small"
+msgstr "Petite"
+
+msgid "You are not allowed to edit a service"
+msgstr "Vous n'êtes pas autorisé à éditer un service"
+
+msgid "Error while updating a service"
+msgstr "Erreur lors de la mise à jour d'un service"

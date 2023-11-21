@@ -93,10 +93,21 @@ interface ReadCommandRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param CommandType[] $commandTypes
      *
+     * @throws \Throwable
+     *
      * @return Command[]
      */
     public function findByRequestParameterAndTypes(
         RequestParametersInterface $requestParameters,
         array $commandTypes
     ): array;
+
+    /**
+     * Find all commands.
+     *
+     * @throws \Throwable
+     *
+     * @return \Iterator<int,Command>&\Countable
+     */
+    public function findAll(): \Iterator&\Countable;
 }
