@@ -160,7 +160,7 @@ const LineChart = ({
   const displayTooltip = !isNil(tooltip?.renderComponent);
 
   const legendItemsWidth = reduce(
-    (acc) => acc + legendWidth * 8 + 8,
+    (acc) => acc + legendWidth * 8 + 24,
     0,
     displayedLines
   );

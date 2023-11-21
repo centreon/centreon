@@ -135,6 +135,9 @@ const MainLegend = ({
                 color={markerColor}
                 disabled={!display}
                 line={line}
+                minMaxAvg={
+                  shouldDisplayLegendInCompactMode ? minMaxAvg : undefined
+                }
                 value={
                   shouldDisplayLegendInCompactMode
                     ? interactiveValue

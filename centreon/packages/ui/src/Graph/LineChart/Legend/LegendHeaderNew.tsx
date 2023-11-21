@@ -2,21 +2,29 @@ import { includes, isEmpty, split } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { EllipsisTypography } from '../../..';
+import { EllipsisTypography, formatMetricValue } from '../../..';
 import { Line } from '../../common/timeSeries/models';
 import { Tooltip } from '../../../components';
 
 import { useLegendHeaderStyles } from './Legend.styles';
 import { LegendDisplayMode } from './models';
+import LegendContent from './LegendContent';
 
 interface Props {
   color: string;
   disabled?: boolean;
   line: Line;
+  minMaxAvg?;
   value?: string | null;
 }
 
-const LegendHeader = ({ line, color, disabled, value }: Props): JSX.Element => {
+const LegendHeader = ({
+  line,
+  color,
+  disabled,
+  value,
+  minMaxAvg
+}: Props): JSX.Element => {
   const { classes, cx } = useLegendHeaderStyles({ color });
 
   const { unit, name, legend } = line;
@@ -40,7 +48,24 @@ const LegendHeader = ({ line, color, disabled, value }: Props): JSX.Element => {
     <div className={classes.container}>
       <Tooltip
         followCursor={false}
-        label={`${legendName} ${unitName}`}
+        label={
+          minMaxAvg ? (
+            <div>
+              <Typography>{`${legendName} ${unitName}`}</Typography>
+              <div className={classes.minMaxAvgContainer}>
+                {minMaxAvg.map(({ label, value }) => (
+                  <LegendContent
+                    data={formatMetricValue({ unit: line.unit, value })}
+                    key={label}
+                    label={label}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            `${legendName} ${unitName}`
+          )
+        }
         placement="top"
       >
         <div className={classes.markerAndLegendName}>

@@ -25,14 +25,15 @@ export const useStyles = makeStyles<MakeStylesProps>()(
           ? theme.spacing(legendItemHeightCompact * 2 + 1.5)
           : 'unset'
       },
+      columnGap: theme.spacing(3),
       display: 'grid',
-      gap: theme.spacing(1),
       gridAutoRows: theme.spacing(legendItemHeight),
       gridTemplateColumns: `repeat(auto-fit, ${theme.spacing(legendWidth)})`,
       maxHeight: limitLegendRows
         ? theme.spacing(legendItemHeight * 2 + 1)
         : 'unset',
       overflowY: 'auto',
+      rowGap: theme.spacing(1),
       width: '100%'
     },
     legend: {
@@ -65,7 +66,6 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       display: 'flex',
       flexDirection: 'row',
       gap: theme.spacing(0.5),
-      justifyContent: 'space-between',
       width: '100%'
     },
     disabled: {
@@ -80,15 +80,21 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
     },
     legendName: {
       '&[data-mode="compact"]': {
-        width: theme.spacing(legendWidth * 0.5)
+        maxWidth: theme.spacing(legendWidth * 0.5)
       },
-      width: theme.spacing(legendWidth * 0.75)
+      maxWidth: theme.spacing(legendWidth * 0.75)
     },
     markerAndLegendName: {
       alignItems: 'center',
       display: 'flex',
       flexDirection: 'row',
       gap: theme.spacing(0.5)
+    },
+    minMaxAvgContainer: {
+      columnGap: theme.spacing(0.5),
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, min-content)',
+      whiteSpace: 'nowrap'
     },
     text: {
       fontWeight: theme.typography.fontWeightMedium,
