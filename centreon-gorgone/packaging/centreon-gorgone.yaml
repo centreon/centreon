@@ -183,7 +183,7 @@ overrides:
       - libssh-session-perl
       - libev-perl
       - libzmq-ffi-perl
-      - centreon-gorgone-centreon-config (>= 24.04.0-1)
+      - centreon-gorgone-centreon-config (= ${VERSION})
 
 rpm:
   summary: centreon gorgone packaging to nfpm
