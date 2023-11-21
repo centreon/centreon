@@ -22,6 +22,7 @@ export const useTileStyles = makeStyles()((theme) => ({
       height: theme.spacing(1.25),
       width: theme.spacing(1.25)
     },
+    border: `1px solid ${theme.palette.text.primary}`,
     borderRadius: theme.shape.borderRadius,
     height: theme.spacing(1.5),
     position: 'absolute',
