@@ -32,7 +32,6 @@ contents:
 
   - src: "./configuration/centreon-audit.yaml"
     dst: "/etc/centreon-gorgone/config.d/50-centreon-audit.yaml"
-    type: config|noreplace
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone

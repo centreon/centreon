@@ -19,8 +19,14 @@ apt-get install -y /tmp/debs-centreon-gorgone/*.deb
 
 apt-get clean
 
-sleep 10
+echo "ok"
+
+sleep 20
+
+ps aux | grep gorgone
 
 cat /var/log/centreon-gorgone/gorgoned.log
+
+echo "ok"
 
 EOF

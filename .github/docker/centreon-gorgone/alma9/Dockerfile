@@ -15,8 +15,14 @@ dnf install -y /tmp/rpms-centreon-gorgone/*.rpm
 
 dnf clean all --enablerepo=*
 
-sleep 10
+echo "ok"
+
+sleep 20
+
+ps aux | grep gorgone
 
 cat /var/log/centreon-gorgone/gorgoned.log
+
+echo "ok"
 
 EOF
