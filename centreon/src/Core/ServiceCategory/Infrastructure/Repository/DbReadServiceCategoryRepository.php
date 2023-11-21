@@ -55,6 +55,41 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
+    public function exist(array $serviceCategoryIds): array
+    {
+        $this->info('Check existence of service categories', ['service_category_ids' => $serviceCategoryIds]);
+
+        if ($serviceCategoryIds === []) {
+            return [];
+        }
+
+        $bindValues = [];
+        foreach ($serviceCategoryIds as $key => $serviceCategoryId) {
+            $bindValues[":service_category_{$key}"] = $serviceCategoryId;
+        }
+
+        $serviceCategoryIdList = implode(', ', array_keys($bindValues));
+
+        $request = $this->translateDbName(
+            <<<SQL
+                    SELECT sc_id FROM `:db`.service_categories WHERE sc_id IN ({$serviceCategoryIdList})
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findAllExistingIds(array $serviceCategoriesIds): array
     {
         if ($serviceCategoriesIds === []) {

@@ -150,4 +150,11 @@ interface ReadServiceCategoryRepositoryInterface
      * @return ServiceCategoryNamesById
      */
     public function findNames(array $serviceCategoryIds): ServiceCategoryNamesById;
+
+    /**
+     * @param int[] $serviceCategoryIds
+     *
+     * @return int[]
+     */
+    public function exist(array $serviceCategoryIds): array;
 }

@@ -21,10 +21,20 @@
 
 declare(strict_types = 1);
 
-namespace Core\ResourceAccess\Application\UseCase\FindRules;
+namespace Tests\Core\ResourceAccess\Infrastructure\API\AddRule;
 
-final class FindRulesResponse
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\ResourceAccess\Application\UseCase\AddRule\AddRulePresenterInterface;
+use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleResponse;
+
+class AddRulePresenterStub extends AbstractPresenter implements AddRulePresenterInterface
 {
-    /** @var TinyRuleDto[] */
-    public array $rulesDto = [];
+    public AddRuleResponse|ResponseStatusInterface $response;
+
+    public function presentResponse(AddRuleResponse|ResponseStatusInterface $response): void
+    {
+        $this->response = $response;
+    }
 }
+

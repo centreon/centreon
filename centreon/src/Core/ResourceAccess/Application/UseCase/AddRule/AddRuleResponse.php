@@ -21,10 +21,24 @@
 
 declare(strict_types = 1);
 
-namespace Core\ResourceAccess\Application\UseCase\FindRules;
+namespace Core\ResourceAccess\Application\UseCase\AddRule;
 
-final class FindRulesResponse
+final class AddRuleResponse
 {
-    /** @var TinyRuleDto[] */
-    public array $rulesDto = [];
+    public int $id = 0;
+
+    public string $name = '';
+
+    public ?string $description = null;
+
+    public bool $isEnabled = true;
+
+    /** @var int[] */
+    public array $contactIds = [];
+
+    /** @var int[] */
+    public array $contactGroupIds = [];
+
+    /** @var mixed[] */
+    public array $datasetFilters = [];
 }
