@@ -15,11 +15,12 @@ apt-get update
 
 apt-get install -y centreon-gorgone
 
-#dpkg --info /tmp/debs-centreon-gorgone/*.deb
-#dpkg -c /tmp/debs-centreon-gorgone/*.deb
-
 apt-get install -y /tmp/debs-centreon-gorgone/*.deb
 
 apt-get clean
+
+sleep 10
+
+cat /var/log/centreon-gorgone/gorgoned.log
 
 EOF
