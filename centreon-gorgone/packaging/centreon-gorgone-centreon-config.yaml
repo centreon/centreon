@@ -8,7 +8,7 @@ section: "default"
 priority: "optional"
 maintainer: "Centreon <contact@centreon.com>"
 description: |
-  Move Centreon Gorgone packaging to nfpm
+  Configure Centreon Gorgone for use with Centreon Web
   Commit: @COMMIT_HASH@
 vendor: "Centreon"
 homepage: "https://www.centreon.com"
@@ -38,11 +38,6 @@ contents:
       group: centreon-gorgone
       mode: 0664
 
-  - src: "./sudoers.d/centreon-gorgone"
-    dst: "/etc/sudoers.d/centreon-gorgone"
-    file_info:
-      mode: 0600
-
   - dst: "/var/cache/centreon-gorgone/autodiscovery"
     type: dir
     file_info:
@@ -59,15 +54,9 @@ overrides:
   deb:
     depends:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
-    replaces:
-      - centreon-gorgone (<< 24.04.0-1)
-
-deb:
-  breaks:
-    - centreon-gorgone (<< 24.04.0-1)
 
 rpm:
-  summary: centreon gorgone packaging to nfpm
+  summary: Configure Centreon Gorgone for use with Centreon Web
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}

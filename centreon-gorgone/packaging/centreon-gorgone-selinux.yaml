@@ -35,7 +35,7 @@ scripts:
   preremove: ./scripts/centreon-gorgone-selinux-preremove.sh
 
 rpm:
-  summary: selinux for centreon-gorgone
+  summary: Selinux for centreon-gorgone
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
