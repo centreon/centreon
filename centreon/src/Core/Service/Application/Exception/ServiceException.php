@@ -46,6 +46,14 @@ class ServiceException extends \Exception
     /**
      * @return self
      */
+    public static function editNotAllowed(): self
+    {
+        return new self(_('You are not allowed to edit a service'));
+    }
+
+    /**
+     * @return self
+     */
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access services'));
@@ -77,6 +85,14 @@ class ServiceException extends \Exception
     public static function errorWhileAdding(\Throwable $ex): self
     {
         return new self(_('Error while adding the service'), 0, $ex);
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileEditing(): self
+    {
+        return new self(_('Error while updating a service'));
     }
 
     /**
