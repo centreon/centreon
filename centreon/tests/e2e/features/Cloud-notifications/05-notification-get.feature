@@ -14,7 +14,7 @@ Feature: List Notification Rules
   Scenario Outline: Listing Notification Rules with Pagination
     When I am on listing page <page>
     And the result shows <count> items
-    Then I should see a previous page link <previous_page> and next page link <next_page>
+    Then I see a previous page link <previous_page> and next page link <next_page>
     Examples:
       | count | page | previous_page | next_page |
       | 1     | 1    | disabled      | disabled  |
