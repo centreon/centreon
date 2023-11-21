@@ -34,7 +34,7 @@ class PlaylistException extends \Exception
      */
     public static function dashboardsDoesNotExists(array $dashboardIds): self
     {
-        return new self (sprintf(_('The following dashboards does not exists: [%s]'), implode(', ', $dashboardIds)));
+        return new self (sprintf(_('The following dashboards does not exists: [%s].'), implode(', ', $dashboardIds)));
     }
 
     /**
@@ -44,7 +44,7 @@ class PlaylistException extends \Exception
      */
     public static function playlistAlreadyExists(string $playlistName): self
     {
-        return new self (sprintf(_('Playlist already exists: %s'), $playlistName), self::CODE_CONFLICT);
+        return new self (sprintf(_('The following playlist already exists: %s.'), $playlistName), self::CODE_CONFLICT);
     }
 
     /**
@@ -52,7 +52,7 @@ class PlaylistException extends \Exception
      */
     public static function errorWhileRetrieving(): self
     {
-        return new self(_('Error while retrieving a playlist'));
+        return new self(_('Error while retrieving a playlist.'));
     }
 
     /**
@@ -60,7 +60,7 @@ class PlaylistException extends \Exception
      */
     public static function errorWhileCreating(): self
     {
-        return new self(_('Error while creating a playlist'));
+        return new self(_('Error while creating a playlist.'));
     }
 
     /**
@@ -68,7 +68,7 @@ class PlaylistException extends \Exception
      */
     public static function dashboardShouldBeUnique(): self
     {
-        return new self(_('Dashboards should be unique in the playlist'));
+        return new self(_('You cannot add the same dashboard to a playlist several times.'));
     }
 
     /**
@@ -86,6 +86,6 @@ class PlaylistException extends \Exception
      */
     public static function dashboardNotShared(int $dashboardId): self
     {
-        return new self(sprintf(_('Dashboard not shared: [%d]'), $dashboardId));
+        return new self(sprintf(_('The following dashboard is not shared with you: [%d].'), $dashboardId));
     }
 }
