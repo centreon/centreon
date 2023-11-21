@@ -1303,23 +1303,5 @@
 				]
 			}
 		}
-	],
-	"variable": [
-		{
-			"key": "passwordWithCorrectFormat",
-			"value": ""
-		},
-		{
-			"key": "oldPassword",
-			"value": ""
-		},
-		{
-			"key": "currentPassword",
-			"value": ""
-		},
-		{
-			"key": "bufferPasswords",
-			"value": ""
-		}
 	]
 }
