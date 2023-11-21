@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
-import { concat, gt, lte, prop, reduce, slice, sortBy } from 'ramda';
+import { prop, slice, sortBy } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { Box, alpha, useTheme } from '@mui/material';
@@ -14,7 +14,7 @@ import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtoms';
 
 import InteractiveValue from './InteractiveValue';
-import { legendWidth, useStyles } from './Legend.styles';
+import { useStyles } from './Legend.styles';
 import LegendHeader from './LegendHeaderNew';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useInteractiveValues from './useInteractiveValues';
@@ -24,11 +24,11 @@ import LegendContent from './LegendContent';
 interface Props {
   base: number;
   displayAnchor?: boolean;
-  graphWidth: number;
   limitLegendRows?: boolean;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
   setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
+  shouldDisplayLegendInCompactMode: boolean;
   timeSeries: Array<TimeValue>;
   toggable?: boolean;
   xScale;
@@ -44,7 +44,7 @@ const MainLegend = ({
   displayAnchor = true,
   setLinesGraph,
   xScale,
-  graphWidth
+  shouldDisplayLegendInCompactMode
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
@@ -86,35 +86,14 @@ const MainLegend = ({
     selectMetricLine(metric_id);
   };
 
-  const legendItemsWidth = reduce(
-    (acc) => acc + legendWidth * 8,
-    0,
-    concat(
-      displayedLines,
-      concat(
-        displayedLines,
-        concat(displayedLines, concat(displayedLines, displayedLines))
-      )
-    )
-  );
-
-  const shouldDisplayCompactMode =
-    lte(graphWidth, 808) && gt(legendItemsWidth, graphWidth);
-
-  const mode = shouldDisplayCompactMode
+  const mode = shouldDisplayLegendInCompactMode
     ? LegendDisplayMode.Compact
     : LegendDisplayMode.Normal;
 
   return (
     <div className={classes.legend}>
       <div className={classes.items} data-mode={mode}>
-        {concat(
-          displayedLines,
-          concat(
-            displayedLines,
-            concat(displayedLines, concat(displayedLines, displayedLines))
-          )
-        ).map((line) => {
+        {displayedLines.map((line) => {
           const { color, display, highlight, metric_id } = line;
 
           const markerColor = display
@@ -156,9 +135,13 @@ const MainLegend = ({
                 color={markerColor}
                 disabled={!display}
                 line={line}
-                value={shouldDisplayCompactMode ? interactiveValue : undefined}
+                value={
+                  shouldDisplayLegendInCompactMode
+                    ? interactiveValue
+                    : undefined
+                }
               />
-              {!shouldDisplayCompactMode && (
+              {!shouldDisplayLegendInCompactMode && (
                 <div>
                   {displayAnchor && (
                     <InteractiveValue value={interactiveValue} />
@@ -193,7 +176,7 @@ const Legend = (props: Props): JSX.Element => {
     lines,
     base,
     displayAnchor,
-    graphWidth
+    shouldDisplayLegendInCompactMode
   } = props;
   const timeValue = useAtomValue(timeValueAtom);
 
@@ -207,7 +190,7 @@ const Legend = (props: Props): JSX.Element => {
       toggable,
       limitLegendRows,
       displayAnchor,
-      graphWidth
+      shouldDisplayLegendInCompactMode
     ]
   });
 };

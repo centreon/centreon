@@ -20,7 +20,10 @@ export const useStyles = makeStyles<MakeStylesProps>()(
     },
     items: {
       '&[data-mode="compact"]': {
-        gridAutoRows: theme.spacing(legendItemHeightCompact)
+        gridAutoRows: theme.spacing(legendItemHeightCompact),
+        height: limitLegendRows
+          ? theme.spacing(legendItemHeightCompact * 2 + 1.5)
+          : 'unset'
       },
       display: 'grid',
       gap: theme.spacing(1),
