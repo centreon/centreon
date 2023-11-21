@@ -139,17 +139,17 @@ jobs:
   #         static_directory: ${{ env.widgets_directory }}/src
   #         static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
-  # backend-dependencies:
-  #   needs: [get-version]
-  #   runs-on: ubuntu-22.04
+  backend-dependencies:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - uses: ./.github/actions/backend-dependencies
-  #       with:
-  #         base_directory: ${{ env.base_directory }}
-  #         cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+      - uses: ./.github/actions/backend-dependencies
+        with:
+          base_directory: ${{ env.base_directory }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   # translation-build:
   #   needs: [get-version]
@@ -336,7 +336,7 @@ jobs:
         #gherkin-lint,
         get-version,
         #translation-build,
-        #backend-dependencies,
+        backend-dependencies,
         #backend-lint,
         #backend-unit-test,
         #frontend-web-build,
@@ -349,6 +349,7 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - package_extension: rpm
@@ -374,6 +375,14 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Restore vendor directory from cache
+        if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
+        uses: actions/cache/restore@v3
+        with:
+          path: centreon/vendor
+          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          fail-on-cache-miss: true
 
       - name: Set package version and paths according to distrib
         run: |
