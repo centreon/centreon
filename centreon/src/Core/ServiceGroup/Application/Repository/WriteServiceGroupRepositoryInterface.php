@@ -61,12 +61,4 @@ interface WriteServiceGroupRepositoryInterface
      * @throws \Throwable
      */
     public function unlink(array $serviceGroupRelations): void;
-
-    /**
-     * Delete all relations for given serviceGroup IDs
-     * (only works for relation with serviceTemplate(s)).
-     *
-     * @param int ...$serviceGroupIds
-     */
-    public function deleteRelations(int ...$serviceGroupIds): void;
 }
