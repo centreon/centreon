@@ -797,15 +797,15 @@ jobs:
 
   deploy-platform-nightly:
     needs: [get-version]
-    #needs:
-    #  [
-    #    get-version,
-    #    api-integration-test,
-    #    e2e-test,
-    #    performances-test,
-    #    legacy-e2e-test,
-    #  ]
-    # if: ${{ github.event_name }} == '0 3 * * *'
+    # needs:
+    #   [
+    #     get-version,
+    #     api-integration-test,
+    #     e2e-test,
+    #     performances-test,
+    #     legacy-e2e-test,
+    #   ]
+    # if: ${{ github.event_name }} == '0 6 * * *'
     runs-on: [common]
     steps:
       - name: Checkout sources

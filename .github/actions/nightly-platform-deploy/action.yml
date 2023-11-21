@@ -1,4 +1,4 @@
-name: "nightly platform deploy"
+name: "nightly-platform-deploy"
 description: "Deploy a platform with packages from nightly builds."
 inputs:
   deploy_type:
