@@ -25,7 +25,7 @@ jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: centreon-gorgone/packaging/centreon-gorgone.spectemplate
+      version_file: centreon-gorgone/.version
 
   veracode-analysis:
     needs: [get-version]
