@@ -45,7 +45,7 @@ interface WriteServiceGroupRepositoryInterface
     public function add(NewServiceGroup $newServiceGroup): int;
 
     /**
-     * Link a service to a list of service groups.
+     * Create serviceGroup relation(s).
      *
      * @param ServiceGroupRelation[] $serviceGroupRelations
      *
@@ -54,7 +54,17 @@ interface WriteServiceGroupRepositoryInterface
     public function link(array $serviceGroupRelations): void;
 
     /**
-     * Delete all relations for given IDs.
+     * Remove serviceGroup relation(s).
+     *
+     * @param ServiceGroupRelation[] $serviceGroupRelations
+     *
+     * @throws \Throwable
+     */
+    public function unlink(array $serviceGroupRelations): void;
+
+    /**
+     * Delete all relations for given serviceGroup IDs
+     * (only works for relation with serviceTemplate(s)).
      *
      * @param int ...$serviceGroupIds
      */

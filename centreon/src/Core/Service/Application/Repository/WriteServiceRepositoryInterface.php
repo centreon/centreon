@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Application\Repository;
 
 use Core\Service\Domain\Model\NewService;
+use Core\Service\Domain\Model\Service;
 
 interface WriteServiceRepositoryInterface
 {
@@ -53,4 +54,13 @@ interface WriteServiceRepositoryInterface
      * @return int
      */
     public function add(NewService $newService): int;
+
+    /**
+     * Update a service.
+     *
+     * @param Service $service
+     *
+     * @throws \Throwable
+     */
+    public function update(Service $service): void;
 }
