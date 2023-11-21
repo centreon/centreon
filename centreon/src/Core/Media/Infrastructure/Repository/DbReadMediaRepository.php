@@ -187,7 +187,6 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
                     $this->statement = $this->db->query($this->translateDbName($request))
                         ?: throw new \Exception('Impossible to retrieve a PDO Statement');
-                    $this->statement->execute();
                     $this->totalItems = (int) $this->statement->fetchColumn();
                 }
 

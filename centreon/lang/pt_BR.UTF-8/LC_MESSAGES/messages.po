@@ -17047,3 +17047,9 @@ msgstr ""
 
 # msgid "Resource Access Management"
 # msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""
