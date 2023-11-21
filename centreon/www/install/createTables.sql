@@ -2662,7 +2662,8 @@ CREATE TABLE IF NOT EXISTS `dashboard_playlist_relation` (
   `dashboard_id` INT UNSIGNED NOT NULL,
   `playlist_id` INT UNSIGNED NOT NULL,
   `order` INT(11) NOT NULL,
-  UNIQUE KEY(`dashboard_id`, `playlist_id`, `order`),
+  UNIQUE KEY(`dashboard_id`, `playlist_id`),
+  CONSTRAINT `AK_PlaylisId_Order` UNIQUE (`playlist_id`, `order`),
   CONSTRAINT `dashboard_playlist_relation_dashboard_id`
     FOREIGN KEY (`dashboard_id`)
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
