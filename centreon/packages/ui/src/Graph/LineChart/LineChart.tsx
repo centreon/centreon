@@ -34,6 +34,8 @@ import { useIntersection } from './useLineChartIntersection';
 import { CurveType } from './BasicComponents/Lines/models';
 import Thresholds from './BasicComponents/Thresholds';
 
+const extraMargin = 10;
+
 interface Props extends LineChartProps {
   curve: CurveType;
   graphData: Data;
@@ -92,7 +94,8 @@ const LineChart = ({
     showTooltip: showThresholdTooltip
   } = Tooltip.useTooltip();
 
-  const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
+  const graphWidth =
+    width > 0 ? width - margin.left - margin.right - extraMargin : 0;
   const graphHeight =
     (height || 0) > 0
       ? (height || 0) -
@@ -185,7 +188,7 @@ const LineChart = ({
             width={width}
           />
           <svg height={graphHeight + margin.top} ref={graphSvgRef} width="100%">
-            <Group.Group left={margin.left} top={margin.top}>
+            <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
               <Grids
                 height={graphHeight - margin.top}
                 leftScale={leftScale}
