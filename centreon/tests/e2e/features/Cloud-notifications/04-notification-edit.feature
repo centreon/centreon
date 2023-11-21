@@ -44,6 +44,6 @@ Feature: Editing notification rule configuration
     And the notification refresh delay has been reached
     Then only notifications for status changes of the updated resource parameters are sent
     Examples:
-      | action  | prefix  |
-      | enable  | no more |
-      | disable | one     |
+      | action  |
+      | enable  |
+      | disable |

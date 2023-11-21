@@ -8,7 +8,8 @@
     "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json 2> ./cypress/results/logs.txt",
     "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --e2e",
     "eslint": "eslint ./features",
-    "eslint:fix": "pnpm eslint --fix"
+    "eslint:fix": "pnpm eslint --fix",
+    "gherkinlint": "gherkin-lint -c .gherkin-lintrc ./features/"
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^19.1.0",
@@ -16,6 +17,7 @@
     "@types/node": "^20.9.0",
     "cypress": "^13.5.0",
     "cypress-wait-until": "^2.0.1",
+    "gherkin-lint": "^4.2.2",
     "path": "^0.12.7",
     "shell-exec": "^1.1.2",
     "typescript": "^5.2.2"
