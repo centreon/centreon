@@ -22,6 +22,9 @@ inputs:
   dependencies_lock_file:
     description: "The frontend dependencies lock file path"
     required: true
+  test_execution_key:
+    required: true
+    type: string
 
 runs:
   using: "composite"
@@ -70,7 +73,14 @@ runs:
 
     - name: Rename JSON report
       run: |
-        # Assuming your reports are located in the cypress/cucumber-logs directory
         feature_name=$(basename "${{ inputs.feature_file_path }}")
-        mv ${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json ${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json
+        report_path="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json"
+        report_path_updated="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json"
+
+        jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
+
+        rm "$report_path"
+
+        # Show the content of the modified file
+        cat "$report_path_updated"
       shell: bash
