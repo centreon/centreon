@@ -53,9 +53,12 @@ const LegendHeader = ({
             <div>
               <Typography>{`${legendName} ${unitName}`}</Typography>
               <div className={classes.minMaxAvgContainer}>
-                {minMaxAvg.map(({ label, value }) => (
+                {minMaxAvg.map(({ label, value: subValue }) => (
                   <LegendContent
-                    data={formatMetricValue({ unit: line.unit, value })}
+                    data={formatMetricValue({
+                      unit: line.unit,
+                      value: subValue
+                    })}
                     key={label}
                     label={label}
                   />

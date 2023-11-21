@@ -15,7 +15,7 @@ import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtom
 
 import InteractiveValue from './InteractiveValue';
 import { useStyles } from './Legend.styles';
-import LegendHeader from './LegendHeaderNew';
+import LegendHeader from './LegendHeader';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useInteractiveValues from './useInteractiveValues';
 import useLegend from './useLegend';

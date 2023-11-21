@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 
-import { compose, equals, prop, propEq, reject, sortBy, toLower } from 'ramda';
+import { equals, propEq, reject } from 'ramda';
 
 import { Line } from '../../common/timeSeries/models';
 
