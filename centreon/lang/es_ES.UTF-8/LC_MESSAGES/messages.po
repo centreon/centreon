@@ -16577,3 +16577,15 @@ msgstr "Modo avanzado"
 
 #  msgid "This operation requires an admin user"
 #  msgstr ""
+
+# msgid "Resource access rules"
+# msgstr ""
+
+# msgid "Resource Access Management"
+# msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""

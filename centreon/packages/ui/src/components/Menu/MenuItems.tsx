@@ -7,9 +7,10 @@ import { useMenu } from './useMenu';
 
 type MenuItemsProps = {
   children?: ReactNode | Array<ReactNode>;
+  className?: string;
 };
-const MenuItems = ({ children }: MenuItemsProps): ReactElement => {
-  const { classes } = useStyles();
+const MenuItems = ({ children, className }: MenuItemsProps): ReactElement => {
+  const { cx, classes } = useStyles();
 
   const { isMenuOpen, setIsMenuOpen, anchorEl, onClose } = useMenu();
 
@@ -21,7 +22,7 @@ const MenuItems = ({ children }: MenuItemsProps): ReactElement => {
   return (
     <MuiMenu
       anchorEl={anchorEl}
-      className={classes.menuItems}
+      className={cx(classes.menuItems, className)}
       open={isMenuOpen}
       variant="menu"
       onClick={onCloseMenu}

@@ -62,7 +62,7 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
         ]);
 
         $request = <<<'SQL'
-                SELECT
+                SELECT SQL_CALC_FOUND_ROWS
                     acl_group_id,
                     acl_group_name,
                     cloud_description,

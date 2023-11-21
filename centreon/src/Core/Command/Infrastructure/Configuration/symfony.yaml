@@ -1,0 +1,33 @@
+# parameters:
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    _instanceof:
+        Symfony\Component\Console\Command\Command:
+            tags: ['script.command']
+
+    Core\Command\:
+        resource: '../../../../Core/Command/*'
+
+    Core\Command\Infrastructure\Repository\DbReadCommandRepository:
+        arguments:
+            $logger: '@Centreon\Domain\Log\Logger'
+
+    Core\Command\Application\Repository\WriteCommandRepositoryInterface:
+        class: Core\Command\Infrastructure\Repository\DbWriteCommandRepository
+
+    Core\Command\Application\UseCase\MigrateAllCommands\MigrateAllCommands:
+        arguments:
+            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\ApiWriteCommandRepository'
+
+    Core\Command\Application\UseCase\AddCommand\AddCommand:
+        arguments:
+            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\DbWriteCommandRepository'
+
+    Core\Command\Infrastructure\Repository\ApiWriteCommandRepository:
+        calls:
+        - method: setApiTimeOut
+          arguments: [ '%curl.timeout%' ]
