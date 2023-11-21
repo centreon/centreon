@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 class ConfigurationUser
@@ -30,12 +31,14 @@ class ConfigurationUser
     /**
      * @param int $id
      * @param string $name
+     * @param string $email
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function __construct(
         private readonly int $id,
-        private readonly string $name
+        private readonly string $name,
+        private readonly string $email,
     ) {
         Assertion::positiveInt($id, 'User::id');
     }
@@ -51,12 +54,22 @@ class ConfigurationUser
     }
 
     /**
-     * Get the user name.
+     * Get the username, ie "full name".
      *
      * @return string
      */
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Get the email.
+     *
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
     }
 }

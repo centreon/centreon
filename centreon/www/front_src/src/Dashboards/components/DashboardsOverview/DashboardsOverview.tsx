@@ -1,4 +1,4 @@
-import { ReactElement, useMemo } from 'react';
+import { ReactElement, useMemo, useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -8,11 +8,14 @@ import AddIcon from '@mui/icons-material/Add';
 import { Button, DataTable, PageLayout } from '@centreon/ui/components';
 
 import { useDashboardAccessRights } from '../DashboardAccessRights/useDashboardAccessRights';
-import { useDashboardDelete } from '../DashboardDelete/useDashboardDelete';
+import { useDashboardDelete } from '../../hooks/useDashboardDelete';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
+  labelCancel,
   labelCreateADashboard,
-  labelNoDashboardsFound
+  labelDelete,
+  labelDescriptionDeleteDashboard,
+  labelWelcomeToDashboardInterface
 } from '../../translatedLabels';
 import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
@@ -25,7 +28,7 @@ const DashboardsOverview = (): ReactElement => {
 
   const { isEmptyList, dashboards } = useDashboardsOverview();
   const { createDashboard, editDashboard } = useDashboardConfig();
-  const { deleteDashboard } = useDashboardDelete();
+  const deleteDashboard = useDashboardDelete();
   const { editAccessRights } = useDashboardAccessRights();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
@@ -43,11 +46,23 @@ const DashboardsOverview = (): ReactElement => {
         actions: {
           create: t(labelCreateADashboard)
         },
-        title: t(labelNoDashboardsFound)
+        title: t(labelWelcomeToDashboardInterface)
       }
     }),
     []
   );
+
+  const getLabelsDelete = useCallback((dashboard: Dashboard) => {
+    return {
+      cancel: t(labelCancel),
+      confirm: {
+        label: t(labelDelete),
+        secondaryLabel: t(labelDescriptionDeleteDashboard, {
+          name: dashboard.name
+        })
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -81,6 +96,7 @@ const DashboardsOverview = (): ReactElement => {
               description={dashboard.description ?? undefined}
               hasActions={hasEditPermission(dashboard)}
               key={dashboard.id}
+              labelsDelete={getLabelsDelete(dashboard)}
               title={dashboard.name}
               onClick={navigateToDashboard(dashboard)}
               onDelete={deleteDashboard(dashboard)}

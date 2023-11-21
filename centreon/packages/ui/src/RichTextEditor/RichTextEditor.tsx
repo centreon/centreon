@@ -7,11 +7,12 @@ import { HeadingNode } from '@lexical/rich-text';
 import { ListItemNode, ListNode } from '@lexical/list';
 import anylogger from 'anylogger';
 import { makeStyles } from 'tss-react/mui';
-import { EditorState } from 'lexical';
+import { EditorState, LexicalEditor } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 import { Typography } from '@mui/material';
 
@@ -23,12 +24,14 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 export interface RichTextEditorProps {
   contentClassName?: string;
   disabled?: boolean;
+  displayBlockButtons?: boolean;
   displayMacrosButton?: boolean;
   editable: boolean;
   editorState?: string;
   error?: string;
-  getEditorState?: (editorState: EditorState) => void;
+  getEditorState?: (editorState: EditorState, editor: LexicalEditor) => void;
   initialEditorState?: string;
+  initialize?: (editor) => void;
   inputClassname?: string;
   minInputHeight?: number;
   namespace?: string;
@@ -36,6 +39,8 @@ export interface RichTextEditorProps {
   openLinkInNewTab?: boolean;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
+  setHtmlString?: (htmlString: string) => void;
+  toolbarClassName?: string;
   toolbarPositions?: 'start' | 'end';
 }
 
@@ -89,15 +94,20 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
       lineHeight: theme.typography.h5.lineHeight
     },
     h6: {
-      fontSize: theme.typography.h6.fontSize,
-      fontWeight: theme.typography.h6.fontWeight,
-      lineHeight: theme.typography.h6.lineHeight
+      fontSize: theme.typography.body2.fontSize,
+      fontWeight: theme.typography.body2.fontWeight,
+      lineHeight: theme.typography.body2.lineHeight
     },
     italic: {
       fontStyle: 'italic'
     },
     link: {
       color: theme.palette.primary.main
+    },
+    paragraph: {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: theme.typography.body1.fontWeight,
+      lineHeight: theme.typography.body1.lineHeight
     },
     strikethrough: {
       textDecoration: 'line-through'
@@ -131,8 +141,12 @@ const RichTextEditor = ({
   onBlur,
   contentClassName,
   displayMacrosButton = false,
-  disabled,
-  openLinkInNewTab = true
+  disabled = false,
+  openLinkInNewTab = true,
+  initialize,
+  displayBlockButtons = true,
+  setHtmlString,
+  toolbarClassName
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -156,6 +170,7 @@ const RichTextEditor = ({
         h6: classes.h6
       },
       link: classes.link,
+      paragraph: classes.paragraph,
       text: {
         bold: classes.bold,
         italic: classes.italic,
@@ -166,12 +181,21 @@ const RichTextEditor = ({
     }
   };
 
+  const change = (state: EditorState, editor: LexicalEditor): void => {
+    editor.update(() => {
+      setHtmlString?.($generateHtmlFromNodes(editor, null));
+    });
+    getEditorState?.(state, editor);
+  };
+
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes.container}>
         <div className={classes.toolbar}>
           <ToolbarPlugin
+            className={toolbarClassName}
             disabled={disabled}
+            displayBlockButtons={displayBlockButtons}
             displayMacrosButton={displayMacrosButton}
             editable={editable}
           />
@@ -188,6 +212,7 @@ const RichTextEditor = ({
                 error={error}
                 hasInitialTextContent={hasInitialTextContent}
                 initialEditorState={initialEditorState}
+                initialize={initialize}
                 inputClassname={inputClassname}
                 minInputHeight={minInputHeight}
                 namespace={namespace}
@@ -203,7 +228,7 @@ const RichTextEditor = ({
           <HistoryPlugin />
           <LinkPlugin />
           <ListPlugin />
-          <OnChangePlugin onChange={getEditorState} />
+          <OnChangePlugin onChange={change} />
           <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
           <FloatingLinkEditorPlugin
             editable={editable}

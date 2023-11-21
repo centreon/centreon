@@ -88,7 +88,7 @@ final class FindNotification
                 $presenter->presentResponse(new NotFoundResponse(_('Notification')));
             } else {
                 $notificationMessages = $this->notificationRepository->findMessagesByNotificationId($notificationId);
-                $notifiedUsers = $this->notificationRepository->findUsersByNotificationId($notificationId);
+                $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationId($notificationId));
                 $notifiedContactGroups = $this->findContactGroupsByNotificationId($notificationId);
                 $notificationResources = $this->findResourcesByNotificationId($notificationId);
 

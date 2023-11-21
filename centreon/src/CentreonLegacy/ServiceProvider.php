@@ -1,71 +1,55 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  *
  */
 
 namespace CentreonLegacy;
 
-use Pimple\Container;
-use Pimple\Psr11\ServiceLocator;
-use CentreonLegacy\Core\Module\License;
 use Centreon\Infrastructure\Provider\AutoloadServiceProviderInterface;
 use CentreonLegacy\Core\Module;
-use CentreonLegacy\Core\Widget;
+use CentreonLegacy\Core\Module\License;
 use CentreonLegacy\Core\Utils;
+use CentreonLegacy\Core\Widget;
+use Pimple\Container;
+use Pimple\Psr11\ServiceLocator;
 use Symfony\Component\Finder\Finder;
 
 class ServiceProvider implements AutoloadServiceProviderInterface
 {
-
-    const CONFIGURATION = 'configuration';
-    const CENTREON_REST_HTTP = 'centreon.rest.http';
-    const CENTREON_LEGACY_UTILS = 'centreon.legacy.utils';
-    const CENTREON_LEGACY_MODULE_HEALTHCHECK = 'centreon.legacy.module.healthcheck';
-    const CENTREON_LEGACY_MODULE_INFORMATION = 'centreon.legacy.module.information';
-    const CENTREON_LEGACY_MODULE_INSTALLER = 'centreon.legacy.module.installer';
-    const CENTREON_LEGACY_MODULE_UPGRADER = 'centreon.legacy.module.upgrader';
-    const CENTREON_LEGACY_MODULE_REMOVER = 'centreon.legacy.module.remover';
-    const CENTREON_LEGACY_MODULE_LICENSE = 'centreon.legacy.module.license';
-    const CENTREON_LEGACY_LICENSE = 'centreon.legacy.license';
-    const CENTREON_LEGACY_WIDGET_INFORMATION = 'centreon.legacy.widget.information';
-    const CENTREON_LEGACY_WIDGET_INSTALLER = 'centreon.legacy.widget.installer';
-    const CENTREON_LEGACY_WIDGET_UPGRADER = 'centreon.legacy.widget.upgrader';
-    const CENTREON_LEGACY_WIDGET_REMOVER = 'centreon.legacy.widget.remover';
-    const SYMFONY_FINDER = 'sf.finder';
+    public const CONFIGURATION = 'configuration';
+    public const CENTREON_REST_HTTP = 'centreon.rest.http';
+    public const CENTREON_LEGACY_UTILS = 'centreon.legacy.utils';
+    public const CENTREON_LEGACY_MODULE_HEALTHCHECK = 'centreon.legacy.module.healthcheck';
+    public const CENTREON_LEGACY_MODULE_INFORMATION = 'centreon.legacy.module.information';
+    public const CENTREON_LEGACY_MODULE_INSTALLER = 'centreon.legacy.module.installer';
+    public const CENTREON_LEGACY_MODULE_UPGRADER = 'centreon.legacy.module.upgrader';
+    public const CENTREON_LEGACY_MODULE_REMOVER = 'centreon.legacy.module.remover';
+    public const CENTREON_LEGACY_MODULE_LICENSE = 'centreon.legacy.module.license';
+    public const CENTREON_LEGACY_LICENSE = 'centreon.legacy.license';
+    public const CENTREON_LEGACY_WIDGET_INFORMATION = 'centreon.legacy.widget.information';
+    public const CENTREON_LEGACY_WIDGET_INSTALLER = 'centreon.legacy.widget.installer';
+    public const CENTREON_LEGACY_WIDGET_UPGRADER = 'centreon.legacy.widget.upgrader';
+    public const CENTREON_LEGACY_WIDGET_REMOVER = 'centreon.legacy.widget.remover';
+    public const SYMFONY_FINDER = 'sf.finder';
 
     /**
-     * Register CentreonLegacy services
+     * Register CentreonLegacy services.
      *
      * @param \Pimple\Container $pimple
      */
@@ -79,9 +63,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = new Utils\Utils($locator);
 
-            return $service;
+            return new Utils\Utils($locator);
         };
 
         $pimple[static::SYMFONY_FINDER] = function (Container $container) : Finder {
@@ -94,10 +77,16 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         $this->registerWidget($pimple);
     }
 
+    public static function order(): int
+    {
+        return 0;
+    }
+
     protected function registerConfiguration(Container $pimple)
     {
         $pimple[static::CONFIGURATION] = function (Container $container): Core\Configuration\Configuration {
             global $conf_centreon, $centreon_path;
+
             return new Core\Configuration\Configuration(
                 $conf_centreon,
                 $centreon_path,
@@ -127,9 +116,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = new Module\Healthcheck($locator);
 
-            return $service;
+            return new Module\Healthcheck($locator);
         };
 
         $pimple[static::CENTREON_LEGACY_MODULE_INFORMATION] = function (Container $container): Module\Information {
@@ -142,9 +130,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = new Module\Information($locator);
 
-            return $service;
+            return new Module\Information($locator);
         };
 
         $pimple[static::CENTREON_LEGACY_MODULE_INSTALLER] = $pimple->factory(function (Container $container) {
@@ -202,9 +189,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = new Module\License($locator);
 
-            return $service;
+            return new Module\License($locator);
         });
 
         // alias to centreon.legacy.module.license service
@@ -224,9 +210,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = new Widget\Information($locator);
 
-            return $service;
+            return new Widget\Information($locator);
         };
 
         $pimple[static::CENTREON_LEGACY_WIDGET_INSTALLER] = $pimple->factory(function (Container $container) {
@@ -273,10 +258,5 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
             return $service;
         });
-    }
-
-    public static function order(): int
-    {
-        return 0;
     }
 }

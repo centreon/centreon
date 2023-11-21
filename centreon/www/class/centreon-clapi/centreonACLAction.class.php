@@ -117,7 +117,8 @@ class CentreonACLAction extends CentreonObject
             'service_schedule_downtime',
             'service_schedule_forced_check',
             'service_submit_result',
-            'top_counter'
+            'top_counter',
+            'manage_tokens',
         );
         $this->activateField = "acl_action_activate";
         $this->action = "ACLACTION";

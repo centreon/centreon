@@ -21,8 +21,10 @@ export interface WidgetPropertyProps {
   propertyName: string;
   required?: boolean;
   text?: {
+    autoSize?: boolean;
     multiline?: boolean;
     size?: string;
+    step?: string;
     type?: string;
   };
 }
@@ -42,9 +44,11 @@ export interface NamedEntity {
 }
 
 export interface Metric extends NamedEntity {
-  criticalThreshold: number | null;
+  criticalHighThreshold: number | null;
+  criticalLowThreshold: number | null;
   unit: string;
-  warningThreshold: number | null;
+  warningHighThreshold: number | null;
+  warningLowThreshold: number | null;
 }
 
 export interface ServiceMetric extends NamedEntity {
@@ -55,7 +59,9 @@ export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
   hostGroup = 'host-group',
-  service = 'service'
+  service = 'service',
+  serviceCategory = 'service-category',
+  serviceGroup = 'service-group'
 }
 
 export enum RadioOptions {

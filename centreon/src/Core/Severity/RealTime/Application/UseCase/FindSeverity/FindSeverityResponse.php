@@ -26,7 +26,7 @@ namespace Core\Severity\RealTime\Application\UseCase\FindSeverity;
 use Core\Application\RealTime\Common\RealTimeResponseTrait;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
-class FindSeverityResponse
+final class FindSeverityResponse
 {
     use RealTimeResponseTrait;
 

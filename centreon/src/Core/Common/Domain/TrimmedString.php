@@ -23,17 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Common\Domain;
 
-use Stringable;
-
 /**
  * This object is *by purpose* a very simple ValueObject.
  * It forces the carried string to be explicitly trimmed.
  */
-final class TrimmedString implements Stringable
+final class TrimmedString implements \Stringable
 {
     public readonly string $value;
 
-    public function __construct(string|Stringable $value)
+    public function __construct(string|\Stringable $value)
     {
         $this->value = trim((string) $value);
     }

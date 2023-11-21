@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,43 +21,35 @@
 
 namespace CentreonRemote\Infrastructure\Service;
 
-use Psr\Container\ContainerInterface;
 use Centreon\Domain\Repository;
 use Centreon\Domain\Repository\Interfaces\AclResourceRefreshInterface;
 use CentreonRemote\Infrastructure\Export\ExportCommitment;
 use CentreonRemote\Infrastructure\Export\ExportManifest;
+use Psr\Container\ContainerInterface;
 
 class ExportService
 {
     /**
-     * Path to store exported remote server files
+     * Path to store exported remote server files.
      *
      * @var string
      */
     private $pathExportedData;
 
-    /**
-     * @var \CentreonRemote\Infrastructure\Service\ExporterService
-     */
+    /** @var \CentreonRemote\Infrastructure\Service\ExporterService */
     private $exporter;
 
-    /**
-     * @var \CentreonClapi\CentreonACL
-     */
+    /** @var \CentreonClapi\CentreonACL */
     private $acl;
 
-    /**
-     * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
-     */
+    /** @var \Centreon\Infrastructure\Service\CentreonDBManagerService */
     private $db;
 
-    /**
-     * @var String
-     */
+    /** @var string */
     private $version;
 
     /**
-     * Construct
+     * Construct.
      *
      * @param \Psr\Container\ContainerInterface $services
      */
@@ -79,11 +71,12 @@ class ExportService
     }
 
     /**
-     * Export all that is registered in exporter
+     * Export all that is registered in exporter.
      *
      * @param \CentreonRemote\Infrastructure\Export\ExportCommitment $commitment
      *
      * @throws \Exception
+     *
      * @todo separate work of exporters
      */
     public function export(ExportCommitment $commitment): void
@@ -107,20 +100,20 @@ class ExportService
     }
 
     /**
-     * Import
+     * Import.
      *
      * @param \CentreonRemote\Infrastructure\Export\ExportCommitment $commitment
      *
      * @throws \Exception
      */
-    public function import(ExportCommitment $commitment = null): void
+    public function import(?ExportCommitment $commitment = null): void
     {
-        $commitment = $commitment ?? new ExportCommitment(null, null, null, null, $this->pathExportedData);
+        $commitment ??= new ExportCommitment(null, null, null, null, $this->pathExportedData);
 
         // check is export directory
         $exportPath = $commitment->getPath();
 
-        if (!is_dir($exportPath)) {
+        if (! is_dir($exportPath)) {
             return;
         }
 

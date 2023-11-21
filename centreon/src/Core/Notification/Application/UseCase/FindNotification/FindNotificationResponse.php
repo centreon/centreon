@@ -66,7 +66,7 @@ final class FindNotificationResponse
     /**
      * @var array<array{
      *  type: string,
-     *  events: NotificationServiceEvent|NotificationHostEvent[],
+     *  events: array<NotificationServiceEvent>|array<NotificationHostEvent>,
      *  ids: array<array{id: int, name: string}>,
      *  extra?: array{
      *   event_services: NotificationServiceEvent[]

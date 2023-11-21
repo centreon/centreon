@@ -18,7 +18,7 @@ describe('Header', () => {
       'be.visible'
     );
     cy.get('[aria-label="Profile"]', { timeout: 10000 }).should('be.visible');
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('modify layout when viewport width is smaller than 769px', () => {
@@ -34,7 +34,7 @@ describe('Header', () => {
       'be.visible'
     );
     cy.get('[aria-label="Profile"]', { timeout: 10000 }).should('be.visible');
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('modify layout when viewport width is smaller than 600 px', () => {
@@ -50,7 +50,7 @@ describe('Header', () => {
       'be.visible'
     );
     cy.get('[aria-label="Profile"]', { timeout: 10000 }).should('be.visible');
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   HeaderPollers();

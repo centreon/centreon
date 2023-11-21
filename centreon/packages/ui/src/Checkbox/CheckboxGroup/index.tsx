@@ -1,15 +1,19 @@
 import { equals, includes } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { FormGroup } from '@mui/material';
+import FormGroup, { FormGroupProps } from '@mui/material/FormGroup';
+import { TypographyTypeMap } from '@mui/material/Typography';
 
 import Checkbox, { LabelPlacement } from '../Checkbox';
 
 interface Props {
+  className?: string;
   dataTestId?: string;
   direction?: 'horizontal' | 'vertical';
   disabled?: boolean;
+  formGroupProps?: FormGroupProps;
   labelPlacement?: LabelPlacement;
+  labelProps?: TypographyTypeMap['props'];
   onChange?: (e) => void;
   options: Array<string>;
   values: Array<string>;
@@ -34,27 +38,32 @@ const CheckboxGroup = ({
   onChange,
   labelPlacement = 'end',
   disabled = false,
-  dataTestId
+  dataTestId,
+  className,
+  labelProps,
+  formGroupProps
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   const row = !equals(direction, 'vertical');
 
   return (
     <FormGroup
-      className={classes.container}
+      classes={{ root: classes.container }}
       data-testid={dataTestId || ''}
       row={row}
+      {...formGroupProps}
     >
       {options.map((value) => {
         return (
           <Checkbox
             checked={includes(value, values)}
-            className={classes.checkbox}
+            className={cx(classes.checkbox, className)}
             disabled={disabled}
             key={value}
             label={value}
             labelPlacement={labelPlacement}
+            labelProps={labelProps}
             onChange={onChange}
           />
         );

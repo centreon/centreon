@@ -4704,7 +4704,7 @@ msgid "Extended information"
 msgstr "Informação Extendida"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:173
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Meta-Serviço"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:195
@@ -6987,7 +6987,7 @@ msgstr "Alterado"
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:979
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:1036
 #: centreon-web/www/include/configuration/configObject/host/listHost.php:455
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Alteração em massa"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:143
@@ -12142,8 +12142,8 @@ msgid "Custom Views"
 msgstr "Visões Personalizadas"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Painel de Controle"
+# msgid "Dashboards"
+# msgstr ""
 
 #: centreon-web/www/install/menu_translation.php:74
 msgid "Databases"
@@ -16332,13 +16332,13 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #cloud notifications
 
-# msgid 'Notifications management'
+# msgid 'Notification rules'
 # msgstr ""
 
 # msgid 'Welcome to the notifications interface'
 # msgstr ""
 
-# msgid 'Create a notification'
+# msgid 'Create a notification rule'
 # msgstr ""
 
 # msgid 'Add'
@@ -16392,7 +16392,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid 'Select users'
 # msgstr ""
 
-# msgid 'Select time period / channels of notifications'
+# msgid 'Notification settings'
 # msgstr ""
 
 # msgid "Notification duplicated"
@@ -16404,10 +16404,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Please enter a name for the duplicated notification"
 # msgstr ""
 
-# msgid 'Delete notification?'
+# msgid 'Delete notification rule?'
 # msgstr ""
 
-# msgid 'This action cannot be undone'
+# msgid 'This action cannot be undone.'
 # msgstr ""
 
 # msgid 'Collapse information panel'
@@ -16435,15 +16435,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid 'The notification was successfully added'
-# msgstr ""
-
-# msgid 'Do you want to confirm the action ?'
-# msgstr ""
-
-# msgid 'Confirm notification creation'
-# msgstr ""
-
-# msgid 'Confirm notification update'
 # msgstr ""
 
 # msgid 'Choose at least 1 resource'
@@ -16671,6 +16662,72 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr "Value settings"
 # msgid ""
 
+# msgid "Graph type"
+# msgstr ""
+
+# msgid "Value defined by the {{metric}} metric"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+# msgid "Custom value"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+# msgid "Custom value"
+# msgstr ""
+
 # msgid "Notifications will only be sent during this time period"
 # msgstr ""
 
@@ -16686,7 +16743,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 # msgstr ""
 
-#  msgid "You are not allowed to add a service"
+#  msgid "You are not allowed to add a service."
 #  msgstr ""
 
 #  msgid "Error while adding the service"
@@ -16701,5 +16758,287 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "'%s' does not exist with ID(s) '%s'"
 #  msgstr ""
 
-#  msgid "'%s' service name already exists for host ID %d"
+#  msgid "'%s' service name already exists for host ID %d."
+#  msgstr ""
+
+# msgid "Widget type"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Text"
+# msgstr ""
+
+# msgid "Gauge"
+# msgstr ""
+
+# msgid "Bar chart"
+# msgstr ""
+
+# msgid "The default value is the value defined for the first metric used."
+# msgstr ""
+
+# msgid "None"
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Raw value"
+# msgstr ""
+
+# msgid "Human readable"
+# msgstr ""
+
+# msgid "You can choose only one resource for each resource type."
+# msgstr ""
+
+# msgid "View properties"
+# msgstr ""
+
+# msgid "Your rights only allow you to view the properties of a widget."
+# msgstr ""
+
+# msgid "Please contact your administrator for more information."
+# msgstr ""
+
+# msgid "Base color"
+# msgstr ""
+
+#  msgid "Display view:"
+#  msgstr ""
+
+#  msgid "View all resources"
+#  msgstr ""
+
+#  msgid "View by host"
+#  msgstr ""
+
+#  msgid "View by service"
+#  msgstr ""
+
+#  msgid "Advanced mode"
+#  msgstr ""
+
+#  msgid "Error while adding a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens"
+#  msgstr ""
+
+#  msgid "Error while retrieving a token"
+#  msgstr ""
+
+#  msgid "The token name '%s' already exists"
+#  msgstr ""
+
+#  msgid "The user with ID %d' doesn't exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} resources"
+# msgstr ""
+
+#  msgid "Error while deleting a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "hosts"
+# msgstr ""
+
+# msgid "none"
+# msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""
+
+# msgid "View widget properties"
+# msgstr ""
+
+# msgid "Dashboard library"
+# msgstr ""
+
+# msgid "Welcome to the Dashboards interface!"
+# msgstr ""
+
+#  msgid "You are not allowed to access services"
+#  msgstr ""
+
+#  msgid "Error while searching for services"
+#  msgstr ""
+
+
+# msgid "Availability"
+# msgstr ""
+
+# msgid "Generic text"
+# msgstr ""
+
+# msgid "Allows you to add free text to your dashboards (section titles, information, etc.)."
+# msgstr ""
+
+# msgid "Single metric"
+# msgstr ""
+
+# msgid "Displays the value of a single metric as a text, a gauge or a bar chart."
+# msgstr ""
+
+# msgid "Metrics graph"
+# msgstr ""
+
+# msgid "Displays metrics for a given time period."
+# msgstr ""
+
+# msgid "Top/bottom"
+# msgstr ""
+
+# msgid "Displays the top or bottom x hosts, for a selected metric."
+# msgstr ""
+
+# msgid "Thresholds"
+# msgstr ""
+
+# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Time period"
+# msgstr ""
+
+# msgid "Last hour (default)"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Customize"
+# msgstr ""
+
+# msgid "to"
+# msgstr ""
+
+# msgid "Add widget"
+# msgstr ""
+
+# msgid "Dataset selection"
+# msgstr ""
+
+# msgid "Select resource"
+# msgstr ""
+
+# msgid "Select metric"
+# msgstr ""
+
+# msgid "You can select a maximum of 2 metric units."
+# msgstr ""
+
+#  msgid "You are not allowed to list hosts"
+#  msgstr ""
+
+#  msgid "Error while searching for host configurations"
+#  msgstr ""
+#  msgid "The '%s' command name already exists"
+#  msgstr ""
+
+#  msgid "'%d' is not a valid command type"
+#  msgstr ""
+
+#  msgid "The following arguments are not valid: %s"
+#  msgstr ""
+
+#  msgid "The following macros are not valid: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to add a command"
+#  msgstr ""
+
+#  msgid "Error while adding the command"
+#  msgstr ""
+
+#  msgid "Error while retrieving a command"
+#  msgstr ""
+
+# msgid "Save as"
+# msgstr ""
+
+#  msgid "You are not allowed to add media"
+#  msgstr ""
+
+#  msgid "Error while adding a media"
+#  msgstr ""
+
+#  msgid "File extension not authorized"
+#  msgstr ""
+
+#  msgid "Media already exists"
+#  msgstr ""
+
+#  msgid "You are not allowed to access graph templates"
+#  msgstr ""
+
+#  msgid "Error while searching for graph templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access connectors"
+#  msgstr ""
+
+#  msgid "Error while searching for connectors"
+#  msgstr ""
+
+#  msgid "Error while updating a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a host"
+#  msgstr ""
+
+#  msgid "The token cannot be empty"
+#  msgstr ""
+
+#  msgid "This operation requires an admin user"
+#  msgstr ""
+
+# msgid "Resource access rules"
+# msgstr ""
+
+# msgid "Resource Access Management"
+# msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
 #  msgstr ""

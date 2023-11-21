@@ -1,36 +1,37 @@
 import {
-  lazy,
-  useRef,
-  useState,
-  useEffect,
   KeyboardEvent,
+  RefObject,
   Suspense,
-  RefObject
+  lazy,
+  useEffect,
+  useRef,
+  useState
 } from 'react';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
-  isEmpty,
-  propEq,
-  pick,
-  find,
-  equals,
-  last,
-  inc,
-  length,
-  dec,
-  isNil,
-  not,
-  map,
-  difference,
-  pluck,
   concat,
-  pipe,
+  dec,
+  difference,
   dropLast,
+  equals,
+  find,
+  inc,
+  isEmpty,
+  isNil,
+  last,
+  length,
+  map,
+  not,
   or,
-  remove
+  pick,
+  pipe,
+  pluck,
+  propEq,
+  remove,
+  uniq
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -44,70 +45,82 @@ import {
 } from '@mui/material';
 
 import {
-  MemoizedFilter,
-  SearchField,
   IconButton,
-  getData,
-  useRequest,
   LoadingSkeleton,
-  SelectEntry
+  Filter as MemoizedFilter,
+  SearchField,
+  SelectEntry,
+  getData,
+  useRequest
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
-  labelStateFilter,
-  labelSearch,
-  labelNewFilter,
-  labelMyFilters,
   labelClearFilter,
-  labelSearchBar
+  labelMyFilters,
+  labelNewFilter,
+  labelSearch,
+  labelSearchBar,
+  labelStateFilter
 } from '../translatedLabels';
 
-import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import {
-  standardFilterById,
-  unhandledProblemsFilter,
-  resourceProblemsFilter,
-  allFilter
-} from './models';
-import {
+  DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
-  getDynamicCriteriaParametersAndValue,
-  DynamicCriteriaParametersAndValues
+  getDynamicCriteriaParametersAndValue
 } from './Criterias/searchQueryLanguage';
+import FilterLoadingSkeleton from './FilterLoadingSkeleton';
+import SearchHelp from './SearchHelp';
+import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
   clearFilterDerivedAtom,
   currentFilterAtom,
   customFiltersAtom,
+  isCriteriasPanelOpenAtom,
   searchAtom,
   sendingFilterAtom,
   setNewFilterDerivedAtom
 } from './filterAtoms';
+import {
+  allFilter,
+  resourceProblemsFilter,
+  standardFilterById,
+  unhandledProblemsFilter
+} from './models';
+import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
-import SearchHelp from './SearchHelp';
+import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 
-const renderClearFilter = (onClear) => (): JSX.Element => {
+const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useStyles();
 
   return (
-    <IconButton
-      ariaLabel={t(labelClearFilter)}
-      data-testid={labelClearFilter}
-      size="small"
-      title={t(labelClearFilter)}
-      onClick={onClear}
-    >
-      <CloseIcon color="action" fontSize="small" />
-    </IconButton>
+    <div className={classes.End}>
+      <IconButton
+        ariaLabel={t(labelClearFilter) as string}
+        data-testid={labelClearFilter}
+        size="small"
+        title={t(labelClearFilter) as string}
+        onClick={onClear}
+      >
+        <CloseIcon color="action" fontSize="small" />
+      </IconButton>
+    </div>
   );
 };
+
 interface DynamicCriteriaResult {
   result: Array<{ level: string; name: string }>;
 }
 
 const useStyles = makeStyles()((theme) => ({
+  End: {
+    display: 'flex',
+    flexDirection: 'row'
+  },
   autocompletePopper: {
     zIndex: theme.zIndex.tooltip
   },
@@ -116,7 +129,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridAutoFlow: 'column',
     gridGap: theme.spacing(1),
-    gridTemplateColumns: 'auto 175px auto 1fr',
+    gridTemplateColumns: '1fr auto 175px',
     width: '100%'
   },
   loader: { display: 'flex', justifyContent: 'center' },
@@ -127,7 +140,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const SaveFilter = lazy(() => import('./Save'));
+const SaveFilter = lazy(() => import('./Edit/EditButton'));
 const SelectFilter = lazy(() => import('./Fields/SelectFilter'));
 const Criterias = lazy(() => import('./Criterias'));
 
@@ -164,12 +177,23 @@ const Filter = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterAtom);
   const sendingFilter = useAtomValue(sendingFilterAtom);
   const user = useAtomValue(userAtom);
+  const isCriteriasPanelOpen = useAtomValue(isCriteriasPanelOpenAtom);
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
+  const setSelectedStatusByResourceType = useSetAtom(
+    selectedStatusByResourceTypeAtom
+  );
+
+  useBackToVisualizationByAll();
 
   const open = Boolean(autocompleteAnchor);
+
+  const clearFilters = (): void => {
+    clearFilter();
+    setSelectedStatusByResourceType(null);
+  };
 
   const clearDebounceDynamicSuggestions = (): void => {
     if (dynamicSuggestionsDebounceRef.current) {
@@ -185,7 +209,7 @@ const Filter = (): JSX.Element => {
 
     const lastValue = last(values);
 
-    const selectedValues = remove(-1, 1, values);
+    const selectedValues = remove(-1, 1, values).map(escapeRegExpSpecialChars);
 
     sendDynamicCriteriaValueRequests({
       endpoint: buildAutocompleteEndpoint({
@@ -203,7 +227,7 @@ const Filter = (): JSX.Element => {
           ],
           regex: {
             fields: ['name'],
-            value: lastValue
+            value: escapeRegExpSpecialChars(lastValue || '')
           }
         }
       })
@@ -212,7 +236,7 @@ const Filter = (): JSX.Element => {
         ? pluck('level', result)
         : pluck('name', result);
 
-      const formattedResult = results.map((item) => item.toString());
+      const formattedResult = uniq(results.map((item) => item.toString()));
 
       const lastValueEqualsToAResult = find(equals(lastValue), formattedResult);
 
@@ -389,7 +413,6 @@ const Filter = (): JSX.Element => {
     const expressionToShiftToTheEnd = expressionBeforeCursor.includes(':')
       ? expressionBeforeCursor + completedWord
       : acceptedSuggestion;
-
     setSearch(
       [
         searchWithAcceptedSuggestion
@@ -477,7 +500,7 @@ const Filter = (): JSX.Element => {
 
     const updatedFilter =
       standardFilterById[filterId] ||
-      customFilters?.find(propEq('id', filterId));
+      customFilters?.find(propEq(filterId, 'id'));
 
     applyFilter(updatedFilter);
   };
@@ -506,7 +529,7 @@ const Filter = (): JSX.Element => {
   ];
 
   const canDisplaySelectedFilter = find(
-    propEq('id', currentFilter.id),
+    propEq(currentFilter.id, 'id'),
     options
   );
 
@@ -528,6 +551,7 @@ const Filter = (): JSX.Element => {
   const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
 
   const memoProps = [
+    currentFilter,
     customFilters,
     sendingFilter,
     search,
@@ -538,49 +562,23 @@ const Filter = (): JSX.Element => {
     currentFilter,
     isDynamicCriteria,
     sendingDynamicCriteriaValueRequests,
-    user
+    user,
+    isCriteriasPanelOpen
   ];
 
   return (
     <MemoizedFilter
       content={
         <div className={classes.container}>
-          <Suspense
-            fallback={
-              <LoadingSkeleton height={24} variant="circular" width={24} />
-            }
-          >
-            <SaveFilter />
-          </Suspense>
-          {sendingFilter ? (
-            <FilterLoadingSkeleton />
-          ) : (
-            <Suspense fallback={<FilterLoadingSkeleton />}>
-              <SelectFilter
-                ariaLabel={t(labelStateFilter)}
-                options={options.map(pick(['id', 'name', 'type', 'testId']))}
-                selectedOptionId={
-                  canDisplaySelectedFilter ? currentFilter.id : ''
-                }
-                onChange={changeFilter}
-              />
-            </Suspense>
-          )}
-          <Suspense
-            fallback={
-              <LoadingSkeleton height={24} variant="circular" width={24} />
-            }
-          >
-            <Criterias />
-          </Suspense>
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
             <div data-testid={labelSearchBar}>
               <Box className={classes.searchbarContainer}>
                 <SearchField
                   fullWidth
-                  EndAdornment={renderClearFilter(clearFilter)}
+                  EndAdornment={renderEndAdornmentFilter(clearFilters)}
+                  disabled={isCriteriasPanelOpen}
                   inputRef={searchRef as RefObject<HTMLInputElement>}
-                  placeholder={t(labelSearch)}
+                  placeholder={t(labelSearch) as string}
                   value={search}
                   onBlur={blurInput}
                   onChange={prepareSearch}
@@ -590,6 +588,17 @@ const Filter = (): JSX.Element => {
                   onFocus={(): void => setIsSearchFieldFocused(true)}
                   onKeyDown={inputKey}
                 />
+                <Suspense
+                  fallback={
+                    <LoadingSkeleton
+                      height={24}
+                      variant="circular"
+                      width={24}
+                    />
+                  }
+                >
+                  <Criterias searchData={{ search, setSearch }} />
+                </Suspense>
                 <SearchHelp />
               </Box>
               <Popper
@@ -624,6 +633,27 @@ const Filter = (): JSX.Element => {
               </Popper>
             </div>
           </ClickAwayListener>
+          <Suspense
+            fallback={
+              <LoadingSkeleton height={24} variant="circular" width={24} />
+            }
+          >
+            <SaveFilter />
+          </Suspense>
+          {sendingFilter ? (
+            <FilterLoadingSkeleton />
+          ) : (
+            <Suspense fallback={<FilterLoadingSkeleton />}>
+              <SelectFilter
+                ariaLabel={t(labelStateFilter)}
+                options={options.map(pick(['id', 'name', 'type', 'testId']))}
+                selectedOptionId={
+                  canDisplaySelectedFilter ? currentFilter.id : ''
+                }
+                onChange={changeFilter}
+              />
+            </Suspense>
+          )}
         </div>
       }
       memoProps={memoProps}

@@ -232,6 +232,11 @@ class Service implements EntityDescriptorMetadataInterface
     private $status;
 
     /**
+     * @var bool|null
+     */
+    protected $notify;
+
+    /**
      * {@inheritdoc}
      */
     public static function loadEntityDescriptorMetadata(): array
@@ -640,7 +645,7 @@ class Service implements EntityDescriptorMetadataInterface
 
     /**
      * @param \DateTime|null $nextCheck
-     * @return Service|null
+     * @return Service
      */
     public function setNextCheck(?\DateTime $nextCheck): Service
     {
@@ -928,7 +933,7 @@ class Service implements EntityDescriptorMetadataInterface
 
     /**
      * @param \Centreon\Domain\Monitoring\ResourceStatus|null $status
-     * @return \Centreon\Domain\Monitoring\Resource
+     * @return self
      */
     public function setStatus(?ResourceStatus $status): self
     {
@@ -949,5 +954,23 @@ class Service implements EntityDescriptorMetadataInterface
         }
 
         return $duration;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getNotify(): ?bool
+    {
+        return $this->notify;
+    }
+
+    /**
+     * @param bool|null $notify
+     * @return Service
+     */
+    public function setNotify(?bool $notify): self
+    {
+        $this->notify = $notify;
+        return $this;
     }
 }

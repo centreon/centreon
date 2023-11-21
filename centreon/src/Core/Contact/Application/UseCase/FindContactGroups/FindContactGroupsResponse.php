@@ -25,7 +25,7 @@ namespace Core\Contact\Application\UseCase\FindContactGroups;
 
 use Core\Contact\Domain\Model\ContactGroup;
 
-class FindContactGroupsResponse
+final class FindContactGroupsResponse
 {
     /** @var array<array<string,string|int>> */
     public array $contactGroups;

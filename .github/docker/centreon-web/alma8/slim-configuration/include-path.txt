@@ -14,8 +14,10 @@
 /etc/sudoers
 /etc/sudoers.d
 /etc/pam.d
+/etc/centreon-gorgone
 /usr/libexec/sudo
 /usr/lib64/perl5/vendor_perl
+/usr/share/perl5
 /var/www/html
 /usr/lib64/httpd/modules
 /var/lib/php/session

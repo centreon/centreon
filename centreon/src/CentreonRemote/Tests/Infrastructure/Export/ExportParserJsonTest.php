@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,8 @@
 
 namespace CentreonRemote\Tests\Infrastructure\Export;
 
-use PHPUnit\Framework\TestCase;
 use CentreonRemote\Infrastructure\Export\ExportParserJson;
+use PHPUnit\Framework\TestCase;
 use VirtualFileSystem\FileSystem;
 
 /**
@@ -30,14 +30,10 @@ use VirtualFileSystem\FileSystem;
  */
 class ExportParserJsonTest extends TestCase
 {
-    /**
-     * @var FileSystem
-     */
+    /** @var FileSystem */
     private $fs;
 
-    /**
-     * @var ExportParserJson
-     */
+    /** @var ExportParserJson */
     private $parser;
 
     public function setUp(): void

@@ -59,7 +59,7 @@ data.forEach((item) =>
     });
 
     it(`displays correctly the dates design when screen resolution is ${width}px`, () => {
-      cy.matchImageSnapshot(`${width}px`);
+      cy.makeSnapshot(`${width}px`);
     });
   })
 );

@@ -35,7 +35,7 @@ jobs:
       dockerize_matrix: ${{ steps.get_version.outputs.dockerize_matrix }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: shivammathur/setup-php@v2
         if: ${{ endsWith(inputs.version_file, '.php') }}

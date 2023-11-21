@@ -25,6 +25,7 @@ namespace Tests\Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTem
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -46,6 +47,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
@@ -82,6 +84,8 @@ beforeEach(closure: function (): void {
     $this->performanceGraphRepository = $this->createMock(ReadPerformanceGraphRepositoryInterface::class);
     $this->imageRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
     $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class);
+    $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class);
+    $this->optionService = $this->createMock(OptionService::class);
 
     $this->parametersValidation = $this->createMock(ParametersValidation::class);
 
@@ -102,9 +106,11 @@ beforeEach(closure: function (): void {
         $this->writeServiceMacroRepository,
         $this->readCommandMacroRepository,
         $this->writeServiceGroupRepository,
+        $this->readServiceGroupRepository,
         $this->parametersValidation,
         $this->contact,
-        $this->dataStorageEngine
+        $this->dataStorageEngine,
+        $this->optionService
     );
 });
 
@@ -285,9 +291,14 @@ it('should present a ErrorResponse when an error occurs during service groups li
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
-    $this->writeServiceGroupRepository
+    $this->contact
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceGroupRepository
         ->expects($this->once())
-        ->method('deleteRelations')
+        ->method('findByService')
         ->willThrowException(new Exception());
 
     ($this->useCase)($request, $this->presenter);
@@ -517,8 +528,8 @@ it('should present a NoContentResponse when everything has gone well for an admi
                 $serviceTemplate->getNotificationTypes()
             )
         )->toBe(NotificationTypeConverter::toBits($notificationTypes))
-        ->and($serviceTemplate->isContactAdditiveInheritance())->toBe($request->isContactAdditiveInheritance)
-        ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe($request->isContactGroupAdditiveInheritance)
+        ->and($serviceTemplate->isContactAdditiveInheritance())->toBe(false)
+        ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe(false)
         ->and($serviceTemplate->getActiveChecks())->toBe(
             \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->activeChecksEnabled)
         )->and($serviceTemplate->getPassiveCheck())->toBe(

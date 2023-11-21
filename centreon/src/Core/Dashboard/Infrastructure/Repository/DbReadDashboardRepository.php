@@ -33,6 +33,8 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Refresh;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Utility\SqlConcatenator;
 
 /**
@@ -43,7 +45,9 @@ use Utility\SqlConcatenator;
  *     created_by: int,
  *     updated_by: int,
  *     created_at: int,
- *     updated_at: int
+ *     updated_at: int,
+ *     refresh_type: string,
+ *     refresh_interval: ?int
  * }
  */
 class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDashboardRepositoryInterface
@@ -87,7 +91,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 d.created_by,
                 d.updated_by,
                 d.created_at,
-                d.updated_at
+                d.updated_at,
+                d.refresh_type,
+                d.refresh_interval
             FROM
                 `:db`.`dashboard` d
             WHERE
@@ -150,7 +156,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 d.created_by,
                 d.updated_by,
                 d.created_at,
-                d.updated_at
+                d.updated_at,
+                d.refresh_type,
+                d.refresh_interval
             FROM `:db`.`dashboard` d
             LEFT JOIN (
                 SELECT DISTINCT dcgr.`dashboard_id` as `id`
@@ -255,7 +263,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                         d.created_by,
                         d.updated_by,
                         d.created_at,
-                        d.updated_at
+                        d.updated_at,
+                        d.refresh_type,
+                        d.refresh_interval
                     SQL
             )
             ->defineFrom(
@@ -299,12 +309,13 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
     }
 
     /**
-     * @param array $result
-     *
      * @phpstan-param DashboardResultSet $result
+     *
+     * @param array $result
      *
      * @throws \ValueError
      * @throws AssertionFailedException
+     * @throws \InvalidArgumentException
      *
      * @return Dashboard
      */
@@ -317,7 +328,11 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             createdBy: $result['created_by'],
             updatedBy: $result['updated_by'],
             createdAt: $this->timestampToDateTimeImmutable($result['created_at']),
-            updatedAt: $this->timestampToDateTimeImmutable($result['updated_at'])
+            updatedAt: $this->timestampToDateTimeImmutable($result['updated_at']),
+            refresh: new Refresh(
+                RefreshTypeConverter::fromString((string) $result['refresh_type']),
+                $result['refresh_interval'],
+            )
         );
     }
 }

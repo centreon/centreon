@@ -30,7 +30,12 @@ class PerformanceMetric
         private string $name,
         private string $unit,
         private ?float $warningHighThreshold,
-        private ?float $criticalHighThreshold
+        private ?float $criticalHighThreshold,
+        private ?float $warningLowThreshold,
+        private ?float $criticalLowThreshold,
+        private ?float $currentValue,
+        private ?float $minimumValue,
+        private ?float $maximumValue
     ) {
     }
 
@@ -57,5 +62,30 @@ class PerformanceMetric
     public function getCriticalHighThreshold(): ?float
     {
         return $this->criticalHighThreshold;
+    }
+
+    public function getWarningLowThreshold(): ?float
+    {
+        return $this->warningLowThreshold;
+    }
+
+    public function getCriticalLowThreshold(): ?float
+    {
+        return $this->criticalLowThreshold;
+    }
+
+    public function getCurrentValue(): ?float
+    {
+        return $this->currentValue;
+    }
+
+    public function getMinimumValue(): ?float
+    {
+        return $this->minimumValue;
+    }
+
+    public function getMaximumValue(): ?float
+    {
+        return $this->maximumValue;
     }
 }

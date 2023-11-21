@@ -34,7 +34,8 @@ type Story = StoryObj<typeof Listing>;
 
 const useStyles = makeStyles()((theme) => ({
   listing: {
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
+    height: '100vh'
   }
 }));
 
@@ -177,17 +178,17 @@ const StoryTemplate = ({
 export const normal = (): JSX.Element => <StoryTemplate />;
 
 export const WithSpecifiedViewMode = (): JSX.Element => {
-  const [viewMode, setViewMode] = useState(ListingVariant.extended);
-  const newViewMode = equals(viewMode, ListingVariant.compact)
+  const [listingVariant, setListingVariant] = useState(ListingVariant.extended);
+  const newListingVariant = equals(listingVariant, ListingVariant.compact)
     ? ListingVariant.extended
     : ListingVariant.compact;
 
   return (
     <StoryTemplate
-      viewMode={viewMode}
+      listingVariant={listingVariant}
       viewerModeConfiguration={{
-        onClick: () => setViewMode(newViewMode),
-        title: viewMode
+        onClick: () => setListingVariant(newListingVariant),
+        title: listingVariant
       }}
     />
   );
@@ -365,6 +366,16 @@ const columnsWithSubItems = [
   }
 ];
 
+const TemplateSubItems = (args): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <div className={classes.listing}>
+      <Listing {...args} />
+    </div>
+  );
+};
+
 export const ListingWithSubItems = {
   args: {
     checkable: true,
@@ -381,5 +392,6 @@ export const ListingWithSubItems = {
       rowProperty: 'subItems'
     },
     totalRows: 10
-  }
+  },
+  render: TemplateSubItems
 };

@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Service\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
+use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
 
 interface ReadServiceRepositoryInterface
@@ -105,4 +107,30 @@ interface ReadServiceRepositoryInterface
      * @return ServiceInheritance[]
      */
     public function findParents(int $serviceId): array;
+
+    /**
+     * Find all services by request parameter.
+     *
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceLight[]
+     */
+    public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Find all services by request parameters and access groups.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceLight[]
+     */
+    public function findByRequestParameterAndAccessGroup(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array;
 }

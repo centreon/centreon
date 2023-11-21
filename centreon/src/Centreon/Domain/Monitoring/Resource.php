@@ -38,20 +38,6 @@ use Centreon\Domain\Acknowledgement\Acknowledgement;
  */
 class Resource
 {
-    // Groups for serialization
-    public const SERIALIZER_GROUP_MAIN = 'resource_main';
-    public const SERIALIZER_GROUP_PARENT = 'resource_parent';
-
-    // Groups for validation
-    public const VALIDATION_GROUP_ACK_HOST = ['ack_host'];
-    public const VALIDATION_GROUP_ACK_SERVICE = ['ack_service'];
-    public const VALIDATION_GROUP_ACK_META = ['ack_meta'];
-    public const VALIDATION_GROUP_DISACK_HOST = ['disack_host'];
-    public const VALIDATION_GROUP_DISACK_SERVICE = ['disack_service'];
-    public const VALIDATION_GROUP_DOWNTIME_HOST = ['downtime_host'];
-    public const VALIDATION_GROUP_DOWNTIME_META = ['downtime_meta'];
-    public const VALIDATION_GROUP_DOWNTIME_SERVICE = ['downtime_service'];
-
     // Types
     public const TYPE_SERVICE = 'service';
     public const TYPE_HOST = 'host';

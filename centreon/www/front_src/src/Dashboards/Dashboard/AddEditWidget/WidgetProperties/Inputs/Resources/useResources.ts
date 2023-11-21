@@ -1,17 +1,7 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import {
-  T,
-  always,
-  cond,
-  equals,
-  flatten,
-  gt,
-  isEmpty,
-  pipe,
-  pluck
-} from 'ramda';
+import { T, always, cond, equals, isEmpty, pluck, propEq, reject } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
@@ -26,15 +16,18 @@ import {
   labelHostCategory,
   labelHostGroup,
   labelPleaseSelectAResource,
-  labelService
+  labelService,
+  labelServiceCategory,
+  labelServiceGroup
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
-import { singleMetricSectionAtom } from '../../../atoms';
+import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
   addResource: () => void;
+  changeResource: (index: number) => (_, resources: SelectEntry) => void;
   changeResourceType: (
     index: number
   ) => (e: ChangeEvent<HTMLInputElement>) => void;
@@ -42,8 +35,9 @@ interface UseResourcesState {
     index: number
   ) => (_, resources: Array<SelectEntry>) => void;
   deleteResource: (index: number) => () => void;
+  deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
-  getOptionDisabled: (option) => boolean | undefined;
+  getOptionDisabled: (index: number) => (option) => boolean | undefined;
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
@@ -66,6 +60,14 @@ const resourceTypeOptions = [
     name: labelHost
   },
   {
+    id: WidgetResourceType.serviceGroup,
+    name: labelServiceGroup
+  },
+  {
+    id: WidgetResourceType.serviceCategory,
+    name: labelServiceCategory
+  },
+  {
     id: WidgetResourceType.service,
     name: labelService
   }
@@ -75,7 +77,9 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/hosts',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
-  [WidgetResourceType.service]: '/resources'
+  [WidgetResourceType.service]: '/resources',
+  [WidgetResourceType.serviceCategory]: '/services/categories',
+  [WidgetResourceType.serviceGroup]: '/servicegroups'
 };
 
 const resourceQueryParameters = [
@@ -86,14 +90,19 @@ const resourceQueryParameters = [
   {
     name: 'only_with_performance_data',
     value: true
+  },
+  {
+    name: 'limit',
+    value: 30
   }
 ];
 
 const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
-
-  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+  const singleResourceTypeSelection = useAtomValue(
+    singleResourceTypeSelectionAtom
+  );
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -123,6 +132,11 @@ const useResources = (propertyName: string): UseResourcesState => {
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
+  const changeResource = (index: number) => (_, resource: SelectEntry) => {
+    setFieldValue(`data.${propertyName}.${index}.resources`, [resource]);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const addResource = (): void => {
     setFieldValue(`data.${propertyName}`, [
       ...(value || []),
@@ -141,6 +155,13 @@ const useResources = (propertyName: string): UseResourcesState => {
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
+  const deleteResourceItem = ({ index, option, resources }): void => {
+    const newResource = reject(propEq(option.id, 'id'), resources);
+
+    setFieldValue(`data.${propertyName}.${index}.resources`, newResource);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const getResourceResourceBaseEndpoint =
     (resourceType: string) =>
     (parameters): string => {
@@ -149,7 +170,10 @@ const useResources = (propertyName: string): UseResourcesState => {
         customQueryParameters: equals(resourceType, WidgetResourceType.service)
           ? resourceQueryParameters
           : undefined,
-        parameters
+        parameters: {
+          ...parameters,
+          limit: 30
+        }
       });
     };
 
@@ -159,22 +183,23 @@ const useResources = (propertyName: string): UseResourcesState => {
       [T, always('name')]
     ])(resourceType);
 
-  const getOptionDisabled = (option): boolean | undefined => {
-    const resources = pipe(
-      pluck('resources'),
-      flatten,
-      pluck('name')
-    )(value || []);
+  const getOptionDisabled =
+    (index: number) =>
+    (option): boolean | undefined => {
+      const resources = value?.[index].resources;
 
-    return (
-      singleMetricSection &&
-      gt(resources.length, 0) &&
-      !resources.includes(option.name)
-    );
-  };
+      if (singleResourceTypeSelection && isEmpty(resources)) {
+        return false;
+      }
+
+      return (
+        singleResourceTypeSelection &&
+        !pluck('name', resources || []).includes(option.name)
+      );
+    };
 
   useEffect(() => {
-    if (!singleMetricSection) {
+    if (!isEmpty(value)) {
       return;
     }
 
@@ -184,14 +209,15 @@ const useResources = (propertyName: string): UseResourcesState => {
         resources: []
       }
     ]);
-  }, [singleMetricSection]);
+  }, [values.moduleName]);
 
   return {
-    addButtonHidden: singleMetricSection,
     addResource,
+    changeResource,
     changeResourceType,
     changeResources,
     deleteResource,
+    deleteResourceItem,
     error: errorToDisplay,
     getOptionDisabled,
     getResourceResourceBaseEndpoint,

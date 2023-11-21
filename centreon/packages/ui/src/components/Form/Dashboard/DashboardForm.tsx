@@ -1,7 +1,8 @@
 import { ReactElement, useCallback, useMemo } from 'react';
 
-import * as Yup from 'yup';
+import { string, number, object } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { InputType } from '../../../Form/Inputs/models';
 import { Form, FormProps } from '../../../Form';
@@ -16,11 +17,13 @@ import {
   labelRequired
 } from './translatedLabels';
 import { DashboardResource } from './Dashboard.resource';
+import GlobalRefreshFieldOption from './GlobalRefreshFieldOption';
 
 export type DashboardFormProps = {
   labels: DashboardFormLabels;
   onSubmit?: FormProps<DashboardResource>['submit'];
   resource?: DashboardResource;
+  showRefreshIntervalFields?: boolean;
   variant?: FormVariant;
 } & Pick<FormActionsProps, 'onCancel'>;
 
@@ -34,7 +37,8 @@ const DashboardForm = ({
   resource,
   labels,
   onSubmit,
-  onCancel
+  onCancel,
+  showRefreshIntervalFields
 }: DashboardFormProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -58,11 +62,31 @@ const DashboardForm = ({
             multilineRows: 3
           },
           type: InputType.Text
+        },
+        {
+          fieldName: 'refresh.type',
+          group: 'main',
+          hideInput: () => !showRefreshIntervalFields,
+          label: labels?.entity?.globalRefreshInterval?.title,
+          radio: {
+            options: [
+              {
+                label: <GlobalRefreshFieldOption />,
+                value: 'global'
+              },
+              {
+                label: labels?.entity?.globalRefreshInterval?.manual,
+                value: 'manual'
+              }
+            ],
+            row: false
+          },
+          type: InputType.Radio
         }
       ],
       submit: (values, bag) => onSubmit?.(values, bag),
-      validationSchema: Yup.object().shape({
-        description: Yup.string()
+      validationSchema: object({
+        description: string()
           .label(labels?.entity?.description || '')
           .max(
             180,
@@ -70,7 +94,19 @@ const DashboardForm = ({
               `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
           )
           .nullable(),
-        name: Yup.string()
+        globalRefreshInterval: object({
+          interval: number().when('type', ([type], schema) => {
+            if (equals(type, 'manual')) {
+              schema
+                .min(1, ({ min }) => t(labelMustBeAtLeast, { min }))
+                .required(t(labelRequired) as string);
+            }
+
+            return schema.nullable();
+          }),
+          type: string()
+        }),
+        name: string()
           .label(labels?.entity?.name)
           .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
           .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))

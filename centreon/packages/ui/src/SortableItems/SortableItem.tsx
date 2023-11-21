@@ -56,7 +56,8 @@ const SortableItem = ({
       transform,
       props(itemProps, rest),
       ...memoProps,
-      ...additionalProps
+      ...additionalProps,
+      ...Object.values(rest)
     ]
   });
 };

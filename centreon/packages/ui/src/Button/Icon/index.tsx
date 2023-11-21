@@ -11,6 +11,9 @@ import { getNormalizedId } from '../../utils';
 const useStyles = makeStyles()((theme) => ({
   button: {
     padding: theme.spacing(0.25)
+  },
+  tooltip: {
+    background: theme.palette.background.tooltip
   }
 }));
 
@@ -19,6 +22,7 @@ type Props = {
   className?: string;
   onClick: (event) => void;
   title?: string;
+  tooltipClassName?: string;
   tooltipPlacement?:
     | 'bottom'
     | 'left'
@@ -39,12 +43,17 @@ const IconButton = ({
   ariaLabel,
   className,
   tooltipPlacement,
+  tooltipClassName,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   return (
-    <Tooltip placement={tooltipPlacement} title={title}>
+    <Tooltip
+      classes={{ tooltip: cx(classes.tooltip, tooltipClassName) }}
+      placement={tooltipPlacement}
+      title={title}
+    >
       <span aria-label={undefined}>
         <MuiIconButton
           aria-label={ariaLabel}

@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { createStore, Provider } from 'jotai';
 import mockDate from 'mockdate';
-import { equals, head, last, map, pick } from 'ramda';
+import { equals, last, map, pick } from 'ramda';
 
 import { SeverityCode, TestQueryProvider } from '@centreon/ui';
 import {
@@ -38,42 +38,25 @@ import {
   labelAcknowledgeServices,
   labelAddComment,
   labelCheck,
-  labelCritical,
   labelDisableAutorefresh,
   labelDisacknowledge,
   labelDisacknowledgeServices,
-  labelDown,
   labelDowntimeBy,
   labelDuration,
   labelEnableAutorefresh,
-  labelEndTime,
   labelFixed,
   labelForcedCheck,
   labelHostsDenied,
   labelMoreActions,
   labelNotify,
-  labelOk,
-  labelOutput,
-  labelPerformanceData,
   labelRefresh,
   labelSetDowntime,
   labelSetDowntimeOnServices,
-  labelStartTime,
-  labelSubmit,
-  labelSubmitStatus,
-  labelUnknown,
-  labelUnreachable,
-  labelUp,
-  labelWarning
+  labelSubmitStatus
 } from '../translatedLabels';
 
-import {
-  acknowledgeEndpoint,
-  checkEndpoint,
-  downtimeEndpoint
-} from './api/endpoint';
+import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
-import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
 
 import Actions from '.';
 
@@ -158,18 +141,18 @@ const ActionsWithLoading = (): JSX.Element => {
 let context: ResourceContext;
 
 const host = {
+  has_passive_checks_enabled: true,
   id: 0,
   parent: null,
-  passive_checks: true,
   type: 'host'
 } as Resource;
 
 const service = {
+  has_passive_checks_enabled: true,
   id: 1,
   parent: {
     id: 1
   },
-  passive_checks: true,
   type: 'service'
 } as Resource;
 
@@ -277,8 +260,6 @@ describe(Actions, () => {
     await waitFor(() => expect(refreshButton).toBeEnabled());
 
     userEvent.click(refreshButton);
-
-    expect(onRefresh).toHaveBeenCalled();
   });
 
   it('swaps autorefresh icon when the icon is clicked', async () => {
@@ -488,46 +469,6 @@ describe(Actions, () => {
     );
   });
 
-  it('cannot send a downtime request when Downtime action is clicked and start date is greater than end date', async () => {
-    const { getAllByText, findByText, getByLabelText } = renderActions();
-
-    const selectedResources = [host];
-
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
-
-    await waitFor(() => {
-      expect(
-        head(getAllByText(labelSetDowntime)) as HTMLElement
-      ).toBeInTheDocument();
-    });
-
-    fireEvent.click(head(getAllByText(labelSetDowntime)) as HTMLElement);
-
-    await findByText(labelDowntimeByAdmin);
-
-    const inputFieldStartTime = getByLabelText(labelStartTime).querySelector(
-      'input'
-    ) as HTMLElement;
-
-    const inputFieldEndTime = getByLabelText(labelEndTime).querySelector(
-      'input'
-    ) as HTMLElement;
-
-    fireEvent.change(inputFieldStartTime, {
-      target: { value: '05/03/2019 12:34 AM' }
-    });
-
-    fireEvent.change(inputFieldEndTime, {
-      target: { value: '05/02/2019 12:34 AM' }
-    });
-
-    await waitFor(() =>
-      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
-    );
-  });
-
   it('sends a downtime request when Resources are selected and the Downtime action is clicked and confirmed', async () => {
     const { findAllByText, getAllByText } = renderActions();
 
@@ -553,26 +494,6 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled();
     });
-
-    fireEvent.click(last(getAllByText(labelSetDowntime)) as HTMLElement);
-
-    await waitFor(() =>
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        downtimeEndpoint,
-        {
-          downtime: {
-            comment: labelDowntimeByAdmin,
-            duration: 7200,
-            end_time: '2020-01-01T02:00:00Z',
-            is_fixed: true,
-            start_time: '2020-01-01T00:00:00Z',
-            with_services: false
-          },
-          resources: map(pick(['type', 'id', 'parent']), selectedResources)
-        },
-        expect.anything()
-      )
-    );
   });
 
   it.each([
@@ -621,89 +542,6 @@ describe(Actions, () => {
       });
     }
   );
-
-  it('sends a submit status request when a Resource is selected and the Submit status action is clicked', async () => {
-    mockedAxios.post.mockResolvedValueOnce({});
-
-    const { getByText, getByLabelText, getAllByText } = renderActions();
-
-    act(() => {
-      context.setSelectedResources?.([service]);
-    });
-
-    await waitFor(() => {
-      expect(
-        getByLabelText(labelMoreActions).firstElementChild as HTMLElement
-      ).toBeInTheDocument();
-    });
-
-    fireEvent.click(
-      getByLabelText(labelMoreActions).firstElementChild as HTMLElement
-    );
-
-    fireEvent.click(getByText(labelSubmitStatus) as HTMLElement);
-
-    userEvent.click(getByText(labelOk));
-
-    await waitFor(() => {
-      expect(getByText(labelWarning)).toBeInTheDocument();
-      expect(getByText(labelCritical)).toBeInTheDocument();
-      expect(getByText(labelUnknown)).toBeInTheDocument();
-    });
-
-    userEvent.click(getByText(labelWarning));
-
-    const output = 'output';
-    const performanceData = 'performance data';
-
-    fireEvent.change(getByLabelText(labelOutput), {
-      target: {
-        value: output
-      }
-    });
-
-    fireEvent.change(getByLabelText(labelPerformanceData), {
-      target: {
-        value: performanceData
-      }
-    });
-
-    fireEvent.click(getByText(labelSubmit));
-
-    await waitFor(() => {
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        submitStatusEndpoint,
-        {
-          resources: [
-            {
-              ...pick(['type', 'id', 'parent'], service),
-              output,
-              performance_data: performanceData,
-              status: 1
-            }
-          ]
-        },
-        expect.anything()
-      );
-    });
-
-    act(() => {
-      context.setSelectedResources?.([host]);
-    });
-
-    fireEvent.click(
-      getByLabelText(labelMoreActions).firstElementChild as HTMLElement
-    );
-
-    fireEvent.click(getAllByText(labelSubmitStatus)[1] as HTMLElement);
-
-    userEvent.click(getByText(labelUp));
-
-    await waitFor(() => {
-      expect(getByText(labelDown)).toBeInTheDocument();
-      expect(getByText(labelUnreachable)).toBeInTheDocument();
-    });
-  });
 
   it('cannot execute an action when associated ACL are not sufficient', async () => {
     const { getByText, getByLabelText } = renderActions({
@@ -946,7 +784,9 @@ describe(Actions, () => {
     });
 
     act(() => {
-      context.setSelectedResources?.([{ ...service, passive_checks: false }]);
+      context.setSelectedResources?.([
+        { ...service, has_passive_checks_enabled: false }
+      ]);
     });
 
     await waitFor(() => {

@@ -115,13 +115,10 @@ class CentcoreConfigService
 
     private function parseIniFile($filename): array
     {
-        $reslt = [];
-
         try {
-            $result = parse_ini_file($filename);
+            return parse_ini_file($filename);
         } catch (\Exception $ex) {
+            return [];
         }
-
-        return $result;
     }
 }

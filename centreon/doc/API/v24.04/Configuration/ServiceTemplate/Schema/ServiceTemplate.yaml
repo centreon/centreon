@@ -1,0 +1,12 @@
+type: object
+allOf:
+  - properties:
+      id:
+        type: integer
+        description: "Service template ID."
+        example: 1
+      is_locked:
+        type: boolean
+        description: "Indicates whether the configuration is locked for editing or not"
+        example: true
+  - $ref: 'NewServiceTemplate.yaml'

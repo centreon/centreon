@@ -1,76 +1,47 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  *
  */
 
 namespace CentreonModule\Tests\Infrastructure\Source;
 
+use Centreon\Test\Mock;
+use Centreon\Test\Traits\TestCaseExtensionTrait;
+use CentreonLegacy\Core\Configuration\Configuration;
+use CentreonModule\Infrastructure\Entity\Module;
+use CentreonModule\Infrastructure\Source\WidgetSource;
+use CentreonModule\Tests\Resources\Traits\SourceDependencyTrait;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Pimple\Psr11\Container as ContainerWrap;
 use Symfony\Component\Finder\Finder;
 use VirtualFileSystem\FileSystem;
-use Centreon\Test\Mock;
-use Centreon\Test\Traits\TestCaseExtensionTrait;
-use CentreonModule\Infrastructure\Source\WidgetSource;
-use CentreonModule\Infrastructure\Entity\Module;
-use CentreonLegacy\Core\Configuration\Configuration;
-use CentreonModule\Tests\Resources\Traits\SourceDependencyTrait;
 
 class WidgetSourceTest extends TestCase
 {
     use TestCaseExtensionTrait;
     use SourceDependencyTrait;
 
-    /**
-     * @var FileSystem
-     */
-    private $fs;
-
-    /**
-     * @var WidgetSource
-     */
-    private $source;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public static $widgetName = 'test-widget';
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public static $widgetInfo = [
         'title' => 'Curabitur congue porta neque',
         'author' => 'Centreon',
@@ -90,17 +61,21 @@ class WidgetSourceTest extends TestCase
         'url' => './widgets/test-widget/index.php',
     ];
 
-    /**
-     * @var string[][][]
-     */
+    /** @var string[][][] */
     public static $sqlQueryVsData = [
-        "SELECT `directory` AS `id`, `version` FROM `widget_models`" => [
+        'SELECT `directory` AS `id`, `version` FROM `widget_models`' => [
             [
                 'id' => 'test-widget',
                 'version' => 'x.y.z',
             ],
         ],
     ];
+
+    /** @var FileSystem */
+    private $fs;
+
+    /** @var WidgetSource */
+    private $source;
 
     protected function setUp(): void
     {
@@ -135,14 +110,12 @@ class WidgetSourceTest extends TestCase
             ->setConstructorArgs([
                 $containerWrap,
             ])
-            ->getMock()
-        ;
+            ->getMock();
         $this->source
             ->method('getPath')
             ->will($this->returnCallback(function () {
                 return $this->fs->path('/widgets/');
-            }))
-        ;
+            }));
     }
 
     public function tearDown(): void
@@ -190,36 +163,36 @@ class WidgetSourceTest extends TestCase
         $this->assertFalse($result->isUpdated());
     }
 
-    private function getConfFilePath(): string
-    {
-        return $this->fs->path('/widgets/' . static::$widgetName . '/' . WidgetSource::CONFIG_FILE);
-    }
-
     public static function buildConfContent(): string
     {
         $widgetInfo = static::$widgetInfo;
         $result = <<<CONF
-<configs>
-    <title>{$widgetInfo['title']}</title>
-    <author>{$widgetInfo['author']}</author>
-    <email>{$widgetInfo['email']}</email>
-    <website>{$widgetInfo['website']}</website>
-    <description>{$widgetInfo['description']}</description>
-    <version>{$widgetInfo['version']}</version>
-    <keywords>{$widgetInfo['keywords']}</keywords>
-    <stability>{$widgetInfo['stability']}</stability>
-    <last_update>{$widgetInfo['last_update']}</last_update>
-    <release_note>{$widgetInfo['release_note']}</release_note>
-    <screenshot>{$widgetInfo['screenshot1']}</screenshot>
-    <screenshot>{$widgetInfo['screenshot2']}</screenshot>
-    <screenshots>
-        <screenshot src="{$widgetInfo['screenshot4']}"/>
-    </screenshots>
-    <thumbnail>{$widgetInfo['thumbnail']}</thumbnail>
-    <url>{$widgetInfo['url']}</url>
-</configs>
-CONF;
+            <configs>
+                <title>{$widgetInfo['title']}</title>
+                <author>{$widgetInfo['author']}</author>
+                <email>{$widgetInfo['email']}</email>
+                <website>{$widgetInfo['website']}</website>
+                <description>{$widgetInfo['description']}</description>
+                <version>{$widgetInfo['version']}</version>
+                <keywords>{$widgetInfo['keywords']}</keywords>
+                <stability>{$widgetInfo['stability']}</stability>
+                <last_update>{$widgetInfo['last_update']}</last_update>
+                <release_note>{$widgetInfo['release_note']}</release_note>
+                <screenshot>{$widgetInfo['screenshot1']}</screenshot>
+                <screenshot>{$widgetInfo['screenshot2']}</screenshot>
+                <screenshots>
+                    <screenshot src="{$widgetInfo['screenshot4']}"/>
+                </screenshots>
+                <thumbnail>{$widgetInfo['thumbnail']}</thumbnail>
+                <url>{$widgetInfo['url']}</url>
+            </configs>
+            CONF;
 
         return $result;
+    }
+
+    private function getConfFilePath(): string
+    {
+        return $this->fs->path('/widgets/' . static::$widgetName . '/' . WidgetSource::CONFIG_FILE);
     }
 }

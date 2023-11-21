@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,25 +23,21 @@ namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
 use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInterface;
 use Centreon\Domain\Service\BrokerConfigurationService;
-use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBroker;
 use CentreonRemote\Domain\Resources\DefaultConfig\CfgCentreonBrokerLog;
+use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBroker;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBrokerInfo;
 use CentreonRemote\Domain\Resources\RemoteConfig\InputFlowOnePeerRetention;
 
 class PollerConnectionConfigurationService extends ServerConnectionConfigurationService
 {
-    /**
-     * @var CfgCentreonBrokerInterface
-     */
+    /** @var CfgCentreonBrokerInterface */
     private $brokerRepository;
 
-    /**
-     * @var BrokerConfigurationService
-     */
+    /** @var BrokerConfigurationService */
     private $brokerConfigurationService;
 
     /**
-     * Set broker repository to manage general broker configuration
+     * Set broker repository to manage general broker configuration.
      *
      * @param CfgCentreonBrokerInterface $cfgCentreonBroker the centreon broker configuration repository
      */
@@ -51,7 +47,7 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
     }
 
     /**
-     * Set broker configuration service to broker info configuration
+     * Set broker configuration service to broker info configuration.
      *
      * @param BrokerConfigurationService $brokerConfigurationService the service to manage broker confiration
      */
@@ -62,7 +58,7 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
 
     /**
      * Insert centreon broker configuration to a given poller
-     * this configuration i only for broker module (not cbd)
+     * this configuration i only for broker module (not cbd).
      *
      * @param int $serverID the poller id
      */

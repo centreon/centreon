@@ -1,0 +1,23 @@
+type: object
+description: "version"
+properties:
+
+  version:
+    type: string
+    description: "Full Version"
+    example: 22.04.0
+
+  major:
+    type: string
+    description: "Major version"
+    example: "22"
+
+  minor:
+    type: string
+    description: "Minor version"
+    example: "04"
+
+  fix:
+    type: string
+    description: "Fix version"
+    example: "0"

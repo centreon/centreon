@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Metric\Application\Repository;
 
 use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Metric\Domain\Model\Metric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -37,21 +38,66 @@ interface ReadMetricRepositoryInterface
     public function findMetricsByIndexId(int $indexId): array;
 
     /**
-     * Find Service by Metric Ids.
+     * Find Service by Metric Names.
      *
-     * @param int[] $metricIds
+     * @param string[] $metricNames
+     * @param RequestParametersInterface $requestParameters
      *
      * @return Service[]
      */
-    public function findServicesByMetricIds(array $metricIds): array;
+    public function findServicesByMetricNamesAndRequestParameters(
+        array $metricNames,
+        RequestParametersInterface $requestParameters
+    ): array;
 
     /**
-     * Find Service by Metric Ids.
+     * Find Service by Metric Names and Access Groups.
      *
-     * @param int[] $metricIds
+     * @param string[] $metricNames
      * @param AccessGroup[] $accessGroups
+     * @param RequestParametersInterface $requestParameters
      *
      * @return Service[]
      */
-    public function findServicesByMetricIdsAndAccessGroups(array $metricIds, array $accessGroups): array;
+    public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
+        array $metricNames,
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array;
+
+    /**
+     * Find Metrics by their host and service id.
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Metric[]
+     */
+    public function findByHostIdAndServiceId(
+        int $hostId,
+        int $serviceId,
+        RequestParametersInterface $requestParameters
+    ): array;
+
+    /**
+     * Find Metrics by their host, service id and user access groups.
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param AccessGroup[] $accessGroups
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Metric[]
+     */
+    public function findByHostIdAndServiceIdAndAccessGroups(
+        int $hostId,
+        int $serviceId,
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array;
 }

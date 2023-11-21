@@ -74,7 +74,19 @@ export const dashboardEntityDecoder = {
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(
-  dashboardEntityDecoder,
+  {
+    ...dashboardEntityDecoder,
+    refresh: JsonDecoder.object<Dashboard['refresh']>(
+      {
+        interval: JsonDecoder.nullable(JsonDecoder.number),
+        type: JsonDecoder.enumeration<'global' | 'manual'>(
+          ['global', 'manual'],
+          'Refresh interval type'
+        )
+      },
+      'Global refresh interval'
+    )
+  },
   'Dashboard',
   {
     createdAt: 'created_at',
@@ -86,7 +98,17 @@ export const dashboardDecoder = JsonDecoder.object<Dashboard>(
 );
 
 export const dashboardListDecoder = buildListingDecoder({
-  entityDecoder: dashboardDecoder,
+  entityDecoder: JsonDecoder.object<Omit<Dashboard, 'refresh'>>(
+    dashboardEntityDecoder,
+    'Dashboard',
+    {
+      createdAt: 'created_at',
+      createdBy: 'created_by',
+      ownRole: 'own_role',
+      updatedAt: 'updated_at',
+      updatedBy: 'updated_by'
+    }
+  ),
   entityDecoderName: 'Dashboard List',
   listingDecoderName: 'Dashboards'
 });

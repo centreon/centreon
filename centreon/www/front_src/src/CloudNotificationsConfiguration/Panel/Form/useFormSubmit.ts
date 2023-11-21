@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { equals } from 'ramda';
@@ -13,22 +11,20 @@ import {
 } from '@centreon/ui';
 
 import {
-  labelConfirmAddNotification,
-  labelConfirmEditNotification,
   labelSuccessfulEditNotification,
   labelSuccessfulNotificationAdded
 } from '../../translatedLabels';
 import { isPanelOpenAtom } from '../../atom';
 import { adaptNotification } from '../api';
 import { PanelMode } from '../models';
-import { editedNotificationIdAtom, panelModeAtom } from '../atom';
+import {
+  editedNotificationIdAtom,
+  htmlEmailBodyAtom,
+  panelModeAtom
+} from '../atom';
 import { notificationEndpoint } from '../api/endpoints';
 
 interface UseFormState {
-  dialogOpen: boolean;
-  labelConfirm: string;
-  panelMode: PanelMode;
-  setDialogOpen;
   submit: (
     values,
     {
@@ -44,15 +40,10 @@ const useForm = (): UseFormState => {
   const { showSuccessMessage } = useSnackbar();
   const queryClient = useQueryClient();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(editedNotificationIdAtom);
+  const htmlEmailBody = useAtomValue(htmlEmailBodyAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
-
-  const labelConfirm = equals(panelMode, PanelMode.Create)
-    ? labelConfirmAddNotification
-    : labelConfirmEditNotification;
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
@@ -67,26 +58,26 @@ const useForm = (): UseFormState => {
       ? labelSuccessfulNotificationAdded
       : labelSuccessfulEditNotification;
 
-    return mutateAsync(adaptNotification(values))
+    const payload = adaptNotification({
+      ...values,
+      messages: { ...values.messages, formattedMessage: htmlEmailBody }
+    });
+
+    return mutateAsync(payload)
       .then((response) => {
         const { isError } = response as ResponseError;
         if (isError) {
           return;
         }
         showSuccessMessage(t(labelMessage));
-        setDialogOpen(false);
         setPanelOpen(false);
-        queryClient.invalidateQueries(['notificationsListing']);
-        queryClient.invalidateQueries(['notifications']);
+
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
       })
       .finally(() => setSubmitting(false));
   };
 
   return {
-    dialogOpen,
-    labelConfirm,
-    panelMode,
-    setDialogOpen,
     submit
   };
 };

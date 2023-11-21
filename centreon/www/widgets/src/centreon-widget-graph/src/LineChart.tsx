@@ -1,29 +1,59 @@
-import { isNil } from 'ramda';
+import { head, isNil, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { Graph, useGraphQuery } from '@centreon/ui';
+import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
-import { Data } from './models';
+import useThresholds from '../../useThresholds';
+import { GlobalRefreshInterval } from '../../models';
+
+import { Data, PanelOptions } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
 
 interface Props {
+  globalRefreshInterval: GlobalRefreshInterval;
   panelData: Data;
+  panelOptions: PanelOptions;
+  refreshCount: number;
 }
 
-const LineChart = ({ panelData }: Props): JSX.Element => {
+const WidgetLineChart = ({
+  panelData,
+  panelOptions,
+  globalRefreshInterval,
+  refreshCount
+}: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { t } = useTranslation();
-  const { graphData, start, end, isGraphLoading, isMetricIdsEmpty } =
+
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval,
+    refreshInterval: panelOptions.refreshInterval,
+    refreshIntervalCustom: panelOptions.refreshIntervalCustom
+  });
+
+  const metricNames = pluck('name', panelData.metrics);
+
+  const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
       baseEndpoint: graphEndpoint,
-      metrics: panelData.metrics
+      metrics: metricNames,
+      refreshCount,
+      refreshInterval: refreshIntervalToUse,
+      resources: panelData.resources,
+      timePeriod: panelOptions.timeperiod
     });
 
-  if (isNil(graphData) && (!isGraphLoading || isMetricIdsEmpty)) {
+  const formattedThresholds = useThresholds({
+    data: graphData,
+    metricName: head(metricNames),
+    thresholds: panelOptions.threshold
+  });
+
+  if (isNil(graphData) && (!isGraphLoading || isMetricsEmpty)) {
     return (
       <Typography className={classes.noDataFound} variant="h5">
         {t(labelNoDataFound)}
@@ -32,13 +62,15 @@ const LineChart = ({ panelData }: Props): JSX.Element => {
   }
 
   return (
-    <Graph
+    <LineChart
       data={graphData}
       end={end}
       height={null}
       legend={{ display: true }}
       loading={isGraphLoading}
       start={start}
+      thresholdUnit={panelData.metrics[0]?.unit}
+      thresholds={formattedThresholds}
       timeShiftZones={{
         enable: false
       }}
@@ -49,4 +81,4 @@ const LineChart = ({ panelData }: Props): JSX.Element => {
   );
 };
 
-export default LineChart;
+export default WidgetLineChart;

@@ -53,7 +53,7 @@ class EntityPersister
     /**
      * Construct
      *
-     * @param string $entity
+     * @param class-string $entityClassName
      * @param \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata $classMetadata
      */
     public function __construct($entityClassName, ClassMetadata $classMetadata)

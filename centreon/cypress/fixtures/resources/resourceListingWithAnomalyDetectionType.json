@@ -57,10 +57,10 @@
                 "severity_code": 5
             },
             "flapping": null,
-            "in_downtime": false,
-            "acknowledged": false,
-            "active_checks": true,
-            "passive_checks": true,
+            "is_in_downtime": false,
+            "is_acknowledged": false,
+            "has_active_checks_enabled": true,
+            "has_passive_checks_enabled": true,
             "links": {
                 "uris": {
                     "configuration": "/centreon/main.php?p=60220&o=c&service_id=27",

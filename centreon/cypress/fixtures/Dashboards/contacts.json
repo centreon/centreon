@@ -1,0 +1,27 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "name": "admin admin"
+    },
+    {
+      "id": 4,
+      "name": "centreon-gorgone"
+    },
+    {
+      "id": 17,
+      "name": "Guest"
+    },
+    {
+      "id": 18,
+      "name": "User"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 1000,
+    "search": {},
+    "sort_by": {},
+    "total": 4
+  }
+}

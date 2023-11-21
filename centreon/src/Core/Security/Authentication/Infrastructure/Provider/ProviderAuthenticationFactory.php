@@ -48,7 +48,6 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
     }
 
     /**
-     * @param string $providerName
      * @param string $providerType
      *
      * @throws ProviderException

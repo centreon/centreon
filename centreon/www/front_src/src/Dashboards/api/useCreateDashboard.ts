@@ -8,7 +8,6 @@ import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
 import { CreateDashboardDto, Dashboard, resource } from './models';
 import { dashboardsEndpoint } from './endpoints';
-import { dashboardDecoder } from './decoders';
 
 type UseCreateDashboard<
   TData extends Dashboard = Dashboard,
@@ -30,8 +29,7 @@ const useCreateDashboard = (): UseCreateDashboard => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
-  } = useMutationQuery<Dashboard>({
-    decoder: dashboardDecoder,
+  } = useMutationQuery<Omit<Dashboard, 'globalRefreshInterval'>, unknown>({
     getEndpoint: () => dashboardsEndpoint,
     method: Method.POST,
     mutationKey: [resource.dashboards, 'create']

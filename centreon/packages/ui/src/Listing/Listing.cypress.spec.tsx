@@ -67,21 +67,23 @@ const mountListing = (): void => {
 
   cy.mount({
     Component: (
-      <Listing
-        checkable
-        columns={columnsWithSubItems}
-        currentPage={1}
-        limit={10}
-        rows={listingWithSubItems}
-        subItems={{
-          canCheckSubItems: false,
-          enable: true,
-          labelCollapse: 'Collapse',
-          labelExpand: 'Expand',
-          rowProperty: 'subItems'
-        }}
-        totalRows={10}
-      />
+      <div style={{ height: '100vh' }}>
+        <Listing
+          checkable
+          columns={columnsWithSubItems}
+          currentPage={1}
+          limit={10}
+          rows={listingWithSubItems}
+          subItems={{
+            canCheckSubItems: false,
+            enable: true,
+            labelCollapse: 'Collapse',
+            labelExpand: 'Expand',
+            rowProperty: 'subItems'
+          }}
+          totalRows={10}
+        />
+      </div>
     )
   });
 };
@@ -105,7 +107,7 @@ describe('Listing', () => {
       });
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('collapses the row when the corresponding icon si clicked', () => {
@@ -115,6 +117,6 @@ describe('Listing', () => {
 
     cy.contains('Sub item 100').should('not.exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

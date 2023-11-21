@@ -190,8 +190,8 @@ final class PartialUpdateHostTemplate
         $this->info('PartialUpdateHostTemplate: update host template', ['host_template_id' => $hostTemplate->getId()]);
 
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
-            ? (int) $inheritanceMode['inheritance_mode']->getValue()
+        $inheritanceMode = isset($inheritanceMode[0])
+            ? (int) $inheritanceMode[0]->getValue()
             : 0;
 
         if (! $request->name instanceOf NoValue) {

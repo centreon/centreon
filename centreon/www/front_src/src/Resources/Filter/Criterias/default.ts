@@ -9,7 +9,10 @@ interface DefaultCriteriaValues {
   hostGroups?: Array<SelectEntry>;
   hostSeverities?: Array<SelectEntry>;
   hostSeverityLevels?: Array<SelectEntry>;
+  information?: string;
   monitoringServers?: Array<SelectEntry>;
+  name?: Array<SelectEntry>;
+  parentName?: Array<SelectEntry>;
   resourceTypes?: Array<SelectEntry>;
   serviceCategories?: Array<SelectEntry>;
   serviceGroups?: Array<SelectEntry>;
@@ -37,13 +40,18 @@ const getDefaultCriterias = (
     monitoringServers = [],
     statusTypes = [],
     hostCategories = [],
-    serviceCategories = []
+    serviceCategories = [],
+    name = [],
+    parentName = []
   }: DefaultCriteriaValues = {
     hostCategories: [],
     hostGroups: [],
     hostSeverities: [],
     hostSeverityLevels: [],
+    information: '',
     monitoringServers: [],
+    name: [],
+    parentName: [],
     resourceTypes: [],
     serviceCategories: [],
     serviceGroups: [],
@@ -60,6 +68,18 @@ const getDefaultCriterias = (
       object_type: null,
       type: 'multi_select',
       value: resourceTypes
+    },
+    {
+      name: 'names',
+      object_type: 'names',
+      type: 'multi_select',
+      value: name
+    },
+    {
+      name: 'parent_names',
+      object_type: 'parent_names',
+      type: 'multi_select',
+      value: parentName
     },
     {
       name: 'states',

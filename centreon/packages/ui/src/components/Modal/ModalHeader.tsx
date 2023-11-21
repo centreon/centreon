@@ -13,7 +13,7 @@ const ModalHeader = ({ children }: ModalHeaderProps): ReactElement => {
 
   return (
     <div className={classes.modalHeader}>
-      <MuiDialogTitle>{children}</MuiDialogTitle>
+      <MuiDialogTitle color="primary">{children}</MuiDialogTitle>
     </div>
   );
 };

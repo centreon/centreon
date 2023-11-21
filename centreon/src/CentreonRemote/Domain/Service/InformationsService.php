@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,14 +26,13 @@ use Pimple\Container;
 
 class InformationsService
 {
-
-    /**
-     * @var Container
-     */
+    /** @var Container */
     private $di;
 
     /**
      * NotifyMasterService constructor.
+     *
+     * @param Container $di
      */
     public function __construct(Container $di)
     {
@@ -41,7 +40,8 @@ class InformationsService
     }
 
     /**
-     * Get status for centreon instance (is remote or is not remote)
+     * Get status for centreon instance (is remote or is not remote).
+     *
      * @return bool
      */
     public function serverIsRemote(): bool
@@ -50,7 +50,7 @@ class InformationsService
             ->getRepository(InformationsRepository::class);
         $isRemote = $repository->getOneByKey('isRemote');
 
-        if (!$isRemote) {
+        if (! $isRemote) {
             return false;
         }
 
@@ -58,16 +58,18 @@ class InformationsService
     }
 
     /**
-     * Get status for centreon instance (is master or is not master)
+     * Get status for centreon instance (is master or is not master).
+     *
      * @return bool
      */
     public function serverIsMaster(): bool
     {
-        return !$this->serverIsRemote();
+        return ! $this->serverIsRemote();
     }
 
     /**
-     * Get status for centreon instance if it is a central and has connected remotes to it
+     * Get status for centreon instance if it is a central and has connected remotes to it.
+     *
      * @return bool
      */
     public function serverIsCentral(): bool
@@ -76,7 +78,7 @@ class InformationsService
             ->getRepository(InformationsRepository::class);
         $isCentral = $repository->getOneByKey('isCentral');
 
-        if (!$isCentral) {
+        if (! $isCentral) {
             return false;
         }
 

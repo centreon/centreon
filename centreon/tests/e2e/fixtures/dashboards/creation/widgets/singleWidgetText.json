@@ -1,0 +1,14 @@
+{
+    "rtaValues": {
+      "warning": "Warning: 200 ms",
+      "critical": "Critical: 400 ms"
+    },
+    "plValues": {
+      "warning": "Warning: 20%",
+      "critical": "Critical: 50%"
+    },
+    "customValues": {
+      "warning": "Warning: 40 ms",
+      "critical": "Critical: 40 ms"
+    }
+  }

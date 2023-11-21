@@ -6,17 +6,30 @@ import {
   ListingVariant,
   userAtom
 } from '@centreon/ui-context';
-import { TestQueryProvider } from '@centreon/ui';
+import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
 import { DashboardRole } from './api/models';
 import { DashboardsPage } from './DashboardsPage';
-import { dashboardsEndpoint } from './api/endpoints';
+import {
+  dashboardsContactGroupsEndpoint,
+  dashboardsContactsEndpoint,
+  dashboardsEndpoint
+} from './api/endpoints';
+import {
+  labelCancel,
+  labelCreate,
+  labelDashboardDeleted,
+  labelDelete,
+  labelName,
+  labelWelcomeToDashboardInterface
+} from './translatedLabels';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
   canCreateDashboard?: boolean;
   canViewDashboard?: boolean;
+  emptyList?: boolean;
   globalRole?: DashboardGlobalRole;
   ownRole?: DashboardRole;
 }
@@ -25,7 +38,8 @@ const initializeAndMount = ({
   globalRole = DashboardGlobalRole.administrator,
   canCreateDashboard = true,
   canViewDashboard = true,
-  canAdministrateDashboard = true
+  canAdministrateDashboard = true,
+  emptyList
 }: InitializeAndMountProps): ReturnType<typeof createStore> => {
   const store = createStore();
 
@@ -47,7 +61,9 @@ const initializeAndMount = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
+  cy.fixture(
+    `Dashboards/${emptyList ? 'emptyDashboards' : 'dashboards'}.json`
+  ).then((dashboards) => {
     cy.interceptAPIRequest({
       alias: 'getDashboards',
       method: Method.GET,
@@ -56,15 +72,65 @@ const initializeAndMount = ({
     });
   });
 
+  cy.fixture(`Dashboards/contacts.json`).then((response) => {
+    cy.interceptAPIRequest({
+      alias: 'getContacts',
+      method: Method.GET,
+      path: `${dashboardsContactsEndpoint}?**`,
+      response
+    });
+  });
+
+  cy.fixture(`Dashboards/contactGroups.json`).then((response) => {
+    cy.interceptAPIRequest({
+      alias: 'getContactGroups',
+      method: Method.GET,
+      path: `${dashboardsContactGroupsEndpoint}?**`,
+      response
+    });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'postDashboards',
+    method: Method.POST,
+    path: dashboardsEndpoint,
+    response: {
+      created_at: '',
+      created_by: {
+        id: 1,
+        name: 'User 1'
+      },
+      description: null,
+      id: 1,
+      name: 'My Dashboard',
+      own_role: 'editor',
+      updated_at: '',
+      updated_by: {
+        id: 1,
+        name: 'User 1'
+      }
+    },
+    statusCode: 201
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'deleteDashboard',
+    method: Method.DELETE,
+    path: `${dashboardsEndpoint}/1`,
+    statusCode: 204
+  });
+
   cy.mount({
     Component: (
-      <TestQueryProvider>
-        <BrowserRouter>
-          <Provider store={store}>
-            <DashboardsPage />
-          </Provider>
-        </BrowserRouter>
-      </TestQueryProvider>
+      <SnackbarProvider>
+        <TestQueryProvider>
+          <BrowserRouter>
+            <Provider store={store}>
+              <DashboardsPage />
+            </Provider>
+          </BrowserRouter>
+        </TestQueryProvider>
+      </SnackbarProvider>
     )
   });
 
@@ -114,7 +180,7 @@ describe('Dashboards', () => {
         .findByLabelText('delete')
         .should('not.exist');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the dashboard actions on the corresponding dashboard when the user has viewer roles', () => {
@@ -135,7 +201,7 @@ describe('Dashboards', () => {
         });
       });
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the dashboards actions on all dashboards when the user has administrator global roles', () => {
@@ -158,7 +224,62 @@ describe('Dashboards', () => {
         .findByLabelText('delete')
         .should('exist');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
+  });
+
+  it('displays a welcome label when the dashboard library is empty', () => {
+    initializeAndMount({
+      ...administratorRole,
+      emptyList: true
+    });
+
+    cy.contains(labelWelcomeToDashboardInterface).should('be.visible');
+    cy.findByLabelText('create').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('creates a dashboard when the corresponding button is clicked and the title is filled', () => {
+    initializeAndMount({
+      ...administratorRole,
+      emptyList: true
+    });
+
+    cy.findByLabelText('create').click();
+
+    cy.findByLabelText(labelName).type('My Dashboard');
+
+    cy.makeSnapshot();
+
+    cy.viewport('macbook-13');
+
+    cy.findByLabelText(labelCreate).click();
+    cy.waitForRequest('@postDashboards');
+    cy.url().should(
+      'equal',
+      'http://localhost:9092/home/dashboards/1?edit=true'
+    );
+  });
+
+  it('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByLabelText('delete').eq(0).click();
+    cy.contains(labelDelete).click();
+
+    cy.waitForRequest('@deleteDashboard');
+
+    cy.contains(labelDashboardDeleted).should('be.visible');
+  });
+
+  it('does not delete a dashboard when the corresponding icon button is clicked and the cancellation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByLabelText('delete').eq(0).click();
+    cy.contains(labelCancel).click();
+
+    cy.contains(labelCancel).should('not.exist');
+    cy.contains(labelDelete).should('not.exist');
   });
 });

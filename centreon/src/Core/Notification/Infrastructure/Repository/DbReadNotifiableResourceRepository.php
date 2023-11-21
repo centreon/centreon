@@ -67,6 +67,20 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
+        /**
+         * @var iterable<int,array{
+         *   notification_id: int,
+         *   host_id: int,
+         *   host_name: string,
+         *   host_alias: string|null,
+         *   host_events: int,
+         *   service_id: int,
+         *   service_name: string,
+         *   service_alias: string,
+         *   service_events: int,
+         *   included_service_events: int
+         *  }> $statement
+         */
         yield from DbNotifiableResourceFactory::createFromRecords($statement);
     }
 
@@ -76,7 +90,7 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
     private function getRequestsFromProviders(): string
     {
         $requests = \array_map(
-            fn (NotifiableResourceRequestProviderInterface $provider) => $provider->getNotifiableResourceSubRequest(),
+            fn(NotifiableResourceRequestProviderInterface $provider) => $provider->getNotifiableResourceSubRequest(),
             $this->notifiableResourceRequestProviders
         );
 

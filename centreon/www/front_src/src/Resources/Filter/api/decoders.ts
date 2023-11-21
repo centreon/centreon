@@ -19,10 +19,11 @@ const entityDecoder = JsonDecoder.object<Filter>(
             JsonDecoder.oneOf<
               | string
               | Array<Pick<SelectEntry, 'id' | 'name'>>
-              | [string, SortOrder]
+              | [string, SortOrder, ...Array<string | SortOrder>]
             >(
               [
                 JsonDecoder.string,
+                JsonDecoder.array(JsonDecoder.string, 'MultiSort'),
                 JsonDecoder.array<Pick<SelectEntry, 'id' | 'name'>>(
                   JsonDecoder.object<Pick<SelectEntry, 'id' | 'name'>>(
                     {

@@ -5,9 +5,17 @@ const useStyles = makeStyles()(() => ({
     display: 'flex',
     flexDirection: 'column',
     maxWidth: '480px',
-
     width: '100%'
   }
 }));
 
-export { useStyles };
+const useGlobalRefreshIntervalStyles = makeStyles()((theme) => ({
+  globalRefreshInterval: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1)
+  }
+}));
+
+export { useStyles, useGlobalRefreshIntervalStyles };

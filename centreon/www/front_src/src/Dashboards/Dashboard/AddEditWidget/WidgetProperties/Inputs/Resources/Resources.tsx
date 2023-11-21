@@ -1,20 +1,28 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
+import { or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
+import FilterIcon from '@mui/icons-material/Tune';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  labelAddResource,
+  labelRefineFilter,
   labelDelete,
   labelResourceType,
   labelResources,
-  labelSelectAResource
+  labelSelectAResource,
+  labelSelectResourceType,
+  labelYouCanChooseOnResourcePerResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
+import { singleResourceTypeSelectionAtom } from '../../../atoms';
+import { areResourcesFullfilled } from '../utils';
+import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -27,6 +35,10 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
+  const singleResourceTypeSelection = useAtomValue(
+    singleResourceTypeSelectionAtom
+  );
+
   const {
     value,
     resourceTypeOptions,
@@ -37,9 +49,13 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    addButtonHidden,
-    getOptionDisabled
+    getOptionDisabled,
+    deleteResourceItem
   } = useResources(propertyName);
+
+  const { canEditField } = editProperties.useCanEditProperties();
+
+  const deleteButtonHidden = or(!canEditField, value.length <= 1);
 
   return (
     <div className={classes.resourcesContainer}>
@@ -51,14 +67,16 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <ItemComposition
-        addButtonHidden={addButtonHidden}
-        labelAdd={t(labelAddResource)}
+        IconAdd={<FilterIcon />}
+        addButtonHidden={!canEditField}
+        addbuttonDisabled={!areResourcesFullfilled(value)}
+        labelAdd={t(labelRefineFilter)}
         onAddItem={addResource}
       >
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
-            deleteButtonHidden={addButtonHidden}
+            deleteButtonHidden={deleteButtonHidden}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -66,19 +84,31 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
             <SelectField
               className={classes.resourceType}
               dataTestId={labelResourceType}
-              label={t(labelResourceType) as string}
+              disabled={!canEditField}
+              label={t(labelSelectResourceType) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}
             />
             <MultiConnectedAutocompleteField
+              allowUniqOption
+              get
+              chipProps={{
+                color: 'primary',
+                onDelete: (_, option): void =>
+                  deleteResourceItem({
+                    index,
+                    option,
+                    resources: resource.resources
+                  })
+              }}
               className={classes.resources}
-              disabled={!resource.resourceType}
+              disabled={!canEditField || !resource.resourceType}
               field={getSearchField(resource.resourceType)}
               getEndpoint={getResourceResourceBaseEndpoint(
                 resource.resourceType
               )}
-              getOptionDisabled={getOptionDisabled}
+              getOptionDisabled={getOptionDisabled(index)}
               label={t(labelSelectAResource)}
               limitTags={2}
               queryKey={`${resource.resourceType}-${index}`}
@@ -88,6 +118,11 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           </ItemComposition.Item>
         ))}
       </ItemComposition>
+      {singleResourceTypeSelection && (
+        <Typography sx={{ color: 'action.disabled' }}>
+          {t(labelYouCanChooseOnResourcePerResourceType)}
+        </Typography>
+      )}
       {error && <FormHelperText error>{t(error)}</FormHelperText>}
     </div>
   );

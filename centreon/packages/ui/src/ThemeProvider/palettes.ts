@@ -55,6 +55,7 @@ declare module '@mui/material/styles' {
     panelGroups: string;
     paper: string;
     tooltip: string;
+    widget: string;
   }
 
   interface TypeLayout {
@@ -162,7 +163,8 @@ export const lightPalette: PaletteOptions = {
     panel: '#EDEDED',
     panelGroups: '#F5F5F5',
     paper: '#FFFFFF',
-    tooltip: '#434E5B'
+    tooltip: '#434E5B',
+    widget: '#F8F8F8'
   },
   chip: {
     color: {
@@ -301,7 +303,8 @@ export const darkPalette: PaletteOptions = {
     panel: '#4a4a4a',
     panelGroups: '#252525',
     paper: '#212121',
-    tooltip: '#AAB4C0'
+    tooltip: '#AAB4C0',
+    widget: '#2E2E2E'
   },
   chip: {
     color: {

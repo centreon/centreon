@@ -1,24 +1,29 @@
 parameters:
-  bootstrapFiles:
-    - config/centreon.config.php.template
-  paths:
-    - %currentWorkingDirectory%/src/Centreon
-    - %currentWorkingDirectory%/src/EventSubscriber
-    - %currentWorkingDirectory%/src/Security
-    - %currentWorkingDirectory%/src/Utility
-    - %currentWorkingDirectory%/src/Core
-    - %currentWorkingDirectory%/tests/php/Core
-    - %currentWorkingDirectory%/tests/php/Centreon
-    - %currentWorkingDirectory%/tests/php/Security
-    - %currentWorkingDirectory%/tests/php/Utility
-  ignoreErrors:
-    -
-      message: '#^Undefined variable: \$this$#'
-      path: tests/php/
-    -
-      message: '#^Call to an undefined method Pest#'
-      path: tests/php/
-  reportUnmatchedIgnoredErrors: false
+    bootstrapFiles:
+        - config/centreon.config.php.template
+    scanFiles:
+        - config/centreon.config.php.template
+        - tests/phpstan_stubs/bootstrap.stub
+        - tests/phpstan_stubs/legacy.stub
+    excludePaths:
+        analyseAndScan:
+            - src/Centreon/Tests
+    level: max
+    paths:
+        - src
+    ignoreErrors:
+        - # Baseline: 👇 dealing with this code is almost impossible without spending hours.
+            reportUnmatched: false
+            path: src/CentreonRemote/Infrastructure/Service/ExportService.php
+            message: '#^Trying to invoke int but it''s not a callable.$#'
+
+        - # Baseline: 👇 leting this code is not risky, but fixing it, is too risky to my point of view.
+            reportUnmatched: false
+            path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
+            messages:
+                - '#^Negated boolean expression is always false.$#'
+                - '#^Result of && is always false.$#'
+
 services:
-  errorFormatter.absolute:
-    class: Centreon\PHPStan\AbsolutePathErrorFormatter
+    errorFormatter.absolute:
+        class: Centreon\PHPStan\AbsolutePathErrorFormatter

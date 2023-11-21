@@ -172,7 +172,7 @@ function analyseGraphs(array $hostServiceIds): void
 }
 
 $request = <<<SQL
-    SELECT SQL_CALC_FOUND_ROWS DISTINCT h.name, h.alias, h.address, h.host_id, s.description,
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, h.name, h.alias, h.address, h.host_id, s.description,
     s.service_id, s.notes, s.notes_url, s.action_url, s.max_check_attempts,
     s.icon_image, s.display_name, s.state, s.output as plugin_output,
     s.state_type, s.check_attempt as current_attempt, s.last_update as status_update_time, s.last_state_change,
@@ -340,7 +340,7 @@ try {
     }
     $dbResult->execute();
 
-    $numRows = $obj->DBC->numberRows();
+    $numRows = (int) $obj->DBC->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 } catch (\PDOException $e) {
     $sqlError = true;
     $numRows = 0;
@@ -556,7 +556,7 @@ if (!$sqlError) {
         $obj->XML->writeElement("sc", $obj->colorService[$data["state"]]);
         $obj->XML->writeElement("cs", _($obj->statusService[$data["state"]]), false);
         $obj->XML->writeElement("ssc", $data["state"]);
-        $obj->XML->writeElement("po", htmlspecialchars(htmlspecialchars($pluginShortOuput)));
+        $obj->XML->writeElement("po", CentreonUtils::escapeSecure($pluginShortOuput));
         $obj->XML->writeElement(
             "ca",
             $data["current_attempt"] . "/" . $data["max_check_attempts"]

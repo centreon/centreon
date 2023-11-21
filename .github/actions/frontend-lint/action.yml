@@ -19,34 +19,34 @@ runs:
   using: "composite"
 
   steps:
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-          run_install: false
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        run_install: false
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: pnpm
-          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: ${{ inputs.frontend_directory }}
-        shell: bash
-        env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.frontend_directory }}
+      shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-      - name: Run ESLint
-        run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
-        working-directory: ${{ inputs.frontend_directory }}
-        shell: bash
+    - name: Run ESLint
+      run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
+      working-directory: ${{ inputs.frontend_directory }}
+      shell: bash
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: ${{ inputs.frontend_directory }}/eslint-report.json
-          format: eslint
-          check_name: ${{ inputs.module_name }}-eslint-report
+    - if: failure()
+      uses: ./.github/actions/publish-report
+      with:
+        path: ${{ inputs.frontend_directory }}/eslint-report.json
+        format: eslint
+        check_name: ${{ inputs.module_name }}-eslint-report

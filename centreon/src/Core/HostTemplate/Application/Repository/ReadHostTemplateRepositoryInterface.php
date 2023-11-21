@@ -51,6 +51,17 @@ interface ReadHostTemplateRepositoryInterface
     public function findById(int $hostTemplateId): ?HostTemplate;
 
     /**
+     * Find a host template by its id.
+     *
+     * @param int ...$hostTemplateIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<HostTemplate>
+     */
+    public function findByIds(int ...$hostTemplateIds): array;
+
+    /**
      * Retrieve all parent template ids of a host template.
      *
      * @param int $hostTemplateId

@@ -73,7 +73,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
         }
 
         $request = '
-            SELECT COUNT(h.host_id) AS total
+            SELECT COUNT(h.host_id) AS total, 1 AS REALTIME
             FROM `:dbstg`.`hosts` AS h
             INNER JOIN `:dbstg`.`centreon_acl` AS host_acl
                 ON host_acl.host_id = h.host_id
@@ -101,6 +101,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
     private function findHost(int $hostId, ?string $accessGroupRequest = null): ?Host
     {
         $request = "SELECT
+                1 AS REALTIME,
                 h.host_id,
                 h.name,
                 h.address,

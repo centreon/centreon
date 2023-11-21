@@ -25,7 +25,6 @@ namespace Core\Security\Authentication\Application\UseCase\LogoutSession;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 
 class LogoutSession
@@ -34,11 +33,9 @@ class LogoutSession
 
     /**
      * @param WriteSessionRepositoryInterface $writeSessionRepository
-     * @param ReadTokenRepositoryInterface $readTokenRepository
      */
     public function __construct(
         private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly ReadTokenRepositoryInterface $readTokenRepository,
     ) {
     }
 
@@ -49,8 +46,7 @@ class LogoutSession
     public function __invoke(
         mixed $token,
         LogoutSessionPresenterInterface $presenter,
-    ): void
-    {
+    ): void {
         $this->info('Processing session logout...');
 
         if ($token === null || is_string($token) === false) {

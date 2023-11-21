@@ -8,7 +8,7 @@ const useStyles = makeStyles()((theme) => ({
       },
       display: 'grid',
       gridGap: theme.spacing(2.5),
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))'
+      gridTemplateColumns: `repeat(auto-fill, ${theme.spacing(45)})`
     },
     '&[data-variant][data-is-empty="true"]': {
       display: 'flex',

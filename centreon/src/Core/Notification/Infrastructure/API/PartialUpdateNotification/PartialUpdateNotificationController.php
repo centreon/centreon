@@ -32,6 +32,7 @@ use Core\Notification\Application\UseCase\PartialUpdateNotification\{
     PartialUpdateNotificationRequest
 };
 use Symfony\Component\HttpFoundation\{Request, Response};
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class PartialUpdateNotificationController extends AbstractController
 {
@@ -42,6 +43,8 @@ final class PartialUpdateNotificationController extends AbstractController
      * @param PartialUpdateNotification $useCase
      * @param PartialUpdateNotificationPresenter $presenter
      * @param int $notificationId
+     *
+     * @throws AccessDeniedException
      *
      * @return Response
      */
@@ -54,8 +57,12 @@ final class PartialUpdateNotificationController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
+            /**
+             * @var array{
+             *     is_activated?: bool
+             * } $data
+             */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateNotificationSchema.json');
-            /** @var array{is_activated?: bool} $requestDto */
             $requestDto = new PartialUpdateNotificationRequest();
 
             if (\array_key_exists('is_activated', $data)) {

@@ -2,19 +2,29 @@ import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
-import { widgetPropertiesAtom } from '../atoms';
+import {
+  customBaseColorAtom,
+  singleMetricSelectionAtom,
+  singleResourceTypeSelectionAtom,
+  widgetPropertiesAtom
+} from '../atoms';
 
 import {
   WidgetMetrics,
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
+  WidgetSingleMetricGraphType,
   WidgetTextField,
-  WidgetThreshold
+  WidgetThreshold,
+  WidgetValueFormat,
+  WidgetTimePeriod,
+  WidgetTopBottomSettings,
+  WidgetMetric
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -38,7 +48,13 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.metrics]: WidgetMetrics,
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
-  [FederatedWidgetOptionType.threshold]: WidgetThreshold
+  [FederatedWidgetOptionType.threshold]: WidgetThreshold,
+  [FederatedWidgetOptionType.singleMetricGraphType]:
+    WidgetSingleMetricGraphType,
+  [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
+  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
+  [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
+  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
@@ -52,12 +68,18 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
+  const setSingleResourceTypeSelection = useSetAtom(
+    singleResourceTypeSelectionAtom
+  );
+  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
-  const selectedWidgetProperties =
-    find(
-      propEq('moduleName', values.moduleName),
-      federatedWidgetsProperties || []
-    )?.[widgetKey] || null;
+  const selectedWidget = find(
+    propEq(values.moduleName, 'moduleName'),
+    federatedWidgetsProperties || []
+  );
+
+  const selectedWidgetProperties = selectedWidget?.[widgetKey] || null;
 
   const inputs = useMemo(
     () =>
@@ -82,13 +104,34 @@ export const useWidgetInputs = (
     [selectedWidgetProperties]
   );
 
-  useEffect(() => {
-    setWidgetProperties(inputs);
-  }, useDeepCompare([inputs]));
+  useEffect(
+    () => {
+      setWidgetProperties(inputs);
+    },
+    useDeepCompare([inputs])
+  );
 
-  useEffect(() => {
-    validateForm();
-  }, useDeepCompare([widgetProperties]));
+  useEffect(
+    () => {
+      validateForm();
+    },
+    useDeepCompare([widgetProperties])
+  );
+
+  useEffect(
+    () => {
+      if (!selectedWidget) {
+        return;
+      }
+
+      setSingleMetricSection(selectedWidget.singleMetricSelection);
+      setSingleResourceTypeSelection(
+        selectedWidget.singleResourceTypeSelection
+      );
+      setCustomBaseColor(selectedWidget.customBaseColor);
+    },
+    useDeepCompare([selectedWidget])
+  );
 
   return inputs;
 };

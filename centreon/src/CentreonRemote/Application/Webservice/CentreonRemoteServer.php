@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,9 +26,8 @@ namespace CentreonRemote\Application\Webservice;
  */
 class CentreonRemoteServer extends CentreonWebServiceAbstract
 {
-
     /**
-     * Name of web service object
+     * Name of web service object.
      *
      * @return string
      */
@@ -42,9 +41,11 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
      *   path="/external.php?object=centreon_remote_server&action=addToWaitList",
      *   description="Add remote Centreon instance in waiting list",
      *   tags={"centreon_remote_server"},
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="object",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"centreon_remote_server"},
@@ -53,9 +54,11 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
      *       description="the name of the API object class",
      *       required=true
      *   ),
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="action",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"addToWaitList"},
@@ -64,13 +67,16 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
      *       description="the name of the action in the API class",
      *       required=true
      *   ),
+     *
      *   @OA\RequestBody(
      *       required=true,
+     *
      *       @OA\JsonContent(
      *          required={
      *              "app_key",
      *              "version"
      *          },
+     *
      *          @OA\Property(
      *              property="app_key",
      *              type="string",
@@ -83,10 +89,13 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
      *          )
      *       )
      *   ),
+     *
      *   @OA\Response(
      *       response=200,
      *       description="Empty string",
+     *
      *       @OA\JsonContent(
+     *
      *          @OA\Property(type="string")
      *       )
      *   )
@@ -94,24 +103,25 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
      *
      * Add remote Centreon instance in waiting list
      *
-     * @return string
      * @throws \RestBadRequestException
      * @throws \RestConflictException
+     *
+     * @return string
      */
     public function postAddToWaitList(): string
     {
         $ip = $_SERVER['REMOTE_ADDR'] ?? null;
 
         /**
-         * Check mandatory parameters and request arguments
+         * Check mandatory parameters and request arguments.
          */
-        if (!$ip) {
+        if (! $ip) {
             throw new \RestBadRequestException('Can not access your address.');
         }
 
         if (
-            !isset($_POST['version'])
-            || !$_POST['version']
+            ! isset($_POST['version'])
+            || ! $_POST['version']
             || empty($version = filter_var($_POST['version'], FILTER_SANITIZE_FULL_SPECIAL_CHARS))
         ) {
             throw new \RestBadRequestException('Please send \'version\' in the request.');
@@ -119,8 +129,8 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
 
         $filterOptions = ['options' => ['min_range' => 1, 'max_range' => 65535]];
         if (
-            !isset($_POST['http_port'])
-            || !$_POST['http_port']
+            ! isset($_POST['http_port'])
+            || ! $_POST['http_port']
             || false === ($httpPort = filter_var($_POST['http_port'], FILTER_VALIDATE_INT, $filterOptions))
         ) {
             throw new \RestBadRequestException('Inconsistent \'http port\' in the request.');
@@ -134,17 +144,17 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
         $statement->execute();
         $result = $statement->fetch();
 
-        if ((bool)$result['count']) {
+        if ((bool) $result['count']) {
             throw new \RestConflictException('Address already in wait list.');
         }
 
         try {
             $createdAt = date('Y-m-d H:i:s');
-            $insertQuery = "INSERT INTO `remote_servers` (`ip`, `version`, `is_connected`,
+            $insertQuery = 'INSERT INTO `remote_servers` (`ip`, `version`, `is_connected`,
                 `created_at`, `http_method`, `http_port`, `no_check_certificate`)
                 VALUES (:ip, :version, 0, :created_at,
                     :http_method, :http_port, :no_check_certificate
-                )";
+                )';
 
             $insert = $this->pearDB->prepare($insertQuery);
             $insert->bindValue(':ip', $ip, \PDO::PARAM_STR);
@@ -162,7 +172,7 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
     }
 
     /**
-     * Authorize to access to the action
+     * Authorize to access to the action.
      *
      * @param string $action The action name
      * @param \CentreonUser $user The current user

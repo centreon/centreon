@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 
-import { Responsive } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
@@ -12,6 +11,8 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
 import { Paper } from '@mui/material';
+
+import { ParentSize } from '..';
 
 import CustomTimePeriod from './CustomTimePeriod';
 import SelectedTimePeriod from './SelectedTimePeriod';
@@ -57,7 +58,7 @@ const TimePeriod = ({
 
   return (
     <div>
-      <Responsive.ParentSize>
+      <ParentSize>
         {({ width }): JSX.Element => {
           return (
             <Paper className={classes.header} style={{ width }}>
@@ -71,7 +72,7 @@ const TimePeriod = ({
             </Paper>
           );
         }}
-      </Responsive.ParentSize>
+      </ParentSize>
     </div>
   );
 };

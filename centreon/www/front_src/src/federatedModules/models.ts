@@ -12,6 +12,7 @@ export interface FederatedModule {
   moduleFederationName: string;
   moduleName: string;
   remoteEntry: string;
+  remoteUrl?: string;
 }
 
 interface PageComponent {
@@ -27,11 +28,16 @@ export interface StyleMenuSkeleton {
 
 export enum FederatedWidgetOptionType {
   metrics = 'metrics',
+  metricsOnly = 'metrics-only',
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
+  singleMetricGraphType = 'single-metric-graph-type',
   textfield = 'textfield',
-  threshold = 'threshold'
+  threshold = 'threshold',
+  timePeriod = 'time-period',
+  topBottomSettings = 'top-bottom-settings',
+  valueFormat = 'value-format'
 }
 
 export interface FederatedWidgetOption {
@@ -42,6 +48,7 @@ export interface FederatedWidgetOption {
 }
 
 export interface FederatedWidgetProperties {
+  customBaseColor?: boolean;
   data: {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };
@@ -51,5 +58,6 @@ export interface FederatedWidgetProperties {
     [key: string]: FederatedWidgetOption;
   };
   singleMetricSelection?: boolean;
+  singleResourceTypeSelection?: boolean;
   title: string;
 }

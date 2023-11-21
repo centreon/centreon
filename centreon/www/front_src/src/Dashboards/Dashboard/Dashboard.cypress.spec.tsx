@@ -14,6 +14,7 @@ import { BrowserRouter } from 'react-router-dom';
 import {
   DashboardGlobalRole,
   ListingVariant,
+  refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
@@ -33,20 +34,29 @@ import {
 import { dialogStateAtom } from '../components/DashboardAccessRights/useDashboardAccessRights';
 import { labelDelete } from '../translatedLabels';
 
+import { routerParams } from './hooks/useDashboardDetails';
 import {
   labelAddAWidget,
-  labelAddWidget,
   labelDeleteAWidget,
   labelDeleteWidget,
   labelDoYouWantToDeleteThisWidget,
   labelEditDashboard,
   labelEditWidget,
   labelMoreActions,
-  labelName,
+  labelTitle,
   labelSave,
-  labelWidgetLibrary
+  labelWidgetType,
+  labelCancel,
+  labelViewProperties,
+  labelYourRightsOnlyAllowToView,
+  labelPleaseContactYourAdministrator,
+  labelRefresh,
+  labelDuplicate,
+  labelGlobalRefreshInterval,
+  labelManualRefreshOnly,
+  labelInterval,
+  labelUnsavedChanges
 } from './translatedLabels';
-import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
 import { dashboardAtom } from './atoms';
 
@@ -161,6 +171,7 @@ const initializeAndMount = ({
     isOpen: false,
     status: 'idle'
   });
+  store.set(refreshIntervalAtom, 15);
 
   cy.viewport('macbook-13');
 
@@ -257,6 +268,9 @@ describe('Dashboard', () => {
       cy.waitForRequest('@getContactGroups');
 
       cy.contains(labelEditDashboard).should('be.visible');
+
+      cy.contains('Widget text').should('be.visible');
+      cy.contains('Generic text').should('be.visible');
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global viewer role', () => {
@@ -284,6 +298,33 @@ describe('Dashboard', () => {
     });
   });
 
+  it('displays a warning message indicating unsaved changes in the dashboard when updating it', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.findByLabelText(labelEditDashboard).click();
+    cy.findByLabelText(labelAddAWidget).click();
+
+    cy.findByLabelText(labelWidgetType).click();
+    cy.contains('Generic input (example)').click();
+
+    cy.findByLabelText(labelTitle).type('Generic input');
+    cy.findByLabelText('Generic text').type('Text for the new widget');
+
+    cy.findAllByLabelText(labelSave).eq(1).click();
+
+    cy.contains(labelUnsavedChanges).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.contains(labelUnsavedChanges).should('not.exist');
+
+    cy.findByLabelText(labelEditDashboard).should('be.visible');
+  });
+
   describe('Add widget', () => {
     it('adds a widget when a widget type is selected and the submission button is clicked', () => {
       initializeAndMount(editorRoles);
@@ -293,18 +334,17 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelEditDashboard).click();
       cy.findByLabelText(labelAddAWidget).click();
 
-      cy.findByLabelText(labelWidgetLibrary).click();
+      cy.findByLabelText(labelWidgetType).click();
       cy.contains('Generic input (example)').click();
 
-      cy.findByLabelText(labelName).type('Generic input');
+      cy.findByLabelText(labelTitle).type('Generic input');
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
 
-      cy.contains(labelAddWidget).should('not.exist');
       cy.contains('Text for the new widget').should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -317,11 +357,13 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetLibrary).click();
-      cy.contains('Generic input (example)').click();
+      cy.findByLabelText(labelWidgetType).click({ force: true });
+      cy.contains('Generic input (example)').click({ force: true });
 
-      cy.findByLabelText(labelName).type('Generic input');
+      cy.findByLabelText(labelTitle).type('Generic input', { force: true });
       cy.findByLabelText('Generic text').type('Text for the new widget');
+
+      cy.url().should('include', 'edit=true');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
 
@@ -340,7 +382,7 @@ describe('Dashboard', () => {
           assert.equal(dashboard.layout[1].name, 'centreon-widget-input');
         });
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -353,14 +395,130 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
-      cy.contains(labelDeleteAWidget).should('be.visible');
       cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
 
       cy.findByLabelText(labelDelete).click();
 
       cy.contains(labelAddAWidget).should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
+  });
+
+  describe('View mode', () => {
+    it('displays the widget form in editor mode when the user has editor role and the user is not editing the dashboard', () => {
+      initializeAndMount(editorRoles);
+
+      cy.contains(labelCancel).click();
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelEditWidget).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.enabled');
+
+      cy.findByLabelText('close').click();
+
+      cy.findByLabelText(labelWidgetType).should('exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the widget form in view mode when the user has viewer role', () => {
+      initializeAndMount(viewerRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelViewProperties).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.disabled');
+      cy.findByLabelText(labelCancel).should('not.exist');
+      cy.findByLabelText(labelSave).should('not.exist');
+      cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
+      cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the refresh button when the more actions button is clicked', () => {
+      initializeAndMount(viewerRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.contains(labelRefresh).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Duplicate', () => {
+    it('duplicates the widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findAllByText('Widget text').should('have.length', 2);
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Dashboard global properties', () => {
+    it('displays the dashboard global properties form when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelCancel).click();
+
+      cy.findByLabelText('edit').click();
+
+      cy.contains(labelGlobalRefreshInterval).should('be.visible');
+      cy.contains(labelManualRefreshOnly).should('be.visible');
+
+      cy.findByLabelText(labelInterval).should('have.value', '15');
+    });
+  });
+
+  describe('Dashboard global properties', () => {
+    it('displays the dashboard global properties form when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText('edit').click();
+
+      cy.contains(labelGlobalRefreshInterval).should('be.visible');
+      cy.contains(labelManualRefreshOnly).should('be.visible');
+
+      cy.findByLabelText(labelInterval).should('have.value', '15');
+    });
+  });
+
+  it('displays the title and the description in the panel', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains('Generic text').should('be.visible');
+    cy.contains('Description').should('be.visible');
+  });
+
+  it('cancels the dashboard edition when the cancel button is clicked and the dashboard is edited', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains(labelEditDashboard).click();
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).trigger('click');
+    cy.contains(labelDeleteWidget).click();
+    cy.findByLabelText(labelDelete).click();
+
+    cy.findByLabelText(labelCancel).click();
+
+    cy.contains('Widget text').should('be.visible');
+    cy.contains('Generic text').should('be.visible');
   });
 });

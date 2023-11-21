@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsers;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsersPresenterInterface;
 
-class FindUsersController extends AbstractController
+final class FindUsersController extends AbstractController
 {
     /**
      * @param FindUsers $findUsers

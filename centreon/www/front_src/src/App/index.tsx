@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import 'intl-pluralrules';
 
 import { not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';

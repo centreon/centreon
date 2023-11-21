@@ -99,7 +99,7 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
     (title) => ({
       id: title,
       width: panelWidth,
-      ...(find(propEq('title', title), allDetailsCards) as DetailCardLine)
+      ...(find(propEq(title, 'title'), allDetailsCards) as DetailCardLine)
     }),
     defaultDetailsCardsLayout
   );

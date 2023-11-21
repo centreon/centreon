@@ -1,0 +1,7 @@
+FindNotifiableRule:
+  methods: GET
+  path: /configuration/notifications/{notificationId}/rules
+  requirements:
+    notificationId: '\d+'
+  controller: 'Core\Notification\Infrastructure\API\FindNotifiableRule\FindNotifiableRuleController'
+  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.notification')"

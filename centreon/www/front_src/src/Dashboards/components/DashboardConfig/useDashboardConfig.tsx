@@ -1,16 +1,21 @@
 import { useEffect } from 'react';
 
-import { atom, useAtom } from 'jotai';
+import { atom, useAtom, useSetAtom } from 'jotai';
 import {
   createSearchParams,
   generatePath,
   useNavigate
 } from 'react-router-dom';
+import { equals } from 'ramda';
+
+import { useSnackbar } from '@centreon/ui';
 
 import { Dashboard, isDashboard } from '../../api/models';
 import { useCreateDashboard } from '../../api/useCreateDashboard';
 import routeMap from '../../../reactRoutes/routeMap';
 import { useUpdateDashboard } from '../../api/useUpdateDashboard';
+import { labelDashboardUpdated } from '../../translatedLabels';
+import { resetDashboardDerivedAtom } from '../../Dashboard/atoms';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
@@ -38,6 +43,8 @@ type UseDashboardConfig = {
 const useDashboardConfig = (): UseDashboardConfig => {
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
 
+  const resetDashboard = useSetAtom(resetDashboardDerivedAtom);
+
   const {
     mutate: createDashboardMutation,
     reset: resetCreateMutation,
@@ -49,6 +56,8 @@ const useDashboardConfig = (): UseDashboardConfig => {
     reset: resetUpdateMutation,
     status: statusUpdateMutation
   } = useUpdateDashboard();
+
+  const { showSuccessMessage } = useSnackbar();
 
   const closeDialog = (): void =>
     setDialogState({ ...dialogState, isOpen: false });
@@ -79,19 +88,35 @@ const useDashboardConfig = (): UseDashboardConfig => {
     });
 
   const submit = async (dashboard: Dashboard): Promise<void> => {
-    setDialogState({ ...dialogState, isOpen: false });
+    setDialogState((currentDialogState) => ({
+      ...currentDialogState,
+      isOpen: false
+    }));
 
     const data =
       dialogState.variant === 'create'
         ? await createDashboardMutation(dashboard)
         : await updateDashboardMutation(dashboard);
 
+    if (equals(dialogState.variant, 'create')) {
+      resetDashboard();
+    }
+
     if (isDashboard(data) && dialogState.variant === 'create')
       navigateToDashboard(data.id);
   };
 
+  const submitForm = (dashboard: Dashboard): void => {
+    submit(dashboard).then(() => {
+      showSuccessMessage(labelDashboardUpdated);
+    });
+  };
+
   useEffect(() => {
-    setDialogState({ ...dialogState, status: statusUpdateMutation });
+    setDialogState((currentDialogState) => ({
+      ...currentDialogState,
+      status: statusUpdateMutation
+    }));
 
     if (statusCreateMutation === 'success') resetCreateMutation();
     if (statusUpdateMutation === 'success') resetUpdateMutation();
@@ -104,7 +129,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
     editDashboard,
     isDialogOpen: dialogState.isOpen,
     status: dialogState.status,
-    submit,
+    submit: submitForm,
     variant: dialogState.variant
   };
 };

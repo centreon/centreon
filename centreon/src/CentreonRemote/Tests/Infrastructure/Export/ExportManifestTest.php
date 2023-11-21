@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,42 +21,33 @@
 
 namespace CentreonRemote\Tests\Infrastructure\Export;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Test\Traits\TestCaseExtensionTrait;
-use CentreonRemote\Infrastructure\Export\ExportParserJson;
 use CentreonRemote\Infrastructure\Export\ExportCommitment;
 use CentreonRemote\Infrastructure\Export\ExportManifest;
+use CentreonRemote\Infrastructure\Export\ExportParserJson;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group CentreonRemote
  */
 class ExportManifestTest extends TestCase
 {
-
     use TestCaseExtensionTrait;
 
-    /**
-     * @var \CentreonRemote\Infrastructure\Export\ExportCommitment
-     */
+    /** @var \CentreonRemote\Infrastructure\Export\ExportCommitment */
     protected $commitment;
 
-    /**
-     * @var \CentreonRemote\Infrastructure\Export\ExportManifest
-     */
+    /** @var \CentreonRemote\Infrastructure\Export\ExportManifest */
     protected $manifest;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $version = '18.10';
 
-    /**
-     * @var array<mixed>
-     */
+    /** @var array<mixed> */
     protected $dumpData = [];
 
     /**
-     * Set up datasets and mocks
+     * Set up datasets and mocks.
      */
     protected function setUp(): void
     {
@@ -88,7 +79,7 @@ class ExportManifestTest extends TestCase
             ])
             ->setConstructorArgs([
                 $this->commitment,
-                $this->version
+                $this->version,
             ])
             ->getMock();
         $this->manifest

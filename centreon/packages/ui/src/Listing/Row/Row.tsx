@@ -46,11 +46,11 @@ type Props = {
   isShiftKeyDown: boolean;
   lastSelectionIndex: number | null;
   limit: number;
+  listingVariant?: ListingVariant;
   row;
   rowColorConditions: Array<RowColorCondition>;
   shiftKeyDownRowPivot: number | null;
   subItemsPivots: Array<number | string>;
-  viewMode?: ListingVariant;
   visibleColumns: Array<Column>;
 } & TableRowProps;
 
@@ -116,7 +116,7 @@ const Row = memo<RowProps>(
       isShiftKeyDown: prevIsShiftKeyDown,
       shiftKeyDownRowPivot: prevShiftKeyDownRowPivot,
       lastSelectionIndex: prevLastSelectionIndex,
-      viewMode: prevViewMode
+      listingVariant: prevViewMode
     } = prevProps;
     const {
       row: nextRow,
@@ -127,7 +127,7 @@ const Row = memo<RowProps>(
       shiftKeyDownRowPivot: nextShiftKeyDownRowPivot,
       lastSelectionIndex: nextLastSelectionIndex,
       limit: nextLimit,
-      viewMode: nextViewMode
+      listingVariant: nextViewMode
     } = nextProps;
 
     if (

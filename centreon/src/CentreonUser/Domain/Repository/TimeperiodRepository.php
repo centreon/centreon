@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,18 +21,18 @@
 
 namespace CentreonUser\Domain\Repository;
 
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use CentreonUser\Domain\Entity\Timeperiod;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use CentreonUser\Domain\Entity\Timeperiod;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
 
-    /** @var int $resultCountForPagination */
+    /** @var int */
     private int $resultCountForPagination = 0;
 
     /**
@@ -44,7 +44,7 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function entityClass(): string
     {
@@ -52,9 +52,10 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
     }
 
     /**
-     * Check list of IDs
+     * Check list of IDs.
      *
      * @param int[] $ids
+     *
      * @return bool
      */
     public function checkListOfIds(array $ids): bool
@@ -67,23 +68,9 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
     }
 
     /**
-     * @param array<string, mixed> $data
-     * @return Timeperiod
+     * {@inheritDoc}
      */
-    private function createTimeperiodFromArray(array $data): Timeperiod
-    {
-        $timeperiod = new Timeperiod();
-        $timeperiod->setId((int) $data['tp_id']);
-        $timeperiod->setName($data['tp_name']);
-        $timeperiod->setAlias($data['tp_alias']);
-
-        return $timeperiod;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
         $sql = 'SELECT SQL_CALC_FOUND_ROWS `tp_id`, `tp_name`, `tp_alias` '
             . 'FROM `:db`.`timeperiod`';
@@ -152,10 +139,25 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationListTotal(): int
     {
         return $this->resultCountForPagination;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return Timeperiod
+     */
+    private function createTimeperiodFromArray(array $data): Timeperiod
+    {
+        $timeperiod = new Timeperiod();
+        $timeperiod->setId((int) $data['tp_id']);
+        $timeperiod->setName($data['tp_name']);
+        $timeperiod->setAlias($data['tp_alias']);
+
+        return $timeperiod;
     }
 }

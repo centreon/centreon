@@ -18,6 +18,7 @@ import { platformInstallationStatusAtom } from './atoms/platformInstallationStat
 import useUser, { areUserParametersLoadedAtom } from './useUser';
 import usePlatformVersions from './usePlatformVersions';
 import useInitializeTranslation from './useInitializeTranslation';
+import usePlatformFeatures from './usePlatformFeatures';
 
 export const router = {
   useNavigate
@@ -48,6 +49,7 @@ const useMain = (): void => {
   const navigate = router.useNavigate();
   const [searchParameter] = useSearchParams();
   const { getPlatformVersions } = usePlatformVersions();
+  const { getPlatformFeatures } = usePlatformFeatures();
   useFederatedModules();
   useFederatedWidgets();
 
@@ -69,12 +71,17 @@ const useMain = (): void => {
     }).then((retrievedPlatformInstallationStatus) => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
 
-      if (!retrievedPlatformInstallationStatus?.isInstalled) {
+      if (
+        !retrievedPlatformInstallationStatus?.isInstalled ||
+        retrievedPlatformInstallationStatus.hasUpgradeAvailable
+      ) {
         setAreUserParametersLoaded(false);
 
         return;
       }
       loadUser();
+
+      getPlatformFeatures();
       getPlatformVersions();
     });
   }, []);

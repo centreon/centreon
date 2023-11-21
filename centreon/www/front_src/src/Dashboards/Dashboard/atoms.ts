@@ -3,7 +3,6 @@ import {
   collectBy,
   equals,
   find,
-  findIndex,
   inc,
   length,
   lensIndex,
@@ -28,13 +27,22 @@ import {
   WidgetOptions
 } from './models';
 
-export const refreshIntervalAtom = atom(30);
+export const refreshCountsAtom = atom<Record<string, number>>({});
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
 });
 
 export const isEditingAtom = atom(false);
+
+export const hasEditPermissionAtom = atom(false);
+export const dashboardRefreshIntervalAtom = atom<
+  | {
+      interval: number | null;
+      type: 'global' | 'manual';
+    }
+  | undefined
+>(undefined);
 
 export const setLayoutModeDerivedAtom = atom(
   null,
@@ -70,9 +78,9 @@ interface GetPanelProps {
 }
 
 const getPanel = ({ id, layout }: GetPanelProps): Panel =>
-  find(propEq('i', id), layout) as Panel;
+  layout.find(({ i }) => equals(i, id)) as Panel;
 const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
-  findIndex(propEq('i', id), layout) as number;
+  layout.findIndex(({ i }) => equals(i, id)) as number;
 
 export const panelsLengthAtom = atom(0);
 
@@ -109,9 +117,12 @@ export const addPanelDerivedAtom = atom(
 
     const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
 
+    const widgetHeight =
+      height || Math.max(panelConfiguration?.panelMinHeight || 1, 3);
+
     const basePanelLayout = {
       data,
-      h: height || panelConfiguration?.panelMinHeight || 3,
+      h: widgetHeight,
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
@@ -173,14 +184,12 @@ export const addPanelDerivedAtom = atom(
   }
 );
 
-export const askDeletePanelAtom = atom<string | null>(null);
-
 export const removePanelDerivedAtom = atom(
   null,
   (get, setAtom, panelKey: string) => {
     const dashboard = get(dashboardAtom);
 
-    const newLayout = reject(propEq('i', panelKey), dashboard.layout);
+    const newLayout = reject(propEq(panelKey, 'i'), dashboard.layout);
 
     setAtom(dashboardAtom, { layout: newLayout });
   }
@@ -249,7 +258,7 @@ export const duplicatePanelDerivedAtom = atom(
   null,
   (get, setAtom, title: string) => {
     const dashboard = get(dashboardAtom);
-    const panel = find(propEq('i', title), dashboard.layout);
+    const panel = find(propEq(title, 'i'), dashboard.layout);
 
     setAtom(addPanelDerivedAtom, {
       data: panel?.data,
@@ -284,3 +293,11 @@ export const quitWithoutSavedDashboardAtom =
     'centreon-quit-without-saved-dashboard',
     null
   );
+
+export const resetDashboardDerivedAtom = atom(null, (_, setAtom) => {
+  setAtom(dashboardAtom, {
+    layout: []
+  });
+  setAtom(dashboardRefreshIntervalAtom, undefined);
+  setAtom(panelsLengthAtom, 0);
+});

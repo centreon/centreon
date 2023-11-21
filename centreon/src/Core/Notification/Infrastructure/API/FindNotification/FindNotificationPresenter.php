@@ -25,7 +25,6 @@ namespace Core\Notification\Infrastructure\API\FindNotification;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationPresenterInterface;
@@ -36,12 +35,6 @@ use Core\Notification\Domain\Model\NotificationServiceEvent;
 
 class FindNotificationPresenter extends AbstractPresenter implements FindNotificationPresenterInterface
 {
-    public function __construct(
-        protected PresenterFormatterInterface $presenterFormatter
-    ) {
-        parent::__construct($presenterFormatter);
-    }
-
     public function presentResponse(FindNotificationResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
@@ -67,37 +60,45 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
      * format Resources.
      *
      * @param array<array{
-     *  type: string,
-     *  events: NotificationServiceEvent|NotificationHostEvent[],
-     *  ids: array<array{id: int, name: string}>,
-     *  extra?: array{
-     *   event_services: NotificationServiceEvent[]
-     *  }
+     *     type: string,
+     *     events: array<NotificationServiceEvent>|array<NotificationHostEvent>,
+     *     ids: array<array{id: int, name: string}>,
+     *     extra?: array{
+     *         event_services: NotificationServiceEvent[]
+     *     }
      * }> $resources
      *
      * @return array<array{
-     *  type: string,
-     *  events: int,
-     *  ids: array<array{id: int, name: string}>,
-     *  extra?: array{
-     *   event_services: int
-     *  }
+     *     type: string,
+     *     events: int,
+     *     ids: array<array{id: int, name: string}>,
+     *     extra?: array{
+     *         event_services: int
+     *     }
      * }>
      */
-    private function formatResource(array $resources): array {
+    private function formatResource(array $resources): array
+    {
+        // We must use another array carrier in order to keep the input immutable for phpstan.
+        $formatted = [];
+
         foreach ($resources as $index => $resource) {
-            $resources[$index]['events'] = $resource['type'] === NotificationResource::HOSTGROUP_RESOURCE_TYPE
-                ? NotificationHostEventConverter::toBitFlags($resource['events'])
-                : NotificationServiceEventConverter::toBitFlags($resource['events']);
+            $formatted[$index] = [
+                'type' => $resource['type'],
+                'events' => $resource['type'] === NotificationResource::HOSTGROUP_RESOURCE_TYPE
+                    ? NotificationHostEventConverter::toBitFlags($resource['events'])
+                    : NotificationServiceEventConverter::toBitFlags($resource['events']),
+                'ids' => $resource['ids'],
+            ];
 
             if (array_key_exists('extra', $resource)) {
-                $resources[$index]['extra']['event_services'] = NotificationServiceEventConverter::toBitFlags(
+                $formatted[$index]['extra']['event_services'] = NotificationServiceEventConverter::toBitFlags(
                     $resource['extra']['event_services']
                 );
             }
 
         }
 
-        return $resources;
+        return $formatted;
     }
 }

@@ -10,8 +10,8 @@ interface StylesProps {
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
   limit: number;
+  listingVariant: ListingVariant;
   rows: Array<unknown>;
-  viewMode: ListingVariant;
 }
 
 const useListingStyles = makeStyles<StylesProps>()(
@@ -28,6 +28,11 @@ const useListingStyles = makeStyles<StylesProps>()(
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
+      width: '100%'
+    },
+    listingContainer: {
+      height: '100%',
+      overflow: 'hidden',
       width: '100%'
     },
     loadingIndicator: {

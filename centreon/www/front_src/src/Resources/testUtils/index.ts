@@ -4,6 +4,7 @@ import { CriteriaValue } from '../Filter/Criterias/models';
 import { searchableFields } from '../Filter/Criterias/searchQueryLanguage';
 import { Filter } from '../Filter/models';
 import { buildResourcesEndpoint } from '../Listing/api/endpoint';
+import { Search } from '../Listing/useLoadResources/models';
 import { SortOrder } from '../models';
 
 export interface EndpointParams {
@@ -15,7 +16,7 @@ export interface EndpointParams {
   monitoringServers?: Array<string>;
   page?: number;
   resourceTypes?: Array<string>;
-  search?: string;
+  search?: Search | undefined;
   serviceCategories?: Array<string>;
   serviceGroups?: Array<string>;
   serviceSeverities?: Array<string>;
@@ -64,14 +65,7 @@ const getListingEndpoint = ({
     monitoringServers,
     page,
     resourceTypes,
-    search: search
-      ? {
-          regex: {
-            fields: searchableFields,
-            value: search
-          }
-        }
-      : undefined,
+    search,
     serviceCategories,
     serviceGroups,
     serviceSeverities,
@@ -93,7 +87,7 @@ const getCriteriaValue = ({
   filter,
   name
 }: CriteriaValueProps): CriteriaValue | undefined => {
-  return filter.criterias.find(propEq('name', name))?.value;
+  return filter.criterias.find(propEq(name, 'name'))?.value;
 };
 
 interface FilterAndCriteriaToUpdate {
@@ -107,21 +101,21 @@ const getFilterWithUpdatedCriteria = ({
   criteriaName,
   criteriaValue
 }: FilterAndCriteriaToUpdate): Filter => {
-  const index = findIndex(propEq('name', criteriaName))(filter.criterias);
+  const index = findIndex(propEq(criteriaName, 'name'))(filter.criterias);
   const lens = lensPath(['criterias', index, 'value']);
 
   return set(lens, criteriaValue, filter);
 };
 
 export {
-  getListingEndpoint,
   cancelTokenRequestParam,
-  defaultStatuses,
   defaultResourceTypes,
+  defaultSecondSortCriteria,
+  defaultStateTypes,
   defaultStates,
-  searchableFields,
+  defaultStatuses,
   getCriteriaValue,
   getFilterWithUpdatedCriteria,
-  defaultSecondSortCriteria,
-  defaultStateTypes
+  getListingEndpoint,
+  searchableFields
 };

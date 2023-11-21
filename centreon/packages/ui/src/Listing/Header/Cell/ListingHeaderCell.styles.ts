@@ -7,11 +7,11 @@ import { getTextStyleByViewMode } from '../../useStyleTable';
 interface StylesProps {
   isDragging?: boolean;
   isInDragOverlay?: boolean;
-  viewMode?: ListingVariant;
+  listingVariant?: ListingVariant;
 }
 
 const useStyles = makeStyles<StylesProps>()(
-  (theme, { isDragging, isInDragOverlay, viewMode }) => ({
+  (theme, { isDragging, isInDragOverlay, listingVariant }) => ({
     active: {
       '&, &:hover, &:focus': {
         color: theme.palette.common.white
@@ -54,7 +54,7 @@ const useStyles = makeStyles<StylesProps>()(
       borderBottom: 'none',
       height: 'inherit',
       padding: theme.spacing(0, 1),
-      ...getTextStyleByViewMode({ theme, viewMode }),
+      ...getTextStyleByViewMode({ listingVariant, theme }),
       '&:hover, &:focus-within, &[data-isdragging=true]': {
         '& .dragHandle': {
           opacity: 1

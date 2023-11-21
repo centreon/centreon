@@ -5,7 +5,7 @@ import type {
 } from '@centreon/ui';
 
 import { baseEndpoint } from '../../../api/endpoint';
-import { monitoringEndpoint } from '../../api/endpoint';
+import { monitoringEndpoint, resourcesEndpoint } from '../../api/endpoint';
 
 const hostCategoriesEndpoint = `${monitoringEndpoint}/hosts/categories`;
 const serviceCategoriesEndpoint = `${monitoringEndpoint}/services/categories`;
@@ -14,6 +14,22 @@ const serviceGroupsEndpoint = `${monitoringEndpoint}/servicegroups`;
 const monitoringServersEndpoint = `${baseEndpoint}/monitoring/servers`;
 const hostSeveritiesEndpoint = `${monitoringEndpoint}/severities/host`;
 const serviceSeveritiesEndpoint = `${monitoringEndpoint}/severities/service`;
+
+const buildHostsEndpoint = (parameters: ListingParameters): string => {
+  return buildListingEndpoint({
+    baseEndpoint: resourcesEndpoint,
+    customQueryParameters: [{ name: 'types', value: ['host'] }],
+    parameters
+  });
+};
+
+const buildServicesEndpoint = (parameters: ListingParameters): string => {
+  return buildListingEndpoint({
+    baseEndpoint: resourcesEndpoint,
+    customQueryParameters: [{ name: 'types', value: ['service'] }],
+    parameters
+  });
+};
 
 const buildHostGroupsEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
@@ -78,5 +94,7 @@ export {
   buildServiceGroupsEndpoint,
   buildMonitoringServersEndpoint,
   buildHostServeritiesEndpoint,
-  buildServiceSeveritiesEndpoint
+  buildServiceSeveritiesEndpoint,
+  buildHostsEndpoint,
+  buildServicesEndpoint
 };

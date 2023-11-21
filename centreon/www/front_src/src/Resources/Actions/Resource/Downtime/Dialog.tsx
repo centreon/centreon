@@ -1,13 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
 
-import {
-  LocalizationProvider,
-  DesktopDateTimePicker
-} from '@mui/x-date-pickers';
 import {
   Checkbox,
   FormControlLabel,
@@ -21,9 +15,8 @@ import {
   Dialog,
   TextField,
   SelectField,
-  useDateTimePickerAdapter
+  DateTimePickerInput
 } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import {
   labelCancel,
@@ -37,9 +30,7 @@ import {
   labelSetDowntime,
   labelSetDowntimeOnServices,
   labelTo,
-  labelUnit,
-  labelStartTime,
-  labelEndTime
+  labelUnit
 } from '../../../translatedLabels';
 import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
@@ -75,29 +66,15 @@ const DialogDowntime = ({
 
   const { getDowntimeDeniedTypeAlert, canDowntimeServices } = useAclQuery();
 
-  const { locale } = useAtomValue(userAtom);
-
-  const { Adapter } = useDateTimePickerAdapter();
-
   const open = resources.length > 0;
 
   const hasHosts = resources.find((resource) => resource.type === 'host');
 
-  const changeDate =
-    (field) =>
-    (value): void => {
-      setFieldValue(field, value);
-    };
-
   const deniedTypeAlert = getDowntimeDeniedTypeAlert(resources);
 
-  const changeTime =
-    (field) =>
-    (newValue: dayjs.Dayjs | null): void => {
-      const value = dayjs(newValue).toDate();
-
-      changeDate(field)(value);
-    };
+  const changeTime = ({ date, property }): void => {
+    setFieldValue(property, date);
+  };
 
   return (
     <Dialog
@@ -111,10 +88,7 @@ const DialogDowntime = ({
       onClose={onCancel}
       onConfirm={onConfirm}
     >
-      <LocalizationProvider
-        adapterLocale={locale.substring(0, 2)}
-        dateAdapter={Adapter}
-      >
+      <>
         {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
         <Stack spacing={2}>
           <Box
@@ -123,25 +97,17 @@ const DialogDowntime = ({
             gap={1}
             gridTemplateColumns="1fr auto 1fr"
           >
-            <DesktopDateTimePicker<dayjs.Dayjs>
-              maxDate={dayjs(maxEndDate)}
-              slotProps={{
-                textField: {
-                  'aria-label': t(labelStartTime) as string
-                }
-              }}
-              value={dayjs(values.startTime)}
-              onChange={changeTime('startTime')}
+            <DateTimePickerInput
+              changeDate={changeTime}
+              date={values.startTime}
+              maxDate={maxEndDate}
+              property="startTime"
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>
-            <DesktopDateTimePicker<dayjs.Dayjs>
-              slotProps={{
-                textField: {
-                  'aria-label': t(labelEndTime) as string
-                }
-              }}
-              value={dayjs(values.endTime)}
-              onChange={changeTime('endTime')}
+            <DateTimePickerInput
+              changeDate={changeTime}
+              date={values.endTime}
+              property="endTime"
             />
             {isNil(errors?.startTime) ? (
               <div />
@@ -233,7 +199,7 @@ const DialogDowntime = ({
             />
           )}
         </Stack>
-      </LocalizationProvider>
+      </>
     </Dialog>
   );
 };

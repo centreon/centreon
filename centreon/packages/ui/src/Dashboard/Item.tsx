@@ -6,15 +6,16 @@ import {
   ReactElement
 } from 'react';
 
-import { isNil } from 'ramda';
+import { isNil, prop } from 'ramda';
 
-import { Card } from '@mui/material';
+import { Card, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '../utils';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
+  canMove?: boolean;
   children: ReactElement;
   className?: string;
   disablePadding?: boolean;
@@ -26,7 +27,7 @@ interface DashboardItemProps {
   style?: CSSProperties;
 }
 
-const Item = forwardRef(
+const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
   (
     {
       children,
@@ -37,13 +38,15 @@ const Item = forwardRef(
       onMouseUp,
       onTouchEnd,
       id,
-      disablePadding = false
+      disablePadding = false,
+      canMove = false
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
     const hasHeader = !isNil(header);
 
     const { classes, cx } = useDashboardItemStyles({ hasHeader });
+    const theme = useTheme();
 
     const listeners = {
       onMouseDown,
@@ -56,18 +59,25 @@ const Item = forwardRef(
     return useMemoComponent({
       Component: (
         <div
+          {...cardContainerListeners}
           className={className}
           ref={ref}
-          style={style}
-          {...cardContainerListeners}
+          style={{
+            ...style,
+            width: `calc(${prop('width', style) || '0px'} - 12px)`
+          }}
         >
-          <Card className={classes.widgetContainer}>
+          <Card
+            className={classes.widgetContainer}
+            data-padding={!disablePadding}
+          >
             {header && (
-              <div
-                {...listeners}
-                className={classes.widgetHeader}
-                data-testid={`${id}_move_panel`}
-              >
+              <div className={classes.widgetHeader} data-canMove={canMove}>
+                <div
+                  {...listeners}
+                  className={classes.widgetHeaderDraggable}
+                  data-testid={`${id}_move_panel`}
+                />
                 {header}
               </div>
             )}
@@ -82,7 +92,7 @@ const Item = forwardRef(
           </Card>
         </div>
       ),
-      memoProps: [style, className, header]
+      memoProps: [style, className, header, theme.palette.mode, canMove]
     });
   }
 );

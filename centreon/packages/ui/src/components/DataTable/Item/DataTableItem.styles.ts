@@ -16,23 +16,17 @@ const useStyles = makeStyles()((theme) => ({
       },
       display: 'flex',
 
-      justifyContent: 'space-between',
-      opacity: 0
-    },
-    '&:hover .MuiCardActions-root': {
-      opacity: 1
+      justifyContent: 'space-between'
     },
     borderRadius: theme.shape.borderRadius,
     display: 'flex',
     flexDirection: 'column',
-    height: '210px',
-    minWidth: '280px',
+    height: '186px',
     p: {
       color: theme.palette.text.secondary,
       letterSpacing: '0',
       margin: '0'
-    },
-    width: '320px'
+    }
   }
 }));
 

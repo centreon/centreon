@@ -48,8 +48,7 @@ const getInputBaseRootStyle = ({
 
   if (equals(size, 'compact')) {
     return {
-      padding: '8px 8px',
-      paddingRight: '0px'
+      padding: '0px 0px 0px 8px'
     };
   }
   if (equals(size, 'small')) {
@@ -75,7 +74,6 @@ const getInputBaseRootStyle = ({
 const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSInterpolation => {
   if (equals(size, 'compact')) {
     return {
-      fontSize: 'x-small',
       minHeight: '32px'
     };
   }
@@ -123,6 +121,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     MuiChip: {
       styleOverrides: {
         root: ({ ownerState, theme }) => ({
+          backgroundColor: !ownerState.color && theme.palette.divider,
           ...(equals(ownerState.size, 'medium') && {
             borderRadius: theme.spacing(1.25),
             fontSize: theme.typography.body2.fontSize,
@@ -189,7 +188,10 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiInputBase: {
       styleOverrides: {
-        root: ({ ownerState }) => getInputBaseInputStyle(ownerState)
+        root: ({ ownerState, theme }) => ({
+          ...getInputBaseInputStyle(ownerState),
+          backgroundColor: theme.palette.background.paper
+        })
       }
     },
     MuiList: {

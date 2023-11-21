@@ -2,17 +2,12 @@ import { makeStyles } from 'tss-react/mui';
 import { T, always, cond, equals } from 'ramda';
 
 import { SvgIconComponent } from '@mui/icons-material';
-import {
-  FormControlLabel,
-  Checkbox as MuiCheckbox,
-  Box,
-  Typography
-} from '@mui/material';
+import Typography, { TypographyTypeMap } from '@mui/material/Typography';
+import { FormControlLabel, Checkbox as MuiCheckbox, Box } from '@mui/material';
 
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 
 interface StyleProps {
-  disabled: boolean;
   hasIcon: boolean;
   labelPlacement: LabelPlacement;
 }
@@ -26,7 +21,13 @@ const getLabelSpacing = (labelPlacement, theme): string => {
 };
 
 const useStyles = makeStyles<StyleProps>()(
-  (theme, { disabled, hasIcon, labelPlacement }) => ({
+  (theme, { hasIcon, labelPlacement }) => ({
+    checkbox: {
+      '&.Mui-checked': {
+        color: theme.palette.primary.main
+      },
+      color: theme.palette.primary.main
+    },
     container: hasIcon
       ? {
           alignItems: 'center',
@@ -40,13 +41,8 @@ const useStyles = makeStyles<StyleProps>()(
       fontSize: theme.spacing(10)
     },
     label: {
-      color: disabled
-        ? theme.palette.action.disabled
-        : theme.palette.text.secondary,
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: equals(labelPlacement, 'top')
-        ? theme.typography.fontWeightBold
-        : theme.typography.fontWeightMedium,
+      fontSize: theme.typography.body2.fontSize,
+      fontWeight: theme.typography.fontWeightMedium,
       padding: getLabelSpacing(labelPlacement, theme)
     }
   })
@@ -60,6 +56,7 @@ interface Props {
   disabled?: boolean;
   label: string;
   labelPlacement?: LabelPlacement;
+  labelProps?: TypographyTypeMap['props'];
   onChange?: (e) => void;
 }
 
@@ -71,10 +68,10 @@ const Checkbox = ({
   className,
   disabled = false,
   labelPlacement = 'end',
-  dataTestId
+  dataTestId,
+  labelProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({
-    disabled,
     hasIcon: !!Icon,
     labelPlacement
   });
@@ -86,6 +83,7 @@ const Checkbox = ({
         control={
           <MuiCheckbox
             checked={checked}
+            className={classes.checkbox}
             color="primary"
             disabled={disabled}
             id={label}
@@ -96,7 +94,11 @@ const Checkbox = ({
         }
         data-testid={dataTestId || ''}
         key={label}
-        label={<Typography className={classes.label}>{label}</Typography>}
+        label={
+          <Typography classes={{ root: classes.label }} {...labelProps}>
+            {label}
+          </Typography>
+        }
         labelPlacement={labelPlacement}
         sx={{ margin: 0, padding: 0 }}
       />

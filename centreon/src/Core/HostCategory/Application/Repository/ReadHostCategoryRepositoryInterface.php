@@ -117,9 +117,22 @@ interface ReadHostCategoryRepositoryInterface
      *
      * @param int $hostCategoryId
      *
+     * @throws \Throwable
+     *
      * @return HostCategory|null
      */
     public function findById(int $hostCategoryId): ?HostCategory;
+
+    /**
+     * Find host categories by their ID.
+     *
+     * @param int ...$hostCategoryIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<HostCategory>
+     */
+    public function findByIds(int ...$hostCategoryIds): array;
 
     /**
      * Find host categories linked to a host (or host template) (no ACLs).

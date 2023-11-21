@@ -32,6 +32,7 @@ export type Props = {
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
   error?: string;
+  getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
   label: string;
   loading?: boolean;
@@ -158,6 +159,7 @@ const AutocompleteField = ({
   autoSize = false,
   autoSizeDefaultWidth = 0,
   autoSizeCustomPadding,
+  getOptionItemLabel = (option) => option.name,
   ...autocompleteProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ hideInput });
@@ -193,6 +195,7 @@ const AutocompleteField = ({
           </>
         ),
         style: {
+          background: 'transparent',
           paddingRight: theme.spacing(5)
         }
       }}
@@ -249,7 +252,7 @@ const AutocompleteField = ({
             <Option
               thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
             >
-              {option.name}
+              {getOptionItemLabel(option)}
             </Option>
           </li>
         );

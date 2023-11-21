@@ -23,14 +23,16 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 
-use Centreon\Domain\Entity\ContactGroup;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
 
 /**
  * Configured conditions must be satisfied to be authorized and map IDP's groups and Centreon's groups.
@@ -49,11 +51,9 @@ class GroupsMapping implements SecurityAccessInterface
 
     /**
      * @param LoginLoggerInterface $loginLogger
-     * @param AttributePathFetcher $attributePathFetcher
      */
     public function __construct(
         private readonly LoginLoggerInterface $loginLogger,
-        private readonly AttributePathFetcher $attributePathFetcher
     ) {
     }
 
@@ -67,6 +67,13 @@ class GroupsMapping implements SecurityAccessInterface
     {
         $this->scope = $configuration->getType();
         $customConfiguration = $configuration->getCustomConfiguration();
+        if (
+            ! $customConfiguration instanceof OpenIdCustomConfiguration
+            && ! $customConfiguration instanceof SamlCustomConfiguration
+        ) {
+            throw ConfigurationException::unexpectedCustomConfiguration($customConfiguration::class);
+        }
+
         $groupsMapping = $customConfiguration->getGroupsMapping();
 
         if (! $groupsMapping->isEnabled()) {

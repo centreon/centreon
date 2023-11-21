@@ -1,21 +1,37 @@
+import { useRef } from 'react';
+
 import { useFormikContext } from 'formik';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { Typography } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { RichTextEditor } from '@centreon/ui';
 
 import FederatedComponent from '../../../../components/FederatedComponents';
 import { Widget } from '../models';
-import { labelPleaseChooseAWidgetToActivatePreview } from '../../translatedLabels';
+import {
+  labelPleaseChooseAWidgetToActivatePreview,
+  labelPleaseContactYourAdministrator,
+  labelYourRightsOnlyAllowToView
+} from '../../translatedLabels';
 import { isGenericText } from '../../utils';
+import { editProperties } from '../../hooks/useCanEditDashboard';
+import { dashboardRefreshIntervalAtom } from '../../atoms';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {
   const { t } = useTranslation();
-  const { classes } = useWidgetPropertiesStyles();
+  const { classes, cx } = useWidgetPropertiesStyles();
+
+  const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
+
+  const { canEdit } = editProperties.useCanEditProperties();
+
+  const previewRef = useRef<HTMLDivElement | null>(null);
 
   const { values } = useFormikContext<Widget>();
 
@@ -27,25 +43,76 @@ const Preview = (): JSX.Element | null => {
     );
   }
 
+  const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
+
   return (
-    <div className={classes.previewPanel}>
-      {isGenericText(values.panelConfiguration?.path) ? (
-        <RichTextEditor
-          editable={false}
-          editorState={
-            values.options?.description?.enabled
-              ? values.options?.description?.content
-              : undefined
-          }
-        />
-      ) : (
-        <FederatedComponent
-          isFederatedWidget
-          id={values.id}
-          panelData={values.data}
-          panelOptions={values.options}
-          path={values.panelConfiguration?.path || ''}
-        />
+    <div className={classes.previewPanelContainer} ref={previewRef}>
+      <div
+        style={{
+          height: `${
+            (previewRef.current?.getBoundingClientRect().height || 0) - 16
+          }px`,
+          overflowY: 'auto'
+        }}
+      >
+        <Typography
+          className={cx(classes.previewHeading, classes.previewTitle)}
+          variant="button"
+        >
+          {values.options?.name}
+        </Typography>
+        {values.options?.description?.enabled && (
+          <RichTextEditor
+            disabled
+            contentClassName={cx(
+              classes.previewHeading,
+              classes.previewDescription
+            )}
+            editable={false}
+            editorState={
+              values.options?.description?.enabled
+                ? values.options?.description?.content || undefined
+                : undefined
+            }
+          />
+        )}
+        {!isGenericTextWidget && (
+          <div
+            style={{
+              height: `${
+                (previewRef.current?.getBoundingClientRect().height || 0) -
+                16 -
+                46
+              }px`,
+              overflow: 'auto'
+            }}
+          >
+            <FederatedComponent
+              isFederatedWidget
+              isFromPreview
+              globalRefreshInterval={refreshInterval}
+              id={values.id}
+              panelData={values.data}
+              panelOptions={values.options}
+              path={values.panelConfiguration?.path || ''}
+            />
+          </div>
+        )}
+      </div>
+      {!canEdit && (
+        <div className={classes.previewUserRightPanel}>
+          <div className={classes.previewUserRightPanelContent}>
+            <InfoOutlinedIcon sx={{ mt: 0.5 }} />
+            <div>
+              <Typography variant="subtitle1">
+                {t(labelYourRightsOnlyAllowToView)}
+              </Typography>
+              <Typography variant="subtitle1">
+                {t(labelPleaseContactYourAdministrator)}
+              </Typography>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

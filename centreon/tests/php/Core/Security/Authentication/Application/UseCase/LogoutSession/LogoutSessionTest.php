@@ -91,9 +91,6 @@ class LogoutSessionTest extends TestCase
     {
         $logoutSession = new LogoutSession(
             $this->writeSessionRepository,
-            $this->readTokenRepository,
-            $this->providerFactory,
-            $this->requestStack
         );
 
         $session = new Session();
@@ -116,9 +113,6 @@ class LogoutSessionTest extends TestCase
     {
         $logoutSession = new LogoutSession(
             $this->writeSessionRepository,
-            $this->readTokenRepository,
-            $this->providerFactory,
-            $this->requestStack
         );
 
         $this->logoutSessionPresenter->expects($this->once())

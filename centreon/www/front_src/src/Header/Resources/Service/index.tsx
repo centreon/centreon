@@ -40,8 +40,8 @@ const ServiceStatusCounter = (): JSX.Element | null => {
       renderIndicators={(): JSX.Element => (
         <TopCounterResourceCounters counters={data.counters} />
       )}
-      renderSubMenu={(): JSX.Element => (
-        <TopCounterResourceSubMenu items={data.items} />
+      renderSubMenu={({ closeSubMenu }): JSX.Element => (
+        <TopCounterResourceSubMenu items={data.items} onClose={closeSubMenu} />
       )}
       showPendingBadge={data.hasPending}
       title={data.buttonLabel}

@@ -3,7 +3,8 @@
     "path": "/widgets/generictext",
     "federatedComponents": [
       "./generictext"
-    ]
+    ],
+    "panelMinHeight": 1
   },
   "moduleFederationName": "widgetgenerictext",
   "moduleName": "centreon-widget-generictext"

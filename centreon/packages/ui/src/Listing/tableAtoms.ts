@@ -32,16 +32,19 @@ export const tableStyleAtom = atom<TableStyleAtom>({
   }
 });
 
-export const tableStyleDerivedAtom = atom(null, (get, set, { viewMode }) => {
-  const tableStyle = get(tableStyleAtom);
+export const tableStyleDerivedAtom = atom(
+  null,
+  (get, set, { listingVariant }) => {
+    const tableStyle = get(tableStyleAtom);
 
-  const isExtendedMode = equals(viewMode, ListingVariant.extended);
+    const isExtendedMode = equals(listingVariant, ListingVariant.extended);
 
-  set(tableStyleAtom, {
-    ...tableStyle,
-    body: isExtendedMode ? extendedTableBody : compactTableBody,
-    header: isExtendedMode ? extendedTableHeader : compactTableHeader
-  });
-});
+    set(tableStyleAtom, {
+      ...tableStyle,
+      body: isExtendedMode ? extendedTableBody : compactTableBody,
+      header: isExtendedMode ? extendedTableHeader : compactTableHeader
+    });
+  }
+);
 
 export const subItemsPivotsAtom = atom<Array<number | string>>([]);

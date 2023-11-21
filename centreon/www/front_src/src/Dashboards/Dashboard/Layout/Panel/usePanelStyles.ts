@@ -1,13 +1,25 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const usePanelHeaderStyles = makeStyles()((theme) => ({
+  description: {
+    marginBottom: theme.spacing(1)
+  },
   panelActionsIcons: {
     columnGap: theme.spacing(2),
     display: 'flex',
     flexDirection: 'row',
     marginRight: theme.spacing(1)
   },
+  panelContent: {
+    height: `calc(100% - ${theme.spacing(3.5)})`,
+    overflow: 'auto'
+  },
   panelHeader: {
+    '& span': {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: theme.typography.fontWeightMedium,
+      lineHeight: 1
+    },
     padding: theme.spacing(0)
   }
 }));

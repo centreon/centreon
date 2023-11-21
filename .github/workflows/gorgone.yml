@@ -17,8 +17,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-gorgone/**"
-    tags:
-      - centreon-gorgone-*
 
 env:
   base_directory: centreon-gorgone
@@ -85,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -108,7 +106,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -122,7 +120,7 @@ jobs:
 
   deliver-deb:
     runs-on: [self-hosted, common]
-    needs: [get-version,package]
+    needs: [get-version, package]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
 
     strategy:
@@ -131,7 +129,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -153,7 +151,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

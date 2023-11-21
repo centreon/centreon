@@ -3,13 +3,17 @@ import { ReactElement } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { Add as AddIcon } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { Button, Menu } from '@centreon/ui/components';
 
 import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
-import { labelCreateADashboard } from '../../translatedLabels';
+import {
+  labelCreateADashboard,
+  labelDashboardLibrary
+} from '../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 
 import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
@@ -30,6 +34,8 @@ const DashboardsQuickAccessMenu = ({
   const navigateToDashboard = (dashboardId: string | number) => (): void =>
     navigate(generatePath(routeMap.dashboard, { dashboardId }));
 
+  const navigateToDashboardLibrary = (): void => navigate(routeMap.dashboards);
+
   return (
     <Menu>
       <Menu.Button />
@@ -49,14 +55,24 @@ const DashboardsQuickAccessMenu = ({
           ))}
         <Menu.Divider key="divider" />
         <Menu.Item key="create">
-          <Button
-            icon={<AddIcon />}
-            iconVariant="start"
-            variant="ghost"
-            onClick={createDashboard}
-          >
-            {t(labelCreateADashboard)}
-          </Button>
+          <>
+            <Button
+              icon={<ArrowBackIcon />}
+              iconVariant="start"
+              variant="ghost"
+              onClick={navigateToDashboardLibrary}
+            >
+              {t(labelDashboardLibrary)}
+            </Button>
+            <Button
+              icon={<AddIcon />}
+              iconVariant="start"
+              variant="secondary"
+              onClick={createDashboard}
+            >
+              {t(labelCreateADashboard)}
+            </Button>
+          </>
         </Menu.Item>
       </Menu.Items>
     </Menu>

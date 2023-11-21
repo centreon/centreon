@@ -1,6 +1,7 @@
 import { Provider, createStore } from 'jotai';
 
 import { cloudDocsURL, getOnPremDocsURL } from '@centreon/ui';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 import {
   labelNeedHelpWithSearchBarUsage,
@@ -8,7 +9,6 @@ import {
   labelHere
 } from '../translatedLabels';
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
-import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import SearchHelp from './SearchHelp';
 
@@ -23,6 +23,7 @@ const platformVersions = {
   widgets: {}
 };
 const platformFeatures = {
+  featureFlags: {},
   isCloudPlatform: false
 };
 
@@ -58,7 +59,7 @@ describe('Searchbar help tooltip', () => {
 
     cy.findByText(labelHere).should('have.attr', 'href', docsURL);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a tooltip containing a cloud documentation link upon clicking the help icon in a cloud environment', () => {
@@ -74,6 +75,6 @@ describe('Searchbar help tooltip', () => {
 
     cy.findByText(labelHere).should('have.attr', 'href', cloudDocsURL);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

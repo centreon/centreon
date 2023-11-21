@@ -27,7 +27,7 @@ class NotificationCounts
 {
     /**
      * @param array<int,int> $notificationsUsersCount
-     * @param array<string,array<int,int> $resourcesCount
+     * @param array<string, array<int,int>> $resourcesCount
      */
     public function __construct(
         private readonly array $notificationsUsersCount,
@@ -40,6 +40,9 @@ class NotificationCounts
         return $this->notificationsUsersCount[$notificationId] ?? 0;
     }
 
+    /**
+     * @return array<string, array<int,int>>
+     */
     public function getResourcesCount(): array
     {
         return $this->resourcesCount;

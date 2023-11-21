@@ -30,6 +30,7 @@ use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\NewDashboard;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 
 class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteDashboardRepositoryInterface
 {
@@ -102,13 +103,25 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
                 `name` = :name,
                 `description` = :description,
                 `updated_by` = :updated_by,
-                `updated_at` = :updated_at
+                `updated_at` = :updated_at,
+                `refresh_type` = :refresh_type,
+                `refresh_interval` =:refresh_interval
             WHERE
                 `id` = :dashboard_id
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($update));
         $statement->bindValue(':dashboard_id', $dashboard->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':refresh_type',
+            RefreshTypeConverter::toString($dashboard->getRefresh()->getRefreshType()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':refresh_interval',
+            $dashboard->getRefresh()->getRefreshInterval(),
+            \PDO::PARAM_INT
+        );
         $this->bindValueOfDashboard($statement, $dashboard);
         $statement->execute();
     }

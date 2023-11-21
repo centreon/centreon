@@ -88,7 +88,7 @@ trait WebServiceExecuteTestTrait
      * @param array $entities
      * @param \Centreon\Tests\Resources\CheckPoint $checkPoints
      * @param string $repositoryClass
-     * @param callable $callback
+     * @param array $expectedArgs
      */
     protected function mockRepository(
         array $entities,
@@ -149,7 +149,6 @@ trait WebServiceExecuteTestTrait
     /**
      * Make query method of the webservice
      *
-     * @param string $method
      * @param array $filters
      */
     protected function mockQuery(array $filters = [])

@@ -19,6 +19,12 @@ on:
       major_version:
         required: true
         type: string
+      minor_version:
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
       package_cache_key:
         required: false
         type: string
@@ -29,10 +35,20 @@ on:
         required: true
         type: string
         description: "The frontend dependencies lock file path"
+      test_plan_key:
+        required: true
+        type: string
+      test_execution_key:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
       registry_password:
+        required: true
+      xray_client_id:
+        required: true
+      xray_client_secret:
         required: true
 
 jobs:
@@ -43,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: List features
         id: list-features
@@ -66,7 +82,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -118,13 +134,14 @@ jobs:
           module: centreon
           feature_file_path: ${{ matrix.feature }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
+          test_execution_key: ${{ inputs.test_execution_key }}
 
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/
+          path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
       - name: Upload test reports
@@ -132,8 +149,54 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/reports/*.json
+          path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
+
+      - name: Upload xray reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
+          retention-days: 1
+
+  # This action is only for NIGHTLY and testing branches
+  import-reports-to-xray:
+    needs: [cypress-e2e-test-run]
+    if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.name }}-json-xray-reports
+
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.XRAY_CLIENT_ID }}\", \"client_secret\": \"${{ secrets.XRAY_CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Keys
+        run: |
+          echo "The Test Execution KEY : ${{ inputs.test_execution_key }}"
+          echo "The Test Plan KEY: ${{ inputs.test_plan_key }}"
+
+      - name: Import results to xray
+        run: |
+          for file in "${{ inputs.name }}-json-xray-reports/"*.json
+          do
+            curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data @"$file" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber
+          done
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
@@ -141,11 +204,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
 
       - name: Download Artifacts
         uses: actions/download-artifact@v3

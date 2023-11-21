@@ -25,11 +25,13 @@ namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
 
 /**
  * Configured conditions must be satisfied to be authorized and map IDP's roles and Centreon's ACLs.
@@ -48,11 +50,9 @@ class RolesMapping implements SecurityAccessInterface
 
     /**
      * @param LoginLoggerInterface $loginLogger
-     * @param AttributePathFetcher $attributePathFetcher
      */
     public function __construct(
         private readonly LoginLoggerInterface $loginLogger,
-        private readonly AttributePathFetcher $attributePathFetcher
     ) {
     }
 
@@ -66,6 +66,12 @@ class RolesMapping implements SecurityAccessInterface
     {
         $this->scope = $configuration->getType();
         $customConfiguration = $configuration->getCustomConfiguration();
+        if (
+            ! $customConfiguration instanceof OpenIdCustomConfiguration
+            && ! $customConfiguration instanceof SamlCustomConfiguration
+        ) {
+            throw ConfigurationException::unexpectedCustomConfiguration($customConfiguration::class);
+        }
         $aclConditions = $customConfiguration->getACLConditions();
         if (! $aclConditions->isEnabled()) {
             $this->loginLogger->info($this->scope, 'Roles mapping is disabled');

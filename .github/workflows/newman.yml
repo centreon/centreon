@@ -1,0 +1,568 @@
+on:
+  workflow_call:
+    inputs:
+      collection_path:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+      container_name:
+        required: true
+        type: string
+      centreon_url:
+        required: true
+        type: string
+      centreon_image:
+        required: true
+        type: string
+      dependencies_lock_file:
+        required: true
+        type: string
+      major_version:
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+      client_id:
+        required: true
+      client_secret:
+        required: true
+      jira_user:
+        required: true
+      jira_token_test:
+        required: true
+
+jobs:
+  newman-test-list:
+    runs-on: ubuntu-22.04
+
+    outputs:
+      collections: ${{ steps.set_collections.outputs.collections }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: List Postman Collections and Environments
+        id: set_collections
+        run: |
+          collection_path="${{ inputs.collection_path }}"
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "collections=$collections" >> $GITHUB_OUTPUT
+          echo "GITHUB_OUTPUT contents:"
+          cat $GITHUB_OUTPUT
+
+  associate-test-cases:
+    runs-on: ubuntu-22.04
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    outputs:
+      test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
+      test_plan_id: ${{ steps.get-test-plan-id.outputs.test_plan_id }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/rest_api
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.client_id }}\", \"client_secret\": \"${{ secrets.client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Determine testPlanKey
+        id: determine-testplan-key
+        run: |
+          declare -A testPlanKeys
+          testPlanKeys["unstable","24.04"]="MON-23956"
+          testPlanKeys["unstable","23.10"]="MON-23955"
+          testPlanKeys["unstable","23.04"]="MON-23957"
+          testPlanKeys["unstable","22.10"]="MON-23958"
+          testPlanKeys["unstable","22.04"]="MON-23959"
+          testPlanKeys["unstable","21.10"]="MON-23960"
+          testPlanKeys["testing","24.04"]="MON-23962"
+          testPlanKeys["testing","23.10"]="MON-23963"
+          testPlanKeys["testing","23.04"]="MON-23964"
+          testPlanKeys["testing","22.10"]="MON-23965"
+          testPlanKeys["testing","22.04"]="MON-23966"
+          testPlanKeys["testing","21.10"]="MON-23966"
+
+          stability="${{ inputs.stability }}"
+          major_version="${{ inputs.major_version }}"
+          echo "stability of this branch is $stability"
+          echo "major version of this branch is $major_version"
+
+          if [[ -n "${testPlanKeys[$stability,$major_version]}" ]]; then
+            testPlanKey="${testPlanKeys[$stability,$major_version]}"
+          else
+            testPlanKey="MON-UNKNOWN"
+          fi
+
+          echo "the testPlanKey is $testPlanKey"
+          echo "testPlanKey=$testPlanKey" >> $GITHUB_OUTPUT
+
+      - name: Get TestPlan ID
+        id: get-test-plan-id
+        run: |
+            jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.determine-testplan-key.outputs.testPlanKey }}"
+            testPlan_id=$(curl -u "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" -X GET -s "$jira_url" | jq -r '.id')
+            echo "this is the testPlan ID : $testPlan_id"
+            echo "test_plan_id=$testPlan_id" >> $GITHUB_OUTPUT
+
+      - name: Associate Test Cases with Test plan
+        id: xray-newman
+        run: |
+          xray_graphql_getTestPlan='{
+            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
+            "variables": {
+              "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}"
+            }
+          }'
+
+          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+
+          echo "Response from Get Test Plan:"
+          echo "$response"
+
+          # Parsing and processing tests id
+          issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+          summaries=()
+
+          for issue_id in "${issue_ids[@]}"; do
+            echo "Processing issue ID: $issue_id"
+            jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+
+            response=$(curl --request GET \
+              --url "$jira_issue_url" \
+              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --header 'Accept: application/json')
+
+            summary=$(echo "$response" | jq -r '.fields.summary')
+
+            if [ "$response_code" -eq 404 ]; then
+              echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+              break
+            else
+              echo "The issue with ID $issue_id exists."
+              summaries+=("$summary")
+            fi
+          done
+
+          collections=($(find ./collections -type f -name "*.postman_collection.json"))
+          test_case_ids=()
+
+          xray_graphql_AddingTestsToTestPlan='{
+            "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
+            "variables": {
+              "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}",
+              "testIssueIds": []
+            }
+          }'
+
+          for collection_file in "${collections[@]}"; do
+            collection_name=$(basename "$collection_file" .postman_collection.json)
+            collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
+
+            if [[ " ${summaries[@]} " =~ " ${collection_name_sanitized} " ]]; then
+              echo "The test case for $collection_name_sanitized already exists in the test plan."
+            else
+              # Adding new test case
+              response=$(curl --request POST \
+                --url 'https://centreon.atlassian.net/rest/api/2/issue' \
+                --user '${{ secrets.jira_user }}:${{ secrets.jira_token_test }}' \
+                --header 'Accept: application/json' \
+                --header 'Content-Type: application/json' \
+                --data '{
+                  "fields": {
+                    "project": {
+                      "key": "MON"
+                    },
+                    "summary": "'"$collection_name_sanitized"'",
+                    "components": [{"name": "centreon-web"}],
+                    "priority":{"name":"Low"},
+                    "description": "Test case for '"$collection_name_sanitized"'",
+                    "issuetype": {
+                      "name": "Test"
+                    }
+                  }
+                }' \
+                --max-time 20)
+              sleep 2
+              if [ -z "$response" ]; then
+                echo "Failed to create the test case within the specified time."
+              else
+                test_case_id=$(echo "$response" | jq -r '.id')
+                test_case_ids+=("$test_case_id")
+
+                echo "Created Test Case with ID: $test_case_id"
+                summaries+=("$collection_name_sanitized")
+
+                # Update GraphQL query to add this test to the test plan
+                xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+
+                # Execute GraphQL mutation to add tests to the test plan
+                response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+              fi
+            fi
+          done
+
+          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+          issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+
+          test_issue_ids=("${issue_list_ids[@]}")
+          formatted_test_issue_ids_str="["
+          for issue_id in "${issue_list_ids[@]}"; do
+            formatted_test_issue_ids_str+="\"$issue_id\","
+          done
+          formatted_test_issue_ids_str="${formatted_test_issue_ids_str%,}"
+          formatted_test_issue_ids_str+="]"
+          echo "$formatted_test_issue_ids_str"
+
+          xray_graphql_createTestExecution='{
+            "query": "mutation CreateTestExecution($testIssueIds: [String], $jira: JSON!) { createTestExecution(testIssueIds: $testIssueIds, jira: $jira) { testExecution { issueId jira(fields: [\"key\"]) } warnings createdTestEnvironments } }",
+            "variables": {
+              "testIssueIds": '"$formatted_test_issue_ids_str"',
+              "jira": {
+                "fields": {
+                  "summary": "Test Execution for newman collection testplan",
+                  "project": { "key": "MON" },
+                  "components": [{"name": "centreon-web"}],
+                  "priority":{"name":"Low"}
+                }
+              }
+            }
+          }'
+
+          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_createTestExecution" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+
+          echo "Response from Create Test Execution:"
+          echo "$response"
+
+          # Extract the ID of the new test run
+          test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
+
+          # Check if ID is null or not
+          if [ "$test_execution_id" == "null" ]; then
+            echo "Failed to create the Test Execution. Check the response for errors."
+          else
+            echo "Created Test Execution with ID:  $test_execution_id"
+            echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
+            fi
+
+          xray_graphql_addTestExecutionsToTestPlan='{
+            "query": "mutation AddTestExecutionsToTestPlan($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
+            "variables": {
+              "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}",
+              "testExecIssueIds": ["'$test_execution_id'"]
+            }
+          }'
+          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_addTestExecutionsToTestPlan" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+
+  newman-test-run:
+    needs: [newman-test-list, associate-test-cases]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    runs-on: ubuntu-22.04
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ${{ fromJson(needs.newman-test-list.outputs.collections) }}
+
+    name: ${{ matrix.feature }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/rest_api
+    env:
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
+      CONTAINER_NAME: ${{ inputs.container_name }}
+      CENTREON_URL: ${{ inputs.centreon_url }}
+      CENTREON_IMAGE: ${{ inputs.centreon_image }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: pnpm
+          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+
+      - name: Install Dependencies for tests/rest_api
+        run: pnpm install --frozen-lockfile
+        shell: bash
+        env:
+          CYPRESS_INSTALL_BINARY: “0”
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: “1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: “true”
+
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
+
+      - name: Restore standard slim image from cache
+        id: cache-docker-slim
+        uses: actions/cache/restore@v3
+        continue-on-error: true
+        timeout-minutes: 6
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Load standard slim image
+        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        run: |
+            docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+            docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        shell: bash
+
+      - name: Start Centreon Web Container
+        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
+
+      - name: Wait for Centreon Web Container to Start
+        run: pnpx wait-on http://localhost:4000/ --timeout 100000
+
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.client_id }}\", \"client_secret\": \"${{ secrets.client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Run Postman Tests and Generate HTML Report
+        run: |
+          collection_file="collections/${{ matrix.feature }}"
+          collection_name=$(basename "$collection_file" .postman_collection.json)
+          collection_directory="$(dirname "$collection_file")"
+          environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
+          if [ -f "$environment_file" ]; then
+            echo "Environment: $environment_file"
+              pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+            else
+              echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
+              exit 1
+          fi
+
+      - name: Display container logs
+        if: failure()
+        run: docker logs $CONTAINER_NAME
+
+      - name: Upload HTML Reports
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: postman-html-reports
+          path: centreon/tests/rest_api/newman/
+
+      - name: Extract and Store Summaries
+        run: |
+          declare -A json_info
+          for summary_file in ./postman_summaries/*.json; do
+          summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
+          filename=$(basename "$summary_file" .json)
+            clean_filename="${filename// /_}"
+            clean_filename="${clean_filename//-/_}"
+            json_info["$clean_filename"]=$summary_content
+          done
+          for key in "${!json_info[@]}"; do
+            echo "Summary info for $key:"
+            echo "${json_info[$key]}"
+          done
+
+      - name: Change test execution status
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+        run: |
+          for summary_file in ./postman_summaries/*.json; do
+              test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
+              test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
+              filename=$(basename "$summary_file")
+              collection_name="${filename%-summary.json}"
+              collection_name="${collection_name//-/_}"
+              echo "Contenu de collection_name : $collection_name"
+
+              failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
+              failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
+              failures=$(jq -r '.Run.Failures' "$summary_file")
+              xray_graphql_getTestPlan='{
+                "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
+                "variables": {
+                  "issueId": "'"$test_plan_id"'"
+                }
+              }'
+
+              response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+
+              echo "Response from Get Test Plan:"
+              echo "$response"
+
+              # Parsing and processing tests id
+              issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+              summaries=()
+              for issue_id in "${issue_ids[@]}"; do
+                echo "Processing issue ID: $issue_id"
+                jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+
+                response=$(curl --request GET --url "$jira_issue_url" --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" --header 'Accept: application/json')
+
+                if [ "$response_code" -eq 404 ]; then
+                echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                else
+                  echo "The issue with ID $issue_id exists."
+                  summary=$(echo "$response" | jq -r '.fields.summary')
+                  echo "Summary: $summary"
+                  echo "Collection Name: $collection_name"
+                  if [ "$summary" == "$collection_name" ]; then
+                    echo "Matching issue ID: $issue_id with Collection Name: $collection_name"
+                    if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                      newStatus="FAILED"
+                    else
+                      newStatus="PASSED"
+                    fi
+                    xray_graphql_getTestRunIDs='{
+                      "query": "query GetTestRuns($testIssueIds: [String], $testExecIssueIds: [String], $limit: Int!) { getTestRuns(testIssueIds: $testIssueIds, testExecIssueIds: $testExecIssueIds, limit: $limit) { total limit start results { id status { name color description } gherkin examples { id status { name color description } } test { issueId } testExecution { issueId } } } }",
+                      "variables": {
+                        "testIssueIds": ["'"$issue_id"'"],
+                        "testExecIssueIds": ["'"$test_execution_id"'"],
+                        "limit": 100
+                      }
+                    }'
+                    echo "$xray_graphql_getTestRunIDs"
+                    response_getTestRun=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_getTestRunIDs" -v "https://xray.cloud.getxray.app/api/v2/graphql")
+                    echo "$response_getTestRun"
+
+                    # Analyze the JSON response to extract the test run ID corresponding to the issue ID
+                    test_run_id=$(echo "$response_getTestRun" | jq -r ".data.getTestRuns.results[] | select(.test.issueId == \"$issue_id\") | .id")
+
+                    # Check if a corresponding testRunId was found
+                    if [ -n "$test_run_id" ]; then
+                      echo "Found Test Run ID $test_run_id for Issue ID $issue_id and Collection Name $collection_name"
+
+                      # Use the test_run_id to execute the mutation
+                      graphqlMutation="{\"query\": \"mutation { updateTestRunStatus(id: \\\"$test_run_id\\\", status: \\\"$newStatus\\\") }\"}"
+                      echo "$graphqlMutation"
+                      curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$graphqlMutation" -v "https://xray.cloud.getxray.app/api/v2/graphql"
+
+                      # You can add checks to handle the response as needed.
+                    else
+                      echo "Test Run ID not found for Issue ID $issue_id and Collection Name $collection_name."
+                    fi
+                  fi
+                fi
+              done
+            done
+
+      - name: Perform Jira Transitions
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+        run: |
+              test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
+              transition_ids=("61" "81" "21" "31")
+              transition_ids_test_exec=("3" "5")
+
+              xray_graphql_getTestPlan='{
+                "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
+                "variables": {
+                "issueId": "'"$test_plan_id"'"
+                }
+              }'
+
+              test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
+              for transition_id_exec in "${transition_ids_test_exec[@]}"; do
+                echo "Performing Jira transition with transition ID: $transition_ids_test_exec"
+                curl --request POST \
+                  --url "https://centreon.atlassian.net/rest/api/2/issue/${test_execution_id}/transitions?expand=transitions.fields" \
+                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                  --header 'Accept: application/json' \
+                  --header 'Content-Type: application/json' \
+                  --data '{
+                    "transition": {
+                      "id": "'"$transition_id_exec"'"
+                    }
+                  }'
+              done
+              response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "$xray_graphql_getTestPlan" "https://xray.cloud.getxray.app/api/v2/graphql")
+
+              echo "Response from Get Test Plan:"
+              echo "$response"
+
+              issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+
+              for test_issue_id in "${issue_ids[@]}"; do
+                for transition_id in "${transition_ids[@]}"; do
+                  curl --request POST \
+                  --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
+                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                  --header 'Accept: application/json' \
+                  --header 'Content-Type: application/json' \
+                  --data '{
+                    "transition": {
+                      "id": "'"$transition_id"'"
+                    }
+                  }'
+                  echo "Processing issue ID: $test_issue_id"
+                  echo "Performing Jira transition with transition ID: $transition_id..."
+                done
+              done
+        shell: bash
+
+      - name: Generate and Display Summaries
+        if: failure()
+        run: |
+          summaries=""
+          has_failures=false
+          for summary_file in ./postman_summaries/*.json; do
+              collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
+              total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
+              pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
+              failed_requests=$(jq -r '.Run.Stats.Requests.failed' "$summary_file")
+              failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
+              failures=$(jq -r '.Run.Failures' "$summary_file")
+              echo "$failures"
+              if [ "$failed_requests" -gt 0 ] || [ "$failed_assertions" -gt 0 ]; then
+                  has_failures=true  # Set has_failures to true if there are failures
+                  summaries+="<table>"
+                  summaries+="<tr><th>Collection Name</th><th>Total Requests</th><th>⏭️ Skipped requests</th><th>❌ Failed Requests</th><th>❌ Failed Assertions</th></tr>"
+                  summaries+="<tr><td>$collection_name</td><td>$total_requests</td><td>$pending_requests</td><td>$failed_requests</td><td>$failed_assertions</td></tr>"
+                  summaries+="</table>"
+                  filtered_failures=$(echo "$failures" | jq -c '.[] | select(.Parent.Name // "" != "" and .Source.Name // "" != "" and .Error.Message // "" != "")')
+                  while IFS= read -r row; do
+                      parent_name=$(echo "$row" | jq -r '.Parent.Name')
+                      source_name=$(echo "$row" | jq -r '.Source.Name')
+                      error_message=$(echo "$row" | jq -r '.Error.Message')
+
+                      summaries+="<p><strong>📁 Collection name:</strong> $parent_name<br><strong>📬 Request name:</strong> $source_name<br><strong>❌ Error message:</strong> $error_message</p>"
+                  done <<< "$(echo "$filtered_failures")"
+              fi
+              echo "Processing summary file: $summary_file"
+          done
+
+          if [ -n "$summaries" ]; then
+              echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -746,7 +746,7 @@ if (!$is_admin && !$haveAccess) {
             \Centreon\Application\Controller\MonitoringResourceController::class
         );
 
-        $deprecationMessage = _('[Page deprecated] Please use the new page: ');
+        $deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
         $resourcesStatusLabel = _('Resources Status');
         $redirectionUrl = $resourceController->buildHostDetailsUri($host_id);
         $tpl->display("hostDetails.ihtml");

@@ -5,9 +5,10 @@ import {
   prop,
   head,
   toPairs,
-  pipe,
-  map,
-  flatten
+  flatten,
+  pluck,
+  uniq,
+  equals
 } from 'ramda';
 
 import {
@@ -21,7 +22,7 @@ import {
   GetConditionsSearchQueryParameterValueState
 } from './models';
 
-const getFoundFields = ({
+export const getFoundFields = ({
   value,
   fields
 }: RegexSearchParameter): Array<SearchMatch> => {
@@ -83,32 +84,42 @@ const getConditionsSearchQueryParameterValue = (
     return undefined;
   }
 
-  const toIndividualOperatorValues = ({
-    field,
-    values,
-    value
-  }: ConditionsSearchParameter): Array<Record<string, unknown>> => {
-    if (!isNil(value)) {
-      return [
-        {
-          [field]: value
-        }
-      ];
-    }
+  const fields = uniq(pluck('field', conditions));
 
-    return toPairs(values || {}).map(([operator, operatorValue]) => ({
-      [field]: {
-        [operator]: operatorValue
-      }
-    }));
+  const toIndividualOperatorValues = (
+    listField: string
+  ): { $or: Array<Record<string, unknown>> } => {
+    const filteredItems = conditions.filter(({ field }) =>
+      equals(listField, field)
+    );
+
+    return {
+      $or: flatten(
+        filteredItems.map(({ value, values }) => {
+          if (!isNil(value)) {
+            return [
+              {
+                [listField]: value
+              }
+            ];
+          }
+
+          return toPairs(values || {}).map(([operator, operatorValue]) => ({
+            [listField]: {
+              [operator]: operatorValue
+            }
+          }));
+        })
+      )
+    };
   };
 
   return {
-    $and: pipe(map(toIndividualOperatorValues), flatten)(conditions)
+    $and: fields.map(toIndividualOperatorValues)
   };
 };
 
-const getSearchQueryParameterValue = (
+export const getSearchQueryParameterValue = (
   search: SearchParameter | undefined
 ): SearchQueryParameterValue => {
   if (search === undefined) {
@@ -134,5 +145,3 @@ const getSearchQueryParameterValue = (
 
   return { $and: result };
 };
-
-export default getSearchQueryParameterValue;

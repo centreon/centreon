@@ -23,12 +23,11 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginSession;
 
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Menu\Model\Page;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Symfony\Component\HttpFoundation\Request;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
@@ -51,6 +50,7 @@ use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryIn
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 beforeEach(function () {
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
@@ -80,6 +80,7 @@ beforeEach(function () {
     $this->writeSessionRepository = $this->createMock(WriteSessionRepositoryInterface::class);
     $this->aclUpdater = $this->createMock(AclUpdaterInterface::class);
     $this->defaultRedirectUri = '/monitoring/resources';
+    $this->thirdPartyLoginForm = new ThirdPartyLoginForm($this->createMock(UrlGeneratorInterface::class));
     $this->useCase = new Login(
         $this->providerFactory,
         $this->session,
@@ -90,7 +91,8 @@ beforeEach(function () {
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $this->authenticationRequest = LoginRequest::createForLocal("admin", "password", '127.0.0.1');
@@ -111,7 +113,8 @@ it('should present an error response when the provider configuration is not foun
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $this->providerFactory
@@ -136,7 +139,8 @@ it('should present an UnauthorizedResponse when the authentication fails', funct
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $this->provider
@@ -165,7 +169,8 @@ it('should present a PasswordExpiredResponse when the user password is expired',
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $this->provider
@@ -194,7 +199,8 @@ it('should present an UnauthorizedResponse when user is not authorized to log in
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
     $useCase($this->authenticationRequest, $this->presenter);
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(UnauthorizedResponse::class);
@@ -212,7 +218,8 @@ it("should present an UnauthorizedResponse when user doesn't exist", function ()
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
     $this->provider
         ->expects($this->once())
@@ -244,7 +251,8 @@ it('should create a user when auto import is enabled', function () {
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
     $this->contact
         ->expects($this->once())
@@ -285,7 +293,8 @@ it('should create authentication tokens when user is correctly authenticated', f
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $this->contact
@@ -344,7 +353,8 @@ it('should present the default page when user is correctly authenticated', funct
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $this->contact
@@ -389,7 +399,8 @@ it('should present the custom redirection page when user is authenticated', func
         $this->writeSessionTokenRepository,
         $this->aclUpdater,
         $this->menuService,
-        $this->defaultRedirectUri
+        $this->defaultRedirectUri,
+        $this->thirdPartyLoginForm,
     );
 
     $page = new Page(1, '/my_custom_page', 60101, true);

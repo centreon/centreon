@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useResourceStyles = makeStyles()((theme) => ({
   resourceCompositionItem: {
     display: 'grid',
-    gridTemplateColumns: '136px 1fr'
+    gridTemplateColumns: `${theme.spacing(20)} 1fr`
   },
   resourceType: {
     borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`
@@ -51,13 +51,21 @@ export const useRefreshIntervalStyles = makeStyles()((theme) => ({
 }));
 
 export const useThresholdStyles = makeStyles()((theme) => ({
-  threshold: {
+  customField: {
+    width: theme.spacing(20)
+  },
+  customThreshold: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(1)
   },
-  thresholdField: {
-    width: theme.spacing(8)
+  showThreshold: {
+    marginBottom: theme.spacing(1)
+  },
+  thresholds: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1)
   }
 }));

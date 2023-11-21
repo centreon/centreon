@@ -8,5 +8,5 @@ Feature: Massive Change on services
         And several services have been created with mandatory properties
 
     Scenario: Configure by massive change several services with same properties
-        When I have applied Massive Change operation to several services
+        When I have applied Mass Change operation to several services
         Then all selected services are updated with the same values

@@ -41,6 +41,7 @@ use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh;
 
 final class PartialUpdateDashboard
 {
@@ -213,7 +214,13 @@ final class PartialUpdateDashboard
             createdBy: $dashboard->getCreatedBy(),
             updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
-            updatedAt: new \DateTimeImmutable()
+            updatedAt: new \DateTimeImmutable(),
+            refresh: ($request->refresh instanceof NoValue)
+                ? new Refresh(
+                    $dashboard->getRefresh()->getRefreshType(),
+                    $dashboard->getRefresh()->getRefreshInterval()
+                )
+                : new Refresh($request->refresh->refreshType, $request->refresh->refreshInterval)
         );
     }
 }

@@ -162,3 +162,5 @@ $help['tip_submit_result_for_a_host'] = dgettext('help', 'Allows users to submit
  */
 
 $help['tip_status'] = dgettext('help', 'Enable or disable the ACL action rule.');
+
+$help['tip_manage_tokens'] = dgettext('help', 'Provided that the user can access the API Tokens menu, this action will allow them to not only list, create and delete tokens for themselves, but also manage tokens for other users.');

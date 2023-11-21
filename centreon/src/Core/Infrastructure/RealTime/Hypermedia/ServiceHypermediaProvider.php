@@ -36,6 +36,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
                  ENDPOINT_SERVICE_STATUS_GRAPH = 'monitoring.metric.getServiceStatusMetrics',
                  ENDPOINT_SERVICE_TIMELINE = 'centreon_application_monitoring_gettimelinebyhostandservice',
                  ENDPOINT_SERVICE_CHECK = 'centreon_application_check_checkService',
+                 ENDPOINT_SERVICE_METRICS = 'FindMetricsByService',
                  TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_host_and_service',
                  URI_CONFIGURATION = '/main.php?p=60201&o=c&service_id={serviceId}',
                  URI_EVENT_LOGS = '/main.php?p=20301&svc={hostId}_{serviceId}',
@@ -119,6 +120,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
             'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams),
             'check' => $this->generateCheckEndpoint($urlParams),
             'forced_check' => $this->generateForcedCheckEndpoint($urlParams),
+            'metrics' => $this->generateMetricsByServiceEndpoint($urlParams),
         ];
     }
 
@@ -237,5 +239,15 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
         return ($this->contact->hasRole(Contact::ROLE_SERVICE_FORCED_CHECK) || $this->contact->isAdmin())
             ? $this->generateEndpoint(self::ENDPOINT_SERVICE_CHECK, $parameters)
             : null;
+    }
+
+    /**
+     * @param array<string,int> $parameters
+     *
+     * @return string
+     */
+    private function generateMetricsByServiceEndpoint(array $parameters): string
+    {
+        return $this->generateEndpoint(self::ENDPOINT_SERVICE_METRICS, $parameters);
     }
 }

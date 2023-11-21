@@ -7,6 +7,7 @@ import { equals } from 'ramda';
 import { TextField } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../models';
+import { editProperties } from '../../../hooks/useCanEditDashboard';
 
 import { getProperty } from './utils';
 
@@ -22,6 +23,8 @@ const WidgetTextField = ({
 
   const { errors, values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
+
+  const { canEditField } = editProperties.useCanEditProperties();
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),
@@ -40,9 +43,14 @@ const WidgetTextField = ({
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched(`options.${propertyName}`, true);
-    const newText = equals(text?.type, 'number')
-      ? parseInt(event.target.value || '0', 10)
-      : event.target.value;
+
+    if (equals(text?.type, 'number')) {
+      setFieldValue(
+        `options.${propertyName}`,
+        equals(event.target.value, '') ? '' : Number(event.target.value)
+      );
+    }
+    const newText = event.target.value;
     setFieldValue(`options.${propertyName}`, newText);
   };
 
@@ -51,12 +59,16 @@ const WidgetTextField = ({
   return (
     <TextField
       fullWidth
-      ariaLabel={t(label) as string}
+      autoSize={text?.autoSize}
       className={className}
       dataTestId={label}
-      disabled={disabled}
+      disabled={!canEditField || disabled}
       error={isTouched && error}
       helperText={isTouched && error}
+      inputProps={{
+        'aria-label': t(label) as string,
+        step: text?.step || '1'
+      }}
       label={isCompact ? null : t(label) || ''}
       multiline={text?.multiline || false}
       required={required}

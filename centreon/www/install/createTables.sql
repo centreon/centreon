@@ -80,6 +80,8 @@ CREATE TABLE `acl_groups` (
   `acl_group_alias` varchar(255) DEFAULT NULL,
   `acl_group_changed` int(11) NOT NULL DEFAULT 1,
   `acl_group_activate` enum('0','1','2') DEFAULT NULL,
+  `cloud_description` TEXT DEFAULT NULL,
+  `cloud_specific` boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (`acl_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -88,6 +90,7 @@ CREATE TABLE `acl_groups` (
 CREATE TABLE `acl_res_group_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
+  `order` int(11) NOT NULL DEFAULT 0,
   KEY `acl_res_id` (`acl_res_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_res_group_relations_ibfk_1` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
@@ -118,6 +121,7 @@ CREATE TABLE `acl_resources_hc_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   KEY `hc_id` (`hc_id`),
   KEY `acl_res_id` (`acl_res_id`),
+  CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_ibfk_1` FOREIGN KEY (`hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -453,7 +457,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.0',
+  `bbdo_version` varchar(50) DEFAULT '3.0.1',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1444,7 +1448,8 @@ CREATE TABLE `hostcategories` (
   `hc_activate` enum('0','1') NOT NULL DEFAULT '1',
   PRIMARY KEY (`hc_id`),
   KEY `name_index` (`hc_name`),
-  KEY `alias_index` (`hc_alias`)
+  KEY `alias_index` (`hc_alias`),
+  KEY `level_index` (`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2103,7 +2108,8 @@ CREATE TABLE `widget_models` (
   `title` varchar(255) NOT NULL,
   `description` TEXT NOT NULL,
   `url` varchar(255) NOT NULL,
-  `version` varchar(255) NOT NULL,
+  `is_internal` BOOLEAN NOT NULL DEFAULT FALSE,
+  `version` varchar(255) DEFAULT NULL,
   `directory` varchar(255) NOT NULL,
   `author` varchar(255) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
@@ -2370,12 +2376,18 @@ CREATE TABLE `security_authentication_tokens` (
   `provider_token_refresh_id` int(11) DEFAULT NULL,
   `provider_configuration_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `token_name` varchar(255) DEFAULT NULL,
+  `token_type` enum('auto', 'manual') NOT NULL DEFAULT 'auto',
+  `creator_id` int(11) DEFAULT NULL,
+  `creator_name` varchar(255) DEFAULT NULL,
+  `is_revoked` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`token`),
   KEY `security_authentication_tokens_token_fk` (`token`),
   KEY `security_authentication_tokens_provider_token_id_fk` (`provider_token_id`),
   KEY `security_authentication_tokens_provider_token_refresh_id_fk` (`provider_token_refresh_id`),
   KEY `security_authentication_tokens_configuration_id_fk` (`provider_configuration_id`),
   KEY `security_authentication_tokens_user_id_fk` (`user_id`),
+  KEY `security_authentication_tokens_creator_id_fk` (`creator_id`),
   CONSTRAINT `security_authentication_tokens_configuration_id_fk` FOREIGN KEY (`provider_configuration_id`)
   REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE,
   CONSTRAINT `security_authentication_tokens_provider_token_id_fk` FOREIGN KEY (`provider_token_id`)
@@ -2383,7 +2395,9 @@ CREATE TABLE `security_authentication_tokens` (
   CONSTRAINT `security_authentication_tokens_provider_token_refresh_id_fk` FOREIGN KEY (`provider_token_refresh_id`)
   REFERENCES `security_token` (`id`) ON DELETE SET NULL,
   CONSTRAINT `security_authentication_tokens_user_id_fk` FOREIGN KEY (`user_id`)
-  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+  REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `security_authentication_tokens_creator_id_fk` FOREIGN KEY (`creator_id`)
+  REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contact_password` (
@@ -2554,6 +2568,8 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
   `updated_by` int(11) NULL,
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
+  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global',
+  `refresh_interval` int(11) NULL,
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `contact_created_by`
@@ -2613,6 +2629,71 @@ CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
   CONSTRAINT `dashboard_contactgroup_relation_contactgroup_id`
     FOREIGN KEY (`contactgroup_id`)
     REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `rotation_time` TINYINT UNSIGNED NOT NULL,
+  `created_at` INT(11) UNSIGNED NOT NULL,
+  `updated_at` INT(11) UNSIGNED NULL,
+  `created_by` INT NULL,
+  `updated_by` INT NULL,
+  `is_public` TINYINT(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`),
+  CONSTRAINT `dashboard_playlist_author_id`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
+  CONSTRAINT `dashboard_playlist_editor_id`
+    FOREIGN KEY (`updated_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist_relation` (
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `playlist_id` INT UNSIGNED NOT NULL,
+  `order` INT(11) NOT NULL,
+  UNIQUE KEY(`dashboard_id`, `playlist_id`),
+  CONSTRAINT `AK_PlaylisId_Order` UNIQUE (`playlist_id`, `order`),
+  CONSTRAINT `dashboard_playlist_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_playlist_relation_playlist_id`
+    FOREIGN KEY (`playlist_id`)
+    REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist_contact_relation` (
+  `contact_id` INT(11) NOT NULL,
+  `playlist_id` INT UNSIGNED NOT NULL,
+  UNIQUE KEY(`contact_id`, `playlist_id`),
+  CONSTRAINT `dashboard_playlist_contact_relation_contact_id`
+    FOREIGN KEY (`contact_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_playlist_contact_relation_playlist_id`
+    FOREIGN KEY (`playlist_id`)
+    REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist_contactgroup_relation` (
+  `contactgroup_id` INT(11) NOT NULL,
+  `playlist_id` INT UNSIGNED NOT NULL,
+  UNIQUE KEY(`contactgroup_id`, `playlist_id`),
+  CONSTRAINT `dashboard_playlist_contactgroup_relation_contactgroup_id`
+    FOREIGN KEY (`contactgroup_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_playlist_contactgroup_relation_playlist_id`
+    FOREIGN KEY (`playlist_id`)
+    REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

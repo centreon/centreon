@@ -157,4 +157,15 @@ interface ReadHostGroupRepositoryInterface
      * @return HostGroup[]
      */
     public function findByHostAndAccessGroups(int $hostId, array $accessGroups): array;
+
+    /**
+     * Find host groups by their ID.
+     *
+     * @param int ...$hostGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<HostGroup>
+     */
+    public function findByIds(int ...$hostGroupIds): array;
 }

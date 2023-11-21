@@ -83,4 +83,35 @@ class ServiceGroupRelation
     {
         return $this->hostGroupId;
     }
+
+    /**
+     * Extract all host IDs from an array of ServiceGroupRelation.
+     *
+     * @param ServiceGroupRelation[] $sgRelations
+     *
+     * @return int[]
+     */
+    public static function getHostIds(array $sgRelations): array
+    {
+        $hostIds = [];
+        foreach ($sgRelations as $sgRel) {
+            if ($sgRel->getHostId() !== null) {
+                $hostIds[] = $sgRel->getHostId();
+            }
+        }
+
+        return $hostIds;
+    }
+
+    /**
+     * Extract all serviceGroup IDs from an array of ServiceGroupRelation.
+     *
+     * @param ServiceGroupRelation[] $sgRelations
+     *
+     * @return int[]
+     */
+    public static function getServiceGroupIds(array $sgRelations): array
+    {
+        return array_map(fn(ServiceGroupRelation $sgRel) => $sgRel->getServiceGroupId(), $sgRelations);
+    }
 }

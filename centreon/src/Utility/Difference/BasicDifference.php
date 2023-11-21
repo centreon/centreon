@@ -29,6 +29,7 @@ namespace Utility\Difference;
  * Note: indexes are preserved, up to you to use them or not.
  *
  * @template T of int|string
+ *
  * @implements DifferenceInterface<T>
  */
 final class BasicDifference implements DifferenceInterface

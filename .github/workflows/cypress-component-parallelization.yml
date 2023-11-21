@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: List of specs
         id: list-specs
@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
@@ -64,11 +64,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
 
       - name: Download Artifacts
         uses: actions/download-artifact@v3

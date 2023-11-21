@@ -14,6 +14,7 @@ import { has, includes, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
+import { useDeepCompare } from '../../utils';
 
 export interface UseFetchQueryProps<T> {
   catchError?: (props: CatchErrorProps) => void;
@@ -24,7 +25,9 @@ export interface UseFetchQueryProps<T> {
   getQueryKey: () => QueryKey;
   httpCodesBypassErrorSnackbar?: Array<number>;
   isPaginated?: boolean;
-  queryOptions?: Omit<
+  queryOptions?: {
+    suspense?: boolean;
+  } & Omit<
     UseQueryOptions<T | ResponseError, Error, T | ResponseError, QueryKey>,
     'queryKey' | 'queryFn'
   >;
@@ -32,11 +35,12 @@ export interface UseFetchQueryProps<T> {
 
 export type UseFetchQueryState<T> = {
   data?: T;
+  error: Omit<ResponseError, 'isError'> | null;
   fetchQuery: () => Promise<T | ResponseError>;
   prefetchNextPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchPreviousPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchQuery: ({ endpointParams, queryKey }) => void;
-} & Omit<QueryObserverBaseResult, 'data'>;
+} & Omit<QueryObserverBaseResult, 'data' | 'error'>;
 
 export interface PrefetchEndpointParams {
   page: number;
@@ -57,9 +61,8 @@ const useFetchQuery = <T extends object>({
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
-  const queryData = useQuery<T | ResponseError, Error>(
-    getQueryKey(),
-    ({ signal }): Promise<T | ResponseError> =>
+  const queryData = useQuery<T | ResponseError, Error>({
+    queryFn: ({ signal }): Promise<T | ResponseError> =>
       customFetch<T>({
         catchError,
         decoder,
@@ -68,10 +71,9 @@ const useFetchQuery = <T extends object>({
         headers: new Headers(fetchHeaders),
         signal
       }),
-    {
-      ...queryOptions
-    }
-  );
+    queryKey: getQueryKey(),
+    ...queryOptions
+  });
 
   const queryClient = useQueryClient();
 
@@ -90,18 +92,9 @@ const useFetchQuery = <T extends object>({
     }
   };
 
-  useEffect(() => {
-    return (): void => {
-      queryClient.cancelQueries(getQueryKey());
-    };
-  }, []);
-
-  manageError();
-
   const prefetchQuery = ({ endpointParams, queryKey }): void => {
-    queryClient.prefetchQuery(
-      queryKey,
-      ({ signal }): Promise<T | ResponseError> =>
+    queryClient.prefetchQuery({
+      queryFn: ({ signal }): Promise<T | ResponseError> =>
         customFetch<T>({
           catchError,
           decoder,
@@ -109,8 +102,9 @@ const useFetchQuery = <T extends object>({
           endpoint: getEndpoint(endpointParams),
           headers: new Headers(fetchHeaders),
           signal
-        })
-    );
+        }),
+      queryKey
+    });
   };
 
   const prefetchNextPage = ({ page, getPrefetchQueryKey }): void => {
@@ -140,9 +134,8 @@ const useFetchQuery = <T extends object>({
   };
 
   const fetchQuery = (): Promise<T | ResponseError> => {
-    return queryClient.fetchQuery(
-      getQueryKey(),
-      ({ signal }): Promise<T | ResponseError> =>
+    return queryClient.fetchQuery({
+      queryFn: ({ signal }): Promise<T | ResponseError> =>
         customFetch<T>({
           catchError,
           decoder,
@@ -150,8 +143,9 @@ const useFetchQuery = <T extends object>({
           endpoint: getEndpoint(),
           headers: new Headers(fetchHeaders),
           signal
-        })
-    );
+        }),
+      queryKey: getQueryKey()
+    });
   };
 
   const data = useMemo(
@@ -162,8 +156,21 @@ const useFetchQuery = <T extends object>({
 
   const errorData = queryData.data as ResponseError | undefined;
 
+  useEffect(() => {
+    return (): void => {
+      queryClient.cancelQueries({ queryKey: getQueryKey() });
+    };
+  }, []);
+
+  useEffect(
+    () => {
+      manageError();
+    },
+    useDeepCompare([queryData.data])
+  );
+
   return {
-    ...omit(['data'], queryData),
+    ...omit(['data', 'error'], queryData),
     data,
     error: errorData?.isError ? omit(['isError'], errorData) : null,
     fetchQuery,

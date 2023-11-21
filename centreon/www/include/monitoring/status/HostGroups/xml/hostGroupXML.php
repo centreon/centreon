@@ -69,7 +69,7 @@ $resourceController = $kernel->getContainer()->get(
 // Alias / Name conversion table
 $convertTable = [];
 $convertID = [];
-$dbResult = $obj->DBC->query("SELECT hostgroup_id, name FROM hostgroups");
+$dbResult = $obj->DBC->query("SELECT 1 AS REALTIME, hostgroup_id, name FROM hostgroups");
 while ($hg = $dbResult->fetch()) {
     $convertTable[$hg["name"]] = $hg["name"];
     $convertID[$hg["name"]] = $hg["hostgroup_id"];
@@ -108,7 +108,7 @@ if ($search != "") {
  * Host state
  */
 if ($obj->is_admin) {
-    $rq1 = "SELECT hg.name as alias, h.state, COUNT(h.host_id) AS nb
+    $rq1 = "SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(h.host_id) AS nb
         FROM hosts_hostgroups hhg, hosts h, hostgroups hg
         WHERE hg.hostgroup_id = hhg.hostgroup_id
         AND hhg.host_id = h.host_id
@@ -121,7 +121,7 @@ if ($obj->is_admin) {
     }
     $rq1 .= $searchStr . "GROUP BY hg.name " . $order . ", h.state";
 } else {
-    $rq1 = "SELECT hg.name as alias, h.state, COUNT(DISTINCT h.host_id) AS nb
+    $rq1 = "SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(DISTINCT h.host_id) AS nb
         FROM centreon_acl acl, hosts_hostgroups hhg, hosts h, hostgroups hg
         WHERE hg.hostgroup_id = hhg.hostgroup_id
         AND hhg.host_id = h.host_id
@@ -160,7 +160,7 @@ $dbResult->closeCursor();
  * Get Services request
  */
 if ($obj->is_admin) {
-    $rq2 = "SELECT hg.name AS alias, s.state, COUNT( s.service_id ) AS nb,
+    $rq2 = "SELECT 1 AS REALTIME, hg.name AS alias, s.state, COUNT( s.service_id ) AS nb,
         (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
         FROM hosts_hostgroups hhg, hosts h, hostgroups hg, services s
         WHERE hg.hostgroup_id = hhg.hostgroup_id
@@ -173,7 +173,7 @@ if ($obj->is_admin) {
     }
     $rq2 .= $searchStr . "GROUP BY hg.name, s.state ORDER BY tri ASC";
 } else {
-    $rq2 = "SELECT hg.name as alias, s.state, COUNT( s.service_id ) AS nb,
+    $rq2 = "SELECT 1 AS REALTIME, hg.name as alias, s.state, COUNT( s.service_id ) AS nb,
         (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
         FROM centreon_acl acl, hosts_hostgroups hhg, hosts h, hostgroups hg, services s
         WHERE hg.hostgroup_id = hhg.hostgroup_id

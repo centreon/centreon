@@ -1,0 +1,11 @@
+@REQ_MON-22122
+Feature: OpenID Connect authentication
+    As an admin of Centreon Platform
+    I want to be able to make use of an external authentication provider
+    So that Platform users can use existing authentication services to authenticate
+
+  @TEST_MON-22127
+  Scenario: OpenID Connect Authentication mode
+    Given an administrator is logged on the platform
+    When the administrator sets authentication mode to OpenID Connect only
+    Then only users created using the 3rd party authentication provide must be able to authenticate and local admin user must not be able to authenticate

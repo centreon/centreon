@@ -6,7 +6,6 @@ import {
   useState
 } from 'react';
 
-import { Responsive } from '@visx/visx';
 import { useAtomValue } from 'jotai';
 import {
   add,
@@ -35,7 +34,8 @@ import {
   getData,
   timeFormat,
   useLocaleDateTimeFormat,
-  useRequest
+  useRequest,
+  ParentSize
 } from '@centreon/ui';
 
 import { CommentParameters } from '../../Actions/api';
@@ -216,7 +216,7 @@ const PerformanceGraph = <T,>({
             newLineData.map((line) => ({
               ...line,
               display:
-                find(propEq('name', line.name), lineData)?.display ?? true
+                find(propEq(line.name, 'name'), lineData)?.display ?? true
             }))
           );
 
@@ -279,14 +279,14 @@ const PerformanceGraph = <T,>({
   }
 
   const getLineByMetric = (metric): LineModel => {
-    return find(propEq('metric', metric), lineData) as LineModel;
+    return find(propEq(metric, 'metric'), lineData) as LineModel;
   };
 
   const toggleMetricLine = (metric): void => {
     const line = getLineByMetric(metric);
 
     setLineData([
-      ...reject(propEq('metric', metric), lineData),
+      ...reject(propEq(metric, 'metric'), lineData),
       { ...line, display: !line.display }
     ]);
   };
@@ -295,7 +295,7 @@ const PerformanceGraph = <T,>({
     const fadedLines = map((line) => ({ ...line, highlight: false }), lineData);
 
     setLineData([
-      ...reject(propEq('metric', metric), fadedLines),
+      ...reject(propEq(metric, 'metric'), fadedLines),
       { ...getLineByMetric(metric), highlight: true }
     ]);
   };
@@ -312,7 +312,7 @@ const PerformanceGraph = <T,>({
   const sortedLines =
     filtredLines?.newSortedLines ?? sortBy(prop('name'), lineData);
   const displayedLines =
-    filtredLines?.newLines ?? reject(propEq('display', false), sortedLines);
+    filtredLines?.newLines ?? reject(propEq(false, 'display'), sortedLines);
 
   const selectMetricLine = (metric: string): void => {
     const metricLine = getLineByMetric(metric);
@@ -419,7 +419,7 @@ const PerformanceGraph = <T,>({
         )}
       </div>
       <div>
-        <Responsive.ParentSize>
+        <ParentSize>
           {({ width, height }): JSX.Element => (
             <Graph<T>
               applyZoom={adjustTimePeriod}
@@ -444,7 +444,7 @@ const PerformanceGraph = <T,>({
               onAddComment={onAddComment}
             />
           )}
-        </Responsive.ParentSize>
+        </ParentSize>
       </div>
 
       <Legend

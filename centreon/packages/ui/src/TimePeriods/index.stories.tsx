@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import Switch from '@mui/material/Switch';
 
 import { dateFormat } from './models';
+import SimpleCustomTimePeriod from './CustomTimePeriod/SimpleCustomTimePeriod';
 
 import TimePeriod from '.';
 
@@ -16,8 +17,14 @@ export default meta;
 
 type Story = StoryObj<typeof TimePeriod>;
 
+type StorySimpleTimePeriod = StoryObj<typeof SimpleCustomTimePeriod>;
+
 const Template: Story = {
   render: (args) => <TimePeriod {...args} />
+};
+
+const TemplateWithSimpleTimePeriod: StorySimpleTimePeriod = {
+  render: (args) => <SimpleCustomTimePeriod {...args} />
 };
 
 const TemplateWithExternalComponent: Story = {
@@ -95,4 +102,12 @@ export const WithExtraTimePeriods: Story = {
 export const WithExternalComponent: Story = {
   ...TemplateWithExternalComponent,
   argTypes
+};
+
+export const SimpleTimePeriod: StorySimpleTimePeriod = {
+  ...TemplateWithSimpleTimePeriod,
+  args: {
+    endDate: dayjs(Date.now()).toDate(),
+    startDate: dayjs(Date.now()).subtract(29, 'day').toDate()
+  }
 };

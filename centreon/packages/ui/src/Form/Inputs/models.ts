@@ -52,6 +52,7 @@ export interface InputProps {
     Component: React.ComponentType<InputPropsWithoutGroup>;
   };
   dataTestId?: string;
+  disableSortedOptions?: boolean;
   fieldName: string;
   fieldsTable?: {
     additionalFieldsToMemoize?: Array<string>;
@@ -77,7 +78,7 @@ export interface InputProps {
   label: string;
   radio?: {
     options?: Array<{
-      label: string;
+      label: string | JSX.Element;
       value: boolean | string;
     }>;
     row?: boolean;

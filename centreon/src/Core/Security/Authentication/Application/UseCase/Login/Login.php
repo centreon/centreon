@@ -47,6 +47,7 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\Session;
+use Security\Encryption;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class Login
@@ -67,6 +68,7 @@ final class Login
      * @param AclUpdaterInterface $aclUpdater
      * @param MenuServiceInterface $menuService
      * @param string $defaultRedirectUri
+     * @param ThirdPartyLoginForm $thirdPartyLoginForm
      */
     public function __construct(
         private ProviderAuthenticationFactoryInterface $providerFactory,
@@ -78,7 +80,8 @@ final class Login
         private WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
         private AclUpdaterInterface $aclUpdater,
         private MenuServiceInterface $menuService,
-        private string $defaultRedirectUri
+        private string $defaultRedirectUri,
+        private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
     ) {
     }
 
@@ -106,9 +109,23 @@ final class Login
 
             $this->updateACL($user);
 
-            // Start a new session
+            $token = null;
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
                 if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->session->getId()) === false) {
+                    if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
+                        // We create an API token in addition of the session token.
+                        $this->createAuthenticationTokens(
+                            $token = Encryption::generateRandomString(),
+                            $user,
+                            $this->provider->getProviderToken($this->session->getId()),
+                            $this->provider->getProviderRefreshToken(),
+                            $loginRequest->clientIp
+                        );
+                        // We pass the token to let the third party login form propagate to the form.
+                        $this->thirdPartyLoginForm->setToken($token);
+                    }
+
+                    // Session token To keep the stateful authentication active anyway.
                     $this->createAuthenticationTokens(
                         $this->session->getId(),
                         $user,
@@ -117,27 +134,31 @@ final class Login
                         $loginRequest->clientIp
                     );
                 }
+
             }
 
+            $redirectionInfo = $this->getRedirectionInfo($user, $loginRequest->refererQueryParameters);
             $presenter->present(
-                new LoginResponse($this->getRedirectionUri($user, $loginRequest->refererQueryParameters))
+                new LoginResponse(
+                    (string) $redirectionInfo['redirect_uri'],
+                    (bool) $redirectionInfo['is_react'],
+                )
             );
-        } catch (PasswordExpiredException $e) {
-            $response = new PasswordExpiredResponse($e->getMessage());
-            $response->setBody([
-                'password_is_expired' => true,
-            ]);
+        } catch (PasswordExpiredException $exception) {
+            $this->info('The password expired', ['trace' => (string) $exception]);
+            $response = new PasswordExpiredResponse($exception->getMessage());
+            $response->setBody(['password_is_expired' => true]);
             $presenter->setResponseStatus($response);
 
             return;
-        } catch (AuthenticationException $e) {
-            $this->error('An error occurred during authentication', ['trace' => (string) $e]);
-            $presenter->setResponseStatus(new UnauthorizedResponse($e->getMessage()));
-            
+        } catch (AuthenticationException $exception) {
+            $this->error('An error occurred during authentication', ['trace' => (string) $exception]);
+            $presenter->setResponseStatus(new UnauthorizedResponse($exception->getMessage()));
+
             return;
-        } catch (AclConditionsException $e) {
-            $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $e]);
-            $presenter->setResponseStatus(new ErrorAclConditionsResponse($e->getMessage()));
+        } catch (AclConditionsException $exception) {
+            $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $exception]);
+            $presenter->setResponseStatus(new ErrorAclConditionsResponse($exception->getMessage()));
         } catch (AuthenticationConditionsException $ex) {
             $this->error('An error occured while matching your authentication conditions', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($ex->getMessage()));
@@ -204,20 +225,21 @@ final class Login
      * @param ContactInterface $authenticatedUser
      * @param string|null $refererQueryParameters
      *
-     * @return string
+     * @return array<string,bool|string>
      */
-    private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): string
+    private function getRedirectionInfo(ContactInterface $authenticatedUser, ?string $refererQueryParameters): array
     {
-        $redirectionUri = $this->defaultRedirectUri;
-
         $refererRedirectionPage = $this->getRedirectionPageFromRefererQueryParameters($refererQueryParameters);
         if ($refererRedirectionPage !== null) {
-            $redirectionUri = $this->buildDefaultRedirectionUri($refererRedirectionPage);
+            $redirectionInfo = $this->buildDefaultRedirectionUri($refererRedirectionPage);
         } elseif ($authenticatedUser->getDefaultPage()?->getUrl() !== null) {
-            $redirectionUri = $this->buildDefaultRedirectionUri($authenticatedUser->getDefaultPage());
+            $redirectionInfo = $this->buildDefaultRedirectionUri($authenticatedUser->getDefaultPage());
+        } else {
+            $redirectionInfo['redirect_uri'] = $this->defaultRedirectUri;
+            $redirectionInfo['is_react'] = true;
         }
 
-        return $redirectionUri;
+        return $redirectionInfo;
     }
 
     /**
@@ -225,19 +247,24 @@ final class Login
      *
      * @param Page $defaultPage
      *
-     * @return string
+     * @return array<string,bool|string>
      */
-    private function buildDefaultRedirectionUri(Page $defaultPage): string
+    private function buildDefaultRedirectionUri(Page $defaultPage): array
     {
+        $redirectionInfo = [
+            'is_react' => $defaultPage->isReact(),
+        ];
         if ($defaultPage->isReact() === true) {
-            return $defaultPage->getUrl();
-        }
-        $redirectUri = '/main.php?p=' . $defaultPage->getPageNumber();
-        if ($defaultPage->getUrlOptions() !== null) {
-            $redirectUri .= $defaultPage->getUrlOptions();
+            $redirectionInfo['redirect_uri'] = $defaultPage->getUrl();
+        } else {
+            $redirectUri = '/main.php?p=' . $defaultPage->getPageNumber();
+            if ($defaultPage->getUrlOptions() !== null) {
+                $redirectUri .= $defaultPage->getUrlOptions();
+            }
+            $redirectionInfo['redirect_uri'] = $redirectUri;
         }
 
-        return $redirectUri;
+        return $redirectionInfo;
     }
 
     /**

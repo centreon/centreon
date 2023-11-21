@@ -108,16 +108,16 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   );
 
   useEffect(() => {
-    const types = find(propEq('name', 'types'), getAppliedFilterCriteriasAtom);
+    const types = find(propEq('types', 'name'), getAppliedFilterCriteriasAtom);
     const statuses = find(
-      propEq('name', 'statuses'),
+      propEq('statuses', 'name'),
       getAppliedFilterCriteriasAtom
     );
 
     if (types && types.value) {
       const typesValues = types.value as Array<SelectEntry>;
-      setModulesActive(!!find(propEq('id', 'MODULE'), typesValues));
-      setWidgetsActive(!!find(propEq('id', 'WIDGET'), typesValues));
+      setModulesActive(!!find(propEq('MODULE', 'id'), typesValues));
+      setWidgetsActive(!!find(propEq('WIDGET', 'id'), typesValues));
     }
 
     sendExtensionsRequests({
@@ -214,7 +214,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           endpoint: buildExtensionEndPoint({
             action: 'list',
             criteriaStatus: find(
-              propEq('name', 'statuses'),
+              propEq('statuses', 'name'),
               getAppliedFilterCriteriasAtom
             )
           })
@@ -249,7 +249,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           endpoint: buildExtensionEndPoint({
             action: 'list',
             criteriaStatus: find(
-              propEq('name', 'statuses'),
+              propEq('statuses', 'name'),
               getAppliedFilterCriteriasAtom
             )
           })
@@ -334,7 +334,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           endpoint: buildExtensionEndPoint({
             action: 'list',
             criteriaStatus: find(
-              propEq('name', 'statuses'),
+              propEq('statuses', 'name'),
               getAppliedFilterCriteriasAtom
             )
           })
@@ -349,19 +349,19 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   };
 
   const allModulesInstalled = isEmpty(
-    filter(pathEq(['version', 'installed'], false), extensions.module.entities)
+    filter(pathEq(false, ['version', 'installed']), extensions.module.entities)
   );
 
   const allWidgetsInstalled = isEmpty(
-    filter(pathEq(['version', 'installed'], false), extensions.widget.entities)
+    filter(pathEq(false, ['version', 'installed']), extensions.widget.entities)
   );
 
   const allWidgetsUpToDate = isEmpty(
-    filter(pathEq(['version', 'outdated'], true), extensions.module.entities)
+    filter(pathEq(true, ['version', 'outdated']), extensions.module.entities)
   );
 
   const allModulesUpToDate = isEmpty(
-    filter(pathEq(['version', 'outdated'], true), extensions.widget.entities)
+    filter(pathEq(true, ['version', 'outdated']), extensions.widget.entities)
   );
 
   const disableUpdate = allWidgetsUpToDate && allModulesUpToDate;
