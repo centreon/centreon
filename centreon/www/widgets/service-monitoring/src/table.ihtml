@@ -70,8 +70,8 @@
                             <div style='float: right;'>
                                 {if $elem.h_scheduled_downtime_depth}<img src='../../img/icons/warning.png' class="ico-18">{/if}
                                 {if $elem.h_acknowledged}<img src='../../img/icones/16x16/worker.gif' class="ico-18">{/if}
-                                {if $elem.h_active_checks == 0}<img src='../../img/icons/never_checked.png' class="ico-18">{/if}
-                                {if $elem.h_passive_checks}<img src='../../img/icons/passive_check.png' class="ico-18">{/if}
+                                {if $elem.h_active_checks == 0 && $elem.h_passive_checks == 0}<img src='../../img/icons/never_checked.png' class="ico-18">{/if}
+                                {if $elem.h_active_checks == 0 && $elem.h_passive_checks == 1}<img src='../../img/icons/passive_check.png' class="ico-18">{/if}
                                 {if $elem.h_notify == 0}<img src='../../img/icons/notifications_off.png' class="ico-18">{/if}
                                 {if $elem.h_action_url}
                                     <a target=_blank href='{$elem.h_action_url}'>
