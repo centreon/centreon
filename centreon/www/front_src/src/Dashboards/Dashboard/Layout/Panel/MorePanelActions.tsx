@@ -62,14 +62,6 @@ const MorePanelActions = ({
 
   const { openModal } = useWidgetForm();
 
-  const [searchParams, setSearchParams] = useSearchParams(
-    window.location.search
-  );
-
-  const switchPanelsEditionMode = useSetAtom(
-    switchPanelsEditionModeDerivedAtom
-  );
-
   const edit = (): void => {
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
 
