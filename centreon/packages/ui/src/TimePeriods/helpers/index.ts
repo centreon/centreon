@@ -23,4 +23,4 @@ export const getTimePeriodById = ({
   id,
   timePeriods
 }: TimePeriodById): TimePeriod =>
-  find<TimePeriod>(propEq('id', id))(timePeriods) as TimePeriod;
+  find<TimePeriod>(propEq(id, 'id'))(timePeriods) as TimePeriod;

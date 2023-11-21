@@ -59,7 +59,7 @@ jobs:
             node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
           done
         env:
-          JIRA_USER: ${{ secrets.JIRA_USER }}
-          JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          XRAY_JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          XRAY_JIRA_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+          XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}

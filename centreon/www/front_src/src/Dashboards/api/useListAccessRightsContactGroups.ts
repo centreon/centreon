@@ -1,16 +1,6 @@
 import { useRef } from 'react';
 
-import {
-  QueryKey,
-  UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
-import {
-  buildListingEndpoint,
-  ResponseError,
-  useFetchQuery
-} from '@centreon/ui';
+import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
 import {
   DashboardAccessRightsContactGroup,
@@ -21,33 +11,23 @@ import { getDashboardAccessRightsContactGroupsEndpoint } from './endpoints';
 import { dashboardAccessRightsContactGroupListDecoder } from './decoders';
 import { List, ListQueryParams } from './meta.models';
 
-type UseListAccessRightsContactGroupsProps<
-  TQueryFnData extends List<DashboardAccessRightsContactGroup> = List<DashboardAccessRightsContactGroup>,
-  TError = ResponseError,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
-> = {
+type UseListAccessRightsContactGroupsProps = {
   dashboardId: NamedEntity['id'] | null;
-  options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'queryFn' | 'initialData'
-  >;
   params?: ListQueryParams;
 };
 
-type UseListAccessRightsContactGroups<
-  TError = ResponseError,
-  TData extends List<DashboardAccessRightsContactGroup> = List<DashboardAccessRightsContactGroup>
-> = UseQueryResult<TData | TError, TError>;
+type UseListAccessRightsContactGroups = {
+  data?: List<DashboardAccessRightsContactGroup>;
+  isFetching: boolean;
+};
 
 const useListAccessRightsContactGroups = ({
   params,
-  dashboardId,
-  options
+  dashboardId
 }: UseListAccessRightsContactGroupsProps): UseListAccessRightsContactGroups => {
   const dashboardResourceIdRef = useRef(dashboardId);
 
-  const { data, ...queryData } = useFetchQuery<
+  const { data, isFetching } = useFetchQuery<
     List<DashboardAccessRightsContactGroup>
   >({
     decoder: dashboardAccessRightsContactGroupListDecoder,
@@ -64,13 +44,13 @@ const useListAccessRightsContactGroups = ({
     ],
     queryOptions: {
       enabled: !!dashboardResourceIdRef.current,
-      ...options
+      suspense: false
     }
   });
 
   return {
-    ...queryData,
-    data
+    data,
+    isFetching
   };
 };
 

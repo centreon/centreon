@@ -15,11 +15,11 @@ sleep 5
 
 systemctl stop php-fpm
 systemctl stop httpd
+systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
-systemctl stop gorgoned
 service mysql stop
 
-rm -f /tmp/gorgone/*.ipc /val/log/centreon*/*.log
+rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
 
 sleep 5

@@ -106,7 +106,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ->add(Webservice\CentreonFrontendComponent::class);
 
         $pimple[static::CENTREON_I18N_SERVICE] = function (Container $pimple): I18nService {
-            $pimple['translator']; // bind lang
+            $phpstan_needs_this_variable = $pimple['translator']; // bind lang
 
             $service = new I18nService(
                 $pimple[LegacyServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION],

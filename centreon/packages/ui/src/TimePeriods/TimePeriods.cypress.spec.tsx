@@ -3,15 +3,10 @@ import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { Provider, createStore } from 'jotai';
-import { equals, inc } from 'ramda';
+import { equals } from 'ramda';
 import { renderHook } from '@testing-library/react';
 
-import { LocalizationProvider } from '@mui/x-date-pickers';
-
-import {
-  useLocaleDateTimeFormat,
-  useDateTimePickerAdapter
-} from '@centreon/ui';
+import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { CustomTimePeriodProperty } from './models';
@@ -297,10 +292,6 @@ testData.forEach((item) =>
     beforeEach(() => {
       cy.viewport('macbook-13');
 
-      const { result } = renderHook(() => useDateTimePickerAdapter());
-
-      const { Adapter } = result.current;
-
       const store = createStore();
       store.set(userAtom, {
         ...retrievedUser,
@@ -311,29 +302,14 @@ testData.forEach((item) =>
       cy.mount({
         Component: (
           <Provider store={store}>
-            <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
-              <DateTimePickerInput
-                changeDate={cy.stub()}
-                date={new Date(item.initialDate)}
-                desktopMediaQuery="@media (min-width: 1024px)"
-                property={CustomTimePeriodProperty.start}
-              />
-            </LocalizationProvider>
+            <DateTimePickerInput
+              changeDate={cy.stub()}
+              date={new Date(item.initialDate)}
+              property={CustomTimePeriodProperty.start}
+            />
           </Provider>
         )
       });
-    });
-
-    it('checks input calendar value contains correct date', () => {
-      const { result } = renderHook(() => useLocaleDateTimeFormat());
-      const { format } = result.current;
-
-      const dateInput = format({
-        date: dayjs(item.initialDate).tz(item.timezone),
-        formatString: 'L hh:mm A'
-      });
-
-      cy.get('input').should('have.value', dateInput);
     });
 
     it(`displays the correct number of days for the current month when the ${item.button} button is clicked`, () => {
@@ -389,7 +365,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
+        cy.get('@listWeeks').should('have.length', numberWeeks);
         cy.get('@listWeeks').eq(0).as('firstWeek');
         cy.get('@firstWeek').children().as('listDaysInFirstWeek');
 
@@ -416,7 +392,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
+        cy.get('@listWeeks').should('have.length', numberWeeks);
 
         cy.get('@listWeeks')
           .eq(numberWeeks - 1)

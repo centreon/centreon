@@ -57,7 +57,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     hasReachedTheLimitOfUnits,
     addButtonHidden,
     resources,
-    hasOnlyOneService
+    hasOnlyOneService,
+    deleteMetricItem
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -149,7 +150,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                 <MultiAutocompleteField
                   fullWidth
                   chipProps={{
-                    color: 'primary'
+                    color: 'primary',
+                    onDelete: (_, option) => deleteMetricItem(index, option)
                   }}
                   className={classes.resources}
                   disabled={

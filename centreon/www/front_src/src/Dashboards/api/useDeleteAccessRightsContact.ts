@@ -29,7 +29,7 @@ const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
-  } = useMutationQuery<object>({
+  } = useMutationQuery<object, { dashboardId; id }>({
     getEndpoint: ({ id, dashboardId }) =>
       getDashboardAccessRightsContactEndpoint(dashboardId, id),
     method: Method.DELETE,

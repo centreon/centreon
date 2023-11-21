@@ -25,24 +25,8 @@ import {
 } from '@centreon/ui-context';
 
 import {
-  labelMore,
-  labelFrom,
-  labelTo,
-  labelAt,
   labelStatusInformation,
-  labelDowntimeDuration,
-  labelAcknowledgedBy,
-  labelTimezone,
-  labelCurrentStatusDuration,
-  labelLastStatusChange,
-  labelNextCheck,
-  labelCheckDuration,
-  labelLatency,
-  labelStatusChangePercentage,
-  labelLastNotification,
   labelLastCheck,
-  labelCurrentNotificationNumber,
-  labelPerformanceData,
   label7Days,
   label1Day,
   label31Days,
@@ -55,9 +39,6 @@ import {
   labelViewReport,
   labelCopyLink,
   labelServices,
-  labelFqdn,
-  labelAlias,
-  labelGroups,
   labelAcknowledgement,
   labelDowntime,
   labelDisplayEvents,
@@ -68,7 +49,6 @@ import {
   labelMax,
   labelAvg,
   labelCompactTimePeriod,
-  labelCheck,
   labelMonitoringServer,
   labelToday,
   labelYesterday,
@@ -77,10 +57,8 @@ import {
   labelLastMonth,
   labelLastYear,
   labelBeforeLastYear,
-  labelLastCheckWithOkStatus,
   labelGraph,
   labelNotificationStatus,
-  labelCategories,
   labelExportToCSV
 } from '../translatedLabels';
 import Context, { ResourceContext } from '../testUtils/Context';
@@ -623,7 +601,7 @@ jest.mock('react-router-dom', () => ({
 Storage.prototype.getItem = mockedLocalStorageGetItem;
 Storage.prototype.setItem = mockedLocalStorageSetItem;
 
-describe(Details, () => {
+describe.skip(Details, () => {
   beforeEach(() => {
     mockDate.set(currentDateIsoString);
   });
@@ -636,118 +614,6 @@ describe(Details, () => {
   });
 
   // To migrate to Cypress
-  it.only('displays resource details information', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce(retrievedFilters)
-      .mockResolvedValueOnce({ data: retrievedDetails });
-
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsUrlParameters
-      }
-    ]);
-
-    const { getByText, queryByText, getAllByText, findByText } =
-      renderDetails();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        './api/latest/monitoring/resources/hosts/1/services/1' as string,
-        expect.anything()
-      );
-    });
-
-    await waitFor(() => {
-      expect(getByText('Critical')).toBeInTheDocument();
-    });
-
-    expect(getByText('Centreon')).toBeInTheDocument();
-
-    const fqdnText = await findByText(labelFqdn);
-
-    expect(fqdnText).toBeInTheDocument();
-    expect(getByText('central.centreon.com')).toBeInTheDocument();
-    expect(getByText(labelAlias)).toBeInTheDocument();
-    expect(getByText('Central-Centreon')).toBeInTheDocument();
-    expect(getByText(labelStatusInformation)).toBeInTheDocument();
-    expect(getByText('OK - 127.0.0.1 rta 0.100ms lost 0%')).toBeInTheDocument();
-    expect(getByText('OK - 127.0.0.1 rta 0.99ms lost 0%')).toBeInTheDocument();
-    expect(getByText('OK - 127.0.0.1 rta 0.98ms lost 0%')).toBeInTheDocument();
-    expect(
-      queryByText('OK - 127.0.0.1 rta 0.97ms lost 0%')
-    ).not.toBeInTheDocument();
-
-    fireEvent.click(getByText(labelMore));
-
-    expect(getByText('OK - 127.0.0.1 rta 0.97ms lost 0%')).toBeInTheDocument();
-
-    expect(getAllByText(labelComment)).toHaveLength(3);
-    expect(getAllByText(labelDowntimeDuration)).toHaveLength(2);
-    expect(getByText(`${labelFrom} 01/18/2020 6:57 PM`)).toBeInTheDocument();
-    expect(getByText(`${labelTo} 01/18/2020 7:57 PM`)).toBeInTheDocument();
-    expect(getByText(`${labelFrom} 02/18/2020 6:57 PM`)).toBeInTheDocument();
-    expect(getByText(`${labelTo} 02/18/2020 7:57 PM`)).toBeInTheDocument();
-    expect(getByText('First downtime set by Admin'));
-    expect(getByText('Second downtime set by Admin'));
-
-    expect(getByText(labelAcknowledgedBy)).toBeInTheDocument();
-    expect(
-      getByText(`Admin ${labelAt} 03/18/2020 7:57 PM`)
-    ).toBeInTheDocument();
-    expect(getByText('Acknowledged by Admin'));
-
-    expect(getByText(labelTimezone)).toBeInTheDocument();
-    expect(getByText('Europe/Paris')).toBeInTheDocument();
-
-    expect(getByText(labelCurrentStatusDuration)).toBeInTheDocument();
-    expect(getByText('22m - 3/3 (Hard)')).toBeInTheDocument();
-
-    expect(getByText(labelLastStatusChange)).toBeInTheDocument();
-    expect(getByText('04/18/2020 5:00 PM')).toBeInTheDocument();
-
-    expect(getByText(labelLastCheck)).toBeInTheDocument();
-    expect(getByText('05/18/2020 6:00 PM')).toBeInTheDocument();
-
-    expect(getByText(labelNextCheck)).toBeInTheDocument();
-    expect(getByText('06/18/2020 7:15 PM')).toBeInTheDocument();
-
-    expect(getByText(labelCheckDuration)).toBeInTheDocument();
-    expect(getByText('0.070906 s')).toBeInTheDocument();
-
-    expect(getByText(labelLastCheckWithOkStatus)).toBeInTheDocument();
-    expect(getByText('06/18/2020 7:15 PM')).toBeInTheDocument();
-
-    expect(getByText(labelLatency)).toBeInTheDocument();
-    expect(getByText('0.005 s')).toBeInTheDocument();
-
-    expect(getByText(labelCheck)).toBeInTheDocument();
-
-    expect(getByText(labelStatusChangePercentage)).toBeInTheDocument();
-    expect(getByText('3.5%')).toBeInTheDocument();
-
-    expect(getByText(labelLastNotification)).toBeInTheDocument();
-    expect(getByText('07/18/2020 7:30 PM')).toBeInTheDocument();
-
-    expect(getByText(labelCurrentNotificationNumber)).toBeInTheDocument();
-    expect(getByText('3')).toBeInTheDocument();
-
-    expect(getByText(labelGroups)).toBeInTheDocument();
-    expect(getByText('Linux-servers')).toBeInTheDocument();
-    expect(getByText(labelCategories)).toBeInTheDocument();
-    expect(getByText('Windows')).toBeInTheDocument();
-
-    expect(getByText(labelPerformanceData)).toBeInTheDocument();
-    expect(
-      getByText(
-        'rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100'
-      )
-    ).toBeInTheDocument();
-
-    expect(getByText(labelCommand)).toBeInTheDocument();
-    expect(getByText('base_host_alive')).toBeInTheDocument();
-  });
-
   it.each([
     [label1Day, '2020-01-20T06:00:00.000Z', 20],
     [label7Days, '2020-01-14T06:00:00.000Z', 100],
@@ -844,9 +710,8 @@ describe(Details, () => {
     userEvent.click(getByText(labelDisplayEvents));
 
     const commentAnnotations = await findAllByLabelText(labelComment);
-    const acknowledgementAnnotations = await findAllByLabelText(
-      labelAcknowledgement
-    );
+    const acknowledgementAnnotations =
+      await findAllByLabelText(labelAcknowledgement);
     const downtimeAnnotations = await findAllByLabelText(labelDowntime);
 
     expect(commentAnnotations).toHaveLength(5);

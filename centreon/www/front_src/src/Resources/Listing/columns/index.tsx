@@ -337,9 +337,9 @@ export const getColumns = ({
         : column;
 
     const columnsForVisualizationByHost = pipe(
-      reject(propEq('id', 'status')),
-      reject(propEq('id', 'parent_resource')),
-      reject(propEq('id', 'parent_alias')),
+      reject(propEq('status', 'id')),
+      reject(propEq('parent_resource', 'id')),
+      reject(propEq('parent_alias', 'id')),
       insert(1, subItemColumn),
       map(changeResourceLabel)
     )(columns) as Array<Column>;
