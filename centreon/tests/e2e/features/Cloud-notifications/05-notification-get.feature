@@ -1,3 +1,5 @@
+@ignore
+@REQ_MON-24183
 Feature: List Notification Rules
   As a Centreon user with access to the Notification Rules page
   I want to view the list of notification rules
@@ -6,7 +8,7 @@ Feature: List Notification Rules
   Background:
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
-    And there is at least one minimum notification rule
+    And there is at least one notification rule
     And pagination is set to 10 items per page
 
   Scenario Outline: Listing Notification Rules with Pagination

@@ -12,11 +12,11 @@ Feature: Deleting a notification rule
 
   Scenario: Deleting a notification rule
     When the user selects the delete action on a notification rule
-    And the user confirms
+    And the user confirms the deletion
     Then a success message is displayed and the notification rule is deleted from the listing
     And the configured users are no longer notified about the associated resources status changes once the notification refresh delay has been reached
 
   Scenario: Discard deleting a notification rule
     When the user selects the delete action on a notification rule
     And the user clicks on the discard action
-    Then the action is cancelled
+    Then the deletion is cancelled

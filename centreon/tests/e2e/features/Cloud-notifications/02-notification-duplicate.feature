@@ -12,15 +12,15 @@ Feature: Duplicating a notification rule
 
   Scenario: Duplicating a notification rule
     When the user selects the duplication action on a notification rule
-    And the user enters a new name
-    And the user confirms
+    And the user enters a new notification rule name
+    And the user confirms to duplicate
     Then a success message is displayed
-    And then duplicated notification rule is displayed in the listing
+    And duplicated notification rule with same properties is displayed in the listing
 
   Scenario: Discard duplicating a notification rule
     When the user selects the duplication action on a notification rule
     And the user clicks on the discard action
-    Then the action is cancelled
+    Then the discard action is cancelled
 
   Scenario: Duplicating a notification rule with an already existing name
     When the user selects the duplication action on a notification rule

@@ -15,7 +15,7 @@ Feature: Creating a notification rule
 
     And the user selects some contacts and/or contact groups
     And the user defines a mail subject and body
-    And the user clicks on the "Save" button and confirm
+    And the user clicks on the "Save" button to confirm
     Then a success message is displayed and the created notification rule is displayed in the listing
 
     When changes occur in the configured statuses for the selected resources
