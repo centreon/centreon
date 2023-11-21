@@ -27,7 +27,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Dashboard\Playlist\Application\Repository\WritePlaylistRepositoryInterface;
 use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 class DbWritePlaylistRepository extends AbstractRepositoryRDB implements WritePlaylistRepositoryInterface
 {
@@ -75,21 +74,5 @@ class DbWritePlaylistRepository extends AbstractRepositoryRDB implements WritePl
             $statement->bindValue(':order', $dashboardOrder->getOrder(), \PDO::PARAM_INT);
             $statement->execute();
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function addAuthorToPlaylistSharedUser(int $playlistId, PlaylistAuthor $author): void
-    {
-        $query = <<<'SQL'
-            INSERT INTO `:db`.dashboard_playlist_contact_relation VALUES (:contactId, :playlistId)
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($query));
-        $statement->bindValue(':contactId', $author->getId(), \PDO::PARAM_INT);
-        $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
-
-        $statement->execute();
     }
 }

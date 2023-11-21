@@ -155,7 +155,7 @@ final class CreatePlaylist
         );
         $this->validator->validatePlaylistNameIsUnique($request->name);
         if ([] !== $request->dashboards) {
-            $dashboardIds = array_map(fn ($dashboard) => $dashboard['id'], $request->dashboards);
+            $dashboardIds = array_map(static fn (array $dashboard): int => $dashboard['id'], $request->dashboards);
             $this->validator->validateDashboardExists($dashboardIds);
             $this->validator->validateDashboardIsUnique($dashboardIds);
             if (! $this->rights->hasAdminRole()) {
@@ -208,13 +208,6 @@ final class CreatePlaylist
             $playlistId = $this->writePlaylistRepository->add($newPlaylist);
             $this->info('add dashboards <=> playlist relation in data storage');
             $this->writePlaylistRepository->addDashboardsToPlaylist($playlistId, $newPlaylist->getDashboardsOrder());
-
-            // Is always true as the author is the user executing the request.
-            if ($newPlaylist->getAuthor() !== null) {
-                $this->info('add author <=> playlist relation in data storage');
-                $this->writePlaylistRepository->addAuthorToPlaylistSharedUser($playlistId, $newPlaylist->getAuthor());
-            }
-
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
             $this->error('An error occured, transaction rollback');

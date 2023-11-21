@@ -142,7 +142,7 @@ $createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessa
                 `dashboard_id` INT UNSIGNED NOT NULL,
                 `playlist_id` INT UNSIGNED NOT NULL,
                 `order` INT(11) NOT NULL,
-                UNIQUE KEY(`dashboard_id`, `playlist_id`),
+                UNIQUE KEY(`dashboard_id`, `playlist_id`, `order`),
                 CONSTRAINT `dashboard_playlist_relation_dashboard_id`
                 FOREIGN KEY (`dashboard_id`)
                 REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
@@ -215,9 +215,6 @@ try {
 
     $errorMessage = 'Unable to add columns cloud_description and cloud_specific to acl_groups table';
     $alterAclGroupsTable($pearDB);
-
-    $errorMessage = 'Unable to add column order to acl_res_group_relations table';
-    $alterAclResourceGroupRelation($pearDB);
 
     $updateWidgetModelsTable($pearDB);
 

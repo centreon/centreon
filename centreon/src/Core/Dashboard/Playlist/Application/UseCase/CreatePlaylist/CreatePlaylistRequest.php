@@ -32,7 +32,7 @@ final class CreatePlaylistRequest
     /** @var array<array{id: int, order: int}> */
     public array $dashboards = [];
 
-    public int $rotationTime = 10;
+    public int $rotationTime = 0;
 
     public bool $isPublic = false;
 }

@@ -25,7 +25,6 @@ namespace Core\Dashboard\Playlist\Application\Repository;
 
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 interface WritePlaylistRepositoryInterface
 {
@@ -49,14 +48,4 @@ interface WritePlaylistRepositoryInterface
      * @throws \Throwable
      */
     public function addDashboardsToPlaylist(int $playlistId, array $dashboardsOrder): void;
-
-    /**
-     * Add Author to playlist's shared users.
-     *
-     * @param int $playlistId
-     * @param PlaylistAuthor $author
-     *
-     * @throws \Throwable
-     */
-    public function addAuthorToPlaylistSharedUser(int $playlistId, PlaylistAuthor $author): void;
 }

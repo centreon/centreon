@@ -194,6 +194,7 @@ it(
         $request= new CreatePlaylistRequest();
         $request->name = 'playlist';
         $request->dashboards = [['id' => 1, 'order' => 1]];
+        $request->rotationTime = 10;
 
         $this->rights
             ->expects($this->once())
@@ -212,8 +213,8 @@ it(
 
         $this->readDashboardRepository
             ->expects($this->once())
-            ->method('findOneByContact')
-            ->willReturn(null);
+            ->method('existsOneByContact')
+            ->willReturn(false);
 
         $useCase($presenter, $request);
 
@@ -278,6 +279,7 @@ it('should present an ErrorResponse when an error occured while writing playlist
     $request= new CreatePlaylistRequest();
     $request->name = 'playlist';
     $request->dashboards = [['id' => 1, 'order' => 1]];
+    $request->rotationTime = 10;
 
     $this->rights
         ->expects($this->once())

@@ -91,7 +91,7 @@ final class CreatePlaylistValidator
     public function validateUserHasAccessToDashboards(array $dashboardIds, ContactInterface $contact): void
     {
         foreach ($dashboardIds as $dashboardId) {
-            if ($this->dashboardRepository->findOneByContact($dashboardId, $contact) === null) {
+            if (! $this->dashboardRepository->existsOneByContact($dashboardId, $contact)) {
                 throw PlaylistException::dashboardNotShared($dashboardId);
             }
         }
