@@ -147,6 +147,59 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
     }
 
     /**
+     * @inheritDoc
+     */
+    public function unlink(array $serviceGroupRelations): void
+    {
+        if ($serviceGroupRelations === []) {
+            return;
+        }
+
+        $request = <<<'SQL'
+            DELETE FROM `:db`.servicegroup_relation
+            WHERE host_host_id = :host_id
+                AND service_service_id = :service_id
+                AND servicegroup_sg_id = :servicegroup_id
+                AND hostgroup_hg_id IS NULL
+            SQL;
+
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        try {
+            if (! $alreadyInTransaction) {
+                $this->db->beginTransaction();
+            }
+            $statement = $this->db->prepare($this->translateDbName($request));
+
+            $serviceId = null;
+            $serviceGroupId = null;
+            $hostId = null;
+            $statement->bindParam(':service_id', $serviceId, \PDO::PARAM_INT);
+            $statement->bindParam(':servicegroup_id', $serviceGroupId, \PDO::PARAM_INT);
+            $statement->bindParam(':host_id', $hostId, \PDO::PARAM_INT);
+
+            foreach ($serviceGroupRelations as $serviceGroupRelation) {
+                $serviceId = $serviceGroupRelation->getServiceId();
+                $serviceGroupId = $serviceGroupRelation->getServiceGroupId();
+                $hostId = $serviceGroupRelation->getHostId();
+                $statement->execute();
+            }
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
      * @param \PDOStatement $statement
      * @param ServiceGroup|NewServiceGroup $newServiceGroup
      */
