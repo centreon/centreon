@@ -545,7 +545,7 @@ it('should present a ConflictResponse when a host category does not exist', func
         ->toBe(HostException::idsDoNotExist('categories', $this->request->categories)->getMessage());
 });
 
-// Tests for categories
+// Tests for groups
 
 it('should present a ConflictResponse when a host group does not exist', function () {
     $this->user
@@ -569,15 +569,6 @@ it('should present a ConflictResponse when a host group does not exist', functio
     $this->writeHostRepository
         ->expects($this->once())
         ->method('update');
-
-    // Categories
-    $this->readHostCategoryRepository
-        ->expects($this->once())
-        ->method('findByHost')
-        ->willReturn([]);
-    $this->writeHostCategoryRepository
-        ->expects($this->once())
-        ->method('linkToHost');
 
     // Categories
     $this->readHostCategoryRepository

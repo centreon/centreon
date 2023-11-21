@@ -8,6 +8,7 @@ info:
     + Added graph template endpoint (GET)
     + Added connector endpoint (GET)
     + Added host endpoint (PATCH)
+    + Added service enpdoint (PATCH)
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
@@ -480,7 +481,7 @@ paths:
   /configuration/services/templates/{service_template_id}:
     $ref: "./v24.04/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml"
   /configuration/services/{service_id}:
-    $ref: "./v24.04/Configuration/Service/DeleteService.yaml"
+    $ref: "./v24.04/Configuration/Service/PartialUpdateAndDeleteService.yaml"
   /configuration/services:
     $ref: "./v24.04/Configuration/Service/AddServiceAndFindServices.yaml"
   /monitoring/services/categories:
