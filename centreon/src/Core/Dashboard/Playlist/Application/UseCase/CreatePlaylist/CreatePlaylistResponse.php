@@ -33,12 +33,12 @@ final class CreatePlaylistResponse
 
     public int $rotationTime = 10;
 
-    /** @var array<array{id?: int, order?:int}> */
+    /** @var array{}|array<array{id: int, order:int}> */
     public array $dashboards = [];
 
     public bool $isPublic = false;
 
-    /** @var array{id?: int, name?: string} */
+    /** @var array{}|array{id: int, name: string} */
     public array $author = [];
 
     public \DateTimeImmutable $createdAt;

@@ -47,14 +47,14 @@ final class CreatePlaylistValidator
      */
     public function validateDashboardExists(array $dashboardIds): void
     {
-        $unexistentDashboards = [];
+        $nonexistentDashboards = [];
         foreach ($dashboardIds as $dashboardId) {
             if (! $this->dashboardRepository->existsOne($dashboardId)) {
-                $unexistentDashboards[] = $dashboardId;
+                $nonexistentDashboards[] = $dashboardId;
             }
         }
-        if ([] !== $unexistentDashboards) {
-            throw PlaylistException::dashboardsDoesNotExists($unexistentDashboards);
+        if ([] !== $nonexistentDashboards) {
+            throw PlaylistException::dashboardsDoesNotExists($nonexistentDashboards);
         }
     }
 
@@ -77,7 +77,7 @@ final class CreatePlaylistValidator
      */
     public function validateDashboardIsUnique(array $dashboardIds): void
     {
-        if (count(array_unique($dashboardIds)) < count($dashboardIds)) {
+        if (count(array_flip($dashboardIds)) < count($dashboardIds)) {
             throw PlaylistException::dashboardShouldBeUnique();
         }
     }

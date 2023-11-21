@@ -170,25 +170,21 @@ final class CreatePlaylist
      * @param CreatePlaylistRequest $request
      *
      * @throws \Assert\AssertionFailedException
-     * @throws PlaylistException
+     * @throws NewPlaylistException
      *
      * @return NewPlaylist
      */
     private function createNewPlaylistModel(CreatePlaylistRequest $request): NewPlaylist
     {
-        $newPlaylist = (new NewPlaylist($request->name, $request->rotationTime, $request->isPublic))->setAuthor(
-            new PlaylistAuthor($this->user->getId(), $this->user->getAlias())
-        );
-        if ($request->description !== null) {
-            $newPlaylist->setDescription($request->description);
+        $newPlaylist = (new NewPlaylist($request->name, $request->rotationTime, $request->isPublic))
+            ->setAuthor(new PlaylistAuthor($this->user->getId(), $this->user->getAlias()))
+            ->setDescription($request->description);
+
+        $dashboardsOrder = [];
+        foreach ($request->dashboards as $dashboard) {
+            $dashboardsOrder[] = new DashboardOrder($dashboard['id'], $dashboard['order']);
         }
-        if ([] !== $request->dashboards) {
-            $dashboardsOrder = [];
-            foreach ($request->dashboards as $dashboard) {
-                $dashboardsOrder[] = new DashboardOrder($dashboard['id'], $dashboard['order']);
-            }
-            $newPlaylist->setDashboardsOrder($dashboardsOrder);
-        }
+        $newPlaylist->setDashboardsOrder($dashboardsOrder);
 
         return $newPlaylist;
     }
@@ -202,16 +198,23 @@ final class CreatePlaylist
      */
     private function writePlaylist(NewPlaylist $newPlaylist): int
     {
+        $transactionAlreadyStarted = $this->dataStorageEngine->isAlreadyinTransaction();
         try {
-            $this->dataStorageEngine->startTransaction();
+            if (! $transactionAlreadyStarted) {
+                $this->dataStorageEngine->startTransaction();
+            }
             $this->info('add playlist in data storage');
             $playlistId = $this->writePlaylistRepository->add($newPlaylist);
             $this->info('add dashboards <=> playlist relation in data storage');
             $this->writePlaylistRepository->addDashboardsToPlaylist($playlistId, $newPlaylist->getDashboardsOrder());
-            $this->dataStorageEngine->commitTransaction();
+            if (! $transactionAlreadyStarted) {
+                $this->dataStorageEngine->commitTransaction();
+            }
         } catch (\Throwable $ex) {
-            $this->error('An error occured, transaction rollback');
-            $this->dataStorageEngine->rollbackTransaction();
+            if (! $transactionAlreadyStarted) {
+                $this->error('An error occured, transaction rollback');
+                $this->dataStorageEngine->rollbackTransaction();
+            }
 
             throw $ex;
         }

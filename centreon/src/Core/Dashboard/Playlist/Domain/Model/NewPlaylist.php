@@ -121,7 +121,7 @@ class NewPlaylist
         $this->dashboardsOrder = [];
 
         foreach ($dashboardsOrder as $dashboardOrder) {
-            $this->addDashboardOrders($dashboardOrder);
+            $this->addDashboardsOrder($dashboardOrder);
         }
 
         return $this;
@@ -134,7 +134,7 @@ class NewPlaylist
      *
      * @return self
      */
-    public function addDashboardOrders(DashboardOrder $dashboardOrder): self
+    public function addDashboardsOrder(DashboardOrder $dashboardOrder): self
     {
         $this->validateDashboardOrder($dashboardOrder);
         $this->dashboardsOrder[] = $dashboardOrder;

@@ -30,6 +30,7 @@ use Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist\CreatePlaylist;
 use Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist\CreatePlaylistRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class CreatePlaylistController extends AbstractController
 {
@@ -39,6 +40,10 @@ final class CreatePlaylistController extends AbstractController
      * @param Request $request
      * @param CreatePlaylist $useCase
      * @param CreatePlaylistPresenter $presenter
+     *
+     * @throws AccessDeniedException
+     *
+     * @return Response
      */
     public function __invoke(
         Request $request,
