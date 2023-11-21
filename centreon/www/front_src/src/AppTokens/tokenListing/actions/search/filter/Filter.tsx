@@ -1,5 +1,33 @@
+import { Suspense } from 'react';
+
+import { useTranslation } from 'react-i18next';
+
+import TuneIcon from '@mui/icons-material/Tune';
+
+import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
+
+import { labelSearchOptions } from '../../../../translatedLabels';
+import { useStyles } from '../../actions.styles';
+
 const TokenFilter = (): JSX.Element => {
-  return <div>Token filter</div>;
+  const { classes } = useStyles();
+  const { t } = useTranslation();
+
+  return (
+    <Suspense
+      fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
+    >
+      <PopoverMenu
+        className={classes.spacing}
+        dataTestId={labelSearchOptions}
+        icon={<TuneIcon fontSize="small" />}
+        popperPlacement="bottom-start"
+        title={t(labelSearchOptions) as string}
+      >
+        {() => <div>Filters</div>}
+      </PopoverMenu>
+    </Suspense>
+  );
 };
 
 export default TokenFilter;
