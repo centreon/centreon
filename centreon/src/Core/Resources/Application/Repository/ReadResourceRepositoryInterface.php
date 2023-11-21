@@ -59,9 +59,4 @@ interface ReadResourceRepositoryInterface
      * @return ResourceEntity[]
      */
     public function findParentResourcesById(ResourceFilter $filter): array;
-
-    /**
-     * Get list of resources with graph data.
-     */
-    public function extractResourcesWithGraphData(): void;
 }
