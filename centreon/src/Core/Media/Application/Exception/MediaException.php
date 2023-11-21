@@ -46,7 +46,7 @@ class MediaException extends \Exception
      */
     public static function errorWhileSearchingForMedias(): self
     {
-        return new self(_('"Error while searching for media"'));
+        return new self(_('Error while searching for media'));
     }
 
     /**

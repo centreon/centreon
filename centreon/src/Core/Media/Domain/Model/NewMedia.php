@@ -39,13 +39,12 @@ class NewMedia
      */
     public function __construct(private string $filename, private string $directory, private string $data)
     {
-        $className = (new \ReflectionClass($this))->getShortName();
         $this->filename = trim($this->filename);
-        Assertion::notEmptyString($this->filename, "{$className}::filename");
+        Assertion::notEmptyString($this->filename, 'NewMedia::filename');
         $this->filename = str_replace(' ', '_', $this->filename);
         $this->directory = str_replace(' ', '', $this->directory);
-        Assertion::notEmptyString($this->directory, "{$className}::directory");
-        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', "{$className}::directory");
+        Assertion::notEmptyString($this->directory, 'NewMedia::directory');
+        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', 'NewMedia::directory');
     }
 
     public function setFilename(string $filename): void

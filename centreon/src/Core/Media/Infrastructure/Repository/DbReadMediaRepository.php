@@ -87,8 +87,6 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
      */
     public function findAll(): \Iterator&\Countable
     {
-        $this->logger->debug(sprintf('Loading media in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
-
         return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createMedia(...), $this->logger)
             extends AbstractRepositoryRDB
             implements \Iterator, \Countable
@@ -240,138 +238,63 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     /**
      * @inheritDoc
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Countable&\Iterator
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
-        return new class ($this->db, $this->createMedia(...), $requestParameters) extends AbstractRepositoryRDB
-            implements \Iterator, \Countable
-        {
-            private int $currentPosition = 0;
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'img_id',
+            'filename' => 'img_path',
+            'directory' => 'dir_name',
+        ]);
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            SQL;
 
-            private int $totalItems = -1;
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        if ($searchRequest !== null) {
+            $request .= $searchRequest;
+        }
 
-            /** @var array<string, int|string>|false */
-            private array|false $currentItem = false;
+        // Handle sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
+        $request .= $sqlTranslator->translatePaginationToSql();
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /** @var int $type */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+        $result = $this->db->query('SELECT FOUND_ROWS()');
 
-            private \PDOStatement $statement;
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
 
-            /**
-             * @param DatabaseConnection $db
-             * @param \Closure(array<string, int|string>):Media $createMedia
-             * @param RequestParametersInterface $requestParameters
-             *
-             * @throws \Exception
-             */
+        return new class($statement, $this->createMedia(...)) implements \IteratorAggregate {
             public function __construct(
-                DatabaseConnection $db,
-                readonly private \Closure $createMedia,
-                readonly private RequestParametersInterface $requestParameters,
+                readonly private \PDOStatement $statement,
+                readonly private \Closure $factory,
             ) {
-                $this->db = $db;
             }
 
-            /**
-             * @throws \Exception
-             *
-             * @return Media
-             */
-            public function current(): mixed
+            public function getIterator(): \Traversable
             {
-                if (! $this->currentItem) {
-                    throw new \Exception('End of fetch data');
+                foreach ($this->statement as $result) {
+                    yield ($this->factory)($result);
                 }
-
-                return ($this->createMedia)($this->currentItem);
-            }
-
-            public function next(): void
-            {
-                $this->currentPosition++;
-
-                /** @var array<string, int|string>|false $data */
-                $data = $this->statement->fetch();
-                $this->currentItem = $data;
-
-                if ($data === false && $this->valid()) {
-                    // There are still some items to be retrieved from the database
-                    $this->load();
-                }
-            }
-
-            public function key(): int
-            {
-                return $this->currentPosition;
-            }
-
-            public function valid(): bool
-            {
-                return $this->currentPosition < $this->totalItems && $this->currentItem !== false;
-            }
-
-            public function rewind(): void
-            {
-                $this->currentPosition = 0;
-                $this->totalItems = 0;
-                $this->load();
-            }
-
-            public function count(): int
-            {
-                if ($this->totalItems < 0) {
-                    $this->load();
-                }
-
-                return $this->totalItems;
-            }
-
-            private function load(): void
-            {
-                $sqlTranslator = new SqlRequestParametersTranslator($this->requestParameters);
-                $sqlTranslator->setConcordanceArray([
-                    'id' => 'img_id',
-                    'filename' => 'img_path',
-                    'directory' => 'dir_name',
-                ]);
-                $request = <<<'SQL'
-                    SELECT SQL_CALC_FOUND_ROWS
-                        `img`.img_id,
-                        `img`.img_path,
-                        `img`.img_comment,
-                        `dir`.dir_name
-                    FROM `:db`.`view_img` img
-                    INNER JOIN `:db`.`view_img_dir_relation` rel
-                        ON rel.img_img_id = img.img_id
-                    INNER JOIN `:db`.`view_img_dir` dir
-                        ON dir.dir_id = rel.dir_dir_parent_id
-                    SQL;
-
-                $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-                if ($searchRequest !== null) {
-                    $request .= $searchRequest;
-                }
-
-                // Handle sort
-                $sortRequest = $sqlTranslator->translateSortParameterToSql();
-                $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
-                $request .= $sqlTranslator->translatePaginationToSql();
-                $this->statement = $this->db->prepare($this->translateDbName($request));
-
-                foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-                    /** @var int $type */
-                    $type = key($data);
-                    $value = $data[$type];
-                    $this->statement->bindValue($key, $value, $type);
-                }
-                $this->statement->setFetchMode(\PDO::FETCH_ASSOC);
-                $this->statement->execute();
-                $result = $this->db->query('SELECT FOUND_ROWS()');
-
-                if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-                    $this->totalItems = (int) $total;
-                    $sqlTranslator->getRequestParameters()->setTotal($this->totalItems);
-                }
-                /** @var array<string, int|string>|false $data */
-                $data = $this->statement->fetch();
-                $this->currentItem = $data;
             }
         };
     }

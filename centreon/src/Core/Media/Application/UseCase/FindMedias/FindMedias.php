@@ -79,14 +79,13 @@ final class FindMedias
     }
 
     /**
-     * @param \Iterator<int, Media>&\Countable $medias
+     * @param \Traversable<int, Media> $medias
      *
      * @return FindMediasResponse
      */
-    private function createResponse(\Iterator&\Countable $medias): FindMediasResponse
+    private function createResponse(\Traversable $medias): FindMediasResponse
     {
         $response = new FindMediasResponse();
-        /** @var list<Media> $medias */
         foreach ($medias as $media) {
             $dto = new MediaDto();
             $dto->id = $media->getId();

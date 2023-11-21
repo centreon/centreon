@@ -51,7 +51,7 @@ interface ReadMediaRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return \Iterator<int, Media>&\Countable
+     * @return \Traversable<int, Media>
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Iterator&\Countable;
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable;
 }

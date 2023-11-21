@@ -28,8 +28,6 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Media
 {
-    private string $className;
-
     /**
      * @param int $id
      * @param string $filename
@@ -46,17 +44,16 @@ class Media
         private ?string $comment,
         readonly private ?string $data
     ) {
-        $this->className = (new \ReflectionClass($this))->getShortName();
-        Assertion::positiveInt($this->id, "{$this->className}::id");
+        Assertion::positiveInt($this->id, 'Media::id');
         $this->filename = trim($this->filename);
-        Assertion::notEmptyString($this->filename, "{$this->className}::filename");
+        Assertion::notEmptyString($this->filename, 'Media::filename');
         $this->filename = str_replace(' ', '_', $this->filename);
         $this->directory = str_replace(' ', '', $this->directory);
-        Assertion::notEmptyString($this->directory, "{$this->className}::directory");
+        Assertion::notEmptyString($this->directory, 'Media::directory');
         if ($this->comment !== null) {
             $this->comment = trim($this->comment);
         }
-        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', "{$this->className}::directory");
+        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', 'Media::directory');
     }
 
     public function getId(): int

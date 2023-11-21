@@ -118,67 +118,46 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Iterator&\Countable
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
-        return $this->createMediaIterator($this->dbReadMediaRepository->findByRequestParameters($requestParameters));
+        return $this->createTraversable($this->dbReadMediaRepository->findByRequestParameters($requestParameters));
     }
 
-    private function createMediaIterator(\Iterator&\Countable $iterator): \Iterator&\Countable
+    /**
+     * @param \Traversable<int, Media> $medias
+     *
+     * @return \Traversable<int, Media>
+     */
+    private function createTraversable(\Traversable $medias): \Traversable
     {
-        return new class ($this->absoluteMediaPath, $iterator)
-            implements \Iterator, \Countable
+        return new class ($this->absoluteMediaPath, $medias) implements \IteratorAggregate
         {
             /**
              * @param string $absoluteMediaPath
-             * @param \Iterator<int, Media>&\Countable $medias |\Countable
+             * @param \Traversable<int, Media> $medias
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Iterator&\Countable $medias
+                readonly private \Traversable $medias
             ) {
             }
 
-            public function current(): Media
+            public function getIterator(): \Traversable
             {
-                $media = $this->medias->current();
-                $absoluteMediaPath = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $media->getRelativePath();
-                if (file_exists($absoluteMediaPath)) {
-                    return new Media(
-                        $media->getId(),
-                        $media->getFilename(),
-                        $media->getDirectory(),
-                        $media->getComment(),
-                        file_get_contents($absoluteMediaPath)
-                            ?: throw new \Exception('Impossible to get content of file ' . $media->getRelativePath())
-                    );
+                foreach ($this->medias as $media) {
+                    $absoluteMediaPath = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $media->getRelativePath();
+                    if (file_exists($absoluteMediaPath)) {
+                        yield new Media(
+                            $media->getId(),
+                            $media->getFilename(),
+                            $media->getDirectory(),
+                            $media->getComment(),
+                            file_get_contents($absoluteMediaPath) ?: null
+                        );
+                    } else {
+                        yield $media;
+                    }
                 }
-
-                return $media;
-            }
-
-            public function next(): void
-            {
-                $this->medias->next();
-            }
-
-            public function key(): int
-            {
-                return $this->medias->key();
-            }
-
-            public function valid(): bool
-            {
-                return $this->medias->valid();
-            }
-
-            public function rewind(): void
-            {
-                $this->medias->rewind();
-            }
-
-            public function count(): int
-            {
-                return count($this->medias);
             }
         };
     }
