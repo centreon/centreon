@@ -454,10 +454,8 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
      * @param Host $host
      *
      * @throws \Throwable
-     *
-     * @return int
      */
-    private function updateBasicInformations(Host $host): int
+    private function updateBasicInformations(Host $host): void
     {
         $request = $this->translateDbName(
             <<<'SQL'
@@ -505,8 +503,6 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         $this->bindHostValues($statement, $host);
 
         $statement->execute();
-
-        return (int) $this->db->lastInsertId();
     }
 
     /**
@@ -566,11 +562,11 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
 
     /**
      * @param \PDOStatement $statement
-     * @param NewHost $host
+     * @param NewHost|Host $host
      *
      * @throws \Throwable
      */
-    private function bindHostValues(\PDOStatement $statement, NewHost $host): void
+    private function bindHostValues(\PDOStatement $statement, NewHost|Host $host): void
     {
         $statement->bindValue(
             ':name',
