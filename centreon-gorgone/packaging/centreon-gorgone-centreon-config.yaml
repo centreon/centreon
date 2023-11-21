@@ -24,7 +24,7 @@ contents:
       mode: 0664
 
   - src: "./configuration/centreon-api.yaml"
-    dst: "/etc/centreon-gorgone/config.d/centreon-api.yaml" # managed in postinstall script
+    dst: "/etc/centreon-gorgone/config.d/centreon-api.yaml"
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone

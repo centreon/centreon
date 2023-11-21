@@ -94,7 +94,7 @@ contents:
     type: config|noreplace
 
   - src: "../gorgoned"
-    dst: "/usr/bin/"
+    dst: "/usr/bin/gorgoned"
 
   - src: "../gorgone"
     dst: "${PERL_VENDORLIB}/gorgone"
