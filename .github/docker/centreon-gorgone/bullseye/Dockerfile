@@ -25,8 +25,6 @@ sleep 20
 
 ps aux | grep gorgone
 
-/usr/bin/gorgoned
-
 sleep 5
 
 cat /var/log/centreon-gorgone/gorgoned.log
