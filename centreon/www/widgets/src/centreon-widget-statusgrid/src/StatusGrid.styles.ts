@@ -25,8 +25,8 @@ export const useTileStyles = makeStyles()((theme) => ({
     borderRadius: theme.shape.borderRadius,
     height: theme.spacing(1.5),
     position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
+    right: '10%',
+    top: '10%',
     width: theme.spacing(1.5)
   }
 }));
