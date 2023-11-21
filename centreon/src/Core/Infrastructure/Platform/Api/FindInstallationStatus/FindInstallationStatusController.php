@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatus;
 use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatusPresenterInterface;
 
-class FindInstallationStatusController extends AbstractController
+final class FindInstallationStatusController extends AbstractController
 {
     /**
      * @param FindInstallationStatus $useCase

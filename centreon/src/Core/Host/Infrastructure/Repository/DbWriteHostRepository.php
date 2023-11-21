@@ -32,6 +32,7 @@ use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
+use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\NewHost;
 
 class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRepositoryInterface
@@ -62,6 +63,23 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         $statement->bindValue(':child_id', $childId, \PDO::PARAM_INT);
         $statement->bindValue(':parent_id', $parentId, \PDO::PARAM_INT);
         $statement->bindValue(':order', $order, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteParents(int $childId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.`host_template_relation`
+                WHERE `host_host_id` = :child_id
+                SQL
+        ));
+
+        $statement->bindValue(':child_id', $childId, \PDO::PARAM_INT);
 
         $statement->execute();
     }
@@ -113,6 +131,58 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         $statement = $this->db->prepare($request);
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Host $host): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $this->updateBasicInformations($host);
+            $this->updateExtendedInformations($host);
+            $this->updateMonitoringServer($host);
+            $this->updateSeverity($host);
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param Host $host
+     *
+     * @throws \Throwable
+     */
+    private function updateMonitoringServer(Host $host): void
+    {
+        $this->deleteLinkToMonitoringServer($host->getId());
+        $this->addMonitoringServer($host->getId(), $host);
+    }
+
+    /**
+     * @param Host $host
+     *
+     * @throws \Throwable
+     */
+    private function updateSeverity(Host $host): void
+    {
+        $this->deleteLinkToSeverity($host->getId());
+        $this->addSeverity($host->getId(), $host);
     }
 
     /**
@@ -204,6 +274,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
                 SQL
         );
         $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostType', HostType::Host->value, \PDO::PARAM_STR);
         $this->bindHostValues($statement, $host);
 
         $statement->execute();
@@ -278,11 +349,11 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
 
     /**
      * @param int $hostId
-     * @param NewHost $host
+     * @param NewHost|Host $host
      *
      * @throws \Throwable
      */
-    private function addMonitoringServer(int $hostId, NewHost $host): void
+    private function addMonitoringServer(int $hostId, NewHost|Host $host): void
     {
         $request = $this->translateDbName(
             <<<'SQL'
@@ -307,11 +378,32 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
 
     /**
      * @param int $hostId
-     * @param NewHost $host
      *
      * @throws \Throwable
      */
-    private function addSeverity(int $hostId, NewHost $host): void
+    private function deleteLinkToMonitoringServer(int $hostId): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                DELETE
+                    FROM `:db`.`ns_host_relation`
+                    WHERE `host_host_id` = :hostId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @param int $hostId
+     * @param NewHost|Host $host
+     *
+     * @throws \Throwable
+     */
+    private function addSeverity(int $hostId, NewHost|Host $host): void
     {
         $request = $this->translateDbName(
             <<<'SQL'
@@ -335,12 +427,146 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
     }
 
     /**
-     * @param \PDOStatement $statement
-     * @param NewHost $host
+     * @param int $hostId
      *
      * @throws \Throwable
      */
-    private function bindHostValues(\PDOStatement $statement, NewHost $host): void
+    private function deleteLinkToSeverity(int $hostId): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                DELETE hcrel
+                    FROM `:db`.hostcategories_relation hcrel
+                    JOIN hostcategories hc
+                        ON hcrel.hostcategories_hc_id = hc.hc_id
+                        AND hc.level IS NOT NULL
+                    WHERE hcrel.host_host_id = :hostId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @param Host $host
+     *
+     * @throws \Throwable
+     */
+    private function updateBasicInformations(Host $host): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.host
+                SET
+                    host_name = :name,
+                    host_address = :address,
+                    host_alias = :alias,
+                    host_snmp_version = :snmpVersion,
+                    host_snmp_community = :snmpCommunity,
+                    host_location = :timezoneId,
+                    geo_coords = :geoCoords,
+                    command_command_id = :checkCommandId,
+                    command_command_id_arg1 = :checkCommandArgs,
+                    timeperiod_tp_id = :checkTimeperiodId,
+                    host_max_check_attempts = :maxCheckAttempts,
+                    host_check_interval = :normalCheckInterval,
+                    host_retry_check_interval = :retryCheckInterval,
+                    host_active_checks_enabled = :activeCheckEnabled,
+                    host_passive_checks_enabled = :passiveCheckEnabled,
+                    host_notifications_enabled = :notificationEnabled,
+                    host_notification_options = :notificationOptions,
+                    host_notification_interval = :notificationInterval,
+                    timeperiod_tp_id2 = :notificationTimeperiodId,
+                    cg_additive_inheritance = :addInheritedContactGroup,
+                    contact_additive_inheritance = :addInheritedContact,
+                    host_first_notification_delay = :firstNotificationDelay,
+                    host_recovery_notification_delay = :recoveryNotificationDelay,
+                    host_acknowledgement_timeout = :acknowledgementTimeout,
+                    host_check_freshness = :freshnessChecked,
+                    host_freshness_threshold = :freshnessThreshold,
+                    host_flap_detection_enabled = :flapDetectionEnabled,
+                    host_low_flap_threshold = :lowFlapThreshold,
+                    host_high_flap_threshold = :highFlapThreshold,
+                    host_event_handler_enabled = :eventHandlerEnabled,
+                    command_command_id2 = :eventHandlerCommandId,
+                    command_command_id_arg2 = :eventHandlerCommandArgs,
+                    host_comment = :comment,
+                    host_activate = :isActivated
+                WHERE host_id = :host_id
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
+        $this->bindHostValues($statement, $host);
+
+        $statement->execute();
+    }
+
+    /**
+     * @param Host $host
+     *
+     * @throws \Throwable
+     */
+    private function updateExtendedInformations(Host $host): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.extended_host_information
+                SET
+                    ehi_notes_url = :noteUrl,
+                    ehi_notes = :note,
+                    ehi_action_url = :actionUrl,
+                    ehi_icon_image = :iconId,
+                    ehi_icon_image_alt = :iconAlternative
+                WHERE host_host_id = :hostId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostId', $host->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':noteUrl',
+            $host->getNoteUrl() === ''
+                ? null
+                : $host->getNoteUrl(),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':note',
+            $host->getNote() === ''
+                ? null
+                : $host->getNote(),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':actionUrl',
+            $host->getActionUrl() === ''
+                ? null
+                : $host->getActionUrl(),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(':iconId', $host->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':iconAlternative',
+            $host->getIconAlternative() === ''
+                ? null
+                : $host->getIconAlternative(),
+            \PDO::PARAM_STR
+        );
+
+        $statement->execute();
+    }
+
+    /**
+     * @param \PDOStatement $statement
+     * @param NewHost|Host $host
+     *
+     * @throws \Throwable
+     */
+    private function bindHostValues(\PDOStatement $statement, NewHost|Host $host): void
     {
         $statement->bindValue(
             ':name',
@@ -530,11 +756,6 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         $statement->bindValue(
             ':isActivated',
             (new BoolToEnumNormalizer())->normalize($host->isActivated()),
-            \PDO::PARAM_STR
-        );
-        $statement->bindValue(
-            ':hostType',
-            HostType::Host->value,
             \PDO::PARAM_STR
         );
     }

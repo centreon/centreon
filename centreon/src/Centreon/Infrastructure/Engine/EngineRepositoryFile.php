@@ -40,7 +40,7 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
     /**
      * EngineRepositoryFile constructor.
      *
-     * @param string $centCorePath
+     * @param string $centCoreDirectory
      */
     public function __construct(string $centCoreDirectory)
     {

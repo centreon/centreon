@@ -63,11 +63,6 @@ class Validator implements JsonValidatorInterface
     private $definitionFiles = [];
 
     /**
-     * @var string Directory that will contain all the default definition files if no version is given.
-     */
-    private $defaultDefinitionFilesDirectory;
-
-    /**
      * @var string Version of the definition files to use for the validation process
      */
     private $version;
@@ -90,10 +85,6 @@ class Validator implements JsonValidatorInterface
      */
     public function __construct(string $validationFilePath, ValidatorCacheInterface $validatorCache)
     {
-        if (is_dir($validationFilePath)) {
-            $this->defaultDefinitionFilesDirectory =
-                $validationFilePath . DIRECTORY_SEPARATOR . self::VERSION_DEFAULT;
-        }
         $this->validationFilePath = $validationFilePath;
         $this->validatorCache = $validatorCache;
         $this->version = self::VERSION_DEFAULT;

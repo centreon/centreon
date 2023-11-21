@@ -55,6 +55,9 @@ class MetricControllerTest extends TestCase
 
     protected $requestParameters;
 
+    protected array $normalizedPerformanceMetrics = [];
+    protected array $status = [];
+
     protected function setUp(): void
     {
         $timezone = new \DateTimeZone('Europe/Paris');

@@ -98,7 +98,11 @@ final class PartialUpdateDashboardController extends AbstractController
          *         },
          *         widget_type: string,
          *         widget_settings: array<mixed>,
-         *     }>
+         *     }>,
+         *     refresh?: array{
+         *         type: string,
+         *         interval: int|null
+         *     }
          * } $dataSent
          */
         $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateDashboardSchema.json');

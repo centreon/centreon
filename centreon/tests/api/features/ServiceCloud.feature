@@ -94,10 +94,14 @@ Feature:
         "host_id": 15,
         "service_template_id": <templateA>,
         "check_timeperiod_id": 1,
+        "max_check_attempts": null,
+        "normal_check_interval": null,
+        "retry_check_interval": null,
         "note": "note",
         "note_url": "note_url",
         "action_url": "action url",
         "geo_coords": "12.34,23.5",
+        "icon_id": null,
         "severity_id": null,
         "categories": [
           {

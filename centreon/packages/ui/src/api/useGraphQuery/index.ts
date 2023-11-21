@@ -92,6 +92,9 @@ const useGraphQuery = ({
     : getStartEndFromTimePeriod(timePeriodToUse as number);
 
   const definedMetrics = metrics.filter((metric) => metric);
+  const formattedDefinedMetrics = definedMetrics.map((metric) =>
+    encodeURIComponent(metric)
+  );
 
   const {
     data: graphData,
@@ -115,7 +118,7 @@ const useGraphQuery = ({
 
       return `${endpoint}&start=${startAndEnd.start}&end=${
         startAndEnd.end
-      }&metric_names=[${definedMetrics.join(',')}]`;
+      }&metric_names=[${formattedDefinedMetrics.join(',')}]`;
     },
     getQueryKey: () => [
       'graph',

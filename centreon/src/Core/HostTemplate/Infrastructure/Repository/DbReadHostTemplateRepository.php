@@ -78,7 +78,7 @@ use Utility\SqlConcatenator;
  *      ehi_action_url: string|null,
  *      ehi_icon_image: int|null,
  *      ehi_icon_image_alt: string|null,
- *      severity_id: string|null
+ *      severity_id: int|null
  *  }
  */
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
@@ -143,15 +143,19 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_action_url,
                     ehi.ehi_icon_image,
                     ehi.ehi_icon_image_alt,
-                    GROUP_CONCAT(hc.hc_id ORDER BY hc.level ASC LIMIT 1) AS severity_id
+                    (
+                        SELECT hc.hc_id
+                        FROM `:db`.hostcategories hc
+                        INNER JOIN `:db`.hostcategories_relation hcr
+                               ON hc.hc_id = hcr.hostcategories_hc_id
+                        WHERE hc.level IS NOT NULL
+                          AND hcr.host_host_id = h.host_id
+                        ORDER BY hc.level, hc.hc_id
+                        LIMIT 1
+                    ) AS severity_id
                 FROM `:db`.host h
                 LEFT JOIN `:db`.extended_host_information ehi
                     ON h.host_id = ehi.host_host_id
-                LEFT JOIN `:db`.hostcategories_relation hcr
-                    ON hcr.host_host_id = h.host_id
-                LEFT JOIN `:db`.hostcategories hc
-                    ON hc.hc_id = hcr.hostcategories_hc_id
-                    AND hc.level IS NOT NULL
                 SQL
         );
         $concatenator->appendGroupBy('GROUP BY h.host_id');
@@ -318,15 +322,19 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_action_url,
                     ehi.ehi_icon_image,
                     ehi.ehi_icon_image_alt,
-                    GROUP_CONCAT(hc.hc_id ORDER BY hc.level ASC LIMIT 1) AS severity_id
+                    (
+                        SELECT hc.hc_id
+                        FROM `:db`.hostcategories hc
+                        INNER JOIN `:db`.hostcategories_relation hcr
+                               ON hc.hc_id = hcr.hostcategories_hc_id
+                        WHERE hc.level IS NOT NULL
+                          AND hcr.host_host_id = h.host_id
+                        ORDER BY hc.level, hc.hc_id
+                        LIMIT 1
+                    ) AS severity_id
                 FROM `:db`.host h
                 LEFT JOIN `:db`.extended_host_information ehi
                     ON h.host_id = ehi.host_host_id
-                LEFT JOIN `:db`.hostcategories_relation hcr
-                    ON hcr.host_host_id = h.host_id
-                LEFT JOIN `:db`.hostcategories hc
-                    ON hc.hc_id = hcr.hostcategories_hc_id
-                    AND hc.level IS NOT NULL
                 WHERE h.host_register = '0'
                     AND h.host_id IN ({$hostTemplateIdsQuery})
                 GROUP BY h.host_id
@@ -572,7 +580,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             },
             (string) $result['host_snmp_community'],
             0 === $result['host_location'] ? null : $result['host_location'],
-            $result['severity_id'] !== null ? (int) $result['severity_id'] : null,
+            $result['severity_id'],
             $result['command_command_id'],
             $extractCommandArguments($result['command_command_id_arg1']),
             $result['timeperiod_tp_id'],

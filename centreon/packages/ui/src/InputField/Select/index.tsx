@@ -69,7 +69,7 @@ const SelectField = ({
   const { classes, cx } = useStyles();
 
   const getOption = (id): SelectEntry => {
-    return options.find(propEq('id', id)) as SelectEntry;
+    return options.find(propEq(id, 'id')) as SelectEntry;
   };
 
   const changeOption = (event): void => {

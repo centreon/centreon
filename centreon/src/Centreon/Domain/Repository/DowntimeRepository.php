@@ -62,7 +62,7 @@ SQL;
     ): string {
         // prevent SQL exception
         if (!$pollerIds) {
-            return [];
+            return '';
         }
 
         $ids = join(',', $pollerIds);

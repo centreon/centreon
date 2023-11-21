@@ -77,6 +77,10 @@ const initialize = ({
 }: {
   isBamModuleInstalled: boolean;
 }): void => {
+  cy.cssDisableMotion();
+
+  cy.viewport(1280, 590);
+
   cy.interceptAPIRequest({
     alias: 'getNotificationRequest',
     method: Method.GET,
@@ -105,13 +109,10 @@ const initialize = ({
     path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport(1280, 590);
-
-  cy.cssDisableMotion();
 };
 
 describe('Edit Panel', () => {
@@ -571,8 +572,6 @@ describe('Edit Panel: Delete button', () => {
     cy.findByText('internal server error');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 });
 
@@ -589,8 +588,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByTestId(labelDuplicate).should('be.disabled');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('displays confirmation dialog with new notification name field on Duplicate button click', () => {
@@ -689,8 +686,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByText(errorMessage).should('be.visible');
 
     cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 });
 

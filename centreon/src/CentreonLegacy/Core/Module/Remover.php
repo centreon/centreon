@@ -78,7 +78,7 @@ class Remover extends Module
     }
 
     /**
-     * @var bool Indicates whether or not it is a pre-uninstall
+     * Indicates whether or not it is a pre-uninstall.
      *
      * @param bool $isPreUninstall
      *

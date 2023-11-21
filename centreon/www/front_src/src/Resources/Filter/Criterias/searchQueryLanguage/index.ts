@@ -96,7 +96,7 @@ const parse = ({
     const pluralizedKey = pluralize(unmappedCriteriaKey);
 
     const defaultCriteria = find(
-      propEq('name', pluralizedKey),
+      propEq(pluralizedKey, 'name'),
       getDefaultCriterias()
     );
 
@@ -149,7 +149,7 @@ const parse = ({
 
   return sortBy(
     ({ name }) => criteriaNameSortOrder[name],
-    reject(propEq('name', 'sort'), [
+    reject(propEq('sort', 'name'), [
       ...defaultCriterias,
       ...criteriasWithSearch
     ])
@@ -157,8 +157,8 @@ const parse = ({
 };
 
 const build = (criterias: Array<Criteria>): string => {
-  const nameEqualsSearch = propEq('name', 'search');
-  const nameEqualsSort = propEq('name', 'sort');
+  const nameEqualsSearch = propEq('search', 'name');
+  const nameEqualsSort = propEq('sort', 'name');
   const hasEmptyValue = propSatisfies(isEmpty, 'value');
 
   const rejectSearch = reject(nameEqualsSearch);

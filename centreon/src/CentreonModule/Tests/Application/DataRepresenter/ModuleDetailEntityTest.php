@@ -37,6 +37,7 @@ class ModuleDetailEntityTest extends TestCase
             'author' => 'John Doe',
             'versionCurrent' => '1.0.0',
             'version' => '1.0.1',
+            'is_internal' => false,
             'license' => [
                 'required' => true,
                 'expiration_date' => '2019-04-21T00:25:55-0700',
@@ -55,6 +56,7 @@ class ModuleDetailEntityTest extends TestCase
         $entity->setAuthor($data['author']);
         $entity->setVersionCurrent($data['versionCurrent']);
         $entity->setVersion($data['version']);
+        $entity->setInternal($data['is_internal']);
         $entity->setLicense($data['license']);
         $entity->addImage($data['image']);
         $entity->setStability($data['stability']);
@@ -78,6 +80,7 @@ class ModuleDetailEntityTest extends TestCase
                     'outdated' => $outdated,
                     'installed' => $entity->isInstalled(),
                 ],
+                'is_internal' => $entity->isInternal(),
                 'license' => $entity->getLicense(),
                 'images' => $entity->getImages(),
                 'stability' => $entity->getStability(),

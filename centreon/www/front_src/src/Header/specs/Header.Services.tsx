@@ -55,13 +55,23 @@ export default (): void =>
 
       it('hides top counters viewport size under 600px', () => {
         initialize();
-        getElements();
-
         cy.viewport(599, 300);
-        cy.get('@criticalCounter').should('not.be.visible');
-        cy.get('@unknownCounter').should('not.be.visible');
-        cy.get('@okCounter').should('not.be.visible');
-        cy.get('@warningCounter').should('not.be.visible');
+        cy.findByRole('button', { name: labelServices, timeout: 5000 }).should(
+          'be.visible'
+        );
+
+        cy.findByRole('link', { name: labelCriticalStatusServices }).should(
+          'not.exist'
+        );
+        cy.findByRole('link', { name: labelUnknownStatusServices }).should(
+          'not.exist'
+        );
+        cy.findByRole('link', { name: labelOkStatusServices }).should(
+          'not.exist'
+        );
+        cy.findByRole('link', { name: labelWarningStatusServices }).should(
+          'not.exist'
+        );
       });
     });
 

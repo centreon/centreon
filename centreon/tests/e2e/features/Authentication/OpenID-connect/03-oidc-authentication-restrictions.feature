@@ -4,8 +4,8 @@ Feature: OpenID Connect authentication
     I want to be able to use an external authentication provider
     So that Platform users can use existing authentication services to authenticate
 
-@TEST_MON-22129
-Scenario: Define a list of clients who can access the Centreon interface
+  @TEST_MON-22129
+  Scenario: Define a list of clients who can access the Centreon interface
     Given an administrator is logged on the platform
     When the administrator sets valid settings in the Authentication conditions and saves
     Then only users with the valid authentication conditions can access the platform

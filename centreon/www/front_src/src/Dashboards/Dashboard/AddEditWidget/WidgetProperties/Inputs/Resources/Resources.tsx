@@ -1,18 +1,21 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
+import FilterIcon from '@mui/icons-material/Tune';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  labelAddResource,
+  labelRefineFilter,
   labelDelete,
   labelResourceType,
   labelResources,
   labelSelectAResource,
+  labelSelectResourceType,
   labelYouCanChooseOnResourcePerResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
@@ -46,10 +49,13 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    getOptionDisabled
+    getOptionDisabled,
+    deleteResourceItem
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
+
+  const deleteButtonHidden = or(!canEditField, value.length <= 1);
 
   return (
     <div className={classes.resourcesContainer}>
@@ -61,15 +67,16 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <ItemComposition
+        IconAdd={<FilterIcon />}
         addButtonHidden={!canEditField}
         addbuttonDisabled={!areResourcesFullfilled(value)}
-        labelAdd={t(labelAddResource)}
+        labelAdd={t(labelRefineFilter)}
         onAddItem={addResource}
       >
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
-            deleteButtonHidden={!canEditField}
+            deleteButtonHidden={deleteButtonHidden}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -78,7 +85,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               className={classes.resourceType}
               dataTestId={labelResourceType}
               disabled={!canEditField}
-              label={t(labelSelectAResource) as string}
+              label={t(labelSelectResourceType) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}
@@ -87,7 +94,13 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               allowUniqOption
               get
               chipProps={{
-                color: 'primary'
+                color: 'primary',
+                onDelete: (_, option): void =>
+                  deleteResourceItem({
+                    index,
+                    option,
+                    resources: resource.resources
+                  })
               }}
               className={classes.resources}
               disabled={!canEditField || !resource.resourceType}

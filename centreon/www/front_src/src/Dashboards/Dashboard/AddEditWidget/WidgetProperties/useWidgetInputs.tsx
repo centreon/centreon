@@ -75,7 +75,7 @@ export const useWidgetInputs = (
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const selectedWidget = find(
-    propEq('moduleName', values.moduleName),
+    propEq(values.moduleName, 'moduleName'),
     federatedWidgetsProperties || []
   );
 
@@ -104,23 +104,34 @@ export const useWidgetInputs = (
     [selectedWidgetProperties]
   );
 
-  useEffect(() => {
-    setWidgetProperties(inputs);
-  }, useDeepCompare([inputs]));
+  useEffect(
+    () => {
+      setWidgetProperties(inputs);
+    },
+    useDeepCompare([inputs])
+  );
 
-  useEffect(() => {
-    validateForm();
-  }, useDeepCompare([widgetProperties]));
+  useEffect(
+    () => {
+      validateForm();
+    },
+    useDeepCompare([widgetProperties])
+  );
 
-  useEffect(() => {
-    if (!selectedWidget) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (!selectedWidget) {
+        return;
+      }
 
-    setSingleMetricSection(selectedWidget.singleMetricSelection);
-    setSingleResourceTypeSelection(selectedWidget.singleResourceTypeSelection);
-    setCustomBaseColor(selectedWidget.customBaseColor);
-  }, useDeepCompare([selectedWidget]));
+      setSingleMetricSection(selectedWidget.singleMetricSelection);
+      setSingleResourceTypeSelection(
+        selectedWidget.singleResourceTypeSelection
+      );
+      setCustomBaseColor(selectedWidget.customBaseColor);
+    },
+    useDeepCompare([selectedWidget])
+  );
 
   return inputs;
 };

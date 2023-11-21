@@ -366,6 +366,16 @@ const columnsWithSubItems = [
   }
 ];
 
+const TemplateSubItems = (args): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <div className={classes.listing}>
+      <Listing {...args} />
+    </div>
+  );
+};
+
 export const ListingWithSubItems = {
   args: {
     checkable: true,
@@ -382,5 +392,6 @@ export const ListingWithSubItems = {
       rowProperty: 'subItems'
     },
     totalRows: 10
-  }
+  },
+  render: TemplateSubItems
 };

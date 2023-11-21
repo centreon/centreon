@@ -1,0 +1,29 @@
+type: object
+required:
+  - id
+  - name
+  - email
+  - role
+
+properties:
+
+  id:
+    type: integer
+    description: "Contact ID"
+    example: 1
+
+  name:
+    type: string
+    description: "Name of the contact"
+    example: "John Doe"
+
+  email:
+    type: string
+    description: "Email of the contact"
+    example: "john.doe@centreon.com"
+
+  role:
+    type: string
+    enum: [ viewer, editor ]
+    description: "The role of the contact for this dashboard."
+    example: "viewer"

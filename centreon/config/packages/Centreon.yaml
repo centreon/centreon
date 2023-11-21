@@ -12,7 +12,7 @@ jms_serializer:
                 path: '%kernel.project_dir%/config/packages/serializer/Core'
 parameters:
     api.header: "Api-Version"
-    api.version.latest: "23.10"
+    api.version.latest: "24.04"
     debug_log_file: '%log_path%/centreon-web.log'
     env(DEBUG_LEVEL): !php/const Monolog\Logger::WARNING
     curl.timeout: 60
@@ -33,6 +33,9 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
+        exclude:
+            - '../../src/Core/Media/*'
+            - '../../src/Core/Command/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
@@ -304,6 +307,14 @@ services:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
             tags: ['configuration.notification.notifiable.resource.request.provider']
+        Symfony\Component\Console\Command\Command:
+            tags: ['script.command']
+
+    Core\Common\Infrastructure\CommandInitializer:
+        class: Core\Common\Infrastructure\CommandInitializer
+        public: true
+        arguments:
+          - !tagged_iterator script.command
 
     Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations:
         arguments:
@@ -499,3 +510,20 @@ services:
     Core\Notification\Infrastructure\Repository\DbReadNotifiableResourceRepository:
         arguments:
             $notifiableResourceRequestProviders: !tagged_iterator 'configuration.notification.notifiable.resource.request.provider'
+
+    Core\Common\Infrastructure\Repository\DataStorageObserver:
+        class: Core\Common\Infrastructure\Repository\DataStorageObserver
+        arguments: ['@Centreon\Infrastructure\Repository\DataStorageEngineRdb', '@Core\Common\Infrastructure\Repository\FileDataStoreEngine']
+
+    Core\Common\Infrastructure\Repository\FileDataStoreEngine:
+        class: Core\Common\Infrastructure\Repository\FileDataStoreEngine
+        arguments: ['%media_full_path%']
+
+    Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface:
+        class: Centreon\Infrastructure\Repository\DataStorageEngineRdb
+
+    enshrined\svgSanitize\Sanitizer:
+        class: enshrined\svgSanitize\Sanitizer
+
+imports:
+    - { resource: ../../src/Core/**/Infrastructure/Configuration/symfony.yaml }

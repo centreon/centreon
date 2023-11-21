@@ -71,7 +71,7 @@ const ListingHeader = ({
   });
 
   const getColumnById = (id: string): Column => {
-    return find(propEq('id', id), columns) as Column;
+    return find(propEq(id, 'id'), columns) as Column;
   };
 
   const Content = React.useCallback(
