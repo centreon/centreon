@@ -385,6 +385,21 @@ jobs:
           echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
         shell: bash
 
+      - name: Replace macros in source code
+        run: |
+          MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
+
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            LIB_ARCH="lib64"
+          else
+            LIB_ARCH="lib"
+          fi
+          sed -i -e "s#@LIB_ARCH@#$LIB_ARCH#g" $MACRO_REPLACEMENT_FILE
+          echo "s#@LIB_ARCH@#$LIB_ARCH#g" >> $MACRO_REPLACEMENT_FILE
+
+          find ./centreon -type f -not -path "./vendor/*" | grep -v $MACRO_REPLACEMENT_FILE | xargs --delimiter='\n' sed -i -f $MACRO_REPLACEMENT_FILE
+        shell: bash
+
       - name: Generate selinux binaries
         if: ${{ matrix.package_extension == 'rpm' }}
         run: |
