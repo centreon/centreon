@@ -181,29 +181,28 @@
               "warningLowThreshold": 0
             }
           ]
-        ]
+        },
+        "options": {
+          "singleMetricGraphType": "text",
+          "threshold": {
+            "enabled": true,
+            "customCritical": null,
+            "criticalType": "default",
+            "customWarning": null,
+            "warningType": "default",
+            "baseColor": null
+          },
+          "refreshInterval": "default",
+          "valueFormat": "human",
+          "description": {
+            "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+            "enabled": true
+          },
+          "name": "sigle metric 2",
+          "openLinksInNewTab": true
+        }
       },
-      "options": {
-        "singleMetricGraphType": "text",
-        "threshold": {
-          "enabled": true,
-          "customCritical": null,
-          "criticalType": "default",
-          "customWarning": null,
-          "warningType": "default",
-          "baseColor": null
-        },
-        "refreshInterval": "default",
-        "valueFormat": "human",
-        "description": {
-          "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-          "enabled": true
-        },
-        "name": "sigle metric 2",
-        "openLinksInNewTab": true
-      }
-    },
-    "widget_type": "/widgets/singlemetric"
-  }
-]
+      "widget_type": "/widgets/singlemetric"
+    }
+  ]
 }
