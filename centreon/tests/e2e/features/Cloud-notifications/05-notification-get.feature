@@ -8,8 +8,11 @@ Feature: List Notification Rules
   Background:
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
-    And there is at least one notification rule
-    And pagination is set to 10 items per page
+
+  Scenario: Empty notification rule list
+    When I have 0 rule
+    Then I see "No result found" on the table line
+    And pagination is disabled
 
   Scenario Outline: Listing Notification Rules with Pagination
     When I am on listing page <page>

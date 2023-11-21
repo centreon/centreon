@@ -11,13 +11,12 @@ Feature: Creating a notification rule
 
   Scenario: Creating a notification rule
     When the user defines a name for the rule
-    And the user selects some resources and associated events on which to notify
-
+    And the user selects some resources with associated events on which to notify
     And the user selects some contacts and/or contact groups
-    And the user defines a mail subject and body
+    And the user defines a mail subject
+    And the user defines a mail body
     And the user clicks on the "Save" button to confirm
     Then a success message is displayed and the created notification rule is displayed in the listing
-
     When changes occur in the configured statuses for the selected resources
     And the hard state is reached
     And the notification refresh_delay has been reached
