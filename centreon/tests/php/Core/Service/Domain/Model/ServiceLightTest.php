@@ -25,10 +25,10 @@ namespace Tests\Core\Service\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Service\Domain\Model\NewService;
 use Core\Service\Domain\Model\ServiceLight;
-use Core\Common\Domain\SimpleEntity;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 beforeEach(function (): void {
