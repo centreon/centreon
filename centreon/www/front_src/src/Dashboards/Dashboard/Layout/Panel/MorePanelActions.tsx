@@ -27,11 +27,7 @@ import {
   labelRefresh,
   labelViewProperties
 } from '../../translatedLabels';
-import {
-  dashboardAtom,
-  isEditingAtom,
-  switchPanelsEditionModeDerivedAtom
-} from '../../atoms';
+import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import useWidgetForm from '../../AddEditWidget/useWidgetModal';
 import { editProperties } from '../../hooks/useCanEditDashboard';
 import useDeleteWidgetModal from '../../hooks/useDeleteWidget';
@@ -52,9 +48,13 @@ const MorePanelActions = ({
   duplicate
 }: Props): JSX.Element => {
   const { t } = useTranslation();
-
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
   const dashboard = useAtomValue(dashboardAtom);
-  const setIsEditing = useSetAtom(isEditingAtom);
+  const switchPanelsEditionMode = useSetAtom(
+    switchPanelsEditionModeDerivedAtom
+  );
 
   const { deleteWidget } = useDeleteWidgetModal();
 
@@ -71,14 +71,13 @@ const MorePanelActions = ({
   );
 
   const edit = (): void => {
-    setIsEditing(true);
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
+
     close();
-    if (searchParams.get('edit') !== 'true') {
-      searchParams.set('edit', 'true');
-      setSearchParams(searchParams);
-      switchPanelsEditionMode(true);
-    }
+
+    switchPanelsEditionMode(true);
+    searchParams.set('edit', 'true');
+    setSearchParams(searchParams);
   };
 
   const refresh = (): void => {

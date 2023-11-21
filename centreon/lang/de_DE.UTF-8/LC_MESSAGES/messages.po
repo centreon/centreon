@@ -16244,6 +16244,7 @@ msgstr "Erweiterter Modus"
 
 #  msgid "This operation requires an admin user"
 #  msgstr ""
+
 # msgid "Resource access rules"
 # msgstr ""
 
@@ -16297,3 +16298,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "See more on the Resource status page"
 # msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""

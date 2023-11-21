@@ -16631,3 +16631,9 @@ msgstr "Modo avanzado"
 
 # msgid "See more on the Resource status page"
 # msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""

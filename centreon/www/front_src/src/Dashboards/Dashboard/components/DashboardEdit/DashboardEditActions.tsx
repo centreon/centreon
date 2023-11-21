@@ -77,10 +77,8 @@ const DashboardEditActions = ({
 
   const stopEditing = useCallback(() => {
     switchPanelsEditionMode(false);
-    if (searchParams.get('edit') !== null) {
-      searchParams.delete('edit');
-      setSearchParams(searchParams);
-    }
+    searchParams.delete('edit');
+    setSearchParams(searchParams);
   }, [searchParams, setSearchParams]);
 
   const cancel = useCallback(() => {

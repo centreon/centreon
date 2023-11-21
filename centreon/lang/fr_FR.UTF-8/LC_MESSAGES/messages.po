@@ -18392,3 +18392,21 @@ msgstr "Trier par"
 
 msgid "See more on the Resource status page"
 msgstr "Voir plus dans la page Statut des ressources"
+
+msgid "Huge"
+msgstr "Très grande"
+
+msgid "Large"
+msgstr "Grande"
+
+msgid "Normal"
+msgstr "Normale"
+
+msgid "Small"
+msgstr "Petite"
+
+msgid "You are not allowed to edit a service"
+msgstr "Vous n'êtes pas autorisé à éditer un service"
+
+msgid "Error while updating a service"
+msgstr "Erreur lors de la mise à jour d'un service"
