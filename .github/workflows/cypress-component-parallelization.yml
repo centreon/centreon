@@ -98,13 +98,10 @@ jobs:
         shell: bash
 
       - name: Format title
-        uses: frabert/replace-string-action@v2
         id: title
-        with:
-          pattern: '/'
-          string: ${{ inputs.module_name }}
-          replace-with: '-'
-          flags: 'g'
+        uses: |
+          MODULE_NAME=`echo "${{ inputs.module_name }}" | sed -e "s#/#-#g"`
+          echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
 
       - name: Publish code coverage to PR
         uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
