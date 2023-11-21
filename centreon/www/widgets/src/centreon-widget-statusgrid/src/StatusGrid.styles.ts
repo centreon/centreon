@@ -3,6 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useTileStyles = makeStyles()((theme) => ({
   container: {
     paddingTop: theme.spacing(1.5),
+    position: 'relative',
     width: '100%'
   },
   resourceName: {
@@ -15,6 +16,18 @@ export const useTileStyles = makeStyles()((theme) => ({
     height: '100%',
     justifyContent: 'center',
     width: '100%'
+  },
+  statusTile: {
+    '&[data-mode="compact"]': {
+      height: theme.spacing(1.25),
+      width: theme.spacing(1.25)
+    },
+    borderRadius: theme.shape.borderRadius,
+    height: theme.spacing(1.5),
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    width: theme.spacing(1.5)
   }
 }));
 
