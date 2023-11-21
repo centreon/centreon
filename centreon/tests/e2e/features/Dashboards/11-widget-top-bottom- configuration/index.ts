@@ -147,6 +147,40 @@ after(() => {
 //   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
 // });
 
+// Given('a dashboard featuring a configured Top Bottom widget', () => {
+//   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+//   cy.getByLabel({
+//     label: 'view',
+//     tag: 'button'
+//   })
+//     .contains(dashboards.default.name)
+//     .click();
+// });
+
+// When(
+//   'the dashboard administrator user duplicates the Top Bottom widget',
+//   () => {
+//     cy.getByLabel({
+//       label: 'Edit dashboard',
+//       tag: 'button'
+//     }).click();
+//     cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+//     cy.getByTestId({ testId: 'RefreshIcon' }).click();
+//     cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+//     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+//   }
+// );
+
+// Then('a second Top Bottom widget is displayed on the dashboard', () => {
+//   cy.getByTestId({ testId: 'warning-line-200-tooltip' })
+//     .eq(1)
+//     .should('be.visible');
+//   cy.getByTestId({ testId: 'critical-line-400-tooltip' })
+//     .eq(1)
+//     .should('be.visible');
+// });
+
 // Given('a dashboard featuring two Top Bottom widgets', () => {
 //   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
 //   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
@@ -166,3 +200,148 @@ after(() => {
 //   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
 //   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
 // });
+
+Given('a dashboard featuring a configured Top Bottom widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.get('li[aria-label="Edit widget"]').click();
+});
+
+When(
+  'the dashboard administrator user selects the option to hide the value labels',
+  () => {
+    cy.getByLabel({
+      label: 'Show value labels',
+      tag: 'input'
+    }).click();
+    cy.get('.visx-group text:first-child').should('not.exist');
+  }
+);
+
+Then(
+  'the value labels for all hosts in the Top Bottom widget are hidden in the preview',
+  () => {
+    cy.get('.visx-group text:first-child').should('not.exist');
+  }
+);
+
+Then(
+  'the value labels for all hosts in the Top Bottom widget are hidden in view mode',
+  () => {
+    cy.getByTestId({ testId: 'confirm' }).click();
+    cy.wait('@performanceData');
+    cy.get('.visx-group text:first-child').should('not.exist');
+  }
+);
+
+// Given('a dashboard featuring a Top Bottom widget', () => {
+//   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+//   cy.wait('@listAllDashboards');
+//   cy.getByLabel({
+//     label: 'view',
+//     tag: 'button'
+//   })
+//     .contains(dashboards.default.name)
+//     .click();
+//   cy.getByLabel({
+//     label: 'Edit dashboard',
+//     tag: 'button'
+//   }).click();
+//   cy.getByTestId({ testId: 'More actions' }).click();
+//   cy.get('li[aria-label="Edit widget"]').click();
+// });
+
+// When(
+//   'the dashboard administrator user updates the value format of the Top Bottom widget to "raw value"',
+//   () => {
+//     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
+//     cy.contains('Raw value').find('input').click();
+//   }
+// );
+
+// Then(
+//   'the displayed value format for this metric has been updated from human-readable to exhaustive',
+//   () => {
+//     cy.get('.visx-group text:first-child')
+//       .invoke('text')
+//       .then((text) => {
+//         if (parseFloat(text) !== 0) {
+//           expect(text).to.match(/\d+\.\d{3,}/);
+//         }
+//       });
+//   }
+// );
+
+// Given('a dashboard featuring a configured Top Bottom widget', () => {
+//   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+//   cy.wait('@listAllDashboards');
+//   cy.getByLabel({
+//     label: 'view',
+//     tag: 'button'
+//   })
+//     .contains(dashboards.default.name)
+//     .click();
+//   cy.getByLabel({
+//     label: 'Edit dashboard',
+//     tag: 'button'
+//   }).click();
+//   cy.getByTestId({ testId: 'More actions' }).click();
+//   cy.get('li[aria-label="Edit widget"]').click();
+// });
+
+// When(
+//   'the dashboard administrator user updates the custom warning threshold',
+//   () => {
+//     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
+//     cy.contains('Custom').find('input').eq(0).click();
+//     cy.getByLabel({
+//       label: 'Thresholds',
+//       tag: 'input'
+//     }).type('40');
+//   }
+// );
+
+// Then(
+//   'the widget is refreshed to display the updated warning threshold on all bars of the Top Bottom widget',
+//   () => {
+//     cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
+//     cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
+//       'be.visible'
+//     );
+//   }
+// );
+
+// When(
+//   'the dashboard administrator user updates the custom critical threshold',
+//   () => {
+//     cy.get('input[type="radio"][value="custom"]').eq(1).click({ force: true });
+//     cy.getByLabel({
+//       label: 'Thresholds',
+//       tag: 'input'
+//     })
+//       .eq(1)
+//       .type('60', { force: true });
+//   }
+// );
+
+// Then(
+//   'the widget is refreshed to display the updated critical threshold on all bars of the Top Bottom widget',
+//   () => {
+//     cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
+//     cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('be.visible');
+//   }
+// );

@@ -45,7 +45,6 @@ Feature: Configuring a top-bottom widget
   #   Given a dashboard featuring a configured Top Bottom widget
   #   When the dashboard administrator user duplicates the Top Bottom widget
   #   Then a second Top Bottom widget is displayed on the dashboard
-  #   And the second widget has the same properties as the first widget
 
   # @TEST_MON-23814
   # Scenario: Deleting a Top/Bottom widget
@@ -54,22 +53,22 @@ Feature: Configuring a top-bottom widget
   #   Then only the contents of the other widget are displayed
 
   # @TEST_MON-23807
-  # Scenario: Hiding the value labels of a Top/Bottom widget
-  #   Given a dashboard featuring a configured Top/Bottom widget
-  #   When the dashboard administrator user selects the option to hide the value labels
-  #   Then the value labels for all hosts in the Top/Bottom widget are hidden in the preview
-  #   And the value labels for all hosts in the Top/Bottom widget are hidden in view mode
+  Scenario: Hiding the value labels of a Top/Bottom widget
+    Given a dashboard featuring a configured Top Bottom widget
+    When the dashboard administrator user selects the option to hide the value labels
+    Then the value labels for all hosts in the Top Bottom widget are hidden in the preview
+    And the value labels for all hosts in the Top Bottom widget are hidden in view mode
 
   # @TEST_MON-23808
   # Scenario: Editing the value format of a Top/Bottom widget
-  #   Given a dashboard featuring a Top/Bottom widget
-  #   When the dashboard administrator user updates the value format of the Top/Bottom widget to "raw value"
+  #   Given a dashboard featuring a Top Bottom widget
+  #   When the dashboard administrator user updates the value format of the Top Bottom widget to "raw value"
   #   Then the displayed value format for this metric has been updated from human-readable to exhaustive
 
   # @TEST_MON-23809
   # Scenario: Editing the thresholds of a Top/Bottom widget
-  #   Given a dashboard featuring a configured Top/Bottom widget
+  #   Given a dashboard featuring a configured Top Bottom widget
   #   When the dashboard administrator user updates the custom warning threshold
-  #   Then the widget is refreshed to display the updated warning threshold on all bars of the Top/Bottom widget
+  #   Then the widget is refreshed to display the updated warning threshold on all bars of the Top Bottom widget
   #   When the dashboard administrator user updates the custom critical threshold
-  #   Then the widget is refreshed to display the updated critical threshold on all bars of the Top/Bottom widget
+  #   Then the widget is refreshed to display the updated critical threshold on all bars of the Top Bottom widget
