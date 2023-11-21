@@ -201,6 +201,7 @@ final class CreatePlaylist
         $transactionAlreadyStarted = $this->dataStorageEngine->isAlreadyinTransaction();
         try {
             if (! $transactionAlreadyStarted) {
+                $this->info('start transaction');
                 $this->dataStorageEngine->startTransaction();
             }
             $this->info('add playlist in data storage');
@@ -208,11 +209,13 @@ final class CreatePlaylist
             $this->info('add dashboards <=> playlist relation in data storage');
             $this->writePlaylistRepository->addDashboardsToPlaylist($playlistId, $newPlaylist->getDashboardsOrder());
             if (! $transactionAlreadyStarted) {
+                $this->info('commit transaction');
                 $this->dataStorageEngine->commitTransaction();
             }
         } catch (\Throwable $ex) {
+            $this->error('An error occured', ['trace' => (string) $ex]);
             if (! $transactionAlreadyStarted) {
-                $this->error('An error occured, transaction rollback');
+                $this->info('rollback transaction');
                 $this->dataStorageEngine->rollbackTransaction();
             }
 
