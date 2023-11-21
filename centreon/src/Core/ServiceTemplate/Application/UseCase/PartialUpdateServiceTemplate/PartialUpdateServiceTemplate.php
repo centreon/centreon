@@ -50,6 +50,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
@@ -79,6 +80,7 @@ final class PartialUpdateServiceTemplate
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteServiceGroupRepositoryInterface $writeServiceGroupRepository,
+        private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ParametersValidation $validation,
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $storageEngine,
@@ -234,10 +236,19 @@ final class PartialUpdateServiceTemplate
                 hostId: $serviceGroup->hostTemplateId
             );
         }
+
+        if ($this->user->isAdmin()) {
+            $originalGroups = $this->readServiceGroupRepository->findByService($request->id);
+        } else {
+            $originalGroups = $this->readServiceGroupRepository->findByServiceAndAccessGroups(
+                $request->id,
+                $this->accessGroups
+            );
+        }
+
         $this->info('Delete existing service groups relations');
-        $this->writeServiceGroupRepository->deleteRelations(
-            ...array_map(fn (ServiceGroupRelation $rel) => $rel->getServiceGroupId(), $serviceGroupRelations)
-        );
+        $this->writeServiceGroupRepository->unlink(array_column($originalGroups, 'relation'));
+
         $this->info('Create new service groups relations');
         $this->writeServiceGroupRepository->link($serviceGroupRelations);
     }

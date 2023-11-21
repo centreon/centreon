@@ -16,6 +16,7 @@ info:
     + Added command endpoint (ADD)
     + Added notifiable contact group endpoint (GET)
     + Added metrics by service listing endpoint (GET)
+    + Added dashboard playlist endpoint (POST)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -1648,6 +1649,8 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
   /configuration/dashboards/contactgroups:
     $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
+  /configuration/dashboards/playlists:
+    $ref: './v23.10/Configuration/Dashboard/Playlist.yaml'
   /monitoring/dashboard/metrics/performances:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
   /monitoring/dashboard/metrics/performances/data:
