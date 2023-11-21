@@ -11,34 +11,34 @@ inputs:
     description: "Business unit to use."
     required: true
   disk_size:
-    description: ""
+    description: "Instance disk size"
     required: true
   poller_number:
-    description: ""
+    description: "Instance poller number"
     required: true
   central_instance:
-    description: ""
+    description: "Instance central ec2 sizing"
     required: true
   poller_instance:
-    description: ""
+    description: "Instance poller ec2 sizing"
     required: true
   system_name:
-    description: ""
+    description: "Operating System name"
     required: true
   centreon_branch:
-    description: ""
+    description: "centreon OSS branch"
     required: true
   configured_resources:
-    description: ""
+    description: "Preconfigure resources on Central"
     required: true
   install_business_modules:
-    description: ""
+    description: "Pre install business modules"
     required: true
   instance_password:
-    description: ""
+    description: "Instance central password"
     required: true
   cod_service_token:
-    description: ""
+    description: "COD service token"
     required: true
 
 runs:
