@@ -23,7 +23,10 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
@@ -77,24 +80,14 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     }
 
     /**
-     * @inheritDoc
+     * To avoid loading all database elements at once, this iterator allows you to retrieve them in blocks of
+     *  MAX_ITEMS_BY_REQUEST elements.
+     *
+     * {@inheritDoc}
      */
     public function findAll(): \Iterator&\Countable
     {
-        return $this->findAllByIteration();
-    }
-
-    /**
-     * To avoid loading all database elements at once, this iterator allows you to retrieve them in blocks of
-     * MAX_ITEMS_BY_REQUEST elements.
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    private function findAllByIteration(): \Iterator&\Countable
-    {
-        $this->logger->debug(sprintf('Loading media in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
-
-        return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createMedia(), $this->logger)
+        return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createMedia(...), $this->logger)
             extends AbstractRepositoryRDB
             implements \Iterator, \Countable
         {
@@ -243,20 +236,84 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     }
 
     /**
-     * @return callable
+     * @inheritDoc
      */
-    private function createMedia(): callable
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
-        return function (array $data) {
-            $media = new Media(
-                $data['img_id'],
-                $data['img_path'],
-                $data['dir_name'],
-                null
-            );
-            $media->setComment($data['img_comment']);
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'img_id',
+            'filename' => 'img_path',
+            'directory' => 'dir_name',
+        ]);
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            SQL;
 
-            return $media;
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        if ($searchRequest !== null) {
+            $request .= $searchRequest;
+        }
+
+        // Handle sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
+        $request .= $sqlTranslator->translatePaginationToSql();
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /** @var int $type */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        return new class($statement, $this->createMedia(...)) implements \IteratorAggregate {
+            public function __construct(
+                readonly private \PDOStatement $statement,
+                readonly private \Closure $factory,
+            ) {
+            }
+
+            public function getIterator(): \Traversable
+            {
+                foreach ($this->statement as $result) {
+                    yield ($this->factory)($result);
+                }
+            }
         };
+    }
+
+    /**
+     * @param array<string, int|string> $data
+     *
+     * @throws AssertionFailedException
+     *
+     * @return Media
+     */
+    private function createMedia(array $data): Media
+    {
+        return new Media(
+            (int) $data['img_id'],
+            (string) $data['img_path'],
+            (string) $data['dir_name'],
+            (string) $data['img_comment'],
+            null
+        );
     }
 }

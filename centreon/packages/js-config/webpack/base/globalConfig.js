@@ -4,7 +4,7 @@ const excludeNodeModulesExceptCentreonUi =
 module.exports = {
   cache: false,
   excludeNodeModulesExceptCentreonUi,
-  getModuleConfiguration: (jscTransformConfiguration) => ({
+  getModuleConfiguration: (jscTransformConfiguration, enableCoverage) => ({
     rules: [
       {
         parser: { system: false },
@@ -17,6 +17,11 @@ module.exports = {
           loader: 'swc-loader',
           options: {
             jsc: {
+              experimental: {
+                plugins: [
+                  enableCoverage && ['swc-plugin-coverage-instrument', {}]
+                ].filter(Boolean)
+              },
               parser: {
                 syntax: 'typescript',
                 tsx: true
