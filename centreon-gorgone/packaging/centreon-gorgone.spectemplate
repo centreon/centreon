@@ -1,7 +1,7 @@
 %define selinuxdevel %{_datadir}/selinux/devel
 
 Name:       centreon-gorgone
-Version:    23.04.6
+Version:    23.04.7
 Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System

@@ -155,6 +155,7 @@ jobs:
             version: "0.53"
           - name: "UUID"
             use_dh_make_perl: "false"
+            version: "0.30"
           - name: "ZMQ::Constants"
             build_distribs: "el9,bullseye"
           - name: "ZMQ::FFI"
