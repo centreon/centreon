@@ -111,21 +111,19 @@ $createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessa
 };
 
 $populateDahsboardTables = function(CentreonDb $pearDB): void {
-    if ($pearDB->isColumnExist('dashboard_widgets', 'name')) {
-        $statement = $pearDB->query(
+    $statement = $pearDB->query(
+        <<<'SQL'
+            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
+            SQL
+    );
+    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+        $pearDB->query(
             <<<'SQL'
-                SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
+                INSERT INTO `dashboard_widgets` (`name`)
+                VALUES
+                    ('centreon-widget-statusgrid')
                 SQL
         );
-        if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
-            $pearDB->query(
-                <<<'SQL'
-                    INSERT INTO `dashboard_widgets` (`name`)
-                    VALUES
-                        ('centreon-widget-statusgrid')
-                    SQL
-            );
-        }
     }
 }
 

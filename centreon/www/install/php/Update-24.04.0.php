@@ -211,25 +211,6 @@ $alterAclResourceGroupRelation = function (CentreonDB $pearDB) {
     }
 };
 
-$populateDahsboardTables = function(CentreonDb $pearDB): void {
-    if ($pearDB->isColumnExist('dashboard_widgets', 'name')) {
-        $statement = $pearDB->query(
-            <<<'SQL'
-                SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
-                SQL
-        );
-        if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
-            $pearDB->query(
-                <<<'SQL'
-                    INSERT INTO `dashboard_widgets` (`name`)
-                    VALUES
-                        ('centreon-widget-statusgrid')
-                    SQL
-            );
-        }
-    }
-}
-
 $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
     if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
         $pearDB->query(
@@ -267,9 +248,6 @@ try {
 
     $errorMessage = 'Unable to insert topology for Resource Access Management';
     $insertTopologyForResourceAccessManagement($pearDB);
-
-    $errorMessage = 'Unable to populate dashboard_widgets table';
-    $populateDahsboardTables($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
