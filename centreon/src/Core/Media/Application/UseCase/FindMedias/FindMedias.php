@@ -54,7 +54,7 @@ final class FindMedias
             $this->info('Find medias', ['user' => $this->user->getId()]);
             if (! $this->canAccessToListing()) {
                 $this->error(
-                    "User doesn't have sufficient rights to list medias",
+                    "User doesn't have sufficient rights to list media",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->presentResponse(new ForbiddenResponse(MediaException::listingNotAllowed()));

@@ -81,7 +81,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
                         $media->getDirectory(),
                         $media->getComment(),
                         file_get_contents($absoluteMediaPath)
-                            ?: throw new \Exception('Impossible to get content of file ' . $media->getRelativePath())
+                            ?: throw new \Exception('Cannot get content of file ' . $media->getRelativePath())
                     );
                 }
 

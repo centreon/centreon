@@ -27,7 +27,7 @@ post:
 get:
   tags:
     - Media
-  summary: "Find all media configuration"
+  summary: "Find all media configurations"
   description: |
     Return all media configurations.
     
