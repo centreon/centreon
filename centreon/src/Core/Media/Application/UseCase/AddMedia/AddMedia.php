@@ -134,13 +134,15 @@ final class AddMedia
                 ) {
                     $fileContent = $media->getData();
                     if (array_key_exists('extension',$fileInfo) && $fileInfo['extension'] === 'svg') {
+                        $this->svgSanitizer->minify(true);
                         $fileContent = $this->svgSanitizer->sanitize($fileContent);
                     }
-                    $md5 = md5($media->getData());
+                    $media->setData($fileContent);
+                    $hash = $media->hash();
                     $this->info('Add media', [
                         'filename' => $media->getFilename(),
                         'directory' => $media->getDirectory(),
-                        'md5' => $md5,
+                        'md5' => $hash,
                     ]);
                     $mediaRecorded[] = [
                         'id' => $this->writeMediaRepository->add(
@@ -148,7 +150,7 @@ final class AddMedia
                         ),
                         'filename' => $media->getFilename(),
                         'directory' => $media->getDirectory(),
-                        'md5' => $md5,
+                        'md5' => $hash,
                     ];
 
                 } else {
