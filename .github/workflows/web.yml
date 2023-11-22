@@ -796,15 +796,16 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   deploy-platform-nightly:
-    needs: [get-version]
-    # needs:
-    #   [
-    #     get-version,
-    #     api-integration-test,
-    #     e2e-test,
-    #     performances-test,
-    #     legacy-e2e-test,
-    #   ]
+    # needs: [get-version]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+        deliver-rpm
+      ]
     if: ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [common]
     steps:
