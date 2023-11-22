@@ -32,7 +32,7 @@ const emptyLayout: Array<Panel> = [
   }
 ];
 
-const Layout = (): JSX.Element => {
+const DashboardPageLayout = (): JSX.Element => {
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
   const [refreshCounts, setRefreshCounts] = useAtom(refreshCountsAtom);
   const isEditing = useAtomValue(isEditingAtom);
@@ -122,4 +122,4 @@ const Layout = (): JSX.Element => {
   );
 };
 
-export default Layout;
+export default DashboardPageLayout;

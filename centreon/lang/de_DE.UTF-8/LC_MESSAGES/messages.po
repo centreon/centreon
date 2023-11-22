@@ -16244,6 +16244,7 @@ msgstr "Erweiterter Modus"
 
 #  msgid "This operation requires an admin user"
 #  msgstr ""
+
 # msgid "Resource access rules"
 # msgstr ""
 
@@ -16251,4 +16252,16 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "You are not allowed to log in"
+# msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""
+
+# msgid "Error while searching for media"
+# msgstr ""
+
+# msgid "You are not allowed to list media"
 # msgstr ""

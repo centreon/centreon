@@ -601,10 +601,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByLabelText(labelNotificationName).should('be.visible');
     cy.findByText(labelDuplicate).should('be.disabled');
     cy.findByText(labelDiscard).click();
-
-    cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('validates that name field is not empty and not already taken', () => {
@@ -621,10 +617,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByText(labelRequired);
 
     cy.findByText(labelDiscard).click();
-
-    cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('disables the Confirm button if the name is empty or already exists', () => {
@@ -638,10 +630,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByTestId('Confirm').should('be.disabled');
 
     cy.findByText(labelDiscard).click();
-
-    cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('displays a success message upon successful duplication', () => {
@@ -655,10 +643,6 @@ describe('Edit Panel: Duplicate button', () => {
     cy.waitForRequest('@duplicateNotificationtRequest');
 
     cy.findByText(labelNotificationDuplicated);
-
-    cy.get('#panel-content').scrollTo('top');
-
-    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed duplication request', () => {
