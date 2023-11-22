@@ -139,9 +139,10 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
 };
 
 try {
-    $createDashboardsPlaylistTables($pearDB);
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
- 
+    
+    $createDashboardsPlaylistTables($pearDB);
+
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
