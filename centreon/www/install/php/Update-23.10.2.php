@@ -120,12 +120,23 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
         if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
             $pearDB->query(
                 <<<'SQL'
-                    INSERT INTO `dashboard_widgets` (`name`, `version`)
+                    INSERT INTO `dashboard_widgets` (`name`)
                     VALUES
-                        ('centreon-widget-statusgrid', '23.10.0')
+                        ('centreon-widget-statusgrid')
                     SQL
             );
         }
+    }
+}
+
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
     }
 };
 
@@ -133,6 +144,8 @@ try {
     $createDashboardsPlaylistTables($pearDB);
 
     $populateDahsboardTables($pearDB);
+    
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
 } catch (\Exception $e) {
 
     $centreonLog->insertLog(

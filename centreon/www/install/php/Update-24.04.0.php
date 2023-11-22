@@ -221,12 +221,23 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
         if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
             $pearDB->query(
                 <<<'SQL'
-                    INSERT INTO `dashboard_widgets` (`name`, `version`)
+                    INSERT INTO `dashboard_widgets` (`name`)
                     VALUES
-                        ('centreon-widget-statusgrid', '23.10.0')
+                        ('centreon-widget-statusgrid')
                     SQL
             );
         }
+    }
+}
+
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
     }
 };
 
@@ -243,6 +254,8 @@ try {
 
     $errorMessage = 'Unable to add column order to acl_res_group_relations table';
     $alterAclResourceGroupRelation($pearDB);
+
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {

@@ -1020,7 +1020,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
-    $ref: './v24.04/Configuration/Media/AddMedia.yaml'
+    $ref: './v24.04/Configuration/Media/AddAndFindMedia.yaml'
   /configuration/proxy:
     get:
       tags:

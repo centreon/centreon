@@ -16304,3 +16304,10 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Error while updating a service"
 #  msgstr ""
+
+# msgid "Error while searching for media"
+# msgstr ""
+
+# msgid "You are not allowed to list media"
+# msgstr ""
+

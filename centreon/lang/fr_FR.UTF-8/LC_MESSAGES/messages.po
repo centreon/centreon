@@ -18434,3 +18434,9 @@ msgstr "Vous n'êtes pas autorisé à éditer un service"
 
 msgid "Error while updating a service"
 msgstr "Erreur lors de la mise à jour d'un service"
+
+msgid "Error while searching for media"
+msgstr "Erreur lors de la recherche de médias"
+
+msgid "You are not allowed to list media"
+msgstr "Vous n'êtes pas autorisé à lister les médias"
