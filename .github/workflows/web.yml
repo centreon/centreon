@@ -806,10 +806,10 @@ jobs:
         deliver-rpm
       ]
     if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [common]
+    runs-on: [self-hosted, common]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Trigger platform deployment
         uses: ./.github/actions/nightly-platform-deploy
