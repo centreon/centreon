@@ -40,7 +40,7 @@ runs:
     - name: Get current package version
       id: currentVersion
       run: echo "packageVersion=`cat package.json | jq -r '.version'`" >> $GITHUB_OUTPUT
-      shel: bash
+      shell: bash
 
     - uses: ./.github/actions/get-latest-npm-branch-version
       id: get-latest-npm-branch-version
