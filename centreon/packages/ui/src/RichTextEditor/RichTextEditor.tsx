@@ -94,15 +94,20 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
       lineHeight: theme.typography.h5.lineHeight
     },
     h6: {
-      fontSize: theme.typography.h6.fontSize,
-      fontWeight: theme.typography.h6.fontWeight,
-      lineHeight: theme.typography.h6.lineHeight
+      fontSize: theme.typography.body2.fontSize,
+      fontWeight: theme.typography.body2.fontWeight,
+      lineHeight: theme.typography.body2.lineHeight
     },
     italic: {
       fontStyle: 'italic'
     },
     link: {
       color: theme.palette.primary.main
+    },
+    paragraph: {
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: theme.typography.body1.fontWeight,
+      lineHeight: theme.typography.body1.lineHeight
     },
     strikethrough: {
       textDecoration: 'line-through'
@@ -165,6 +170,7 @@ const RichTextEditor = ({
         h6: classes.h6
       },
       link: classes.link,
+      paragraph: classes.paragraph,
       text: {
         bold: classes.bold,
         italic: classes.italic,
@@ -214,6 +220,7 @@ const RichTextEditor = ({
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
+                setHtmlString={setHtmlString}
                 onBlur={onBlur}
               />
             }

@@ -18,8 +18,9 @@ import { SvgIconTypeMap } from '@mui/material';
 
 import { Menu } from '../../../components';
 import { getSelectedNode } from '../../utils/getSelectedNode';
+import { labelAlignPicker } from '../../translatedLabels';
 
-import { useAlignPickerStyles } from './ToolbarPlugin.styles';
+import { useStyles } from './ToolbarPlugin.styles';
 
 const formatOptions: Array<{
   Icon: OverridableComponent<SvgIconTypeMap<object, 'svg'>>;
@@ -48,7 +49,7 @@ interface Props {
 }
 
 const AlignPicker = ({ disabled }: Props): JSX.Element => {
-  const { classes } = useAlignPickerStyles();
+  const { classes } = useStyles();
 
   const [elementFormat, setElementFormat] = useState<ElementFormatType>('left');
 
@@ -88,25 +89,25 @@ const AlignPicker = ({ disabled }: Props): JSX.Element => {
 
   return (
     <Menu>
-      <Menu.Button ariaLabel={elementFormat} disabled={disabled}>
-        {selectedFormat && (
-          <div className={classes.button}>
-            <selectedFormat.Icon /> {selectedFormat.label}
-          </div>
-        )}
+      <Menu.Button
+        ariaLabel={labelAlignPicker}
+        className={classes.button}
+        disabled={disabled}
+      >
+        {selectedFormat && <selectedFormat.Icon />}
       </Menu.Button>
-      <Menu.Items>
-        {formatOptions.map(({ Icon, label, value }) => (
-          <Menu.Item
-            isActive={equals(value, elementFormat)}
-            key={value}
-            onClick={dispatchAlignment(value)}
-          >
-            <div className={classes.option}>
-              <Icon /> {label}
-            </div>
-          </Menu.Item>
-        ))}
+      <Menu.Items className={classes.menuItems}>
+        <div className={classes.menu}>
+          {formatOptions.map(({ Icon, value, label }) => (
+            <Menu.Item
+              isActive={equals(value, elementFormat)}
+              key={value}
+              onClick={dispatchAlignment(value)}
+            >
+              <Icon aria-label={label} />
+            </Menu.Item>
+          ))}
+        </div>
       </Menu.Items>
     </Menu>
   );

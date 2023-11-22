@@ -50,6 +50,10 @@ const reactRoutes = [
   {
     comp: lazy(() => import('../AppTokens')),
     path: routeMap.appTokens
+  },
+  {
+    comp: lazy(() => import('../ResourceAccessManagement')),
+    path: routeMap.resourceAccessManagement
   }
 ];
 

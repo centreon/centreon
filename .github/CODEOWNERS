@@ -1,41 +1,51 @@
-**/.github/     @centreon/automation-reviewers
-**/.git*        @centreon/automation-reviewers
-**/.project     @centreon/automation-reviewers
-**/selinux/     @centreon/automation-reviewers
-**/project/     @centreon/automation-reviewers
-*.sh            @centreon/automation-reviewers
-**/packaging/   @centreon/automation-reviewers
+**/.github/             @centreon/owners-pipelines
+**/.git*                @centreon/owners-pipelines
+**/.project             @centreon/owners-pipelines
+**/selinux/             @centreon/owners-pipelines
+**/project/             @centreon/owners-pipelines
+**/packaging/           @centreon/owners-pipelines
 
-*.po            @centreon/centreon-documentation
+*.sh                    @centreon/owners-bash
 
-.snyk           @centreon/centreon-security
+*.po                    @centreon/owners-doc
+*.md                    @centreon/owners-doc
+*.mdx                   @centreon/owners-doc
 
-**/config/              @centreon/centreon-php
-**/composer.*           @centreon/centreon-php
-**/tests/api/           @centreon/centreon-php
-**/tests/php/           @centreon/centreon-php
-**/tests/clapi_export/  @centreon/centreon-php
-**/features/            @centreon/centreon-php
-**/www/                 @centreon/centreon-php
-**/tmpl/                @centreon/centreon-php
-**/bin/                 @centreon/centreon-php
-**/*.xml                @centreon/centreon-php
-**/phpstan.neon         @centreon/centreon-php
-*.php                   @centreon/centreon-php
+**/config/              @centreon/owners-php
+**/composer.*           @centreon/owners-php
+**/tests/api/           @centreon/owners-php
+**/tests/php/           @centreon/owners-php
+**/tests/clapi_export/  @centreon/owners-php
+**/www/                 @centreon/owners-php
+**/tmpl/                @centreon/owners-php
+**/bin/                 @centreon/owners-php
+**/*.xml                @centreon/owners-php
+**/phpstan.neon         @centreon/owners-php
+*.php                   @centreon/owners-php
+*.xsl                   @centreon/owners-php
 
-**/www/front_src/   @centreon/centreon-frontend
-**/www/widgets/     @centreon/centreon-frontend
-package.json        @centreon/centreon-frontend
-package-lock.json   @centreon/centreon-frontend
-webpack*            @centreon/centreon-frontend
-babel.config.js     @centreon/centreon-frontend
-tsconfig.json       @centreon/centreon-frontend
-.prettierrc.js      @centreon/centreon-frontend
-.eslint*            @centreon/centreon-frontend
-.csslintrc          @centreon/centreon-frontend
-*.ts                @centreon/centreon-frontend
-*.tsx               @centreon/centreon-frontend
-*.jsx               @centreon/centreon-frontend
+**/www/front_src/       @centreon/owners-react
+**/www/widgets/         @centreon/owners-react
+**/cypress/**           @centreon/owners-react
+centreon/cypress        @centreon/owners-react
+package.json            @centreon/owners-react
+package-lock.json       @centreon/owners-react
+webpack*                @centreon/owners-react
+babel.config.js         @centreon/owners-react
+tsconfig.json           @centreon/owners-react
+.prettierrc.js          @centreon/owners-react
+.eslint*                @centreon/owners-react
+.csslintrc              @centreon/owners-react
+*.ts                    @centreon/owners-react
+*.tsx                   @centreon/owners-react
+*.jsx                   @centreon/owners-react
 
-*.pm            @centreon/perl-reviewers
-*.pl            @centreon/perl-reviewers
+*.pm                    @centreon/owners-perl
+*.pl                    @centreon/owners-perl
+
+**/tests/e2e/**         @centreon/owners-cypress-e2e
+**/cypress/e2e/**       @centreon/owners-cypress-e2e
+
+*.feature               @centreon/owners-gherkin
+
+*.py                    @centreon/owners-python

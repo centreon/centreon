@@ -19,6 +19,7 @@ export interface Entity {
   description: string;
   id: string;
   images: Array<string>;
+  is_internal: boolean;
   label: string;
   last_update: string;
   license: License;

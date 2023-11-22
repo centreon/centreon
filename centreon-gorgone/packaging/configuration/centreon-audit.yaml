@@ -1,0 +1,5 @@
+gorgone:
+  modules:
+    - name: audit
+      package: "gorgone::modules::centreon::audit::hooks"
+      enable: true

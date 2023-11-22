@@ -22,7 +22,7 @@ export interface DataTableItemProps {
   description?: string;
   hasActions?: boolean;
   hasCardAction?: boolean;
-  labelsDelete: {
+  labelsDelete?: {
     cancel: string;
     confirm: {
       label: string;
@@ -76,7 +76,7 @@ const DataTableItem = forwardRef(
         {hasActions && (
           <MuiCardActions>
             <span>
-              {onDelete && (
+              {onDelete && labelsDelete && (
                 <ConfirmationTooltip
                   confirmVariant="error"
                   labels={labelsDelete}

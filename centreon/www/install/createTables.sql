@@ -80,6 +80,8 @@ CREATE TABLE `acl_groups` (
   `acl_group_alias` varchar(255) DEFAULT NULL,
   `acl_group_changed` int(11) NOT NULL DEFAULT 1,
   `acl_group_activate` enum('0','1','2') DEFAULT NULL,
+  `cloud_description` TEXT DEFAULT NULL,
+  `cloud_specific` boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (`acl_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -88,6 +90,7 @@ CREATE TABLE `acl_groups` (
 CREATE TABLE `acl_res_group_relations` (
   `acl_res_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
+  `order` int(11) NOT NULL DEFAULT 0,
   KEY `acl_res_id` (`acl_res_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_res_group_relations_ibfk_1` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
@@ -2105,7 +2108,8 @@ CREATE TABLE `widget_models` (
   `title` varchar(255) NOT NULL,
   `description` TEXT NOT NULL,
   `url` varchar(255) NOT NULL,
-  `version` varchar(255) NOT NULL,
+  `is_internal` BOOLEAN NOT NULL DEFAULT FALSE,
+  `version` varchar(255) DEFAULT NULL,
   `directory` varchar(255) NOT NULL,
   `author` varchar(255) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
@@ -2630,8 +2634,65 @@ CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
 CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `version` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `rotation_time` TINYINT UNSIGNED NOT NULL,
+  `created_at` INT(11) UNSIGNED NOT NULL,
+  `updated_at` INT(11) UNSIGNED NULL,
+  `created_by` INT NULL,
+  `updated_by` INT NULL,
+  `is_public` TINYINT(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`),
+  CONSTRAINT `dashboard_playlist_author_id`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
+  CONSTRAINT `dashboard_playlist_editor_id`
+    FOREIGN KEY (`updated_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist_relation` (
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `playlist_id` INT UNSIGNED NOT NULL,
+  `order` INT(11) NOT NULL,
+  UNIQUE KEY(`dashboard_id`, `playlist_id`),
+  CONSTRAINT `AK_PlaylisId_Order` UNIQUE (`playlist_id`, `order`),
+  CONSTRAINT `dashboard_playlist_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_playlist_relation_playlist_id`
+    FOREIGN KEY (`playlist_id`)
+    REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist_contact_relation` (
+  `contact_id` INT(11) NOT NULL,
+  `playlist_id` INT UNSIGNED NOT NULL,
+  UNIQUE KEY(`contact_id`, `playlist_id`),
+  CONSTRAINT `dashboard_playlist_contact_relation_contact_id`
+    FOREIGN KEY (`contact_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_playlist_contact_relation_playlist_id`
+    FOREIGN KEY (`playlist_id`)
+    REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_playlist_contactgroup_relation` (
+  `contactgroup_id` INT(11) NOT NULL,
+  `playlist_id` INT UNSIGNED NOT NULL,
+  UNIQUE KEY(`contactgroup_id`, `playlist_id`),
+  CONSTRAINT `dashboard_playlist_contactgroup_relation_contactgroup_id`
+    FOREIGN KEY (`contactgroup_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_playlist_contactgroup_relation_playlist_id`
+    FOREIGN KEY (`playlist_id`)
+    REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

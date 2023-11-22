@@ -15,9 +15,10 @@ on:
       - release-*
     paths:
       - ".github/**"
+      - "**/packaging/*.ya?ml"
 
 jobs:
-  actionlint:
+  action-lint:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -46,8 +47,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Yaml
-        run: |
-          pip install yamllint==1.32.0
+        run: pip install yamllint==1.32.0
 
       - name: Add Yaml Lint Rules
         run: |
@@ -67,5 +67,4 @@ jobs:
           EOF
 
       - name: Lint YAML files
-        run: |
-          yamllint -c ./yamllint_rules.yml ./.github/actions/ ./.github/workflows/
+        run: yamllint -c ./yamllint_rules.yml ./.github/actions/ ./.github/workflows/ ./**/packaging/
