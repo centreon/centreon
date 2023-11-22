@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add a new dashboard",
+    "type": "object",
+    "required": [
+        "contacts",
+        "contactgroups"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "contacts": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "viewer",
+                            "editor"
+                        ]
+                    }
+                }
+            }
+        },
+        "contactgroups": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "viewer",
+                            "editor"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

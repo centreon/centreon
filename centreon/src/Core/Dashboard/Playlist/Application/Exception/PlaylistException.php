@@ -88,4 +88,40 @@ class PlaylistException extends \Exception
     {
         return new self(sprintf(_('The following dashboard is not shared with you: [%d].'), $dashboardId));
     }
+
+    /**
+     * @return self
+     */
+    public static function contactForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share a playlist to a contact several times'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactGroupForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share a playlist to a contact several times'));
+    }
+
+    /**
+     * @param int $playlistId
+     *
+     * @return self
+     */
+    public static function playlistDoesNotExists(int $playlistId): self
+    {
+        return new self(sprintf(_('The following playlist does not exist: [%d].'), $playlistId));
+    }
+
+    /**
+     * @param int $playlistId
+     *
+     * @return self
+     */
+    public static function playlistNotShared(int $playlistId): self
+    {
+        return new self(sprintf(_('The following playlist is not shared with you: [%d].'), $playlistId));
+    }
 }
