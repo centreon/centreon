@@ -8,6 +8,7 @@ info:
     + Added graph template endpoint (GET)
     + Added connector endpoint (GET)
     + Added host endpoint (PATCH)
+    + Added dashboard playlist endpoint (POST)
     + Added service enpdoint (PATCH)
     +
     # Updated features
@@ -1019,7 +1020,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
-    $ref: './v24.04/Configuration/Media/AddMedia.yaml'
+    $ref: './v24.04/Configuration/Media/AddAndFindMedia.yaml'
   /configuration/proxy:
     get:
       tags:
@@ -1647,6 +1648,8 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/Contacts.yaml'
   /configuration/dashboards/contactgroups:
     $ref: './v24.04/Configuration/Dashboard/ContactGroups.yaml'
+  /configuration/dashboards/playlists:
+    $ref: './v24.04/Configuration/Dashboard/Playlist.yaml'
   /monitoring/dashboard/metrics/performances:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
   /monitoring/dashboard/metrics/performances/data:

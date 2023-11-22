@@ -47,6 +47,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
@@ -83,6 +84,7 @@ beforeEach(closure: function (): void {
     $this->performanceGraphRepository = $this->createMock(ReadPerformanceGraphRepositoryInterface::class);
     $this->imageRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
     $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class);
+    $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class);
     $this->optionService = $this->createMock(OptionService::class);
 
     $this->parametersValidation = $this->createMock(ParametersValidation::class);
@@ -104,6 +106,7 @@ beforeEach(closure: function (): void {
         $this->writeServiceMacroRepository,
         $this->readCommandMacroRepository,
         $this->writeServiceGroupRepository,
+        $this->readServiceGroupRepository,
         $this->parametersValidation,
         $this->contact,
         $this->dataStorageEngine,
@@ -288,9 +291,14 @@ it('should present a ErrorResponse when an error occurs during service groups li
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
-    $this->writeServiceGroupRepository
+    $this->contact
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceGroupRepository
         ->expects($this->once())
-        ->method('deleteRelations')
+        ->method('findByService')
         ->willThrowException(new Exception());
 
     ($this->useCase)($request, $this->presenter);

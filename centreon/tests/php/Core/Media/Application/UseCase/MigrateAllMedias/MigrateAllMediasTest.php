@@ -64,8 +64,8 @@ it('should present a MigrateAllMediasResponse when the user is an admin', functi
         ->method('isAdmin')
         ->willReturn(true);
 
-    $mediaWithoutData = new Media(1, 'media1.png', 'img', null);
-    $mediaWithData = new Media(2, 'media2.png', 'img', 'fake data');
+    $mediaWithoutData = new Media(1, 'media1.png', 'img', null, null);
+    $mediaWithData = new Media(2, 'media2.png', 'img', null, 'fake data');
     $medias = new \ArrayIterator([$mediaWithoutData, $mediaWithData]);
     $this->readMediaRepository
         ->expects($this->once())

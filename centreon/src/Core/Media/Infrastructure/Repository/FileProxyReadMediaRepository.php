@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 
@@ -60,7 +61,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
         {
             /**
              * @param string $absoluteMediaPath
-             * @param \Iterator<int, Media>&\Countable $medias |\Countable
+             * @param \Iterator<int, Media>&\Countable $medias
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
@@ -70,12 +71,17 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
 
             public function current(): Media
             {
+                /** @var Media $media */
                 $media = $this->medias->current();
                 $absoluteMediaPath = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $media->getRelativePath();
                 if (file_exists($absoluteMediaPath)) {
-                    $media->setData(
+                    return new Media(
+                        $media->getId(),
+                        $media->getFilename(),
+                        $media->getDirectory(),
+                        $media->getComment(),
                         file_get_contents($absoluteMediaPath)
-                            ?: throw new \Exception('Impossible to get content of file ' . $media->getRelativePath())
+                            ?: throw new \Exception('Cannot get content of file ' . $media->getRelativePath())
                     );
                 }
 
@@ -105,6 +111,53 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
             public function count(): int
             {
                 return $this->medias->count();
+            }
+        };
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
+    {
+        return $this->createTraversable($this->dbReadMediaRepository->findByRequestParameters($requestParameters));
+    }
+
+    /**
+     * @param \Traversable<int, Media> $medias
+     *
+     * @return \Traversable<int, Media>
+     */
+    private function createTraversable(\Traversable $medias): \Traversable
+    {
+        return new class ($this->absoluteMediaPath, $medias) implements \IteratorAggregate
+        {
+            /**
+             * @param string $absoluteMediaPath
+             * @param \Traversable<int, Media> $medias
+             */
+            public function __construct(
+                readonly private string $absoluteMediaPath,
+                readonly private \Traversable $medias
+            ) {
+            }
+
+            public function getIterator(): \Traversable
+            {
+                foreach ($this->medias as $media) {
+                    $absoluteMediaPath = $this->absoluteMediaPath . DIRECTORY_SEPARATOR . $media->getRelativePath();
+                    if (file_exists($absoluteMediaPath)) {
+                        yield new Media(
+                            $media->getId(),
+                            $media->getFilename(),
+                            $media->getDirectory(),
+                            $media->getComment(),
+                            file_get_contents($absoluteMediaPath) ?: null
+                        );
+                    } else {
+                        yield $media;
+                    }
+                }
             }
         };
     }

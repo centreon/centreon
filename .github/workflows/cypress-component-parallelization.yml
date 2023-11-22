@@ -58,6 +58,67 @@ jobs:
           path: centreon/cypress/results/*.json
           retention-days: 1
 
+      - name: Change coverage report name
+        run: mv ${{ inputs.module_name }}/.nyc_output/out.json ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
+        shell: bash
+
+      - name: Archive test coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-coverage
+          path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
+          retention-days: 1
+
+  cypress-component-coverage-report:
+    needs: [cypress-component-test-run]
+    if: always()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.name }}-coverage
+          path: .nyc_output/
+
+      - name: Merge coverage reports
+        run: |
+          pnpx nyc merge .nyc_output
+          mv coverage.json .nyc_output/out.json
+        shell: bash
+
+      - name: Generate lcov coverage report
+        run: pnpx nyc report --reporter=lcov --reporter html
+        shell: bash
+
+      - name: Format title
+        id: title
+        run: |
+          MODULE_NAME=`echo "${{ inputs.module_name }}" | sed -e "s#/#-#g"`
+          echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Publish code coverage to PR
+        uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          title: Code coverage report for ${{ steps.title.outputs.replaced }} ${{ inputs.name }} 🚀
+          delete-old-comments: true
+          filter-changed-files: true
+
+      - name: Archive HTML code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
+          path: coverage
+          retention-days: 1
+
   cypress-component-test-report:
     needs: [cypress-component-test-run]
     if: failure()
