@@ -27,9 +27,11 @@ fi
 
 case "$action" in
   "1" | "install")
+    fixCacheConfigRights
     startCentreon
     ;;
   "2" | "upgrade")
+    fixCacheConfigRights
     startCentreon
     ;;
   *)
