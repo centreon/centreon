@@ -10,17 +10,8 @@ inputs:
   bu:
     description: "Business unit to use."
     required: true
-  disk_size:
-    description: "Instance disk size"
-    required: true
   poller_number:
     description: "Instance poller number"
-    required: true
-  central_instance:
-    description: "Instance central ec2 sizing"
-    required: true
-  poller_instance:
-    description: "Instance poller ec2 sizing"
     required: true
   system_name:
     description: "Operating System name"

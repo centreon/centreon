@@ -817,10 +817,7 @@ jobs:
         with:
           ref: main
           bu: RD
-          disk_size: 30
           poller_number: 1
-          central_instance: t3a.medium
-          poller_instance: t3a.medium
           system_name: Alma8
           centreon_branch: develop
           configured_resources: false
