@@ -13,6 +13,7 @@ import FederatedComponent from '../../../../components/FederatedComponents';
 import { editProperties } from '../../hooks/useCanEditDashboard';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
+import { widgetFormInitialDataAtom } from '../../AddEditWidget/atoms';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -32,6 +33,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   );
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
   const isEditing = useAtomValue(isEditingAtom);
+  const widgetFormInitialData = useAtomValue(widgetFormInitialDataAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -74,7 +76,8 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
               canEdit={canEditField}
               globalRefreshInterval={refreshInterval}
               id={id}
-              isEditing={isEditing}
+              isEditingDashboard={isEditing}
+              isEditingWidget={!!widgetFormInitialData}
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
