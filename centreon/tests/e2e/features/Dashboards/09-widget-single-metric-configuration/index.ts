@@ -11,7 +11,7 @@ import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/wid
 
 before(() => {
   cy.startWebContainer();
-  cy.updateCentreonConfig();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );

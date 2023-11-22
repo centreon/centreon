@@ -11,7 +11,7 @@ import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member
 
 before(() => {
   cy.startWebContainer();
-  cy.updateCentreonConfig();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 

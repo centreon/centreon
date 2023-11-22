@@ -4,7 +4,7 @@ import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboard
 
 before(() => {
   cy.startWebContainer();
-  cy.updateCentreonConfig();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );

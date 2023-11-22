@@ -7,7 +7,7 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 
 before(() => {
   cy.startWebContainer();
-  cy.updateCentreonConfig();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );

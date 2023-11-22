@@ -6,7 +6,7 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 
 before(() => {
   cy.startWebContainer();
-  cy.updateCentreonConfig();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 

@@ -9,7 +9,7 @@ import metricsGraphDoublecWidget from '../../../fixtures/dashboards/creation/wid
 
 before(() => {
   cy.startWebContainer();
-  cy.updateCentreonConfig();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
@@ -140,7 +140,7 @@ Then("a graph with a single bar is displayed in the widget's preview", () => {
   cy.getByTestId({ testId: 'Avg' }).should('exist');
 });
 
-When(
+Then(
   'this bar represents the evolution of the selected metric over the default period of time',
   () => {
     cy.get('.visx-group.visx-axis-bottom text')
@@ -332,6 +332,8 @@ When(
 Then(
   'only the contents of the other Metrics Graph widget are displayed',
   () => {
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
     cy.getByTestId({ testId: 'Min' }).should('exist');
     cy.getByTestId({ testId: 'Max' }).should('exist');
     cy.getByTestId({ testId: 'Avg' }).should('exist');
@@ -387,9 +389,14 @@ Then(
       label: 'Centreon-Server: Packet Loss (%)',
       tag: 'p'
     }).should('exist');
+
   }
 );
 
 Then('the thresholds are automatically hidden', () => {
   cy.get('span[data-checked="false"]').should('exist');
+  cy.getByTestId({ testId: 'confirm' }).click();
+  cy.wait('@performanceData')
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('not.exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('not.exist');
 });

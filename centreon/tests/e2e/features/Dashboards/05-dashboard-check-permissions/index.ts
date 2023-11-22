@@ -9,7 +9,7 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer();
-  cy.updateCentreonConfig();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
   );
