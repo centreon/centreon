@@ -580,7 +580,7 @@ jobs:
       stability: ${{ needs.get-version.outputs.stability }}
       has_backend_changes: ${{ needs.changes.outputs.has_backend_changes }}
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
