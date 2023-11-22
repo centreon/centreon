@@ -21,44 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Core\ServiceGroup\Application\Repository;
+namespace Core\Dashboard\Playlist\Application\Repository;
 
-use Core\ServiceGroup\Domain\Model\NewServiceGroup;
-use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
+use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
+use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
 
-interface WriteServiceGroupRepositoryInterface
+interface WritePlaylistRepositoryInterface
 {
     /**
-     * Delete a service group.
+     * Add a playlist and return its id.
      *
-     * @param int $serviceGroupId
-     */
-    public function deleteServiceGroup(int $serviceGroupId): void;
-
-    /**
-     * @param NewServiceGroup $newServiceGroup
+     * @param NewPlaylist $playlist
      *
      * @throws \Throwable
      *
      * @return int
      */
-    public function add(NewServiceGroup $newServiceGroup): int;
+    public function add(NewPlaylist $playlist): int;
 
     /**
-     * Create serviceGroup relation(s).
+     * Add Dashboards to a playlist.
      *
-     * @param ServiceGroupRelation[] $serviceGroupRelations
+     * @param int $playlistId
+     * @param DashboardOrder[] $dashboardsOrder
      *
      * @throws \Throwable
      */
-    public function link(array $serviceGroupRelations): void;
-
-    /**
-     * Remove serviceGroup relation(s).
-     *
-     * @param ServiceGroupRelation[] $serviceGroupRelations
-     *
-     * @throws \Throwable
-     */
-    public function unlink(array $serviceGroupRelations): void;
+    public function addDashboardsToPlaylist(int $playlistId, array $dashboardsOrder): void;
 }

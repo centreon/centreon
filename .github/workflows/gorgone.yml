@@ -25,7 +25,7 @@ jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: centreon-gorgone/packaging/centreon-gorgone.spectemplate
+      version_file: centreon-gorgone/.version
 
   veracode-analysis:
     needs: [get-version]
@@ -60,21 +60,58 @@ jobs:
             image: packaging-bullseye
             distrib: bullseye
 
-    uses: ./.github/workflows/package.yml
-    with:
-      base_directory: centreon-gorgone
-      spec_file: centreon-gorgone/packaging/centreon-gorgone.spectemplate
-      package_extension: ${{ matrix.package_extension }}
-      image_name: ${{ matrix.image }}
-      module_name: centreon-gorgone
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      release: ${{ needs.get-version.outputs.release }}
-      commit_hash: ${{ github.sha }}
-      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-    secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+    name: package ${{ matrix.distrib }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Set package version and paths according to distrib
+        run: |
+          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+            PERL_VENDORLIB="/usr/share/perl5"
+          else
+            PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
+          fi
+          echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Generate selinux binaries
+        if: ${{ matrix.package_extension == 'rpm' }}
+        run: |
+          cd centreon-gorgone/selinux
+          sed -i "s/@VERSION@/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" centreon-gorgoned.te
+          make -f /usr/share/selinux/devel/Makefile
+        shell: bash
+
+      - name: Remove selinux packaging files on debian
+        if: ${{ matrix.package_extension == 'deb' }}
+        run: rm -f centreon-gorgone/packaging/*-selinux.yaml
+        shell: bash
+
+      - name: Package
+        uses: ./.github/actions/package-nfpm
+        with:
+          nfpm_file_pattern: "centreon-gorgone/packaging/*.yaml"
+          distrib: ${{ matrix.distrib }}
+          package_extension: ${{ matrix.package_extension }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          release: ${{ needs.get-version.outputs.release }}
+          arch: all
+          commit_hash: ${{ github.sha }}
+          cache_key: cache-${{ github.sha }}-${{ matrix.package_extension}}-centreon-gorgone-${{ matrix.distrib }}-${{ github.head_ref || github.ref_name }}
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
 
   deliver-sources:
     runs-on: [self-hosted, common]
