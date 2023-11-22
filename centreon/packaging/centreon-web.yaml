@@ -85,13 +85,13 @@ contents:
       mode: 0644
     packager: deb
 
-  - src: "./src/php-fpm.conf"
+  - src: "./src/php-fpm.rpm.conf"
     dst: "/etc/php-fpm.d/centreon.conf"
     type: config|noreplace
     file_info:
       mode: 0644
     packager: rpm
-  - src: "./src/php-fpm.conf"
+  - src: "./src/php-fpm.deb.conf"
     dst: "/etc/php/8.1/fpm/pool.d/centreon.conf"
     type: config|noreplace
     file_info:
