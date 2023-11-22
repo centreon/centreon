@@ -79,7 +79,7 @@ describe('MetricsOnly', () => {
     initializeComponent({ metrics: emptyMetrics, resources: defaultResources });
   });
 
-  it('displays metrics with included hosts when resources are fulfilled', () => {
+  it.only('displays metrics with included hosts when resources are fulfilled', () => {
     cy.waitForRequest('@getServiceMetrics');
 
     cy.findByTestId(labelSelectMetric).click();

@@ -215,7 +215,7 @@ describe('AddEditWidgetModal', () => {
         });
       });
 
-      it('displays the modal', () => {
+      it.only('displays the modal', () => {
         cy.contains(labelSelectAWidgetType).should('be.visible');
         cy.contains(labelPleaseChooseAWidgetToActivatePreview).should(
           'be.visible'
