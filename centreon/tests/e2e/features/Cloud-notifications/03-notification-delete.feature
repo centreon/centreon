@@ -2,7 +2,7 @@
 @REQ_MON-24181
 Feature: Deleting a notification rule
   As a Centreon user with access to the notification rules page
-  I need to delete a notification rule
+  The user need to delete a notification rule
   So that configured users are no longer notified for the associated resources status changes
 
   Background:

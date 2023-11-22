@@ -2,8 +2,8 @@
 @REQ_MON-24182
 Feature: Editing notification rule configuration
   As a Centreon user with access to the notification rules page
-  I want to edit a notification rule
-  So that I can adapt to the ever-evolving needs of my monitoring system
+  The user want to edit a notification rule
+  So that the user can adapt to the ever-evolving needs of my monitoring system
 
   Background:
     Given a user with access to the notification rules page

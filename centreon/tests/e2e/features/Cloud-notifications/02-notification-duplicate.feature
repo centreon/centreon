@@ -2,8 +2,8 @@
 @REQ_MON-24180
 Feature: Duplicating a notification rule
   As a Centreon user with access to the notification rules page
-  I need to duplicate a notification rule
-  So that I can save time and configure a new one without starting from scratch
+  The user need to duplicate a notification rule
+  So that the user can save time and configure a new one without starting from scratch
 
   Background:
     Given a user with access to the notification rules page
