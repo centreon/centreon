@@ -1,10 +1,17 @@
 #!/bin/bash
 
 manageUsersAndGroups() {
-  usermod -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon apache
-  usermod -a -G apache nagios
-  usermod -a -G apache centreon-gorgone
-  usermod -a -G apache centreon
+  if [ "$1" = "rpm" ]; then
+    usermod -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon apache
+    usermod -a -G apache nagios
+    usermod -a -G apache centreon-gorgone
+    usermod -a -G apache centreon
+  else
+    usermod -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon www-data
+    usermod -a -G www-data nagios
+    usermod -a -G www-data centreon-gorgone
+    usermod -a -G www-data centreon
+  fi
 }
 
 updateConfigurationFiles() {
@@ -19,11 +26,6 @@ updateConfigurationFiles() {
   sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
 }
 
-restartApacheAndPhpFpm() {
-  systemctl try-restart httpd || :
-  systemctl try-restart php-fpm || :
-}
-
 updateEngineBrokerRights() {
   # Change right for Centreon Engine and Centreon Broker configuration files
   if [ -d /etc/centreon-broker ] && [ "$(getent passwd centreon-broker)" ]; then
@@ -33,6 +35,38 @@ updateEngineBrokerRights() {
       chown centreon-engine:centreon /etc/centreon-engine/*
   fi
 }
+
+updateGorgoneConfiguration() {
+  # make sure that gorgone configuration file has the central id set
+  if [[ ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
+      sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+  fi
+}
+
+restartApacheAndPhpFpm() {
+  if [ "$1" = "rpm" ]; then
+    systemctl try-restart httpd || :
+    systemctl try-restart php-fpm || :
+  else
+    systemctl try-restart apache2 || :
+    systemctl try-restart php8.1-fpm || :
+  fi
+}
+
+rebuildSymfonyCache() {
+  rm -rf /var/cache/centreon/symfony
+
+  if [ "$1" = "rpm" ]; then
+    su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+  else
+    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+  fi
+}
+
+package_type="rpm"
+if  [ "$1" = "configure" ]; then
+  package_type="deb"
+fi
 
 action="$1"
 if  [ "$1" = "configure" ] && [ -z "$2" ]; then
@@ -45,30 +79,21 @@ fi
 
 case "$action" in
   "1" | "install")
-    manageUsersAndGroups
+    manageUsersAndGroups $package_type
     updateConfigurationFiles
-    restartApacheAndPhpFpm
+    updateGorgoneConfiguration
+    restartApacheAndPhpFpm $package_type
     ;;
   "2" | "upgrade")
-    manageUsersAndGroups
+    manageUsersAndGroups $package_type
     updateConfigurationFiles
-    restartApacheAndPhpFpm
+    updateGorgoneConfiguration
+    restartApacheAndPhpFpm $package_type
     updateEngineBrokerRights
+    rebuildSymfonyCache $package_type
     ;;
   *)
     # $1 == version being installed
-    manageUsersAndGroups
+    manageUsersAndGroups $package_type
     ;;
 esac
-
-
-# rebuild symfony cache on upgrade
-if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
-  rm -rf /var/cache/centreon/symfony
-  su - apache -s /bin/bash -c "%{_datadir}/centreon/bin/console cache:clear"
-fi
-
-# make sure that gorgone configuration file has the central id set
-if [[ ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
-    sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-fi
