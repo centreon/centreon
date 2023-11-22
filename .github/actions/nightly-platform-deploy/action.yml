@@ -2,13 +2,13 @@ name: "nightly-platform-deploy"
 description: "Deploy a platform with packages from nightly builds."
 inputs:
   deploy_type:
-    description: "The type of platform deployment (install or update)."
+    description: "The type of platform deployment (install or update)"
     required: false
   ref:
-    description: "Reference branch for cod."
+    description: "Reference branch for centreon on demand"
     required: true
   bu:
-    description: "Business unit to use."
+    description: "Business unit to use"
     required: true
   poller_number:
     description: "Instance poller number"
