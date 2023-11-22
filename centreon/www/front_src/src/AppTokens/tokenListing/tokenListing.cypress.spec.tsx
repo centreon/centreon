@@ -7,18 +7,15 @@ import { listTokensEndpoint } from '../api/endpoints';
 import Listing from './Listing';
 
 describe('app-token listing', () => {
-  cy.fixture('../../../../../cypress/fixtures/appTokens/list.json').then(
-    (data) => {
+  beforeEach(() => {
+    cy.fixture('appTokens/list.json').then((data) => {
       cy.interceptAPIRequest({
         alias: 'getListTokens',
         method: Method.GET,
         path: listTokensEndpoint,
         response: data
       });
-    }
-  );
-
-  beforeEach(() => {
+    });
     cy.viewport('macbook-13');
     cy.mount({
       Component: (
@@ -32,6 +29,7 @@ describe('app-token listing', () => {
   });
 
   it('first test', () => {
+    cy.waitForRequest('@getListTokens');
     cy.contains('my-api-token');
   });
 });
