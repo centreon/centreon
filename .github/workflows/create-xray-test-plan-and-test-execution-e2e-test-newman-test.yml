@@ -1,0 +1,96 @@
+name: create-xray-test-plan-and-test-execution-e2e-test-newman-test
+
+on:
+  workflow_call:
+    inputs:
+      major_version:
+        required: true
+        type: string
+      minor_version:
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
+      has_backend_changes:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+    secrets:
+      xray_jira_user_email:
+        required: true
+      xray_jira_token:
+        required: true
+      xray_client_id:
+        required: true
+      xray_client_secret:
+        required: true
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+
+jobs:
+  create-xray-test-plan-and-test-execution:
+    # if: ${{( inputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ inputs.major_version }}
+      minor_version: ${{ inputs.minor_version }}
+      os: ${{ inputs.os }}
+    secrets:
+      xray_client_id: ${{ secrets.xray_client_id }}
+      xray_client_secret: ${{ secrets.xray_client_secret }}
+      xray_jira_user_email: ${{ secrets.xray_jira_user_email }}
+      xray_jira_token: ${{ secrets.xray_jira_token }}
+
+  e2e-test:
+    needs: [create-xray-test-plan-and-test-execution]
+    if: ${{ inputs.stability != 'stable' }}
+
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      os: ${{ inputs.os }}
+      features_path: tests/e2e/features
+      major_version: ${{ inputs.major_version }}
+      minor_version: ${{ inputs.minor_version }}
+      stability: ${{ inputs.stability }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, inputs.os == 'alma8' && 'rpm-el8' || inputs.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
+      package_directory: centreon/tests/e2e/fixtures/packages
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+      test_plan_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_plan_key }}
+      test_execution_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_execution_key }}
+    secrets:
+      registry_username: ${{ secrets.registry_username }}
+      registry_password: ${{ secrets.registry_password }}
+      xray_client_id: ${{ secrets.xray_client_id }}
+      xray_client_secret: ${{ secrets.xray_client_secret }}
+
+  newman-test:
+    # you can use the create test execution here 
+    needs: [create-xray-test-plan-and-test-execution]
+    if: ${{ inputs.has_backend_changes == 'true' && inputs.os == 'alma9'}}
+    uses: ./.github/workflows/newman.yml
+    with:
+      collection_path: centreon/tests/rest_api/collections
+      image_name: centreon-web
+      os: alma9
+      container_name: my_centreon_container
+      centreon_url: http://localhost
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+      major_version: ${{ inputs.major_version }}
+      stability: ${{ inputs.stability }}
+    secrets:
+      registry_username: ${{ secrets.registry_username}}
+      registry_password: ${{ secrets.registry_password }}
+      client_id: ${{ secrets.xray_client_id }}
+      client_secret: ${{ secrets.xray_client_secret }}
+      jira_user: ${{ secrets.xray_jira_user_email }}
+      jira_token_test: ${{ secrets.xray_jira_token }}
