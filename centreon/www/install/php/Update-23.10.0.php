@@ -356,8 +356,7 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
                         ('centreon-widget-generictext', '23.10.0'),
                         ('centreon-widget-singlemetric', '23.10.0'),
                         ('centreon-widget-graph', '23.10.0'),
-                        ('centreon-widget-topbottom', '23.10.0'),
-                        ('centreon-widget-statusgrid', '23.10.0')
+                        ('centreon-widget-topbottom', '23.10.0')
                     SQL
             );
         }
