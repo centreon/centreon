@@ -421,6 +421,10 @@ jobs:
           echo "PERL_VENDORLIB=$PERL_VENDORLIB" >> $GITHUB_ENV
         shell: bash
 
+      - name: Create centreon web configuration file
+        run: mv centreon/config/centreon.config.php.template centreon/config/centreon.config.php
+        shell: bash
+
       - name: Remove compilation related files
         run: |
           rm -rf centreon/www/front_src
