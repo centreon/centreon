@@ -33,6 +33,7 @@ beforeEach(function (): void {
             'id' => 1,
             'filename' => 'filename',
             'directory' => 'directory',
+            'comment' => null,
             'data' => 'data',
             ...$arguments,
         ]);
@@ -60,13 +61,6 @@ it('should throw an exception when the directory property is empty', function ()
     AssertionException::notEmptyString('Media::directory')->getMessage()
 );
 
-it('should throw an exception when the data property is empty', function (): void {
-    ($this->createMedia)(['data' => '']);
-})->throws(
-    \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('Media::data')->getMessage()
-);
-
 it('should replace space characters by \'_\' in the filename property', function (): void {
     $media = ($this->createMedia)(['filename' => ' new filename.jpg ']);
     expect($media->getFilename())->toBe('new_filename.jpg');
@@ -78,7 +72,6 @@ it('should remove the space characters in the path property', function (): void 
 });
 
 it('should remove the space characters in the comment property', function (): void {
-    $media = ($this->createMedia)([]);
-    $media->setComment(' comments ');
-    expect($media->getComment())->toBe('comments');
+    $media = ($this->createMedia)(['comment' => ' some comments ']);
+    expect($media->getComment())->toBe('some comments');
 });

@@ -192,6 +192,8 @@ describe('Resource Listing: Visualization by Service', () => {
   });
 
   it('sends a request with types "service,metaservice"', () => {
+    cy.findByTestId('tree view').should('be.visible');
+
     cy.findByLabelText(labelViewByService).click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
@@ -706,19 +708,6 @@ describe('Tree view : Feature Flag', () => {
     cy.contains('E0').should('be.visible');
 
     cy.findByTestId('tree view').should('not.exist');
-
-    cy.makeSnapshot();
-  });
-  it('displays the tree view icons if the feature is enabled', () => {
-    store.set(
-      platformFeaturesAtom,
-      getPlatformFeatures({ enableTreeView: true })
-    );
-    interceptRequestsAndMountBeforeEach();
-
-    cy.contains('E0').should('be.visible');
-
-    cy.findByTestId('tree view').should('be.visible');
 
     cy.makeSnapshot();
   });

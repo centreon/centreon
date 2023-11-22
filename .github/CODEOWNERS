@@ -26,6 +26,8 @@
 
 **/www/front_src/       @centreon/owners-react
 **/www/widgets/         @centreon/owners-react
+**/cypress/**           @centreon/owners-react
+centreon/cypress        @centreon/owners-react
 package.json            @centreon/owners-react
 package-lock.json       @centreon/owners-react
 webpack*                @centreon/owners-react
