@@ -34,7 +34,7 @@ on:
 
 jobs:
   create-xray-test-plan-and-test-execution:
-    # if: ${{( inputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' || ( inputs.has_backend_changes == 'true' && inputs.os == 'alma9' ) }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
     with:
@@ -73,7 +73,7 @@ jobs:
       xray_client_secret: ${{ secrets.xray_client_secret }}
 
   newman-test:
-    # you can use the create test execution here 
+    # you can use the created test execution here, to change in another PR by Wassim
     needs: [create-xray-test-plan-and-test-execution]
     if: ${{ inputs.has_backend_changes == 'true' && inputs.os == 'alma9'}}
     uses: ./.github/workflows/newman.yml
