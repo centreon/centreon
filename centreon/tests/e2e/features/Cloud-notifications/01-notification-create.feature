@@ -1,23 +1,23 @@
 @ignore
 @REQ_MON-24178
-Feature: Creating a notification rule
-  As a Centreon user with access to the notification rules page
-  The user need to create a notification rule
+Feature: Creating a Notification Rule
+  As a Centreon user with access to the Notification Rules page
+  The user need to create a Notification Rule
   So that configured resources status changes are notified to the configured users
 
   Background:
-    Given a user with access to the notification rules page
-    And the user is on the notification rules page
+    Given a user with access to the Notification Rules page
+    And the user is on the Notification Rules page
 
-  Scenario: Creating a notification rule
+  Scenario: Creating a Notification Rule
     When the user defines a name for the rule
     And the user selects some resources with associated events on which to notify
     And the user selects some contacts and/or contact groups
     And the user defines a mail subject
     And the user defines a mail body
     And the user clicks on the "Save" button to confirm
-    Then a success message is displayed and the created notification rule is displayed in the listing
+    Then a success message is displayed and the created Notification Rule is displayed in the listing
     When changes occur in the configured statuses for the selected resources
     And the hard state is reached
     And the notification refresh_delay has been reached
-    Then an email is sent to the configured contacts and contact groups with the configured format
+    Then an email is sent to the configured contacts and/or contact groups with the configured format
