@@ -805,7 +805,7 @@ jobs:
     #     performances-test,
     #     legacy-e2e-test,
     #   ]
-    # if: ${{ github.event_name }} == '0 6 * * *'
+    if: ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [common]
     steps:
       - name: Checkout sources
