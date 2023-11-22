@@ -806,7 +806,7 @@ jobs:
         legacy-e2e-test,
         deliver-rpm
       ]
-    if: ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [common]
     steps:
       - name: Checkout sources
