@@ -235,20 +235,6 @@ contents:
       group: "centreon"
       mode: 0775
 
-  - dst: "/var/lib/centreon"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/var/lib/centreon/centplugins"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
   - dst: "/var/lib/centreon/installs"
     type: dir
     file_info:

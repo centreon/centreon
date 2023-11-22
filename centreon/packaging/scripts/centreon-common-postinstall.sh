@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# force 2775 to cache config directories
+fixCacheConfigRights() {
+  chmod 2775 /var/cache/centreon/config
+  chmod 2775 /var/cache/centreon/config/engine
+  chmod 2775 /var/cache/centreon/config/broker
+  chmod 2775 /var/cache/centreon/config/export
+}
+
 startCentreon() {
   systemctl daemon-reload ||:
   systemctl unmask centreon.service ||:
