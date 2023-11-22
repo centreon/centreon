@@ -186,10 +186,16 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "../tmpl/install/systemd/centreontrapd.systemd"
+  - src: "../tmpl/install/systemd/centreontrapd.rpm.systemd"
     dst: "/usr/share/centreon/examples/centreontrapd.systemd"
     file_info:
       mode: 0644
+    packager: rpm
+  - src: "../tmpl/install/systemd/centreontrapd.deb.systemd"
+    dst: "/usr/share/centreon/examples/centreontrapd.systemd"
+    file_info:
+      mode: 0644
+    packager: deb
 
   - src: "./src/centreon-apache.conf"
     dst: "/usr/share/centreon/examples/centreon-apache.conf"
