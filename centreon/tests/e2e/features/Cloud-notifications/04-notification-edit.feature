@@ -23,6 +23,7 @@ Feature: Editing notification rule configuration
     And the user saves to confirm the changes
     And the notification refresh delay has been reached
     Then the notifications for status changes are sent only to the updated <user_type>
+
     Examples:
       | user_type      |
       | contact        |
@@ -32,6 +33,7 @@ Feature: Editing notification rule configuration
     When the user selects the <action> action on a notification rule line
     And the notification refresh delay has been reached
     Then <prefix> notification is sent for this rule once
+
     Examples:
       | action  | prefix  |
       | enable  | no more |
@@ -43,6 +45,7 @@ Feature: Editing notification rule configuration
     And the user saves to confirm the changes
     And the notification refresh delay has been reached
     Then only notifications for status changes of the updated resource parameters are sent
+
     Examples:
       | action  |
       | enable  |
