@@ -1,4 +1,5 @@
 const core = require('@actions/core');
+const { compareVersions } = require('compare-versions');
 
 const getPackageInformations = async () => {
   const package = core.getInput('package');
@@ -13,6 +14,7 @@ try {
   const tag = gitBranchName === 'develop' ? 'latest' : gitBranchName;
 
   getPackageInformations().then((package) => {
+    console.log(compareVersions(package['dist-tags']["latest"], core.getInput('packageVersion')))
     core.setOutput("package_version", package['dist-tags'][tag] || '')
   });
 } catch (error) {
