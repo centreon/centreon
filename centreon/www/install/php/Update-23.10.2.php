@@ -142,12 +142,18 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
 
 try {
     $createDashboardsPlaylistTables($pearDB);
-
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
+ 
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
     $populateDahsboardTables($pearDB);
     
-    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
+    $pearDB->commit();
 } catch (\Exception $e) {
-
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage
