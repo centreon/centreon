@@ -1,13 +1,13 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 import { useFormikContext } from 'formik';
 import {
   all,
-  dissocPath,
   equals,
   flatten,
   gt,
   includes,
+  innerJoin,
   isEmpty,
   isNil,
   length,
@@ -19,12 +19,12 @@ import {
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import {
   ListingModel,
   SelectEntry,
   buildListingEndpoint,
+  useDeepCompare,
   useFetchQuery
 } from '@centreon/ui';
 
@@ -37,12 +37,7 @@ import {
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { getDataProperty, resourceTypeQueryParameter } from '../utils';
-import {
-  labelIncludesXHost,
-  labelPleaseSelectAMetric,
-  labelYouMustAddMoreResources
-} from '../../../../translatedLabels';
-import { singleHostPerMetricAtom } from '../../../atoms';
+import { labelIncludesXHost } from '../../../../translatedLabels';
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
@@ -66,17 +61,8 @@ interface UseMetricsOnlyState {
 const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const { t } = useTranslation();
 
-  const {
-    values,
-    setFieldValue,
-    setFieldTouched,
-    setFieldError,
-    errors,
-    setErrors,
-    touched
-  } = useFormikContext<Widget>();
-
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const { values, setFieldValue, setFieldTouched, errors, touched } =
+    useFormikContext<Widget>();
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
@@ -135,60 +121,27 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
 
-  const metrics = pipe(
+  const metrics: Array<Metric> = pipe(
     pluck('metrics'),
     flatten,
     uniqBy(({ name }) => name)
   )(servicesMetrics?.result || []);
 
-  const validateMetrics = (selectedMetrics?): void => {
-    if (isEmpty(selectedMetrics) || !selectedMetrics) {
-      setFieldError(`data.${propertyName}`, t(labelPleaseSelectAMetric));
-
-      return;
-    }
-
-    if (!singleHostPerMetric) {
-      setErrors(dissocPath(['data'], errors));
-
-      return;
-    }
-
-    const hasMetricsWithSeveralResources = selectedMetrics
-      .filter((v) => v)
-      .some(({ name }) => {
-        const numberOfResources = getNumberOfResourcesRelatedToTheMetric(name);
-
-        return gt(numberOfResources, 1);
-      });
-
-    if (hasMetricsWithSeveralResources) {
-      setFieldError(`data.${propertyName}`, t(labelYouMustAddMoreResources));
-
-      return;
-    }
-
-    setErrors(dissocPath(['data'], errors));
-  };
-
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
-    setFieldValue(`data.${propertyName}`, [newMetric], false);
+    setFieldValue(`data.${propertyName}`, [newMetric]);
     setFieldTouched(`data.${propertyName}`, true, false);
-    validateMetrics([newMetric]);
   };
 
   const deleteMetricItem = (option): void => {
     const newMetrics = reject(propEq(option.id, 'id'), value || []);
 
-    setFieldValue(`data.${propertyName}`, newMetrics, false);
+    setFieldValue(`data.${propertyName}`, newMetrics);
     setFieldTouched(`data.${propertyName}`, true, false);
-    validateMetrics(newMetrics);
   };
 
   const changeMetrics = (_, newMetrics: Array<SelectEntry> | null): void => {
-    setFieldValue(`data.${propertyName}`, newMetrics || [], false);
+    setFieldValue(`data.${propertyName}`, newMetrics || []);
     setFieldTouched(`data.${propertyName}`, true, false);
-    validateMetrics(newMetrics);
   };
 
   const getMetricOptionDisabled = (metricOption): boolean => {
@@ -236,9 +189,35 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     }) / ${getNumberOfResourcesRelatedToTheMetric(metric.name)}`;
   };
 
-  useEffect(() => {
-    validateMetrics(value);
-  }, [value, resources, servicesMetrics]);
+  useEffect(
+    () => {
+      if (isNil(servicesMetrics)) {
+        return;
+      }
+
+      if (isEmpty(resources)) {
+        setFieldValue(`data.${propertyName}`, []);
+
+        return;
+      }
+
+      const baseMetricIds = pluck('id', metrics);
+
+      const intersectionBetweenMetricsIdsAndValues = innerJoin(
+        (metric, id) => equals(metric.id, id),
+        value || [],
+        baseMetricIds
+      );
+
+      setFieldValue(
+        `data.${propertyName}`,
+        isEmpty(intersectionBetweenMetricsIdsAndValues)
+          ? []
+          : intersectionBetweenMetricsIdsAndValues
+      );
+    },
+    useDeepCompare([servicesMetrics, resources])
+  );
 
   return {
     changeMetric,

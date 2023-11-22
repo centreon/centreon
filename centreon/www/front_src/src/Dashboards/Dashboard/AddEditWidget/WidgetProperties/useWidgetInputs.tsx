@@ -10,7 +10,6 @@ import {
   customBaseColorAtom,
   singleHostPerMetricAtom,
   singleMetricSelectionAtom,
-  singleResourceTypeSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
 
@@ -68,9 +67,6 @@ export const useWidgetInputs = (
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleResourceTypeSelection = useSetAtom(
-    singleResourceTypeSelectionAtom
-  );
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
 
@@ -125,9 +121,6 @@ export const useWidgetInputs = (
       }
 
       setSingleMetricSection(selectedWidget.singleMetricSelection);
-      setSingleResourceTypeSelection(
-        selectedWidget.singleResourceTypeSelection
-      );
       setSingleHostPerMetric(selectedWidget.singleHostPerMetric);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },

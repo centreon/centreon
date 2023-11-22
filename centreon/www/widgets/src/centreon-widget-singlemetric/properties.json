@@ -41,7 +41,6 @@
   },
   "singleHostPerMetric": true,
   "singleMetricSelection": true,
-  "singleResourceTypeSelection": true,
   "customBaseColor": true,
   "moduleName": "centreon-widget-singlemetric"
 }

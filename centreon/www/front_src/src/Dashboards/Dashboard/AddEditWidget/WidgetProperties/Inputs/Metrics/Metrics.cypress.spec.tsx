@@ -13,10 +13,7 @@ import {
   labelYouMustAddMoreResources
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
-import {
-  singleHostPerMetricAtom,
-  singleMetricSelectionAtom
-} from '../../../atoms';
+import { singleMetricSelectionAtom } from '../../../atoms';
 
 import Metrics from './Metrics';
 
@@ -123,8 +120,6 @@ describe('Metrics', () => {
   });
 
   it('displays an error message when the corresponding atom is set and the selected metric is available on several resources', () => {
-    store.set(singleHostPerMetricAtom, true);
-
     cy.findByTestId(labelSelectMetric).click();
 
     cy.findByText('rtmax (ms) / Includes 2 resources').click();
@@ -135,7 +130,6 @@ describe('Metrics', () => {
   });
 
   it('displays a single autocomplete when the corresponding atom is set', () => {
-    store.set(singleHostPerMetricAtom, false);
     store.set(singleMetricSelectionAtom, true);
 
     cy.findByTestId(labelSelectMetric).click();
