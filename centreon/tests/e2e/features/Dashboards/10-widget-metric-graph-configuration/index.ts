@@ -389,7 +389,6 @@ Then(
       label: 'Centreon-Server: Packet Loss (%)',
       tag: 'p'
     }).should('exist');
-
   }
 );
 
