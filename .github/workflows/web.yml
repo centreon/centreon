@@ -383,7 +383,7 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
           fail-on-cache-miss: true
 
-      - name: Set package version and paths according to distrib
+      - name: Set perl vendor lib path according to distrib
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             PERL_VENDORLIB="/usr/share/perl5"
