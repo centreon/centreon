@@ -110,8 +110,20 @@ $createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessa
     );
 };
 
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
+    }
+};
+
 try {
     $createDashboardsPlaylistTables($pearDB);
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
 } catch (\Exception $e) {
 
     $centreonLog->insertLog(
