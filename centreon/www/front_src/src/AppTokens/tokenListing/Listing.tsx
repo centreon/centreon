@@ -40,6 +40,7 @@ const Listing = (): JSX.Element | null => {
         columnConfiguration={{ selectedColumnIds, sortable: true }}
         columns={columns}
         currentPage={(dataListing?.page || 1) - 1}
+        getId={({ name }) => name}
         limit={dataListing?.limit}
         loading={dataListing?.isLoading}
         rows={dataListing?.rows}

@@ -14,6 +14,7 @@ const ActionsColumn = (): JSX.Element => {
       ariaLabel={t(labelDelete) as string}
       data-testid={labelDelete}
       size="large"
+      sx={{ marginLeft: 1 }}
       title={t(labelDelete)}
       onClick={() => {}}
     >
