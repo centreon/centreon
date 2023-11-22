@@ -41,6 +41,7 @@ runs:
       id: currentVersion
       run: echo "packageVersion=`cat package.json | jq -r '.version'`" >> $GITHUB_OUTPUT
       shell: bash
+      working-directory: ${{ env.directory }}
 
     - uses: ./.github/actions/get-latest-npm-branch-version
       id: get-latest-npm-branch-version
