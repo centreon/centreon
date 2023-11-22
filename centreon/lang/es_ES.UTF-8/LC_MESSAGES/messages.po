@@ -16583,3 +16583,6 @@ msgstr "Modo avanzado"
 
 # msgid "Resource Access Management"
 # msgstr ""
+
+# msgid "You are not allowed to log in"
+# msgstr ""

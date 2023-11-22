@@ -17036,3 +17036,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Resource Access Management"
 # msgstr ""
+
+# msgid "You are not allowed to log in"
+# msgstr ""
