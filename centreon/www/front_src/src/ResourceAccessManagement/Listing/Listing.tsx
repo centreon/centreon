@@ -1,6 +1,7 @@
 import { MemoizedListing } from '@centreon/ui';
 
 import useListing from './useListing';
+import { HeaderActions } from './Header';
 
 const ResourceAccessRulesListing = (): JSX.Element => {
   const {
@@ -24,6 +25,7 @@ const ResourceAccessRulesListing = (): JSX.Element => {
   return (
     <MemoizedListing
       checkable
+      actions={<HeaderActions />}
       columnConfiguration={{
         selectedColumnIds,
         sortable: true

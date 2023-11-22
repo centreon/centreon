@@ -1,4 +1,9 @@
-import { Column } from '@centreon/ui';
+import { Column, SelectEntry } from '@centreon/ui';
+
+export enum ModalMode {
+  Create = 'create',
+  Edit = 'edit'
+}
 
 export interface Listing {
   changePage: (page: number) => void;
@@ -40,11 +45,27 @@ export interface ResourceAccessRuleListingType {
   result: Array<ResourceAccessRuleType>;
 }
 
-export interface ResourceAccessRuleType {
+export type ResourceAccessRuleType = {
   description: string;
   id: number;
   isActivated: boolean;
   name: string;
-}
+};
+
+type Resource = {
+  resourceType: string;
+  resources: Array<SelectEntry>;
+};
+
+export type ResourceAccessRule = ResourceAccessRuleType & {
+  datasets: Array<Array<Resource>>;
+};
 
 export type SortOrder = 'asc' | 'desc';
+
+export type UseResourceAccessRuleConfig = {
+  closeModal: () => void;
+  createResourceAccessRule: () => void;
+  isModalOpen: boolean;
+  mode: ModalMode;
+};
