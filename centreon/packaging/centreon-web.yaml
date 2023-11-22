@@ -105,7 +105,7 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php-fpm-systemd.conf"
-    dst: "/etc/default/centreon.conf"
+    dst: "/lib/systemd/system/php8.1-fpm.service.d/centreon.conf"
     type: config|noreplace
     file_info:
       mode: 0644
