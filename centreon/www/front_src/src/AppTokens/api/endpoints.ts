@@ -4,7 +4,7 @@ import { BuildListTokensEndpoint } from './models';
 
 const baseEndpoint = './api/latest';
 
-const listTokensEndpoint = `${baseEndpoint}/administration/tokens`;
+export const listTokensEndpoint = `${baseEndpoint}/administration/tokens`;
 export const createTokenEndpoint = `${baseEndpoint}/administration/tokens`;
 
 export const buildListTokensEndpoint = ({
