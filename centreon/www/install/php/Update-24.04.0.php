@@ -211,6 +211,17 @@ $alterAclResourceGroupRelation = function (CentreonDB $pearDB) {
     }
 };
 
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
+    }
+};
+
 try {
     $createDashboardsPlaylistTables($pearDB);
 
@@ -224,6 +235,8 @@ try {
 
     $errorMessage = 'Unable to add column order to acl_res_group_relations table';
     $alterAclResourceGroupRelation($pearDB);
+
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
