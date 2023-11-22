@@ -1,4 +1,10 @@
-import { Fields, SortOrder, SortParameters } from './filter/models';
+import { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
+
+import {
+  Fields,
+  SortOrder,
+  SortParameters
+} from './actions/search/filter/models';
 
 export interface DataListing {
   isError: boolean;
@@ -13,6 +19,9 @@ export interface UseTokenListing {
   changePage: (value: number) => void;
   dataListing: DataListing;
   onSort: (sortParameters: SortParameters) => void;
+  refetch: (
+    options?: RefetchOptions | undefined
+  ) => Promise<QueryObserverResult<unknown, Error>>;
   sortField: Fields;
   sortOrder: SortOrder;
 }

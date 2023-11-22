@@ -1,11 +1,14 @@
 import TokenCreationButton from '../../tokenCreation';
 
 import { useStyles } from './actions.styles';
-import Refresh from './refresh';
 import Search from './search';
 import TokenFilter from './search/filter';
 
-const Actions = (): JSX.Element => {
+interface Props {
+  refresh: React.ReactNode;
+}
+
+const Actions = ({ refresh }: Props): JSX.Element => {
   const { classes } = useStyles();
 
   return (
@@ -16,7 +19,7 @@ const Actions = (): JSX.Element => {
       </div>
       <div>
         <TokenCreationButton />
-        <Refresh />
+        {refresh}
       </div>
     </div>
   );

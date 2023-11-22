@@ -7,35 +7,26 @@ import { useFetchQuery } from '@centreon/ui';
 import { listTokensDecoder } from '../api/decoder';
 import { buildListTokensEndpoint } from '../api/endpoints';
 
-import { DataListing, UseTokenListing } from './models';
 import { currentFilterAtom } from './actions/search/filter/atoms';
 import { Fields, SortOrder } from './actions/search/filter/models';
+import { DataListing, UseTokenListing } from './models';
 
-interface Props {
-  refresh?: boolean;
-}
-
-export const useTokenListing = ({
-  refresh = false
-}: Props): UseTokenListing => {
+export const useTokenListing = (): UseTokenListing => {
   const [dataListing, setDataListing] = useState<DataListing | undefined>();
+  const [enabled, setEnabled] = useState(false);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
 
   const getEndpoint = (): string => {
     return buildListTokensEndpoint({ parameters: currentFilter });
   };
 
-  const { data, isLoading, isError } = useFetchQuery({
+  const { data, isLoading, isError, refetch } = useFetchQuery({
     decoder: listTokensDecoder,
     getEndpoint,
-    getQueryKey: () => [
-      'listTokens',
-      currentFilter.limit,
-      currentFilter.page,
-      currentFilter.sort,
-      refresh
-    ],
+    getQueryKey: () => ['listTokens', currentFilter],
     queryOptions: {
+      enabled,
+      refetchOnMount: false,
       suspense: false
     }
   });
@@ -53,6 +44,9 @@ export const useTokenListing = ({
 
     setCurrentFilter({ ...currentFilter, sort: { [sortField]: sortOrder } });
   };
+  useEffect(() => {
+    setEnabled(true);
+  }, []);
 
   useEffect(() => {
     if (!data) {
@@ -87,6 +81,7 @@ export const useTokenListing = ({
           page: currentFilter?.page
         } as DataListing),
     onSort,
+    refetch,
     sortField: Object.keys(currentFilter?.sort)[0] as Fields,
     sortOrder: Object.values(currentFilter?.sort)[0] as SortOrder
   };

@@ -1,12 +1,22 @@
 import { MemoizedListing as TokenListing } from '@centreon/ui';
 
+import Actions from './actions';
+import Refresh from './actions/refresh';
 import { useColumns } from './componentsColumn/useColumns';
 import { useTokenListing } from './useTokenListing';
-import Actions from './actions';
+import { useStyles } from './tokenListing.styles';
 
 const Listing = (): JSX.Element | null => {
-  const { dataListing, changePage, changeLimit, onSort, sortField, sortOrder } =
-    useTokenListing({});
+  const { classes } = useStyles();
+  const {
+    dataListing,
+    changePage,
+    changeLimit,
+    onSort,
+    sortField,
+    sortOrder,
+    refetch
+  } = useTokenListing();
 
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
@@ -16,9 +26,17 @@ const Listing = (): JSX.Element | null => {
   }
 
   return (
-    <div style={{ height: 1000, margin: '54px 24px 0px 24px' }}>
+    <div className={classes.container}>
       <TokenListing
-        actions={<Actions />}
+        innerScrollDisabled
+        actions={
+          <Actions
+            refresh={
+              <Refresh isLoading={dataListing?.isLoading} onRefresh={refetch} />
+            }
+          />
+        }
+        actionsBarMemoProps={[dataListing?.isLoading]}
         columnConfiguration={{ selectedColumnIds, sortable: true }}
         columns={columns}
         currentPage={(dataListing?.page || 1) - 1}
