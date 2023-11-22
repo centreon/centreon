@@ -14,8 +14,14 @@ try {
   const tag = gitBranchName === 'develop' ? 'latest' : gitBranchName;
 
   getPackageInformations().then((package) => {
-    console.log(compareVersions(package['dist-tags']["latest"], core.getInput('packageVersion')))
-    core.setOutput("package_version", package['dist-tags'][tag] || '')
+    const latestPackageVersion = package['dist-tags'][tag];
+
+    if (compareVersions(latestPackageVersion, core.getInput('current_package_version')) === -1) {
+      core.setOutput("package_version", core.getInput('current_package_version'));
+      return;
+    }
+
+    core.setOutput("package_version", latestPackageVersion || '')
   });
 } catch (error) {
   core.setFailed(error.message);
