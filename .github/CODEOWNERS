@@ -26,6 +26,7 @@
 
 **/www/front_src/       @centreon/owners-react
 **/www/widgets/         @centreon/owners-react
+**/cypress/**           @centreon/owners-react
 centreon/cypress        @centreon/owners-react
 package.json            @centreon/owners-react
 package-lock.json       @centreon/owners-react
@@ -43,6 +44,7 @@ tsconfig.json           @centreon/owners-react
 *.pl                    @centreon/owners-perl
 
 **/tests/e2e/**         @centreon/owners-cypress-e2e
+**/cypress/e2e/**       @centreon/owners-cypress-e2e
 
 *.feature               @centreon/owners-gherkin
 
