@@ -14,6 +14,7 @@ export interface FederatedModule {
   moduleFederationName: string;
   moduleName: string;
   remoteEntry: string;
+  remoteUrl?: string;
 }
 
 interface PageComponent {
