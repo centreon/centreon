@@ -228,7 +228,7 @@ contents:
       group: "centreon"
       mode: 0775
 
-  - src: "../www/*"
+  - src: "../www/"
     dst: "/usr/share/centreon/www/"
     file_info:
       owner: "centreon"
