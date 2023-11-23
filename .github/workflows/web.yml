@@ -457,6 +457,8 @@ jobs:
       - name: Generate selinux binaries
         if: ${{ matrix.package_extension == 'rpm' }}
         run: |
+          sudo apt-get update
+          sudo apt-get install -y selinux-policy-dev
           cd centreon/selinux
           sed -i "s/@VERSION@/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" *.te
           make -f /usr/share/selinux/devel/Makefile
