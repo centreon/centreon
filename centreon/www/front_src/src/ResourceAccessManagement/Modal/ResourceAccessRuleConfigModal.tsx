@@ -10,6 +10,7 @@ import {
 } from '../translatedLabels';
 
 import useResourceAccessRuleConfig from './useResourceAccessRuleConfig';
+import { Form } from './Form';
 
 const ResourceAccessRuleConfigModal = (): JSX.Element => {
   const { t } = useTranslation();
@@ -34,7 +35,9 @@ const ResourceAccessRuleConfigModal = (): JSX.Element => {
   return (
     <Modal open={isModalOpen} onClose={closeModal}>
       <Modal.Header>{labels.modalTitle[mode]}</Modal.Header>
-      <Modal.Body />
+      <Modal.Body>
+        <Form />
+      </Modal.Body>
     </Modal>
   );
 };

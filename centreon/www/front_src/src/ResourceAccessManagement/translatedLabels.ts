@@ -16,3 +16,5 @@ export const labelResourceAccessRuleAddedSuccess =
   'The resource access rule was successfully added';
 export const labelRequired = 'Required';
 export const labelNameAlreadyExists = 'This name already exists';
+export const labelSave = 'Save';
+export const labelExit = 'Exit';
