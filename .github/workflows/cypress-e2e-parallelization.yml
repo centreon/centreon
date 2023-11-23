@@ -35,12 +35,10 @@ on:
         required: true
         type: string
         description: "The frontend dependencies lock file path"
-      test_plan_key:
-        required: true
+      keys_and_ids:
+        description: "The test execution and the test plan keys and ids"
         type: string
-      test_execution_key:
         required: true
-        type: string
     secrets:
       registry_username:
         required: true
@@ -163,7 +161,7 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
+    # if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -186,10 +184,16 @@ jobs:
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Debug
+        run: |
+          echo "${{ toJSON(inputs.keys_and_ids) }}"
+
       - name: Keys
         run: |
-          echo "The Test Execution KEY : ${{ inputs.test_execution_key }}"
-          echo "The Test Plan KEY: ${{ inputs.test_plan_key }}"
+          test_execution_key=$(echo "${{ toJSON(inputs.keys_and_ids) }}" | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_plan_key=$(echo "${{ toJSON(inputs.keys_and_ids) }}" | jq -r '.test_plan_key_'${{ inputs.os }})
+          echo "The Test Execution KEY : $test_execution_key"
+          echo "The Test Plan KEY: $test_plan_key"
 
       - name: Import results to xray
         run: |
