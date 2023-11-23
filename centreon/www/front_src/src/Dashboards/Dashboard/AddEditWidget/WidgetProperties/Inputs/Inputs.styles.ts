@@ -6,7 +6,8 @@ export const useResourceStyles = makeStyles()((theme) => ({
     gridTemplateColumns: `${theme.spacing(20)} 1fr`
   },
   resourceTitle: {
-    lineHeight: 1
+    lineHeight: 1,
+    paddingBottom: theme.spacing(0.5)
   },
   resourceType: {
     borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`

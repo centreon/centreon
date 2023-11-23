@@ -19,6 +19,7 @@ import {
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import {
   ListingModel,
@@ -38,6 +39,7 @@ import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { getDataProperty, resourceTypeQueryParameter } from '../utils';
 import { labelIncludesXHost } from '../../../../translatedLabels';
+import { singleHostPerMetricAtom } from '../../../atoms';
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
@@ -53,6 +55,7 @@ interface UseMetricsOnlyState {
   isLoadingMetrics: boolean;
   isTouched?: boolean;
   metricCount?: number;
+  metricWithSeveralResources?: false | string;
   metrics: Array<Metric>;
   resources: Array<WidgetDataResource>;
   selectedMetrics?: Array<Metric>;
@@ -63,6 +66,8 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   const { values, setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext<Widget>();
+
+  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
@@ -179,6 +184,18 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       0
     );
 
+  const getFirstUsedResourceForMetric = (
+    metricName?: string
+  ): string | undefined => {
+    if (!metricName) {
+      return undefined;
+    }
+
+    return (servicesMetrics?.result || []).filter((service) =>
+      service.metrics.filter((metric) => equals(metric.name, metricName))
+    )[0].name;
+  };
+
   const getMultipleOptionLabel = (metric): string => {
     if (isNil(metric)) {
       return '';
@@ -188,6 +205,13 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       metric.unit
     }) / ${getNumberOfResourcesRelatedToTheMetric(metric.name)}`;
   };
+
+  const metricWithSeveralResources =
+    singleHostPerMetric &&
+    value?.some(
+      ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
+    ) &&
+    getFirstUsedResourceForMetric(value[0].name);
 
   useEffect(
     () => {
@@ -233,6 +257,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     isLoadingMetrics,
     isTouched,
     metricCount,
+    metricWithSeveralResources,
     metrics,
     resources,
     selectedMetrics: value

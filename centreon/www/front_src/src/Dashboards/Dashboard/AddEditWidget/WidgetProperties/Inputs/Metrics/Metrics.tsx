@@ -10,6 +10,7 @@ import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
 
 import {
   labelAvailable,
+  labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
   labelYouCanSelectUpToTwoMetricUnits,
@@ -44,7 +45,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     deleteMetricItem,
     error,
     isTouched,
-    hasReachedTheLimitOfUnits
+    hasReachedTheLimitOfUnits,
+    metricWithSeveralResources
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -73,6 +75,12 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         {hasReachedTheLimitOfUnits && (
           <Typography className={classes.warningText} variant="body2">
             {t(labelYouCanSelectUpToTwoMetricUnits)}
+          </Typography>
+        )}
+        {singleMetricSelection && metricWithSeveralResources && (
+          <Typography className={classes.warningText} variant="body2">
+            <strong>{metricWithSeveralResources}</strong>{' '}
+            {t(labelIsTheSelectedResource)}
           </Typography>
         )}
       </div>
