@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON-24181
+@REQ_MON-19626
 Feature: Deleting a Notification Rule
   As a Centreon user with access to the Notification Rules page
   The user need to delete a Notification Rule

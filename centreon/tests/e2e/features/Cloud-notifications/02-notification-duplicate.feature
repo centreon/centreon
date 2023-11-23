@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON-24180
+@REQ_MON-19630
 Feature: Duplicating a Notification Rule
   As a Centreon user with access to the Notification Rules page
   The user need to duplicate a Notification Rule
