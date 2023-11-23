@@ -16,6 +16,8 @@ try {
   getPackageInformations().then((package) => {
     const latestPackageVersion = package['dist-tags'][tag];
 
+    console.log("latest: ", latestPackageVersion, "current: ", core.getInput('current_package_version'))
+
     if (latestPackageVersion && compareVersions(latestPackageVersion, core.getInput('current_package_version')) === -1) {
       core.setOutput("package_version", core.getInput('current_package_version'));
       return;
