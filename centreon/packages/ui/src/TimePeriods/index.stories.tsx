@@ -24,7 +24,7 @@ const Template: Story = {
 };
 
 const TemplateWithSimpleTimePeriod: StorySimpleTimePeriod = {
-  render: (args) => <SimpleCustomTimePeriod {...args} />,
+  render: (args) => <SimpleCustomTimePeriod {...args} />
 };
 
 const TemplateWithExternalComponent: Story = {
@@ -89,13 +89,13 @@ const args = {
 };
 
 const parameters = {
-  chromatic: { diffThreshold: 0.1 },
+  chromatic: { diffThreshold: 0.1 }
 };
 
 export const BasicTimePeriod: Story = {
   ...Template,
   argTypes,
-  parameters,
+  parameters
 };
 
 export const WithExtraTimePeriods: Story = {
