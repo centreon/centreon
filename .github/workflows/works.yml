@@ -38,4 +38,5 @@ jobs:
       - name: debug
         run: |
             variable=a
-            echo '${{ toJSON(needs.parallel.outputs) }}' | jq -r '.$variable'
+            value= $(echo '${{ toJSON(needs.parallel.outputs) }}' | jq -r '.'$variable)
+            echo '$value'
