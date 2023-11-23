@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, pluck } from 'ramda';
+import { T, always, cond, equals, isEmpty, pluck, propEq, reject } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
@@ -35,6 +35,7 @@ interface UseResourcesState {
     index: number
   ) => (_, resources: Array<SelectEntry>) => void;
   deleteResource: (index: number) => () => void;
+  deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
   getOptionDisabled: (index: number) => (option) => boolean | undefined;
   getResourceResourceBaseEndpoint: (
@@ -154,6 +155,13 @@ const useResources = (propertyName: string): UseResourcesState => {
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
+  const deleteResourceItem = ({ index, option, resources }): void => {
+    const newResource = reject(propEq('id', option.id), resources);
+
+    setFieldValue(`data.${propertyName}.${index}.resources`, newResource);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const getResourceResourceBaseEndpoint =
     (resourceType: string) =>
     (parameters): string => {
@@ -209,6 +217,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     changeResourceType,
     changeResources,
     deleteResource,
+    deleteResourceItem,
     error: errorToDisplay,
     getOptionDisabled,
     getResourceResourceBaseEndpoint,
