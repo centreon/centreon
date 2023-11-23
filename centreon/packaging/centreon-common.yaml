@@ -100,12 +100,14 @@ overrides:
       - centreon-broker < ${NEXT_MAJOR_VERSION}
       - centreon-engine-daemon >= ${MAJOR_VERSION}
       - centreon-engine-daemon < ${NEXT_MAJOR_VERSION}
+      - sudo
   deb:
     depends:
       - "centreon-broker (>= ${MAJOR_VERSION}~)"
       - "centreon-broker (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-engine-daemon (>= ${MAJOR_VERSION}~)"
       - "centreon-engine-daemon (<< ${NEXT_MAJOR_VERSION}~)"
+      - sudo
 
 rpm:
   summary: Centreon common package
