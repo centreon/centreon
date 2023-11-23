@@ -148,7 +148,9 @@ try {
     }
     $populateDahsboardTables($pearDB);
     
-    $pearDB->commit();
+    if ($pearDB->inTransaction()) {
+        $pearDB->commit();
+    }
 } catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
