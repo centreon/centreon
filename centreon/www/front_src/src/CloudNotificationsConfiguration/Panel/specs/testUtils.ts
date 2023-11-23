@@ -106,6 +106,22 @@ const getNotificationResponse = ({
   ]
 });
 
+const serviceGroupsResponse = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: 1
+  },
+  result: [
+    {
+      id: 1,
+      name: 'MySQL-Servers'
+    }
+  ]
+};
+
 const hostGroupsResponse = {
   meta: {
     limit: 10,
@@ -130,22 +146,6 @@ const hostGroupsResponse = {
     {
       id: 56,
       name: 'Printers'
-    }
-  ]
-};
-
-const serviceGroupsResponse = {
-  meta: {
-    limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: 1
-  },
-  result: [
-    {
-      id: 1,
-      name: 'MySQL-Servers'
     }
   ]
 };
@@ -216,7 +216,7 @@ const formData = {
     {
       channel: 'Email',
       formatted_message:
-        '<p dir="ltr"><b><strong class="css-1jxftah-bold">Centreon notification</strong></b><br><br><span>Notification Type: </span><b><strong class="css-1jxftah-bold">{{NOTIFICATIONTYPE}}</strong></b><br><br><span>Resource: {{NAME}}</span><br><br><span>State: </span><b><strong class="css-1jxftah-bold">{{STATE}}</strong></b><br><br><span>Date/Time: {{SHORTDATETIME}}</span><br><br><span>Additional Info: {{OUTPUT}}</span></p>',
+        '<p class="css-1qf631s-paragraph" dir="ltr"><b><strong class="css-1jxftah-bold">Centreon notification</strong></b><br><br><span>Notification Type: </span><b><strong class="css-1jxftah-bold">{{NOTIFICATIONTYPE}}</strong></b><br><br><span>Resource: {{NAME}}</span><br><br><span>State: </span><b><strong class="css-1jxftah-bold">{{STATE}}</strong></b><br><br><span>Date/Time: {{SHORTDATETIME}}</span><br><br><span>Additional Info: {{OUTPUT}}</span></p>',
       message: defaultEmailBody,
       subject: defaultEmailSubject
     }
