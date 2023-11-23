@@ -15,12 +15,8 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "./src/empty_file"
-    dst: "/etc/centreon/centreon.conf.php"
-    file_info:
-      owner: "@APACHE_USER@"
-      group: "@APACHE_GROUP@"
-      mode: 0660
+  - dst: "/etc/centreon/centreon.conf.php"
+    type: ghost
 
   - src: "./src/instCentPlugins.conf"
     dst: "/etc/centreon/instCentPlugins.conf"
