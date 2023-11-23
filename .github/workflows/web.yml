@@ -364,17 +364,21 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.DOCKER_REGISTRY_ID }}
-        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+    # container:
+    #   image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+    #   credentials:
+    #     username: ${{ secrets.DOCKER_REGISTRY_ID }}
+    #     password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     name: package ${{ matrix.distrib }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Install nfpm
+        run: apt-get install -y https://github.com/goreleaser/nfpm/releases/download/v2.34.0/nfpm_2.34.0_amd64.deb
+        shell: bash
 
       - name: Restore translation from cache
         uses: actions/cache/restore@v3
