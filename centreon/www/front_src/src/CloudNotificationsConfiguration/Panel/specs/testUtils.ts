@@ -106,6 +106,22 @@ const getNotificationResponse = ({
   ]
 });
 
+const serviceGroupsResponse = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: 1
+  },
+  result: [
+    {
+      id: 1,
+      name: 'MySQL-Servers'
+    }
+  ]
+};
+
 const hostGroupsResponse = {
   meta: {
     limit: 10,
@@ -130,22 +146,6 @@ const hostGroupsResponse = {
     {
       id: 56,
       name: 'Printers'
-    }
-  ]
-};
-
-const serviceGroupsResponse = {
-  meta: {
-    limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: 1
-  },
-  result: [
-    {
-      id: 1,
-      name: 'MySQL-Servers'
     }
   ]
 };
