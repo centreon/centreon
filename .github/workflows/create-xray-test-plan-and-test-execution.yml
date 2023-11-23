@@ -155,7 +155,7 @@ jobs:
         run: |
           test_plan_key=$(echo '${{ toJSON(steps.get_test_plan_key.outputs) }}' | jq -r '.test_plan_key_'${{ inputs.os }})
           echo "getting the testPlanId for the testPlanKey: $test_plan_key"
-          jira_url='https://centreon.atlassian.net/rest/api/2/issue/$test_plan_key'
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_plan_key"
 
           test_plan_id=$(curl -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testPlan ID : $test_plan_id"
@@ -234,7 +234,7 @@ jobs:
         id: get_test_execution_key
         run: |
           test_execution_id=$(echo '${{ toJSON(steps.get_test_execution_id.outputs) }}' | jq -r '.test_execution_id_'${{ inputs.os }})
-          jira_url='https://centreon.atlassian.net/rest/api/2/issue/$test_execution_id'
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_execution_id"
 
           test_execution_key=$(curl -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.key')
           echo "this is the TestExecutionKey: $test_execution_key"
