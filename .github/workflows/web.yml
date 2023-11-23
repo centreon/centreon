@@ -404,6 +404,10 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
           fail-on-cache-miss: true
 
+      - name: Move widgets directory
+        run: mv centreon/www/widgets/src/* centreon/www/widgets/
+        shell: bash
+
       - name: Restore vendor directory from cache
         uses: actions/cache/restore@v3
         with:
