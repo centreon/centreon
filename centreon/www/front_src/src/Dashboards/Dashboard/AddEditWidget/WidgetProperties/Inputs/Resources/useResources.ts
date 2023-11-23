@@ -156,7 +156,7 @@ const useResources = (propertyName: string): UseResourcesState => {
   };
 
   const deleteResourceItem = ({ index, option, resources }): void => {
-    const newResource = reject(propEq(option.id, 'id'), resources);
+    const newResource = reject(propEq('id', option.id), resources);
 
     setFieldValue(`data.${propertyName}.${index}.resources`, newResource);
     setFieldTouched(`data.${propertyName}`, true, false);
