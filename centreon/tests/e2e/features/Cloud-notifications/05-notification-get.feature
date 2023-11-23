@@ -7,7 +7,7 @@ Feature: List Notification Rules
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
 
-  Scenario: Empty Notification Rules List
+  Scenario: List Notifications Rules without result
     Then the user sees a message indicating "No result found" in the table
     And the pagination is disabled
 
