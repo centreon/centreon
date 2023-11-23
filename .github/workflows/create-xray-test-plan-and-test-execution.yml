@@ -264,4 +264,9 @@ jobs:
     needs: [create-xray-test-plan-and-test-execution]
     steps:
       - name: Debug
-        run: echo '${{ toJSON(needs.create-xray-test-plan-and-test-execution.outputs.*) }}'
+        run: |
+          echo 'alma8 : ${{ toJSON(needs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma8) }}'
+          echo 'alma8 : ${{ toJSON(needs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma8) }}'
+
+          echo 'alma9: ${{ toJSON(needs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma9) }}'
+          echo 'alma9: ${{ toJSON(needs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma9) }}'
