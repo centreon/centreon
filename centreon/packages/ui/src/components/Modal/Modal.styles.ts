@@ -26,7 +26,7 @@ const useStyles = makeStyles<{
       bottom: props?.bottom ?? 0,
       left: props?.left ?? 0,
       margin: 0,
-      maxHeight: 'unset',
+      height: 'calc(100vh - 90px)',
       maxWidth: 'unset',
       position: 'absolute',
       right: props?.right ?? 0,
@@ -54,7 +54,9 @@ const useStyles = makeStyles<{
     flexDirection: 'row',
     gap: theme.spacing(2),
     justifyContent: 'flex-end',
-    position: 'sticky'
+    position: 'fixed',
+    bottom: theme.spacing(2),
+    right: theme.spacing(2)
   },
   modalBody: {
     '& > p': {

@@ -91,7 +91,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       {header}
-      <div className={classes.resourceComposition}>
+      <div>
         {canDisplayMetricsSelection && singleMetricSelection && (
           <SingleAutocompleteField
             className={classes.resources}

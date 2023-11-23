@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useResourceStyles = makeStyles()((theme) => ({
   resourceComposition: {
     [theme.breakpoints.down('xl')]: {
-      height: '23vh'
+      height: '21vh'
     },
     [theme.breakpoints.down('lg')]: {
       height: '20vh'

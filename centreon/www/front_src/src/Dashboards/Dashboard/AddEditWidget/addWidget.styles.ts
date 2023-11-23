@@ -21,7 +21,15 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: theme.spacing(2)
   },
+  widgetPropertiesContentContainer: {
+    position: 'relative'
+  },
   widgetPropertiesContent: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
     height: '68vh',
