@@ -174,7 +174,7 @@ contents:
   - src: "../cron"
     dst: "/usr/share/centreon/cron"
     file_info:
-      mode: 0664
+      mode: 0755
 
   - src: "../lib"
     dst: "/usr/share/centreon/lib"
