@@ -153,7 +153,7 @@ jobs:
       - name: Get TestPlanID
         id: get_test_plan_id
         run: |
-          test_plan_key=$(echo "${{ toJSON(steps.get_test_plan_key.outputs) }}" | jq -r '.test_plan_key_'${{ inputs.os }})
+          test_plan_key=$(echo '${{ toJSON(steps.get_test_plan_key.outputs) }}' | jq -r '.test_plan_key_'${{ inputs.os }})
           echo "getting the testPlanId for the testPlanKey: $test_plan_key"
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_plan_key"
 
@@ -233,7 +233,7 @@ jobs:
       - name: Get TestExecutionKey
         id: get_test_execution_key
         run: |
-          test_execution_id=$(echo "${{ toJSON(steps.get_test_execution_id.outputs) }}" | jq -r '.test_execution_id_'${{ inputs.os }})
+          test_execution_id=$(echo '${{ toJSON(steps.get_test_execution_id.outputs) }}' | jq -r '.test_execution_id_'${{ inputs.os }})
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_execution_id"
 
           test_execution_key=$(curl -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.key')
@@ -243,13 +243,13 @@ jobs:
 
       - name: Update the status of the TestExecution Issue
         run: |
-          test_execution_key=$(echo "${{ toJSON(steps.get_test_execution_key.outputs) }}" | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_execution_key=$(echo '${{ toJSON(steps.get_test_execution_key.outputs) }}' | jq -r '.test_execution_key_'${{ inputs.os }})
           curl -D- -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/$test_execution_key/transitions?expand=transitions.fields
 
       - name: Add the TestExecution Issue to the TestPlan
         run: |
-          test_plan_id=$(echo "${{ toJSON(steps.get_test_plan_id.outputs) }}" | jq -r '.test_plan_id_'${{ inputs.os }})
-          test_execution_id=$(echo "${{ toJSON(steps.get_test_execution_id.outputs) }}" | jq -r '.test_execution_id_'${{ inputs.os }})
+          test_plan_id=$(echo '${{ toJSON(steps.get_test_plan_id.outputs) }}' | jq -r '.test_plan_id_'${{ inputs.os }})
+          test_execution_id=$(echo '${{ toJSON(steps.get_test_execution_id.outputs) }}' | jq -r '.test_execution_id_'${{ inputs.os }})
           xray_graphql_mutation='{
             "query": "mutation AddTestExecution($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
             "variables": {

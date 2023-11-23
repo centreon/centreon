@@ -186,12 +186,12 @@ jobs:
 
       - name: Debug
         run: |
-          echo "${{ toJSON(inputs.keys_and_ids) }}"
+          echo '${{ toJSON(inputs.keys_and_ids) }}'
 
       - name: Keys
         run: |
-          test_execution_key=$(echo "${{ toJSON(inputs.keys_and_ids) }}" | jq -r '.test_execution_key_'${{ inputs.os }})
-          test_plan_key=$(echo "${{ toJSON(inputs.keys_and_ids) }}" | jq -r '.test_plan_key_'${{ inputs.os }})
+          test_execution_key=$(echo '${{ toJSON(inputs.keys_and_ids) }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_plan_key=$(echo '${{ toJSON(inputs.keys_and_ids) }}' | jq -r '.test_plan_key_'${{ inputs.os }})
           echo "The Test Execution KEY : $test_execution_key"
           echo "The Test Plan KEY: $test_plan_key"
 
