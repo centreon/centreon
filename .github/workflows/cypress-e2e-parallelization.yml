@@ -56,7 +56,7 @@ jobs:
       - name: Debug
         run: |
           echo '${{ toJSON(inputs.keys_and_ids) }}'
-          
+
   cypress-e2e-test-list:
     runs-on: ubuntu-22.04
     outputs:
