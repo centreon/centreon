@@ -377,7 +377,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install nfpm
-        run: sudo apt-get install -y https://github.com/goreleaser/nfpm/releases/download/v2.34.0/nfpm_2.34.0_amd64.deb
+        run: |
+          NFPM_VERSION="2.34.0"
+          wget --directory-prefix=/tmp/ https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}/nfpm_${NFPM_VERSION}_amd64.deb
+          sudo dpkg -i /tmp/nfpm_${NFPM_VERSION}_amd64.deb
         shell: bash
 
       - name: Restore translation from cache
