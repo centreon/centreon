@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
 
-import dayjs from 'dayjs';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { selectedColumnIdsAtom } from '../atoms';
 import { labelActive, labelRevoked } from '../../translatedLabels';
+import { selectedColumnIdsAtom } from '../atoms';
 
 import ActionsColumn from './ActionsColumn';
 import { Columns, UseColumns, defaultSelectedColumnIds } from './models';
@@ -52,7 +51,7 @@ export const useColumns = (): UseColumns => {
       {
         getFormattedString: ({ creation_date }) => {
           return format({
-            date: dayjs(creation_date).tz(timezone).toDate(),
+            date: creation_date,
             formatString: dateFormat
           });
         },
@@ -65,7 +64,7 @@ export const useColumns = (): UseColumns => {
       {
         getFormattedString: ({ expiration_date }) => {
           return format({
-            date: dayjs(expiration_date).tz(timezone).toDate(),
+            date: expiration_date,
             formatString: dateFormat
           });
         },

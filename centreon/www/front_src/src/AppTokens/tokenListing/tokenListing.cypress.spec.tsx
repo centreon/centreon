@@ -1,35 +1,242 @@
+import { renderHook } from '@testing-library/react-hooks/dom';
+import dayjs from 'dayjs';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import { Provider, createStore, useAtomValue } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import { Method, TestQueryProvider } from '@centreon/ui';
+import {
+  Method,
+  TestQueryProvider,
+  useLocaleDateTimeFormat
+} from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
-import { listTokensEndpoint } from '../api/endpoints';
+import { buildListTokensEndpoint } from '../api/endpoints';
 
 import Listing from './Listing';
+import { DefaultParameters } from './actions/search/filter/models';
+import { Columns } from './componentsColumn/models';
 
-describe('app-token listing', () => {
-  beforeEach(() => {
-    cy.fixture('appTokens/list.json').then((data) => {
-      cy.interceptAPIRequest({
-        alias: 'getListTokens',
-        method: Method.GET,
-        path: listTokensEndpoint,
-        response: data
-      });
+dayjs.extend(utcPlugin);
+dayjs.extend(timezonePlugin);
+dayjs.extend(LocalizedFormat);
+
+const columns = [
+  {
+    id: 'status',
+    label: Columns.status
+  },
+  {
+    id: 'token_name',
+    label: Columns.name
+  },
+  {
+    id: 'creation_date',
+    label: Columns.creationDate
+  },
+  {
+    id: 'expiration_date',
+    label: Columns.expirationDate
+  },
+  {
+    id: 'user_name',
+    label: Columns.user
+  },
+  {
+    id: 'creator_name',
+    label: Columns.creator
+  },
+  {
+    id: 'actions',
+    label: Columns.actions
+  }
+];
+
+const checkInformationRow = (data): void => {
+  const localDateTimeFormat = renderHook(() => useLocaleDateTimeFormat());
+
+  const { format } = localDateTimeFormat.result.current;
+  const formatString = 'L';
+
+  const creationDate = format({
+    date: data.creation_date,
+
+    formatString
+  });
+  const expirationDate = format({
+    date: data.expiration_date,
+
+    formatString
+  });
+
+  cy.contains(data.name);
+  cy.contains(expirationDate);
+  cy.contains(creationDate);
+  cy.contains(data.user.name);
+  cy.contains(data.creator.name);
+};
+
+const checkArrowSorting = (data): void => {
+  const idColumn = Object.keys(data.sort_by)[0];
+  const columnName = columns.filter(({ id }) => id === idColumn)?.[0]?.label;
+
+  cy.findByLabelText(`Column ${columnName}`)
+    .findByTestId('ArrowDownwardIcon')
+    .should('be.visible');
+};
+
+const interceptListTokens = ({
+  dataPath = 'appTokens/list.json',
+  parameters = DefaultParameters,
+  alias = 'getListTokens'
+}): void => {
+  cy.fixture(dataPath).then((data) => {
+    const endpoint = buildListTokensEndpoint({
+      parameters: { ...parameters }
     });
+    cy.interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: endpoint,
+      response: data
+    });
+  });
+};
+
+const defaultParameters = 'page=2&limit=10&sort_by={"token_name":"asc"}';
+const firstPageParameter = 'page=1&limit=10';
+const secondPageParameter = 'page=2&limit=10';
+const customLimitParameters = 'page=1&limit=20';
+const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+describe('App-token listing', () => {
+  beforeEach(() => {
     cy.viewport('macbook-13');
+
+    const store = createStore();
+
+    const userData = renderHook(() => useAtomValue(userAtom));
+
+    userData.result.current.timezone = 'Europe/Paris';
+    userData.result.current.locale = 'en_US';
+
+    interceptListTokens({});
+
     cy.mount({
       Component: (
         <Router>
-          <TestQueryProvider>
-            <Listing />
-          </TestQueryProvider>
+          <Provider store={store}>
+            <TestQueryProvider>
+              <Listing />
+            </TestQueryProvider>
+          </Provider>
         </Router>
       )
     });
   });
 
-  it('first test', () => {
+  it('Displays all tokens when the page loads', () => {
     cy.waitForRequest('@getListTokens');
-    cy.contains('my-api-token');
+
+    cy.fixture('appTokens/list.json').then((data) => {
+      cy.findByTestId('Listing Pagination').contains(data.meta.limit);
+      cy.findByLabelText(`Previous page`).should('be.disabled');
+      cy.findByLabelText(`Next page`).should('be.enabled');
+
+      checkArrowSorting(data.meta);
+
+      [...Array(data.meta.limit).keys()].forEach((key) => {
+        checkInformationRow(data.result[key]);
+      });
+    });
+    cy.makeSnapshot();
+  });
+
+  it('Get refresh data with the same parameters when clicking on refresh icon button', () => {
+    cy.waitForRequest('@getListTokens');
+    cy.findByLabelText('Refresh').click();
+    cy.waitForRequest('@getListTokens');
+    cy.getRequestCalls('@getListTokens').then((calls) => {
+      expect(calls).to.have.length(2);
+      expect(calls[0].request.url.search.includes(defaultParameters));
+    });
+
+    cy.fixture('appTokens/list.json').then((data) => {
+      checkArrowSorting(data.meta);
+      checkInformationRow(data.result[0]);
+    });
+  });
+
+  it('Executes a listing request with an updated page param when a change page action is clicked', () => {
+    cy.waitForRequest('@getListTokens');
+
+    interceptListTokens({
+      alias: 'getListTokensPage2',
+      dataPath: 'appTokens/listPage2.json',
+      parameters: { ...DefaultParameters, page: 2 }
+    });
+
+    cy.findByLabelText(`Next page`).should('be.enabled').click();
+
+    cy.waitForRequest('@getListTokensPage2');
+
+    cy.getRequestCalls('@getListTokensPage2').then((calls) => {
+      expect(calls[0].request.url.search.includes(secondPageParameter));
+    });
+
+    interceptListTokens({
+      alias: 'getListTokens',
+      dataPath: 'appTokens/list.json',
+      parameters: DefaultParameters
+    });
+
+    cy.findByLabelText(`Previous page`).should('be.enabled').click();
+
+    cy.waitForRequest('@getListTokens');
+    cy.getRequestCalls('@getListTokens').then((calls) => {
+      expect(calls[0].request.url.search.includes(firstPageParameter));
+    });
+
+    interceptListTokens({
+      alias: 'getListTokensPage2',
+      dataPath: 'appTokens/listPage2.json',
+      parameters: { ...DefaultParameters, page: 2 }
+    });
+
+    cy.findByLabelText(`Last page`).should('be.enabled').click();
+
+    cy.waitForRequest('@getListTokensPage2');
+
+    cy.getRequestCalls('@getListTokensPage2').then((calls) => {
+      expect(calls[0].request.url.search.includes(secondPageParameter));
+    });
+
+    interceptListTokens({
+      alias: 'getListTokens',
+      dataPath: 'appTokens/list.json',
+      parameters: DefaultParameters
+    });
+
+    cy.findByLabelText(`First page`).should('be.enabled').click();
+
+    cy.waitForRequest('@getListTokens');
+
+    cy.getRequestCalls('@getListTokens').then((calls) => {
+      expect(calls[0].request.url.search.includes(firstPageParameter));
+    });
+
+    cy.findByTestId('Listing Pagination').contains(10).click();
+    limits.forEach((limit) => {
+      cy.contains(limit);
+    });
+    // cy.contains(limits[2]).click();
+
+    // cy.waitForRequest('@getListTokens');
+
+    // cy.getRequestCalls('@getListTokens').then((calls) => {
+    //   expect(calls[0].request.url.search.includes(customLimitParameters));
+    // });
   });
 });

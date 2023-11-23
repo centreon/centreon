@@ -12,7 +12,7 @@ export const useStyles = makeStyles()((theme) => ({
     rowGap: theme.spacing(0.5)
   },
   search: {
-    minWidth: theme.spacing(100)
+    minWidth: theme.spacing(75)
   },
   spacing: {
     margin: theme.spacing(0, 2, 0, 0)

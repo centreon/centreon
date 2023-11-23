@@ -156,6 +156,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       cssDisableMotion: () => Cypress.Chainable;
+      getRequestCalls: (alias) => Cypress.Chainable;
       interceptAPIRequest: <T extends object>(
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
