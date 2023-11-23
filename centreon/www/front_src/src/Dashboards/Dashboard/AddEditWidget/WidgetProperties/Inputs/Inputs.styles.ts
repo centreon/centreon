@@ -1,6 +1,18 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
+  resourceComposition: {
+    [theme.breakpoints.down('xl')]: {
+      height: '23vh'
+    },
+    [theme.breakpoints.down('lg')]: {
+      height: '20vh'
+    },
+    height: '27vh',
+    overflow: 'auto',
+    paddingTop: theme.spacing(1),
+    width: '100%'
+  },
   resourceCompositionItem: {
     display: 'grid',
     gridTemplateColumns: `${theme.spacing(20)} 1fr`
@@ -20,7 +32,7 @@ export const useResourceStyles = makeStyles()((theme) => ({
   resourcesContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2)
+    gap: theme.spacing(1)
   },
   resourcesHeader: {
     display: 'flex',

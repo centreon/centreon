@@ -60,57 +60,59 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         </Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
-      <ItemComposition
-        IconAdd={<FilterIcon />}
-        addButtonHidden={!canEditField}
-        addbuttonDisabled={!areResourcesFullfilled(value)}
-        labelAdd={t(labelRefineFilter)}
-        onAddItem={addResource}
-      >
-        {value.map((resource, index) => (
-          <ItemComposition.Item
-            className={classes.resourceCompositionItem}
-            deleteButtonHidden={deleteButtonHidden}
-            key={`${index}${resource.resources[0]}`}
-            labelDelete={t(labelDelete)}
-            onDeleteItem={deleteResource(index)}
-          >
-            <SelectField
-              className={classes.resourceType}
-              dataTestId={labelResourceType}
-              disabled={!canEditField}
-              label={t(labelSelectResourceType) as string}
-              options={resourceTypeOptions}
-              selectedOptionId={resource.resourceType}
-              onChange={changeResourceType(index)}
-            />
-            <MultiConnectedAutocompleteField
-              allowUniqOption
-              chipProps={{
-                color: 'primary',
-                onDelete: (_, option): void =>
-                  deleteResourceItem({
-                    index,
-                    option,
-                    resources: resource.resources
-                  })
-              }}
-              className={classes.resources}
-              disabled={!canEditField || !resource.resourceType}
-              field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceResourceBaseEndpoint(
-                resource.resourceType
-              )}
-              label={t(labelSelectAResource)}
-              limitTags={2}
-              queryKey={`${resource.resourceType}-${index}`}
-              value={resource.resources || []}
-              onChange={changeResources(index)}
-            />
-          </ItemComposition.Item>
-        ))}
-      </ItemComposition>
-      {error && <FormHelperText error>{t(error)}</FormHelperText>}
+      <div className={classes.resourceComposition}>
+        <ItemComposition
+          IconAdd={<FilterIcon />}
+          addButtonHidden={!canEditField}
+          addbuttonDisabled={!areResourcesFullfilled(value)}
+          labelAdd={t(labelRefineFilter)}
+          onAddItem={addResource}
+        >
+          {value.map((resource, index) => (
+            <ItemComposition.Item
+              className={classes.resourceCompositionItem}
+              deleteButtonHidden={deleteButtonHidden}
+              key={`${index}${resource.resources[0]}`}
+              labelDelete={t(labelDelete)}
+              onDeleteItem={deleteResource(index)}
+            >
+              <SelectField
+                className={classes.resourceType}
+                dataTestId={labelResourceType}
+                disabled={!canEditField}
+                label={t(labelSelectResourceType) as string}
+                options={resourceTypeOptions}
+                selectedOptionId={resource.resourceType}
+                onChange={changeResourceType(index)}
+              />
+              <MultiConnectedAutocompleteField
+                allowUniqOption
+                chipProps={{
+                  color: 'primary',
+                  onDelete: (_, option): void =>
+                    deleteResourceItem({
+                      index,
+                      option,
+                      resources: resource.resources
+                    })
+                }}
+                className={classes.resources}
+                disabled={!canEditField || !resource.resourceType}
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceResourceBaseEndpoint(
+                  resource.resourceType
+                )}
+                label={t(labelSelectAResource)}
+                limitTags={2}
+                queryKey={`${resource.resourceType}-${index}`}
+                value={resource.resources || []}
+                onChange={changeResources(index)}
+              />
+            </ItemComposition.Item>
+          ))}
+        </ItemComposition>
+        {error && <FormHelperText error>{t(error)}</FormHelperText>}
+      </div>
     </div>
   );
 };
