@@ -8,12 +8,12 @@ import { Method, QueryProvider } from '@centreon/ui';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { WidgetDataResource } from '../../../models';
 import {
+  labelIsTheSelectedResource,
   labelPleaseSelectAMetric,
-  labelSelectMetric,
-  labelYouMustAddMoreResources
+  labelSelectMetric
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
-import { singleMetricSelectionAtom } from '../../../atoms';
+import { singleHostPerMetricAtom, singleMetricSelectionAtom } from '../../../atoms';
 
 import Metrics from './Metrics';
 
@@ -114,23 +114,27 @@ describe('Metrics', () => {
     cy.findByTestId('CancelIcon').click();
     cy.findByText('rtmax (ms) / 2').should('not.exist');
 
-    cy.contains(labelPleaseSelectAMetric).should('be.visible');
-
     cy.makeSnapshot();
   });
 
-  it('displays an error message when the corresponding atom is set and the selected metric is available on several resources', () => {
+  it('displays a warning message when the corresponding atom is set and the selected metric is available on several resources', () => {
+    store.set(singleMetricSelectionAtom, true);
+    store.set(singleHostPerMetricAtom, true);
+    
     cy.findByTestId(labelSelectMetric).click();
 
     cy.findByText('rtmax (ms) / Includes 2 resources').click();
 
-    cy.contains(labelYouMustAddMoreResources).should('be.visible');
+    cy.contains('Centreon-server_Ping').should('be.visible')
+
+    cy.contains(labelIsTheSelectedResource).should('be.visible');
 
     cy.makeSnapshot();
   });
 
   it('displays a single autocomplete when the corresponding atom is set', () => {
     store.set(singleMetricSelectionAtom, true);
+    store.set(singleHostPerMetricAtom, false);
 
     cy.findByTestId(labelSelectMetric).click();
 
