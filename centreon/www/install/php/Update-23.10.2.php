@@ -110,7 +110,7 @@ $createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessa
     );
 };
 
-$populateDahsboardTables = function(CentreonDb $pearDB): void {
+$populateDashboardTables = function(CentreonDb $pearDB): void {
     $statement = $pearDB->query(
         <<<'SQL'
             SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
@@ -125,7 +125,7 @@ $populateDahsboardTables = function(CentreonDb $pearDB): void {
                 SQL
         );
     }
-}
+};
 
 $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
     if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
@@ -140,14 +140,15 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
 
 try {
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
-    
+
     $createDashboardsPlaylistTables($pearDB);
 
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
-    $populateDahsboardTables($pearDB);
-    
+
+    $populateDashboardTables($pearDB);
+
     if ($pearDB->inTransaction()) {
         $pearDB->commit();
     }
