@@ -36,4 +36,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: debug
-        run: echo '${{ toJSON(needs.parallel.outputs) }}'
+        run: |
+            variable=a
+            echo '${{ toJSON(needs.parallel.outputs) }}' | jq -r '.$variable'
