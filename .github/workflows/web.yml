@@ -364,24 +364,17 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    # container:
-    #   image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
-    #   credentials:
-    #     username: ${{ secrets.DOCKER_REGISTRY_ID }}
-    #     password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     name: package ${{ matrix.distrib }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-
-      - name: Install nfpm
-        run: |
-          NFPM_VERSION="2.34.0"
-          wget --directory-prefix=/tmp/ https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}/nfpm_${NFPM_VERSION}_amd64.deb
-          sudo dpkg -i /tmp/nfpm_${NFPM_VERSION}_amd64.deb
-        shell: bash
 
       - name: Restore translation from cache
         uses: actions/cache/restore@v3
@@ -457,8 +450,6 @@ jobs:
       - name: Generate selinux binaries
         if: ${{ matrix.package_extension == 'rpm' }}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y selinux-policy-dev
           cd centreon/selinux
           sed -i "s/@VERSION@/${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}/g" *.te
           make -f /usr/share/selinux/devel/Makefile
