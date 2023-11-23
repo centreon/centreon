@@ -51,7 +51,7 @@ runs:
         current_package_version: ${{ steps.currentVersion.outputs.current_package_version }}
 
     - name: Write NPM package version
-      if: ${{ steps.get-latest-npm-branch-version.outputs.package_version != '' }}
+      if: ${{ steps.get-latest-npm-branch-version.outputs.package_version != '' && steps.get-latest-npm-branch-version.outputs.package_version != steps.currentVersion.outputs.current_package_version }}
       run: npm version ${{ steps.get-latest-npm-branch-version.outputs.package_version }} --legacy-peer-deps
       working-directory: ${{ env.directory }}
       shell: bash
