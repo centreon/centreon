@@ -207,19 +207,19 @@ contents:
     file_info:
       mode: 0644
 
-  - src: "../GPL_LIB"
-    dst: "/usr/share/centreon/GPL_LIB"
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0664
-
   - dst: "/usr/share/centreon/GPL_LIB"
     type: dir
     file_info:
       owner: "centreon"
       group: "centreon"
       mode: 0775
+
+  - src: "../GPL_LIB"
+    dst: "/usr/share/centreon/GPL_LIB"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0664
 
   - src: "../src"
     dst: "/usr/share/centreon/src"
