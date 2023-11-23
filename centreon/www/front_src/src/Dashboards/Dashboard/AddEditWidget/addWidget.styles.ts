@@ -21,19 +21,19 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: theme.spacing(2)
   },
-  widgetPropertiesContentContainer: {
-    position: 'relative'
-  },
   widgetPropertiesContent: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
+    bottom: 0,
     height: '68vh',
+    left: 0,
     overflow: 'auto',
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+    position: 'absolute',
+    right: 0,
+    top: 0
+  },
+  widgetPropertiesContentContainer: {
+    position: 'relative'
   }
 }));
