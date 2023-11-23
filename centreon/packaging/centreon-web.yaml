@@ -219,7 +219,7 @@ contents:
     file_info:
       owner: "centreon"
       group: "centreon"
-      mode: 0664
+      mode: 0775
 
   - src: "../src"
     dst: "/usr/share/centreon/src"
