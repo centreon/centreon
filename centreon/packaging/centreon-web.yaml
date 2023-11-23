@@ -207,7 +207,21 @@ contents:
     file_info:
       mode: 0644
 
-  - dst: "/usr/share/centreon/GPL_LIB"
+  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/cache"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/compile"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/config"
     type: dir
     file_info:
       owner: "centreon"
