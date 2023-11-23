@@ -221,8 +221,15 @@ contents:
       group: "centreon"
       mode: 0775
 
-  - src: "../www"
-    dst: "/usr/share/centreon/www"
+  - dst: "/usr/share/centreon/www"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../www/*"
+    dst: "/usr/share/centreon/www/"
     file_info:
       owner: "centreon"
       group: "centreon"
