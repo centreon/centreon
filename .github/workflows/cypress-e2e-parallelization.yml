@@ -129,6 +129,14 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
+      - name: Test Execution Key
+        id: get-test-execution-key
+        run: |
+          test_execution_key=$(echo '${{ toJSON(inputs.keys_and_ids) }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          echo "The Test Execution KEY : $test_execution_key"
+          echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
@@ -139,7 +147,7 @@ jobs:
           module: centreon
           feature_file_path: ${{ matrix.feature }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
-          test_execution_key: ${{ inputs.test_execution_key }}
+          test_execution_key: ${{ steps.get-test-execution-key.test_execution_key }}
 
       - name: Upload test results
         if: failure()
