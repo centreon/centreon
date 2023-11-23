@@ -9,13 +9,13 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 
 before(() => {
   cy.startWebContainer();
-  // cy.execInContainer({
-  //   command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-  //   name: Cypress.env('dockerName')
-  // });
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-widget-metrics.json'
-  // );
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-widget-metrics.json'
+  );
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
       ? 'apache'
       : 'www-data';
