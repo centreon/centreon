@@ -1,4 +1,4 @@
-@REQ_MON-24740
+@REQ_MON-21039
 Feature: Configuring a top-bottom widget
   As a Centreon User with dashboard update rights,
   I need to configure a top-bottom widget containing on a dashboard
