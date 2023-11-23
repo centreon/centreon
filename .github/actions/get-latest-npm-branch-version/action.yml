@@ -9,6 +9,9 @@ inputs:
   branch_name:
     description: 'The branch name to match the NPM tag'
     required: true
+  current_package_version:
+    description: 'The current version of the package'
+    required: true
 
 outputs:
   package_version:

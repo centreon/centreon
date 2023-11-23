@@ -88,20 +88,27 @@ const args = {
   ]
 };
 
+const parameters = {
+  chromatic: { diffThreshold: 0.1 }
+};
+
 export const BasicTimePeriod: Story = {
   ...Template,
-  argTypes
+  argTypes,
+  parameters
 };
 
 export const WithExtraTimePeriods: Story = {
   ...Template,
   argTypes,
-  args
+  args,
+  parameters
 };
 
 export const WithExternalComponent: Story = {
   ...TemplateWithExternalComponent,
-  argTypes
+  argTypes,
+  parameters
 };
 
 export const SimpleTimePeriod: StorySimpleTimePeriod = {
@@ -109,5 +116,6 @@ export const SimpleTimePeriod: StorySimpleTimePeriod = {
   args: {
     endDate: dayjs(Date.now()).toDate(),
     startDate: dayjs(Date.now()).subtract(29, 'day').toDate()
-  }
+  },
+  parameters
 };
