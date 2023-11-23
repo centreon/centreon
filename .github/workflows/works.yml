@@ -38,5 +38,5 @@ jobs:
       - name: debug
         run: |
             variable=a
-            value= $(echo '${{ toJSON(needs.parallel.outputs) }}' | jq -r '.'$variable)
-            echo '$value'
+            value=$(echo '${{ toJSON(needs.parallel.outputs) }}' | jq -r '.'$variable)
+            echo "Value of 'a': $value"
