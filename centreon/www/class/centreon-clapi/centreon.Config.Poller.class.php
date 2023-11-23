@@ -127,14 +127,16 @@ class CentreonConfigPoller
     private function ensurePollerId($poller)
     {
         if (is_numeric($poller)) {
-            $sQuery = "SELECT id FROM nagios_server WHERE `id` = '" . $this->DB->escape($poller) . "'";
+            $statement = $this->DB->prepare("SELECT id FROM nagios_server WHERE id = :poller");
+            $statement->bindValue(':poller', $poller, \PDO::PARAM_INT);
         } else {
-            $sQuery = "SELECT id FROM nagios_server WHERE `name` = '" . $this->DB->escape($poller) . "'";
+            $statement = $this->DB->prepare("SELECT id FROM nagios_server WHERE name = :poller");
+            $statement->bindValue(':poller', $poller, \PDO::PARAM_STR);
         }
 
-        $DBRESULT = $this->DB->query($sQuery);
-        if ($DBRESULT->rowCount() > 0) {
-            $row = $DBRESULT->fetchRow();
+        $statement->execute();
+        if ($statement->rowCount() > 0) {
+            $row = $statement->fetchRow();
             return $row['id'];
         } else {
             throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
@@ -660,8 +662,10 @@ class CentreonConfigPoller
 
         $centreonDir = $this->centreon_path;
         $pearDB = $this->dependencyInjector['configuration_db'];
-        $res = $pearDB->query("SELECT snmp_trapd_path_conf FROM nagios_server WHERE id = '" . $pollerId . "'");
-        $row = $res->fetchRow();
+        $statement = $pearDB->prepare("SELECT snmp_trapd_path_conf FROM nagios_server WHERE id = :pollerId");
+        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->execute();
+        $row = $statement->fetchRow();
         $trapdPath = $row['snmp_trapd_path_conf'];
         if (!is_dir("{$trapdPath}/{$pollerId}")) {
             mkdir("{$trapdPath}/{$pollerId}");
