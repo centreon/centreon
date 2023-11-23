@@ -231,7 +231,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
             );
         } else {
             $request = $this->translateDbName(
-                'SELECT SQL_CALC_FOUND_ROWS hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
+                'SELECT DISTINCT SQL_CALC_FOUND_ROWS hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
                     CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
                     icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
                     CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
