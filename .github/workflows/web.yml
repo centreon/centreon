@@ -886,3 +886,32 @@ jobs:
   #         major_version: ${{ needs.get-version.outputs.major_version }}
   #         minor_version: ${{ needs.get-version.outputs.minor_version }}
   #         stability: ${{ needs.get-version.outputs.stability }}
+
+  # deploy-platform-nightly:
+  #   needs:
+  #     [
+  #       get-version,
+  #       api-integration-test,
+  #       e2e-test,
+  #       performances-test,
+  #       legacy-e2e-test,
+  #       deliver-rpm
+  #     ]
+  #   if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
+  #   runs-on: [self-hosted, common]
+  #   steps:
+  #     - name: Checkout sources
+  #       uses: actions/checkout@v4
+
+  #     - name: Trigger platform deployment
+  #       uses: ./.github/actions/nightly-platform-deploy
+  #       with:
+  #         ref: main
+  #         bu: RD
+  #         poller_number: 1
+  #         system_name: Alma8
+  #         centreon_branch: develop
+  #         configured_resources: false
+  #         install_business_modules: false
+  #         instance_password: ${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}
+  #         cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}

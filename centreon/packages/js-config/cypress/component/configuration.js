@@ -3,6 +3,7 @@ const { defineConfig } = require('cypress');
 const {
   addMatchImageSnapshotPlugin
 } = require('@simonsmith/cypress-image-snapshot/plugin');
+const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
 
 module.exports = ({
   webpackConfig,
@@ -25,6 +26,8 @@ module.exports = ({
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
 
+        cypressCodeCoverageTask(on, config);
+
         on('before:browser:launch', (browser, launchOptions) => {
           if (browser.name === 'chrome' && browser.isHeadless) {
             launchOptions.args.push('--headless=new');
@@ -37,8 +40,17 @@ module.exports = ({
       supportFile: `${mainCypressFolder}/support/component.tsx`
     },
     env: {
-      ...env,
-      baseUrl: 'http://localhost:9092'
+      baseUrl: 'http://localhost:9092',
+      codeCoverage: {
+        exclude: [
+          'cypress/**/*.*',
+          'packages/**',
+          'node_modules',
+          '**/*.js',
+          '**/*.spec.tsx'
+        ]
+      },
+      ...env
     },
     reporter: 'mochawesome',
     reporterOptions: {
