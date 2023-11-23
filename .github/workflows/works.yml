@@ -20,7 +20,7 @@ jobs:
           echo "${{ matrix.option }}=${{ matrix.option }}" >> $GITHUB_OUTPUT
 
     outputs:
-      a: ${{ steps.output.outputs.a }}
+      aa: ${{ steps.output.outputs.a }}
       b: ${{ steps.output.outputs.b }}
 
   finally:
@@ -38,5 +38,5 @@ jobs:
       - name: debug
         run: |
             variable=a
-            value=$(echo '${{ toJSON(needs.parallel.outputs) }}' | jq -r '.'$variable)
+            value=$(echo '${{ toJSON(needs.parallel.outputs) }}' | jq -r '.a'$variable)
             echo "Value of 'a': $value"
