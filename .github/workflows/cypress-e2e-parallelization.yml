@@ -50,13 +50,6 @@ on:
         required: true
 
 jobs:
-  debug:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Debug
-        run: |
-          echo '${{ inputs.keys_and_ids }}'
-
   cypress-e2e-test-list:
     runs-on: ubuntu-22.04
     outputs:
@@ -176,7 +169,7 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    # if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
+    if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -198,10 +191,6 @@ jobs:
           xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
-
-      - name: Debug
-        run: |
-          echo '${{ inputs.keys_and_ids }}'
 
       - name: Keys
         run: |
