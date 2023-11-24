@@ -154,7 +154,7 @@ describe('App-token listing', () => {
     cy.makeSnapshot();
   });
 
-  it('Get refresh data with the same parameters when clicking on refresh icon button', () => {
+  it('retrieves refreshed data with the same parameters when clicking on refresh icon button', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByLabelText('Refresh').click();
     cy.waitForRequest('@getListTokens');
