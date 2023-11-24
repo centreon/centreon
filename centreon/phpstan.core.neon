@@ -66,6 +66,8 @@ parameters:
                 - src/Core/Common/Infrastructure/Repository/FileDataStoreEngine.php
                 - src/Core/Media/Infrastructure/Command/MigrateAllMedias/MigrateAllMediasCommand.php
                 - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
+                - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
+                - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
@@ -90,6 +92,7 @@ parameters:
                 - src/Core/Tag/RealTime/Application/UseCase/FindTag/FindTagResponse.php
                 - src/Core/Media/Application/UseCase/AddMedia/AddMedia.php
                 - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
+                - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
 
           # 👇👇 Software architecture problem MUST be fixed !!! Only here as a baseline 👇👇
         - # [CENTREON-RULE]: Domain must not call Application or Infrastructure namespaces.

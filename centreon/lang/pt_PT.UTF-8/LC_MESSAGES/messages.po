@@ -17036,3 +17036,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Resource Access Management"
 # msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""
+
+# msgid "Error while searching for media"
+# msgstr ""
+
+# msgid "You are not allowed to list media"
+# msgstr ""

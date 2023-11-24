@@ -25,6 +25,7 @@ namespace Core\Command\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\NewCommandMacro;
 use Core\Common\Domain\TrimmedString;
 use Core\MonitoringServer\Model\MonitoringServer;
@@ -128,5 +129,30 @@ class NewCommand
     public function getGraphTemplateId(): ?int
     {
         return $this->graphTemplateId;
+    }
+
+    /**
+     * @param Command $command
+     *
+     * @throws AssertionFailedException
+     *
+     * @return NewCommand
+     */
+    public static function createFromCommand(Command $command): self
+    {
+        return new self(
+            name: new TrimmedString($command->getName()),
+            commandLine: new TrimmedString($command->getCommandLine()),
+            isShellEnabled: $command->isShellEnabled(),
+            type: $command->getType(),
+            argumentExample: new TrimmedString($command->getArgumentExample()),
+            arguments: $command->getArguments(),
+            macros: array_map(
+                fn(CommandMacro $macro) => NewCommandMacro::createFromMacro($macro),
+                $command->getMacros()
+            ),
+            connectorId: $command->getConnector()?->getId(),
+            graphTemplateId: $command->getGraphTemplate()?->getId(),
+        );
     }
 }
