@@ -111,17 +111,6 @@ const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
-const screenResolutions = [
-  {
-    'ipad-2': { height: 768, width: 1024 }
-  },
-  {
-    'macbook-13': { height: 1280, width: 800 }
-  },
-  {
-    'samsung-s10': { height: 360, width: 760 }
-  }
-];
 
 describe('App-token listing', () => {
   beforeEach(() => {
