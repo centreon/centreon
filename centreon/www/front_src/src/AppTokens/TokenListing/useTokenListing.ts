@@ -9,7 +9,7 @@ import { buildListTokensEndpoint } from '../api/endpoints';
 
 import { currentFilterAtom } from './Actions/Search/Filter/atoms';
 import { Fields, SortOrder } from './Actions/Search/Filter/models';
-import { DataListing, UseTokenListing } from './models';
+import { DataListing, SortParams, UseTokenListing } from './models';
 
 export const useTokenListing = (): UseTokenListing => {
   const [dataListing, setDataListing] = useState<DataListing | undefined>();
@@ -26,20 +26,19 @@ export const useTokenListing = (): UseTokenListing => {
     getQueryKey: () => ['listTokens', currentFilter],
     queryOptions: {
       enabled,
-      refetchOnMount: false,
       suspense: false
     }
   });
 
-  const changeLimit = (value): void => {
+  const changeLimit = (value: number): void => {
     setCurrentFilter((prev) => ({ ...prev, limit: Number(value) }));
   };
 
-  const changePage = (value): void => {
+  const changePage = (value: number): void => {
     setCurrentFilter((prev) => ({ ...prev, page: value + 1 }));
   };
 
-  const onSort = (sortParams): void => {
+  const onSort = (sortParams: SortParams): void => {
     const { sortField, sortOrder } = sortParams;
 
     setCurrentFilter({ ...currentFilter, sort: { [sortField]: sortOrder } });

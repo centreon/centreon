@@ -24,7 +24,7 @@ const TokenFilter = (): JSX.Element => {
         popperPlacement="bottom-start"
         title={t(labelSearchOptions) as string}
       >
-        {() => <div>Filters</div>}
+        {(): JSX.Element => <div>Filters</div>}
       </PopoverMenu>
     </Suspense>
   );

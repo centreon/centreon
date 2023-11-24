@@ -1,10 +1,6 @@
-import { RefetchOptions, QueryObserverResult } from '@tanstack/react-query';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
-import {
-  Fields,
-  SortOrder,
-  SortParameters
-} from './Actions/Search/Filter/models';
+import { Fields, SortOrder } from './Actions/Search/Filter/models';
 
 export interface DataListing {
   isError: boolean;
@@ -18,7 +14,7 @@ export interface UseTokenListing {
   changeLimit: (value: number) => void;
   changePage: (value: number) => void;
   dataListing: DataListing;
-  onSort: (sortParameters: SortParameters) => void;
+  onSort: (sortParams: SortParams) => void;
   refetch: (
     options?: RefetchOptions | undefined
   ) => Promise<QueryObserverResult<unknown, Error>>;
@@ -38,4 +34,9 @@ export interface Token {
   is_revoked: boolean;
   name: string;
   user: PersonalInformation;
+}
+
+export interface SortParams {
+  sortField: string;
+  sortOrder: string;
 }

@@ -3,8 +3,8 @@ import { MemoizedListing as TokenListing } from '@centreon/ui';
 import Actions from './Actions';
 import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
-import { useTokenListing } from './useTokenListing';
 import { useStyles } from './tokenListing.styles';
+import { useTokenListing } from './useTokenListing';
 
 const Listing = (): JSX.Element | null => {
   const { classes } = useStyles();
