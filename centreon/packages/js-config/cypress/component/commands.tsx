@@ -141,10 +141,13 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('makeSnapshot', (title?: string) => {
-  cy.viewport(1280, 590);
-  cy.matchImageSnapshot(title);
-});
+Cypress.Commands.add(
+  'makeSnapshot',
+  (title?: string, height = 1280, width = 590) => {
+    cy.viewport(height, width);
+    cy.matchImageSnapshot(title);
+  }
+);
 
 Cypress.Commands.add('cssDisableMotion', (): void => {
   Cypress.on('window:before:load', (cyWindow) => {
@@ -161,7 +164,7 @@ declare global {
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
-      makeSnapshot: (title?: string) => void;
+      makeSnapshot: (title?: string, height?: number, width?: number) => void;
       mount: ({ Component, options }: MountProps) => Cypress.Chainable;
       moveSortableElement: ({
         element,

@@ -128,8 +128,6 @@ const screenResolutions = [
 
 describe('App-token listing', () => {
   beforeEach(() => {
-    cy.viewport('macbook-13');
-
     const store = createStore();
 
     const userData = renderHook(() => useAtomValue(userAtom));
@@ -256,15 +254,6 @@ describe('App-token listing', () => {
     });
   });
 
-  screenResolutions.forEach((element) => {
-    const { width, height } = Object.values(element)[0];
-    it(`displays correctly the actions listing design when screen resolution is ${width}px`, () => {
-      cy.viewport(height, width);
-      cy.waitForRequest('@getListTokens');
-      cy.makeSnapshot(`${width}px`);
-    });
-  });
-
   it('enable the addition and removal of columns in the table listing when users select or deselect options in the Add Columns menu', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByLabelText('Add columns').click();
@@ -287,5 +276,15 @@ describe('App-token listing', () => {
     cy.findByLabelText(`Column ${columns[0].label}`).should('exist');
     cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
     cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
+  });
+
+  screenResolutions.forEach((element) => {
+    const title = Object.keys(element)[0];
+    const { width, height } = Object.values(element)[0];
+    it(`displays correctly the actions listing design when screen resolution is ${title}`, () => {
+      cy.viewport(height, width);
+      cy.waitForRequest('@getListTokens');
+      cy.makeSnapshot(`resolution-${title}`, height, width);
+    });
   });
 });
