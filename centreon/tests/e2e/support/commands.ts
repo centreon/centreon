@@ -267,7 +267,6 @@ export enum PatternType {
   endsWith = '$',
   startsWith = '^'
 }
-
 interface Dashboard {
   description?: string;
   name: string;
@@ -275,12 +274,12 @@ interface Dashboard {
 
 interface GetByLabelProps {
   label: string;
-  patternType?: PatternType;
+  patternInfo?: PatternType;
   tag?: string;
 }
 
 interface GetByTestIdProps {
-  patternType?: PatternType;
+  patternInfo?: PatternType;
   tag?: string;
   testId: string;
 }
@@ -296,12 +295,12 @@ declare global {
       disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({
-        patternType,
+        patternInfo,
         tag,
         label
       }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({
-        patternType,
+        patternInfo,
         tag,
         testId
       }: GetByTestIdProps) => Cypress.Chainable;
