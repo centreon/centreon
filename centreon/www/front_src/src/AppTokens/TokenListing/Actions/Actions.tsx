@@ -1,8 +1,8 @@
-import TokenCreationButton from '../../tokenCreation';
+import TokenCreationButton from '../../TokenCreation';
 
 import { useStyles } from './actions.styles';
-import Search from './search';
-import TokenFilter from './search/filter';
+import Search from './Search';
+import TokenFilter from './Search/Filter';
 
 interface Props {
   refresh: React.ReactNode;

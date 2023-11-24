@@ -16,8 +16,8 @@ import { userAtom } from '@centreon/ui-context';
 import { buildListTokensEndpoint } from '../api/endpoints';
 
 import Listing from './Listing';
-import { DefaultParameters } from './actions/search/filter/models';
-import { Columns } from './componentsColumn/models';
+import { DefaultParameters } from './Actions/Search/Filter/models';
+import { Columns } from './ComponentsColumn/models';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -152,7 +152,7 @@ describe('App-token listing', () => {
     });
   });
 
-  it('Displays all tokens when the page loads', () => {
+  it('displays all tokens when the page loads', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.fixture('appTokens/list.json').then((data) => {
@@ -169,7 +169,7 @@ describe('App-token listing', () => {
     cy.makeSnapshot();
   });
 
-  it('Get refresh data with the same parameters when clicking on refresh icon button', () => {
+  it('retrieves refreshed data with the same parameters when clicking on refresh icon button', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByLabelText('Refresh').click();
     cy.waitForRequest('@getListTokens');
@@ -184,7 +184,7 @@ describe('App-token listing', () => {
     });
   });
 
-  it('Executes a listing request with an updated page param when a change page action is clicked', () => {
+  it('executes a listing request with an updated page param when a change page action is clicked', () => {
     cy.waitForRequest('@getListTokens');
 
     interceptListTokens({

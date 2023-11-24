@@ -7,8 +7,8 @@ import { useFetchQuery } from '@centreon/ui';
 import { listTokensDecoder } from '../api/decoder';
 import { buildListTokensEndpoint } from '../api/endpoints';
 
-import { currentFilterAtom } from './actions/search/filter/atoms';
-import { Fields, SortOrder } from './actions/search/filter/models';
+import { currentFilterAtom } from './Actions/Search/Filter/atoms';
+import { Fields, SortOrder } from './Actions/Search/Filter/models';
 import { DataListing, UseTokenListing } from './models';
 
 export const useTokenListing = (): UseTokenListing => {

@@ -1,8 +1,8 @@
 import { MemoizedListing as TokenListing } from '@centreon/ui';
 
-import Actions from './actions';
-import Refresh from './actions/refresh';
-import { useColumns } from './componentsColumn/useColumns';
+import Actions from './Actions';
+import Refresh from './Actions/Refresh';
+import { useColumns } from './ComponentsColumn/useColumns';
 import { useTokenListing } from './useTokenListing';
 import { useStyles } from './tokenListing.styles';
 

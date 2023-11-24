@@ -4,7 +4,7 @@ import {
   Fields,
   SortOrder,
   SortParameters
-} from './actions/search/filter/models';
+} from './Actions/Search/Filter/models';
 
 export interface DataListing {
   isError: boolean;

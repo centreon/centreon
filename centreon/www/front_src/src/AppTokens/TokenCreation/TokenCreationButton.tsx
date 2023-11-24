@@ -2,7 +2,7 @@ import Button from '@mui/material/Button';
 import { Typography } from '@mui/material';
 
 import { labelCreateNewToken } from '../translatedLabels';
-import { useStyles } from '../tokenListing/actions/actions.styles';
+import { useStyles } from '../TokenListing/Actions/actions.styles';
 
 const TokenCreationButton = (): JSX.Element => {
   const { classes } = useStyles();

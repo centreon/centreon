@@ -2,7 +2,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { PersonalInformation, Token } from '../tokenListing/models';
+import { PersonalInformation, Token } from '../TokenListing/models';
 
 const personalInformationDecoder = (
   decoderName = 'personalInformation'
