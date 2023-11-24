@@ -137,7 +137,7 @@ describe('App-token listing', () => {
     });
   });
 
-  it('Displays all tokens when the page loads', () => {
+  it('displays all tokens when the page loads', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.fixture('appTokens/list.json').then((data) => {
