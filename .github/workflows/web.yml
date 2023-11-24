@@ -318,12 +318,12 @@ jobs:
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
         working-directory: centreon
 
-      - name: Run of phpstan on /src at level 3
-        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.neon
+      - name: Run of phpstan on /src at level 4
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
         working-directory: centreon
 
-      - name: Run of phpstan on /src/Core at level 3 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=3 --configuration=phpstan.core.neon
+      - name: Run of phpstan on /src/Core at level 4 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.core.neon
         working-directory: centreon
 
       - name: Run of phpstan on /tests at level 2
@@ -540,10 +540,10 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
-      jira_user: ${{ secrets.JIRA_USER }}
-      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   api-integration-test:
     needs: [get-version, changes, dockerize]
@@ -586,8 +586,27 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  e2e-test:
+  create-xray-test-plan-and-test-execution:
     needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      os: ${{ matrix.os }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  e2e-test:
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -607,13 +626,13 @@ jobs:
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
+      test_plan_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_plan_key }}
+      test_execution_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_execution_key }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
-      jira_user: ${{ secrets.JIRA_USER }}
-      jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   performances-test:
     runs-on: ubuntu-22.04
@@ -775,3 +794,32 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  deploy-platform-nightly:
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+        deliver-rpm
+      ]
+    if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Trigger platform deployment
+        uses: ./.github/actions/nightly-platform-deploy
+        with:
+          ref: main
+          bu: RD
+          poller_number: 1
+          system_name: Alma8
+          centreon_branch: develop
+          configured_resources: false
+          install_business_modules: false
+          instance_password: ${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}
+          cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}

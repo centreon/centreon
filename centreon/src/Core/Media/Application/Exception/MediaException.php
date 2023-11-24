@@ -44,6 +44,14 @@ class MediaException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileSearchingForMedias(): self
+    {
+        return new self(_('Error while searching for media'));
+    }
+
+    /**
+     * @return self
+     */
     public static function fileExtensionNotAuthorized(): self
     {
         return new self(_('File extension not authorized'));
@@ -52,8 +60,21 @@ class MediaException extends \Exception
     /**
      * @return self
      */
+    public static function listingNotAllowed(): self
+    {
+        return new self(_('You are not allowed to list media'));
+    }
+
+    /**
+     * @return self
+     */
     public static function mediaAlreadyExists(): self
     {
         return new self(_('Media already exists'));
+    }
+
+    public static function operationRequiresAdminUser(): self
+    {
+        return new self(_('This operation requires an admin user'));
     }
 }

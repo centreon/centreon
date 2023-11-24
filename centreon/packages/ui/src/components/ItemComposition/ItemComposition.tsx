@@ -7,6 +7,7 @@ import { Button } from '..';
 import { useItemCompositionStyles } from './ItemComposition.styles';
 
 type Props = {
+  IconAdd?;
   addButtonHidden?: boolean;
   addbuttonDisabled?: boolean;
   children: Array<ReactElement>;
@@ -19,7 +20,8 @@ export const ItemComposition = ({
   children,
   labelAdd,
   addbuttonDisabled,
-  addButtonHidden
+  addButtonHidden,
+  IconAdd
 }: Props): JSX.Element => {
   const { classes } = useItemCompositionStyles();
 
@@ -31,7 +33,7 @@ export const ItemComposition = ({
           aria-label={labelAdd}
           data-testid={labelAdd}
           disabled={addbuttonDisabled}
-          icon={<AddIcon />}
+          icon={IconAdd || <AddIcon />}
           iconVariant="start"
           size="small"
           variant="ghost"

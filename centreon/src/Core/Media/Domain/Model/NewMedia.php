@@ -37,15 +37,19 @@ class NewMedia
      *
      * @throws AssertionFailedException
      */
-    public function __construct(private string $filename, private string $directory, readonly private string $data)
+    public function __construct(private string $filename, private string $directory, private string $data)
     {
         $this->filename = trim($this->filename);
-        Assertion::notEmptyString($this->filename, 'Media::filename');
+        Assertion::notEmptyString($this->filename, 'NewMedia::filename');
         $this->filename = str_replace(' ', '_', $this->filename);
         $this->directory = str_replace(' ', '', $this->directory);
-        Assertion::notEmptyString($this->directory, 'Media::directory');
-        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', 'Media::directory');
-        Assertion::notEmptyString($this->data, 'Media::data');
+        Assertion::notEmptyString($this->directory, 'NewMedia::directory');
+        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', 'NewMedia::directory');
+    }
+
+    public function setFilename(string $filename): void
+    {
+        $this->filename = $filename;
     }
 
     public function getFilename(): string
@@ -53,9 +57,19 @@ class NewMedia
         return $this->filename;
     }
 
+    public function setDirectory(string $directory): void
+    {
+        $this->directory = $directory;
+    }
+
     public function getDirectory(): string
     {
         return $this->directory;
+    }
+
+    public function setData(string $data): void
+    {
+        $this->data = $data;
     }
 
     public function getData(): string
@@ -71,5 +85,29 @@ class NewMedia
     public function getComment(): ?string
     {
         return $this->comment;
+    }
+
+    /**
+     * @param Media $media
+     *
+     * @throws AssertionFailedException
+     *
+     * @return NewMedia
+     */
+    public static function createFromMedia(Media $media): self
+    {
+        $newMedia = new self(
+            $media->getFilename(),
+            $media->getDirectory(),
+            $media->getData() ?? '',
+        );
+        $newMedia->setComment($media->getComment());
+
+        return $newMedia;
+    }
+
+    public function hash(): string
+    {
+        return md5($this->data);
     }
 }

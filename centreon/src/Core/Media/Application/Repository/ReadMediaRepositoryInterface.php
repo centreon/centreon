@@ -23,6 +23,9 @@ declare(strict_types = 1);
 
 namespace Core\Media\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Media\Domain\Model\Media;
+
 interface ReadMediaRepositoryInterface
 {
     /**
@@ -35,4 +38,20 @@ interface ReadMediaRepositoryInterface
      * @return bool
      */
     public function existsByPath(string $path): bool;
+
+    /**
+     * @throws \Throwable
+     *
+     * @return \Iterator<int, Media>&\Countable
+     */
+    public function findAll(): \Iterator&\Countable;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return \Traversable<int, Media>
+     */
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable;
 }

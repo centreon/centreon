@@ -53,6 +53,7 @@ runs:
         working-directory: ${{ inputs.module }}
         spec: ${{ inputs.spec_file_path }}
         publish-summary: false
+        env: codeCoverageTasksRegistered=true
 
     - name: Archive test results
       uses: actions/upload-artifact@v3
