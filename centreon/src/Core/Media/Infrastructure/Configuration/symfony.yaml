@@ -46,3 +46,8 @@ services:
         calls:
         - method: setApiTimeOut
           arguments: [ '%curl.timeout%' ]
+
+
+    Core\Media\Application\UseCase\FindMedias\FindMedias:
+        arguments:
+            $readMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository'

@@ -62,9 +62,7 @@ class ModuleEntity implements JsonSerializable
      */
     public function jsonSerialize(): mixed
     {
-        $outdated = $this->entity->isInstalled() && ! $this->entity->isUpdated()
-            ? true
-            : false;
+        $outdated = ! $this->entity->isInternal() && $this->entity->isInstalled() && ! $this->entity->isUpdated();
 
         return [
             'id' => $this->entity->getId(),
@@ -77,6 +75,7 @@ class ModuleEntity implements JsonSerializable
                 'outdated' => $outdated,
                 'installed' => $this->entity->isInstalled(),
             ],
+            'is_internal' => $this->entity->isInternal(),
             'license' => $this->entity->getLicense(),
         ];
     }

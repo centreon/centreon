@@ -37,14 +37,21 @@ runs:
       working-directory: ./.github/actions/get-latest-npm-branch-version
       shell: bash
 
+    - name: Get current package version
+      id: currentVersion
+      run: echo "current_package_version=`cat package.json | jq -r '.version'`" >> $GITHUB_OUTPUT
+      shell: bash
+      working-directory: ${{ env.directory }}
+
     - uses: ./.github/actions/get-latest-npm-branch-version
       id: get-latest-npm-beta-branch-version
       with:
         package: ${{ inputs.package }}
         branch_name: ${{ github.head_ref }}
+        current_package_version: ${{ steps.currentVersion.outputs.current_package_version }}
 
     - name: Write beta NPM package version
-      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version != '' }}
+      if: ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version != '' && steps.get-latest-npm-beta-branch-version.outputs.package_version != steps.currentVersion.outputs.current_package_version }}
       run: npm version ${{ steps.get-latest-npm-beta-branch-version.outputs.package_version }} --legacy-peer-deps
       working-directory: ${{ env.directory }}
       shell: bash

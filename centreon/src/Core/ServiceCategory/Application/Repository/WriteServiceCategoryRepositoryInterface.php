@@ -56,7 +56,7 @@ interface WriteServiceCategoryRepositoryInterface
     public function linkToService(int $serviceId, array $serviceCategoriesIds): void;
 
     /**
-     * Unlink a service to a list of service categories.
+     * Unlink a service from a list of service categories.
      *
      * @param int $serviceId
      * @param list<int> $serviceCategoriesIds

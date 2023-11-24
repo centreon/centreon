@@ -39,12 +39,12 @@ runs:
         else
           echo "The github_ref_name is: $GITHUB_REF_NAME"
           case "$GITHUB_REF_NAME" in
-              hotfix*)
-                summary_prefix="HOTFIX"
-                ;;
-              release*)
-                summary_prefix="RLZ"
-                ;;
+            hotfix*)
+              summary_prefix="HOTFIX"
+              ;;
+            release*)
+              summary_prefix="RLZ"
+              ;;
           esac
         fi
 
