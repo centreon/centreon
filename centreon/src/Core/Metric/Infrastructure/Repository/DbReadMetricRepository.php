@@ -217,7 +217,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      * Build the SQL Query.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param array $accessGroups
+     * @param AccessGroup[] $accessGroups
      * @param string[] $metricNames
      *
      * @return string
@@ -360,7 +360,6 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      * @param array{
      *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
      * } $search
-     * @param array $search
      *
      * @return array<
      *  string, array{

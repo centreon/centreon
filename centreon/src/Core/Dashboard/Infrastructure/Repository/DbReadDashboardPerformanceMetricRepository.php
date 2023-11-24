@@ -30,6 +30,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface as RepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB implements RepositoryInterface
 {
@@ -67,7 +68,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * @inheritDoc
      */
-    public function FindByRequestParametersAndAccessGroups(
+    public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array {
@@ -93,7 +94,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * @inheritDoc
      */
-    public function FindByRequestParametersAndAccessGroupsAndMetricName(
+    public function findByRequestParametersAndAccessGroupsAndMetricName(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
         string $metricName
@@ -294,7 +295,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param array{
      *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
      * } $search
-     * @param array $search
      *
      * @return array<
      *  string, array{
@@ -400,7 +400,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * Build the SQL Query.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param array $accessGroups
+     * @param AccessGroup[] $accessGroups
      * @param bool $hasMetricName
      *
      * @return string
@@ -408,7 +408,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     private function buildQuery(
         RequestParametersInterface $requestParameters,
         array $accessGroups = [],
-        $hasMetricName = false): string
+        bool $hasMetricName = false): string
     {
         $request
         = <<<'SQL'

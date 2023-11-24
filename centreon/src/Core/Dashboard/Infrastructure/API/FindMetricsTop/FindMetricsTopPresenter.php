@@ -57,7 +57,7 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
     }
 
     /**
-     * @param ResourceMetric[] $resourceMetrics
+     * @param MetricInformationDto[] $resourceMetrics
      *
      * @return array<array<string,int|string|float|null>>
      */
