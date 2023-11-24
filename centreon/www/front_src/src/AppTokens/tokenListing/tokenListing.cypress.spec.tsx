@@ -111,6 +111,21 @@ const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
+const screenResolutions = [
+  {
+    'ipad-2': { height: 768, width: 1024 }
+  },
+  {
+    'macbook-13': { height: 1280, width: 800 }
+  },
+  {
+    'macbook-16': { height: 1536, width: 960 }
+  },
+  {
+    'samsung-s10': { height: 360, width: 760 }
+  }
+];
+
 describe('App-token listing', () => {
   beforeEach(() => {
     cy.viewport('macbook-13');
@@ -231,12 +246,22 @@ describe('App-token listing', () => {
     limits.forEach((limit) => {
       cy.contains(limit);
     });
-    // cy.contains(limits[2]).click();
 
-    // cy.waitForRequest('@getListTokens');
+    cy.findByRole('option', { name: limits[2].toString() }).click();
 
-    // cy.getRequestCalls('@getListTokens').then((calls) => {
-    //   expect(calls[0].request.url.search.includes(customLimitParameters));
-    // });
+    cy.waitForRequest('@getListTokens');
+
+    cy.getRequestCalls('@getListTokens').then((calls) => {
+      expect(calls[0].request.url.search.includes(customLimitParameters));
+    });
+  });
+
+  screenResolutions.forEach((element) => {
+    const { width, height } = Object.values(element)[0];
+    it.only(`displays correctly the actions listing design when screen resolution is ${width}px`, () => {
+      cy.viewport(height, width);
+      cy.waitForRequest('@getListTokens');
+      cy.makeSnapshot(`${width}px`);
+    });
   });
 });
