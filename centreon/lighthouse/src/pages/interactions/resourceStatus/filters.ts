@@ -53,7 +53,7 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
   await endTimespan();
     
   await startTimespan('select host name');
-  const option = await  getByRole($document,'option',{name:/Centreon-Server/i})
+  const option = await  getByRole($document,'option')
   option.click()
   await endTimespan();
 
