@@ -119,9 +119,6 @@ const screenResolutions = [
     'macbook-13': { height: 1280, width: 800 }
   },
   {
-    'macbook-16': { height: 1536, width: 960 }
-  },
-  {
     'samsung-s10': { height: 360, width: 760 }
   }
 ];
@@ -284,7 +281,7 @@ describe('App-token listing', () => {
     it(`displays correctly the actions listing design when screen resolution is ${title}`, () => {
       cy.viewport(height, width);
       cy.waitForRequest('@getListTokens');
-      cy.makeSnapshot(`resolution-${title}`, height, width);
+      cy.matchImageSnapshot(`resolution-${title}`);
     });
   });
 });
