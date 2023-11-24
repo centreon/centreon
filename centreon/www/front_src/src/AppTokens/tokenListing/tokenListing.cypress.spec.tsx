@@ -169,7 +169,7 @@ describe('App-token listing', () => {
     });
   });
 
-  it('Executes a listing request with an updated page param when a change page action is clicked', () => {
+  it('executes a listing request with an updated page param when a change page action is clicked', () => {
     cy.waitForRequest('@getListTokens');
 
     interceptListTokens({
