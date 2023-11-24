@@ -1,6 +1,6 @@
 @ignore
 @REQ_MON-16473
-Feature: List Notification Rules
+Feature: Listing Notification Rules
   As a Centreon user with access to the Notification Rules page
   The user want to view the list of Notification Rules
   So that the user can effectively organize my alerts in the monitoring system
@@ -9,7 +9,7 @@ Feature: List Notification Rules
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
 
-  Scenario: List Notifications Rules without result
+  Scenario: Listing Notifications Rules without result
     Given no Notification Rules are configured
     When the user goes to Notification Rules Listing
     Then the user sees a message indicating "No result found" in the list
