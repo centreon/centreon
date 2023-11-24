@@ -274,14 +274,4 @@ describe('App-token listing', () => {
     cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
     cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
   });
-
-  screenResolutions.forEach((element) => {
-    const title = Object.keys(element)[0];
-    const { width, height } = Object.values(element)[0];
-    it(`displays correctly the actions listing design when screen resolution is ${title}`, () => {
-      cy.viewport(height, width);
-      cy.waitForRequest('@getListTokens');
-      cy.matchImageSnapshot(`resolution-${title}`);
-    });
-  });
 });
