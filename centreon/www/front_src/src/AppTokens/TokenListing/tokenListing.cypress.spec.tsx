@@ -258,10 +258,34 @@ describe('App-token listing', () => {
 
   screenResolutions.forEach((element) => {
     const { width, height } = Object.values(element)[0];
-    it.only(`displays correctly the actions listing design when screen resolution is ${width}px`, () => {
+    it(`displays correctly the actions listing design when screen resolution is ${width}px`, () => {
       cy.viewport(height, width);
       cy.waitForRequest('@getListTokens');
       cy.makeSnapshot(`${width}px`);
     });
+  });
+
+  it('enable the addition and removal of columns in the table listing when users select or deselect options in the Add Columns menu', () => {
+    cy.waitForRequest('@getListTokens');
+    cy.findByLabelText('Add columns').click();
+
+    columns.forEach(({ label }) => {
+      cy.contains(label);
+    });
+
+    cy.findByRole('menuitem', { name: columns[0].label }).click();
+    cy.findByRole('menuitem', { name: columns[1].label }).click();
+    cy.findByRole('menuitem', { name: columns[2].label }).click();
+
+    cy.findByLabelText(`Column ${columns[0].label}`).should('not.exist');
+    cy.findByLabelText(`Column ${columns[1].label}`).should('not.exist');
+    cy.findByLabelText(`Column ${columns[1].label}`).should('not.exist');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Reset').click();
+    cy.findByLabelText(`Column ${columns[0].label}`).should('exist');
+    cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
+    cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
   });
 });
