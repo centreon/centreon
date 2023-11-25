@@ -17057,7 +17057,7 @@ msgstr ""
 # msgid "tiles"
 # msgstr ""
 
-# msgid "Waiting for fullfilled resources."
+# msgid "You must fill in more resources."
 # msgstr ""
 
 # msgid "All services on this host are working fine."
@@ -17093,7 +17093,7 @@ msgstr ""
 # msgid "Sort by"
 # msgstr ""
 
-# msgid "See more on the Resource status page"
+# msgid "See more on the Resources status page"
 # msgstr ""
 
 #  msgid "You are not allowed to edit a service"

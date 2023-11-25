@@ -1,4 +1,5 @@
-export const labelNoResources = 'Waiting for fullfilled resources.';
+export const labelNoResources = 'You must fill in more resources.';
+
 export const labelServiceName = 'Service name';
 export const labelAllServicesAreWorkingFine =
   'All services on this host are working fine.';
@@ -8,4 +9,5 @@ export const labelAllMetricsAreWorkingFine =
   'All metrics on this service are working fine.';
 export const labelMetricName = 'Metric name';
 export const labelValue = 'Value';
-export const labelSeeMore = 'See more on the Resource status page';
+export const labelSeeMore = 'See more on the Resources status page';
+

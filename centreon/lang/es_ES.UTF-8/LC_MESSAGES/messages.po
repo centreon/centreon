@@ -16593,7 +16593,7 @@ msgstr "Modo avanzado"
 # msgid "tiles"
 # msgstr ""
 
-# msgid "Waiting for fullfilled resources."
+# msgid "You must fill in more resources."
 # msgstr ""
 
 # msgid "All services on this host are working fine."
@@ -16629,7 +16629,7 @@ msgstr "Modo avanzado"
 # msgid "Sort by"
 # msgstr ""
 
-# msgid "See more on the Resource status page"
+# msgid "See more on the Resources Status page"
 # msgstr ""
 
 #  msgid "You are not allowed to edit a service"
