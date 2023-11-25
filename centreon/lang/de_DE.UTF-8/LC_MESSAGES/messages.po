@@ -16260,7 +16260,7 @@ msgstr "Erweiterter Modus"
 # msgid "tiles"
 # msgstr ""
 
-# msgid "Waiting for fullfilled resources."
+# msgid "You must fill in more resources."
 # msgstr ""
 
 # msgid "All services on this host are working fine."
