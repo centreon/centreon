@@ -10,4 +10,3 @@ export const labelAllMetricsAreWorkingFine =
 export const labelMetricName = 'Metric name';
 export const labelValue = 'Value';
 export const labelSeeMore = 'See more on the Resources status page';
-
