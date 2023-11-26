@@ -53,8 +53,8 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
   await endTimespan();
     
   await startTimespan('select host name');
-  const option = await  getByRole($document,'option')
-  option.click()
+  const options = await  getAllByRole($document,'option')
+  options[0].click()
   await endTimespan();
 
   await startTimespan('Click search button');
