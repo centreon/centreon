@@ -37,7 +37,7 @@ updateEngineBrokerRights() {
 
 updateGorgoneConfiguration() {
   # make sure that gorgone configuration file has the central id set
-  if [[ ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
+  if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml && ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
       sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
   fi
 }

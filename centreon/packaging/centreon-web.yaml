@@ -418,6 +418,10 @@ overrides:
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
       - lsb-release
+      - apache2
+      - php8.1
+      - php8.1-cli
+      - php8.1-fpm
       - php8.1-curl
       - php8.1-intl
       - php8.1-xml
