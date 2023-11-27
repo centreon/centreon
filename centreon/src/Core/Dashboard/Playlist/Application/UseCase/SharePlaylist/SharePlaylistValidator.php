@@ -133,7 +133,7 @@ class SharePlaylistValidator
      *
      * @throws PlaylistException
      */
-    private function validateUserHasAccessToContacts(array $contactIds, array $contactIdsInUserContactGroups)
+    private function validateUserHasAccessToContacts(array $contactIds, array $contactIdsInUserContactGroups): void
     {
         if ([] === $contactIds) {
             return;
@@ -180,9 +180,8 @@ class SharePlaylistValidator
     }
 
     /**
-     *
-     * @param array $contactGroupIds
-     * @param array $userContactGroupIds
+     * @param int[] $contactGroupIds
+     * @param int[] $userContactGroupIds
      *
      * @throws PlaylistException
      */

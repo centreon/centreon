@@ -76,7 +76,7 @@ final class SharePlaylistController extends AbstractController
         /**
          * @var array{
          *  contacts: array{}|array<array{id:int, role: string}>,
-         *  contactGroups: array{}|array<array{id:int, role: string}>,
+         *  contactgroups: array{}|array<array{id:int, role: string}>,
          * } $requestData
          */
         $requestData = $this->validateAndRetrieveDataSent($request, __DIR__ . '/SharePlaylistSchema.json');

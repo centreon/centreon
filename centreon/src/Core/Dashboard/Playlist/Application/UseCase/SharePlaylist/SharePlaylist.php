@@ -131,8 +131,8 @@ final class SharePlaylist
                     $playlistId,
                     $request->contacts,
                     $request->contactGroups,
-                    $contactIdsInUserContactGroups,
-                    $userContactGroupIds
+                    $contactIdsInUserContactGroups ?? [],
+                    $userContactGroupIds ?? []
                 );
             } else {
                 $this->info('update playlist shares as admin', ['playlist_id' => $playlistId]);
@@ -202,7 +202,7 @@ final class SharePlaylist
         array $contactGroups,
         array $contactsInUserContactGroups,
         array $userContactGroups
-    ) {
+    ): void {
         try {
             $this->dataStorageEngine->startTransaction();
             $this->shareRepository->deletePlaylistSharesByContactIds($playlistId, $contactsInUserContactGroups);
