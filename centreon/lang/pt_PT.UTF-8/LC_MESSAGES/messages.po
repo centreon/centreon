@@ -17037,6 +17037,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Resource Access Management"
 # msgstr ""
 
+# msgid "You are not allowed to log in"
+# msgstr ""
+
 #  msgid "You are not allowed to edit a service"
 #  msgstr ""
 
@@ -17048,3 +17051,4 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "You are not allowed to list media"
 # msgstr ""
+
