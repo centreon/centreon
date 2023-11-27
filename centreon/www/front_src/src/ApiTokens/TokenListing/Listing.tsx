@@ -1,6 +1,10 @@
+import { useTranslation } from 'react-i18next';
+
 import Divider from '@mui/material/Divider';
 
 import { MemoizedListing as TokenListing } from '@centreon/ui';
+
+import { labelApiToken } from '../translatedLabels';
 
 import Actions from './Actions';
 import Refresh from './Actions/Refresh';
@@ -11,6 +15,7 @@ import Title from './Title';
 
 const Listing = (): JSX.Element | null => {
   const { classes } = useStyles();
+  const { t } = useTranslation();
   const {
     dataListing,
     changePage,
@@ -30,7 +35,7 @@ const Listing = (): JSX.Element | null => {
 
   return (
     <div className={classes.container}>
-      <Title msg="App token" />
+      <Title msg={t(labelApiToken)} />
       <Divider className={classes.divider} />
 
       <TokenListing

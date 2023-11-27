@@ -18396,3 +18396,10 @@ msgstr "Erreur lors de la recherche de médias"
 msgid "You are not allowed to list media"
 msgstr "Vous n'êtes pas autorisé à lister les médias"
 
+msgid "Api token"
+msgstr "jeton Api"
+
+msgid "Create new token"
+msgstr "Créer un nouveau jeton"
+
+
