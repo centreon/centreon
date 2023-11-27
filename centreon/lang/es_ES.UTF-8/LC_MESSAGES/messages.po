@@ -16632,6 +16632,9 @@ msgstr "Modo avanzado"
 # msgid "See more on the Resources Status page"
 # msgstr ""
 
+# msgid "You are not allowed to log in"
+# msgstr ""
+
 #  msgid "You are not allowed to edit a service"
 #  msgstr ""
 
@@ -16643,4 +16646,3 @@ msgstr "Modo avanzado"
 
 # msgid "You are not allowed to list media"
 # msgstr ""
-

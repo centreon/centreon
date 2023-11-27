@@ -17096,6 +17096,9 @@ msgstr ""
 # msgid "See more on the Resources status page"
 # msgstr ""
 
+# msgid "You are not allowed to log in"
+# msgstr ""
+
 #  msgid "You are not allowed to edit a service"
 #  msgstr ""
 

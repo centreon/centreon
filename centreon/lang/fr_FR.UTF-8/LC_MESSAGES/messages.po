@@ -18393,6 +18393,9 @@ msgstr "Trier par"
 msgid "See more on the Resources status page"
 msgstr "Voir plus dans la page Statut des ressources"
 
+msgid "You are not allowed to log in"
+msgstr "Vous n'êtes pas autorisé à vous connecter"
+
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -18440,3 +18443,4 @@ msgstr "Erreur lors de la recherche de médias"
 
 msgid "You are not allowed to list media"
 msgstr "Vous n'êtes pas autorisé à lister les médias"
+

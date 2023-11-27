@@ -16299,6 +16299,9 @@ msgstr "Erweiterter Modus"
 # msgid "See more on the Resource status page"
 # msgstr ""
 
+# msgid "You are not allowed to log in"
+# msgstr ""
+
 #  msgid "You are not allowed to edit a service"
 #  msgstr ""
 
@@ -16310,4 +16313,3 @@ msgstr "Erweiterter Modus"
 
 # msgid "You are not allowed to list media"
 # msgstr ""
-
