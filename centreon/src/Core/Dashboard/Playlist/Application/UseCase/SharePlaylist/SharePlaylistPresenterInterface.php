@@ -27,5 +27,5 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface SharePlaylistPresenterInterface
 {
-    public function presentResponse(SharePlaylistResponse|ResponseStatusInterface $response): void;
+    public function presentResponse(ResponseStatusInterface $response): void;
 }

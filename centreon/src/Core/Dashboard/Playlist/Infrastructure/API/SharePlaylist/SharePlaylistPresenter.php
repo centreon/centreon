@@ -26,11 +26,10 @@ namespace Core\Dashboard\Playlist\Infrastructure\API\SharePlaylist;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistPresenterInterface;
-use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistResponse;
 
 final class SharePlaylistPresenter extends AbstractPresenter implements SharePlaylistPresenterInterface
 {
-    public function presentResponse(SharePlaylistResponse|ResponseStatusInterface $response): void
+    public function presentResponse(ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);

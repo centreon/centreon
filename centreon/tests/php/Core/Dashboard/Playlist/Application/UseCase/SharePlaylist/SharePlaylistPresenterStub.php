@@ -25,13 +25,12 @@ namespace Tests\Core\Dashboard\Playlist\Application\UseCase\SharePlaylist;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistPresenterInterface;
-use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistResponse;
 
 class SharePlaylistPresenterStub implements SharePlaylistPresenterInterface
 {
-    public ResponseStatusInterface|SharePlaylistResponse $data;
+    public ResponseStatusInterface $data;
 
-    public function presentResponse(SharePlaylistResponse|ResponseStatusInterface $data): void
+    public function presentResponse(ResponseStatusInterface $data): void
     {
         $this->data = $data;
     }
