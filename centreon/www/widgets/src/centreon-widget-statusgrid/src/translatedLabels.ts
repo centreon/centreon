@@ -9,4 +9,5 @@ export const labelAllMetricsAreWorkingFine =
   'All metrics on this service are working fine.';
 export const labelMetricName = 'Metric name';
 export const labelValue = 'Value';
-export const labelSeeMore = 'See more on the Resources status page';
+export const labelSeeMore = 'See more on the Resources Status page';
+
