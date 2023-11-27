@@ -385,10 +385,7 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.getByLabel({
-      label: 'pl (%)',
-      tag: 'p'
-    }).should('exist');
+    cy.contains('Centreon-Server: Packet Loss (%)').should('exist');
   }
 );
 
