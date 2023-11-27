@@ -191,6 +191,10 @@ overrides:
       - libev-perl
       - libzmq-ffi-perl
 
+deb:
+  breaks:
+    - centreon-gorgone (<< 24.04.0)
+
 rpm:
   summary: Centreon gorgone daemon
   signature:
