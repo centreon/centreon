@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -f /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+
 if ! getent group centreon-gorgone > /dev/null 2>&1; then
   groupadd -r centreon-gorgone
 fi
