@@ -88,7 +88,7 @@ const checkArrowSorting = (data): void => {
 };
 
 const interceptListTokens = ({
-  dataPath = 'appTokens/list.json',
+  dataPath = 'apiTokens/list.json',
   parameters = DefaultParameters,
   alias = 'getListTokens'
 }): void => {
@@ -134,7 +134,7 @@ describe('App-token listing', () => {
   it('displays all tokens when the page loads', () => {
     cy.waitForRequest('@getListTokens');
 
-    cy.fixture('appTokens/list.json').then((data) => {
+    cy.fixture('apiTokens/list.json').then((data) => {
       cy.findByTestId('Listing Pagination').contains(data.meta.limit);
       cy.findByLabelText(`Previous page`).should('be.disabled');
       cy.findByLabelText(`Next page`).should('be.enabled');
@@ -157,7 +157,7 @@ describe('App-token listing', () => {
       expect(calls[0].request.url.search.includes(defaultParameters));
     });
 
-    cy.fixture('appTokens/list.json').then((data) => {
+    cy.fixture('apiTokens/list.json').then((data) => {
       checkArrowSorting(data.meta);
       checkInformationRow(data.result[0]);
     });
@@ -168,7 +168,7 @@ describe('App-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokensPage2',
-      dataPath: 'appTokens/listPage2.json',
+      dataPath: 'apiTokens/listPage2.json',
       parameters: { ...DefaultParameters, page: 2 }
     });
 
@@ -182,7 +182,7 @@ describe('App-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokens',
-      dataPath: 'appTokens/list.json',
+      dataPath: 'apiTokens/list.json',
       parameters: DefaultParameters
     });
 
@@ -195,7 +195,7 @@ describe('App-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokensPage2',
-      dataPath: 'appTokens/listPage2.json',
+      dataPath: 'apiTokens/listPage2.json',
       parameters: { ...DefaultParameters, page: 2 }
     });
 
@@ -209,7 +209,7 @@ describe('App-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokens',
-      dataPath: 'appTokens/list.json',
+      dataPath: 'apiTokens/list.json',
       parameters: DefaultParameters
     });
 

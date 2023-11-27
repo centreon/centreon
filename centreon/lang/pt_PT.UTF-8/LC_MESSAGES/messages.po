@@ -17052,3 +17052,8 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are not allowed to list media"
 # msgstr ""
 
+# msgid "Api token"
+# msgstr ""
+
+# msgid "Create new token"
+# msgstr ""

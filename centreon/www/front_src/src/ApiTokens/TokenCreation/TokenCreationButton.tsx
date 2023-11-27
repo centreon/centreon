@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import Button from '@mui/material/Button';
 import { Typography } from '@mui/material';
 
@@ -6,6 +8,7 @@ import { useStyles } from '../TokenListing/Actions/actions.styles';
 
 const TokenCreationButton = (): JSX.Element => {
   const { classes } = useStyles();
+  const { t } = useTranslation();
 
   return (
     <Button
@@ -14,7 +17,7 @@ const TokenCreationButton = (): JSX.Element => {
       size="small"
       variant="contained"
     >
-      <Typography variant="body2">{labelCreateNewToken}</Typography>
+      <Typography variant="body2">{t(labelCreateNewToken)}</Typography>
     </Button>
   );
 };
