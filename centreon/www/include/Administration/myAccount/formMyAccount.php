@@ -106,14 +106,18 @@ $attrsText = array("size" => "35");
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Change my settings"));
 $form->addElement('header', 'information', _("General Information"));
-$form->addElement('text', 'contact_name', _("Name"), $attrsText);
-if ($cct["contact_auth_type"] != 'ldap') {
+if ($cct["contact_auth_type"] === 'local') {
+    $form->addElement('text', 'contact_name', _("Name"), $attrsText);
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
+    $form->addElement('text', 'contact_email', _("Email"), $attrsText);
+    $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
 } else {
+    $form->addElement('text', 'contact_name', _("Name"), $attrsText, $attrsText)->freeze();
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText)->freeze();
+    $form->addElement('text', 'contact_email', _("Email"), $attrsText, $attrsText)->freeze();
+    $form->addElement('text', 'contact_pager', _("Pager"), $attrsText, $attrsText)->freeze();
 }
-$form->addElement('text', 'contact_email', _("Email"), $attrsText);
-$form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
+
 
 if ($cct["contact_auth_type"] === 'local') {
     $form->addFormRule('validatePasswordModification');
