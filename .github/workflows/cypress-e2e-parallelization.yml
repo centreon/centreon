@@ -35,7 +35,7 @@ on:
         required: true
         type: string
         description: "The frontend dependencies lock file path"
-      keys_and_ids:
+      xray_keys_and_ids:
         description: "The test execution and the test plan keys and ids"
         required: true
         type: string
@@ -125,7 +125,7 @@ jobs:
       - name: Test Execution Key
         id: get-test-execution-key
         run: |
-          test_execution_key=$(echo '${{ inputs.keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
           echo "The Test Execution KEY : $test_execution_key"
           echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
         shell: bash
@@ -194,8 +194,8 @@ jobs:
 
       - name: Keys
         run: |
-          test_execution_key=$(echo '${{ inputs.keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
-          test_plan_key=$(echo '${{ inputs.keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
+          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_plan_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
           echo "The Test Execution KEY : $test_execution_key"
           echo "The Test Plan KEY: $test_plan_key"
 
