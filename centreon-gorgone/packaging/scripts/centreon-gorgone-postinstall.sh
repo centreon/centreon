@@ -1,7 +1,5 @@
 #!/bin/bash
 
-rm -f /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
-
 startGorgoned() {
   systemctl daemon-reload ||:
   systemctl unmask gorgoned.service ||:
