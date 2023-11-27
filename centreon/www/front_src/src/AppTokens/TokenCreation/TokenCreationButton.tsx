@@ -6,6 +6,7 @@ import { useStyles } from '../TokenListing/Actions/actions.styles';
 
 const TokenCreationButton = (): JSX.Element => {
   const { classes } = useStyles();
+  const createToken = (): void => {};
 
   return (
     <Button
@@ -13,6 +14,7 @@ const TokenCreationButton = (): JSX.Element => {
       data-testid={labelCreateNewToken}
       size="small"
       variant="contained"
+      onClick={createToken}
     >
       <Typography variant="body2">{labelCreateNewToken}</Typography>
     </Button>
