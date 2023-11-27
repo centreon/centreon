@@ -1,12 +1,20 @@
 #!/bin/bash
 
 manageUsersAndGroups() {
-  usermod -a -G centreon,nagios,centreon-broker centreon-engine
-  usermod -a -G centreon,nagios centreon-broker
-  usermod -a -G centreon-engine nagios
-  usermod -a -G centreon-engine,centreon-broker centreon
-  usermod -a -G centreon-engine centreon-gorgone
-  usermod -a -G centreon-broker centreon-gorgone
+  if [ "$1" = "rpm" ]; then
+    usermod centreon-engine -a -G centreon,nagios,centreon-broker
+    usermod centreon-broker -a -G centreon,nagios
+    usermod nagios -a -G centreon-engine
+    usermod centreon -a -G centreon-engine,centreon-broker
+    usermod centreon-gorgone -a -G centreon-engine
+    usermod centreon-gorgone -a -G centreon-broker
+  else
+    usermod centreon-engine -a -G centreon,centreon-broker
+    usermod centreon-broker -a -G centreon
+    usermod centreon -a -G centreon-engine,centreon-broker
+    usermod centreon-gorgone -a -G centreon-engine
+    usermod centreon-gorgone -a -G centreon-broker
+  fi
 }
 
 updateEngineBrokerConfigurationRights() {
@@ -52,16 +60,16 @@ fi
 
 case "$action" in
   "1" | "install")
-    manageUsersAndGroups
+    manageUsersAndGroups $package_type
     updateEngineBrokerConfigurationRights $package_type
     updateSnmpConfiguration
     ;;
   "2" | "upgrade")
-    manageUsersAndGroups
+    manageUsersAndGroups $package_type
     updateEngineBrokerConfigurationRights $package_type
     ;;
   *)
     # $1 == version being installed
-    manageUsersAndGroups
+    manageUsersAndGroups $package_type
     ;;
 esac

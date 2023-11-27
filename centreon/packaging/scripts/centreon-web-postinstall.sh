@@ -2,15 +2,14 @@
 
 manageUsersAndGroups() {
   if [ "$1" = "rpm" ]; then
-    usermod -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon apache
-    usermod -a -G apache nagios
-    usermod -a -G apache centreon-gorgone
-    usermod -a -G apache centreon
+    usermod apache -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
+    usermod nagios -a -G apache
+    usermod centreon-gorgone -a -G apache
+    usermod centreon -a -G apache
   else
-    usermod -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon www-data
-    usermod -a -G www-data nagios
-    usermod -a -G www-data centreon-gorgone
-    usermod -a -G www-data centreon
+    usermod www-data -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
+    usermod centreon-gorgone -a -G www-data
+    usermod centreon -a -G www-data
   fi
 }
 
