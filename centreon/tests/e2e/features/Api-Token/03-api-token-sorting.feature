@@ -10,7 +10,7 @@ Feature: Sorting API Tokens List
     Given I am logged in as an administrator
     And I am on the API tokens page
 
-  Scenario: Sort tokens by '<order_by>'
+  Scenario Outline: Sort tokens by '<order_by>'
     When I click on the '<order_by>' column header
     Then the tokens are sorted by '<order_by>' in ascending order
       | order_by        |
