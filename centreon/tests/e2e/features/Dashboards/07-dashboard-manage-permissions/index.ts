@@ -27,11 +27,11 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 after(() => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -84,7 +84,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -130,7 +130,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -176,7 +176,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -232,7 +232,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.getByLabel({
     label: 'view',
     tag: 'button'

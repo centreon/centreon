@@ -63,7 +63,7 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 afterEach(() => {
@@ -81,7 +81,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -173,7 +173,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
     dashboards.default,
     metricsGraphWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -263,7 +263,7 @@ Given('a dashboard that includes a configured Metrics Graph widget', () => {
     dashboards.default,
     metricsGraphWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -302,7 +302,7 @@ Given('a dashboard featuring two Metrics Graph widgets', () => {
     dashboards.default,
     metricsGraphDoublecWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -345,7 +345,7 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
     dashboards.default,
     metricsGraphWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
