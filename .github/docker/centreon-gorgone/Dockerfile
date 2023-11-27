@@ -12,6 +12,8 @@ apt-get update
 
 apt-get install centreon-gorgone
 
+sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+
 EOF
 
 COPY *.deb /tmp/debs-centreon/
