@@ -26,14 +26,14 @@ apt-get update
 
 #dpkg -L centreon-gorgone
 
-FILES="/tmp/debs-centreon/*.deb"
+FILES="/tmp/debs-centreon/*"
 for f in $FILES
 do
   echo "Processing file $f ..."
   dpkg --contents "$f"
 done
 
-apt-get install -y centreon-gorgone-centreon-config
+apt-get install -y /tmp/debs-centreon/*.deb
 
 #apt-get install -y /tmp/debs-centreon/*.deb
 
