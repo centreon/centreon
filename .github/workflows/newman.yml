@@ -311,7 +311,7 @@ jobs:
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
               # Construire le nouveau nom du fichier avec le modèle "nom_du_collection_postman_collection.json"
-              new_collection_name="${collection_name_sanitized//_/-}_postman_collection.json"
+              new_collection_name="${collection_name_sanitized//_/-}.postman_collection.json"
               echo "New collection name: $new_collection_name"
 
               # Vérifier si le nouveau fichier existe
