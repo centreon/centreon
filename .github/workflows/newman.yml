@@ -306,7 +306,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -314,9 +314,9 @@ jobs:
         run: pnpm install --frozen-lockfile
         shell: bash
         env:
-          CYPRESS_INSTALL_BINARY: “0”
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: “1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: “true”
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to registry
         uses: docker/login-action@v2

@@ -27,7 +27,8 @@ module.exports = merge(
   getBaseConfiguration(
     isServeMode
       ? devRefreshJscTransformConfiguration
-      : devJscTransformConfiguration
+      : devJscTransformConfiguration,
+    true
   ),
   getDevConfiguration(),
   {
@@ -41,6 +42,7 @@ module.exports = merge(
         }
       ]
     },
+    devtool: false,
     output,
     plugins: devServerPlugins,
     resolve: {
