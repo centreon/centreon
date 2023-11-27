@@ -67,44 +67,46 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       {header}
-      {canDisplayMetricsSelection && singleMetricSelection && (
-        <SingleAutocompleteField
-          className={classes.resources}
-          disabled={!canEditField || isLoadingMetrics}
-          getOptionItemLabel={getOptionLabel}
-          getOptionLabel={getOptionLabel}
-          isOptionEqualToValue={(option, selectedValue) =>
-            equals(option?.id, selectedValue?.id)
-          }
-          label={t(labelSelectMetric)}
-          options={metrics}
-          value={head(selectedMetrics || []) || undefined}
-          onChange={changeMetric}
-        />
-      )}
-      {canDisplayMetricsSelection && !singleMetricSelection && (
-        <MultiAutocompleteField
-          chipProps={{
-            color: 'primary',
-            onDelete: (_, option): void => deleteMetricItem(option)
-          }}
-          className={classes.resources}
-          disabled={!canEditField || isLoadingMetrics}
-          getOptionDisabled={getMetricOptionDisabled}
-          getOptionLabel={getOptionLabel}
-          getOptionTooltipLabel={getOptionLabel}
-          getTagLabel={getMultipleOptionLabel}
-          label={t(labelSelectMetric)}
-          options={metrics}
-          value={selectedMetrics || []}
-          onChange={changeMetrics}
-        />
-      )}
-      {hasTooManyMetrics && (
-        <Typography sx={{ color: 'text.disabled' }}>
-          {t(labelYouHaveTooManyMetrics)}
-        </Typography>
-      )}
+      <div className={classes.resourceComposition}>
+        {canDisplayMetricsSelection && singleMetricSelection && (
+          <SingleAutocompleteField
+            className={classes.resources}
+            disabled={!canEditField || isLoadingMetrics}
+            getOptionItemLabel={getOptionLabel}
+            getOptionLabel={getOptionLabel}
+            isOptionEqualToValue={(option, selectedValue) =>
+              equals(option?.id, selectedValue?.id)
+            }
+            label={t(labelSelectMetric)}
+            options={metrics}
+            value={head(selectedMetrics || []) || undefined}
+            onChange={changeMetric}
+          />
+        )}
+        {canDisplayMetricsSelection && !singleMetricSelection && (
+          <MultiAutocompleteField
+            chipProps={{
+              color: 'primary',
+              onDelete: (_, option): void => deleteMetricItem(option)
+            }}
+            className={classes.resources}
+            disabled={!canEditField || isLoadingMetrics}
+            getOptionDisabled={getMetricOptionDisabled}
+            getOptionLabel={getOptionLabel}
+            getOptionTooltipLabel={getOptionLabel}
+            getTagLabel={getMultipleOptionLabel}
+            label={t(labelSelectMetric)}
+            options={metrics}
+            value={selectedMetrics || []}
+            onChange={changeMetrics}
+          />
+        )}
+        {hasTooManyMetrics && (
+          <Typography sx={{ color: 'text.disabled' }}>
+            {t(labelYouHaveTooManyMetrics)}
+          </Typography>
+        )}
+      </div>
     </div>
   );
 };
