@@ -190,6 +190,8 @@ overrides:
       - libssh-session-perl
       - libev-perl
       - libzmq-ffi-perl
+    suggests:
+      - centreon-gorgone-centreon-config (= ${VERSION}-${RELEASE}${DIST})
 
 deb:
   breaks:
