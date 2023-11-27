@@ -193,7 +193,9 @@ overrides:
     replaces:
       - centreon-gorgone (<< 24.04.0)
     suggests:
-      - centreon-gorgone-centreon-config (>= 24.04.0)
+      - centreon-gorgone-centreon-config (= ${VERSION}-${RELEASE}${DIST})
+    conflicts:
+      - centreon-gorgone (<< 24.04.0)
 
 deb:
   breaks:
