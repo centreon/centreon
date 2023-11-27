@@ -20,8 +20,10 @@ COPY *.deb /tmp/debs-centreon/
 
 RUN bash -e <<EOF
 
+echo "deb https://packages.centreon.com/apt-standard-24.04-unstable/ bullseye main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+
 apt-get update
 
-apt-get install -y /tmp/debs-centreon/*.deb
+#apt-get install -y /tmp/debs-centreon/*.deb
 
 EOF
