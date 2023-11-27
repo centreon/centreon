@@ -313,31 +313,43 @@ jobs:
               # Construire le nouveau nom du fichier avec le modèle "nom_du_collection_postman_collection.json"
               new_collection_name="${collection_name_sanitized//_/-}.postman_collection.json"
               echo "New collection name: $new_collection_name"
+              original_file_path=$(dirname "$collection_file")
 
-              # Vérifier si le nouveau fichier existe
-              if test -f "./collections/$new_collection_name"; then
-                echo "Match found for collection: $collection_name_sanitized"
-                for issue_id in "${issue_ids[@]}"; do
-                  echo "Processing issue ID: $issue_id"
-                  jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+              # Vérifier si le fichier original existe dans le dossier collections
+              if test -f "$collection_file"; then
+                  echo "Original file found for collection: $collection_name_sanitized in $original_file_path"
 
-                  response=$(curl --request GET \
-                    --url "$jira_issue_url" \
-                    --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
-                    --header 'Accept: application/json')
-
-                  key=$(echo "$response" | jq -r '.key')
-
-                  # Vérifier si l'attribut description existe déjà dans le fichier JSON
-                  if jq -e '.info.description' "$new_collection_name" > /dev/null; then
-                    # Si l'attribut description existe, mettre à jour sa valeur
-                    jq --arg key "$key" '.info.description = $key' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                  # Vérifier si le nouveau fichier existe
+                  if test -f "$original_file_path/$new_collection_name"; then
+                      echo "Match found for collection: $collection_name_sanitized"
+                      # Votre code pour traiter le fichier ici
                   else
-                    # Si l'attribut description n'existe pas, ajouter l'attribut avec la valeur
-                    jq --arg key "$key" '.info += { description: $key }' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                      echo "New file not found for collection: $collection_name_sanitized in $original_file_path"
                   fi
-                done
+              else
+                  echo "Original file not found for collection: $collection_name_sanitized in $original_file_path"
               fi
+                # for issue_id in "${issue_ids[@]}"; do
+                #   echo "Processing issue ID: $issue_id"
+                #   jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+
+                #   response=$(curl --request GET \
+                #     --url "$jira_issue_url" \
+                #     --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                #     --header 'Accept: application/json')
+
+                #   key=$(echo "$response" | jq -r '.key')
+
+                #   # Vérifier si l'attribut description existe déjà dans le fichier JSON
+                #   if jq -e '.info.description' "$new_collection_name" > /dev/null; then
+                #     # Si l'attribut description existe, mettre à jour sa valeur
+                #     jq --arg key "$key" '.info.description = $key' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                #   else
+                #     # Si l'attribut description n'existe pas, ajouter l'attribut avec la valeur
+                #     jq --arg key "$key" '.info += { description: $key }' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                #   fi
+                # done
+                # fi
             done
 
   newman-test-run:
