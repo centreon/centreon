@@ -21,17 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Playlist\Application\UseCase\SharePlaylist;
+namespace Tests\Core\Dashboard\Playlist\Application\UseCase\SharePlaylist;
 
-final class SharePlaylistRequest
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistPresenterInterface;
+use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistResponse;
+
+class SharePlaylistPresenterStub implements SharePlaylistPresenterInterface
 {
-    /**
-     * @var array{}|array<array{id:int, role:string}>
-     */
-    public array $contacts =  [];
+    public ResponseStatusInterface|SharePlaylistResponse $data;
 
-    /**
-     * @var array{}|array<array{id:int, role:string}>
-     */
-    public array $contactGroups =  [];
+    public function presentResponse(SharePlaylistResponse|ResponseStatusInterface $data): void
+    {
+        $this->data = $data;
+    }
 }

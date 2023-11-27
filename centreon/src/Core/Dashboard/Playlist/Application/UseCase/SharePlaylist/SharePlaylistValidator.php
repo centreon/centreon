@@ -75,7 +75,7 @@ class SharePlaylistValidator
     public function validateContactGroups(
         array $contactGroupIds,
         bool $hasAdminRole,
-        array $userContactGroups
+        array $userContactGroups = []
     ): void {
         $this->validateContactGroupsExists($contactGroupIds);
         $this->validateUniqueContactGroups($contactGroupIds);
