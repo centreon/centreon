@@ -286,59 +286,58 @@ jobs:
 
       - name: Adding test cases tags
         run: |
-          xray_graphql_getTestPlan='
-          {
-            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
-            "variables": {
-              "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}"
-            }
-          }'
+            xray_graphql_getTestPlan='
+            {
+              "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
+              "variables": {
+                "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}"
+              }
+            }'
 
-          # Utiliser curl pour effectuer la requête GraphQL
-          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "$xray_graphql_getTestPlan" "https://xray.cloud.getxray.app/api/v2/graphql")
+            # Utiliser curl pour effectuer la requête GraphQL
+            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "$xray_graphql_getTestPlan" "https://xray.cloud.getxray.app/api/v2/graphql")
 
-          # Afficher la réponse
-          echo "Response from Get Test Plan:"
-          echo "$response"
+            # Afficher la réponse
+            echo "Response from Get Test Plan:"
+            echo "$response"
 
-          # Analyser et traiter les ID des tests ayant "testType":{"name":"API"}
-          issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
-          echo "Test Issue IDs with testType API: ${issue_ids[@]}"
-          collections=($(find ./collections -type f -name "*.postman_collection.json"))
-          for collection_file in "${collections[@]}"; do
+            # Analyser et traiter les ID des tests ayant "testType":{"name":"API"}
+            issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
+            echo "Test Issue IDs with testType API: ${issue_ids[@]}"
+
+            collections=($(find ./collections -type f -name "*.postman_collection.json"))
+            for collection_file in "${collections[@]}"; do
               collection_name=$(basename "$collection_file" .postman_collection.json)
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
 
               # Construire le nouveau nom du fichier avec le modèle "nom_du_collection_postman_collection.json"
               new_collection_name="${collection_name_sanitized//_/-}_postman_collection.json"
+
               # Vérifier si le nouveau fichier existe
-               if test -f "$new_collection_name"; then
-                  echo "Match found for collection: $collection_name_sanitized"
-                   for issue_id in "${issue_ids[@]}"; do
-                      echo "Processing issue ID: $issue_id"
-                      jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+              if test -f "$new_collection_name"; then
+                echo "Match found for collection: $collection_name_sanitized"
+                for issue_id in "${issue_ids[@]}"; do
+                  echo "Processing issue ID: $issue_id"
+                  jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                      response=$(curl --request GET \
-                        --url "$jira_issue_url" \
-                        --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
-                        --header 'Accept: application/json')
+                  response=$(curl --request GET \
+                    --url "$jira_issue_url" \
+                    --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                    --header 'Accept: application/json')
 
-                      key=$(echo "$response" | jq -r '.key')
+                  key=$(echo "$response" | jq -r '.key')
 
-                      # Vérifier si l'attribut description existe déjà dans le fichier JSON
-                      if jq -e '.info.description' "$new_collection_name" > /dev/null; then
-                          # Si l'attribut description existe, mettre à jour sa valeur
-                          jq --arg key "$key" '.info.description = $key' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
-                      else
-                          # Si l'attribut description n'existe pas, ajouter l'attribut avec la valeur
-                          jq --arg key "$key" '.info += { description: $key }' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
-                      fi
-                   done
-               fi
-           done
-
-
-
+                  # Vérifier si l'attribut description existe déjà dans le fichier JSON
+                  if jq -e '.info.description' "$new_collection_name" > /dev/null; then
+                    # Si l'attribut description existe, mettre à jour sa valeur
+                    jq --arg key "$key" '.info.description = $key' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                  else
+                    # Si l'attribut description n'existe pas, ajouter l'attribut avec la valeur
+                    jq --arg key "$key" '.info += { description: $key }' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                  fi
+                done
+              fi
+            done
 
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
