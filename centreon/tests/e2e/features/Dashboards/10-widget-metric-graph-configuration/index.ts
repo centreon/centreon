@@ -386,7 +386,7 @@ Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
     cy.getByLabel({
-      label: 'Centreon-Server: Packet Loss (%)',
+      label: 'pl (%)',
       tag: 'p'
     }).should('exist');
   }
@@ -395,7 +395,7 @@ Then(
 Then('the thresholds are automatically hidden', () => {
   cy.get('span[data-checked="false"]').should('exist');
   cy.getByTestId({ testId: 'confirm' }).click();
-  cy.wait('@performanceData')
+  cy.wait('@performanceData');
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('not.exist');
   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('not.exist');
 });
