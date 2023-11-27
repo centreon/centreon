@@ -55,8 +55,6 @@ overrides:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
     replaces:
       - centreon-gorgone (<< 24.04.0)
-    conflicts:
-      - centreon-gorgone (<< 24.04.0)
 
 deb:
   breaks:

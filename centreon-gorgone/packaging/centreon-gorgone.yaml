@@ -190,16 +190,6 @@ overrides:
       - libssh-session-perl
       - libev-perl
       - libzmq-ffi-perl
-    replaces:
-      - centreon-gorgone (<< 24.04.0)
-    suggests:
-      - centreon-gorgone-centreon-config (= ${VERSION}-${RELEASE}${DIST})
-    conflicts:
-      - centreon-gorgone (<< 24.04.0)
-
-deb:
-  breaks:
-    - centreon-gorgone (<< 24.04.0)
 
 rpm:
   summary: Centreon gorgone daemon
