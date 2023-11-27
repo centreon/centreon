@@ -292,9 +292,11 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * Get request and bind values information for each search filter.
      *
-     * @param array{
+     * @phpstan-param array{
      *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
      * } $search
+     *
+     * @param array<mixed> $search
      *
      * @return array<
      *  string, array{

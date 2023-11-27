@@ -28,7 +28,6 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopResponse;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\Response\MetricInformationDto;
-use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTopPresenterInterface
