@@ -98,8 +98,8 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
     public function exist(array $userIds): array
     {
         $bind = [];
-        foreach($userIds as $key => $userId) {
-            $bind[":user_$key"] = $userId;
+        foreach ($userIds as $key => $userId) {
+            $bind[":user_{$key}"] = $userId;
         }
         if ($bind === []) {
             return [];
@@ -123,20 +123,20 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
     public function findContactIdsByContactGroups(array $contactGroupIds): array
     {
         $bind = [];
-        foreach($contactGroupIds as $key => $contactGroupId) {
-            $bind[":contactGroup_$key"] = $contactGroupId;
+        foreach ($contactGroupIds as $key => $contactGroupId) {
+            $bind[":contactGroup_{$key}"] = $contactGroupId;
         }
         if ($bind === []) {
             return [];
         }
         $bindAsString = implode(', ', array_keys($bind));
-        $request =  <<<SQL
+        $request = <<<SQL
             SELECT
                 contact_contact_id
             FROM
                 `:db`.`contactgroup_contact_relation` cgcr
             WHERE
-                cgcr.contactgroup_cg_id IN ($bindAsString)
+                cgcr.contactgroup_cg_id IN ({$bindAsString})
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
