@@ -34,8 +34,10 @@ apt-get update
 # done
 
 echo "centreon gorgone !!!"
+dpkg -I /tmp/debs-centreon/centreon-gorgone_24.04.0-1_all.deb
 dpkg --contents /tmp/debs-centreon/centreon-gorgone_24.04.0-1_all.deb
 echo "centreon gorgone config !!!"
+dpkg -I /tmp/debs-centreon/centreon-gorgone-centreon-config_24.04.0-1_all.deb
 dpkg --contents /tmp/debs-centreon/centreon-gorgone-centreon-config_24.04.0-1_all.deb
 
 apt-get install -y /tmp/debs-centreon/*.deb
