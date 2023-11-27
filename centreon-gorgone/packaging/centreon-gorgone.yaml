@@ -190,6 +190,8 @@ overrides:
       - libssh-session-perl
       - libev-perl
       - libzmq-ffi-perl
+    replaces:
+      - centreon-gorgone (<< 24.04.0)
     suggests:
       - centreon-gorgone-centreon-config (>= 24.04.0)
 
