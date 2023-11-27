@@ -2,6 +2,9 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
   container: {
-    margin: theme.spacing(7, 3, 0, 3)
+    margin: theme.spacing(1, 3, 0, 3)
+  },
+  divider: {
+    marginTop: theme.spacing(2)
   }
 }));

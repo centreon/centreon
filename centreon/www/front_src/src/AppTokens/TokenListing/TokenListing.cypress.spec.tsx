@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import {
@@ -15,9 +15,9 @@ import { userAtom } from '@centreon/ui-context';
 
 import { buildListTokensEndpoint } from '../api/endpoints';
 
-import Listing from './Listing';
 import { DefaultParameters } from './Actions/Search/Filter/models';
 import { Columns } from './ComponentsColumn/models';
+import Listing from './Listing';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -113,8 +113,6 @@ const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 describe('App-token listing', () => {
   beforeEach(() => {
-    const store = createStore();
-
     const userData = renderHook(() => useAtomValue(userAtom));
 
     userData.result.current.timezone = 'Europe/Paris';
@@ -125,11 +123,9 @@ describe('App-token listing', () => {
     cy.mount({
       Component: (
         <Router>
-          <Provider store={store}>
-            <TestQueryProvider>
-              <Listing />
-            </TestQueryProvider>
-          </Provider>
+          <TestQueryProvider>
+            <Listing />
+          </TestQueryProvider>
         </Router>
       )
     });

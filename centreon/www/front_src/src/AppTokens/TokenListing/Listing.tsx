@@ -1,3 +1,5 @@
+import Divider from '@mui/material/Divider';
+
 import { MemoizedListing as TokenListing } from '@centreon/ui';
 
 import Actions from './Actions';
@@ -5,6 +7,7 @@ import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
+import Title from './Title';
 
 const Listing = (): JSX.Element | null => {
   const { classes } = useStyles();
@@ -27,6 +30,9 @@ const Listing = (): JSX.Element | null => {
 
   return (
     <div className={classes.container}>
+      <Title msg="App token" />
+      <Divider className={classes.divider} />
+
       <TokenListing
         innerScrollDisabled
         actions={
