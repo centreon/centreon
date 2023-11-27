@@ -36,7 +36,7 @@ final class SharePlaylistController extends AbstractController
     use LoggerTrait;
 
     /**
-     * @param integer $playlistId
+     * @param int $playlistId
      * @param Request $request
      * @param SharePlaylist $useCase
      * @param SharePlaylistPresenter $presenter
@@ -54,7 +54,7 @@ final class SharePlaylistController extends AbstractController
         try {
             $sharePlaylistRequest = $this->createSharePlaylistRequest($request);
             $useCase($playlistId, $sharePlaylistRequest, $presenter);
-        } catch(\InvalidArgumentException $ex) {
+        } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         }
@@ -81,7 +81,7 @@ final class SharePlaylistController extends AbstractController
          */
         $requestData = $this->validateAndRetrieveDataSent($request, __DIR__ . '/SharePlaylistSchema.json');
         $sharePlaylistRequest = new SharePlaylistRequest();
-        $sharePlaylistRequest->contacts= $requestData['contacts'];
+        $sharePlaylistRequest->contacts = $requestData['contacts'];
         $sharePlaylistRequest->contactGroups = $requestData['contactgroups'];
 
         return $sharePlaylistRequest;

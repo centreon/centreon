@@ -25,13 +25,9 @@ namespace Core\Dashboard\Playlist\Application\UseCase\SharePlaylist;
 
 final class SharePlaylistRequest
 {
-    /**
-     * @var array{}|array<array{id:int, role:string}>
-     */
-    public array $contacts =  [];
+    /** @var array{}|array<array{id:int, role:string}> */
+    public array $contacts = [];
 
-    /**
-     * @var array{}|array<array{id:int, role:string}>
-     */
-    public array $contactGroups =  [];
+    /** @var array{}|array<array{id:int, role:string}> */
+    public array $contactGroups = [];
 }

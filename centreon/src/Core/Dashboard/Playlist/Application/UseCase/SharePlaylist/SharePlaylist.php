@@ -188,7 +188,7 @@ final class SharePlaylist
     /**
      * Update playlist shares for a non admin user.
      *
-     * @param integer $playlistId
+     * @param int $playlistId
      * @param array{}|array<array{id: int, role: string}> $contacts
      * @param array{}|array<array{id: int, role: string}> $contactGroups
      * @param int[] $contactsInUserContactGroups

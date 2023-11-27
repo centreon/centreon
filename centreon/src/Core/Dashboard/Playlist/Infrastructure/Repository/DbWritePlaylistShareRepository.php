@@ -63,12 +63,12 @@ class DbWritePlaylistShareRepository extends AbstractRepositoryRDB implements Wr
             return;
         }
 
-        $query= <<<SQL
+        $query = <<<'SQL'
             INSERT INTO `:db`.`dashboard_playlist_contact_relation` VALUES (:contactId, :playlistId, :role)
             SQL;
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
-        foreach($contacts as $contact) {
+        foreach ($contacts as $contact) {
             $statement->bindValue(':contactId', $contact['id'], \PDO::PARAM_INT);
             $statement->bindValue(':role', $contact['role'], \PDO::PARAM_STR);
             $statement->execute();
@@ -84,12 +84,12 @@ class DbWritePlaylistShareRepository extends AbstractRepositoryRDB implements Wr
             return;
         }
 
-        $query= <<<SQL
+        $query = <<<'SQL'
             INSERT INTO `:db`.`dashboard_playlist_contactgroup_relation` VALUES (:contactGroupId, :playlistId, :role)
             SQL;
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
-        foreach($contactGroups as $contactGroup) {
+        foreach ($contactGroups as $contactGroup) {
             $statement->bindValue(':contactGroupId', $contactGroup['id'], \PDO::PARAM_INT);
             $statement->bindValue(':role', $contactGroup['role'], \PDO::PARAM_STR);
             $statement->execute();
@@ -106,11 +106,11 @@ class DbWritePlaylistShareRepository extends AbstractRepositoryRDB implements Wr
             $bind[':contact_' . $key] = $contactId;
         }
         if ([] === $bind) {
-            return ;
+            return;
         }
         $bindAsString = implode(', ', array_keys($bind));
         $query = <<<SQL
-            DELETE FROM `:db`.`dashboard_playlist_contact_relation` WHERE contact_id IN ($bindAsString) AND playlist_id = :playlistId
+            DELETE FROM `:db`.`dashboard_playlist_contact_relation` WHERE contact_id IN ({$bindAsString}) AND playlist_id = :playlistId
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));
@@ -131,11 +131,11 @@ class DbWritePlaylistShareRepository extends AbstractRepositoryRDB implements Wr
             $bind[':contactgroup_' . $key] = $contactGroupId;
         }
         if ([] === $bind) {
-            return ;
+            return;
         }
         $bindAsString = implode(', ', array_keys($bind));
         $query = <<<SQL
-            DELETE FROM `:db`.`dashboard_playlist_contactgroup_relation` WHERE contactgroup_id IN ($bindAsString) AND playlist_id = :playlistId
+            DELETE FROM `:db`.`dashboard_playlist_contactgroup_relation` WHERE contactgroup_id IN ({$bindAsString}) AND playlist_id = :playlistId
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));

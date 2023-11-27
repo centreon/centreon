@@ -162,13 +162,14 @@ class PlaylistException extends \Exception
     public static function contactsAreNotInTheUserContactGroup(array $userIds): self
     {
         return new self(sprintf(
-            _("The following contacts are not in your contactgroups: [%s]"),
+            _('The following contacts are not in your contactgroups: [%s]'),
             implode(', ', $userIds)
         ));
     }
 
     /**
      * @param int[] $contactGroupIds
+     *
      * @return self
      */
     public static function userIsNotInContactGroups(array $contactGroupIds): self

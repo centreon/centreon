@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Application\Repository;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
 
 interface ReadPlaylistRepositoryInterface
@@ -50,6 +49,7 @@ interface ReadPlaylistRepositoryInterface
      * Check if a playlist exists with given id.
      *
      * @param int $playlistId
+     *
      * @return bool
      */
     public function exists(int $playlistId): bool;

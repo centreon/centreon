@@ -28,10 +28,11 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 interface ReadPlaylistShareRepositoryInterface
 {
     /**
-     * Check if a user is editor on a playlist
+     * Check if a user is editor on a playlist.
      *
      * @param int $playlistId
      * @param ContactInterface $contact
+     *
      * @return bool
      */
     public function existsAsEditor(int $playlistId, ContactInterface $contact): bool;

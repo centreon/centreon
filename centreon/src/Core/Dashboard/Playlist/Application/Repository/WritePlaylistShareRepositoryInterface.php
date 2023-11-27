@@ -25,7 +25,6 @@ namespace Core\Dashboard\Playlist\Application\Repository;
 
 interface WritePlaylistShareRepositoryInterface
 {
-
     /**
      * Delete the shared relation between contact, contactgroups and a given playlist.
      *

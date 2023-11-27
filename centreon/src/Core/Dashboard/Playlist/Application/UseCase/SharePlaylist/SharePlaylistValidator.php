@@ -106,7 +106,7 @@ class SharePlaylistValidator
      */
     private function validateUniqueContacts(array $contactIds): void
     {
-        if(count(array_flip($contactIds)) < count($contactIds)) {
+        if (count(array_flip($contactIds)) < count($contactIds)) {
             throw PlaylistException::contactForShareShouldBeUnique();
         }
     }
@@ -140,7 +140,7 @@ class SharePlaylistValidator
         }
         $invalidContacts = [];
         foreach ($contactIds as $contactId) {
-            if (! in_array($contactId, $contactIdsInUserContactGroups)) {
+            if (! in_array($contactId, $contactIdsInUserContactGroups, true)) {
                 $invalidContacts[] = $contactId;
             }
         }
@@ -156,7 +156,7 @@ class SharePlaylistValidator
      */
     private function validateUniqueContactGroups(array $contactGroupIds): void
     {
-        if(count(array_flip($contactGroupIds)) < count($contactGroupIds)) {
+        if (count(array_flip($contactGroupIds)) < count($contactGroupIds)) {
             throw PlaylistException::contactGroupForShareShouldBeUnique();
         }
     }
@@ -192,7 +192,7 @@ class SharePlaylistValidator
         }
         $invalidContactGroups = [];
         foreach ($contactGroupIds as $contactGroupId) {
-            if (! in_array($contactGroupId, $userContactGroupIds)) {
+            if (! in_array($contactGroupId, $userContactGroupIds, true)) {
                 $invalidContactGroups[] = $contactGroupId;
             }
         }
@@ -221,7 +221,7 @@ class SharePlaylistValidator
      */
     private function validateUserCanEditPlaylist(int $playlistId, ContactInterface $user): void
     {
-        if(! $this->shareRepository->existsAsEditor($playlistId, $user)) {
+        if (! $this->shareRepository->existsAsEditor($playlistId, $user)) {
             throw PlaylistException::playlistNotSharedAsEditor($playlistId);
         }
     }
