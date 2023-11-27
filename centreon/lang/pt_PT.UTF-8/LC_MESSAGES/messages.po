@@ -17082,7 +17082,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Sort by"
 # msgstr ""
 
-# msgid "See more on the Resources status page"
+# msgid "See more on the Resources Status page"
 # msgstr ""
 
 # msgid "You are not allowed to log in"
