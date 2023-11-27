@@ -37,7 +37,7 @@ contents:
       mode: 0775
 
   - src: "./configuration/config.yaml"
-    dst: "/etc/centreon-gorgone/"
+    dst: "/etc/centreon-gorgone/config.yaml"
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
@@ -190,6 +190,8 @@ overrides:
       - libssh-session-perl
       - libev-perl
       - libzmq-ffi-perl
+    replaces:
+      - centreon-gorgone (<< 24.04.0)
     suggests:
       - centreon-gorgone-centreon-config (= ${VERSION}-${RELEASE}${DIST})
 

@@ -37,7 +37,6 @@ contents:
       group: centreon-gorgone
       mode: 0664
 
-
   - dst: "/var/cache/centreon-gorgone/autodiscovery"
     type: dir
     file_info:
