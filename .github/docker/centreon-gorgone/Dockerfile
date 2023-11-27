@@ -24,7 +24,7 @@ echo "deb https://packages.centreon.com/apt-standard-24.04-unstable/ bullseye ma
 
 apt-get update
 
-#dpkg -L centreon-gorgone
+dpkg -L centreon-gorgone
 
 # FILES="/tmp/debs-centreon/*"
 # for f in $FILES
