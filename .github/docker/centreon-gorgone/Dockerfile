@@ -24,6 +24,8 @@ echo "deb https://packages.centreon.com/apt-standard-24.04-unstable/ bullseye ma
 
 apt-get update
 
+dpkg -c /tmp/debs-centreon/*.deb
+
 apt-get install -y centreon-gorgone-centreon-config
 
 #apt-get install -y /tmp/debs-centreon/*.deb
