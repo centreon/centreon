@@ -32,6 +32,7 @@ contents:
 
   - src: "./configuration/centreon-audit.yaml"
     dst: "/etc/centreon-gorgone/config.d/50-centreon-audit.yaml"
+    type: config|noreplace
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
@@ -53,6 +54,12 @@ overrides:
   deb:
     depends:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
+    replaces:
+      - centreon-gorgone (<< 24.04.0)
+
+deb:
+  breaks:
+    - centreon-gorgone (<< 24.04.0)
 
 rpm:
   summary: Configure Centreon Gorgone for use with Centreon Web
