@@ -315,7 +315,7 @@ jobs:
               echo "New collection name: $new_collection_name"
 
               # Vérifier si le nouveau fichier existe
-              if test -f "$new_collection_name"; then
+              if test -f "./collections/$new_collection_name"; then
                 echo "Match found for collection: $collection_name_sanitized"
                 for issue_id in "${issue_ids[@]}"; do
                   echo "Processing issue ID: $issue_id"
