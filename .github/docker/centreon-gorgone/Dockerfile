@@ -18,13 +18,13 @@ EOF
 
 COPY *.deb /tmp/debs-centreon/
 
-RUN bash -e <<EOF
+RUN bash -ex <<EOF
 
 echo "deb https://packages.centreon.com/apt-standard-24.04-unstable/ bullseye main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
 
 apt-get update
 
-dpkg -L centreon-gorgone
+#dpkg -L centreon-gorgone
 
 FILES="/tmp/debs-centreon/*.deb"
 for f in $FILES
