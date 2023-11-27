@@ -324,12 +324,12 @@ jobs:
                 if [[ "$summary" == "$collection_name_sanitized" ]]; then
                   new_collection_name="${collection_name_sanitized//_/-}.postman_collection.json"
                   if test -f "$original_file_path/$new_collection_name"; then
-                    if jq -e '.info.description' "$new_collection_name" > /dev/null; then
+                    if jq -e '.info.description' "$original_file_path/$new_collection_name" > /dev/null; then
                       # Si l'attribut description existe, mettre à jour sa valeur
-                      jq --arg key "$key" '.info.description = $key' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                      jq --arg key "$key" '.info.description = $key' "$original_file_path/$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
                     else
                       # Si l'attribut description n'existe pas, ajouter l'attribut avec la valeur
-                      jq --arg key "$key" '.info += { description: $key }' "$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
+                      jq --arg key "$key" '.info += { description: $key }' "$original_file_path/$new_collection_name" > "$new_collection_name.tmp" && mv "$new_collection_name.tmp" "$new_collection_name"
                     fi
                   fi
                 fi
