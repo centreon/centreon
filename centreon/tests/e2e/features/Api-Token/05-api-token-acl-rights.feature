@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON24872
+@REQ_MON-24872
 Feature: ACL Permissions for Administrators
 
   As an Administrator
@@ -12,8 +12,8 @@ Feature: ACL Permissions for Administrators
 
   Scenario: Verify "Manage Organization Token" Menu Action in ACL
     When I navigate to "Administration" > "ACL" > "Menus Actions"
-    Then I should see "Manage organization token" listed as an action
+    Then I see "Manage organization token" listed as an action
 
   Scenario: Verify "API Token" Menu Access in ACL
     When I navigate to "Administration" > "Menus Access"
-    Then I should see "API token" listed under the "Administration" section
+    Then I see "API token" listed under the "Administration" section

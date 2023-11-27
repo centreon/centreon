@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON24869
+@REQ_MON-24869
 Feature: Delete API Token
 
   As an administrator
@@ -13,6 +13,5 @@ Feature: Delete API Token
   Scenario: Delete API Token with Confirmation
     When I locate the API token to delete
     And I click on the "delete token" icon for that token
-    Then a confirmation dialog should appear
-    When I confirm the deletion action
-    Then the token should be deleted successfully
+    And I confirm the deletion action in confirmation diaglo
+    Then the token is deleted successfully

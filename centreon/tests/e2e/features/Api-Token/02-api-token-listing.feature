@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON24867
+@REQ_MON-24867
 Feature: List Existing API Tokens in Administration
 
   As an administrator
@@ -10,9 +10,9 @@ Feature: List Existing API Tokens in Administration
     Given I am logged in as an administrator
     And I am on the "Administration" section
 
-  Scenario: View Existing API Tokens
+  Scenario Outline: View Existing API Tokens
     When I navigate to "App token" under "Administration"
-    Then I should see a list of API tokens with the following fields:
+    Then a list of API tokens is displayed with the following fields:
       | Status      | Name       | Creator  | User   | Creation date | Expiration date |
       | Active      | Token_1    | Admin    | User_1 | 2023-10-15    | 2024-10-15      |
       | Active      | Token_2    | Admin    | User_2 | 2023-09-20    | 2024-09-20      |
