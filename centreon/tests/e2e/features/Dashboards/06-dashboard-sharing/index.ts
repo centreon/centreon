@@ -196,7 +196,7 @@ When('the viewer user clicks on the dashboard', () => {
 Then(
   "the viewer user can visualize the dashboard's layout but cannot share it or update its properties",
   () => {
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -301,7 +301,7 @@ When('the second editor user clicks on the dashboard', () => {
 Then(
   "the second editor can visualize the dashboard's layout and can share it or update its properties",
   () => {
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -389,7 +389,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -413,7 +413,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -501,7 +501,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -525,7 +525,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -626,7 +626,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -656,7 +656,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
