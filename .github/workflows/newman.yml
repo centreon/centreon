@@ -159,7 +159,7 @@ jobs:
               break
             else
               echo "The issue with ID $issue_id exists."
-              testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data '{"query": "mutation { updateTestType(issueId: \"'$issue_id '\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
+              testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data '{"query": "mutation { updateTestType(issueId: \"'$issue_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
               summaries+=("$summary")
             fi
           done
