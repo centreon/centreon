@@ -31,11 +31,6 @@ final class SharePlaylistPresenter extends AbstractPresenter implements SharePla
 {
     public function presentResponse(ResponseStatusInterface $response): void
     {
-        if ($response instanceof ResponseStatusInterface) {
-            $this->setResponseStatus($response);
-        } else {
-            $this->present([
-            ]);
-        }
+        $this->setResponseStatus($response);
     }
 }

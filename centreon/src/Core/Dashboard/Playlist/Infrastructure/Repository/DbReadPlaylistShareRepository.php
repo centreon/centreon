@@ -48,7 +48,9 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
             ON dpcgr.playlist_id = dpl.id
             WHERE
                 (dpcgr.playlist_id = :playlistId
-                AND dpcgr.contactgroup_id IN (SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = 1)
+                AND dpcgr.contactgroup_id IN (
+                    SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :contactId
+                )
                 AND dpcgr.role = 'editor')
             OR (
                 dpcr.playlist_id = :playlistId
