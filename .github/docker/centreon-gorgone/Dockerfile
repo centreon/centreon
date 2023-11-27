@@ -1,6 +1,6 @@
 ARG REGISTRY_URL
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:23.04
+FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:23.10
 
 ARG VERSION
 
@@ -10,7 +10,7 @@ RUN bash -e <<EOF
 
 apt-get update
 
-apt-get install centreon-gorgone
+apt-get install centreon-web
 
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
