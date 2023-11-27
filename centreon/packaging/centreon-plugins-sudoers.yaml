@@ -20,9 +20,6 @@ contents:
     file_info:
       mode: 0600
 
-scripts:
-  postinstall: ./scripts/centreon-poller-postinstall.sh
-
 overrides:
   rpm:
     provides:

@@ -23,14 +23,14 @@ updateEngineBrokerConfigurationRights() {
       chown -R apache:apache /etc/centreon-broker/*
     fi
     if [ -d /etc/centreon-engine ]; then
-        chown -R apache:apache /etc/centreon-engine/*
+      chown -R apache:apache /etc/centreon-engine/*
     fi
   else
     if [ -d /etc/centreon-broker ]; then
       chown -R www-data:www-data /etc/centreon-broker/*
     fi
     if [ -d /etc/centreon-engine ]; then
-        chown -R www-data:www-data /etc/centreon-engine/*
+      chown -R www-data:www-data /etc/centreon-engine/*
     fi
   fi
 }
