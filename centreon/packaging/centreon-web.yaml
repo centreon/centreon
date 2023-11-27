@@ -252,7 +252,7 @@ contents:
       group: "centreon"
       mode: 0775
 
-  - dst: "/usr/share/centreon/www/install/tmp"
+  - dst: "/usr/share/centreon/www/install"
     type: dir
     file_info:
       owner: "centreon"
