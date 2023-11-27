@@ -320,7 +320,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"All the Local Provider informations are displayed and correct.\", function () {\r",
+									"pm.test(\"All the OpenId Provider informations are displayed and correct.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
