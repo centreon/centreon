@@ -33,5 +33,5 @@ final class SharePlaylistRequest
     /**
      * @var array{}|array<array{id:int, role:string}>
      */
-    public array $contactgroups;
+    public array $contactGroups;
 }

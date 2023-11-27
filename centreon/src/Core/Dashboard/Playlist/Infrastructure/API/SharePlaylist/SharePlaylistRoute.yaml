@@ -1,5 +1,5 @@
 SharePlaylist:
-  methods: POST
+  methods: PUT
   path: /configuration/dashboards/playlists/{playlistId}/shares
   requirements:
     dashboardId: '\d+'

@@ -24,47 +24,206 @@ declare(strict_types=1);
 namespace Core\Dashboard\Playlist\Application\UseCase\SharePlaylist;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
 use Core\Dashboard\Playlist\Application\Repository\ReadPlaylistRepositoryInterface;
+use Core\Dashboard\Playlist\Application\Repository\ReadPlaylistShareRepositoryInterface;
 
 class SharePlaylistValidator
 {
-    public function __construct(private readonly ReadPlaylistRepositoryInterface $playlistRepository)
-    {
+    /**
+     * @param ReadPlaylistRepositoryInterface $playlistRepository
+     * @param ReadPlaylistShareRepositoryInterface $shareRepository
+     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param ReadContactRepositoryInterface $contactRepository
+     */
+    public function __construct(
+        private readonly ReadPlaylistRepositoryInterface $playlistRepository,
+        private readonly ReadPlaylistShareRepositoryInterface $shareRepository,
+        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
+        private readonly ReadContactRepositoryInterface $contactRepository,
+    ) {
     }
 
     /**
-     * @param array{}|array{id: int, role: string} $contacts
+     * @param int[] $contactIds
+     * @param bool $hasAdminRole
+     * @param int[] $contactIdsInUserContactGroups
+     *
+     * @throws \Throwable|PlaylistException
+     */
+    public function validateContacts(
+        array $contactIds,
+        bool $hasAdminRole,
+        array $contactIdsInUserContactGroups = []
+    ):void {
+        $this->validateContactsExist($contactIds);
+        $this->validateUniqueContacts($contactIds);
+        if (! $hasAdminRole) {
+            $this->validateUserHasAccessToContacts($contactIds, $contactIdsInUserContactGroups);
+        }
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     * @param bool $hasAdminRole
+     * @param int[] $userContactGroups
+     *
+     * @throws \Throwable|PlaylistException
+     */
+    public function validateContactGroups(
+        array $contactGroupIds,
+        bool $hasAdminRole,
+        array $userContactGroups
+    ): void {
+        $this->validateContactGroupsExists($contactGroupIds);
+        $this->validateUniqueContactGroups($contactGroupIds);
+        if (! $hasAdminRole) {
+            $this->validateUserHasAccessToContactGroups($contactGroupIds, $userContactGroups);
+        }
+    }
+
+    /**
+     * @param int $playlistId
+     * @param ContactInterface $user
+     * @param bool $hasAdminRole
+     *
+     * @throws \Throwable|PlaylistException
+     */
+    public function validatePlaylist(int $playlistId, ContactInterface $user, bool $hasAdminRole): void
+    {
+        $this->validatePlaylistExists($playlistId);
+        if (! $hasAdminRole) {
+            $this->validateUserCanEditPlaylist($playlistId, $user);
+        }
+    }
+
+    /**
+     * @param int[] $contactIds
      *
      * @throws PlaylistException
      */
-    public function validateUniqueContacts(array $contacts): void
+    private function validateUniqueContacts(array $contactIds): void
     {
-        $contactIds = array_map(fn (array $contact): int => $contact['id'], $contacts);
         if(count(array_flip($contactIds)) < count($contactIds)) {
             throw PlaylistException::contactForShareShouldBeUnique();
         }
     }
 
-    public function validateUniqueContactGroups(array $contactGroups): void
+    /**
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable|PlaylistException
+     */
+    private function validateContactsExist(array $contactIds): void
     {
-        $contactGroupIds = array_map(fn (array $contactGroup): int => $contactGroup['id'], $contactGroups);
+        if (
+            ! empty(
+                ($nonexistentUsers = array_diff($contactIds, $this->contactRepository->exist($contactIds)))
+            )
+        ) {
+            throw PlaylistException::contactsDontExist($nonexistentUsers);
+        }
+    }
+
+    /**
+     * @param int[] $contactIds
+     * @param int[] $contactIdsInUserContactGroups
+     *
+     * @throws PlaylistException
+     */
+    private function validateUserHasAccessToContacts(array $contactIds, array $contactIdsInUserContactGroups)
+    {
+        if ([] === $contactIds) {
+            return;
+        }
+        $invalidContacts = [];
+        foreach ($contactIds as $contactId) {
+            if (! in_array($contactId, $contactIdsInUserContactGroups)) {
+                $invalidContacts[] = $contactId;
+            }
+        }
+        if ([] !== $invalidContacts) {
+            throw PlaylistException::contactsAreNotInTheUserContactGroup($invalidContacts);
+        }
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @throws PlaylistException
+     */
+    private function validateUniqueContactGroups(array $contactGroupIds): void
+    {
         if(count(array_flip($contactGroupIds)) < count($contactGroupIds)) {
             throw PlaylistException::contactGroupForShareShouldBeUnique();
         }
     }
 
-    public function validatePlaylistExists(int $playlistId): void
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @throws \Throwable|PlaylistException
+     */
+    private function validateContactGroupsExists(array $contactGroupIds): void
     {
-        if (! $this->playlistRepository->exists($playlistId)) {
-            PlaylistException::playlistDoesNotExists($playlistId);
+        if (
+            ! empty(
+                ($nonexistentContactGroups = array_diff(
+                    $contactGroupIds, $this->contactGroupRepository->exist($contactGroupIds)
+                ))
+            )
+        ) {
+            throw PlaylistException::contactGroupsDontExist($nonexistentContactGroups);
         }
     }
 
-    public function validateUserHasAccessToPlaylist(int $playlistId, ContactInterface $user): void
+    /**
+     *
+     * @param array $contactGroupIds
+     * @param array $userContactGroupIds
+     *
+     * @throws PlaylistException
+     */
+    private function validateUserHasAccessToContactGroups(array $contactGroupIds, array $userContactGroupIds): void
     {
-        if(! $this->playlistRepository->existsByUser($playlistId, $user)) {
-            PlaylistException::playlistNotShared($playlistId);
+        if ([] === $contactGroupIds) {
+            return;
+        }
+        $invalidContactGroups = [];
+        foreach ($contactGroupIds as $contactGroupId) {
+            if (! in_array($contactGroupId, $userContactGroupIds)) {
+                $invalidContactGroups[] = $contactGroupId;
+            }
+        }
+        if ([] !== $invalidContactGroups) {
+            throw PlaylistException::userIsNotInContactGroups($invalidContactGroups);
+        }
+    }
+
+    /**
+     * @param int $playlistId
+     *
+     * @throws \Throwable|PlaylistException
+     */
+    private function validatePlaylistExists(int $playlistId): void
+    {
+        if (! $this->playlistRepository->exists($playlistId)) {
+            throw PlaylistException::playlistDoesNotExists($playlistId);
+        }
+    }
+
+    /**
+     * @param int $playlistId
+     * @param ContactInterface $user
+     *
+     * @throws \Throwable|PlaylistException
+     */
+    private function validateUserCanEditPlaylist(int $playlistId, ContactInterface $user): void
+    {
+        if(! $this->shareRepository->existsAsEditor($playlistId, $user)) {
+            throw PlaylistException::playlistNotSharedAsEditor($playlistId);
         }
     }
 }

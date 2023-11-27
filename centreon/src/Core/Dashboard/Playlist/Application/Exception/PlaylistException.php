@@ -26,6 +26,7 @@ namespace Core\Dashboard\Playlist\Application\Exception;
 class PlaylistException extends \Exception
 {
     public const CODE_CONFLICT = 1;
+    public const CODE_NOT_FOUND = 2;
 
     /**
      * @param int[] $dashboardIds
@@ -61,6 +62,14 @@ class PlaylistException extends \Exception
     public static function errorWhileCreating(): self
     {
         return new self(_('Error while creating a playlist.'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileUpdatingShares(): self
+    {
+        return new self(_('Error while updating playlist shares'));
     }
 
     /**
@@ -102,7 +111,7 @@ class PlaylistException extends \Exception
      */
     public static function contactGroupForShareShouldBeUnique(): self
     {
-        return new self(_('You cannot share a playlist to a contact several times'));
+        return new self(_('You cannot share a playlist to a contactgroup several times'));
     }
 
     /**
@@ -112,7 +121,7 @@ class PlaylistException extends \Exception
      */
     public static function playlistDoesNotExists(int $playlistId): self
     {
-        return new self(sprintf(_('The following playlist does not exist: [%d].'), $playlistId));
+        return new self(sprintf(_('The following playlist does not exist: [%d].'), $playlistId), self::CODE_NOT_FOUND);
     }
 
     /**
@@ -120,8 +129,53 @@ class PlaylistException extends \Exception
      *
      * @return self
      */
-    public static function playlistNotShared(int $playlistId): self
+    public static function playlistNotSharedAsEditor(int $playlistId): self
     {
-        return new self(sprintf(_('The following playlist is not shared with you: [%d].'), $playlistId));
+        return new self(sprintf(_("You don't have the editor right on the following playlist: [%d]."), $playlistId));
+    }
+
+    /**
+     * @param int[] $userIds
+     *
+     * @return self
+     */
+    public static function contactsDontExist(array $userIds): self
+    {
+        return new self(sprintf(_("The following contacts don't exist: [%s]"), implode(', ', $userIds)));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function contactGroupsDontExist(array $contactGroupIds): self
+    {
+        return new self(sprintf(_("The following contactgroups don't exist: [%s]"), implode(', ', $contactGroupIds)));
+    }
+
+    /**
+     * @param int[] $userIds
+     *
+     * @return self
+     */
+    public static function contactsAreNotInTheUserContactGroup(array $userIds): self
+    {
+        return new self(sprintf(
+            _("The following contacts are not in your contactgroups: [%s]"),
+            implode(', ', $userIds)
+        ));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     * @return self
+     */
+    public static function userIsNotInContactGroups(array $contactGroupIds): self
+    {
+        return new self(sprintf(
+            _('You are not in the following contactgroups: [%s]'),
+            implode(', ', $contactGroupIds)
+        ));
     }
 }

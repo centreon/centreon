@@ -103,7 +103,7 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     /**
      * @inheritDoc
      */
-    public function existsById(int $id): bool
+    public function exists(int $id): bool
     {
         $query = <<<'SQL'
             SELECT

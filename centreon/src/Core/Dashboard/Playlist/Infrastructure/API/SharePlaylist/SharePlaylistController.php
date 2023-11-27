@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Dashboard\Playlist\Infrastructure\API\SharePlaylist;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylist;
 use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +33,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SharePlaylistController extends AbstractController
 {
+    use LoggerTrait;
+
+    /**
+     * @param integer $playlistId
+     * @param Request $request
+     * @param SharePlaylist $useCase
+     * @param SharePlaylistPresenter $presenter
+     *
+     * @return Response
+     */
     public function __invoke(
         int $playlistId,
         Request $request,
@@ -39,24 +51,38 @@ final class SharePlaylistController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $sharePlaylistRequest = $this->createSharePlaylistRequest($request);
-        $useCase($playlistId, $sharePlaylistRequest, $presenter);
+        try {
+            $sharePlaylistRequest = $this->createSharePlaylistRequest($request);
+            $useCase($playlistId, $sharePlaylistRequest, $presenter);
+        } catch(\InvalidArgumentException $ex) {
+            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+        }
 
         return $presenter->show();
     }
 
+    /**
+     * Create Request Dto.
+     *
+     * @param Request $request
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return SharePlaylistRequest
+     */
     private function createSharePlaylistRequest(Request $request): SharePlaylistRequest
     {
         /**
          * @var array{
          *  contacts: array{}|array<array{id:int, role: string}>,
-         *  contactgroups: array{}|array<array{id:int, role: string}>,
+         *  contactGroups: array{}|array<array{id:int, role: string}>,
          * } $requestData
          */
         $requestData = $this->validateAndRetrieveDataSent($request, __DIR__ . '/SharePlaylistSchema.json');
         $sharePlaylistRequest = new SharePlaylistRequest();
         $sharePlaylistRequest->contacts= $requestData['contacts'];
-        $sharePlaylistRequest->contactgroups = $requestData['contactgroups'];
+        $sharePlaylistRequest->contactGroups = $requestData['contactgroups'];
 
         return $sharePlaylistRequest;
     }

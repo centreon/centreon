@@ -24,33 +24,15 @@ declare(strict_types=1);
 namespace Core\Dashboard\Playlist\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Dashboard\Playlist\Domain\Model\Playlist;
 
-interface ReadPlaylistRepositoryInterface
+interface ReadPlaylistShareRepositoryInterface
 {
     /**
-     * Find a playlist.
+     * Check if a user is editor on a playlist
      *
      * @param int $playlistId
-     *
-     * @return Playlist|null
-     */
-    public function find(int $playlistId): ?Playlist;
-
-    /**
-     * Check if a playlist exists with given name.
-     *
-     * @param string $name
-     *
+     * @param ContactInterface $contact
      * @return bool
      */
-    public function existsByName(string $name): bool;
-
-    /**
-     * Check if a playlist exists with given id.
-     *
-     * @param int $playlistId
-     * @return bool
-     */
-    public function exists(int $playlistId): bool;
+    public function existsAsEditor(int $playlistId, ContactInterface $contact): bool;
 }
