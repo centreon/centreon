@@ -21,7 +21,7 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
 
   const {getDocument, queries} = pptrTestingLibrary;
   const $document = await getDocument(page);
-  const { getByText, getByRole, getByTestId} = queries
+  const { getByText, getAllByRole, getByTestId} = queries
   
 
  
