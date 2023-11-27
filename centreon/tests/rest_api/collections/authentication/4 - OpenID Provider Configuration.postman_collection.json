@@ -67,9 +67,7 @@
 								"exec": [
 									"pm.test(\"The new contact template has been created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
-									"});\r",
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);"
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -96,7 +94,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACTTPL\",\r\n  \"values\": \"contact_template;contact_template;contact_template@localhost;0;1;en_US;local\"\r\n}",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACTTPL\",\r\n  \"values\": \"contact_template_1;contact_template_1;contact_template@localhost;0;1;en_US;local\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
