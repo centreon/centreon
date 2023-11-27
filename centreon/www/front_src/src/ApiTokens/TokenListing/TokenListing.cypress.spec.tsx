@@ -111,7 +111,7 @@ const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
-describe('App-token listing', () => {
+describe('Api-token listing', () => {
   beforeEach(() => {
     const userData = renderHook(() => useAtomValue(userAtom));
 
