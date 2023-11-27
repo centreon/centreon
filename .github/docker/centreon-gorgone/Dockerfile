@@ -10,7 +10,7 @@ RUN bash -e <<EOF
 
 apt-get update
 
-apt-get install centreon-web
+apt-get install centreon-gorgone
 
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
@@ -24,7 +24,7 @@ echo "deb https://packages.centreon.com/apt-standard-24.04-unstable/ bullseye ma
 
 apt-get update
 
-apt-get install -y centreon-web
+apt-get install -y centreon-gorgone-centreon-config
 
 #apt-get install -y /tmp/debs-centreon/*.deb
 
