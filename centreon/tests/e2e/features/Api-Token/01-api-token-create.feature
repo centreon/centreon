@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON24865
+@REQ_MON-24865
 Feature: Create and Manage Basic API Token
 
   As an administrator
@@ -10,7 +10,7 @@ Feature: Create and Manage Basic API Token
     Given I am logged in as an administrator
     And I am on the API tokens page
 
-  Scenario: Create Basic API Token with Required Fields
+  Scenario Outline: Create Basic API Token with Required Fields
     When I click on the "Create new token" button
     And I fill in the following required fields:
       | Field     | Value                  |
@@ -23,12 +23,13 @@ Feature: Create and Manage Basic API Token
   Scenario: Display and Copy Generated Token
     Given a basic API token is generated
     When I click to reveal the token
-    Then the token should be displayed and can be copied to the clipboard
+    Then the token is displayed
+    And the "copy to clipboard" button is clicked
 
   Scenario: Save Generated Token
     Given a basic API token is generated
     When I click on the "Save" button
-    Then the token should be saved successfully
+    Then the token is saved successfully
 
   Scenario: Edit Existing Token
     Given I am on the API tokens page
@@ -36,4 +37,4 @@ Feature: Create and Manage Basic API Token
     When I click on the token to edit
     And I modify the token details
     And I click on the "Save" button
-    Then the token should be updated successfully
+    Then the token is updated successfully
