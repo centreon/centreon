@@ -18390,7 +18390,7 @@ msgstr "Afficher les ressources avec cet état"
 msgid "Sort by"
 msgstr "Trier par"
 
-msgid "See more on the Resources status page"
+msgid "See more on the Resources Status page"
 msgstr "Voir plus dans la page Statut des ressources"
 
 msgid "You are not allowed to log in"
