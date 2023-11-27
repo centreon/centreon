@@ -60,7 +60,8 @@ overrides:
 deb:
   breaks:
     - centreon-gorgone (<< 24.04.0-1)
-  config: config
+  scripts:
+    config: config
 
 rpm:
   summary: Configure Centreon Gorgone for use with Centreon Web
