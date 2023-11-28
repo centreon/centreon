@@ -4,7 +4,12 @@ import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
-import { Widget, WidgetPropertyProps } from '../models';
+import {
+  ConditionalOptions,
+  ShowInput,
+  Widget,
+  WidgetPropertyProps
+} from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import {
   customBaseColorAtom,
@@ -24,7 +29,10 @@ import {
   WidgetValueFormat,
   WidgetTimePeriod,
   WidgetTopBottomSettings,
-  WidgetMetric
+  WidgetMetric,
+  WidgetRadio,
+  WidgetCheckboxes,
+  WidgetTiles
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -34,10 +42,12 @@ export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
   key: string;
   props: {
+    defaultValue: unknown | ConditionalOptions<unknown>;
     label: string;
     propertyName: string;
     propertyType: string;
     required?: boolean;
+    show?: ShowInput;
     type: FederatedWidgetOptionType;
   };
 }
@@ -54,7 +64,10 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
   [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
   [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
-  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric
+  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric,
+  [FederatedWidgetOptionType.radio]: WidgetRadio,
+  [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
+  [FederatedWidgetOptionType.tiles]: WidgetTiles
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
@@ -92,10 +105,14 @@ export const useWidgetInputs = (
               Component,
               key,
               props: {
+                defaultValue: value.defaultValue,
                 label: value.label,
+                options: value.options,
                 propertyName: key,
                 propertyType: widgetKey,
                 required: value.required,
+                secondaryLabel: value.secondaryLabel,
+                show: value.show,
                 type: value.type
               }
             };

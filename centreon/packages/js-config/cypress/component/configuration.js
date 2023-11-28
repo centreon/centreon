@@ -49,6 +49,8 @@ module.exports = ({
       reportFilename: '[name]-report.json'
     },
     video: true,
-    videosFolder: `${mainCypressFolder}/results/videos`
+    videosFolder: `${mainCypressFolder}/results/videos`,
+    viewportHeight: 590,
+    viewportWidth: 1280
   });
 };
