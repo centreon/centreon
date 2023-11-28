@@ -17,7 +17,7 @@ const Actions = ({ refresh }: Props): JSX.Element => {
         <Search />
         <TokenFilter />
       </div>
-      <div>
+      <div className={classes.subContainer}>
         <TokenCreationButton />
         {refresh}
       </div>

@@ -1,7 +1,7 @@
 import { any, isEmpty, isNil, not, or, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme, Tooltip } from '@mui/material';
+import { Theme, Tooltip, TypographyTypeMap } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 import { getNormalizedId } from '../../utils';
@@ -18,10 +18,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
 interface Props extends Record<string, unknown> {
   className?: string;
   labelLoading?: string;
+  labelProps?: TypographyTypeMap['props'];
   labelSave?: string;
   labelSucceeded?: string;
   loading?: boolean;
   size?: 'small' | 'medium' | 'large';
+  startIcon?: boolean;
   succeeded?: boolean;
   tooltip?: string;
   tooltipLabel?: string;
@@ -45,6 +47,8 @@ const SaveButton = ({
   labelSave = '',
   size = 'small',
   className,
+  startIcon = true,
+  labelProps,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -73,7 +77,9 @@ const SaveButton = ({
           loading={loading}
           loadingPosition={labelLoading ? 'start' : 'center'}
           size={size}
-          startIcon={<StartIcon startIconConfig={startIconConfig} />}
+          startIcon={
+            startIcon && <StartIcon startIconConfig={startIconConfig} />
+          }
           variant="contained"
           {...rest}
         >
@@ -82,7 +88,8 @@ const SaveButton = ({
             labelSave,
             labelSucceeded,
             loading,
-            succeeded
+            succeeded,
+            ...labelProps
           })}
         </LoadingButton>
       </div>

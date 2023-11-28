@@ -17063,7 +17063,7 @@ msgstr ""
 # msgid "You are not allowed to list media"
 # msgstr ""
 
-# msgid "Api token"
+# msgid "API token"
 # msgstr ""
 
 # msgid "Create new token"

@@ -17,6 +17,10 @@ export const useStyles = makeStyles()((theme) => ({
   spacing: {
     margin: theme.spacing(0, 2, 0, 0)
   },
+  subContainer: {
+    alignItems: 'center',
+    display: 'flex'
+  },
   subContainerSearch: {
     alignItems: 'center',
     display: 'flex',
