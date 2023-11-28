@@ -4,7 +4,7 @@ import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../../commons';
-import { reloadWebServer, updateWebServerConfig } from '../common';
+import { restartWebServer, updateWebServerConfig } from '../common';
 
 const service = 'Ping';
 const host = 'Centreon-Server';
@@ -40,7 +40,7 @@ When(
 );
 
 When('I reload the web server', () => {
-  reloadWebServer();
+  restartWebServer();
 });
 
 Then('I can authenticate to the centreon platform', () => {

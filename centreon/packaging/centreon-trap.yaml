@@ -15,6 +15,16 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
+  - src: "../bin/centreontrapd"
+    dst: "/usr/share/centreon/bin/centreontrapd"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreontrapdforward"
+    dst: "/usr/share/centreon/bin/centreontrapdforward"
+    file_info:
+      mode: 0755
+
   - dst: "/var/spool/centreontrapd"
     type: dir
     file_info:
