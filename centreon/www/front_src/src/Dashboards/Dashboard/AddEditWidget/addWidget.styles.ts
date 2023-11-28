@@ -10,21 +10,11 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
-    minHeight: '400px'
+    minHeight: theme.spacing(45)
   },
   widgetAvatar: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white
-  },
-  widgetDataset: {
-    height: '27vh',
-    [theme.breakpoints.down('xl')]: {
-      height: '23vh'
-    },
-    [theme.breakpoints.down('lg')]: {
-      height: '20vh'
-    },
-    overflow: 'auto'
   },
   widgetProperties: {
     display: 'flex',

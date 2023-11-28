@@ -78,4 +78,13 @@ class NewCommandMacro
         Assertion::maxLength($description, self::MAX_DESCRIPTION_LENGTH, "{$this->shortName}::description");
         $this->description = $description;
     }
+
+    public static function createFromMacro(CommandMacro $macro): self
+    {
+        return new self(
+            $macro->getType(),
+            $macro->getName(),
+            $macro->getDescription()
+        );
+    }
 }

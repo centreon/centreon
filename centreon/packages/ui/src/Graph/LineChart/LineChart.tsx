@@ -1,7 +1,7 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
-import { flatten, isNil, pluck } from 'ramda';
+import { flatten, gt, isNil, lte, pluck, reduce } from 'ramda';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
@@ -33,6 +33,9 @@ import {
 import { useIntersection } from './useLineChartIntersection';
 import { CurveType } from './BasicComponents/Lines/models';
 import Thresholds from './BasicComponents/Thresholds';
+import { legendWidth } from './Legend/Legend.styles';
+
+const extraMargin = 10;
 
 interface Props extends LineChartProps {
   curve: CurveType;
@@ -92,7 +95,8 @@ const LineChart = ({
     showTooltip: showThresholdTooltip
   } = Tooltip.useTooltip();
 
-  const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
+  const graphWidth =
+    width > 0 ? width - margin.left - margin.right - extraMargin : 0;
   const graphHeight =
     (height || 0) > 0
       ? (height || 0) -
@@ -158,6 +162,15 @@ const LineChart = ({
   const displayLegend = legend?.display ?? true;
   const displayTooltip = !isNil(tooltip?.renderComponent);
 
+  const legendItemsWidth = reduce(
+    (acc) => acc + legendWidth * 8 + 24,
+    0,
+    displayedLines
+  );
+
+  const shouldDisplayLegendInCompactMode =
+    lte(graphWidth, 808) && gt(legendItemsWidth, graphWidth);
+
   if (!isInViewport) {
     return (
       <Skeleton
@@ -185,7 +198,7 @@ const LineChart = ({
             width={width}
           />
           <svg height={graphHeight + margin.top} ref={graphSvgRef} width="100%">
-            <Group.Group left={margin.left} top={margin.top}>
+            <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
               <Grids
                 height={graphHeight - margin.top}
                 leftScale={leftScale}
@@ -291,6 +304,7 @@ const LineChart = ({
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}
+            shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
             timeSeries={timeSeries}
             xScale={xScale}
           />

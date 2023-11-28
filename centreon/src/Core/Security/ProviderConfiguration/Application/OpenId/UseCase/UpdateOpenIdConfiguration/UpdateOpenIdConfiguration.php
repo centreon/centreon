@@ -48,6 +48,9 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
+/**
+ * @phpstan-import-type _RoleMapping from UpdateOpenIdConfigurationRequest
+ */
 class UpdateOpenIdConfiguration
 {
     use LoggerTrait;
@@ -181,7 +184,7 @@ class UpdateOpenIdConfiguration
     }
 
     /**
-     * @param array<string,bool|string|string[]|array<array{claim_value: string, access_group_id: int}>> $rolesMapping
+     * @param _RoleMapping $rolesMapping
      *
      * @throws \Throwable
      *

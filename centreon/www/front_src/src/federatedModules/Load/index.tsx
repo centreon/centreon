@@ -19,12 +19,14 @@ interface RemoteProps {
   moduleFederationName: string;
   moduleName: string;
   remoteEntry: string;
+  remoteUrl?: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 export const Remote = ({
   component,
   remoteEntry,
+  remoteUrl,
   moduleName,
   moduleFederationName,
   isFederatedComponent,
@@ -37,17 +39,18 @@ export const Remote = ({
   const Component = useMemo(
     () =>
       lazy(() =>
-        equals(window.Cypress?.testingType, 'component')
+        equals(window.Cypress?.testingType, 'component') &&
+        process.env.NODE_ENV !== 'production'
           ? import(`www/widgets/src/${moduleFederationName}`)
           : importRemote({
               bustRemoteEntryCache: false,
               module: component,
               remoteEntryFileName: remoteEntry,
               scope: moduleFederationName,
-              url: `./${prefix}/${moduleName}/static`
+              url: remoteUrl ?? `./${prefix}/${moduleName}/static`
             })
       ),
-    [component, moduleName, remoteEntry, moduleFederationName]
+    [component, moduleName, remoteEntry, moduleFederationName, remoteUrl]
   );
 
   const fallback = isFederatedComponent ? (

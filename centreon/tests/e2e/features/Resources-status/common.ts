@@ -227,8 +227,8 @@ const typeToSearchInput = (searchText: string): void => {
 };
 
 const actionBackgroundColors = {
-  acknowledge: 'rgb(245, 241, 233)',
-  inDowntime: 'rgb(240, 233, 248)',
+  acknowledge: 'rgb(223, 210, 185)',
+  inDowntime: 'rgb(229, 216, 243)',
   normal: 'rgba(0, 0, 0, 0)'
 };
 const actions = {

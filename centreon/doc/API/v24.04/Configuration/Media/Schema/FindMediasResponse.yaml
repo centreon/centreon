@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Media ID"
+    example: 1
+    nullable: false
+  filaname:
+    type: string
+    description: "Media filename"
+    example: "logo.png"
+    nullable: false
+  directory:
+    type: string
+    description: "Media directory"
+    example: "logos"
+    nullable: false

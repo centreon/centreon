@@ -62,7 +62,7 @@ final class HttpReadAttributePathRepository implements ReadAttributePathReposito
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      *
-     * @return array
+     * @return array<mixed>
      */
     public function getData(string $url, string $token, Configuration $configuration, string $endpointType): array
     {
@@ -139,7 +139,7 @@ final class HttpReadAttributePathRepository implements ReadAttributePathReposito
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      *
-     * @return array
+     * @return array<mixed>
      */
     private function getContentOrFail(ResponseInterface $response): array
     {
