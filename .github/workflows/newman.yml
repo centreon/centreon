@@ -284,62 +284,6 @@ jobs:
           }'
           response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_addTestExecutionsToTestPlan" -v "https://xray.cloud.getxray.app/api/v2/graphql")
 
-      - name: Adding test cases tags
-        run: |
-            xray_graphql_getTestPlan='
-            {
-              "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
-              "variables": {
-                "issueId": "${{ steps.get-test-plan-id.outputs.test_plan_id }}"
-              }
-            }'
-
-            # Utiliser curl pour effectuer la requête GraphQL
-            response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "$xray_graphql_getTestPlan" "https://xray.cloud.getxray.app/api/v2/graphql")
-
-            # Afficher la réponse
-            echo "Response from Get Test Plan:"
-            echo "$response"
-
-            # Analyser et traiter les ID des tests ayant "testType":{"name":"API"}
-            issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
-            echo "Test Issue IDs with testType API: ${issue_ids[@]}"
-
-            collections=($(find ./collections -type f -name "*.postman_collection.json"))
-            for collection_file in "${collections[@]}"; do
-              collection_name=$(basename "$collection_file" .postman_collection.json)
-              collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
-              original_file_path=$(dirname "$collection_file")
-
-              for issue_id in "${issue_ids[@]}"; do
-                echo "Processing issue ID: $issue_id"
-                jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
-
-                response=$(curl --request GET \
-                  --url "$jira_issue_url" \
-                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
-                  --header 'Accept: application/json')
-                summary=$(echo "$response" | jq -r '.fields.summary')
-                key=$(echo "$response" | jq -r '.key')
-
-                if [[ "$summary" == "$collection_name_sanitized" ]]; then
-                  # Construire le nouveau nom du fichier avec le modèle "nom_du_collection_postman_collection.json"
-                  new_collection_name="${summary// /-}_postman_collection.json"
-
-                  # Vérifier si le nouveau fichier existe
-                  if test -f "$original_file_path/$new_collection_name"; then
-                    if jq -e '.info.description' "$original_file_path/$new_collection_name" > /dev/null; then
-                      # Si l'attribut description existe, mettre à jour sa valeur
-                      jq --arg key "$key" '.info.description = $key' "$original_file_path/$new_collection_name" > "$original_file_path/$new_collection_name.tmp" && mv "$original_file_path/$new_collection_name.tmp" "$original_file_path/$new_collection_name"
-                    else
-                      # Si l'attribut description n'existe pas, ajouter l'attribut avec la valeur
-                      jq --arg key "$key" '.info += { description: $key }' "$original_file_path/$new_collection_name" > "$original_file_path/$new_collection_name.tmp" && mv "$original_file_path/$new_collection_name.tmp" "$original_file_path/$new_collection_name"
-                    fi
-                  fi
-                fi
-              done
-            done
-
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
