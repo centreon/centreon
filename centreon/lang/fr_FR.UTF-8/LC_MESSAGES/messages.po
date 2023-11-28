@@ -18396,3 +18396,29 @@ msgstr "Erreur lors de la recherche de médias"
 msgid "You are not allowed to list media"
 msgstr "Vous n'êtes pas autorisé à lister les médias"
 
+msgid "Error while updating playlist shares"
+msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
+
+msgid "You cannot share a playlist to a contact several times"
+msgstr "Vous ne pouvez pas partager plusieurs fois une liste de diffusion à un contact"
+
+msgid "You cannot share a playlist to a contactgroup several times"
+msgs tr "Vous ne pouvez pas partager plusieurs fois une liste de diffusion à un groupe de contacts"
+
+msgid "The following playlist does not exist: [%d]."
+msgstr "La liste de diffusion suivante n'existe pas: [%d]"
+
+msgid "You don't have the editor right on the following playlist: [%d]"
+msgstr "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante: [%d]"
+
+msgid "The following contacts don't exist: [%s]"
+msgstr "Les contacts suivant n'existent pas: [%s]"
+
+msgid "The following contactgroups don't exist: [%s]"
+msgstr "Les groupes de contacts suivant n'exisetent pas: [%s]"
+
+msgid "The following contacts are not in your contactgroups: [%s]"
+msgstr "Les contacts suivant ne font pas partie de vos groupes de contacts: [%s]"
+
+msgid "You are not in the following contactgroups: [%s]"
+msgstr "Vous ne faites pas partie des groupes de contacts suivant: [%s]"
