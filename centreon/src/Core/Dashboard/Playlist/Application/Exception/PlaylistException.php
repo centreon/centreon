@@ -67,6 +67,14 @@ class PlaylistException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileDeleting(): self
+    {
+        return new self(_('Error while deleting a playlist.'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileUpdatingShares(): self
     {
         return new self(_('Error while updating playlist shares'));
