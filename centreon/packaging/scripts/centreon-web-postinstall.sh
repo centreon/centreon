@@ -74,8 +74,8 @@ manageLocales() {
 
 restartApacheAndPhpFpm() {
   if [ "$1" = "rpm" ]; then
-    systemctl try-restart httpd || :
-    systemctl try-restart php-fpm || :
+    systemctl restart httpd || :
+    systemctl restart php-fpm || :
   else
     update-alternatives --set php /usr/bin/php8.1
     a2dismod php8.0 > /dev/null 2>&1 || :
@@ -85,8 +85,8 @@ restartApacheAndPhpFpm() {
     a2enconf php8.1-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
-    systemctl try-restart apache2 || :
-    systemctl try-restart php8.1-fpm || :
+    systemctl restart apache2 || :
+    systemctl restart php8.1-fpm || :
   fi
 }
 

@@ -345,6 +345,7 @@ contents:
       mode: 0775
 
 scripts:
+  preinstall: ./scripts/centreon-web-preinstall.sh
   postinstall: ./scripts/centreon-web-postinstall.sh
 
 overrides:
@@ -462,6 +463,8 @@ overrides:
       - locales
       - gettext
     provides:
+      - centreon-web-apache
+      - centreon-web-common
       - centreon-widget-engine-status
       - centreon-widget-global-health
       - centreon-widget-graph-monitoring
@@ -477,6 +480,8 @@ overrides:
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
     conflicts:
+      - centreon-web-apache
+      - centreon-web-common
       - centreon-widget-engine-status
       - centreon-widget-global-health
       - centreon-widget-graph-monitoring
@@ -492,6 +497,8 @@ overrides:
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
     replaces:
+      - centreon-web-apache
+      - centreon-web-common
       - centreon-widget-engine-status
       - centreon-widget-global-health
       - centreon-widget-graph-monitoring
