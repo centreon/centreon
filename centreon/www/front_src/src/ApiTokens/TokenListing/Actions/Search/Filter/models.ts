@@ -6,24 +6,22 @@ export enum SortOrder {
 }
 
 export enum Fields {
-  'creation.id' = 'creator.id',
-  'creation.name' = 'creator.name',
-  'creation_date' = 'creation_date',
-  'expiration_date' = 'expiration_date',
-  'is_revoked' = 'is_revoked',
-  'token_name' = 'token_name',
-  'user.id' = 'user.id',
-  'user.name' = 'user.name'
+  'CreationDate' = 'creation_date',
+  'CreationId' = 'creator.id',
+  'CreationName' = 'creator.name',
+  'ExpirationDate' = 'expiration_date',
+  'IsRevoked' = 'is_revoked',
+  'TokenName' = 'token_name',
+  'UserId' = 'user.id',
+  'UserName' = 'user.name'
 }
 
-export const DefaultSortBy = { [Fields.token_name]: SortOrder.asc };
+export const DefaultSortBy = { [Fields.TokenName]: SortOrder.asc };
 
 export const DefaultParameters = { limit: 10, page: 1, sort: DefaultSortBy };
 
-type sortParametersKey = keyof typeof Fields;
-
 export type SortParameters = {
-  [key: sortParametersKey]: SortOrder;
+  [key: string]: SortOrder;
 };
 
 export interface TokenFilter {
