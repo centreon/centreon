@@ -74,19 +74,18 @@ manageLocales() {
 
 restartApacheAndPhpFpm() {
   if [ "$1" = "rpm" ]; then
-    systemctl restart httpd || :
     systemctl restart php-fpm || :
+    systemctl restart httpd || :
   else
     update-alternatives --set php /usr/bin/php8.1
     a2dismod php8.0 > /dev/null 2>&1 || :
     a2enmod headers > /dev/null 2>&1 || :
-    a2enmod proxy_fcgi setenvif proxy rewrite > /dev/null 2>&1 || :
-    a2enmod alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enmod proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
     a2enconf php8.1-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
-    systemctl restart apache2 || :
     systemctl restart php8.1-fpm || :
+    systemctl restart apache2 || :
   fi
 }
 
