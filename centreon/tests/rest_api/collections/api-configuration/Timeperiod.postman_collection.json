@@ -2917,6 +2917,58 @@
 					"response": []
 				},
 				{
+					"name": "Update of a new time period with a duplicate name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The time period with name 'nonworkhours' could not be updated, due to a conflict with an existing time period.\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"    pm.expect(responseJson.message).to.eql(\"The time period name 'none_updated' already exists\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"none_updated\",\n    \"alias\": \"test_alias_duplicated\",\n    \"days\": [\n        {\n            \"day\": 3,\n            \"time_range\": \"00:00-24:00\"\n        }\n    ],\n    \"templates\": [],\n    \"exceptions\": [\n        {\n            \"day_range\": \"4 tuesday in July\",\n            \"time_range\": \"00:00-24:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/timeperiods/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"timeperiods",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Show only one time period",
 					"event": [
 						{
@@ -6004,6 +6056,56 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "timePeriodName",
+			"value": ""
+		},
+		{
+			"key": "timePeriodAlias",
+			"value": ""
 		}
 	]
 }
