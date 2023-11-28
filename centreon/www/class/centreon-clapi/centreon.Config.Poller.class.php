@@ -121,7 +121,7 @@ class CentreonConfigPoller
      * Check for the existence of poller with ID or name $poller, and return
      * the ID of that poller. If the poller does not exist, raise an exception.
      *
-     * @param string $poller
+     * @param string|int $poller
      * @return int
      */
     private function ensurePollerId($poller)
