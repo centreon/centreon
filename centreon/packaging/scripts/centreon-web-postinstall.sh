@@ -64,12 +64,12 @@ restartApacheAndPhpFpm() {
     systemctl try-restart php-fpm || :
   else
     a2dismod php8.0 > /dev/null 2>&1 || :
-    a2enconf centreon.conf > /dev/null 2>&1 || :
     a2enmod headers > /dev/null 2>&1 || :
     a2enmod proxy_fcgi setenvif proxy rewrite > /dev/null 2>&1 || :
     a2enmod alias proxy proxy_fcgi > /dev/null 2>&1 || :
     a2enconf php8.1-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
+    a2ensite centreon > /dev/null 2>&1 || :
     systemctl try-restart apache2 || :
     systemctl try-restart php8.1-fpm || :
   fi

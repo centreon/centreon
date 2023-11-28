@@ -67,10 +67,6 @@ contents:
     file_info:
       mode: 0644
     packager: deb
-  - src: "/etc/apache2/sites-available/centreon.conf"
-    dst: "/etc/apache2/sites-enabled/centreon.conf"
-    type: symlink
-    packager: deb
 
   - src: "./src/php.ini"
     dst: "/etc/php.d/50-centreon.ini"
