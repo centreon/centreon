@@ -23,6 +23,22 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration;
 
+/**
+ * @phpstan-type _RoleMapping array{
+ *  is_enabled: bool,
+ *  apply_only_first_role: bool,
+ *  attribute_path: string,
+ *  endpoint: array{
+ *      type: string,
+ *      custom_endpoint:string|null
+ *  },
+ *  relations:array<array{
+ *      claim_value: string,
+ *      access_group_id: int,
+ *      priority: int
+ *  }>
+ * }
+ */
 final class UpdateOpenIdConfigurationRequest
 {
     /** @var bool */
@@ -79,7 +95,7 @@ final class UpdateOpenIdConfigurationRequest
     /** @var string|null */
     public ?string $userNameBindAttribute = null;
 
-    /** @var array<string, array<int|string, string|null>|string|bool> */
+    /** @var _RoleMapping */
     public array $rolesMapping = [
         'is_enabled' => false,
         'apply_only_first_role' => false,
@@ -93,14 +109,14 @@ final class UpdateOpenIdConfigurationRequest
 
     /**
      * @var array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "authorized_values": string[],
-     *  "trusted_client_addresses": string[],
-     *  "blacklist_client_addresses": string[],
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
+     *  is_enabled: bool,
+     *  attribute_path: string,
+     *  authorized_values: string[],
+     *  trusted_client_addresses: string[],
+     *  blacklist_client_addresses: string[],
+     *  endpoint: array{
+     *      type: string,
+     *      custom_endpoint:string|null
      *  }
      * }
      */
@@ -118,15 +134,15 @@ final class UpdateOpenIdConfigurationRequest
 
     /**
      * @var array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
+     *  is_enabled: bool,
+     *  attribute_path: string,
+     *  endpoint: array{
+     *      type: string,
+     *      custom_endpoint:string|null
      *  },
-     *  "relations":array<array{
-     *      "group_value": string,
-     *      "contact_group_id": int
+     *  relations:array<array{
+     *      group_value: string,
+     *      contact_group_id: int
      *  }>
      * }
      */
