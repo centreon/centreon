@@ -35,6 +35,22 @@ updateEngineBrokerRights() {
   fi
 }
 
+setTimezone() {
+  PHP_TIMEZONE=$(php -r '
+    $timezoneName = timezone_name_from_abbr(trim(shell_exec("date \"+%Z\"")));
+    if (date_default_timezone_set($timezoneName) === false) {
+      $timezoneName = "UTC";1
+    }
+    echo $timezoneName;
+  ' 2>/dev/null || echo "UTC")
+
+  if [ "$1" = "rpm" ]; then
+    sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php.d/50-centreon.ini
+  else
+    sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php/8.1/mods-available/centreon.ini
+  fi
+}
+
 updateGorgoneConfiguration() {
   # make sure that gorgone configuration file has the central id set
   if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml && ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
@@ -47,6 +63,13 @@ restartApacheAndPhpFpm() {
     systemctl try-restart httpd || :
     systemctl try-restart php-fpm || :
   else
+    a2dismod php8.0 > /dev/null 2>&1 || :
+    a2enconf centreon.conf > /dev/null 2>&1 || :
+    a2enmod headers > /dev/null 2>&1 || :
+    a2enmod proxy_fcgi setenvif proxy rewrite > /dev/null 2>&1 || :
+    a2enmod alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enconf php8.1-fpm > /dev/null 2>&1 || :
+    a2dissite 000-default > /dev/null 2>&1 || :
     systemctl try-restart apache2 || :
     systemctl try-restart php8.1-fpm || :
   fi

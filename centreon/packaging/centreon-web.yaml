@@ -67,6 +67,10 @@ contents:
     file_info:
       mode: 0644
     packager: deb
+  - src: "/etc/apache2/sites-available/centreon.conf"
+    dst: "/etc/apache2/sites-enabled/centreon.conf"
+    type: symlink
+    packager: deb
 
   - src: "./src/php.ini"
     dst: "/etc/php.d/50-centreon.ini"
@@ -75,10 +79,18 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php.ini"
-    dst: "/etc/php/8.1/mods-available/50-centreon.ini"
+    dst: "/etc/php/8.1/mods-available/centreon.ini"
     type: config|noreplace
     file_info:
       mode: 0644
+    packager: deb
+  - src: "/etc/php/8.1/mods-available/centreon.ini"
+    dst: "/etc/php/8.1/fpm/conf.d/50-centreon.ini"
+    type: symlink
+    packager: deb
+  - src: "/etc/php/8.1/mods-available/centreon.ini"
+    dst: "/etc/php/8.1/cli/conf.d/50-centreon.ini"
+    type: symlink
     packager: deb
 
   - src: "./src/php-fpm.rpm.conf"
