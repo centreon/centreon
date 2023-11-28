@@ -57,7 +57,7 @@ final class DeletePlaylist
     }
 
     /**
-     * @param integer $playlistId
+     * @param int $playlistId
      * @param DeletePlaylistPresenterInterface $presenter
      */
     public function __invoke(int $playlistId, DeletePlaylistPresenterInterface $presenter): void {
@@ -79,7 +79,7 @@ final class DeletePlaylist
             }
 
             if (! $this->rights->hasAdminRole()) {
-                if (!$this->readPlaylistShareRepository->existsAsEditor($playlistId, $this->user)) {
+                if (! $this->readPlaylistShareRepository->existsAsEditor($playlistId, $this->user)) {
                     throw PlaylistException::playlistNotSharedAsEditor($playlistId);
                 }
             }

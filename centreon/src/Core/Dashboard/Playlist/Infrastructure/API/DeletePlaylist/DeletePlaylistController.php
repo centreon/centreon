@@ -25,7 +25,6 @@ namespace Core\Dashboard\Playlist\Infrastructure\API\DeletePlaylist;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Playlist\Application\UseCase\DeletePlaylist\DeletePlaylist;
 use Symfony\Component\HttpFoundation\Response;
 
