@@ -49,8 +49,6 @@ $createNotificationContactgroupRelationTable = function (CentreonDB $pearDB) use
 };
 
 try {
-    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
-
     $createNotificationContactgroupRelationTable($pearDB);
 } catch (\Exception $e) {
 
