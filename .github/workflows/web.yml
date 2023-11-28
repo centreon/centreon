@@ -445,7 +445,7 @@ jobs:
           fi
           sed -i -e "s#@LIB_ARCH@#$LIB_ARCH#g" $MACRO_REPLACEMENT_FILE
           echo "s#@LIB_ARCH@#$LIB_ARCH#g" >> $MACRO_REPLACEMENT_FILE
-          echo "s#@WEB_USER@#$APACHE_USER#g >> $MACRO_REPLACEMENT_FILE
+          echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
 
           find ./centreon -type f -not -path "./vendor/*" | grep -v $MACRO_REPLACEMENT_FILE | xargs --delimiter='\n' sed -i -f $MACRO_REPLACEMENT_FILE
         shell: bash
