@@ -15720,3 +15720,6 @@ msgstr ""
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 #msgid "Unblock"
 #msgstr ""
+
+# msgid "You are not allowed to log in"
+# msgstr ""
