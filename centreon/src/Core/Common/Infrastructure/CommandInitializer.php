@@ -19,14 +19,20 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure;
 
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 
 class CommandInitializer extends Application
 {
+    /**
+     * @param iterable<Command> $commands
+     *
+     * @throws \Symfony\Component\Console\Exception\LogicException
+     */
     public function __construct(iterable $commands)
     {
         $commands = $commands instanceof \Traversable

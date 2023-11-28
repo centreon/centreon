@@ -19,6 +19,7 @@ import Subtitle from '../../components/Subtitle';
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
+import ShowInputWrapper from './ShowInputWrapper';
 
 const WidgetProperties = (): JSX.Element => {
   const { t } = useTranslation();
@@ -70,7 +71,9 @@ const WidgetProperties = (): JSX.Element => {
           <div className={classes.widgetProperties}>
             {(widgetProperties || []).map(({ Component, key, props }) => (
               <div key={key}>
-                <Component {...props} />
+                <ShowInputWrapper {...props}>
+                  <Component {...props} />
+                </ShowInputWrapper>
               </div>
             ))}
           </div>
