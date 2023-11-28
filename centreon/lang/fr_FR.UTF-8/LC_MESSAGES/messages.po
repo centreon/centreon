@@ -18300,105 +18300,6 @@ msgstr "Erreur lors de la récupération des groupes de contacts"
 msgid "If you leave without saving your dashboard, changes will be permanently lost."
 msgstr "Si vous quittez sans enregistrer votre tableau de bord, les modifications seront définitivement perdues."
 
-msgid "You are not allowed to add media"
-msgstr "Vous n'êtes pas autorisé à ajouter des médias"
-
-msgid "Error while adding a media"
-msgstr "Erreur lors de l'ajout d'un média"
-
-msgid "File extension not authorized"
-msgstr "Extension de fichier non autorisée"
-
-msgid "Media already exists"
-msgstr "Le média existe déjà"
-
-msgid "You are not allowed to access graph templates"
-msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
-
-msgid "Error while searching for graph templates"
-msgstr "Erreur lors de la recherche de modèles de graphique"
-
-msgid "You are not allowed to access connectors"
-msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
-
-msgid "Error while searching for connectors"
-msgstr "Erreur lors de la recherche de connecteurs"
-
-msgid "Error while updating a host"
-msgstr "Erreur lors de la mise à jour d'un hôte"
-
-msgid "You are not allowed to edit a host"
-msgstr "Vous n'êtes pas autorisé à éditer un hôte"
-
-msgid "The token cannot be empty"
-msgstr "Le jeton ne peut pas être vide"
-
-msgid "This operation requires an admin user"
-msgstr "Cette opération requiert un utilisateur admin"
-
-msgid "Resource access rules"
-msgstr "Règles d'accès aux ressources"
-
-msgid "Resource Access Management"
-msgstr "Gestion de l'accès aux ressources"
-
-msgid "Refine filter"
-msgstr "Affiner le filtre"
-
-msgid "Refine your filter on a single metric by adding more resources."
-msgstr "Affinez votre filtre sur une seule métrique en ajoutant d'autres ressources."
-
-msgid "Unselect all"
-msgstr "Tout désélectionner"
-
-msgid "Display up to"
-msgstr "Afficher jusqu'à"
-
-msgid "tiles"
-msgstr "tuiles"
-
-msgid "You must fill in more resources."
-msgstr "Vous devez indiquer plus de ressources."
-
-msgid "All services on this host are working fine."
-msgstr "Tous les services de cet hôtes fonctionnent correctement."
-
-msgid "All metrics on this service are working fine."
-msgstr "Toutes les métriques de ce service fonctionnent correctement."
-
-msgid "Metric name"
-msgstr "Nom de la métrique"
-
-msgid "Status grid"
-msgstr "Grille de statut"
-
-msgid "Displays a status overview for selected resources."
-msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
-
-msgid "Display with this resource type"
-msgstr "Afficher avec ce type de ressource"
-
-msgid "Display resources with this status"
-msgstr "Afficher les ressources avec ce statut"
-
-msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
-msgstr "Pour un hôte, le statut affiché dans la tuile est le pire parmi son propre statut et les statuts de ses services."
-
-msgid "For a service, the service status is displayed."
-msgstr "Pour un service, le statut du service est affiché."
-
-msgid "Display resources with this state"
-msgstr "Afficher les ressources avec cet état"
-
-msgid "Sort by"
-msgstr "Trier par"
-
-msgid "See more on the Resources Status page"
-msgstr "Voir plus dans la page Statut des ressources"
-
-msgid "You are not allowed to log in"
-msgstr "Vous n'êtes pas autorisé à vous connecter"
-
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -18422,6 +18323,8 @@ msgstr " Accès non autorisé"
 
 msgid "The following dashboard is not shared with you: [%d]."
 msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
+msgid "Refine filter"
+msgstr "Affiner le filtre"
 
 msgid "Huge"
 msgstr "Très grande"
@@ -18464,3 +18367,6 @@ msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 
 msgid "Error while deleting a playlist"
 msgstr "Erreur lors de la suppression d'une liste de diffusion"
+
+msgid "You are not allowed to log in"
+msgstr "Vous n'êtes pas autorisé à vous connecter"
