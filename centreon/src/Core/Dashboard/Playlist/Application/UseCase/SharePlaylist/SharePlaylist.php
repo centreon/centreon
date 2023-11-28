@@ -74,7 +74,7 @@ final class SharePlaylist
     ): void {
         try {
             if (! $this->rights->canCreate()) {
-                $this->error('Access Forbidden');
+                $this->error('User does not have sufficient rigths to share a Playlist');
                 $presenter->presentResponse(new ForbiddenResponse(
                     PlaylistException::accessNotAllowed()->getMessage()
                 ));
@@ -85,8 +85,8 @@ final class SharePlaylist
             $this->info('validating Playlist exists', ['playlist_id' => $playlistId]);
             $this->validator->validatePlaylist($playlistId, $this->user, $this->rights->hasAdminRole());
 
-            $contactIds = array_map(fn(array $contact): int => $contact['id'], $request->contacts);
-            $contactGroupIds = array_map(fn(array $contactGroup): int => $contactGroup['id'], $request->contactGroups);
+            $contactIds = array_map(fn (array $contact): int => $contact['id'], $request->contacts);
+            $contactGroupIds = array_map(fn (array $contactGroup): int => $contactGroup['id'], $request->contactGroups);
 
             /**
              * If the user is not admin, we need to retrieve his contactgroups,
