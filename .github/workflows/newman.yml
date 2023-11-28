@@ -63,7 +63,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
     outputs:
       test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-plan-id.outputs.test_plan_id }}
@@ -102,7 +102,7 @@ jobs:
           testPlanKeys["testing","22.04"]="MON-23966"
           testPlanKeys["testing","21.10"]="MON-23966"
 
-          stability="unstable"
+          stability="${{ inputs.stability }}"
           major_version="${{ inputs.major_version }}"
           echo "stability of this branch is $stability"
           echo "major version of this branch is $major_version"
