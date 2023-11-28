@@ -33,7 +33,7 @@ final class DownloadPerformanceMetricResponse
     public string $filename;
 
     /**
-     * @param iterable $performanceMetrics
+     * @param iterable<PerformanceMetric> $performanceMetrics
      * @param string $filename
      */
     public function __construct(iterable $performanceMetrics, string $filename)

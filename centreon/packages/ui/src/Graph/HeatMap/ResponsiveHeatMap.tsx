@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
-import { equals, gt, lt } from 'ramda';
+import { T, equals, gt, lt } from 'ramda';
 
 import { Box } from '@mui/material';
 
@@ -20,7 +20,8 @@ const ResponsiveHeatMap = <TData,>({
   tiles,
   arrowClassName,
   tooltipContent,
-  tileSizeFixed
+  tileSizeFixed,
+  displayTooltipCondition = T
 }: HeatMapProps<TData> & { width: number }): JSX.Element | null => {
   const { classes, cx } = useHeatMapStyles();
 
@@ -73,12 +74,15 @@ const ResponsiveHeatMap = <TData,>({
               tooltip: classes.heatMapTooltip
             }}
             followCursor={false}
-            label={tooltipContent?.({
-              backgroundColor,
-              data,
-              id,
-              isSmallestSize
-            })}
+            label={
+              displayTooltipCondition?.(data) &&
+              tooltipContent?.({
+                backgroundColor,
+                data,
+                id,
+                isSmallestSize
+              })
+            }
             position="right-start"
           >
             <div className={classes.heatMapTileContent}>

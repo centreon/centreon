@@ -310,9 +310,9 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
-     * @param list<AccessGroup> $accessGroups
+     * @param non-empty-list<AccessGroup> $accessGroups
      *
-     * @return list<int>
+     * @return non-empty-list<int>
      */
     private function accessGroupsToIds(array $accessGroups): array
     {

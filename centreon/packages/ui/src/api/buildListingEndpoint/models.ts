@@ -52,7 +52,8 @@ export type Operator =
   | '$lk'
   | '$nk'
   | '$in'
-  | '$ni';
+  | '$ni'
+  | '$rg';
 
 export type ConditionValue = {
   [value in Operator]?: string | Array<string>;
