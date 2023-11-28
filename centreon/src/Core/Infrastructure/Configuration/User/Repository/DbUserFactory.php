@@ -26,7 +26,7 @@ namespace Core\Infrastructure\Configuration\User\Repository;
 use Core\Domain\Configuration\User\Model\User;
 
 /**
-* @phpstan-import-type _UserRecord from DbReadUserRepository
+ * @phpstan-import-type _UserRecord from DbReadUserRepository
  */
 class DbUserFactory
 {
