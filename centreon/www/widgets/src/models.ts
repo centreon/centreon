@@ -8,6 +8,12 @@ export interface FormThreshold {
   warningType: 'default' | 'custom';
 }
 
+export interface FormTimePeriod {
+  end?: string | null;
+  start?: string | null;
+  timePeriodType: number;
+}
+
 export interface GlobalRefreshInterval {
   interval: number | null;
   type: 'global' | 'manual';

@@ -23,6 +23,7 @@ export enum Method {
 }
 
 export type UseMutationQueryProps<T, TMeta> = {
+  baseEndpoint?: string;
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
@@ -68,7 +69,8 @@ const useMutationQuery = <T extends object, TMeta>({
   method,
   onMutate,
   onError,
-  onSuccess
+  onSuccess,
+  baseEndpoint
 }: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
@@ -83,6 +85,7 @@ const useMutationQuery = <T extends object, TMeta>({
       const { _meta, ...payload } = _payload || {};
 
       return customFetch<T>({
+        baseEndpoint,
         catchError,
         decoder,
         defaultFailureMessage,
