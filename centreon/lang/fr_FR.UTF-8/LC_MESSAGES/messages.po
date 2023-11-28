@@ -18403,7 +18403,7 @@ msgid "You cannot share a playlist to a contact several times"
 msgstr "Vous ne pouvez pas partager plusieurs fois une liste de diffusion à un contact"
 
 msgid "You cannot share a playlist to a contactgroup several times"
-msgs tr "Vous ne pouvez pas partager plusieurs fois une liste de diffusion à un groupe de contacts"
+msgstr "Vous ne pouvez pas partager plusieurs fois une liste de diffusion à un groupe de contacts"
 
 msgid "The following playlist does not exist: [%d]."
 msgstr "La liste de diffusion suivante n'existe pas: [%d]"
