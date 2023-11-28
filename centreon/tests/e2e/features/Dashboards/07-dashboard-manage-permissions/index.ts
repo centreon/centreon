@@ -91,7 +91,7 @@ Then(
     })
       .contains(dashboards.fromDashboardAdministratorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/library\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
   }
@@ -138,7 +138,7 @@ Then(
       .contains(dashboards.fromDashboardAdministratorUser.name)
       .should('exist')
       .click();
-    cy.url().should('match', /\/dashboards\/library\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
   }
@@ -240,7 +240,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     .contains(dashboards.fromDashboardAdministratorUser.name)
     .should('exist')
     .click();
-  cy.url().should('match', /\/dashboards\/library\d+$/);
+  cy.url().should('match', /\/dashboards\/library\/\d+$/);
   cy.getByTestId({ testId: 'edit' }).should('not.exist');
   cy.getByTestId({ testId: 'share' }).should('not.exist');
 });
