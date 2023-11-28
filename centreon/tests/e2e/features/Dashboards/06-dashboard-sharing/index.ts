@@ -11,10 +11,7 @@ import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 

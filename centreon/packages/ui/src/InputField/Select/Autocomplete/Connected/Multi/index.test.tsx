@@ -17,6 +17,7 @@ const renderMultiAutocompleteField = (): RenderResult =>
   render(
     <TestQueryProvider>
       <MultiConnectedAutocompleteField
+        baseEndpoint=""
         field="host.name"
         getEndpoint={getEndpoint}
         label={label}

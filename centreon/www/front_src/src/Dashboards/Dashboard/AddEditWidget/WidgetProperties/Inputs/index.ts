@@ -9,3 +9,6 @@ export { default as WidgetValueFormat } from './ValueFormat/ValueFormat';
 export { default as WidgetTimePeriod } from './TimePeriod/TimePeriod';
 export { default as WidgetTopBottomSettings } from './TopBottomSettings/TopBottomSettings';
 export { default as WidgetMetrics } from './Metrics/Metrics';
+export { default as WidgetRadio } from './Radio/Radio';
+export { default as WidgetCheckboxes } from './Checboxes/Chekboxes';
+export { default as WidgetTiles } from './Tiles/Tiles';
