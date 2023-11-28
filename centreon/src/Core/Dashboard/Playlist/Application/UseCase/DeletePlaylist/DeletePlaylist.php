@@ -60,7 +60,7 @@ final class DeletePlaylist
      * @param integer $playlistId
      * @param DeletePlaylistPresenterInterface $presenter
      */
-    public function __invoke(int $playlistId, DeletePlaylistPresenterInterface $presenter) {
+    public function __invoke(int $playlistId, DeletePlaylistPresenterInterface $presenter): void {
         try {
             if (! $this->rights->canCreate()) {
                 $this->error('Access Forbidden');
