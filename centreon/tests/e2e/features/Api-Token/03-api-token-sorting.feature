@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON-24868
+@REQ_MON-21279
 Feature: Sorting API Tokens List
 
   As an administrator
@@ -13,6 +13,7 @@ Feature: Sorting API Tokens List
   Scenario Outline: Sort tokens by '<order_by>'
     When I click on the '<order_by>' column header
     Then the tokens are sorted by '<order_by>' in ascending order
+    Examples:
       | order_by        |
       | Status          |
       | Name            |

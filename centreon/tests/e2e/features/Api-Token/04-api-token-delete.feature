@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON-24869
+@REQ_MON-21278
 Feature: Delete API Token
 
   As an administrator
