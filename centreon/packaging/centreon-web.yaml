@@ -129,16 +129,106 @@ contents:
       group: "centreon"
       mode: 0664
 
-  - src: "../bin"
-    dst: "/usr/share/centreon/bin"
+  - src: "../bin/centFillTrapDB"
+    dst: "/usr/share/centreon/bin/centFillTrapDB"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centFillTrapDB"
+    dst: "/usr/bin/centFillTrapDB"
+    type: symlink
+
+  - src: "../bin/centreon_health"
+    dst: "/usr/share/centreon/bin/centreon_health"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon_trap_send"
+    dst: "/usr/share/centreon/bin/centreon_trap_send"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centreon_trap_send"
+    dst: "/usr/bin/centreon_trap_send"
+    type: symlink
+
+  - src: "../bin/centreonSyncPlugins"
+    dst: "/usr/share/centreon/bin/centreonSyncPlugins"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centreonSyncPlugins"
+    dst: "/usr/bin/centreonSyncPlugins"
+    type: symlink
+
+  - src: "../bin/centreonSyncArchives"
+    dst: "/usr/share/centreon/bin/centreonSyncArchives"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centreonSyncArchives"
+    dst: "/usr/bin/centreonSyncArchives"
+    type: symlink
+
+  - src: "../bin/generateSqlLite"
+    dst: "/usr/share/centreon/bin/generateSqlLite"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/generateSqlLite"
+    dst: "/usr/bin/generateSqlLite"
+    type: symlink
+
+  - src: "../bin/changeRrdDsName.pl"
+    dst: "/usr/share/centreon/bin/changeRrdDsName.pl"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/migrateWikiPages.php"
+    dst: "/usr/share/centreon/bin/migrateWikiPages.php"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon-partitioning.php"
+    dst: "/usr/share/centreon/bin/centreon-partitioning.php"
     file_info:
       owner: "centreon"
       group: "centreon"
       mode: 0755
 
+  - src: "../bin/logAnalyserBroker"
+    dst: "/usr/share/centreon/bin/logAnalyserBroker"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon-sanitize-images.php"
+    dst: "/usr/share/centreon/bin/centreon-sanitize-images.php"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon-remove-duplicate-host-service-relations.php"
+    dst: "/usr/share/centreon/bin/centreon-remove-duplicate-host-service-relations.php"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon"
+    dst: "/usr/share/centreon/bin/centreon"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
   - src: "/usr/share/centreon/bin/centreon"
     dst: "/usr/bin/centreon"
     type: symlink
+
+  - src: "../bin/console"
+    dst: "/usr/share/centreon/bin/console"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
+  - src: "../bin/migration"
+    dst: "/usr/share/centreon/bin/migration"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
 
   - src: "../composer.json"
     dst: "/usr/share/centreon/composer.json"
