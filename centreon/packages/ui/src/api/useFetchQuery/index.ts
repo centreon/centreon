@@ -172,12 +172,9 @@ const useFetchQuery = <T extends object>({
     };
   }, []);
 
-  useEffect(
-    () => {
-      manageError();
-    },
-    useDeepCompare([queryData.data])
-  );
+  useEffect(() => {
+    manageError();
+  }, useDeepCompare([queryData.data]));
 
   return {
     ...omit(['data', 'error'], queryData),
