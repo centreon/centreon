@@ -385,7 +385,7 @@ $form->applyFilter('contact_name', 'myReplace');
 $form->addRule('contact_name', _("Compulsory name"), 'required');
 $form->addRule('contact_alias', _("Compulsory alias"), 'required');
 $form->addRule('contact_email', _("Valid Email"), 'required');
-if ($cct["contact_auth_type"] !== 'ldap') {
+if ($cct["contact_auth_type"] === 'local') {
     $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
 }
 $form->registerRule('exist', 'callback', 'testExistence');
@@ -418,13 +418,24 @@ if ($o == "c") {
     }
     $form->setDefaults($defaultUserFeatures);
 }
-
+if ($cct['contact_auth_type'] !== 'local') {
+    if ($_POST['contact_name'] !== $cct['contact_name'] || empty($_POST['contact_name'])) {
+        $_POST['contact_name'] = $cct['contact_name'];
+    }
+    if ($_POST['contact_alias'] !== $cct['contact_alias'] || empty($_POST['contact_alias'])) {
+        $_POST['contact_alias'] = $cct['contact_alias'];
+    }
+    if ($_POST['contact_email'] !== $cct['contact_email'] || empty($_POST['contact_email'])) {
+        $_POST['contact_email'] = $cct['contact_email'];
+    }
+}
 $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
     updateContactInDB($centreon->user->get_id());
     $o = null;
     $features = $form->getSubmitValue('features');
+
 
     if ($features === null) {
         $features = [];
