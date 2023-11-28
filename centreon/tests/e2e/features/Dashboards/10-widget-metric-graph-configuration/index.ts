@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PatternType } from '../../../support/commands';
+import { checkServicesAreMonitored } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
@@ -36,6 +36,12 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -63,7 +69,6 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
 });
 
 afterEach(() => {
@@ -81,7 +86,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -385,17 +390,15 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.getByLabel({
-      label: 'Centreon-Server: Packet Loss (%)',
-      tag: 'p'
-    }).should('exist');
+    cy.get('g.visx-axis-left').should('exist');
+    cy.get('g.visx-axis-right').should('exist');
   }
 );
 
 Then('the thresholds are automatically hidden', () => {
   cy.get('span[data-checked="false"]').should('exist');
   cy.getByTestId({ testId: 'confirm' }).click();
-  cy.wait('@performanceData')
+  cy.wait('@performanceData');
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('not.exist');
   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('not.exist');
 });
