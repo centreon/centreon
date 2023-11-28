@@ -98,7 +98,10 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
     /**
      * @param RefreshResponseDto $refresh
      *
-     * @return array
+     * @return array{
+     *     type: string,
+     *     interval: ?int,
+     * }
      */
     private function globalRefreshToArray(RefreshResponseDto $refresh): array
     {

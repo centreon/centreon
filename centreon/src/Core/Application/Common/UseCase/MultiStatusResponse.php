@@ -41,7 +41,7 @@ final class MultiStatusResponse implements ResponseStatusInterface
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     public function getPayload(): array
     {
