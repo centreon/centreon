@@ -89,31 +89,26 @@ export const useCheckboxes = ({
 
   const isChecked = (id: string): boolean => includes(id, value || []);
 
-  useEffect(
-    () => {
-      if (isNil(dependencyValue)) {
-        return;
-      }
+  useEffect(() => {
+    if (isNil(dependencyValue)) {
+      return;
+    }
 
-      const canApplyDefaultValue = !!previousDependencyValue.current;
+    const canApplyDefaultValue = !!previousDependencyValue.current;
 
-      if (!canApplyDefaultValue) {
-        previousDependencyValue.current = dependencyValue;
+    if (!canApplyDefaultValue) {
+      previousDependencyValue.current = dependencyValue;
 
-        return;
-      }
+      return;
+    }
 
-      const { is, then, otherwise } = defaultValue as ConditionalOptions<
-        Array<SelectEntry>
-      >;
-      const defaultValueToApply = equals(is, dependencyValue)
-        ? then
-        : otherwise;
+    const { is, then, otherwise } = defaultValue as ConditionalOptions<
+      Array<SelectEntry>
+    >;
+    const defaultValueToApply = equals(is, dependencyValue) ? then : otherwise;
 
-      setFieldValue(`options.${propertyName}`, defaultValueToApply);
-    },
-    useDeepCompare([dependencyValue])
-  );
+    setFieldValue(`options.${propertyName}`, defaultValueToApply);
+  }, useDeepCompare([dependencyValue]));
 
   return {
     areAllOptionsSelected,

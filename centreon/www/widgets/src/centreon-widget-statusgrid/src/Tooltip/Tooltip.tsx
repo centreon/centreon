@@ -19,6 +19,5 @@ const Tooltip = ({ resourceType, data }: Props): JSX.Element => {
 };
 
 export default (resourceType: string) =>
-  ({ data }: Pick<Props, 'data'>) => (
-    <Tooltip data={data} resourceType={resourceType} />
-  );
+  ({ data }: Pick<Props, 'data'>) =>
+    <Tooltip data={data} resourceType={resourceType} />;
