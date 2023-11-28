@@ -1,0 +1,52 @@
+{
+  "result": [
+    {
+      "start_time": "2023-11-17T18:11:48+01:00",
+      "end_time": "2023-11-17T19:11:48+01:00",
+      "actual_start_time": "2023-11-17T18:11:54+01:00",
+      "actual_end_time": null,
+      "id": 4,
+      "entry_time": "2023-11-17T18:11:51+01:00",
+      "author_id": 1,
+      "author_name": "admin",
+      "host_id": 16,
+      "is_cancelled": false,
+      "comment": "Downtime set by admin",
+      "deletion_time": null,
+      "duration": 3600,
+      "internal_id": 2,
+      "is_fixed": true,
+      "poller_id": 1,
+      "is_started": true,
+      "max_date": "2099-12-31T23:59:00+00:00"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "search": {
+      "$and": [
+        {
+          "start_time": {
+            "$lt": 1700241722
+          },
+          "end_time": {
+            "$gt": 1700241722
+          },
+          "0": {
+            "$or": {
+              "is_cancelled": {
+                "$neq": 1
+              },
+              "deletion_time": {
+                "$gt": 1700241722
+              }
+            }
+          }
+        }
+      ]
+    },
+    "sort_by": {},
+    "total": 1
+  }
+}

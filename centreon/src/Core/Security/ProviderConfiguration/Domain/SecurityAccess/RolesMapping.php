@@ -177,7 +177,7 @@ class RolesMapping implements SecurityAccessInterface
             $this->scope,
             'Role mapping relation found',
             [
-                'conditions_matches' => $this->conditionMatches,
+                'conditions_matches' => implode(', ', $this->conditionMatches),
                 'provider' => $conditions,
                 'configured' => $configuredClaimValues,
             ]

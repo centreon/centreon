@@ -318,8 +318,8 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
         working-directory: centreon
 
-      - name: Run of phpstan on /src/Core at level 4 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.core.neon
+      - name: Run of phpstan on /src/Core at level 6 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=6 --configuration=phpstan.core.neon
         working-directory: centreon
 
       - name: Run of phpstan on /tests at level 2
