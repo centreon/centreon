@@ -388,7 +388,7 @@ Then(
     cy.getByLabel({
       label: 'Centreon-Server: Packet Loss (%)',
       tag: 'p'
-    }).should('exist');
+    }).should('be.visible');
   }
 );
 
