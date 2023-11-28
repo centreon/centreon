@@ -18419,6 +18419,7 @@ msgstr " Accès non autorisé"
 
 msgid "The following dashboard is not shared with you: [%d]."
 msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
+
 msgid "Refine filter"
 msgstr "Affiner le filtre"
 
