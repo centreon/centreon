@@ -1,7 +1,7 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
-import { flatten, isNil, pluck } from 'ramda';
+import { flatten, gt, isNil, lte, pluck, reduce } from 'ramda';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
@@ -33,6 +33,7 @@ import {
 import { useIntersection } from './useLineChartIntersection';
 import { CurveType } from './BasicComponents/Lines/models';
 import Thresholds from './BasicComponents/Thresholds';
+import { legendWidth } from './Legend/Legend.styles';
 
 const extraMargin = 10;
 
@@ -160,6 +161,15 @@ const LineChart = ({
 
   const displayLegend = legend?.display ?? true;
   const displayTooltip = !isNil(tooltip?.renderComponent);
+
+  const legendItemsWidth = reduce(
+    (acc) => acc + legendWidth * 8 + 24,
+    0,
+    displayedLines
+  );
+
+  const shouldDisplayLegendInCompactMode =
+    lte(graphWidth, 808) && gt(legendItemsWidth, graphWidth);
 
   if (!isInViewport) {
     return (
@@ -294,6 +304,7 @@ const LineChart = ({
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}
+            shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
             timeSeries={timeSeries}
             xScale={xScale}
           />

@@ -6,61 +6,47 @@ interface MakeStylesProps {
   limitLegendRows?: boolean;
 }
 
+export const legendWidth = 21;
+const legendItemHeight = 5.25;
+const legendItemHeightCompact = 1.75;
+
 export const useStyles = makeStyles<MakeStylesProps>()(
   (theme, { limitLegendRows }) => ({
     highlight: {
       color: theme.typography.body1.color
     },
     item: {
-      display: 'grid',
-      gridTemplateColumns: 'min-content minmax(50px, 1fr)',
-      marginBottom: theme.spacing(1)
+      minWidth: theme.spacing(legendWidth)
     },
     items: {
+      '&[data-mode="compact"]': {
+        gridAutoRows: theme.spacing(legendItemHeightCompact),
+        height: limitLegendRows
+          ? theme.spacing(legendItemHeightCompact * 2 + 1.5)
+          : 'unset'
+      },
+      columnGap: theme.spacing(3),
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, max-content))',
-      marginLeft: theme.spacing(0.5),
-      maxHeight: limitLegendRows ? theme.spacing(14) : 'unset',
+      gridAutoRows: theme.spacing(legendItemHeight),
+      gridTemplateColumns: `repeat(auto-fit, ${theme.spacing(legendWidth)})`,
+      maxHeight: limitLegendRows
+        ? theme.spacing(legendItemHeight * 2 + 1)
+        : 'unset',
       overflowY: 'auto',
+      rowGap: theme.spacing(1),
       width: '100%'
     },
     legend: {
       marginLeft: margin.left,
       marginRight: margin.right,
-      maxHeight: theme.spacing(24),
-      overflowX: 'hidden',
-      overflowY: 'auto'
-    },
-    legendData: {
-      display: 'flex',
-      flexDirection: 'column'
-    },
-    legendName: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'start',
-      marginRight: theme.spacing(0.5),
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    },
-    legendUnit: {
-      justifyContent: 'start',
-      marginLeft: 'auto',
-      marginRight: theme.spacing(0.5),
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    },
-    legendValue: {
-      fontWeight: theme.typography.body1.fontWeight
+      overflow: 'hidden'
     },
     minMaxAvgContainer: {
       columnGap: theme.spacing(0.5),
       display: 'grid',
-      gridAutoRows: theme.spacing(2),
       gridTemplateColumns: 'repeat(2, min-content)',
       whiteSpace: 'nowrap'
     },
-    minMaxAvgValue: { fontWeight: 600 },
     normal: {
       color: theme.palette.text.primary
     },
@@ -69,3 +55,63 @@ export const useStyles = makeStyles<MakeStylesProps>()(
     }
   })
 );
+
+interface StylesProps {
+  color?: string;
+}
+
+export const useLegendHeaderStyles = makeStyles<StylesProps>()(
+  (theme, { color }) => ({
+    container: {
+      display: 'flex',
+      flexDirection: 'row',
+      gap: theme.spacing(0.5),
+      width: '100%'
+    },
+    disabled: {
+      color: theme.palette.text.disabled
+    },
+    icon: {
+      backgroundColor: color,
+      borderRadius: theme.shape.borderRadius,
+      height: theme.spacing(1.5),
+      minWidth: theme.spacing(1.5),
+      width: theme.spacing(1.5)
+    },
+    legendName: {
+      '&[data-mode="compact"]': {
+        maxWidth: theme.spacing(legendWidth * 0.5)
+      },
+      maxWidth: theme.spacing(legendWidth * 0.75)
+    },
+    markerAndLegendName: {
+      alignItems: 'center',
+      display: 'flex',
+      flexDirection: 'row',
+      gap: theme.spacing(0.5)
+    },
+    minMaxAvgContainer: {
+      columnGap: theme.spacing(0.5),
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, min-content)',
+      whiteSpace: 'nowrap'
+    },
+    text: {
+      fontWeight: theme.typography.fontWeightMedium,
+      lineHeight: 1
+    }
+  })
+);
+
+export const useLegendContentStyles = makeStyles()((theme) => ({
+  minMaxAvgValue: { fontWeight: theme.typography.fontWeightMedium },
+  text: {
+    lineHeight: 0.9
+  }
+}));
+
+export const useLegendValueStyles = makeStyles()({
+  text: {
+    lineHeight: 1.4
+  }
+});
