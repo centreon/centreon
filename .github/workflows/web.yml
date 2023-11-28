@@ -15,7 +15,6 @@ on:
   pull_request:
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -24,9 +23,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
-    tags:
-      - centreon-*
 
 env:
   base_directory: centreon
