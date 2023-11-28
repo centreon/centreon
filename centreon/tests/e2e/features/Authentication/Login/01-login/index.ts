@@ -40,7 +40,7 @@ When('I click on the logout action', () => {
 });
 
 Then('I am logged out and redirected to the login page', () => {
-  cy.url().should('include', '/login');
+  cy.url().should('include', '/loginnnnn');
   cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 });
 
