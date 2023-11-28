@@ -230,7 +230,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
 
     $this->readDashboardPerformanceMetric
         ->expects($this->once())
-        ->method('FindByRequestParametersAndAccessGroups')
+        ->method('findByRequestParametersAndAccessGroups')
         ->willReturn($response);
 
     $presenter = new FindPerformanceMetricsPresenterStub();
