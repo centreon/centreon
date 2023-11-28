@@ -110,7 +110,7 @@ $updateTopologyForApiTokens = function(CentreonDB $pearDB): void {
     $pearDB->query(
             <<<'SQL'
                 UPDATE `topology`
-                SET topology_url = '/administration/api-token', is_react = 1, topology_show=1
+                SET topology_url = '/administration/api-token', is_react = '1', topology_show='1'
                 WHERE `topology_name` = 'API Tokens'
                 SQL
     );
