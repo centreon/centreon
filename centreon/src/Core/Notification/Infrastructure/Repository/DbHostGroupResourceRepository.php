@@ -372,11 +372,13 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             <<<SQL
                     DELETE FROM `:db`.notification_hg_relation
                     WHERE hg_id IN ({$hostGroupsIds})
+                    AND notification_id = :notificationId
                 SQL
         ));
         foreach ($bindValues as $token => $resourceId) {
             $deleteStatement->bindValue($token, $resourceId, \PDO::PARAM_INT);
         }
+        $deleteStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $deleteStatement->execute();
     }
 
