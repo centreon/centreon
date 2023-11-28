@@ -104,9 +104,13 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
         if ($bind === []) {
             return [];
         }
+
+        $contactIdsAsString = implode(', ', array_keys($bind));
         $request = $this->translateDbName(
-           'SELECT contact_id FROM `:db`.contact
-            WHERE contact_id IN ( ' . implode(', ', array_keys($bind)) . ')'
+            <<<SQL
+                SELECT contact_id FROM `:db`.contact
+                WHERE contact_id IN ({$contactIdsAsString})
+                SQL
         );
         $statement = $this->db->prepare($request);
         foreach ($bind as $key => $value) {

@@ -30,7 +30,7 @@
                 }
             }
         },
-        "contactgroups": {
+        "contact_groups": {
             "type": "array",
             "items": {
                 "type": "object",

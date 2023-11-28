@@ -12,7 +12,7 @@ properties:
           type: string
           enum: ['viewer','editor']
           description: role of the contact on this playlist
-  contactgroupss:
+  contact_groups:
     type: array
     items:
       type: object

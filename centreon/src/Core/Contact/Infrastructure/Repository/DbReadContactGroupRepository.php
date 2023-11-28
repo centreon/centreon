@@ -268,9 +268,12 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         if ($bind === []) {
             return [];
         }
+        $contactGroupIdsAsString = implode(', ', array_keys($bind));
         $request = $this->translateDbName(
-           'SELECT cg_id FROM `:db`.contactgroup
-            WHERE cg_id IN ( ' . implode(', ', array_keys($bind)) . ')'
+           <<<SQL
+                SELECT cg_id FROM `:db`.contactgroup
+                WHERE cg_id IN ({$contactGroupIdsAsString})
+                SQL
         );
         $statement = $this->db->prepare($request);
         foreach ($bind as $key => $value) {
