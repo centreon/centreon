@@ -392,12 +392,6 @@ Then(
   () => {
     cy.get('g.visx-axis-left').should('exist');
     cy.get('g.visx-axis-right').should('exist');
-    /*
-    cy.getByLabel({
-      label: 'Centreon-Server: Packet Loss (%)',
-      tag: 'p'
-    }).should('exist');
-    */
   }
 );
 
