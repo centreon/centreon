@@ -1,7 +1,19 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, pluck, propEq, reject } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  includes,
+  isEmpty,
+  map,
+  pluck,
+  prop,
+  propEq,
+  reject
+} from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
@@ -41,12 +53,17 @@ interface UseResourcesState {
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
+  getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: string) => string;
-  resourceTypeOptions: Array<SelectEntry>;
   value: Array<WidgetDataResource>;
 }
 
-const resourceTypeOptions = [
+interface ResourceTypeOption {
+  id: WidgetResourceType;
+  name: string;
+}
+
+const resourceTypeOptions: Array<ResourceTypeOption> = [
   {
     id: WidgetResourceType.hostGroup,
     name: labelHostGroup
@@ -198,6 +215,18 @@ const useResources = (propertyName: string): UseResourcesState => {
       );
     };
 
+  const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
+    const resourcetypesIds = map(prop('resourceType'), value || []);
+
+    const newResourceTypeOptions = reject(
+      ({ id }) =>
+        !equals(id, resource.resourceType) && includes(id, resourcetypesIds),
+      resourceTypeOptions
+    );
+
+    return newResourceTypeOptions;
+  };
+
   useEffect(() => {
     if (!isEmpty(value)) {
       return;
@@ -221,8 +250,8 @@ const useResources = (propertyName: string): UseResourcesState => {
     error: errorToDisplay,
     getOptionDisabled,
     getResourceResourceBaseEndpoint,
+    getResourceTypeOptions,
     getSearchField,
-    resourceTypeOptions,
     value: value || []
   };
 };
