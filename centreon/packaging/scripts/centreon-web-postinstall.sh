@@ -58,11 +58,26 @@ updateGorgoneConfiguration() {
   fi
 }
 
+manageLocales() {
+  if [ "$1" = "deb" ]; then
+    # Set locales on system to use in translation
+    sed -i \
+        -e '/^#.* en_US.UTF-8 /s/^#//' \
+        -e '/^#.* fr_FR.UTF-8 /s/^#//' \
+        -e '/^#.* pt_PT.UTF-8 /s/^#//' \
+        -e '/^#.* pt_BR.UTF-8 /s/^#//' \
+        -e '/^#.* es_ES.UTF-8 /s/^#//' \
+        /etc/locale.gen
+    locale-gen
+  fi
+}
+
 restartApacheAndPhpFpm() {
   if [ "$1" = "rpm" ]; then
     systemctl try-restart httpd || :
     systemctl try-restart php-fpm || :
   else
+    update-alternatives --set php /usr/bin/php8.1
     a2dismod php8.0 > /dev/null 2>&1 || :
     a2enmod headers > /dev/null 2>&1 || :
     a2enmod proxy_fcgi setenvif proxy rewrite > /dev/null 2>&1 || :
@@ -104,12 +119,14 @@ case "$action" in
     manageUsersAndGroups $package_type
     updateConfigurationFiles
     updateGorgoneConfiguration
+    manageLocales $package_type
     restartApacheAndPhpFpm $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
     updateConfigurationFiles
     updateGorgoneConfiguration
+    manageLocales $package_type
     restartApacheAndPhpFpm $package_type
     updateEngineBrokerRights
     rebuildSymfonyCache $package_type

@@ -459,6 +459,8 @@ overrides:
       - php8.1-sqlite3
       - php-pear
       - rrdtool
+      - locales
+      - gettext
     provides:
       - centreon-widget-engine-status
       - centreon-widget-global-health
