@@ -4,7 +4,7 @@
 		"name": "2 - Local Authentication",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7a4a5e81-a3a7-4855-9383-885e133c3408?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7a4a5e81-a3a7-4855-9383-885e133c3408?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -1238,12 +1238,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_non_admin",
-			"value": ""
 		}
 	]
 }

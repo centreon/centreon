@@ -4,7 +4,7 @@
 		"name": "3 - Local Provider Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ebcbd1dd-32c1-4290-a61c-b426ec57fffd?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ebcbd1dd-32c1-4290-a61c-b426ec57fffd?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -255,8 +255,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_menu_action\", \"user_with_menu_action\");\r",
-									"pm.collectionVariables.set(\"api_password_user_menu_action\", \"Centreon!123\");"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -862,8 +861,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_menu_action\", \"user_with_menu_action\");\r",
-									"pm.collectionVariables.set(\"api_password_user_menu_action\", \"Centreon!123\");"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1850,16 +1848,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_menu_action",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_menu_action",
-			"value": ""
 		}
 	]
 }
