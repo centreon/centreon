@@ -32,20 +32,19 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
     find(propEq(metric_id, 'metric_id'), lines) as Line;
 
   const toggleMetricLine = (metric_id): void => {
-    const line = getLineByMetric(metric_id);
+    const data = lines.map((line) => ({
+      ...line,
+      display: equals(line.metric_id, metric_id) ? !line.display : line.display
+    }));
 
-    setLinesGraph([
-      ...reject(propEq(metric_id, 'metric_id'), lines),
-      { ...line, display: !line.display }
-    ]);
+    setLinesGraph(data);
   };
 
   const highlightLine = (metric_id): void => {
-    const fadedLines = map((line) => ({ ...line, highlight: false }), lines);
-    const data = [
-      ...reject(propEq(metric_id, 'metric_id'), fadedLines),
-      { ...getLineByMetric(metric_id), highlight: true }
-    ];
+    const data = lines.map((line) => ({
+      ...line,
+      highlight: equals(line.metric_id, metric_id)
+    }));
 
     setLinesGraph(data);
   };

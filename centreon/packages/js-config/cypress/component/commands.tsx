@@ -141,8 +141,10 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('adjustViewport', () => cy.viewport(1280, 590));
+
 Cypress.Commands.add('makeSnapshot', (title?: string) => {
-  cy.viewport(1280, 590);
+  cy.adjustViewport();
   cy.matchImageSnapshot(title);
 });
 
@@ -155,6 +157,7 @@ Cypress.Commands.add('cssDisableMotion', (): void => {
 declare global {
   namespace Cypress {
     interface Chainable {
+      adjustViewport: () => Cypress.Chainable;
       cssDisableMotion: () => Cypress.Chainable;
       getRequestCalls: (alias) => Cypress.Chainable;
       interceptAPIRequest: <T extends object>(

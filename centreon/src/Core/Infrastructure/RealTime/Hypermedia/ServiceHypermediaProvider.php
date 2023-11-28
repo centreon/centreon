@@ -218,7 +218,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
     }
 
     /**
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      *
      * @return string|null
      */
@@ -230,7 +230,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
     }
 
     /**
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      *
      * @return string|null
      */

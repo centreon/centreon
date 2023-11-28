@@ -41,7 +41,10 @@ export const useTokenListing = (): UseTokenListing => {
   const onSort = (sortParams: SortParams): void => {
     const { sortField, sortOrder } = sortParams;
 
-    setCurrentFilter({ ...currentFilter, sort: { [sortField]: sortOrder } });
+    setCurrentFilter({
+      ...currentFilter,
+      sort: { [sortField]: sortOrder as SortOrder }
+    });
   };
   useEffect(() => {
     setEnabled(true);
@@ -81,7 +84,7 @@ export const useTokenListing = (): UseTokenListing => {
         } as DataListing),
     onSort,
     refetch,
-    sortField: Object.keys(currentFilter?.sort)[0] as Fields,
-    sortOrder: Object.values(currentFilter?.sort)[0] as SortOrder
+    sortOrder: Object.values(currentFilter?.sort)[0] as SortOrder,
+    sortedField: Object.keys(currentFilter?.sort)[0] as Fields
   };
 };

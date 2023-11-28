@@ -2,23 +2,23 @@
 import { Column } from '@centreon/ui';
 
 export enum Columns {
-  actions = 'Actions',
-  creationDate = 'Creation Date',
-  creator = 'Creator',
-  expirationDate = 'Expiration Date',
-  name = 'Name',
-  status = 'Status',
-  user = 'User'
+  Actions = 'Actions',
+  CreationDate = 'Creation Date',
+  Creator = 'Creator',
+  ExpirationDate = 'Expiration Date',
+  Name = 'Name',
+  Status = 'Status',
+  User = 'User'
 }
 
 export enum selectableColumnsIds {
-  status = 'status',
-  tokenName = 'token_name',
-  creationDate = 'creation_date',
-  expirationDate = 'expiration_date',
-  userName = 'user_name',
-  creatorName = 'creator_name',
-  actions = 'actions'
+  Status = 'status',
+  TokenName = 'token_name',
+  CreationDate = 'creation_date',
+  ExpirationDate = 'expiration_date',
+  UserName = 'user_name',
+  CreatorName = 'creator_name',
+  Actions = 'actions'
 }
 
 export const defaultSelectedColumnIds: Array<string> =

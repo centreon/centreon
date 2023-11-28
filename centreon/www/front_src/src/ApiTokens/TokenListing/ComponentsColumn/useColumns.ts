@@ -36,14 +36,14 @@ export const useColumns = (): UseColumns => {
         getFormattedString: ({ is_revoked }) =>
           is_revoked ? labelRevoked : labelActive,
         id: 'status',
-        label: Columns.status,
+        label: Columns.Status,
         sortable: true,
         type: ColumnType.string
       },
       {
         getFormattedString: ({ name }) => name,
         id: 'token_name',
-        label: Columns.name,
+        label: Columns.Name,
         sortField: 'token_name',
         sortable: true,
         type: ColumnType.string
@@ -56,7 +56,7 @@ export const useColumns = (): UseColumns => {
           });
         },
         id: 'creation_date',
-        label: Columns.creationDate,
+        label: Columns.CreationDate,
         sortField: 'creation_date',
         sortable: true,
         type: ColumnType.string
@@ -69,7 +69,7 @@ export const useColumns = (): UseColumns => {
           });
         },
         id: 'expiration_date',
-        label: Columns.expirationDate,
+        label: Columns.ExpirationDate,
         sortField: 'expiration_date',
         sortable: true,
         type: ColumnType.string
@@ -77,7 +77,7 @@ export const useColumns = (): UseColumns => {
       {
         getFormattedString: ({ user }) => user.name,
         id: 'user_name',
-        label: Columns.user,
+        label: Columns.User,
         sortField: 'user.name',
         sortable: true,
         type: ColumnType.string
@@ -85,7 +85,7 @@ export const useColumns = (): UseColumns => {
       {
         getFormattedString: ({ creator }) => creator.name,
         id: 'creator_name',
-        label: Columns.creator,
+        label: Columns.Creator,
         sortField: 'creator.name',
         sortable: true,
         type: ColumnType.string
@@ -93,7 +93,7 @@ export const useColumns = (): UseColumns => {
       {
         Component: ActionsColumn,
         id: 'actions',
-        label: Columns.actions,
+        label: Columns.Actions,
         type: ColumnType.component
       }
     ],

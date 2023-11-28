@@ -21,7 +21,7 @@ const Listing = (): JSX.Element | null => {
     changePage,
     changeLimit,
     onSort,
-    sortField,
+    sortedField,
     sortOrder,
     refetch
   } = useTokenListing();
@@ -55,7 +55,7 @@ const Listing = (): JSX.Element | null => {
         limit={dataListing?.limit}
         loading={dataListing?.isLoading}
         rows={dataListing?.rows}
-        sortField={sortField}
+        sortField={sortedField}
         sortOrder={sortOrder}
         totalRows={dataListing?.total}
         onLimitChange={changeLimit}

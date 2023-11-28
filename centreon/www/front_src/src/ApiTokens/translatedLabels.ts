@@ -4,4 +4,4 @@ export const labelRevoked = 'Revoked';
 export const labelActive = 'Active';
 export const labelSearchOptions = 'Filter options';
 export const labelDelete = 'Delete';
-export const labelApiToken = 'Api token';
+export const labelApiToken = 'API token';

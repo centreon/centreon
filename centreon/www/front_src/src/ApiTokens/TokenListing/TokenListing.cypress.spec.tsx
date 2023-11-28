@@ -26,31 +26,31 @@ dayjs.extend(LocalizedFormat);
 const columns = [
   {
     id: 'status',
-    label: Columns.status
+    label: Columns.Status
   },
   {
     id: 'token_name',
-    label: Columns.name
+    label: Columns.Name
   },
   {
     id: 'creation_date',
-    label: Columns.creationDate
+    label: Columns.CreationDate
   },
   {
     id: 'expiration_date',
-    label: Columns.expirationDate
+    label: Columns.ExpirationDate
   },
   {
     id: 'user_name',
-    label: Columns.user
+    label: Columns.User
   },
   {
     id: 'creator_name',
-    label: Columns.creator
+    label: Columns.Creator
   },
   {
     id: 'actions',
-    label: Columns.actions
+    label: Columns.Actions
   }
 ];
 

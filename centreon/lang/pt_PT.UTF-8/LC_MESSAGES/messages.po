@@ -17037,6 +17037,54 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Resource Access Management"
 # msgstr ""
 
+# msgid "Unselect all"
+# msgstr ""
+
+# msgid "Display up to"
+# msgstr ""
+
+# msgid "tiles"
+# msgstr ""
+
+# msgid "You must fill in more resources."
+# msgstr ""
+
+# msgid "All services on this host are working fine."
+# msgstr ""
+
+# msgid "All metrics on this service are working fine."
+# msgstr ""
+
+# msgid "Metric name"
+# msgstr ""
+
+# msgid "Status grid"
+# msgstr ""
+
+# msgid "Displays a status overview for selected resources."
+# msgstr ""
+
+# msgid "Display with this resource type"
+# msgstr ""
+
+# msgid "Display resources with this status"
+# msgstr ""
+
+# msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
+# msgstr ""
+
+# msgid "For a service, the service status is displayed."
+# msgstr ""
+
+# msgid "Display resources with this state"
+# msgstr ""
+
+# msgid "Sort by"
+# msgstr ""
+
+# msgid "See more on the Resources Status page"
+# msgstr ""
+
 # msgid "You are not allowed to log in"
 # msgstr ""
 
@@ -17052,7 +17100,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are not allowed to list media"
 # msgstr ""
 
-# msgid "Api token"
+# msgid "API token"
 # msgstr ""
 
 # msgid "Create new token"

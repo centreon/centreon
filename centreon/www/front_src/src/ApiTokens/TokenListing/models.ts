@@ -18,8 +18,8 @@ export interface UseTokenListing {
   refetch: (
     options?: RefetchOptions | undefined
   ) => Promise<QueryObserverResult<unknown, Error>>;
-  sortField: Fields;
   sortOrder: SortOrder;
+  sortedField: Fields;
 }
 
 export interface PersonalInformation {

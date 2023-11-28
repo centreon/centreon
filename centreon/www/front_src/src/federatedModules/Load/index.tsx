@@ -39,7 +39,8 @@ export const Remote = ({
   const Component = useMemo(
     () =>
       lazy(() =>
-        equals(window.Cypress?.testingType, 'component')
+        equals(window.Cypress?.testingType, 'component') &&
+        process.env.NODE_ENV !== 'production'
           ? import(`www/widgets/src/${moduleFederationName}`)
           : importRemote({
               bustRemoteEntryCache: false,
