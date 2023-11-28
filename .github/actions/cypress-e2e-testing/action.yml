@@ -72,7 +72,7 @@ runs:
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
 
     - name: Rename JSON report
-      if : ${{ always() }}
+      if : always()
       run: |
         feature_name=$(basename "${{ inputs.feature_file_path }}")
         report_path="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json"
