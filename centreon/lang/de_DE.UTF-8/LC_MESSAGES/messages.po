@@ -16251,7 +16251,7 @@ msgstr "Erweiterter Modus"
 # msgid "Resource Access Management"
 # msgstr ""
 
-# msgid "You must add resources to filter on a single metric."
+# msgid "Refine your filter on a single metric by adding more resources."
 # msgstr ""
 
 # msgid "Unselect all"
