@@ -2,6 +2,6 @@ SharePlaylist:
   methods: PUT
   path: /configuration/dashboards/playlists/{playlistId}/shares
   requirements:
-    dashboardId: '\d+'
+    playlistId: '\d+'
   controller: 'Core\Dashboard\Playlist\Infrastructure\API\SharePlaylist\SharePlaylistController'
   condition: "request.attributes.get('version') >= 23.10"
