@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON-24865
+@REQ_MON-21276
 Feature: Create and Manage Basic API Token
 
   As an administrator
@@ -12,7 +12,8 @@ Feature: Create and Manage Basic API Token
 
   Scenario Outline: Create Basic API Token with Required Fields
     When I click on the "Create new token" button
-    And I fill in the following required fields:
+    And I fill in the following required fields
+    Examples:
       | Field     | Value                  |
       | Name      | [Enter token name]     |
       | User      | [Enter linked user]    |
