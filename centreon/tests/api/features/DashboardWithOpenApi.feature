@@ -1722,6 +1722,7 @@ Feature:
         {
           "id": 26,
           "name": "Centreon-Server_Ping",
+          "uuid": "h14-s26",
           "metrics": [
             {
               "id": 1,
@@ -1823,6 +1824,7 @@ Feature:
         {
           "id": 26,
           "name": "Centreon-Server_Ping",
+          "uuid": "h14-s26"
           "metrics": [
             {
               "id": 1,
