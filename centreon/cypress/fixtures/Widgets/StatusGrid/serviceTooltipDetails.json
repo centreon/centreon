@@ -1,0 +1,12 @@
+[
+  {
+    "id": 5,
+    "name": "rta",
+    "unit": "ms",
+    "current_value": 1,
+    "warning_high_threshold": 0.1,
+    "warning_low_threshold": 0,
+    "critical_high_threshold": 2,
+    "critical_low_threshold": 0
+  }
+]

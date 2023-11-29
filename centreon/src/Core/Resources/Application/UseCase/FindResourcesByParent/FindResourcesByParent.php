@@ -44,6 +44,7 @@ final class FindResourcesByParent
 
     private string $searchProvided = '';
 
+    /** @var array<mixed> */
     private array $sortProvided = [];
 
     /**

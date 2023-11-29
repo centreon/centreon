@@ -366,11 +366,13 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             <<<SQL
                 DELETE FROM `:db`.notification_sg_relation
                 WHERE sg_id IN ({$serviceGroupsIds})
+                AND notification_id = :notificationId
                 SQL
         ));
         foreach ($bindValues as $token => $resourceId) {
             $deleteStatement->bindValue($token, $resourceId, \PDO::PARAM_INT);
         }
+        $deleteStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $deleteStatement->execute();
     }
 
