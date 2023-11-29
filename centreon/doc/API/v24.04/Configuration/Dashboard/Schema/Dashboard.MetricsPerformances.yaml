@@ -8,6 +8,10 @@ properties:
     type: string
     description: concatenation of host name and service name
     example: Printers_Ping
+  uuid:
+    type: string
+    description: UUID of the resource
+    example: h24-s16
   metrics:
     type: array
     items:

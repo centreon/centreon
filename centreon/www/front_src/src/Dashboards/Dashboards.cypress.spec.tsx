@@ -258,7 +258,7 @@ describe('Dashboards', () => {
     cy.waitForRequest('@postDashboards');
     cy.url().should(
       'equal',
-      'http://localhost:9092/home/dashboards/1?edit=true'
+      'http://localhost:9092/home/dashboards/library/1?edit=true'
     );
   });
 

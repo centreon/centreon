@@ -58,8 +58,8 @@ const Graph = ({
     refreshIntervalCustom
   });
 
-  const metricId = metrics[0]?.metrics[0]?.id;
-  const metricName = metrics[0]?.metrics[0]?.name;
+  const metricId = metrics[0]?.id;
+  const metricName = metrics[0]?.name;
 
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
@@ -74,7 +74,7 @@ const Graph = ({
   const formattedThresholds = useThresholds({
     data: graphData,
     displayAsRaw,
-    metricName: metrics[0]?.metrics[0]?.name,
+    metricName,
     thresholds: threshold
   });
 
