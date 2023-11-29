@@ -131,7 +131,7 @@ class PlaylistException extends \Exception
      */
     public static function playlistNotSharedAsEditor(int $playlistId): self
     {
-        return new self(sprintf(_("You do not have editing rights on the following playlist: [%d]."), $playlistId));
+        return new self(sprintf(_('You do not have editing rights on the following playlist: [%d].'), $playlistId));
     }
 
     /**
@@ -141,7 +141,7 @@ class PlaylistException extends \Exception
      */
     public static function contactsDontExist(array $userIds): self
     {
-        return new self(sprintf(_("The following contact does not exist: [%s]"), implode(', ', $userIds)));
+        return new self(sprintf(_('The following contact does not exist: [%s]'), implode(', ', $userIds)));
     }
 
     /**
@@ -151,7 +151,7 @@ class PlaylistException extends \Exception
      */
     public static function contactGroupsDontExist(array $contactGroupIds): self
     {
-        return new self(sprintf(_("The following contact group does not exist: [%s]"), implode(', ', $contactGroupIds)));
+        return new self(sprintf(_('The following contact group does not exist: [%s]'), implode(', ', $contactGroupIds)));
     }
 
     /**
