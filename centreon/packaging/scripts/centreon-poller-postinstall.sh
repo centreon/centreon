@@ -21,10 +21,10 @@ manageUsersAndGroups() {
 updateEngineBrokerConfigurationRights() {
   echo "Fixing rights of centreon engine and broker configuration files ..."
   if [ -d /etc/centreon-broker ]; then
-    chown -R centreon-broker:centreon-broker /etc/centreon-broker/*
+    chmod -R g+w /etc/centreon-broker
   fi
   if [ -d /etc/centreon-engine ]; then
-    chown -R centreon-engine:centreon-engine /etc/centreon-engine/*
+    chmod -R g+w /etc/centreon-engine
   fi
 }
 
