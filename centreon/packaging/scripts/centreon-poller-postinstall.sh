@@ -1,6 +1,7 @@
 #!/bin/bash
 
 manageUsersAndGroups() {
+  echo "Managing users and groups for centreon..."
   if [ "$1" = "rpm" ]; then
     usermod centreon-engine -a -G centreon,nagios,centreon-broker
     usermod centreon-broker -a -G centreon,nagios
@@ -18,24 +19,17 @@ manageUsersAndGroups() {
 }
 
 updateEngineBrokerConfigurationRights() {
-  if [ "$1" = "rpm" ]; then
-    if [ -d /etc/centreon-broker ]; then
-      chown -R apache:apache /etc/centreon-broker/*
-    fi
-    if [ -d /etc/centreon-engine ]; then
-      chown -R apache:apache /etc/centreon-engine/*
-    fi
-  else
-    if [ -d /etc/centreon-broker ]; then
-      chown -R www-data:www-data /etc/centreon-broker/*
-    fi
-    if [ -d /etc/centreon-engine ]; then
-      chown -R www-data:www-data /etc/centreon-engine/*
-    fi
+  echo "Fixing rights of centreon engine and broker configuration files..."
+  if [ -d /etc/centreon-broker ]; then
+    chown -R centreon-broker:centreon-broker /etc/centreon-broker/*
+  fi
+  if [ -d /etc/centreon-engine ]; then
+    chown -R centreon-engine:centreon-engine /etc/centreon-engine/*
   fi
 }
 
 updateSnmpConfiguration() {
+  echo "Updating snmpd configuration to allow OIDs from .1.3.6.1..."
   sed -i \
     -e "/^view.*\.1\.3\.6\.1\.2\.1\.1$/i\
 view centreon included .1.3.6.1" \
@@ -61,12 +55,12 @@ fi
 case "$action" in
   "1" | "install")
     manageUsersAndGroups $package_type
-    updateEngineBrokerConfigurationRights $package_type
+    updateEngineBrokerConfigurationRights
     updateSnmpConfiguration
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
-    updateEngineBrokerConfigurationRights $package_type
+    updateEngineBrokerConfigurationRights
     ;;
   *)
     # $1 == version being installed

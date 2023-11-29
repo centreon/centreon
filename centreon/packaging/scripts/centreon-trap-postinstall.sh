@@ -2,6 +2,7 @@
 
 updateConfiguration() {
   if [ -f /etc/snmp/snmptrapd.conf ]; then
+    echo "Updating snmptrapd configuration to handle trap by centreontrapdforward..."
     grep disableAuthorization /etc/snmp/snmptrapd.conf &>/dev/null && \
       sed -i -e "s/disableAuthorization .*/disableAuthorization yes/g" /etc/snmp/snmptrapd.conf
     grep disableAuthorization /etc/snmp/snmptrapd.conf &>/dev/null || \

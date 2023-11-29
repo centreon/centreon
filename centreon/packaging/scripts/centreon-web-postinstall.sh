@@ -1,6 +1,7 @@
 #!/bin/bash
 
 manageUsersAndGroups() {
+  echo "Managing users and groups for apache..."
   if [ "$1" = "rpm" ]; then
     usermod apache -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
     usermod nagios -a -G apache
@@ -19,31 +20,24 @@ updateConfigurationFiles() {
   sed -i -E "s/0\s0(.*)centreon\-send\-stats\.php(.*)/$MIN $HOUR\1centreon-send-stats.php\2/" /etc/cron.d/centreon
 
   # Create HASH secret for Symfony application
+  echo "Updating APP_SECRET in centreon environment file..."
   REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
 
+  echo "Updating centreon perl configuration files to central mode..."
   sed -i -e "s/\$instance_mode = \"poller\";/\$instance_mode = \"central\";/g" /etc/centreon/conf.pm
   sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
-}
-
-updateEngineBrokerRights() {
-  # Change right for Centreon Engine and Centreon Broker configuration files
-  if [ -d /etc/centreon-broker ] && [ "$(getent passwd centreon-broker)" ]; then
-      chown centreon-broker:centreon /etc/centreon-broker/*
-  fi
-  if [ -d /etc/centreon-engine ] && [ "$(getent passwd centreon-engine)" ]; then
-      chown centreon-engine:centreon /etc/centreon-engine/*
-  fi
 }
 
 setTimezone() {
   PHP_TIMEZONE=$(php -r '
     $timezoneName = timezone_name_from_abbr(trim(shell_exec("date \"+%Z\"")));
     if (date_default_timezone_set($timezoneName) === false) {
-      $timezoneName = "UTC";1
+      $timezoneName = "UTC";
     }
     echo $timezoneName;
   ' 2>/dev/null || echo "UTC")
 
+  echo "Setting php timezone to ${PHP_TIMEZONE}..."
   if [ "$1" = "rpm" ]; then
     sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php.d/50-centreon.ini
   else
@@ -54,13 +48,15 @@ setTimezone() {
 updateGorgoneConfiguration() {
   # make sure that gorgone configuration file has the central id set
   if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml && ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
-      sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+    echo "Forcing central id to gorgone configuration..."
+    sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
   fi
 }
 
 manageLocales() {
   if [ "$1" = "deb" ]; then
     # Set locales on system to use in translation
+    echo "Generating locales for Centreon translation..."
     sed -i \
         -e '/^#.* en_US.UTF-8 /s/^#//' \
         -e '/^#.* fr_FR.UTF-8 /s/^#//' \
@@ -72,15 +68,14 @@ manageLocales() {
   fi
 }
 
-restartApacheAndPhpFpm() {
+manageApacheAndPhpFpm() {
+  echo "Managing apache and php fpm configuration and services..."
   if [ "$1" = "rpm" ]; then
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
     update-alternatives --set php /usr/bin/php8.1
-    a2dismod php8.0 > /dev/null 2>&1 || :
-    a2enmod headers > /dev/null 2>&1 || :
-    a2enmod proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
     a2enconf php8.1-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
@@ -90,6 +85,7 @@ restartApacheAndPhpFpm() {
 }
 
 rebuildSymfonyCache() {
+  echo "Rebuilding Centreon application cache..."
   rm -rf /var/cache/centreon/symfony
 
   if [ "$1" = "rpm" ]; then
@@ -119,15 +115,14 @@ case "$action" in
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
-    restartApacheAndPhpFpm $package_type
+    manageApacheAndPhpFpm $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
-    restartApacheAndPhpFpm $package_type
-    updateEngineBrokerRights
+    manageApacheAndPhpFpm $package_type
     rebuildSymfonyCache $package_type
     ;;
   *)

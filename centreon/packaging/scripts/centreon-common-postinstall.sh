@@ -2,6 +2,7 @@
 
 # force 2775 to cache config directories
 fixCacheConfigRights() {
+  echo "Forcing rights of centreon cache directories..."
   chmod 2775 /var/cache/centreon/config
   chmod 2775 /var/cache/centreon/config/engine
   chmod 2775 /var/cache/centreon/config/broker
