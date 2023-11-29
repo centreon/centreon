@@ -1824,7 +1824,7 @@ Feature:
         {
           "id": 26,
           "name": "Centreon-Server_Ping",
-          "uuid": "h14-s26"
+          "uuid": "h14-s26",
           "metrics": [
             {
               "id": 1,
