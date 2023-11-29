@@ -4,7 +4,7 @@ import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../../commons';
-import { restartWebServer, updateWebServerConfig } from '../common';
+import { reloadWebServer, updateWebServerConfig } from '../common';
 
 const service = 'Ping';
 const host = 'Centreon-Server';
@@ -40,7 +40,24 @@ When(
 );
 
 When('I reload the web server', () => {
-  restartWebServer();
+  reloadWebServer();
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .request({
+          failOnStatusCode: false,
+          method: 'GET',
+          url: '/monitor'
+        })
+        .then((response) => {
+          return /^[2-3]\d{2}/.test(response.status.toString());
+        });
+    },
+    {
+      timeout: 10000
+    }
+  );
 });
 
 Then('I can authenticate to the centreon platform', () => {

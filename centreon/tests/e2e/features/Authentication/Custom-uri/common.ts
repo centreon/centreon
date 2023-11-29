@@ -1,13 +1,13 @@
-const restartWebServer = (): Cypress.Chainable => {
+const reloadWebServer = (): Cypress.Chainable => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     return cy.execInContainer({
-      command: 'systemctl restart httpd',
+      command: 'systemctl reload httpd',
       name: Cypress.env('dockerName')
     });
   }
 
   return cy.execInContainer({
-    command: 'systemctl restart apache2',
+    command: 'systemctl reload apache2',
     name: Cypress.env('dockerName')
   });
 };
@@ -31,4 +31,4 @@ const updateWebServerConfig = (): Cypress.Chainable => {
   });
 };
 
-export { restartWebServer, updateWebServerConfig };
+export { reloadWebServer, updateWebServerConfig };
