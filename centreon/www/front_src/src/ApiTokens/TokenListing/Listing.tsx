@@ -1,21 +1,27 @@
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import Divider from '@mui/material/Divider';
 
 import { MemoizedListing as TokenListing } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
+import TokenCreationButton from '../TokenCreation';
+import CreateTokenDialog from '../TokenCreation/CreateTokenDialog';
+import { isCreateTokenAtom } from '../TokenCreation/atoms';
 import { labelApiToken } from '../translatedLabels';
 
 import Actions from './Actions';
 import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
+import Title from './Title';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
-import Title from './Title';
 
 const Listing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+  const isCreateToken = useAtomValue(isCreateTokenAtom);
   const {
     dataListing,
     changePage,
@@ -34,14 +40,15 @@ const Listing = (): JSX.Element | null => {
   }
 
   return (
+    // <FormikProvider value={formik}>
     <div className={classes.container}>
       <Title msg={t(labelApiToken)} />
       <Divider className={classes.divider} />
-
       <TokenListing
         innerScrollDisabled
         actions={
           <Actions
+            buttonCreateToken={<TokenCreationButton />}
             refresh={
               <Refresh isLoading={dataListing?.isLoading} onRefresh={refetch} />
             }
@@ -64,7 +71,9 @@ const Listing = (): JSX.Element | null => {
         onSelectColumns={onSelectColumns}
         onSort={onSort}
       />
+      {isCreateToken && <CreateTokenDialog />}
     </div>
+    // </FormikProvider>
   );
 };
 export default Listing;
