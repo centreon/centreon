@@ -109,6 +109,7 @@ Feature:
     """
     And the configuration is generated and exported
     And I wait until host "host_test" is monitored
+    And I wait until hostgroup "hostgroup_test" is monitored
     And I add a filter linked to hostgroup "hostgroup_test"
 
     When the following CLAPI import data:
