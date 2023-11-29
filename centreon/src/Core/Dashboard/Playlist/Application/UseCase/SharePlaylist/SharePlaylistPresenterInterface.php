@@ -21,36 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Playlist\Application\Repository;
+namespace Core\Dashboard\Playlist\Application\UseCase\SharePlaylist;
 
-use Core\Dashboard\Playlist\Domain\Model\Playlist;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface ReadPlaylistRepositoryInterface
+interface SharePlaylistPresenterInterface
 {
-    /**
-     * Find a playlist.
-     *
-     * @param int $playlistId
-     *
-     * @return Playlist|null
-     */
-    public function find(int $playlistId): ?Playlist;
-
-    /**
-     * Check if a playlist exists with given name.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function existsByName(string $name): bool;
-
-    /**
-     * Check if a playlist exists with given id.
-     *
-     * @param int $playlistId
-     *
-     * @return bool
-     */
-    public function exists(int $playlistId): bool;
+    public function presentResponse(ResponseStatusInterface $response): void;
 }

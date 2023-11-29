@@ -21,33 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Configuration\User\Repository;
+namespace Core\Dashboard\Playlist\Application\Repository;
 
-use Core\Domain\Configuration\User\Model\User;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 
-/**
- * @phpstan-import-type _UserRecord from DbReadUserRepository
- */
-class DbUserFactory
+interface ReadPlaylistShareRepositoryInterface
 {
     /**
-     * @param _UserRecord $user
+     * Check if a user is editor on a playlist.
      *
-     * @throws \Assert\AssertionFailedException
+     * @param int $playlistId
+     * @param ContactInterface $contact
      *
-     * @return User
+     * @return bool
      */
-    public static function createFromRecord(array $user): User
-    {
-        return new User(
-            (int) $user['contact_id'],
-            $user['contact_alias'],
-            $user['contact_name'],
-            $user['contact_email'],
-            $user['contact_admin'] === '1',
-            $user['contact_theme'],
-            $user['user_interface_density'],
-            $user['user_can_reach_frontend'] === '1'
-        );
-    }
+    public function existsAsEditor(int $playlistId, ContactInterface $contact): bool;
 }
