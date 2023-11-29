@@ -181,7 +181,7 @@ Then('the user is on the dashboards overview page', () => {
     .invoke('split', '/')
     .should('not.be.empty')
     .then(last)
-    .should('eq', 'dashboards'); // dashboards overview
+    .should('eq', 'library'); // dashboards overview
 });
 
 When(
