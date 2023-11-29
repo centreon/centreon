@@ -1,17 +1,17 @@
 {
 	"info": {
 		"_postman_id": "7a4a5e81-a3a7-4855-9383-885e133c3408",
-		"name": "2 - Local Authentication",
+		"name": "02 - Local Authentication",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7a4a5e81-a3a7-4855-9383-885e133c3408?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7a4a5e81-a3a7-4855-9383-885e133c3408?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "Successful login with admin",
+			"name": "0201 - Successful login with admin",
 			"item": [
 				{
-					"name": "Successful login with admin user",
+					"name": "Login with admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -59,7 +59,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a non-admin user",
+					"name": "Add a non-admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -111,7 +111,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api parameters",
+					"name": "Add reach_api parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -162,7 +162,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api_rt parameters",
+					"name": "Add reach_api_rt parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -213,7 +213,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user",
+					"name": "Logout from admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -293,10 +293,10 @@
 			]
 		},
 		{
-			"name": "Wrong credentials for admin once",
+			"name": "0202 - Wrong credentials for admin once",
 			"item": [
 				{
-					"name": "Error of credentials for admin once",
+					"name": "Wrong credentials for admin once (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -343,10 +343,10 @@
 			]
 		},
 		{
-			"name": "Successful login with admin after 1 wrong",
+			"name": "0203 - Successful login with admin after 1 wrong",
 			"item": [
 				{
-					"name": "Successful login with admin user after 1 wrong",
+					"name": "Login with admin user after 1 wrong (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -394,7 +394,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user",
+					"name": "Logout from admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -474,21 +474,37 @@
 			]
 		},
 		{
-			"name": "Wrong credentials for admin multiple times",
+			"name": "0204 - Wrong credentials for admin multiple times",
 			"item": [
 				{
-					"name": "First attempt",
+					"name": "Wrong password multiple times with admin (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"const maxNumberOfTries = 5; \r",
+									"\r",
 									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
 									"    pm.response.to.have.status(401);\r",
-									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"if (!pm.environment.get(\"tries\")) {\r",
+									"    pm.environment.set(\"tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.environment.get(\"tries\") < maxNumberOfTries)) {\r",
+									"    const tries = parseInt(pm.environment.get(\"tries\"), 10);\r",
+									"    pm.environment.set(\"tries\", tries + 1);\r",
+									"    postman.setNextRequest(\"Wrong password multiple times with admin (error)\");\r",
+									"} else {\r",
+									"    pm.environment.unset(\"tries\");\r",
+									"    postman.setNextRequest(\"Correct password but admin is blocked (error)\");\r",
+									"}\r",
+									"\r",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -522,187 +538,7 @@
 					"response": []
 				},
 				{
-					"name": "Second attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Third attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Fourth attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Fifth attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Correct password but admin is blocked",
+					"name": "Correct password but admin is blocked (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -749,10 +585,10 @@
 			]
 		},
 		{
-			"name": "Wrong credentials for user once",
+			"name": "0205 - Wrong credentials for user once",
 			"item": [
 				{
-					"name": "Error of credentials for user once",
+					"name": "Wrong credentials for user once (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -799,10 +635,10 @@
 			]
 		},
 		{
-			"name": "Successful login with user after 1 wrong",
+			"name": "0206 - Successful login with user after 1 wrong",
 			"item": [
 				{
-					"name": "Successful login with user after 1 wrong",
+					"name": "Login with user after 1 wrong (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -850,7 +686,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user",
+					"name": "Logout from user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -930,21 +766,37 @@
 			]
 		},
 		{
-			"name": "Wrong credentials for user multiple times",
+			"name": "0207 - Wrong credentials for user multiple times",
 			"item": [
 				{
-					"name": "First attempt",
+					"name": "Wrong password multiple times with user (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"const maxNumberOfTries = 5; \r",
+									"\r",
 									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
 									"    pm.response.to.have.status(401);\r",
-									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"if (!pm.environment.get(\"tries\")) {\r",
+									"    pm.environment.set(\"tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.environment.get(\"tries\") < maxNumberOfTries)) {\r",
+									"    const tries = parseInt(pm.environment.get(\"tries\"), 10);\r",
+									"    pm.environment.set(\"tries\", tries + 1);\r",
+									"    postman.setNextRequest(\"Wrong password multiple times with user (error)\");\r",
+									"} else {\r",
+									"    pm.environment.unset(\"tries\");\r",
+									"    postman.setNextRequest(\"Correct password but user is blocked (error)\");\r",
+									"}\r",
+									"\r",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -978,187 +830,7 @@
 					"response": []
 				},
 				{
-					"name": "Second attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Third attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Fourth attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Fifth attempt",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Error while log in. The credentials are incorrects.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"bad_password\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Correct password but user is blocked",
+					"name": "Correct password but user is blocked (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -1238,6 +910,12 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_non_admin",
+			"value": ""
 		}
 	]
 }

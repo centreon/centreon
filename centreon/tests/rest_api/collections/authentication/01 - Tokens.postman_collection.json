@@ -1,17 +1,17 @@
 {
 	"info": {
 		"_postman_id": "a14087e9-4fe4-4fb5-b449-5c6853c10f44",
-		"name": "1 - Tokens",
+		"name": "01 - Tokens",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-a14087e9-4fe4-4fb5-b449-5c6853c10f44?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "Log in as Admin  ",
+			"name": "0101 - Log in as Admin",
 			"item": [
 				{
-					"name": "Login with admin user",
+					"name": "Login with admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -61,10 +61,10 @@
 			]
 		},
 		{
-			"name": "user_with_menu_action  ",
+			"name": "0102 - user_with_menu_action",
 			"item": [
 				{
-					"name": "Add user_with_menu_action",
+					"name": "Add user_with_menu_action (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -116,7 +116,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api parameters",
+					"name": "Add reach_api parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -167,7 +167,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api_rt parameters",
+					"name": "Add reach_api_rt parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -218,7 +218,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Group Menu_Action_TOKEN",
+					"name": "Create ACL Group Menu_Action_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -269,7 +269,7 @@
 					"response": []
 				},
 				{
-					"name": "Link user to Menu_Action_TOKEN",
+					"name": "Link user to Menu_Action_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -320,7 +320,7 @@
 					"response": []
 				},
 				{
-					"name": "Link resources to Menu_Action_TOKEN",
+					"name": "Link resources to Menu_Action_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -371,7 +371,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Menu TOKENS",
+					"name": "Create ACL Menu TOKENS (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -422,7 +422,7 @@
 					"response": []
 				},
 				{
-					"name": "Grant RW right TOKENS",
+					"name": "Grant RW right TOKENS (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -473,7 +473,7 @@
 					"response": []
 				},
 				{
-					"name": "Link Menu_Action_TOKEN to TOKENS",
+					"name": "Link Menu_Action_TOKEN to TOKENS (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -524,7 +524,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Action Menu_Action_TOKEN",
+					"name": "Create ACL Action Menu_Action_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -575,7 +575,7 @@
 					"response": []
 				},
 				{
-					"name": "Grant manage token action in Menu_Action_TOKEN",
+					"name": "Grant manage token action in Menu_Action_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -626,7 +626,7 @@
 					"response": []
 				},
 				{
-					"name": "Link Menu_Action_TOKEN to Menu_Action_TOKEN",
+					"name": "Link Menu_Action_TOKEN to Menu_Action_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -679,10 +679,10 @@
 			]
 		},
 		{
-			"name": "user_with_menu  ",
+			"name": "0103 - user_with_menu",
 			"item": [
 				{
-					"name": "Add user_with_menu",
+					"name": "Add user_with_menu (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -734,7 +734,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api parameters",
+					"name": "Add reach_api parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -785,7 +785,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api_rt parameters",
+					"name": "Add reach_api_rt parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -836,7 +836,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Group Menu_TOKEN",
+					"name": "Create ACL Group Menu_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -887,7 +887,7 @@
 					"response": []
 				},
 				{
-					"name": "Link user to Menu_TOKEN",
+					"name": "Link user to Menu_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -938,7 +938,7 @@
 					"response": []
 				},
 				{
-					"name": "Link resources to Menu_TOKEN",
+					"name": "Link resources to Menu_TOKEN (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -989,7 +989,7 @@
 					"response": []
 				},
 				{
-					"name": "Link Menu_Action_TOKEN to TOKENS  ",
+					"name": "Link Menu_Action_TOKEN to TOKENS (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1042,10 +1042,10 @@
 			]
 		},
 		{
-			"name": "user_nothing  ",
+			"name": "0104 - user_no_access",
 			"item": [
 				{
-					"name": "Add user_nothing_Token",
+					"name": "Add user_no_access_Token (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1062,8 +1062,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_Nothing_Token\", \"user_nothing_Token\");\r",
-									"pm.collectionVariables.set(\"api_password_user_Nothing_Token\", \"Centreon!123\");"
+									"pm.collectionVariables.set(\"api_login_user_no_access_Token\", \"user_no_access_Token\");\r",
+									"pm.collectionVariables.set(\"api_password_user_no_access_Token\", \"Centreon!123\");"
 								],
 								"type": "text/javascript"
 							}
@@ -1080,7 +1080,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing_Token}};{{api_login_user_Nothing_Token}};{{api_login_user_Nothing_Token}}@localhost;{{api_password_user_Nothing_Token}};0;1;en_US;local\"\r\n}",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_no_access_Token}};{{api_login_user_no_access_Token}};{{api_login_user_no_access_Token}}@localhost;{{api_password_user_no_access_Token}};0;1;en_US;local\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1097,7 +1097,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api parameters",
+					"name": "Add reach_api parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1131,7 +1131,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing_Token}};reach_api;1\"\r\n}",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_no_access_Token}};reach_api;1\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1148,7 +1148,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api_rt parameters",
+					"name": "Add reach_api_rt parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1182,7 +1182,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing_Token}};reach_api_rt;1\"\r\n}",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_no_access_Token}};reach_api_rt;1\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1199,7 +1199,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Group Nothing",
+					"name": "Create ACL Group no_access (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1233,7 +1233,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing_Token;Nothing_Token\"\r\n}",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"no_access_Token;no_access_Token\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1250,7 +1250,7 @@
 					"response": []
 				},
 				{
-					"name": "Link user to Nothing",
+					"name": "Link user to no_access (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1284,7 +1284,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing_Token;{{api_login_user_Nothing_Token}}\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"no_access_Token;{{api_login_user_no_access_Token}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1301,7 +1301,7 @@
 					"response": []
 				},
 				{
-					"name": "Link resources to Nothing",
+					"name": "Link resources to no_access (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1335,7 +1335,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing_Token;All Resources\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"no_access_Token;All Resources\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1352,7 +1352,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Menu Nothing",
+					"name": "Create ACL Menu no_access (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1386,7 +1386,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"Nothing_Token;Nothing_Token\"\r\n}",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"no_access_Token;no_access_Token\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1403,7 +1403,7 @@
 					"response": []
 				},
 				{
-					"name": "Link Nothing to Nothing",
+					"name": "Link no_access to no_access (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1437,7 +1437,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing_Token;Nothing_Token\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"no_access_Token;no_access_Token\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1456,10 +1456,10 @@
 			]
 		},
 		{
-			"name": "By Admin",
+			"name": "0105 - By Admin",
 			"item": [
 				{
-					"name": "Login with admin user",
+					"name": "Login with admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1507,7 +1507,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve users ID",
+					"name": "Retrieve users ID (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1525,8 +1525,8 @@
 									"    if(responseJson.result[i].name === \"user_with_menu\"){\r",
 									"        pm.collectionVariables.set(\"User_Menu_Id\", responseJson.result[i].id);\r",
 									"    }\r",
-									"    if(responseJson.result[i].name === \"user_nothing_Token\"){\r",
-									"        pm.collectionVariables.set(\"User_Nothing_Id\", responseJson.result[i].id);\r",
+									"    if(responseJson.result[i].name === \"user_no_access_Token\"){\r",
+									"        pm.collectionVariables.set(\"User_no_access_Id\", responseJson.result[i].id);\r",
 									"    }\r",
 									"}"
 								],
@@ -1557,7 +1557,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve users Name",
+					"name": "Retrieve users Name (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1575,8 +1575,8 @@
 									"    if(responseJson.result[i].name === \"user_with_menu\"){\r",
 									"        pm.collectionVariables.set(\"User_Menu_Name\", responseJson.result[i].name);\r",
 									"    }\r",
-									"    if(responseJson.result[i].name === \"user_nothing_Token\"){\r",
-									"        pm.collectionVariables.set(\"User_Nothing_Name\", responseJson.result[i].name);\r",
+									"    if(responseJson.result[i].name === \"user_no_access_Token\"){\r",
+									"        pm.collectionVariables.set(\"User_no_access_Name\", responseJson.result[i].name);\r",
 									"    }\r",
 									"}"
 								],
@@ -1607,7 +1607,7 @@
 					"response": []
 				},
 				{
-					"name": "Create token by admin for admin",
+					"name": "Create token by admin for admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1671,7 +1671,7 @@
 					"response": []
 				},
 				{
-					"name": "List tokens",
+					"name": "List tokens after first token creation (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1809,7 +1809,7 @@
 					"response": []
 				},
 				{
-					"name": "List tokens",
+					"name": "List tokens after second token creation (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1893,7 +1893,7 @@
 					"response": []
 				},
 				{
-					"name": "Create token by admin for User_Menu_Action",
+					"name": "Create token by admin for User_Menu_Action (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1957,7 +1957,7 @@
 					"response": []
 				},
 				{
-					"name": "List tokens",
+					"name": "List tokens after third token creation (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2051,7 +2051,7 @@
 					"response": []
 				},
 				{
-					"name": "Create token with duplicated name",
+					"name": "Create token with duplicated name (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -2102,7 +2102,7 @@
 					"response": []
 				},
 				{
-					"name": "Create token without name",
+					"name": "Create token without name (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -2149,7 +2149,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete someone else token without complete endpoint",
+					"name": "Delete someone else token without complete endpoint (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -2196,7 +2196,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete token",
+					"name": "Delete someone else token with complete endpoint (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2243,7 +2243,7 @@
 					"response": []
 				},
 				{
-					"name": "List tokens",
+					"name": "List tokens after deletion by admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2327,7 +2327,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user",
+					"name": "Logout from admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2407,10 +2407,10 @@
 			]
 		},
 		{
-			"name": "By User with Menu",
+			"name": "0106 - By User with Menu",
 			"item": [
 				{
-					"name": "Login with user with menu",
+					"name": "Login with user with menu (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2458,7 +2458,7 @@
 					"response": []
 				},
 				{
-					"name": "Create token by User_Menu for User_Menu",
+					"name": "Create token by User_Menu for User_Menu (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2533,7 +2533,7 @@
 									"pm.test(\"The token has not been created because the user does not have the rights to manage token for others.\", function () {\r",
 									"    pm.response.to.have.status(409);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add tokens linked to user ID \" + pm.collectionVariables.get(\"User_Nothing_Id\"));\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add tokens linked to user ID \" + pm.collectionVariables.get(\"User_no_access_Id\"));\r",
 									"});\r",
 									""
 								],
@@ -2549,7 +2549,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-third-token-by-user-menu-for-nothing\",\r\n  \"user_id\": {{User_Nothing_Id}},\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-user-menu-for-no_access\",\r\n  \"user_id\": {{User_no_access_Id}},\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2570,7 +2570,7 @@
 					"response": []
 				},
 				{
-					"name": "List tokens",
+					"name": "List tokens after fourth token creation (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2648,7 +2648,7 @@
 					"response": []
 				},
 				{
-					"name": "Deletion of User_Menu token by User_Menu",
+					"name": "Deletion of User_Menu token by User_Menu (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2693,7 +2693,7 @@
 					"response": []
 				},
 				{
-					"name": "Deletion Admin token without manage tokens rights",
+					"name": "Deletion Admin token without manage tokens rights (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -2744,7 +2744,7 @@
 					"response": []
 				},
 				{
-					"name": "List tokens",
+					"name": "List tokens after deletion by user with menu (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2812,7 +2812,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user with menu",
+					"name": "Logout from user with menu (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2892,10 +2892,10 @@
 			]
 		},
 		{
-			"name": "By User with No Access",
+			"name": "0107 - By User with No Access",
 			"item": [
 				{
-					"name": "Login with user with no access",
+					"name": "Login with user with no access (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2904,7 +2904,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Nothing_Token'));\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_no_access_Token'));\r",
 									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
@@ -2923,7 +2923,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Nothing_Token}}\",\r\n      \"password\": \"{{api_password_user_Nothing_Token}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_no_access_Token}}\",\r\n      \"password\": \"{{api_password_user_no_access_Token}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2970,7 +2970,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-third-token-by-mr-nothing-for-mr-nothing\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-mr-no_access-for-mr-no_access\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3089,7 +3089,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user with no access",
+					"name": "Logout from user with no access (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3169,10 +3169,10 @@
 			]
 		},
 		{
-			"name": "By User with Menu & Action",
+			"name": "0108 - By User with Menu & Action",
 			"item": [
 				{
-					"name": "Login with user with menu & action",
+					"name": "Login with user with menu & action (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3220,7 +3220,7 @@
 					"response": []
 				},
 				{
-					"name": "Create a token by User_Menu_Action for User_Menu_Action",
+					"name": "Create a token by User_Menu_Action for User_Menu_Action (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3338,7 +3338,7 @@
 					"response": []
 				},
 				{
-					"name": "Create a token bu User_Menu_Action for Admin",
+					"name": "Create a token by User_Menu_Action for Admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3402,7 +3402,7 @@
 					"response": []
 				},
 				{
-					"name": "List tokens",
+					"name": "List tokens after sixth token creation (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3506,7 +3506,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete my token",
+					"name": "Delete my token 5 (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3551,7 +3551,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete the token of someone else",
+					"name": "Delete the token 1 of someone else (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3598,7 +3598,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete the token of someone else",
+					"name": "Delete the token 2 of someone else (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3645,7 +3645,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete the token of someone else  ",
+					"name": "Delete the token 6 of someone else (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3692,7 +3692,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user with menu & action",
+					"name": "Logout from user with menu & action (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3805,84 +3805,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "Admin_Id",
-			"value": ""
-		},
-		{
-			"key": "User_Menu_Action_Id",
-			"value": ""
-		},
-		{
-			"key": "User_Menu_Id",
-			"value": ""
-		},
-		{
-			"key": "User_Nothing_Id",
-			"value": ""
-		},
-		{
-			"key": "Admin_Name",
-			"value": ""
-		},
-		{
-			"key": "User_Menu_Action_Name",
-			"value": ""
-		},
-		{
-			"key": "User_Menu_Name",
-			"value": ""
-		},
-		{
-			"key": "User_Nothing_Name",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_menu_action",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_menu_action",
-			"value": ""
-		},
-		{
-			"key": "Token2Name",
-			"value": ""
-		},
-		{
-			"key": "Token5Name",
-			"value": ""
-		},
-		{
-			"key": "Token6Name",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_menu",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_menu",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Nothing_Token",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Nothing_Token",
-			"value": ""
-		},
-		{
-			"key": "Token1Name",
-			"value": ""
-		},
-		{
-			"key": "Token3Name",
-			"value": ""
 		}
 	]
 }

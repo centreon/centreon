@@ -1,17 +1,17 @@
 {
 	"info": {
 		"_postman_id": "ebcbd1dd-32c1-4290-a61c-b426ec57fffd",
-		"name": "3 - Local Provider Configuration",
+		"name": "03 - Local Provider Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ebcbd1dd-32c1-4290-a61c-b426ec57fffd?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ebcbd1dd-32c1-4290-a61c-b426ec57fffd?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "Update and retrieve Local Provider Configuration information",
+			"name": "0301 - Update and retrieve Local Provider Configuration information",
 			"item": [
 				{
-					"name": "Login with admin user",
+					"name": "Login with admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -59,7 +59,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve Local Provider Configuration information",
+					"name": "Retrieve default Local Provider Configuration information (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -125,7 +125,7 @@
 					"response": []
 				},
 				{
-					"name": "Update Local Provider Configuration informations",
+					"name": "Update Local Provider Configuration informations by admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -170,7 +170,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve Local Provider Configuration information with updated values",
+					"name": "Retrieve Local Provider Configuration information with updated values by admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -235,7 +235,7 @@
 					"response": []
 				},
 				{
-					"name": "Add user with new password policy",
+					"name": "Add user with new password policy (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -291,10 +291,10 @@
 			]
 		},
 		{
-			"name": "Update Local Provider Configuration information with invalid properties",
+			"name": "0302 - Update Local Provider Configuration information with invalid properties",
 			"item": [
 				{
-					"name": "Missing properties during update",
+					"name": "Missing properties during update (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -342,7 +342,7 @@
 					"response": []
 				},
 				{
-					"name": "password_min_length is lower than minimum allowed value",
+					"name": "password_min_length is lower than minimum allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -390,7 +390,7 @@
 					"response": []
 				},
 				{
-					"name": "password_min_length is greater than maximum allowed value",
+					"name": "password_min_length is greater than maximum allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -438,7 +438,7 @@
 					"response": []
 				},
 				{
-					"name": "attemps is lower than allowed value",
+					"name": "attempts is lower than allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -486,7 +486,7 @@
 					"response": []
 				},
 				{
-					"name": "attemps is greater than allowed value",
+					"name": "attempts is greater than allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -534,7 +534,7 @@
 					"response": []
 				},
 				{
-					"name": "blocking duration exceeds the allowed value",
+					"name": "blocking duration exceeds the allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -582,7 +582,7 @@
 					"response": []
 				},
 				{
-					"name": "expiration_delay is lower than the allowed value",
+					"name": "expiration_delay is lower than the allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -630,7 +630,7 @@
 					"response": []
 				},
 				{
-					"name": "expiration_delay is exceeds the allowed value",
+					"name": "expiration_delay is exceeds the allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -678,7 +678,7 @@
 					"response": []
 				},
 				{
-					"name": "delay_before_new_password is lower than the allowed value",
+					"name": "delay_before_new_password is lower than the allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -726,7 +726,7 @@
 					"response": []
 				},
 				{
-					"name": "delay_before_new_password exceeds the allowed value",
+					"name": "delay_before_new_password exceeds the allowed value (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -774,7 +774,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve Local Provider Configuration information with updated values",
+					"name": "Retrieve Local Provider Configuration information after wrong values(successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -841,10 +841,10 @@
 			]
 		},
 		{
-			"name": "Update and retrieve Local Provider Configuration information as logged non-admin user without Reach API rights",
+			"name": "0303 - Update and retrieve Local Provider Configuration information as logged non-admin user without Reach API rights",
 			"item": [
 				{
-					"name": "Add user without reach_api rights",
+					"name": "Add user without reach_api rights (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -895,7 +895,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user",
+					"name": "Logout from admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -973,7 +973,7 @@
 					"response": []
 				},
 				{
-					"name": "Login with user-test",
+					"name": "Login with user-test (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1021,7 +1021,7 @@
 					"response": []
 				},
 				{
-					"name": "Update Local Provider Configuration informations",
+					"name": "Update Local Provider Configuration informations by user without reach_api (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -1066,7 +1066,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve Local Provider Configuration information with updated values",
+					"name": "Retrieve Local Provider Configuration information with updated values by user without reach_api (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -1112,7 +1112,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user-test",
+					"name": "Logout from user-test (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1192,10 +1192,10 @@
 			]
 		},
 		{
-			"name": "Update and retrieve Local Provider Configuration information as logged non-admin user with Reach API rights",
+			"name": "0304 - Update and retrieve Local Provider Configuration information as logged non-admin user with Reach API rights",
 			"item": [
 				{
-					"name": "Login with admin user",
+					"name": "Login with admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1243,7 +1243,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api parameters",
+					"name": "Add reach_api parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1294,7 +1294,7 @@
 					"response": []
 				},
 				{
-					"name": "Link user to ALL",
+					"name": "Link user to ALL (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1345,7 +1345,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Menu",
+					"name": "Create ACL Menu (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1396,7 +1396,7 @@
 					"response": []
 				},
 				{
-					"name": "Grant RW right",
+					"name": "Grant RW right (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1447,7 +1447,7 @@
 					"response": []
 				},
 				{
-					"name": "Link Authentication-user to ALL",
+					"name": "Link Authentication-user to ALL (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1498,7 +1498,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user",
+					"name": "Logout from admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1576,7 +1576,7 @@
 					"response": []
 				},
 				{
-					"name": "Login with user-test",
+					"name": "Login with user-test (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1624,7 +1624,7 @@
 					"response": []
 				},
 				{
-					"name": "Update Local Provider Configuration informations",
+					"name": "Update Local Provider Configuration informations by user with reach_api (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1669,7 +1669,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve Local Provider Configuration information",
+					"name": "Retrieve Local Provider Configuration information by user with rech_api (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1735,7 +1735,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user-test",
+					"name": "Logout from user-test (successful)",
 					"event": [
 						{
 							"listen": "test",

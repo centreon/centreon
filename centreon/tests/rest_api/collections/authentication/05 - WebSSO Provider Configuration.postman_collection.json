@@ -1,17 +1,17 @@
 {
 	"info": {
 		"_postman_id": "f8cadaca-aa3b-4c07-8ae3-2746384946ee",
-		"name": "5 - WebSSO Provider Configuration",
+		"name": "05 - WebSSO Provider Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f8cadaca-aa3b-4c07-8ae3-2746384946ee?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f8cadaca-aa3b-4c07-8ae3-2746384946ee?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "Update and retrieve WebSSO Provider Configuration",
+			"name": "0501 - Update and retrieve WebSSO Provider Configuration",
 			"item": [
 				{
-					"name": "Login with admin user",
+					"name": "Login with admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -59,7 +59,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve WebSSO Provider Configuration information",
+					"name": "Retrieve default WebSSO Provider Configuration information by admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -116,7 +116,7 @@
 					"response": []
 				},
 				{
-					"name": "Update WebSSO Provider Configuration informations",
+					"name": "Update WebSSO Provider Configuration informations by admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -161,7 +161,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve WebSSO Provider Configuration information with updated values",
+					"name": "Retrieve WebSSO Provider Configuration information with updated values by admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -220,10 +220,10 @@
 			]
 		},
 		{
-			"name": "Update WebSSO Provider Configuration with invalid information",
+			"name": "0502 - Update WebSSO Provider Configuration with invalid information",
 			"item": [
 				{
-					"name": "required property missing",
+					"name": "required property missing (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -271,7 +271,7 @@
 					"response": []
 				},
 				{
-					"name": "invalid value type passed to a property",
+					"name": "invalid value type passed to a property (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -319,7 +319,7 @@
 					"response": []
 				},
 				{
-					"name": "invalid value passed to \"blacklist_client_addresses\"",
+					"name": "invalid value passed to \"blacklist_client_addresses\" (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -367,7 +367,7 @@
 					"response": []
 				},
 				{
-					"name": "invalid value passed to \"blacklist_client_addresses\"",
+					"name": "invalid value passed to \"blacklist_client_addresses\" (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -417,10 +417,10 @@
 			]
 		},
 		{
-			"name": "Update and retrieve WebSSO Provider Configuration information as logged non-admin user without Reach API rights",
+			"name": "0503 - Update and retrieve WebSSO Provider Configuration information as logged non-admin user without Reach API rights",
 			"item": [
 				{
-					"name": "Add user without reach_api rights",
+					"name": "Add user without reach_api rights (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -471,7 +471,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user",
+					"name": "Logout from admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -549,7 +549,7 @@
 					"response": []
 				},
 				{
-					"name": "Login with user-test",
+					"name": "Login with user-test (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -597,7 +597,7 @@
 					"response": []
 				},
 				{
-					"name": "Update WebSSO Provider Configuration informations",
+					"name": "Update WebSSO Provider Configuration informations by user without reach_api (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -642,7 +642,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve WebSSO Provider Configuration information with updated values",
+					"name": "Retrieve WebSSO Provider Configuration information with updated values by user without reach_api (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -688,7 +688,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user-test",
+					"name": "Logout from user-test (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -768,10 +768,10 @@
 			]
 		},
 		{
-			"name": "Update and retrieve WebSSO Provider Configuration information as logged non-admin user with Reach API rights",
+			"name": "0504 - Update and retrieve WebSSO Provider Configuration information as logged non-admin user with Reach API rights",
 			"item": [
 				{
-					"name": "Login with admin user",
+					"name": "Login with admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -819,7 +819,7 @@
 					"response": []
 				},
 				{
-					"name": "Add reach_api parameters",
+					"name": "Add reach_api parameters (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -870,7 +870,7 @@
 					"response": []
 				},
 				{
-					"name": "Link user to ALL",
+					"name": "Link user to ALL (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -921,7 +921,7 @@
 					"response": []
 				},
 				{
-					"name": "Create ACL Menu",
+					"name": "Create ACL Menu (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -972,7 +972,7 @@
 					"response": []
 				},
 				{
-					"name": "Grant RW right",
+					"name": "Grant RW right (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1023,7 +1023,7 @@
 					"response": []
 				},
 				{
-					"name": "Link Authentication-user to ALL",
+					"name": "Link Authentication-user to ALL (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1074,7 +1074,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user",
+					"name": "Logout from admin user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1152,7 +1152,7 @@
 					"response": []
 				},
 				{
-					"name": "Login with user-test",
+					"name": "Login with user-test (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1200,7 +1200,7 @@
 					"response": []
 				},
 				{
-					"name": "Update WebSSO Provider Configuration informations",
+					"name": "Update WebSSO Provider Configuration informations by user with reach_api (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1245,7 +1245,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve WebSSO Provider Configuration information",
+					"name": "Retrieve WebSSO Provider Configuration information by user with reach_api (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1302,7 +1302,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user-test",
+					"name": "Logout from user-test (successful)",
 					"event": [
 						{
 							"listen": "test",
