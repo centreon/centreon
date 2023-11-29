@@ -111,7 +111,7 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
                 SELECT contact_id FROM `:db`.contact
                 WHERE contact_id IN ({$contactIdsAsString})
                 SQL
-);
+        );
         $statement = $this->db->prepare($request);
         foreach ($bind as $key => $value) {
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
