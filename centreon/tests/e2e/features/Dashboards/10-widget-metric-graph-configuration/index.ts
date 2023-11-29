@@ -374,7 +374,7 @@ When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-    cy.contains('rta (ms)').realClick();
+    cy.contains('pl (%)').realClick();
   }
 );
 
