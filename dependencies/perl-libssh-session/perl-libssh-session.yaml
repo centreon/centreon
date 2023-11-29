@@ -47,7 +47,7 @@ overrides:
     depends:
       - perl
       - libc6
-      - libssh2-1
+      - libssh-4
     conflicts:
       - libssh-session-perl-dbgsym
     replaces:
