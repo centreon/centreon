@@ -118,20 +118,23 @@ describe('Metrics', () => {
 
     cy.makeSnapshot();
   });
+});
+
+describe('Metrics: single metric', () => {
+  beforeEach(() => {
+    initializeComponent({ metrics: emptyMetrics, resources: defaultResources });
+    store.set(singleHostPerMetricAtom, true);
+    store.set(singleMetricSelectionAtom, true);
+  });
 
   it('displays a warning message when the corresponding atom is set and the selected metric is available on several resources', () => {
-    store.set(singleMetricSelectionAtom, true);
-    store.set(singleHostPerMetricAtom, true);
-
     cy.findByTestId(labelSelectMetric).click();
-
+    
     cy.findByText('rtmax (ms) / Includes 2 resources').click();
 
     cy.contains('Centreon-server_Ping').should('be.visible');
 
     cy.contains(labelIsTheSelectedResource).should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays a single autocomplete when the corresponding atom is set', () => {
@@ -146,7 +149,5 @@ describe('Metrics', () => {
       'have.value',
       'rtmax (ms) / Includes 2 resources'
     );
-
-    cy.makeSnapshot();
   });
-});
+})
