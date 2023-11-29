@@ -1,4 +1,4 @@
-import { generatePath, useParams } from 'react-router';
+import { generatePath } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 import { Link as RouterLink } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { Link } from '@mui/material';
 import { DashboardLayout } from '../../models';
 import { labelDashboardLibrary, labelPlaylists } from '../../translatedLabels';
 import routeMap from '../../../reactRoutes/routeMap';
+import { routerHooks } from '../../routerHooks';
 
 import { useDashboardNavbarStyles } from './DashboardNavbar.styles';
 
@@ -25,7 +26,7 @@ const links = [
 const DashboardNavbar = (): JSX.Element => {
   const { classes } = useDashboardNavbarStyles();
   const { t } = useTranslation();
-  const { layout } = useParams();
+  const { layout } = routerHooks.useParams();
 
   return (
     <nav className={classes.navbar}>

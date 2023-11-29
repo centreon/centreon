@@ -2,7 +2,6 @@ import { ReactElement, Suspense } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { always, cond, equals } from 'ramda';
-import { useParams } from 'react-router';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 
@@ -13,6 +12,7 @@ import { DashboardAccessRightsModal } from './components/DashboardLibrary/Dashbo
 import DashboardPageLayout from './components/DashboardPageLayout';
 import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
 import { DashboardLayout } from './models';
+import { routerHooks } from './routerHooks';
 
 const getTitle = cond([
   [equals(DashboardLayout.Library), always(labelDashboardLibrary)],
@@ -21,7 +21,7 @@ const getTitle = cond([
 
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
-  const { layout } = useParams();
+  const { layout } = routerHooks.useParams();
 
   return (
     <PageLayout>

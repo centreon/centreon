@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
 
-import { useParams } from 'react-router-dom';
 import { always, cond, equals } from 'ramda';
 
 import { DashboardLayout } from '../models';
+import { routerHooks } from '../routerHooks';
 
 import { DashboardsOverview } from './DashboardLibrary/DashboardsOverview/DashboardsOverview';
 import DashboardPlaylistsOverview from './DashboardPlaylists/DashboardPlaylistsOverview';
 
 const DashboardPageLayout = (): JSX.Element => {
-  const { layout } = useParams();
+  const { layout } = routerHooks.useParams();
 
   const Component = useMemo(
     () =>
