@@ -8,9 +8,7 @@ import {
   equals,
   includes,
   isEmpty,
-  map,
   pluck,
-  prop,
   propEq,
   reject
 } from 'ramda';
@@ -216,7 +214,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     };
 
   const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
-    const resourcetypesIds = map(prop('resourceType'), value || []);
+    const resourcetypesIds = pluck('resourceType', value || []);
 
     const newResourceTypeOptions = reject(
       ({ id }) =>
