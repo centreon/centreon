@@ -7,10 +7,17 @@ import { Method, QueryProvider } from '@centreon/ui';
 
 import { metricsEndpoint } from '../../../api/endpoints';
 import { WidgetDataResource } from '../../../models';
-import { labelSelectMetric } from '../../../../translatedLabels';
+import {
+  labelIsTheSelectedResource,
+  labelSelectMetric
+} from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import {
+  singleHostPerMetricAtom,
+  singleMetricSelectionAtom
+} from '../../../atoms';
 
-import MetricsOnly from './MetricsOnly';
+import Metrics from './Metrics';
 
 const emptyMetrics = [];
 
@@ -30,8 +37,8 @@ const defaultResources: Array<WidgetDataResource> = [
   }
 ];
 
+const store = createStore();
 const initializeComponent = ({ metrics, resources }): void => {
-  const store = createStore();
   store.set(hasEditPermissionAtom, true);
   store.set(isEditingAtom, true);
 
@@ -66,7 +73,7 @@ const initializeComponent = ({ metrics, resources }): void => {
             }}
             onSubmit={cy.stub()}
           >
-            <MetricsOnly label="" propertyName="metrics" />
+            <Metrics label="" propertyName="metrics" />
           </Formik>
         </QueryProvider>
       </Provider>
@@ -74,7 +81,7 @@ const initializeComponent = ({ metrics, resources }): void => {
   });
 };
 
-describe('MetricsOnly', () => {
+describe('Metrics', () => {
   beforeEach(() => {
     initializeComponent({ metrics: emptyMetrics, resources: defaultResources });
   });
@@ -108,6 +115,37 @@ describe('MetricsOnly', () => {
 
     cy.findByTestId('CancelIcon').click();
     cy.findByText('rtmax (ms) / 2').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a warning message when the corresponding atom is set and the selected metric is available on several resources', () => {
+    store.set(singleMetricSelectionAtom, true);
+    store.set(singleHostPerMetricAtom, true);
+
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.findByText('rtmax (ms) / Includes 2 resources').click();
+
+    cy.contains('Centreon-server_Ping').should('be.visible');
+
+    cy.contains(labelIsTheSelectedResource).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a single autocomplete when the corresponding atom is set', () => {
+    store.set(singleMetricSelectionAtom, true);
+    store.set(singleHostPerMetricAtom, false);
+
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.findByText('rtmax (ms) / Includes 2 resources').click();
+
+    cy.findByLabelText(labelSelectMetric).should(
+      'have.value',
+      'rtmax (ms) / Includes 2 resources'
+    );
 
     cy.makeSnapshot();
   });
