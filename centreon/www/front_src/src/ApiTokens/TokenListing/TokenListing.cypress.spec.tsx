@@ -235,7 +235,7 @@ describe('Api-token listing', () => {
     });
   });
 
-  it('enable the addition and removal of columns in the table listing when users select or deselect options in the Add Columns menu', () => {
+  it('enables the addition and removal of columns in the table listing when the user selects or deselects options in the Add Columns menu', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByLabelText('Add columns').click();
 
