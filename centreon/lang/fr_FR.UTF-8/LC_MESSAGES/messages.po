@@ -18448,7 +18448,7 @@ msgid "You are not allowed to list media"
 msgstr "Vous n'êtes pas autorisé à lister les médias"
 
 msgid "API token"
-msgstr "jeton Api"
+msgstr "jeton API"
 
 msgid "Create new token"
 msgstr "Créer un nouveau jeton"
