@@ -416,7 +416,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
-                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
+                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id, r.parent_id
                 FROM `:dbstg`.`metrics` AS m
                 INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
                 INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
@@ -520,6 +520,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                     $metricsInformation[$record['service_id']] = [
                         'service_id' => $record['service_id'],
                         'resource_name' => $record['resource_name'],
+                        'parent_id' => $record['parent_id'],
                         'metrics' => [],
                     ];
                 }
@@ -540,6 +541,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 $resourceMetrics[] = new ResourceMetric(
                     $information['service_id'],
                     $information['resource_name'],
+                    $information['parent_id'],
                     $information['metrics']
                 );
             }

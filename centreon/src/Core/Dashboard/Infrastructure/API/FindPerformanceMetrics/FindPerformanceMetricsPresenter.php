@@ -48,6 +48,7 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
                     return [
                         'id' => $resourceMetric->serviceId,
                         'name' => $resourceMetric->resourceName,
+                        'uuid' => 'h' . $resourceMetric->parentId . '-s' . $resourceMetric->serviceId,
                         'metrics' => $resourceMetric->metrics,
                     ];
                 },$response->resourceMetrics),

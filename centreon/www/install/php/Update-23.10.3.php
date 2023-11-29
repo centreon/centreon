@@ -81,6 +81,8 @@ $createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessa
             CREATE TABLE IF NOT EXISTS `dashboard_playlist_contact_relation` (
                 `contact_id` INT(11) NOT NULL,
                 `playlist_id` INT UNSIGNED NOT NULL,
+                `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+                KEY `role_index` (`role`),
                 UNIQUE KEY(`contact_id`, `playlist_id`),
                 CONSTRAINT `dashboard_playlist_contact_relation_contact_id`
                 FOREIGN KEY (`contact_id`)
@@ -98,6 +100,8 @@ $createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessa
             CREATE TABLE IF NOT EXISTS `dashboard_playlist_contactgroup_relation` (
                 `contactgroup_id` INT(11) NOT NULL,
                 `playlist_id` INT UNSIGNED NOT NULL,
+                `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+                KEY `role_index` (`role`),
                 UNIQUE KEY(`contactgroup_id`, `playlist_id`),
                 CONSTRAINT `dashboard_playlist_contactgroup_relation_contactgroup_id`
                 FOREIGN KEY (`contactgroup_id`)

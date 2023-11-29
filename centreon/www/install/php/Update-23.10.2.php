@@ -51,7 +51,6 @@ $createNotificationContactgroupRelationTable = function (CentreonDB $pearDB) use
 try {
     $createNotificationContactgroupRelationTable($pearDB);
 } catch (\Exception $e) {
-
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage
