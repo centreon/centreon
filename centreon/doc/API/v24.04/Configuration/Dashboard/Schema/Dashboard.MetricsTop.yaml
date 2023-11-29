@@ -25,6 +25,10 @@ properties:
           type: number
           description: "ID of the service"
           example: 1
+        uuid:
+          type: string
+          description: "UUID of the resource"
+          example: "h16-s24"
         name:
           type: string
           description: concatenation of host name and service name
