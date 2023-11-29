@@ -1,7 +1,7 @@
 #!/bin/bash
 
 removeUsersAndGroups() {
-  echo "Removing centreon user and group..."
+  echo "Removing centreon user and group ..."
   userdel -r centreon > /dev/null 2>&1 || :
   groupdel centreon > /dev/null 2>&1 || :
   gpasswd --delete centreon centreon-broker > /dev/null 2>&1 || :

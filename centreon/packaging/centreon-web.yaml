@@ -129,8 +129,8 @@ contents:
       group: "centreon"
       mode: 0664
 
-  - src: "../bin/centFillTrapDB"
-    dst: "/usr/share/centreon/bin/{centFillTrapDB,centreon_trap_send}"
+  - src: "../bin/{centFillTrapDB,centreon_trap_send}"
+    dst: "/usr/share/centreon/bin/"
     file_info:
       mode: 0755
   - src: "/usr/share/centreon/bin/centFillTrapDB"

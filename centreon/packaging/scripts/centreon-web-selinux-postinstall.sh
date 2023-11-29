@@ -1,7 +1,7 @@
 #!/bin/bash
 
 install() {
-  echo "Installing centreon-web selinux rules..."
+  echo "Installing centreon-web selinux rules ..."
   semodule -i %{_datadir}/selinux/packages/centreon/centreon-web.pp > /dev/null 2>&1 || :
   setsebool -P httpd_unified on > /dev/null 2>&1 || :
   setsebool -P httpd_can_network_connect on > /dev/null 2>&1 || :
@@ -12,7 +12,7 @@ install() {
 }
 
 upgrade() {
-  echo "Updating centreon-web selinux rules..."
+  echo "Updating centreon-web selinux rules ..."
   semodule -i %{_datadir}/selinux/packages/centreon/centreon-web.pp > /dev/null 2>&1 || :
   setsebool -P httpd_unified on > /dev/null 2>&1 || :
   setsebool -P httpd_can_network_connect on > /dev/null 2>&1 || :

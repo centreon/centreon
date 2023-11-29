@@ -1,7 +1,7 @@
 #!/bin/bash
 
 install() {
-  echo "Installing centreon-common selinux rules..."
+  echo "Installing centreon-common selinux rules ..."
   semodule -i /usr/share/selinux/packages/centreon/centreon-common.pp > /dev/null 2>&1 || :
   restorecon -R -v /run/dbus/system_bus_socket > /dev/null 2>&1 || :
   setsebool -P daemons_enable_cluster_mode on > /dev/null 2>&1 || :
@@ -10,7 +10,7 @@ install() {
 }
 
 upgrade() {
-  echo "updating centreon-common selinux rules..."
+  echo "updating centreon-common selinux rules ..."
   semodule -i /usr/share/selinux/packages/centreon/centreon-common.pp > /dev/null 2>&1 || :
   restorecon -R -v /run/dbus/system_bus_socket > /dev/null 2>&1 || :
   setsebool -P daemons_enable_cluster_mode on > /dev/null 2>&1 || :

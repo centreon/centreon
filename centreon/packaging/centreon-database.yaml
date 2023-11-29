@@ -34,12 +34,6 @@ contents:
     file_info:
       mode: 0600
 
-scripts:
-  preinstall: ./scripts/centreon-common-preinstall.sh
-  postinstall: ./scripts/centreon-common-postinstall.sh
-  preremove: ./scripts/centreon-common-preremove.sh
-  postremove: ./scripts/centreon-common-postremove.sh
-
 overrides:
   rpm:
     depends:

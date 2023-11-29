@@ -1,7 +1,7 @@
 #!/bin/bash
 
 manageUsersAndGroups() {
-  echo "Managing users and groups for centreon..."
+  echo "Managing users and groups for centreon ..."
   if [ "$1" = "rpm" ]; then
     usermod centreon-engine -a -G centreon,nagios,centreon-broker
     usermod centreon-broker -a -G centreon,nagios
@@ -19,7 +19,7 @@ manageUsersAndGroups() {
 }
 
 updateEngineBrokerConfigurationRights() {
-  echo "Fixing rights of centreon engine and broker configuration files..."
+  echo "Fixing rights of centreon engine and broker configuration files ..."
   if [ -d /etc/centreon-broker ]; then
     chown -R centreon-broker:centreon-broker /etc/centreon-broker/*
   fi
@@ -29,7 +29,7 @@ updateEngineBrokerConfigurationRights() {
 }
 
 updateSnmpConfiguration() {
-  echo "Updating snmpd configuration to allow OIDs from .1.3.6.1..."
+  echo "Updating snmpd configuration to allow OIDs from .1.3.6.1 ..."
   sed -i \
     -e "/^view.*\.1\.3\.6\.1\.2\.1\.1$/i\
 view centreon included .1.3.6.1" \

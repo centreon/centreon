@@ -1,7 +1,7 @@
 #!/bin/bash
 
 manageUsersAndGroups() {
-  echo "Managing users and groups for apache..."
+  echo "Managing users and groups for apache ..."
   if [ "$1" = "rpm" ]; then
     usermod apache -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
     usermod nagios -a -G apache
@@ -20,10 +20,10 @@ updateConfigurationFiles() {
   sed -i -E "s/0\s0(.*)centreon\-send\-stats\.php(.*)/$MIN $HOUR\1centreon-send-stats.php\2/" /etc/cron.d/centreon
 
   # Create HASH secret for Symfony application
-  echo "Updating APP_SECRET in centreon environment file..."
+  echo "Updating APP_SECRET in centreon environment file ..."
   REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
 
-  echo "Updating centreon perl configuration files to central mode..."
+  echo "Updating centreon perl configuration files to central mode ..."
   sed -i -e "s/\$instance_mode = \"poller\";/\$instance_mode = \"central\";/g" /etc/centreon/conf.pm
   sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
 }
@@ -37,7 +37,7 @@ setTimezone() {
     echo $timezoneName;
   ' 2>/dev/null || echo "UTC")
 
-  echo "Setting php timezone to ${PHP_TIMEZONE}..."
+  echo "Setting php timezone to ${PHP_TIMEZONE} ..."
   if [ "$1" = "rpm" ]; then
     sed -i "s#^date.timezone = .*#date.timezone = ${PHP_TIMEZONE}#" /etc/php.d/50-centreon.ini
   else
@@ -48,7 +48,7 @@ setTimezone() {
 updateGorgoneConfiguration() {
   # make sure that gorgone configuration file has the central id set
   if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml && ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
-    echo "Forcing central id to gorgone configuration..."
+    echo "Forcing central id to gorgone configuration ..."
     sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
   fi
 }
@@ -56,25 +56,25 @@ updateGorgoneConfiguration() {
 manageLocales() {
   if [ "$1" = "deb" ]; then
     # Set locales on system to use in translation
-    echo "Generating locales for Centreon translation..."
+    echo "Generating locales for Centreon translation ..."
     sed -i \
         -e '/^#.* en_US.UTF-8 /s/^#//' \
         -e '/^#.* fr_FR.UTF-8 /s/^#//' \
         -e '/^#.* pt_PT.UTF-8 /s/^#//' \
         -e '/^#.* pt_BR.UTF-8 /s/^#//' \
         -e '/^#.* es_ES.UTF-8 /s/^#//' \
-        /etc/locale.gen
-    locale-gen
+        /etc/locale.gen > /dev/null 2>&1 || :
+    locale-gen > /dev/null 2>&1 || :
   fi
 }
 
 manageApacheAndPhpFpm() {
-  echo "Managing apache and php fpm configuration and services..."
+  echo "Managing apache and php fpm configuration and services ..."
   if [ "$1" = "rpm" ]; then
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
-    update-alternatives --set php /usr/bin/php8.1
+    update-alternatives --set php /usr/bin/php8.1 > /dev/null 2>&1 || :
     a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
     a2enconf php8.1-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
@@ -85,7 +85,7 @@ manageApacheAndPhpFpm() {
 }
 
 rebuildSymfonyCache() {
-  echo "Rebuilding Centreon application cache..."
+  echo "Rebuilding Centreon application cache ..."
   rm -rf /var/cache/centreon/symfony
 
   if [ "$1" = "rpm" ]; then
