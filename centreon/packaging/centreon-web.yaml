@@ -130,25 +130,20 @@ contents:
       mode: 0664
 
   - src: "../bin/centFillTrapDB"
-    dst: "/usr/share/centreon/bin/centFillTrapDB"
+    dst: "/usr/share/centreon/bin/{centFillTrapDB,centreon_trap_send}"
     file_info:
       mode: 0755
   - src: "/usr/share/centreon/bin/centFillTrapDB"
     dst: "/usr/bin/centFillTrapDB"
+    type: symlink
+  - src: "/usr/share/centreon/bin/centreon_trap_send"
+    dst: "/usr/bin/centreon_trap_send"
     type: symlink
 
   - src: "../bin/centreon_health"
     dst: "/usr/share/centreon/bin/centreon_health"
     file_info:
       mode: 0755
-
-  - src: "../bin/centreon_trap_send"
-    dst: "/usr/share/centreon/bin/centreon_trap_send"
-    file_info:
-      mode: 0755
-  - src: "/usr/share/centreon/bin/centreon_trap_send"
-    dst: "/usr/bin/centreon_trap_send"
-    type: symlink
 
   - src: "../bin/centreonSyncPlugins"
     dst: "/usr/share/centreon/bin/centreonSyncPlugins"
