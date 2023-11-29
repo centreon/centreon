@@ -21,36 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Playlist\Application\Repository;
+namespace Tests\Core\Dashboard\Playlist\Application\UseCase\SharePlaylist;
 
-use Core\Dashboard\Playlist\Domain\Model\Playlist;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Playlist\Application\UseCase\SharePlaylist\SharePlaylistPresenterInterface;
 
-interface ReadPlaylistRepositoryInterface
+class SharePlaylistPresenterStub implements SharePlaylistPresenterInterface
 {
-    /**
-     * Find a playlist.
-     *
-     * @param int $playlistId
-     *
-     * @return Playlist|null
-     */
-    public function find(int $playlistId): ?Playlist;
+    public ResponseStatusInterface $data;
 
-    /**
-     * Check if a playlist exists with given name.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function existsByName(string $name): bool;
-
-    /**
-     * Check if a playlist exists with given id.
-     *
-     * @param int $playlistId
-     *
-     * @return bool
-     */
-    public function exists(int $playlistId): bool;
+    public function presentResponse(ResponseStatusInterface $data): void
+    {
+        $this->data = $data;
+    }
 }
