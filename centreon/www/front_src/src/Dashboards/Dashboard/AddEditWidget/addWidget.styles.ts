@@ -24,8 +24,16 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   widgetPropertiesContent: {
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
+    bottom: 0,
     height: '68vh',
+    left: 0,
     overflow: 'auto',
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+    position: 'absolute',
+    right: 0,
+    top: 0
+  },
+  widgetPropertiesContentContainer: {
+    position: 'relative'
   }
 }));

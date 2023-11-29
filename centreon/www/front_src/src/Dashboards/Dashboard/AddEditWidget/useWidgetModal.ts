@@ -20,8 +20,8 @@ import { editProperties } from '../hooks/useCanEditDashboard';
 
 import {
   customBaseColorAtom,
+  singleHostPerMetricAtom,
   singleMetricSelectionAtom,
-  singleResourceTypeSelectionAtom,
   widgetFormInitialDataAtom,
   widgetPropertiesAtom
 } from './atoms';
@@ -55,9 +55,7 @@ const useWidgetModal = (): useWidgetModalState => {
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleResourceTypeSelection = useSetAtom(
-    singleResourceTypeSelectionAtom
-  );
+  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { showSuccessMessage } = useSnackbar();
@@ -79,7 +77,7 @@ const useWidgetModal = (): useWidgetModalState => {
       setWidgetProperties(null);
       setAskingBeforeCloseModal(false);
       setSingleMetricSection(undefined);
-      setSingleResourceTypeSelection(undefined);
+      setSingleHostPerMetric(undefined);
       setCustomBaseColor(undefined);
     });
 

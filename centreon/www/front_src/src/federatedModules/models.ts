@@ -31,7 +31,6 @@ export interface StyleMenuSkeleton {
 export enum FederatedWidgetOptionType {
   checkbox = 'checkbox',
   metrics = 'metrics',
-  metricsOnly = 'metrics-only',
   radio = 'radio',
   refreshInterval = 'refresh-interval',
   resources = 'resources',
@@ -78,7 +77,7 @@ export interface FederatedWidgetProperties {
   options: {
     [key: string]: FederatedWidgetOption;
   };
+  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
-  singleResourceTypeSelection?: boolean;
   title: string;
 }

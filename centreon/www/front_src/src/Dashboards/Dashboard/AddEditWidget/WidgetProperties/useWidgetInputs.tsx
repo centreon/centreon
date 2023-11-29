@@ -13,8 +13,8 @@ import {
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import {
   customBaseColorAtom,
+  singleHostPerMetricAtom,
   singleMetricSelectionAtom,
-  singleResourceTypeSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
 
@@ -29,7 +29,6 @@ import {
   WidgetValueFormat,
   WidgetTimePeriod,
   WidgetTopBottomSettings,
-  WidgetMetric,
   WidgetRadio,
   WidgetCheckboxes,
   WidgetTiles
@@ -64,7 +63,6 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
   [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
   [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
-  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric,
   [FederatedWidgetOptionType.radio]: WidgetRadio,
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
   [FederatedWidgetOptionType.tiles]: WidgetTiles
@@ -82,10 +80,8 @@ export const useWidgetInputs = (
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleResourceTypeSelection = useSetAtom(
-    singleResourceTypeSelectionAtom
-  );
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
+  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
 
   const selectedWidget = find(
     propEq(values.moduleName, 'moduleName'),
@@ -142,9 +138,7 @@ export const useWidgetInputs = (
       }
 
       setSingleMetricSection(selectedWidget.singleMetricSelection);
-      setSingleResourceTypeSelection(
-        selectedWidget.singleResourceTypeSelection
-      );
+      setSingleHostPerMetric(selectedWidget.singleHostPerMetric);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },
     useDeepCompare([selectedWidget])
