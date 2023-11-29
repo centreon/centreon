@@ -37,7 +37,7 @@ contents:
       mode: 0775
 
   - src: "./configuration/config.yaml"
-    dst: "/etc/centreon-gorgone/"
+    dst: "/etc/centreon-gorgone/config.yaml"
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone

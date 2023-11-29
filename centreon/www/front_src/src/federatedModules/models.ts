@@ -1,3 +1,5 @@
+import { SelectEntry } from '@centreon/ui';
+
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
   panelMinHeight?: number;
@@ -27,23 +29,42 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  checkbox = 'checkbox',
   metrics = 'metrics',
   metricsOnly = 'metrics-only',
+  radio = 'radio',
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
   singleMetricGraphType = 'single-metric-graph-type',
   textfield = 'textfield',
   threshold = 'threshold',
+  tiles = 'tiles',
   timePeriod = 'time-period',
   topBottomSettings = 'top-bottom-settings',
   valueFormat = 'value-format'
 }
 
 export interface FederatedWidgetOption {
-  defaultValue: unknown;
+  defaultValue:
+    | unknown
+    | {
+        is: unknown;
+        otherwise: unknown;
+        then: unknown;
+        when: string;
+      };
   label: string;
+  options?:
+    | Array<SelectEntry>
+    | {
+        is: unknown;
+        otherwise: Array<SelectEntry>;
+        then: Array<SelectEntry>;
+        when: string;
+      };
   required?: boolean;
+  secondaryLabel: string;
   type: FederatedWidgetOptionType;
 }
 

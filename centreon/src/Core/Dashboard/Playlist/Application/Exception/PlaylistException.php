@@ -111,7 +111,7 @@ class PlaylistException extends \Exception
      */
     public static function contactForShareShouldBeUnique(): self
     {
-        return new self(_('You cannot share a playlist to a contact several times'));
+        return new self(_('You cannot share the same playlist to a contact several times'));
     }
 
     /**
@@ -119,7 +119,7 @@ class PlaylistException extends \Exception
      */
     public static function contactGroupForShareShouldBeUnique(): self
     {
-        return new self(_('You cannot share a playlist to a contactgroup several times'));
+        return new self(_('You cannot share the same playlist to a contact group several times'));
     }
 
     /**
@@ -129,7 +129,7 @@ class PlaylistException extends \Exception
      */
     public static function playlistDoesNotExists(int $playlistId): self
     {
-        return new self(sprintf(_('The following playlist does not exist: [%d].'), $playlistId), self::CODE_NOT_FOUND);
+        return new self(sprintf(_('The following playlist does not exist: [%d]'), $playlistId), self::CODE_NOT_FOUND);
     }
 
     /**
@@ -139,7 +139,7 @@ class PlaylistException extends \Exception
      */
     public static function playlistNotSharedAsEditor(int $playlistId): self
     {
-        return new self(sprintf(_("You don't have the editor right on the following playlist: [%d]."), $playlistId));
+        return new self(sprintf(_('You do not have editing rights on the following playlist: [%d].'), $playlistId));
     }
 
     /**
@@ -149,7 +149,7 @@ class PlaylistException extends \Exception
      */
     public static function contactsDontExist(array $userIds): self
     {
-        return new self(sprintf(_("The following contacts don't exist: [%s]"), implode(', ', $userIds)));
+        return new self(sprintf(_('The following contact does not exist: [%s]'), implode(', ', $userIds)));
     }
 
     /**
@@ -159,7 +159,7 @@ class PlaylistException extends \Exception
      */
     public static function contactGroupsDontExist(array $contactGroupIds): self
     {
-        return new self(sprintf(_("The following contactgroups don't exist: [%s]"), implode(', ', $contactGroupIds)));
+        return new self(sprintf(_('The following contact group does not exist: [%s]'), implode(', ', $contactGroupIds)));
     }
 
     /**
@@ -170,7 +170,7 @@ class PlaylistException extends \Exception
     public static function contactsAreNotInTheUserContactGroup(array $userIds): self
     {
         return new self(sprintf(
-            _('The following contacts are not in your contactgroups: [%s]'),
+            _('The following contact is not in your contact groups: [%s]'),
             implode(', ', $userIds)
         ));
     }
@@ -183,7 +183,7 @@ class PlaylistException extends \Exception
     public static function userIsNotInContactGroups(array $contactGroupIds): self
     {
         return new self(sprintf(
-            _('You are not in the following contactgroups: [%s]'),
+            _('You are not in the following contact group: [%s]'),
             implode(', ', $contactGroupIds)
         ));
     }
