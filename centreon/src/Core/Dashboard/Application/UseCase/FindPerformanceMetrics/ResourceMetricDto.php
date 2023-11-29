@@ -29,6 +29,8 @@ class ResourceMetricDto
 
     public string $resourceName = '';
 
+    public int $parentId = 0;
+
     /**
      * @var array<
      *  array{
