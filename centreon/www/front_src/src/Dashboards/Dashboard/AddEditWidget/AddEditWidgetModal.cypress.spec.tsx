@@ -28,7 +28,6 @@ import {
   labelResourceType,
   labelSelectAResource,
   labelSelectAWidgetType,
-  labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
   labelWidgetType,
   labelCancel,
@@ -511,9 +510,9 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByText('Host 0').click();
 
-        cy.findAllByText('Host 0').should('have.length', 2);
-        cy.findByTestId('CancelIcon').click();
         cy.findAllByText('Host 0').should('have.length', 1);
+        cy.findByTestId('CancelIcon').click();
+        cy.findAllByText('Host 0').should('have.length', 0);
 
         cy.makeSnapshot();
       });
@@ -537,17 +536,11 @@ describe('AddEditWidgetModal', () => {
 
         cy.contains(/^Host 0$/).click();
         cy.findByLabelText(labelRefineFilter).should('not.be.disabled');
-        cy.findByLabelText(labelAddMetric).should('be.disabled');
         cy.waitForRequest('@getServiceMetrics');
-
-        cy.findByTestId(labelServiceName).parent().children().eq(0).click();
-        cy.contains('Centreon-server_Ping').click();
 
         cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
         cy.contains('rtmax (ms)').click();
-
-        cy.findByLabelText(labelAddMetric).should('not.be.disabled');
 
         cy.contains('Metrics (2 available)').should('be.visible');
         cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
@@ -573,9 +566,6 @@ describe('AddEditWidgetModal', () => {
 
         cy.contains(/^Host 0$/).click();
         cy.waitForRequest('@getServiceMetrics');
-
-        cy.findByTestId(labelServiceName).parent().children().eq(0).click();
-        cy.contains('Centreon-server_Ping').click();
 
         cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
@@ -605,9 +595,6 @@ describe('AddEditWidgetModal', () => {
         cy.contains(/^Host 0$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
-        cy.findByTestId(labelServiceName).parent().children().eq(0).click();
-        cy.contains('Centreon-server_Ping').click();
-
         cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
         cy.contains('rtmax (ms)').click();
@@ -627,13 +614,7 @@ describe('AddEditWidgetModal', () => {
               dashboard.layout[0].data.resources[0].resources.length,
               1
             );
-            assert.equal(dashboard.layout[0].data.metrics.length, 1);
-            assert.equal(dashboard.layout[0].data.metrics[0].id, 1);
-            assert.equal(
-              dashboard.layout[0].data.metrics[0].name,
-              'Centreon-server_Ping'
-            );
-            assert.equal(dashboard.layout[0].data.metrics[0].metrics.length, 2);
+            assert.equal(dashboard.layout[0].data.metrics.length, 2);
           });
       });
 
@@ -651,9 +632,6 @@ describe('AddEditWidgetModal', () => {
         cy.contains(/^Host 0$/).click();
         cy.findByLabelText(labelRefineFilter).should('be.enabled');
         cy.waitForRequest('@getServiceMetrics');
-
-        cy.findByTestId(labelServiceName).parent().children().eq(0).click();
-        cy.contains('Centreon-server_Ping').click();
 
         cy.findByTestId(labelSelectMetric).click();
         cy.contains('pl (%)').click();
@@ -769,7 +747,6 @@ describe('AddEditWidgetModal', () => {
     it('displays generic properties fields as disabled', () => {
       cy.findByTestId(labelResourceType).should('be.disabled');
       cy.findByLabelText(labelSelectAResource).should('be.disabled');
-      cy.findByTestId(labelServiceName).should('be.disabled');
       cy.findByLabelText(labelSelectMetric).should('be.disabled');
       cy.contains(labelRefineFilter).should('not.exist');
       cy.contains(labelAddMetric).should('not.exist');
