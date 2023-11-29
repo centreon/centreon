@@ -292,12 +292,9 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUser(): ?ContactInterface
     {
         $this->info('Searching user : ' . $this->username);
-        $user = $this->contactService->findByName($this->username);
-        if ($user === null) {
-            $user = $this->contactService->findByEmail($this->username);
-        }
 
-        return $user;
+        return $this->contactService->findByName($this->username)
+            ?? $this->contactService->findByEmail($this->username);
     }
 
     /**
