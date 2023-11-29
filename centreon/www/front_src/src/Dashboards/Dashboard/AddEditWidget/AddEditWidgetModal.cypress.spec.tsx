@@ -520,7 +520,7 @@ describe('AddEditWidgetModal', () => {
           .eq(0)
           .click();
 
-        cy.findByText(/^Host$/).should('not.exist');
+        cy.findAllByText(/^Host$/).should('have.length', 1);
 
         cy.makeSnapshot();
       });
