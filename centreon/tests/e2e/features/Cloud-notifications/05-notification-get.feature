@@ -2,8 +2,8 @@
 @REQ_MON-16473
 Feature: Listing Notification Rules
   As a Centreon user with access to the Notification Rules page
-  The user want to view the list of Notification Rules
-  So that the user can effectively organize my alerts in the monitoring system
+  The user wants to view the list of Notification Rules
+  So that the user can effectively organize the alerts in the monitoring system
 
   Background:
     Given a user with access to the Notification Rules page
