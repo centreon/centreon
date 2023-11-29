@@ -8,7 +8,7 @@ import {
   DeleteAccessRightDto,
   NamedEntity,
   UpdateAccessRightDto
-} from '../../api/models';
+} from '../../../api/models';
 
 export const transformAccessRightContactOrContactGroup = (
   accessRight: DashboardAccessRightsContact | DashboardAccessRightsContactGroup

@@ -22,11 +22,11 @@ import {
   labelName,
   labelUpdate,
   labelUpdateDashboard
-} from '../../translatedLabels';
+} from '../../../translatedLabels';
 import {
   labelGlobalRefreshInterval,
   labelManualRefreshOnly
-} from '../../Dashboard/translatedLabels';
+} from '../../../Dashboard/translatedLabels';
 
 import { useDashboardConfig } from './useDashboardConfig';
 

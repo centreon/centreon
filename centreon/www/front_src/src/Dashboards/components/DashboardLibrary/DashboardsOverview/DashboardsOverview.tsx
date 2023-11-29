@@ -8,7 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { Button, DataTable, PageLayout } from '@centreon/ui/components';
 
 import { useDashboardAccessRights } from '../DashboardAccessRights/useDashboardAccessRights';
-import { useDashboardDelete } from '../../hooks/useDashboardDelete';
+import { useDashboardDelete } from '../../../hooks/useDashboardDelete';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
   labelCancel,
@@ -16,11 +16,11 @@ import {
   labelDelete,
   labelDescriptionDeleteDashboard,
   labelWelcomeToDashboardInterface
-} from '../../translatedLabels';
-import { Dashboard } from '../../api/models';
-import routeMap from '../../../reactRoutes/routeMap';
+} from '../../../translatedLabels';
+import { Dashboard } from '../../../api/models';
+import routeMap from '../../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
-import { DashboardLayout } from '../../models';
+import { DashboardLayout } from '../../../models';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 
@@ -86,7 +86,7 @@ const DashboardsOverview = (): ReactElement => {
         )}
       </PageLayout.Actions>
 
-      <DataTable isEmpty={isEmptyList}>
+      <DataTable isEmpty={isEmptyList} variant="grid">
         {isEmptyList ? (
           <DataTable.EmptyState
             aria-label="create"

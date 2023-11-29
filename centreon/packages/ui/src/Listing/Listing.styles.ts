@@ -9,13 +9,12 @@ const loadingIndicatorHeight = 3;
 interface StylesProps {
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
-  limit: number;
   listingVariant: ListingVariant;
   rows: Array<unknown>;
 }
 
 const useListingStyles = makeStyles<StylesProps>()(
-  (theme, { dataStyle, getGridTemplateColumn, rows, limit }) => ({
+  (theme, { dataStyle, getGridTemplateColumn, rows }) => ({
     actionBar: {
       alignItems: 'center',
       display: 'flex'
