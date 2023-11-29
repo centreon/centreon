@@ -34,9 +34,8 @@ class Request
     private const STATUS_WARNING = 1;
     private const STATUS_CRITICAL = 2;
     private const STATUS_UNKNOWN = 3;
-    private const STATUS_ACK = 5;
-    private const STATUS_NOTIF = 6;
-
+    private const STATUS_ACKNOWLEDGEMENT = 5;
+    private const STATUS_NOTIFICATION = 6;
     private ?int $is_admin;
     /**
      * @var array<string,mixed>
@@ -58,9 +57,8 @@ class Request
     private string $warning = 'true';
     private string $critical = 'true';
     private string $unknown = 'true';
-    private string $ack = 'true';
-    private string $notif = 'true';
-    private string $notification = 'false';
+    private string $acknowledgement = 'true';
+    private string $notification = 'true';
     private string $alert = 'true';
     private string $oh = 'false';
     private string $error = 'false';
@@ -323,20 +321,9 @@ class Request
             return 'false';
         }
 
-        return htmlentities($this->ack);
+        return htmlentities($this->acknowledgement);
     }
 
-    /**
-     * @return string
-     */
-    public function getNotif(): string
-    {
-        if ($this->getEngine() === 'true') {
-            return 'false';
-        }
-
-        return htmlentities($this->notif);
-    }
     /**
      * @return string
      */
@@ -470,10 +457,10 @@ class Request
             $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_UNKNOWN);
         }
         if ($this->getAck() === 'true') {
-            $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_ACK);
+            $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_ACKNOWLEDGEMENT);
         }
         if ($this->getNotif() === 'true') {
-            $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_NOTIF);
+            $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_NOTIFICATION);
         }
 
         return $this->svcMsgStatusSet;
@@ -623,8 +610,7 @@ class Request
             'ok' => $this->sanitizeGetParameter('ok'),
             'warning' => $this->sanitizeGetParameter('warning'),
             'critical' => $this->sanitizeGetParameter('critical'),
-            'ack' => $this->sanitizeGetParameter('ack'),
-            'notif' => $this->sanitizeGetParameter('notif'),
+            'acknowledgement' => $this->sanitizeGetParameter('acknowledgement'),
             'unknown' => $this->sanitizeGetParameter('unknown'),
             'notification' => $this->sanitizeGetParameter('notification'),
             'alert' => $this->sanitizeGetParameter('alert'),
@@ -655,8 +641,7 @@ class Request
             'ok' => $this->sanitizePostParameter('ok'),
             'warning' => $this->sanitizePostParameter('warning'),
             'critical' => $this->sanitizePostParameter('critical'),
-            'ack' => $this->sanitizePostParameter('ack'),
-            'notif' => $this->sanitizePostParameter('notif'),
+            'acknowledgement' => $this->sanitizePostParameter('acknowledgement'),
             'unknown' => $this->sanitizePostParameter('unknown'),
             'notification' => $this->sanitizePostParameter('notification'),
             'alert' => $this->sanitizePostParameter('alert'),

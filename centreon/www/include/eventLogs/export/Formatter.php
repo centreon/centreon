@@ -37,7 +37,7 @@ class Formatter
     /**
      * @var string[]
      */
-    private array $serviceStatuses = ['0' => 'OK', '1' => 'WARNING', '2' => 'CRITICAL', '3' => 'UNKNOWN', '5' => 'ACK', '6' => 'NOTIF'];
+    private array $serviceStatuses = ['0' => 'OK', '1' => 'WARNING', '2' => 'CRITICAL', '3' => 'UNKNOWN', '5' => 'ACKNOWLEDGEMENT'];
     /**
      * @var string[]
      */
@@ -58,8 +58,7 @@ class Formatter
     private string $warning = '';
     private string $critical = '';
     private string $unknown = '';
-    private string $ack = '';
-    private string $notif = '';
+    private string $acknowledgement = '';
 
     /**
      * @param int $start
@@ -170,22 +169,14 @@ class Formatter
     }
 
     /**
-     * @param string $ack
+     * @param string $acknowledgement
      * @return void
      */
-    public function setAck(string $ack): void
+    public function setAck(string $acknowledgement): void
     {
-        $this->ack = $ack;
+        $this->acknowledgement = $acknowledgement;
     }
 
-    /**
-     * @param string $notif
-     * @return void
-     */
-    public function setNotif(string $notif): void
-    {
-        $this->notif = $notif;
-    }
     /**
      * @param string[] $hosts
      * @return void
@@ -211,8 +202,8 @@ class Formatter
             ['Host', 'Up', 'Down', 'Unreachable'],
             ['', $this->up, $this->down, $this->unreachable],
             [],
-            ['Service', 'Ok', 'Warning', 'Critical', 'Unknown', 'Ack', 'Notif'],
-            ['', $this->ok, $this->warning, $this->critical, $this->unknown, $this->ack, $this->notif],
+            ['Service', 'Ok', 'Warning', 'Critical', 'Unknown', 'Acknowledgement'],
+            ['', $this->ok, $this->warning, $this->critical, $this->unknown, $this->acknowledgement],
             [],
         ];
     }

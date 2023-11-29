@@ -46,8 +46,7 @@ class QueryGenerator
     private string $warning;
     private string $critical;
     private string $unknown;
-    private string $ack;
-    private string $notif;
+    private string $acknowledgement;
     private string $notification;
     private string $alert;
     private string $error;
@@ -323,19 +322,11 @@ class QueryGenerator
     }
 
     /**
-     * @param string $ack
+     * @param string $acknowledgement
      */
-    public function setAck(string $ack): void
+    public function setAck(string $acknowledgement): void
     {
-        $this->ack = $ack;
-    }
-
-    /**
-     * @param string $notif
-     */
-    public function setNotif(string $notif): void
-    {
-        $this->notif = $notif;
+        $this->acknowledgement = $acknowledgement;
     }
 
     /**
@@ -432,8 +423,7 @@ class QueryGenerator
                     $this->ok == 'true' || $this->warning == 'true' ||
                     $this->critical == 'true' ||
                     $this->unknown == 'true' ||
-                    $this->ack == 'true' ||
-                    $this->notif == 'true'
+                    $this->acknowledgement == 'true'
                 )
             ) {
                 $req_append = "";
