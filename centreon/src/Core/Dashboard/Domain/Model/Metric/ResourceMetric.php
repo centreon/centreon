@@ -28,6 +28,7 @@ class ResourceMetric
     /**
      * @param int $serviceId
      * @param string $resourceName
+     * @param int $parentId
      * @param PerformanceMetric[] $metrics
      */
     public function __construct(
