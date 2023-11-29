@@ -513,7 +513,12 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelRefineFilter).click();
 
-        cy.findByTestId(labelResourceType).parent().children().eq(1).click();
+        cy.findAllByTestId(labelResourceType)
+          .eq(1)
+          .parent()
+          .children()
+          .eq(0)
+          .click();
 
         cy.findByText(/^Host$/).should('not.exist');
 
