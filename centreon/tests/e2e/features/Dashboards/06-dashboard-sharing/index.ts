@@ -55,7 +55,7 @@ after(() => {
 });
 
 afterEach(() => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -68,7 +68,7 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 When('the user selects the share option on a dashboard', () => {
@@ -107,7 +107,7 @@ Given('a non-admin user who has update rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 When('the editor user sets another user as a viewer on the dashboard', () => {
@@ -169,7 +169,7 @@ When('the viewer user logs in on the platform', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 Then(
@@ -196,7 +196,7 @@ When('the viewer user clicks on the dashboard', () => {
 Then(
   "the viewer user can visualize the dashboard's layout but cannot share it or update its properties",
   () => {
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -211,7 +211,7 @@ Given(
       loginViaApi: false
     });
 
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
   }
 );
 
@@ -274,7 +274,7 @@ When('the second editor user logs in on the platform', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 Then(
@@ -301,7 +301,7 @@ When('the second editor user clicks on the dashboard', () => {
 Then(
   "the second editor can visualize the dashboard's layout and can share it or update its properties",
   () => {
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -314,7 +314,7 @@ Given('a non-admin editor user with creator rights on a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 When(
@@ -376,7 +376,7 @@ Then(
       jsonName: dashboardCGMember1.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -389,7 +389,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -400,7 +400,7 @@ Then(
       jsonName: dashboardCGMember2.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -413,7 +413,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -426,7 +426,7 @@ Given('a non-admin editor user who has creator rights on a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 When(
@@ -488,7 +488,7 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -501,7 +501,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -512,7 +512,7 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -525,7 +525,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -540,7 +540,7 @@ Given(
       loginViaApi: false
     });
 
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -613,7 +613,7 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -626,7 +626,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -643,7 +643,7 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -656,7 +656,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -670,7 +670,7 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -697,7 +697,7 @@ When('the admin user appoints one of the users as an editor', () => {
 Then(
   'the newly appointed editor user can appoint another user as an editor',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.logout();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
@@ -705,7 +705,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'

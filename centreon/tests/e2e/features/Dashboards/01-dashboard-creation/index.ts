@@ -179,7 +179,7 @@ Then('the user is on the dashboards overview page', () => {
     .invoke('split', '/')
     .should('not.be.empty')
     .then(last)
-    .should('eq', 'dashboards'); // dashboards overview
+    .should('eq', 'library'); // dashboards overview
 });
 
 When(
@@ -226,7 +226,7 @@ Then("creates a new dashboard on the previous dashboard's edition page", () => {
 Then(
   "the user is redirected to the newly created dashboard's edition page",
   () => {
-    cy.url().should('match', /\/dashboards\/\d+\?edit=true/);
+    cy.url().should('match', /\/dashboards\/library\/\d+\?edit=true/);
   }
 );
 
