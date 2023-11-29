@@ -106,14 +106,18 @@ $attrsText = array("size" => "35");
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Change my settings"));
 $form->addElement('header', 'information', _("General Information"));
-$form->addElement('text', 'contact_name', _("Name"), $attrsText);
-if ($cct["contact_auth_type"] != 'ldap') {
+if ($cct["contact_auth_type"] === 'local') {
+    $form->addElement('text', 'contact_name', _("Name"), $attrsText);
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
+    $form->addElement('text', 'contact_email', _("Email"), $attrsText);
+    $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
 } else {
+    $form->addElement('text', 'contact_name', _("Name"), $attrsText, $attrsText)->freeze();
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText)->freeze();
+    $form->addElement('text', 'contact_email', _("Email"), $attrsText, $attrsText)->freeze();
+    $form->addElement('text', 'contact_pager', _("Pager"), $attrsText, $attrsText)->freeze();
 }
-$form->addElement('text', 'contact_email', _("Email"), $attrsText);
-$form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
+
 
 if ($cct["contact_auth_type"] === 'local') {
     $form->addFormRule('validatePasswordModification');
@@ -381,7 +385,7 @@ $form->applyFilter('contact_name', 'myReplace');
 $form->addRule('contact_name', _("Compulsory name"), 'required');
 $form->addRule('contact_alias', _("Compulsory alias"), 'required');
 $form->addRule('contact_email', _("Valid Email"), 'required');
-if ($cct["contact_auth_type"] !== 'ldap') {
+if ($cct["contact_auth_type"] === 'local') {
     $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
 }
 $form->registerRule('exist', 'callback', 'testExistence');
@@ -418,6 +422,11 @@ if ($o == "c") {
 $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
+    if ($cct['contact_auth_type'] !== 'local') {
+        $centreon->user->set_name($cct['contact_name']);
+        $centreon->user->set_alias($cct['contact_alias']);
+        $centreon->user->set_email($cct['contact_email']);
+    }
     updateContactInDB($centreon->user->get_id());
     $o = null;
     $features = $form->getSubmitValue('features');
