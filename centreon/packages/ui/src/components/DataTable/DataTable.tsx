@@ -1,11 +1,11 @@
-import React, { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 import { useStyles } from './DataTable.styles';
 
 type DataTableProps = {
-  children: ReactNode | Array<ReactNode>;
+  children?: ReactNode | Array<ReactNode>;
   isEmpty?: boolean;
-  variant?: 'grid';
+  variant: 'grid' | 'listing';
 };
 
 /** *

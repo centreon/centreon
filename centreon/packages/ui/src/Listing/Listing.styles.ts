@@ -56,7 +56,7 @@ const useListingStyles = makeStyles<StylesProps>()(
       display: 'grid',
       gridTemplateColumns: getGridTemplateColumn,
       gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
-        rows?.length || limit
+        rows?.length || 1
       }, ${dataStyle.body.height}px)`,
       position: 'relative'
     },
