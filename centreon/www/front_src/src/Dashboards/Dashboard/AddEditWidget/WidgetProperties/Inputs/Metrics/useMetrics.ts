@@ -138,7 +138,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   };
 
   const deleteMetricItem = (option): void => {
-    const newMetrics = reject(propEq(option.id, 'id'), value || []);
+    const newMetrics = reject(propEq('id', option.id), value || []);
 
     setFieldValue(`data.${propertyName}`, newMetrics);
     setFieldTouched(`data.${propertyName}`, true, false);
