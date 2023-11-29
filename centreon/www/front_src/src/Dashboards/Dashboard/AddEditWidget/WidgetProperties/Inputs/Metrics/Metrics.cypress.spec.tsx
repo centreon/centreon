@@ -129,7 +129,7 @@ describe('Metrics: single metric', () => {
 
   it('displays a warning message when the corresponding atom is set and the selected metric is available on several resources', () => {
     cy.findByTestId(labelSelectMetric).click();
-    
+
     cy.findByText('rtmax (ms) / Includes 2 resources').click();
 
     cy.contains('Centreon-server_Ping').should('be.visible');
@@ -150,4 +150,4 @@ describe('Metrics: single metric', () => {
       'rtmax (ms) / Includes 2 resources'
     );
   });
-})
+});
