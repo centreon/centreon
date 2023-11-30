@@ -21,20 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Model;
+namespace Core\Escalation\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class MonitoringServer
+class Escalation
 {
-    public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
+    public const MAX_LENGTH_NAME = 255;
 
     public function __construct(
         private readonly int $id,
         private string $name,
-    ){
+        // NOTE: minimal implementation for current needs as november 2023
+    ) {
+        $className = (new \ReflectionClass($this))->getShortName();
         $this->name = trim($name);
-        Assertion::notEmptyString($this->name, 'MonitoringServer::name');
+
+        Assertion::positiveInt($this->id, "{$className}::id");
+        Assertion::notEmptyString($this->name, "{$className}::name");
+        Assertion::maxLength($name, self::MAX_LENGTH_NAME, "{$className}::name");
     }
 
     public function getId(): int

@@ -21,29 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Model;
+namespace Core\Dashboard\Playlist\Infrastructure\API\DeletePlaylist;
 
-use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Playlist\Application\UseCase\DeletePlaylist\DeletePlaylistPresenterInterface;
 
-class MonitoringServer
+final class DeletePlaylistPresenter extends AbstractPresenter implements DeletePlaylistPresenterInterface
 {
-    public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
-
-    public function __construct(
-        private readonly int $id,
-        private string $name,
-    ){
-        $this->name = trim($name);
-        Assertion::notEmptyString($this->name, 'MonitoringServer::name');
-    }
-
-    public function getId(): int
+    public function presentResponse(ResponseStatusInterface $response): void
     {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
+        $this->setResponseStatus($response);
     }
 }

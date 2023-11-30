@@ -21,29 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Model;
+namespace Core\Escalation\Application\Repository;
 
-use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Escalation\Domain\Model\Escalation;
 
-class MonitoringServer
-{
-    public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
-
-    public function __construct(
-        private readonly int $id,
-        private string $name,
-    ){
-        $this->name = trim($name);
-        Assertion::notEmptyString($this->name, 'MonitoringServer::name');
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
+interface ReadEscalationRepositoryInterface {
+    /**
+     * Find multiple escalations.
+     *
+     * @param int[] $ids
+     *
+     * @throws \Throwable
+     *
+     * @return Escalation[]
+     */
+    public function findByIds(array $ids): array;
 }

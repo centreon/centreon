@@ -21,29 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Model;
+namespace Core\Dashboard\Playlist\Application\UseCase\DeletePlaylist;
 
-use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-class MonitoringServer
+interface DeletePlaylistPresenterInterface
 {
-    public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
-
-    public function __construct(
-        private readonly int $id,
-        private string $name,
-    ){
-        $this->name = trim($name);
-        Assertion::notEmptyString($this->name, 'MonitoringServer::name');
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
+    public function presentResponse(ResponseStatusInterface $response): void;
 }
