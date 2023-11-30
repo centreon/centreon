@@ -1,8 +1,11 @@
+export interface Dashboard {
+  id: number;
+  name: string;
+  order: number;
+}
+
 export interface PlaylistConfig {
-  dashboards: Array<{
-    id: number;
-    order: number;
-  }>;
+  dashboards: Array<Dashboard>;
   description: string;
   isPublic: boolean;
   name: string;

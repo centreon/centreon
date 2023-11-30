@@ -45,3 +45,6 @@ export const labelPlaylistName = 'Playlist name';
 export const labelPlaylistProperties = 'Playlist properties';
 export const labelRotationTime = 'Rotation time';
 export const labelSecond = 'Second';
+export const labelSelectDashboards = 'Select dashboards';
+export const labelDefineTheOrderOfDashboards = 'Define the order of dashboards';
+export const labelAddADashboard = 'Add a dashboard';

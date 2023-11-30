@@ -27,6 +27,10 @@ const FormActions = (): JSX.Element => {
   const isValidForm = isValid && dirty;
   const isDisabled = !dirty || !isValid;
 
+  const openUnsavedChanges = (): void => {
+    setAskBeforeClosePlaylistConfig(true);
+  };
+
   const closeUnsavedChanges = (): void => {
     setAskBeforeClosePlaylistConfig(false);
   };
@@ -44,7 +48,7 @@ const FormActions = (): JSX.Element => {
           cancel: t(labelCancel),
           confirm: t(labelSave)
         }}
-        onCancel={dirty ? askBeforeClosePlaylistConfig : discardChanges}
+        onCancel={dirty ? openUnsavedChanges : discardChanges}
         onConfirm={submitForm}
       />
       <UnsavedChangesDialog

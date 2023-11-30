@@ -5,7 +5,7 @@ import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import WatchIcon from '@mui/icons-material/Watch';
-import { Typography } from '@mui/material';
+import { FormHelperText, Typography } from '@mui/material';
 
 import {
   InputPropsWithoutGroup,
@@ -17,39 +17,53 @@ import { labelRotationTime, labelSecond } from '../../../translatedLabels';
 
 import { usePlaylistConfigStyles } from './PlaylistConfig.styles';
 
-const RotationTime = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
+const RotationTime = ({
+  fieldName,
+  getDisabled
+}: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = usePlaylistConfigStyles();
 
   const { pluralizedT } = usePluralizedTranslation();
-  const { values, setFieldValue } = useFormikContext<FormikValues>();
+  const { values, setFieldValue, errors, touched, setFieldTouched } =
+    useFormikContext<FormikValues>();
 
   const value = values[fieldName];
+  const error = errors[fieldName];
+  const isTouched = touched[fieldName];
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue(
       fieldName,
       equals(event.target.value, '') || Number(event.target.value) < 0
-        ? 1
+        ? 10
         : Number(event.target.value)
     );
+    setFieldTouched(fieldName, true, false);
   };
 
   return (
-    <div className={classes.rotationTime}>
-      <WatchIcon />
-      <TextField
-        autoSize
-        dataTestId={labelRotationTime}
-        inputProps={{ max: 60, min: 10 }}
-        type="text"
-        value={value}
-        onChange={change}
-      />
-      <Typography>
-        {pluralizedT({ count: value, label: labelSecond })}
-      </Typography>
-      <Typography>{t(labelRotationTime)}</Typography>
+    <div>
+      <div className={classes.rotationTime}>
+        <WatchIcon className={classes.rotationTimeIcon} />
+        <TextField
+          autoSize
+          dataTestId={labelRotationTime}
+          disabled={getDisabled?.(values)}
+          inputProps={{ max: 60, min: 10 }}
+          size="compact"
+          type="number"
+          value={value}
+          onChange={change}
+        />
+        <Typography>
+          {pluralizedT({ count: value, label: labelSecond })}
+        </Typography>
+        <Typography>({t(labelRotationTime)})</Typography>
+      </div>
+      {isTouched && error && (
+        <FormHelperText error>{error as string | undefined}</FormHelperText>
+      )}
     </div>
   );
 };

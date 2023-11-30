@@ -1,9 +1,15 @@
-import { InputPropsWithoutGroup } from '@centreon/ui';
+import { usePlaylistConfigStyles } from '../PlaylistConfig.styles';
 
-const DashboardsSelection = ({
-  fieldName
-}: InputPropsWithoutGroup): JSX.Element => {
-  return <p>{fieldName}</p>;
+import SelectDashboard from './SelectDashboard';
+
+const DashboardsSelection = (): JSX.Element => {
+  const { classes } = usePlaylistConfigStyles();
+
+  return (
+    <div className={classes.dashboards}>
+      <SelectDashboard />
+    </div>
+  );
 };
 
 export default DashboardsSelection;
