@@ -43,3 +43,5 @@ export const labelWelcomeToThePlaylistInterface =
 export const labelCreateAPlaylist = 'Create a playlist';
 export const labelPlaylistName = 'Playlist name';
 export const labelPlaylistProperties = 'Playlist properties';
+export const labelRotationTime = 'Rotation time';
+export const labelSecond = 'Second';
