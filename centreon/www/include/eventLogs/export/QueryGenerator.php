@@ -324,7 +324,7 @@ class QueryGenerator
     /**
      * @param string $acknowledgement
      */
-    public function setAck(string $acknowledgement): void
+    public function setAcknowledgement(string $acknowledgement): void
     {
         $this->acknowledgement = $acknowledgement;
     }

@@ -315,7 +315,7 @@ class Request
     /**
      * @return string
      */
-    public function getAck(): string
+    public function getAcknowledgement(): string
     {
         if ($this->getEngine() === 'true') {
             return 'false';
@@ -456,10 +456,10 @@ class Request
         if ($this->getUnknown() === 'true') {
             $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_UNKNOWN);
         }
-        if ($this->getAck() === 'true') {
+        if ($this->getAcknowledgement() === 'true') {
             $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_ACKNOWLEDGEMENT);
         }
-        if ($this->getNotif() === 'true') {
+        if ($this->getNotification() === 'true') {
             $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_NOTIFICATION);
         }
 

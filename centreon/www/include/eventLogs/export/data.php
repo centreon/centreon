@@ -142,7 +142,7 @@ $formatter->setOk($requestHandler->getOk());
 $formatter->setWarning($requestHandler->getWarning());
 $formatter->setCritical($requestHandler->getCritical());
 $formatter->setUnknown($requestHandler->getUnknown());
-$formatter->setAck($requestHandler->getAck());
+$formatter->setAcknowledgement($requestHandler->getAcknowledgement());
 $formattedLogs = $formatter->formatLogs($stmt);
 $logHeads = $formatter->getLogHeads();
 $metaData = $formatter->formatMetaData();

@@ -84,7 +84,7 @@ define("STATUS_WARNING", 1);
 define("STATUS_CRITICAL", 2);
 define("STATUS_UNKNOWN", 3);
 define("STATUS_PENDING", 4);
-define("STATUS_ACKNOWLEDGEMRNT", 5);
+define("STATUS_ACKNOWLEDGEMENT", 5);
 define("STATUS_NOTIFICATION", 6);
 define("STATUS_UP", 0);
 define("STATUS_DOWN", 1);
@@ -323,7 +323,7 @@ $tab_color_service = array(
     STATUS_WARNING => 'service_warning',
     STATUS_CRITICAL => 'service_critical',
     STATUS_UNKNOWN => 'service_unknown',
-    STATUS_ACKNOWLEDGEMRNT => 'service_acknowledgement',
+    STATUS_ACKNOWLEDGEMENT => 'service_acknowledgement',
     STATUS_NOTIFICATION => 'service_notification',
     STATUS_PENDING => 'pending'
 );
@@ -441,7 +441,7 @@ if ($unknown == 'true') {
     array_push($svc_msg_status_set, "'" . STATUS_UNKNOWN . "'");
 }
 if ($acknowledgement == 'true') {
-    array_push($svc_msg_status_set, "'" . STATUS_ACKNOWLEDGEMRNT . "'");
+    array_push($svc_msg_status_set, "'" . STATUS_ACKNOWLEDGEMENT . "'");
 }
 if ($notification == 'true') {
     array_push($svc_msg_status_set, "'" . STATUS_NOTIFICATION . "'");
