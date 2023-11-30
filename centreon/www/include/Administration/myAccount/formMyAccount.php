@@ -67,7 +67,7 @@ $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
 /*
  * Database retrieve information for the User
  */
-$cct = array();
+$cct = [];
 if ($o == "c") {
     $query = "SELECT contact_id, contact_name, contact_alias, contact_lang, contact_email, contact_pager,
         contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type
@@ -99,9 +99,9 @@ if ($o == "c") {
  *
  * Langs -> $langs Array
  */
-$langs = array();
+$langs = [];
 $langs = getLangs();
-$attrsText = array("size" => "35");
+$attrsText = ["size" => "35"];
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Change my settings"));
@@ -162,7 +162,7 @@ if ($cct["contact_auth_type"] === 'local') {
         ['onclick' => "generatePassword('passwd', '$encodedPasswordPolicy');", 'class' => 'btc bt_info']
     );
 }
-$form->addElement('text', 'contact_autologin_key', _("Autologin Key"), array("size" => "30", "id" => "aKey"));
+$form->addElement('text', 'contact_autologin_key', _("Autologin Key"), ["size" => "30", "id" => "aKey"]);
 $form->addElement(
     'button',
     'contact_gen_akey',
@@ -331,9 +331,9 @@ $form->addElement('checkbox', 'monitoring_svc_notification_3', _('Show Unknown s
 
 /* Add feature information */
 $features = $centreonFeature->getFeatures();
-$defaultFeatures = array();
+$defaultFeatures = [];
 foreach ($features as $feature) {
-    $featRadio = array();
+    $featRadio = [];
     $featRadio[] = $form->createElement('radio', $feature['version'], null, _('New version'), '1');
     $featRadio[] = $form->createElement('radio', $feature['version'], null, _('Legacy version'), '0');
     $feat = $form->addGroup($featRadio, 'features[' . $feature['name'] . ']', $feature['name'], '&nbsp;');
@@ -341,7 +341,7 @@ foreach ($features as $feature) {
 }
 
 $sound_files = scandir(_CENTREON_PATH_ . "www/sounds/");
-$sounds = array(null => null);
+$sounds = [null => null];
 foreach ($sound_files as $f) {
     if ($f == "." || $f == "..") {
         continue;
@@ -361,14 +361,14 @@ $form->addElement('select', 'monitoring_sound_svc_notification_3', _("Sound for 
 $availableRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list';
 $defaultRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone' .
     '&action=defaultValues&target=contact&field=contact_location&id=' . $centreon->user->get_id();
-$attrTimezones = array(
+$attrTimezones = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $availableRoute,
     'defaultDatasetRoute' => $defaultRoute,
     'multiple' => false,
     'linkedObject' => 'centreonGMT'
-);
-$form->addElement('select2', 'contact_location', _("Timezone / Location"), array(), $attrTimezones);
+];
+$form->addElement('select2', 'contact_location', _("Timezone / Location"), [], $attrTimezones);
 
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
@@ -386,7 +386,7 @@ $form->addRule('contact_name', _("Compulsory name"), 'required');
 $form->addRule('contact_alias', _("Compulsory alias"), 'required');
 $form->addRule('contact_email', _("Valid Email"), 'required');
 if ($cct["contact_auth_type"] === 'local') {
-    $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
+    $form->addRule(['contact_passwd', 'contact_passwd2'], _("Passwords do not match"), 'compare');
 }
 $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('contact_name', _("Name already in use"), 'exist');
@@ -407,12 +407,12 @@ $cct['contact_alias'] = CentreonUtils::escapeSecure($cct['contact_alias'], Centr
 
 // Modify a contact information
 if ($o == "c") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($cct);
     /* Add saved value for feature testing */
     $userFeatures = $centreonFeature->userFeaturesValue($centreon->user->get_id());
-    $defaultUserFeatures = array();
+    $defaultUserFeatures = [];
     foreach ($userFeatures as $feature) {
         $defaultUserFeatures['features'][$feature['name']][$feature['version']] = $feature['enabled'];
     }
@@ -440,7 +440,7 @@ if ($form->validate()) {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info')
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
     );
     $form->freeze();
 
@@ -470,7 +470,7 @@ if ($form->validate()) {
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info')
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
     );
     $form->freeze();
 }
