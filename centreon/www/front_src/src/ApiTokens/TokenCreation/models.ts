@@ -1,3 +1,5 @@
+import { Token } from '../TokenListing/models';
+
 export enum UnitDate {
   Day = 'd',
   Hour = 'h',
@@ -8,3 +10,11 @@ export enum UnitDate {
   Week = 'w',
   Year = 'y'
 }
+export interface Duration {
+  id: string;
+  name: string;
+  unit: UnitDate;
+  value: number;
+}
+
+export type CreatedToken = Token & { token: string };
