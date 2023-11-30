@@ -114,8 +114,7 @@ if [[ ${DATABASE} == "mariadb" ]]; then
   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
   dnf install -y mariadb-server mariadb
 elif [[ ${DATABASE} == "mysql" ]]; then
-  curl -LsS https://dev.mysql.com/get/mysql80-community-release-el9-5.noarch.rpm
-  dnf install -y mysql80-community-release-el9-8.0.noarch.rpm
+  dnf install -y "https://dev.mysql.com/get/mysql80-community-release-el9-5.noarch.rpm"
 fi
 
 echo "[server]
