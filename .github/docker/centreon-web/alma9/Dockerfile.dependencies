@@ -1,8 +1,10 @@
 ARG VERSION
+ARG DATABASE
 
 FROM almalinux:9 AS web_fresh
 
 ARG VERSION
+ARG DATABASE
 
 RUN bash -e <<EOF
 
@@ -103,13 +105,18 @@ dnf install -y \
   php-pear \
   php-json
 
-#################################
-# install and configure mariadb #
-#################################
+##########################################
+# install and configure mariadb or mysql #
+##########################################
 
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+if [[ ${DATABASE} == "mariadb" ]]; then
+  curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
-dnf install -y mariadb-server mariadb
+  dnf install -y mariadb-server mariadb
+elif [[ ${DATABASE} == "mysql" ]]; then
+  curl -LsS https://dev.mysql.com/downloads/file/?id=521601
+  dnf install -y mysql80-community-release-el9-8.0.noarch.rpm
+fi
 
 echo "[server]
 log_output=FILE

@@ -26,6 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         distrib: [alma9]
+        database: [mysql, mariadb]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -45,6 +46,7 @@ jobs:
           context: .
           build-args: |
             "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "DATABASE=${{ matrix.database }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:MON-23368-mysql
