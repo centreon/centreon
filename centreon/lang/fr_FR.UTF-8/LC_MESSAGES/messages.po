@@ -18345,6 +18345,9 @@ msgstr "Gestion de l'accès aux ressources"
 msgid "Refine filter"
 msgstr "Affiner le filtre"
 
+msgid "Refine your filter on a single metric by adding more resources."
+msgstr "Affinez votre filtre sur une seule métrique en ajoutant d'autres ressources."
+
 msgid "Unselect all"
 msgstr "Tout désélectionner"
 
@@ -18470,3 +18473,6 @@ msgstr "Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
 
 msgid "You are not in the following contact group: [%s]"
 msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
+
+msgid "Error while deleting a playlist"
+msgstr "Erreur lors de la suppression d'une liste de diffusion"
