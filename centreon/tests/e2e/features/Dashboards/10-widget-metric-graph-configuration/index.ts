@@ -13,6 +13,7 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
+
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? 'apache'
     : 'www-data';
@@ -20,6 +21,7 @@ before(() => {
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
     name: Cypress.env('dockerName')
   });
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -36,6 +38,7 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+
   checkServicesAreMonitored([
     {
       name: 'Ping',

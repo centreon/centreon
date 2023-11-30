@@ -36,6 +36,13 @@ before(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
 });
 
 beforeEach(() => {
