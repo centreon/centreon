@@ -16584,6 +16584,9 @@ msgstr "Modo avanzado"
 # msgid "Resource Access Management"
 # msgstr ""
 
+# msgid "Refine your filter on a single metric by adding more resources."
+# msgstr ""
+
 # msgid "Unselect all"
 # msgstr ""
 
