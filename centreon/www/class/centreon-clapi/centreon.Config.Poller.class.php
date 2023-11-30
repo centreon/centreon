@@ -108,7 +108,7 @@ class CentreonConfigPoller
     private function writeToCentcorePipe($cmd, $id): int
     {
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $pipe = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+            $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
         } else {
             $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
         }
