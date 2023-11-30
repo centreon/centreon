@@ -41,3 +41,5 @@ export const labelPlaylists = 'Playlists';
 export const labelWelcomeToThePlaylistInterface =
   'Welcome to the playlist interface!';
 export const labelCreateAPlaylist = 'Create a playlist';
+export const labelPlaylistName = 'Playlist name';
+export const labelPlaylistProperties = 'Playlist properties';

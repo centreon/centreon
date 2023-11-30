@@ -11,6 +11,8 @@ import {
 } from '../../translatedLabels';
 
 import { playlistConfigInitialValuesAtom } from './atoms';
+import PlaylistConfig from './PlaylistConfig/PlaylistConfig';
+import { initialValue } from './PlaylistConfig/utils';
 
 const DashboardPlaylistsOverview = (): JSX.Element => {
   const { t } = useTranslation();
@@ -19,23 +21,23 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
   );
 
   const openConfig = useCallback(() => {
-    setPlaylistConfigInitialValues({
-      description: '',
-      name: ''
-    });
+    setPlaylistConfigInitialValues(initialValue);
   }, []);
 
   return (
-    <DataTable variant="listing">
-      <DataTable.EmptyState
-        canCreate
-        labels={{
-          actions: { create: t(labelCreateAPlaylist) },
-          title: t(labelWelcomeToThePlaylistInterface)
-        }}
-        onCreate={openConfig}
-      />
-    </DataTable>
+    <>
+      <DataTable variant="listing">
+        <DataTable.EmptyState
+          canCreate
+          labels={{
+            actions: { create: t(labelCreateAPlaylist) },
+            title: t(labelWelcomeToThePlaylistInterface)
+          }}
+          onCreate={openConfig}
+        />
+      </DataTable>
+      <PlaylistConfig />
+    </>
   );
 };
 
