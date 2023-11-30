@@ -38,7 +38,7 @@ Feature: Creating a Notification Rule
     Then an email is sent to the configured contacts and/or contact groups with the configured format
 
   Scenario: Creating a business view Notification Rule
-    Given a business view
+    Given a business view with a business activity contains indicators
     When the user defines a name for the rule
     And the user selects a business view with associated events on which to notify
     And the user selects some contacts and/or contact groups
