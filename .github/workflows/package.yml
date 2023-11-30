@@ -83,7 +83,7 @@ jobs:
       - uses: ./.github/actions/package
         with:
           base_directory: ${{ inputs.base_directory }}
-          spec_file:  ${{ inputs.spec_file }}
+          spec_file: ${{ inputs.spec_file }}
           package_extension: ${{ inputs.package_extension }}
           frontend_index_cache_key: ${{ inputs.frontend_index_cache_key }}
           frontend_index_file: ${{ inputs.frontend_index_file }}
@@ -117,7 +117,9 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - run: apt-get install -y zstd
+      - run: |
+          apt-get update
+          apt-get install -y zstd
         shell: bash
 
       - uses: actions/checkout@v3

@@ -1,5 +1,4 @@
 name: web
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -26,6 +25,62 @@ env:
   base_directory: centreon
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
+      has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            has_frontend_changes:
+              - '**/*.[jt]sx?'
+              - '**/www/front_src/**'
+              - '**/tests/e2e/**'
+              - '**/package*'
+              - '**/lighthouse/**'
+              - '**/tsconfig.json'
+              - '**/cypress/**|**/pnpm-*'
+            has_backend_changes:
+              - '**/*.php'
+              - '**/phpstan*.neon'
+              - 'centreon/codingstyle.xml'
+              - 'centreon/config/**/*.xml'
+              - 'centreon/phpunit.xml'
+              - 'centreon/ruleset.xml'
+              - 'centreon/www/**/*.xml'
+              - '**/bin/**'
+              - '**/tmpl/**'
+              - '**/features/**'
+              - '/centreon/src/**'
+              - '**/config/**'
+              - '**/composer.*'
+              - '**/tests/api/**'
+              - '**/tests/rest_api/collections/**'
+              - '**/tests/php/**'
+              - '**/tests/clapi_export/**'
+              - '**/www/!(front_src)/**'
+              - '**/doc/API/**'
+            has_features_changes:
+              - '**/tests/e2e/**/*.feature'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  gherkin-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: centreon/tests/e2e
+
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
@@ -188,6 +243,7 @@ jobs:
   package:
     needs:
       [
+        gherkin-lint,
         get-version,
         translation-build,
         backend-dependencies,
@@ -456,14 +512,8 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           release: ${{ needs.get-version.outputs.release }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
           stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-deb:
@@ -493,8 +543,6 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
@@ -521,3 +569,4 @@ jobs:
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
           repository_name: standard
+          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
