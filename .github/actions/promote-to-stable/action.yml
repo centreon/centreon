@@ -77,7 +77,7 @@ runs:
         #jf rt delete test-apt-23.10-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/*.rpm
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(jf rt s --include-dirs test-apt-23.10-standard-${{ inputs.major_version }}-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
+        SRC_PATHS=$(jf rt s --include-dirs test-apt-23.10-standard-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
