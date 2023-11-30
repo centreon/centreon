@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '23.10.1');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '23.10.2');
 
 --
 -- Contenu de la table `contact`
@@ -1499,3 +1499,6 @@ VALUES ('centreon-widget-graph');
 
 INSERT INTO dashboard_widgets (`name`)
 VALUES ('centreon-widget-topbottom');
+
+INSERT INTO dashboard_widgets (`name`)
+VALUES ('centreon-widget-statusgrid');

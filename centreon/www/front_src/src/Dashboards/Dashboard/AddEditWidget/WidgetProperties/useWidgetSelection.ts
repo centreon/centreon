@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { equals, filter, find, isNil, map, propEq } from 'ramda';
+import { equals, filter, find, has, isNil, map, propEq } from 'ramda';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 
@@ -92,10 +92,25 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     ) as FederatedWidgetProperties;
 
     const options = Object.entries(selectedWidgetProperties.options).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: value.defaultValue
-      }),
+      (acc, [key, value]) => {
+        if (!has('when', value.defaultValue)) {
+          return {
+            ...acc,
+            [key]: value.defaultValue
+          };
+        }
+
+        return {
+          ...acc,
+          [key]: equals(
+            selectedWidgetProperties.options[value.defaultValue.when]
+              .defaultValue,
+            value.defaultValue.is
+          )
+            ? value.defaultValue.then
+            : value.defaultValue.otherwise
+        };
+      },
       {}
     );
 

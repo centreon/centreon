@@ -44,4 +44,13 @@ interface ReadPlaylistRepositoryInterface
      * @return bool
      */
     public function existsByName(string $name): bool;
+
+    /**
+     * Check if a playlist exists with given id.
+     *
+     * @param int $playlistId
+     *
+     * @return bool
+     */
+    public function exists(int $playlistId): bool;
 }

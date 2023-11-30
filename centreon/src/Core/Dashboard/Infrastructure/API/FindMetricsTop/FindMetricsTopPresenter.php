@@ -66,6 +66,7 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
             return [
                 'id' => $metricInformation->serviceId,
                 'name' => $metricInformation->resourceName,
+                'uuid' => 'h' . $metricInformation->parentId . '-s' . $metricInformation->serviceId,
                 'current_value' => $metricInformation->currentValue,
                 'warning_high_threshold' => $metricInformation->warningHighThreshold,
                 'critical_high_threshold' => $metricInformation->criticalHighThreshold,
