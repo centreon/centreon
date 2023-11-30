@@ -69,7 +69,7 @@ class PlaylistException extends \Exception
      */
     public static function errorWhileDeleting(): self
     {
-        return new self(_('Error while deleting a playlist.'));
+        return new self(_('Error while deleting a playlist'));
     }
 
     /**
