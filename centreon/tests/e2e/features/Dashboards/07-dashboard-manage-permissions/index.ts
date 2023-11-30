@@ -30,11 +30,11 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 after(() => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -87,14 +87,14 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
     })
       .contains(dashboards.fromDashboardAdministratorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
   }
@@ -133,7 +133,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -141,7 +141,7 @@ Then(
       .contains(dashboards.fromDashboardAdministratorUser.name)
       .should('exist')
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
   }
@@ -179,7 +179,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -235,7 +235,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.getByLabel({
     label: 'view',
     tag: 'button'
@@ -243,7 +243,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     .contains(dashboards.fromDashboardAdministratorUser.name)
     .should('exist')
     .click();
-  cy.url().should('match', /\/dashboards\/\d+$/);
+  cy.url().should('match', /\/dashboards\/library\/\d+$/);
   cy.getByTestId({ testId: 'edit' }).should('not.exist');
   cy.getByTestId({ testId: 'share' }).should('not.exist');
 });
