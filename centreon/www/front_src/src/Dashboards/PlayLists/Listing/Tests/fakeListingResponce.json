@@ -1,0 +1,113 @@
+{
+  "result":[
+  {
+    "id": 1,
+    "name": "Dashboard Playlist 1",
+    "description": "Sample description for Playlist 1",
+    "dashboards": [
+      {
+        "id": 101,
+        "order": 1
+      },
+      {
+        "id": 102,
+        "order": 2
+      }
+    ],
+    "shares": {
+      "contacts": [
+        {
+          "id": 201,
+          "name": "John Doe",
+          "role": "Admin"
+        },
+        {
+          "id": 202,
+          "name": "Jane Doe",
+          "role": "Viewer"
+        }
+      ],
+      "contactgroups": [
+        {
+          "id": 301,
+          "name": "Developers",
+          "role": "Editor"
+        },
+        {
+          "id": 302,
+          "name": "Managers",
+          "role": "Viewer"
+        }
+      ]
+    },
+    "public_link": "https://example.com/public-link",
+    "is_public": true,
+    "rotation_time": 60,
+    "author": {
+      "id": 401,
+      "name": "Author Name"
+    },
+    "created_at": "2023-01-01T12:00:00Z",
+    "updated_at": "2023-01-02T14:30:00Z"
+  },
+  {
+    "id": 2,
+    "name": "Dashboard Playlist 2",
+    "description": "Sample description for Playlist 2",
+    "dashboards": [
+      {
+        "id": 103,
+        "order": 1
+      },
+      {
+        "id": 104,
+        "order": 2
+      }
+    ],
+    "shares": {
+      "contacts": [
+        {
+          "id": 203,
+          "name": "Alice",
+          "role": "Editor"
+        },
+        {
+          "id": 204,
+          "name": "Bob",
+          "role": "Viewer"
+        }
+      ],
+      "contactgroups": [
+        {
+          "id": 303,
+          "name": "Designers",
+          "role": "Admin"
+        },
+        {
+          "id": 304,
+          "name": "Marketing",
+          "role": "Viewer"
+        }
+      ]
+    },
+    "public_link": null,
+    "is_public": false,
+    "rotation_time": 30,
+    "author": {
+      "id": 402,
+      "name": "Another Author"
+    },
+    "created_at": "2023-02-01T08:45:00Z",
+    "updated_at": "2023-02-05T17:15:00Z"
+  }
+]
+
+,
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "search": {},
+    "sort_by": {},
+    "total": 1
+  }
+}

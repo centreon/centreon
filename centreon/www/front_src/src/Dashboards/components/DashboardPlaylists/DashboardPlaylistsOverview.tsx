@@ -11,6 +11,7 @@ import {
 } from '../../translatedLabels';
 
 import { playlistConfigInitialValuesAtom } from './atoms';
+import { Listing } from '../../PlayLists/Listing';
 
 const DashboardPlaylistsOverview = (): JSX.Element => {
   const { t } = useTranslation();
@@ -27,6 +28,7 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
 
   return (
     <DataTable variant="listing">
+      {false ? 
       <DataTable.EmptyState
         canCreate
         labels={{
@@ -34,7 +36,11 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
           title: t(labelWelcomeToThePlaylistInterface)
         }}
         onCreate={openConfig}
-      />
+      /> : 
+      <div style={{ height : "100vh", width : "100%"}}>
+        <Listing />
+      </div>
+      }
     </DataTable>
   );
 };

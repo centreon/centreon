@@ -62,7 +62,7 @@ export const customFetch = <T>({
       }
     : defaultOptions;
 
-  return fetch(formattedEndpoint, options)
+  return fetch(endpoint, options)
     .then((response) => {
       if (equals(response.status, 204)) {
         return {
