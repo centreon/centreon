@@ -48,4 +48,13 @@ interface WritePlaylistRepositoryInterface
      * @throws \Throwable
      */
     public function addDashboardsToPlaylist(int $playlistId, array $dashboardsOrder): void;
+
+    /**
+     * Delete a playlist.
+     *
+     * @param int $playlistId
+     *
+     * @throws \Throwable
+     */
+    public function delete(int $playlistId): void;
 }
