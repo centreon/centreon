@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         distrib: [alma9]
-        database: [mysql, mariadb]
+        database: [mysql]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
