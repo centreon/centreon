@@ -36,9 +36,9 @@ interface ReadHostGroupRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return list<HostGroup>
+     * @return \Traversable<int, HostGroup>&\Countable
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array;
+    public function findAll(?RequestParametersInterface $requestParameters = null): \Traversable&\Countable;
 
     /**
      * Find All host groups with access groups.
@@ -48,9 +48,10 @@ interface ReadHostGroupRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return list<HostGroup>
+     * @return \Traversable<HostGroup>&\Countable
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): array;
+    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups):
+    \Traversable&\Countable;
 
     /**
      * Find one host group without acl.

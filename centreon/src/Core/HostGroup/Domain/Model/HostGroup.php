@@ -25,9 +25,11 @@ namespace Core\HostGroup\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\Comparable;
+use Core\Common\Domain\Identifiable;
 use Core\Domain\Common\GeoCoords;
 
-class HostGroup extends NewHostGroup
+class HostGroup extends NewHostGroup implements Comparable, Identifiable
 {
     private int $id;
 
@@ -85,5 +87,15 @@ class HostGroup extends NewHostGroup
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function isEqual(object $object): bool
+    {
+        return $object instanceof self && $object->getName() === $this->name;
+    }
+
+    public function getEqualityHash(): string
+    {
+        return md5($this->getName());
     }
 }

@@ -25,7 +25,7 @@ namespace Tests\Core\Host\Domain\Model;
 
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\SimpleEntity;
-use Core\Host\Domain\Model\TinyHost;
+use Core\Host\Domain\Model\SmallHost;
 
 beforeEach(function (): void {
     $this->parameters = [
@@ -45,30 +45,30 @@ beforeEach(function (): void {
 
 it('should throw an exception when the id property is not a positive number', function (): void {
     $this->parameters['id'] = 0;
-    new TinyHost(...$this->parameters);
+    new SmallHost(...$this->parameters);
 })->expectException(\Assert\AssertionFailedException::class);
 
 it('should throw an exception when the name property is empty', function (): void {
     $this->parameters['name'] = new TrimmedString('');
-    new TinyHost(...$this->parameters);
+    new SmallHost(...$this->parameters);
 })->expectException(\Assert\AssertionFailedException::class);
 
 it('should throw an exception when the alias property is empty', function (): void {
     $this->parameters['alias'] = new TrimmedString('');
-    new TinyHost(...$this->parameters);
+    new SmallHost(...$this->parameters);
 })->expectException(\Assert\AssertionFailedException::class);
 
 it('should throw an exception when the ipAddress property is empty', function (): void {
     $this->parameters['ipAddress'] = new TrimmedString('');
-    new TinyHost(...$this->parameters);
+    new SmallHost(...$this->parameters);
 })->expectException(\Assert\AssertionFailedException::class);
 
 it('should throw an exception when the normalCheckInterval property is not a positive number', function (): void {
     $this->parameters['normalCheckInterval'] = -1;
-    new TinyHost(...$this->parameters);
+    new SmallHost(...$this->parameters);
 })->expectException(\Assert\AssertionFailedException::class);
 
 it('should throw an exception when the retryCheckInterval property is not a positive number greater than 1', function (): void {
     $this->parameters['retryCheckInterval'] = 0;
-    new TinyHost(...$this->parameters);
+    new SmallHost(...$this->parameters);
 })->expectException(\Assert\AssertionFailedException::class);

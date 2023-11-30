@@ -32,7 +32,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\Host\Domain\Model\TinyHost;
+use Core\Host\Domain\Model\SmallHost;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
@@ -119,7 +119,7 @@ final class FindHosts
     }
 
     /**
-     * @param TinyHost[] $hosts
+     * @param SmallHost[] $hosts
      *
      * @throws \Throwable
      *

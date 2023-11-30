@@ -19,19 +19,31 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Infrastructure\Common\Repository;
+namespace Core\Service\Infrastructure\Repository;
 
-class RepositoryException extends \Exception
+use Core\Service\Domain\Model\TinyService;
+
+class TinyServiceFactory
 {
     /**
-     * @param string $method
+     * @param array{service_id: int, service_description: string, host_name: string} $data
      *
-     * @return self
+     * @return TinyService
      */
-    public static function notImplemented(string $method): self
+    public static function createFromDb(array $data): TinyService
     {
-        return new self($method . ' not implemented');
+        return new TinyService((int) $data['service_id'], $data['service_description'], $data['host_name']);
+    }
+
+    /**
+     * @param array{id: int, name: string, host_name: string} $data
+     *
+     * @return TinyService
+     */
+    public static function createFromApi(array $data): TinyService
+    {
+        return new TinyService((int) $data['id'], $data['name'], $data['host_name']);
     }
 }

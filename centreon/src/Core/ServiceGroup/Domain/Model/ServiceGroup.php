@@ -25,9 +25,11 @@ namespace Core\ServiceGroup\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\Comparable;
+use Core\Common\Domain\Identifiable;
 use Core\Domain\Common\GeoCoords;
 
-class ServiceGroup extends NewServiceGroup
+class ServiceGroup extends NewServiceGroup implements Comparable, Identifiable
 {
     private int $id;
 
@@ -67,5 +69,15 @@ class ServiceGroup extends NewServiceGroup
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function isEqual(object $object): bool
+    {
+        return $object instanceof self && $object->getEqualityHash() === $this->getEqualityHash();
+    }
+
+    public function getEqualityHash(): string
+    {
+        return md5($this->name);
     }
 }

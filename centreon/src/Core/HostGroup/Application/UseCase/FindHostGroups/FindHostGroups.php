@@ -114,11 +114,11 @@ final class FindHostGroups
     }
 
     /**
-     * @param list<HostGroup> $hostGroups
+     * @param iterable<HostGroup> $hostGroups
      *
      * @return FindHostGroupsResponse
      */
-    private function createResponse(array $hostGroups): FindHostGroupsResponse
+    private function createResponse(iterable $hostGroups): FindHostGroupsResponse
     {
         $response = new FindHostGroupsResponse();
 

@@ -137,7 +137,7 @@ it(
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findAll')
-            ->willReturn([$this->testedHostGroup]);
+            ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
 
         ($this->useCase)($this->presenter);
 
@@ -167,7 +167,7 @@ it(
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findAllByAccessGroups')
-            ->willReturn([$this->testedHostGroup]);
+            ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
 
         ($this->useCase)($this->presenter);
 
@@ -197,7 +197,7 @@ it(
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findAllByAccessGroups')
-            ->willReturn([$this->testedHostGroup]);
+            ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
 
         ($this->useCase)($this->presenter);
 
