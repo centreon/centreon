@@ -49,3 +49,4 @@ class LegacyContainer
         return self::$container;
     }
 }
+
