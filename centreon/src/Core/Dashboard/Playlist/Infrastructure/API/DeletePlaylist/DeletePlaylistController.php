@@ -37,6 +37,8 @@ final class DeletePlaylistController extends AbstractController
      * @param DeletePlaylist $useCase
      * @param DeletePlaylistPresenter $presenter
      *
+     * @throws \Symfony\Component\Security\Core\Exception\AccessDeniedException
+     *
      * @return Response
      */
     public function __invoke(
