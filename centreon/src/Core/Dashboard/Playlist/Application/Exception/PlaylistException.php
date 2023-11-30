@@ -26,6 +26,7 @@ namespace Core\Dashboard\Playlist\Application\Exception;
 class PlaylistException extends \Exception
 {
     public const CODE_CONFLICT = 1;
+    public const CODE_NOT_FOUND = 2;
 
     /**
      * @param int[] $dashboardIds
@@ -66,6 +67,14 @@ class PlaylistException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileUpdatingShares(): self
+    {
+        return new self(_('Error while updating playlist shares'));
+    }
+
+    /**
+     * @return self
+     */
     public static function dashboardShouldBeUnique(): self
     {
         return new self(_('You cannot add the same dashboard to a playlist several times.'));
@@ -87,5 +96,87 @@ class PlaylistException extends \Exception
     public static function dashboardNotShared(int $dashboardId): self
     {
         return new self(sprintf(_('The following dashboard is not shared with you: [%d].'), $dashboardId));
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same playlist to a contact several times'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactGroupForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same playlist to a contact group several times'));
+    }
+
+    /**
+     * @param int $playlistId
+     *
+     * @return self
+     */
+    public static function playlistDoesNotExists(int $playlistId): self
+    {
+        return new self(sprintf(_('The following playlist does not exist: [%d]'), $playlistId), self::CODE_NOT_FOUND);
+    }
+
+    /**
+     * @param int $playlistId
+     *
+     * @return self
+     */
+    public static function playlistNotSharedAsEditor(int $playlistId): self
+    {
+        return new self(sprintf(_('You do not have editing rights on the following playlist: [%d].'), $playlistId));
+    }
+
+    /**
+     * @param int[] $userIds
+     *
+     * @return self
+     */
+    public static function contactsDontExist(array $userIds): self
+    {
+        return new self(sprintf(_('The following contact does not exist: [%s]'), implode(', ', $userIds)));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function contactGroupsDontExist(array $contactGroupIds): self
+    {
+        return new self(sprintf(_('The following contact group does not exist: [%s]'), implode(', ', $contactGroupIds)));
+    }
+
+    /**
+     * @param int[] $userIds
+     *
+     * @return self
+     */
+    public static function contactsAreNotInTheUserContactGroup(array $userIds): self
+    {
+        return new self(sprintf(
+            _('The following contact is not in your contact groups: [%s]'),
+            implode(', ', $userIds)
+        ));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function userIsNotInContactGroups(array $contactGroupIds): self
+    {
+        return new self(sprintf(
+            _('You are not in the following contact group: [%s]'),
+            implode(', ', $contactGroupIds)
+        ));
     }
 }

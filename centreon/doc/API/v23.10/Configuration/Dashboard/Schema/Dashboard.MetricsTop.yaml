@@ -4,6 +4,10 @@ properties:
     type: string
     description: "Metric name"
     example: "rta"
+  uuid:
+    type: string
+    description: "UUID of the resource"
+    example: "h16-s24"
   unit:
     type: string
     description: "Metric unit"
