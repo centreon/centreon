@@ -25,7 +25,7 @@
     "cypress:ui": "cypress open --component --browser=chrome",
     "cypress:run": "cypress run --component --browser=chrome",
     "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
-    "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api-v23.10.yaml"
+    "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api-v24.04.yaml"
   },
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.2.3",

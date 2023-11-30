@@ -5,33 +5,42 @@ import { PrimitiveAtom, useAtom } from 'jotai';
 import { JsonDecoder } from 'ts.data.json';
 
 import {
+  QueryParameter,
   buildListingEndpoint,
   useFetchQuery,
   useIntersectionObserver
 } from '@centreon/ui';
 
 import type { Listing } from '../api/models';
-
-const limit = 100;
+import { Parameters } from '../api/buildListingEndpoint/models';
 
 interface UseInfiniteScrollListing<T> {
   elementRef: (node) => void;
   elements: Array<T>;
   isLoading: boolean;
+  total?: number;
 }
 
 interface UseInfiniteScrollListingProps<T> {
-  decoder: JsonDecoder.Decoder<Listing<T>>;
+  customQueryParameters?: Array<QueryParameter>;
+  decoder?: JsonDecoder.Decoder<Listing<T>>;
   endpoint: string;
+  limit?: number;
   pageAtom: PrimitiveAtom<number>;
+  parameters?: Parameters;
   queryKeyName: string;
+  suspense?: boolean;
 }
 
 export const useInfiniteScrollListing = <T>({
   queryKeyName,
   endpoint,
   decoder,
-  pageAtom
+  pageAtom,
+  suspense = true,
+  parameters,
+  customQueryParameters,
+  limit = 100
 }: UseInfiniteScrollListingProps<T>): UseInfiniteScrollListing<T> => {
   const [maxPage, setMaxPage] = useState(1);
 
@@ -46,14 +55,15 @@ export const useInfiniteScrollListing = <T>({
     getEndpoint: (params) =>
       buildListingEndpoint({
         baseEndpoint: endpoint,
-        parameters: { limit, page: params?.page || page }
+        customQueryParameters,
+        parameters: { limit, page: params?.page || page, ...parameters }
       }),
     getQueryKey: () => [queryKeyName, page],
     isPaginated: true,
     queryOptions: {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      suspense: equals(page, 1)
+      suspense: suspense && equals(page, 1)
     }
   });
 
@@ -98,9 +108,14 @@ export const useInfiniteScrollListing = <T>({
     });
   }, [data]);
 
+  useEffect(() => {
+    return () => setPage(1);
+  }, []);
+
   return {
     elementRef,
     elements: elements.current || [],
-    isLoading
+    isLoading,
+    total: data?.meta.total
   };
 };

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import 'ulog';
 import {
@@ -10,13 +10,14 @@ import {
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
-import { has, includes, not, omit } from 'ramda';
+import { has, includes, isNil, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
 
 export interface UseFetchQueryProps<T> {
+  baseEndpoint?: string;
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
@@ -54,14 +55,18 @@ const useFetchQuery = <T extends object>({
   fetchHeaders,
   isPaginated,
   queryOptions,
-  httpCodesBypassErrorSnackbar = []
+  httpCodesBypassErrorSnackbar = [],
+  baseEndpoint
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
+  const dataRef = useRef<T | undefined>(undefined);
+
   const { showErrorMessage } = useSnackbar();
 
   const queryData = useQuery<T | ResponseError, Error>(
     getQueryKey(),
     ({ signal }): Promise<T | ResponseError> =>
       customFetch<T>({
+        baseEndpoint,
         catchError,
         decoder,
         defaultFailureMessage,
@@ -96,6 +101,7 @@ const useFetchQuery = <T extends object>({
       queryKey,
       ({ signal }): Promise<T | ResponseError> =>
         customFetch<T>({
+          baseEndpoint,
           catchError,
           decoder,
           defaultFailureMessage,
@@ -137,6 +143,7 @@ const useFetchQuery = <T extends object>({
       getQueryKey(),
       ({ signal }): Promise<T | ResponseError> =>
         customFetch<T>({
+          baseEndpoint,
           catchError,
           decoder,
           defaultFailureMessage,
@@ -153,6 +160,10 @@ const useFetchQuery = <T extends object>({
     [queryData.data]
   );
 
+  if (!isNil(data)) {
+    dataRef.current = data;
+  }
+
   const errorData = queryData.data as ResponseError | undefined;
 
   useEffect(() => {
@@ -166,8 +177,8 @@ const useFetchQuery = <T extends object>({
   }, useDeepCompare([queryData.data]));
 
   return {
-    ...omit(['data'], queryData),
-    data,
+    ...omit(['data', 'error'], queryData),
+    data: dataRef.current,
     error: errorData?.isError ? omit(['isError'], errorData) : null,
     fetchQuery,
     prefetchNextPage,
