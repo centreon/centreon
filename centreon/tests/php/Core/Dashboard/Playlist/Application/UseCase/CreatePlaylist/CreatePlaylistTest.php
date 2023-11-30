@@ -68,7 +68,7 @@ it('should present a Forbidden Response when the user has no rights to create pl
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
-    $request= new CreatePlaylistRequest();
+    $request = new CreatePlaylistRequest();
 
     $this->rights
         ->expects($this->once())
