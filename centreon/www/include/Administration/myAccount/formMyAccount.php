@@ -422,12 +422,7 @@ if ($o == "c") {
 $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
-    if ($cct['contact_auth_type'] !== 'local') {
-        $centreon->user->set_name($cct['contact_name']);
-        $centreon->user->set_alias($cct['contact_alias']);
-        $centreon->user->set_email($cct['contact_email']);
-    }
-    updateContactInDB($centreon->user->get_id());
+    updateContactInDBIfLocal($cct['contact_id']);
     $o = null;
     $features = $form->getSubmitValue('features');
 
