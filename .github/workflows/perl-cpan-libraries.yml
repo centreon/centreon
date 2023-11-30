@@ -1,4 +1,4 @@
-name: perl-cpan-libraries
+name: MON-21835-perl-cpan-libraries
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -8,15 +8,16 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/perl-cpan-libraries.yml"
+      - ".github/workflows/MON-21835-perl-cpan-libraries"
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
-      - master
+      - "master"
       - "[2-9][0-9].[0-9][0-9].x"
+      - MON-21835-perl-cpan-libraries
     paths:
-      - ".github/workflows/perl-cpan-libraries.yml"
+      - ".github/workflows/MON-21835-perl-cpan-libraries"
 
 jobs:
   get-version:
@@ -379,6 +380,6 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           module: perl-cpan-libraries
           distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          major_version: "23.10"
+          minor_version: "0"
           stability: ${{ needs.get-version.outputs.stability }}
