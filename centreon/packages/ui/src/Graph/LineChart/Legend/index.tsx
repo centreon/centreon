@@ -16,8 +16,7 @@ import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtom
 import InteractiveValue from './InteractiveValue';
 import { useStyles } from './Legend.styles';
 import LegendHeader from './LegendHeader';
-import LegendMarker from './Marker';
-import { GetMetricValueProps } from './models';
+import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useInteractiveValues from './useInteractiveValues';
 import useLegend from './useLegend';
 import LegendContent from './LegendContent';
@@ -29,6 +28,7 @@ interface Props {
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
   setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
+  shouldDisplayLegendInCompactMode: boolean;
   timeSeries: Array<TimeValue>;
   toggable?: boolean;
   xScale;
@@ -43,7 +43,8 @@ const MainLegend = ({
   renderExtraComponent,
   displayAnchor = true,
   setLinesGraph,
-  xScale
+  xScale,
+  shouldDisplayLegendInCompactMode
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
@@ -85,9 +86,13 @@ const MainLegend = ({
     selectMetricLine(metric_id);
   };
 
+  const mode = shouldDisplayLegendInCompactMode
+    ? LegendDisplayMode.Compact
+    : LegendDisplayMode.Normal;
+
   return (
     <div className={classes.legend}>
-      <div className={classes.items}>
+      <div className={classes.items} data-mode={mode}>
         {displayedLines.map((line) => {
           const { color, display, highlight, metric_id } = line;
 
@@ -126,22 +131,37 @@ const MainLegend = ({
               onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
             >
-              <LegendMarker color={markerColor} disabled={!display} />
-              <div className={classes.legendData}>
-                <LegendHeader line={line} />
-                {displayAnchor && <InteractiveValue value={interactiveValue} />}
-                {!interactiveValue && (
-                  <div className={classes.minMaxAvgContainer}>
-                    {minMaxAvg.map(({ label, value }) => (
-                      <LegendContent
-                        data={getMetricValue({ unit: line.unit, value })}
-                        key={label}
-                        label={label}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+              <LegendHeader
+                color={markerColor}
+                disabled={!display}
+                line={line}
+                minMaxAvg={
+                  shouldDisplayLegendInCompactMode ? minMaxAvg : undefined
+                }
+                value={
+                  shouldDisplayLegendInCompactMode
+                    ? interactiveValue
+                    : undefined
+                }
+              />
+              {!shouldDisplayLegendInCompactMode && (
+                <div>
+                  {displayAnchor && (
+                    <InteractiveValue value={interactiveValue} />
+                  )}
+                  {!interactiveValue && (
+                    <div className={classes.minMaxAvgContainer}>
+                      {minMaxAvg.map(({ label, value }) => (
+                        <LegendContent
+                          data={getMetricValue({ unit: line.unit, value })}
+                          key={label}
+                          label={label}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </Box>
           );
         })}
@@ -152,8 +172,15 @@ const MainLegend = ({
 };
 
 const Legend = (props: Props): JSX.Element => {
-  const { toggable, limitLegendRows, timeSeries, lines, base, displayAnchor } =
-    props;
+  const {
+    toggable,
+    limitLegendRows,
+    timeSeries,
+    lines,
+    base,
+    displayAnchor,
+    shouldDisplayLegendInCompactMode
+  } = props;
   const timeValue = useAtomValue(timeValueAtom);
 
   return useMemoComponent({
@@ -165,7 +192,8 @@ const Legend = (props: Props): JSX.Element => {
       base,
       toggable,
       limitLegendRows,
-      displayAnchor
+      displayAnchor,
+      shouldDisplayLegendInCompactMode
     ]
   });
 };
