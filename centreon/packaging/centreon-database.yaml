@@ -50,6 +50,10 @@ overrides:
 
 rpm:
   summary: Centreon Databases
+  compression: zstd
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
+
+deb:
+  compression: zstd

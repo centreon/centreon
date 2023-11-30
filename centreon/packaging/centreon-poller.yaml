@@ -145,6 +145,10 @@ overrides:
 
 rpm:
   summary: Rights and file for pollers (including central)
+  compression: zstd
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
+
+deb:
+  compression: zstd

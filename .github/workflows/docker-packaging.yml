@@ -33,6 +33,9 @@ jobs:
             dockerfile: packaging-alma8
             image: packaging-alma8
           - runner: ubuntu-22.04
+            dockerfile: packaging-nfpm-alma8
+            image: packaging-nfpm-alma8
+          - runner: ubuntu-22.04
             dockerfile: packaging-alma9
             image: packaging-alma9
           - runner: ubuntu-22.04
@@ -41,9 +44,15 @@ jobs:
           - runner: ubuntu-22.04
             dockerfile: packaging-bullseye
             image: packaging-bullseye
+          - runner: ubuntu-22.04
+            dockerfile: packaging-nfpm-bullseye
+            image: packaging-nfpm-bullseye
           - runner: ["self-hosted", "collect-arm64"]
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64
+          - runner: ["self-hosted", "collect-arm64"]
+            dockerfile: packaging-nfpm-bullseye
+            image: packaging-nfpm-bullseye-arm64
 
     runs-on: ${{ matrix.runner }}
 

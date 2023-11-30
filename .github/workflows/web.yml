@@ -349,13 +349,13 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-alma8
+            image: packaging-nfpm-alma8
             distrib: el8
           - package_extension: rpm
-            image: packaging-alma9
+            image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-bullseye
+            image: packaging-nfpm-bullseye
             distrib: bullseye
 
     runs-on: ubuntu-22.04

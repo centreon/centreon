@@ -1,0 +1,15 @@
+FROM debian:bullseye
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN bash -e <<EOF
+
+echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+
+apt-get update
+
+apt-get install -y zstd nfpm
+
+apt-get clean all
+
+EOF
