@@ -110,7 +110,7 @@ $queryGenerator->setSearchHost($requestHandler->getSearchHost());
 $queryGenerator->setTabSvc($requestHandler->getTabSvc());
 $queryGenerator->setSearchService($requestHandler->getSearchService());
 $queryGenerator->setExport($requestHandler->getExport());
-$queryGenerator->setAck($requestHandler->getAck());
+$queryGenerator->setAcknowledgement($requestHandler->getAcknowledgement());
 $stmt = $queryGenerator->getStatement();
 unset($queryGenerator);
 
