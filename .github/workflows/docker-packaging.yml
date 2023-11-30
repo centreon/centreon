@@ -36,6 +36,9 @@ jobs:
             dockerfile: packaging-alma9
             image: packaging-alma9
           - runner: ubuntu-22.04
+            dockerfile: packaging-nfpm-alma9
+            image: packaging-nfpm-alma9
+          - runner: ubuntu-22.04
             dockerfile: packaging-bullseye
             image: packaging-bullseye
           - runner: ["self-hosted", "collect-arm64"]
