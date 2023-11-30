@@ -10,9 +10,7 @@ export const widgetPropertiesAtom =
 
 export const singleMetricSelectionAtom = atom<boolean | undefined>(undefined);
 
-export const singleResourceTypeSelectionAtom = atom<boolean | undefined>(
-  undefined
-);
+export const singleHostPerMetricAtom = atom<boolean | undefined>(undefined);
 
 export const customBaseColorAtom = atom<boolean | undefined>(undefined);
 

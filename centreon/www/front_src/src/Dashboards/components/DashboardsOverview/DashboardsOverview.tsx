@@ -20,6 +20,7 @@ import {
 import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
+import { DashboardLayout } from '../../models';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 
@@ -35,7 +36,12 @@ const DashboardsOverview = (): ReactElement => {
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
-    navigate(generatePath(routeMap.dashboard, { dashboardId: dashboard.id }));
+    navigate(
+      generatePath(routeMap.dashboard, {
+        dashboardId: dashboard.id,
+        layout: DashboardLayout.Library
+      })
+    );
 
   const labels = useMemo(
     () => ({

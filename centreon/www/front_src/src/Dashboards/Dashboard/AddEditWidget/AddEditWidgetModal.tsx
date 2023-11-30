@@ -99,8 +99,10 @@ const AddWidgetModal = (): JSX.Element | null => {
               <div className={classes.container}>
                 <div className={classes.widgetProperties}>
                   <WidgetSelection />
-                  <div className={classes.widgetPropertiesContent}>
-                    <WidgetProperties />
+                  <div className={classes.widgetPropertiesContentContainer}>
+                    <div className={classes.widgetPropertiesContent}>
+                      <WidgetProperties />
+                    </div>
                   </div>
                 </div>
                 <div>
