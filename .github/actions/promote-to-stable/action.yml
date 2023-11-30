@@ -38,7 +38,7 @@ runs:
 
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Cleaning existing stable artifacts for ${{ inputs.module }} in test-rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/${{ inputs.module }}/."
-          jf rt delete test-rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/${{ inputs.module }}/*.rpm --quiet
+          jf rt delete test-rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/RPMS/${{ inputs.module }}/*.rpm --quiet
 
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
           SRC_PATHS=$(jf rt s --include-dirs test-rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
