@@ -37,7 +37,7 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
         echo "[DEBUG] - Cleaning existing stable artifacts for ${{ inputs.module }} in test-rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/${{ inputs.module }}/."
-        jf rt delete test-rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/${{ inputs.module }}/*.rpm
+        jf rt delete test-rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/${{ inputs.module }}/*.rpm --quiet
 
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
@@ -74,7 +74,7 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
         echo "[DEBUG] - Cleaning existing stable artifacts for ${{ inputs.module }} in test-apt-23.10-standard-${{ inputs.stability }}/pool/${{ inputs.module }}/"
-        jf rt delete test-apt-23.10-standard-${{ inputs.stability }}/pool/${{ inputs.module }}/*.rpm
+        jf rt delete test-apt-23.10-standard-${{ inputs.stability }}/pool/${{ inputs.module }}/*.deb --quiet
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
         SRC_PATHS=$(jf rt s --include-dirs test-apt-23.10-standard-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
