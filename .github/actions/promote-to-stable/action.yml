@@ -89,7 +89,7 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        TARGET_PATH="test-apt-23.10-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/"
+        TARGET_PATH="test-apt-23.10-standard--${{ inputs.stability }}/pool/${{ inputs.module }}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
