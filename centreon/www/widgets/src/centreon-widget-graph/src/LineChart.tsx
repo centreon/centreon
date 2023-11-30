@@ -53,7 +53,7 @@ const WidgetLineChart = ({
     thresholds: panelOptions.threshold
   });
 
-  if (isNil(graphData) && (!isGraphLoading || isMetricsEmpty)) {
+  if (isNil(graphData) || isMetricsEmpty) {
     return (
       <Typography className={classes.noDataFound} variant="h5">
         {t(labelNoDataFound)}

@@ -13,6 +13,5 @@
     }
   },
   "singleMetricSelection": true,
-  "singleResourceTypeSelection": true,
   "moduleName": "centreon-widget-singledata"
 }
