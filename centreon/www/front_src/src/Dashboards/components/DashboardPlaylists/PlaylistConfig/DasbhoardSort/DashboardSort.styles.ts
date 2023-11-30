@@ -15,7 +15,8 @@ export const useDashboardSortStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1, 0)
   },
   items: {
-    maxHeight: theme.spacing(16)
+    maxHeight: theme.spacing(16),
+    overflowY: 'auto'
   },
   name: {
     flexGrow: 1
