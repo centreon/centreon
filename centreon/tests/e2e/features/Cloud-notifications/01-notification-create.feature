@@ -9,48 +9,24 @@ Feature: Creating a Notification Rule
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
 
-  Scenario Outline: Creating a host group Notification Rule
-    Given a host group with hosts
+  Scenario Outline: Creating a <resource_type> Notification Rule for <contact_settings>
+    Given a <resource_type> with hosts and <contact_settings>
     When the user defines a name for the rule
-    And the user selects a host group and hosts with associated events on which to notify
-    And the user selects some contacts and/or contact groups
+    And the user selects a <resource_type> with associated events on which to notify
+    And the user selects the <contact_settings>
     And the user defines a mail subject
     And the user defines a mail body
     And the user clicks on the "Save" button to confirm
     Then a success message is displayed and the created Notification Rule is displayed in the listing
-    When changes occur in the configured statuses for the selected host group
+    When changes occur in the configured statuses for the selected <resource_type>
     And the hard state has been reached
     And the notification refresh_delay has been reached
-    Then an email is sent to the configured contacts <coordinating> contact groups with the configured format
+    Then an email is sent to the configured <contact_settings> with the configured format
     Examples:
-      | coordinating |
-      | and          |
-      | or           |
-
-  Scenario: Creating a service group Notification Rule
-    Given a service group
-    When the user defines a name for the rule
-    And the user selects a service group with associated events on which to notify
-    And the user selects some contacts and/or contact groups
-    And the user defines a mail subject
-    And the user defines a mail body
-    And the user clicks on the "Save" button to confirm
-    Then a success message is displayed and the created Notification Rule is displayed in the listing
-    When changes occur in the configured statuses for the selected service group
-    And the hard state has been reached
-    And the notification refresh_delay has been reached
-    Then an email is sent to the configured contacts and/or contact groups with the configured format
-
-  Scenario: Creating a business view Notification Rule
-    Given a business view with a business activity contains indicators
-    When the user defines a name for the rule
-    And the user selects a business view with associated events on which to notify
-    And the user selects some contacts and/or contact groups
-    And the user defines a mail subject
-    And the user defines a mail body
-    And the user clicks on the "Save" button to confirm
-    Then a success message is displayed and the created Notification Rule is displayed in the listing
-    When changes occur in the configured statuses for the selected business view
-    And the hard state has been reached
-    And the notification refresh_delay has been reached
-    Then an email is sent to the configured contacts and/or contact groups with the configured format
+      | contact_settings                            | resource_type                           |
+      | a single contact                            | host group                              |
+      | two contacts                                | host group and services for these hosts |
+      | a single contact group                      | service group                           |
+      | two contact groups                          | Business View                           |
+      | a single contact and a single contact group |                                         |
+      | two contacts and two contact groups         |                                         |
