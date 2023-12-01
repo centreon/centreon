@@ -9,7 +9,7 @@ Feature: Creating a Notification Rule
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
 
-  Scenario Outline: Scenario Outline name: Creating a host group Notification Rule
+  Scenario Outline: Creating a host group Notification Rule
     Given a host group with hosts
     When the user defines a name for the rule
     And the user selects a host group and hosts with associated events on which to notify
