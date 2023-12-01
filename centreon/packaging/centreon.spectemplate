@@ -101,7 +101,6 @@ Requires:   httpd24
 Requires:   mysql
 %else
 Requires:   httpd
-Requires:   mariadb
 %endif
 Requires:   php-common >= 8.1
 Requires:   php-cli
@@ -192,11 +191,6 @@ SElinux context for centreon-web.
 Summary:    Centreon Databases
 Group:      Networking/Other
 License:    Apache-2.0
-%if 0%{?el7}
-Requires:   mysql-server
-%else
-Requires:   mariadb-server
-%endif
 
 %description database
 %{COMMIT_HASH}
@@ -508,11 +502,8 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{__cp} centreon/tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
 %{__cp} centreon/packaging/src/sudoersCentreonPlugins %buildroot%{_sysconfdir}/sudoers.d/centreon-plugins
 
-# MySQL/MariaDB custom configuration
 %{__install} -d %buildroot%{_sysconfdir}/my.cnf.d/
 %{__cp} additional/centreon-mysql.cnf %buildroot%{_sysconfdir}/my.cnf.d/centreon.cnf
-%{__install} -d %buildroot%{_sysconfdir}/systemd/system/mariadb.service.d
-%{__cp} additional/mariadb-systemd.conf %buildroot%{_sysconfdir}/systemd/system/mariadb.service.d/centreon.conf
 
 # Translations
 %{__cp} -r centreon/www/locale %buildroot%{_datadir}/centreon/www/
@@ -798,10 +789,8 @@ fi
 
 %files database
 
-# MySQL/MariaDB configuration
 %defattr(-, root, root, -)
 %config(noreplace) %{_sysconfdir}/my.cnf.d/centreon.cnf
-%config(noreplace) %{_sysconfdir}/systemd/system/mariadb.service.d/centreon.conf
 
 ######################################################
 # Package centreon-trap
