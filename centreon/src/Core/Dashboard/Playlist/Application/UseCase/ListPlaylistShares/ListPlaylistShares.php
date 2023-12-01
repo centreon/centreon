@@ -25,11 +25,11 @@ namespace Core\Dashboard\Playlist\Application\UseCase\ListPlaylistShares;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
@@ -43,15 +43,25 @@ final class ListPlaylistShares
 {
     use LoggerTrait;
 
+    /**
+     * @param DashboardRights $rights
+     * @param ContactInterface $user
+     * @param ReadPlaylistRepositoryInterface $readPlaylistRepository
+     * @param ReadPlaylistShareRepositoryInterface $readPlaylistShareRepository
+     * @param ReadContactGroupRepositoryInterface $readContactGroupRepository
+     */
     public function __construct(
         private readonly DashboardRights $rights,
         private readonly ContactInterface $user,
         private readonly ReadPlaylistRepositoryInterface $readPlaylistRepository,
         private readonly ReadPlaylistShareRepositoryInterface $readPlaylistShareRepository,
-        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
-        private readonly ReadContactRepositoryInterface $readContactRepository
+        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository
     ) {}
 
+    /**
+     * @param integer $playlistId
+     * @param ListPlaylistSharesPresenterInterface $presenter
+     */
     public function __invoke(int $playlistId, ListPlaylistSharesPresenterInterface $presenter): void
     {
         try {
@@ -85,10 +95,18 @@ final class ListPlaylistShares
 
             $presenter->presentResponse($this->createResponse($shares));
         } catch (\Throwable $ex) {
-
+            $this->error(PlaylistException::errorWhileListingShares()->getMessage(), ['trace' => (string) $ex]);
+            $presenter->presentResponse(new ErrorResponse(PlaylistException::errorWhileListingShares()));
         }
     }
 
+    /**
+     * @param int $playlistId
+     *
+     * @return PlaylistShare
+     *
+     * @throws \Throwable
+     */
     private function findPlaylistShares(int $playlistId): PlaylistShare {
         if ($this->rights->hasAdminRole()) {
             return $this->readPlaylistShareRepository->findByPlaylistId($playlistId);
@@ -97,6 +115,7 @@ final class ListPlaylistShares
             $userContactGroupIds = array_map(
                 fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $userContactGroups
             );
+
             return $this->readPlaylistShareRepository->findByPlaylistIdAndContactGroupIds(
                 $playlistId,
                 $userContactGroupIds
@@ -104,6 +123,11 @@ final class ListPlaylistShares
         }
     }
 
+    /**
+     * @param PlaylistShare $shares
+     *
+     * @return ListPlaylistSharesResponse
+     */
     private function createResponse(PlaylistShare $shares): ListPlaylistSharesResponse
     {
         $response = new ListPlaylistSharesResponse();

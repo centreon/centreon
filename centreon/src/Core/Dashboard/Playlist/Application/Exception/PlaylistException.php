@@ -83,6 +83,14 @@ class PlaylistException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileListingShares(): self
+    {
+        return new self(_('Error while listing playlist shares'));
+    }
+
+    /**
+     * @return self
+     */
     public static function dashboardShouldBeUnique(): self
     {
         return new self(_('You cannot add the same dashboard to a playlist several times.'));

@@ -25,6 +25,11 @@ namespace Core\Dashboard\Playlist\Domain\Model;
 
 class PlaylistShare
 {
+    /**
+     * @param int $playlistId
+     * @param PlaylistContactShare[] $playlistContactShares
+     * @param PlaylistContactGroupShare[] $playlistContactGroupShares
+     */
     public function __construct(
         private readonly int $playlistId,
         private readonly array $playlistContactShares,

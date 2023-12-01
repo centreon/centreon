@@ -35,6 +35,8 @@ interface ReadPlaylistShareRepositoryInterface
      * @param ContactInterface $contact
      *
      * @return bool
+     *
+     * @throws \Throwable
      */
     public function existsAsEditor(int $playlistId, ContactInterface $contact): bool;
 
@@ -43,7 +45,10 @@ interface ReadPlaylistShareRepositoryInterface
      *
      * @param int $playlistId
      * @param ContactInterface $contact
+     *
      * @return bool
+     *
+     * @throws \Throwable
      */
     public function exists(int $playlistId, ContactInterface $contact): bool;
 
@@ -51,7 +56,10 @@ interface ReadPlaylistShareRepositoryInterface
      * Find all the shares contact and contactgroups of a playlist
      *
      * @param int $playlistId
+     *
      * @return PlaylistShare
+     *
+     * @throws \Throwable
      */
     public function findByPlaylistId(int $playlistId): PlaylistShare;
 
@@ -60,7 +68,10 @@ interface ReadPlaylistShareRepositoryInterface
      *
      * @param int $playlistId
      * @param int[] $contactGroupIds
+     *
      * @return PlaylistShare
+     *
+     * @throws \Throwable
      */
     public function findByPlaylistIdAndContactGroupIds(int $playlistId, array $contactGroupIds): PlaylistShare;
 }
