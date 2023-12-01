@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useDashboardSortStyles = makeStyles()((theme) => ({
+export const useListStyles = makeStyles()((theme) => ({
   content: {
     '& [data-dragging="false"]': {
       cursor: 'grab'
@@ -14,11 +14,16 @@ export const useDashboardSortStyles = makeStyles()((theme) => ({
     flexDirection: 'row',
     padding: theme.spacing(1, 0)
   },
+  innerContent: {
+    flexGrow: 1
+  },
   items: {
     maxHeight: theme.spacing(16),
     overflowY: 'auto'
   },
-  name: {
-    flexGrow: 1
+  list: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1)
   }
 }));

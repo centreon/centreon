@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useFormikContext } from 'formik';
-import { append, inc, includes, pluck } from 'ramda';
+import { includes, pluck } from 'ramda';
 
 import { ListItemText, MenuItem } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -21,8 +21,10 @@ interface UseSelectDashboardState {
   selectedDashboard: SelectEntry | null;
 }
 
-export const useSelectDashboard = (): UseSelectDashboardState => {
-  const { values, setFieldValue } = useFormikContext<PlaylistConfig>();
+export const useSelectDashboard = (
+  addItem: (item) => void
+): UseSelectDashboardState => {
+  const { values } = useFormikContext<PlaylistConfig>();
 
   const [selectedDashboard, setSelectedDashboard] =
     useState<SelectEntry | null>(null);
@@ -36,17 +38,7 @@ export const useSelectDashboard = (): UseSelectDashboardState => {
   };
 
   const addDashboard = (): void => {
-    setFieldValue(
-      'dashboards',
-      append(
-        {
-          id: (selectedDashboard as SelectEntry).id as number,
-          name: (selectedDashboard as SelectEntry).name,
-          order: inc(selectedDashboardIds.length)
-        },
-        values.dashboards
-      )
-    );
+    addItem(selectedDashboard);
     setSelectedDashboard(null);
   };
 

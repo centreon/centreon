@@ -57,7 +57,7 @@ const useStyles = makeStyles<{
     flexDirection: 'row',
     gap: theme.spacing(2),
     justifyContent: 'flex-end',
-    right: theme.spacing(2)
+    right: theme.spacing(2.5)
   },
   modalBody: {
     '& > p': {

@@ -1,19 +1,18 @@
+import { ReactNode } from 'react';
+
 import { DraggableSyntheticListeners } from '@dnd-kit/core';
-import { useFormikContext } from 'formik';
-import { equals, reject } from 'ramda';
 
 import KrilinIndicatorIcon from '@mui/icons-material/DragIndicator';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { Typography } from '@mui/material';
 
-import { IconButton } from '@centreon/ui/components';
+import { IconButton } from '../../../components';
 
-import { Dashboard, PlaylistConfig } from '../../models';
+import { useListStyles } from './List.styles';
 
-import { useDashboardSortStyles } from './DashboardSort.styles';
-
-interface ContentProps {
+export interface ContentProps {
   attributes;
+  children: ReactNode;
+  deleteItem: (id: string) => () => void;
   id: string;
   isDragging: boolean;
   isInDragOverlay?: boolean;
@@ -25,23 +24,15 @@ interface ContentProps {
 
 const Content = ({
   listeners,
-  name,
   itemRef,
   attributes,
   style,
   isDragging,
-  id
+  id,
+  children,
+  deleteItem
 }: ContentProps): JSX.Element => {
-  const { classes } = useDashboardSortStyles();
-  const { setFieldValue, values } = useFormikContext<PlaylistConfig>();
-
-  const deleteDashboard = (): void => {
-    const newDashboards = reject<Dashboard>((dashboard) =>
-      equals(Number(id), dashboard.id)
-    )(values.dashboards);
-
-    setFieldValue('dashboards', newDashboards);
-  };
+  const { classes } = useListStyles();
 
   return (
     <div
@@ -54,13 +45,15 @@ const Content = ({
         data-dragging={isDragging}
         size="small"
         {...listeners}
+        aria-label={`sort-${id}`}
         icon={<KrilinIndicatorIcon fontSize="small" />}
       />
-      <Typography className={classes.name}>{name}</Typography>
+      <div className={classes.innerContent}>{children}</div>
       <IconButton
+        aria-label={`delete-${id}`}
         icon={<DeleteOutlineIcon color="error" fontSize="small" />}
         size="small"
-        onClick={deleteDashboard}
+        onClick={deleteItem(id)}
       />
     </div>
   );

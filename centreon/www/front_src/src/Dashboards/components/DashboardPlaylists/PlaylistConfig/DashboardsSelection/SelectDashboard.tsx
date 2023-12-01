@@ -7,15 +7,16 @@ import { IconButton } from '@centreon/ui/components';
 
 import {
   labelAddADashboard,
-  labelSelectDashboards
 } from '../../../../translatedLabels';
-import Subtitle from '../../../../Dashboard/components/Subtitle';
 import { usePlaylistConfigStyles } from '../PlaylistConfig.styles';
-import DashboardSort from '../DasbhoardSort/DashboardSort';
 
 import { useSelectDashboard } from './useSelectDashboard';
 
-const SelectDashboard = (): JSX.Element => {
+interface Props {
+  addItem: (item) => void
+}
+
+const SelectDashboard = ({ addItem }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = usePlaylistConfigStyles();
 
@@ -27,11 +28,9 @@ const SelectDashboard = (): JSX.Element => {
     addIconDisabled,
     renderOption,
     getOptionDisabled
-  } = useSelectDashboard();
+  } = useSelectDashboard(addItem);
 
   return (
-    <>
-      <Subtitle>{t(labelSelectDashboards)}</Subtitle>
       <div className={classes.selectDasbhoard}>
         <SingleConnectedAutocompleteField
           clearable
@@ -53,8 +52,6 @@ const SelectDashboard = (): JSX.Element => {
           onClick={addDashboard}
         />
       </div>
-      <DashboardSort />
-    </>
   );
 };
 

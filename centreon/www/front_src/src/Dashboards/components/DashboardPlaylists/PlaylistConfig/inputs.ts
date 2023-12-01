@@ -2,10 +2,16 @@ import { lte } from 'ramda';
 
 import { InputProps, InputType } from '@centreon/ui';
 
-import { labelDescription, labelPlaylistName } from '../../../translatedLabels';
+import {
+  labelDefineTheOrderOfDashboards,
+  labelDescription,
+  labelPlaylistName,
+  labelSelectDashboards
+} from '../../../translatedLabels';
 
-import DashboardsSelection from './DashboardsSelection/DashboardsSelection';
 import RotationTime from './RotationTime';
+import SortContent from './DasbhoardSort/SortContent';
+import SelectDashboard from './DashboardsSelection/SelectDashboard';
 
 export const inputs: Array<InputProps> = [
   {
@@ -24,13 +30,17 @@ export const inputs: Array<InputProps> = [
     type: InputType.Text
   },
   {
-    custom: {
-      Component: DashboardsSelection
-    },
     fieldName: 'dashboards',
     group: '',
     label: '',
-    type: InputType.Custom
+    list: {
+      AddItem: SelectDashboard,
+      SortContent,
+      addItemLabel: labelSelectDashboards,
+      itemProps: ['id', 'name', 'order'],
+      sortLabel: labelDefineTheOrderOfDashboards
+    },
+    type: InputType.List
   },
   {
     custom: {

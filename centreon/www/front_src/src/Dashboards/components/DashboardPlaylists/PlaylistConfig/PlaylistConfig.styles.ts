@@ -1,11 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const usePlaylistConfigStyles = makeStyles()((theme) => ({
-  dashboards: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1)
-  },
   rotationTime: {
     alignItems: 'center',
     display: 'flex',
