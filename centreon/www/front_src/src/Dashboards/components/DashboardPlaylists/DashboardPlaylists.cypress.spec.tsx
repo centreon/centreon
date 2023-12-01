@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
-import { createStore } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider } from '@centreon/ui';
 import {
@@ -35,11 +35,13 @@ const initialize = (): void => {
 
   cy.mount({
     Component: (
-      <TestQueryProvider>
-        <BrowserRouter>
-          <DashboardPlaylistsOverview />
-        </BrowserRouter>
-      </TestQueryProvider>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <BrowserRouter>
+            <DashboardPlaylistsOverview />
+          </BrowserRouter>
+        </TestQueryProvider>
+      </Provider>
     )
   });
 };
