@@ -18482,3 +18482,30 @@ msgstr "Bienvenue dans l'interface de la liste de lecture !"
 
 msgid "Create a playlist"
 msgstr "Ajouter une liste de lecture"
+
+msgid "Playlist name"
+msgstr "Nom de la liste de lecture"
+
+msgid "Playlist properties"
+msgstr "Propriétés de la liste de lecture"
+
+msgid "Rotation time"
+msgstr "Temps de rotation"
+
+msgid "Second"
+msgstr "Seconde"
+
+msgid "Select dashboards"
+msgstr "Sélectionner des tableaux de bord"
+
+msgid "Define the order of dashboards"
+msgstr "Définir l'ordre des tableaux de bord"
+
+msgid "Add a dashboard"
+msgstr "Ajouter un tableau de bord"
+
+msgid "Playlist created"
+msgstr "Liste de lecture créé"
+
+msgid "Playlist updated"
+msgstr "Liste de lecture mise à jour"
