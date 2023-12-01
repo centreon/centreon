@@ -375,6 +375,8 @@ class CentreonConfigPoller
 
         $poller_id = $this->ensurePollerId($variables);
 
+        //sanitize poller id against traversal path vulnerability
+        $poller_id = basename($poller_id);
         $config_generate->configPollerFromId($poller_id, $login);
 
         /* Change files owner */
