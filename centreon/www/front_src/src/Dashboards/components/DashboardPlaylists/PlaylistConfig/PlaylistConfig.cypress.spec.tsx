@@ -1,6 +1,11 @@
 import { Provider, createStore } from 'jotai';
 
 import { Method, QueryProvider } from '@centreon/ui';
+import {
+  userAtom,
+  DashboardGlobalRole,
+  ListingVariant
+} from '@centreon/ui-context';
 
 import {
   dashboardsEndpoint,
@@ -45,6 +50,21 @@ const initializePlaylistConfigCreation = (): void => {
   });
 
   store.set(playlistConfigInitialValuesAtom, initialValue);
+  store.set(userAtom, {
+    alias: 'admin',
+    dashboard: {
+      createDashboards: true,
+      globalUserRole: DashboardGlobalRole.administrator,
+      manageAllDashboards: true,
+      viewDashboards: true
+    },
+    isExportButtonEnabled: true,
+    locale: 'en',
+    name: 'admin',
+    timezone: 'Europe/Paris',
+    use_deprecated_pages: false,
+    user_interface_density: ListingVariant.compact
+  });
 
   cy.mount({
     Component: (

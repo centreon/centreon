@@ -9,6 +9,7 @@ import {
   labelCreateAPlaylist,
   labelWelcomeToThePlaylistInterface
 } from '../../translatedLabels';
+import { useDashboardUserPermissions } from '../DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
 
 import { playlistConfigInitialValuesAtom } from './atoms';
 import PlaylistConfig from './PlaylistConfig/PlaylistConfig';
@@ -20,6 +21,8 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
     playlistConfigInitialValuesAtom
   );
 
+  const { canCreateOrManageDashboards } = useDashboardUserPermissions();
+
   const openConfig = useCallback(() => {
     setPlaylistConfigInitialValues(initialValue);
   }, []);
@@ -28,7 +31,7 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
     <>
       <DataTable variant="listing">
         <DataTable.EmptyState
-          canCreate
+          canCreate={canCreateOrManageDashboards}
           labels={{
             actions: { create: t(labelCreateAPlaylist) },
             title: t(labelWelcomeToThePlaylistInterface)
