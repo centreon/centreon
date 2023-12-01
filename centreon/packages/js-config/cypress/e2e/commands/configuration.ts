@@ -144,6 +144,7 @@ interface Host {
   alias?: string | null;
   checkCommand?: string | null;
   checkPeriod?: string | null;
+  hostGroup?: string;
   maxCheckAttempts?: number | null;
   name: string;
   passiveCheckEnabled?: boolean;
@@ -186,6 +187,56 @@ Cypress.Commands.add(
           check_period: checkPeriod,
           max_check_attempts: hostMaxCheckAttempts,
           passive_checks_enabled: hostPassiveCheckEnabled
+        };
+        Object.entries(hostParams).map(([paramName, paramValue]) => {
+          if (paramValue === null) {
+            return null;
+          }
+
+          return cy.executeActionViaClapi({
+            bodyContent: {
+              action: 'SETPARAM',
+              object: 'HOST',
+              values: `${name};${paramName};${paramValue}`
+            }
+          });
+        });
+
+        return cy.wrap(null);
+      });
+  }
+);
+
+Cypress.Commands.add(
+  'addHostForWidget',
+  ({
+    address = '127.0.0.1',
+    alias = null,
+    checkCommand = null,
+    checkPeriod = null,
+    hostGroup = 'Linux-Servers',
+    maxCheckAttempts = null,
+    name,
+    poller = 'Central',
+    template = ''
+  }: Host): Cypress.Chainable => {
+    const hostAlias = alias === null ? name : alias;
+    const hostMaxCheckAttempts =
+      maxCheckAttempts === null ? '' : maxCheckAttempts;
+
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'HOST',
+          values: `${name};${hostAlias};${address};${template};${poller};${hostGroup}`
+        }
+      })
+      .then(() => {
+        const hostParams = {
+          check_command: checkCommand,
+          check_period: checkPeriod,
+          max_check_attempts: hostMaxCheckAttempts
         };
         Object.entries(hostParams).map(([paramName, paramValue]) => {
           if (paramValue === null) {
@@ -344,6 +395,7 @@ declare global {
     interface Chainable {
       addCheckCommand: (props: CheckCommand) => Cypress.Chainable;
       addHost: (props: Host) => Cypress.Chainable;
+      addHostForWidget: (props: Host) => Cypress.Chainable;
       addService: (props: Service) => Cypress.Chainable;
       addServiceTemplate: (props: ServiceTemplate) => Cypress.Chainable;
       addTimePeriod: (props: TimePeriod) => Cypress.Chainable;
