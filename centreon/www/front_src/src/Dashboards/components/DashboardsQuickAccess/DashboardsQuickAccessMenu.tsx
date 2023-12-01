@@ -15,6 +15,7 @@ import {
   labelDashboardLibrary
 } from '../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
+import { DashboardLayout } from '../../models';
 
 import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
 
@@ -32,9 +33,17 @@ const DashboardsQuickAccessMenu = ({
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboardId: string | number) => (): void =>
-    navigate(generatePath(routeMap.dashboard, { dashboardId }));
+    navigate(
+      generatePath(routeMap.dashboard, {
+        dashboardId,
+        layout: DashboardLayout.Library
+      })
+    );
 
-  const navigateToDashboardLibrary = (): void => navigate(routeMap.dashboards);
+  const navigateToDashboardLibrary = (): void =>
+    navigate(
+      generatePath(routeMap.dashboards, { layout: DashboardLayout.Library })
+    );
 
   return (
     <Menu>

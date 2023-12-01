@@ -1650,6 +1650,10 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/ContactGroups.yaml'
   /configuration/dashboards/playlists:
     $ref: './v24.04/Configuration/Dashboard/Playlist.yaml'
+  /configuration/dashboards/playlists/{playlist_id}:
+    $ref: './v24.04/Configuration/Dashboard/PlaylistAction.yaml'
+  /configuration/dashboards/playlists/{playlist_id}/shares:
+    $ref: './v24.04/Configuration/Dashboard/PlaylistShare.yaml'
   /monitoring/dashboard/metrics/performances:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
   /monitoring/dashboard/metrics/performances/data:

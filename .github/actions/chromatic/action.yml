@@ -52,6 +52,7 @@ runs:
         untraced: |
           - "centreon/packages/ui/package.json"
           - "centreon/package.json"
+          - "centreon/tests/rest_api/package.json"
         autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         exitOnceUploaded: true
         skip: '!(develop)'
