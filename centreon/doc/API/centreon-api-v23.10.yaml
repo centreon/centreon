@@ -4283,7 +4283,7 @@ paths:
   /platform/versions:
     $ref: './v23.10/Platform/Versions.yaml'
   /platform/updates:
-    $ref: "./v22.10/Administration/updates.yaml"
+    $ref: "./v23.10/Administration/Update/updates.yaml"
   /platform/installation/status:
     get:
       tags:
