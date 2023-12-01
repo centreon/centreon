@@ -1,3 +1,13 @@
+export enum Role {
+  Editor = 'editor',
+  Viewer = 'viewer'
+}
+
+export enum ShareType {
+  Contact = 'Contact',
+  ContactGroup = 'ContactGroup'
+}
+
 export interface NamedEntity {
   id: number;
   name: string;
@@ -9,7 +19,7 @@ export interface Dashboard {
 }
 
 export interface Contact extends NamedEntity {
-  role: string;
+  role: Role;
 }
 
 export interface Share {

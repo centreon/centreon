@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { prop } from 'ramda';
+import { map, prop, isEmpty, isNil } from 'ramda';
 
 import { MemoizedListing } from '@centreon/ui';
 
@@ -15,13 +15,25 @@ import {
   selectedRowsAtom
 } from './atom';
 import { Actions } from './Actions';
-import { listPlaylistsDecoder } from './api';
-import fakeListingResponse from './Tests/fakeListingResponce.json';
+import { formatShares } from './utils';
 
 const Listing = (): JSX.Element => {
   const columns = useListingColumns();
 
-  const { loading, data: listingData, refetch } = useListing();
+  const { loading, data, refetch } = useListing();
+
+  const result = map(
+    (item) => {
+      return {
+        ...item,
+        shares: formatShares({ shares: item.shares })
+      };
+    },
+    data?.result || []
+  );
+
+  const listingData =
+    isEmpty(data?.result) || isNil(data?.result) ? data : { ...data, result };
 
   const [selectedColumnIds, setSelectedColumnIds] = useState<Array<string>>(
     columns.map(prop('id'))
@@ -49,14 +61,6 @@ const Listing = (): JSX.Element => {
   const changePage = (updatedPage): void => {
     setPage(updatedPage + 1);
   };
-
-  //   const onRowClick = (row): void => {
-  //     setEditedNotificationId(row.id);
-  //     setPanelMode(PanelMode.Edit);
-  //     setIsPannelOpen(true);
-  //   };
-
-  console.log(listingData?.result);
 
   const predefinedRowsSelection = [
     {
@@ -89,17 +93,23 @@ const Listing = (): JSX.Element => {
         sortf,
         selectedRows
       ]}
-      //   moveTablePagination={isPannelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
       rows={listingData?.result}
       selectedRows={selectedRows}
       sortField={sortf}
       sortOrder={sorto}
+      subItems={{
+        canCheckSubItems: false,
+        enable: true,
+        labelCollapse: 'Collapse',
+        labelExpand: 'Expand',
+        rowProperty: 'shares'
+      }}
       totalRows={listingData?.meta.total}
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
-      //   onRowClick={onRowClick}
+      onRowClick={(): void => undefined}
       onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}

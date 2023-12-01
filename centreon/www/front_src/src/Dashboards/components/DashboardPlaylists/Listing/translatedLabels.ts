@@ -15,3 +15,8 @@ export const labelCopyLinkTooltip =
   'Anyone with the link can view your playlist. Be cautious when you share it';
 export const labelFailedToCopyTheLink = 'failed to copy the link';
 export const labelLinkHasBeenCopied = 'link has been copied';
+export const labelUnshare = 'Unshare';
+export const labelViewer = 'Viewer';
+export const labelEditor = 'Editor';
+export const labelSearch = 'Search';
+export const labelCreate = 'Create';

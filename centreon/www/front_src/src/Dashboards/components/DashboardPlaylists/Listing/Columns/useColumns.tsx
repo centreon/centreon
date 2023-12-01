@@ -13,26 +13,15 @@ import {
   labelRole,
   labelRotationTime,
   labelShares,
-  labelUpdate,
-  labelSeconds
+  labelUpdate
 } from '../translatedLabels';
 
 import ActivatePublicLink from './ActivatePublicLink';
 import PublicLink from './PublicLink';
-
-const columns = [
-  'Name',
-  'shares',
-  'role',
-  'description',
-  'rotation_time',
-  'author',
-  'updated_at',
-  'created_at',
-  'actions',
-  'public_link',
-  'is_public'
-];
+import Actions from './Actions';
+import Share from './Share';
+import Role from './Role';
+import RotationTime from './RotationTime';
 
 const useListingColumns = (): Array<Column> => {
   const { t } = useTranslation();
@@ -48,16 +37,20 @@ const useListingColumns = (): Array<Column> => {
       type: ColumnType.string
     },
     {
+      Component: Share,
       disablePadding: false,
+      displaySubItemsCaret: true,
       id: 'shares',
       label: t(labelShares),
-      type: ColumnType.string
+      type: ColumnType.component,
+      width: 'max-content'
     },
     {
+      Component: Role,
       disablePadding: false,
       id: 'role',
       label: t(labelRole),
-      type: ColumnType.string
+      type: ColumnType.component
     },
     {
       disablePadding: false,
@@ -67,23 +60,24 @@ const useListingColumns = (): Array<Column> => {
       type: ColumnType.string
     },
     {
+      Component: RotationTime,
       disablePadding: false,
-      getFormattedString: ({ rotationTime }): string =>
-        `${rotationTime} ${t(labelSeconds)}`,
       id: 'rotation_time',
       label: t(labelRotationTime),
-      type: ColumnType.string
+      type: ColumnType.component
     },
     {
       disablePadding: false,
-      getFormattedString: ({ author }): string => author.name,
+      getFormattedString: ({ author }): string => author?.name,
       id: 'author',
       label: t(labelCreator),
+      sortField: 'author',
+      sortable: true,
       type: ColumnType.string
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdAt }): string => createdAt.slice(0, 10),
+      getFormattedString: ({ createdAt }): string => createdAt?.slice(0, 10),
       id: 'created_at',
       label: t(labelCreationDate),
       sortField: 'created_at',
@@ -92,7 +86,7 @@ const useListingColumns = (): Array<Column> => {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedAt }): string => updatedAt.slice(0, 10),
+      getFormattedString: ({ updatedAt }): string => updatedAt?.slice(0, 10),
       id: 'updated_at',
       label: t(labelUpdate),
       sortField: 'updated_at',
@@ -100,11 +94,12 @@ const useListingColumns = (): Array<Column> => {
       type: ColumnType.string
     },
     {
+      Component: Actions,
       clickable: true,
       disablePadding: false,
       id: 'actions',
       label: t(labelActions),
-      type: ColumnType.string
+      type: ColumnType.component
     },
     {
       Component: PublicLink,

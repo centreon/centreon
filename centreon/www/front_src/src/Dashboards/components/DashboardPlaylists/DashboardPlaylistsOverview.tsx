@@ -9,9 +9,9 @@ import {
   labelCreateAPlaylist,
   labelWelcomeToThePlaylistInterface
 } from '../../translatedLabels';
+import { Listing } from './Listing';
 
 import { playlistConfigInitialValuesAtom } from './atoms';
-import { Listing } from '../../PlayLists/Listing';
 
 const DashboardPlaylistsOverview = (): JSX.Element => {
   const { t } = useTranslation();
@@ -28,19 +28,20 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
 
   return (
     <DataTable variant="listing">
-      {false ? 
-      <DataTable.EmptyState
-        canCreate
-        labels={{
-          actions: { create: t(labelCreateAPlaylist) },
-          title: t(labelWelcomeToThePlaylistInterface)
-        }}
-        onCreate={openConfig}
-      /> : 
-      <div style={{ height : "100vh", width : "100%"}}>
-        <Listing />
-      </div>
-      }
+      {false ? (
+        <DataTable.EmptyState
+          canCreate
+          labels={{
+            actions: { create: t(labelCreateAPlaylist) },
+            title: t(labelWelcomeToThePlaylistInterface)
+          }}
+          onCreate={openConfig}
+        />
+      ) : (
+        <div style={{ height: '100vh', width: '100%' }}>
+          <Listing />
+        </div>
+      )}
     </DataTable>
   );
 };
