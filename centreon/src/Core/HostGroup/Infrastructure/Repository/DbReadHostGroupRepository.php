@@ -35,6 +35,8 @@ use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\Notification\Infrastructure\Repository\DbHostGroupResourceRepository;
+use Core\Notification\Infrastructure\Repository\DbServiceGroupResourceRepository;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -541,8 +543,12 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
     /**
      * Determine if accessGroups give access to all hostGroups
-     * true: all host groups are accessible
-     * false: all host groups are NOT accessible.
+     * - true: all host groups are accessible
+     * - false: all host groups are NOT accessible.
+     *
+     * Duplicate code with :
+     * - {@see DbServiceGroupResourceRepository::hasAccessToAllHostGroups()}
+     * - {@see DbHostGroupResourceRepository::hasAccessToAllHostGroups()}
      *
      * @param list<int> $accessGroupIds
      *
