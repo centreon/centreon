@@ -264,7 +264,7 @@ if ($hostgroup) {
             AND ns_host_relation.nagios_server_id = '$poller'
             AND h.host_id = hr.host_host_id
             AND hr.hostgroup_hg_id = '$hostgroup' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . ($num * $limit) . ", " . $limit);
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
         $dbResult->execute($mainQueryParameters);
     } else {
         $dbResult = $pearDB->prepare(
@@ -274,7 +274,7 @@ if ($hostgroup) {
             WHERE $searchFilterQuery $templateWHERE host_register = '1'
             AND h.host_id = hr.host_host_id
             AND hr.hostgroup_hg_id = '$hostgroup' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . ($num * $limit) . ", " . $limit);
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
         $dbResult->execute($mainQueryParameters);
     }
 } else {
@@ -286,7 +286,7 @@ if ($hostgroup) {
             WHERE $searchFilterQuery $templateWHERE host_register = '1'
             AND h.host_id = ns_host_relation.host_host_id
             AND ns_host_relation.nagios_server_id = '$poller' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . ($num * $limit) . ", " . $limit);
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
         $dbResult->execute($mainQueryParameters);
     } else {
         $dbResult = $pearDB->prepare(
@@ -294,7 +294,7 @@ if ($hostgroup) {
             host_address, host_activate, host_template_model_htm_id
             FROM host h $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . ($num * $limit) . ", " . $limit);
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
         $dbResult->execute($mainQueryParameters);
     }
 }
