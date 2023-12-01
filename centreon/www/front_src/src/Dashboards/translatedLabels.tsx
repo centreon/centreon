@@ -48,3 +48,5 @@ export const labelSecond = 'Second';
 export const labelSelectDashboards = 'Select dashboards';
 export const labelDefineTheOrderOfDashboards = 'Define the order of dashboards';
 export const labelAddADashboard = 'Add a dashboard';
+export const labelPlaylistCreated = 'Playlist created';
+export const labelPlaylistUpdated = 'Playlist updated';

@@ -11,9 +11,9 @@ import {
 } from '../../../../translatedLabels';
 import Subtitle from '../../../../Dashboard/components/Subtitle';
 import { usePlaylistConfigStyles } from '../PlaylistConfig.styles';
+import DashboardSort from '../DasbhoardSort/DashboardSort';
 
 import { useSelectDashboard } from './useSelectDashboard';
-import DashboardSort from '../DasbhoardSort/DashboardSort';
 
 const SelectDashboard = (): JSX.Element => {
   const { t } = useTranslation();
@@ -39,9 +39,9 @@ const SelectDashboard = (): JSX.Element => {
           disableClearable={false}
           field="name"
           getEndpoint={getEndpoint}
-          renderOption={renderOption}
           getOptionDisabled={getOptionDisabled}
           label={t(labelAddADashboard)}
+          renderOption={renderOption}
           value={selectedDashboard}
           onChange={selectDashboard}
         />

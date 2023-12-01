@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { FormikValues, useFormikContext } from 'formik';
-import { append, includes, pluck } from 'ramda';
+import { useFormikContext } from 'formik';
+import { append, inc, includes, pluck } from 'ramda';
 
 import { ListItemText, MenuItem } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -9,9 +9,20 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
 import { dashboardsEndpoint } from '../../../../api/endpoints';
+import { PlaylistConfig } from '../../models';
 
-export const useSelectDashboard = () => {
-  const { values, setFieldValue } = useFormikContext<FormikValues>();
+interface UseSelectDashboardState {
+  addDashboard: () => void;
+  addIconDisabled: boolean;
+  getEndpoint: (parameters) => string;
+  getOptionDisabled: (option: SelectEntry) => boolean;
+  renderOption: (attr, option: SelectEntry) => JSX.Element;
+  selectDashboard: (_, entry: SelectEntry) => void;
+  selectedDashboard: SelectEntry | null;
+}
+
+export const useSelectDashboard = (): UseSelectDashboardState => {
+  const { values, setFieldValue } = useFormikContext<PlaylistConfig>();
 
   const [selectedDashboard, setSelectedDashboard] =
     useState<SelectEntry | null>(null);
@@ -29,9 +40,9 @@ export const useSelectDashboard = () => {
       'dashboards',
       append(
         {
-          id: (selectedDashboard as SelectEntry).id,
+          id: (selectedDashboard as SelectEntry).id as number,
           name: (selectedDashboard as SelectEntry).name,
-          order: selectedDashboardIds.length
+          order: inc(selectedDashboardIds.length)
         },
         values.dashboards
       )

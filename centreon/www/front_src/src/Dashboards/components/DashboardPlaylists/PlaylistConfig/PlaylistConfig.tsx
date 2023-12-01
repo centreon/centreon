@@ -11,6 +11,7 @@ import { labelPlaylistProperties } from '../../../translatedLabels';
 import { inputs } from './inputs';
 import { getValidationSchema } from './validationSchema';
 import FormActions from './FormActions';
+import { useSaveConfig } from './useSaveConfig';
 
 const PlaylistConfig = (): JSX.Element => {
   const { t } = useTranslation();
@@ -19,9 +20,11 @@ const PlaylistConfig = (): JSX.Element => {
     playlistConfigInitialValuesAtom
   );
 
-  const isOpen = !!playlistConfigInitialValues;
+  const playlistId = playlistConfigInitialValues?.id;
 
-  const submit = (): void => console.log('yeah');
+  const { saveDashboard } = useSaveConfig(playlistId);
+
+  const isOpen = !!playlistConfigInitialValues;
 
   return (
     <Modal hasCloseButton={false} open={isOpen}>
@@ -31,7 +34,7 @@ const PlaylistConfig = (): JSX.Element => {
           Buttons={FormActions}
           initialValues={playlistConfigInitialValues as PlaylistConfig}
           inputs={inputs}
-          submit={submit}
+          submit={saveDashboard}
           validationSchema={getValidationSchema(t)}
         />
       </Modal.Body>

@@ -5,7 +5,16 @@ import { useFormikContext } from 'formik';
 
 import { PlaylistConfig } from '../../models';
 
-export const useDashboardSort = () => {
+interface UseDashboardSortState {
+  sortDashboards: (items: Array<string>) => void;
+  sortedDashboards: Array<{
+    id: string;
+    name?: string;
+    order: number;
+  }>;
+}
+
+export const useDashboardSort = (): UseDashboardSortState => {
   const { values, setFieldValue } = useFormikContext<PlaylistConfig>();
 
   const sortedDashboards = useMemo(
