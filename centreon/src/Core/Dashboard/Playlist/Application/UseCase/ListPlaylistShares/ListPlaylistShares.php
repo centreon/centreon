@@ -59,7 +59,7 @@ final class ListPlaylistShares
     ) {}
 
     /**
-     * @param integer $playlistId
+     * @param int $playlistId
      * @param ListPlaylistSharesPresenterInterface $presenter
      */
     public function __invoke(int $playlistId, ListPlaylistSharesPresenterInterface $presenter): void
@@ -103,14 +103,14 @@ final class ListPlaylistShares
     /**
      * @param int $playlistId
      *
-     * @return PlaylistShare
-     *
      * @throws \Throwable
+     *
+     * @return PlaylistShare
      */
     private function findPlaylistShares(int $playlistId): PlaylistShare {
         if ($this->rights->hasAdminRole()) {
             return $this->readPlaylistShareRepository->findByPlaylistId($playlistId);
-        } else {
+        }  
             $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
             $userContactGroupIds = array_map(
                 fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $userContactGroups
@@ -120,7 +120,7 @@ final class ListPlaylistShares
                 $playlistId,
                 $userContactGroupIds
             );
-        }
+        
     }
 
     /**
@@ -135,14 +135,14 @@ final class ListPlaylistShares
             return [
                 'id' => $contactShare->getContactId(),
                 'name' => $contactShare->getContactName(),
-                'role' => $contactShare->getRole()
+                'role' => $contactShare->getRole(),
             ];
         }, $shares->getPlaylistContactShares());
         $response->contactGroups = array_map(function (PlaylistContactGroupShare $contactShare): array {
             return [
                 'id' => $contactShare->getContactGroupId(),
                 'name' => $contactShare->getContactGroupName(),
-                'role' => $contactShare->getRole()
+                'role' => $contactShare->getRole(),
             ];
         }, $shares->getPlaylistContactGroupShares());
 

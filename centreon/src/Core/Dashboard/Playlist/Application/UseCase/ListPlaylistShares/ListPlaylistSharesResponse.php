@@ -25,7 +25,6 @@ namespace Core\Dashboard\Playlist\Application\UseCase\ListPlaylistShares;
 
 final class ListPlaylistSharesResponse
 {
-
     /** @var array{}|array<array{id:int, name: string, role: string}> */
     public array $contacts = [];
 

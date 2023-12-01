@@ -124,22 +124,23 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
      * Find the shared contacts for a playlist.
      *
      * @param int $playlistId
+     *
      * @return PlaylistContactShare[]
      */
     private function findContactShareByPlaylistId(int $playlistId): array
     {
         $query = <<<'SQL'
-        SELECT
-            dpcr.contact_id,
-            c.contact_name,
-            dpcr.role
-        FROM
-            `:db`.`dashboard_playlist` AS dp
-            INNER JOIN `:db`.`dashboard_playlist_contact_relation` dpcr ON dpcr.playlist_id = dp.id
-            INNER JOIN `:db`.`contact` AS c ON c.contact_id = dpcr.contact_id
-        WHERE
-            dp.id = :playlistId
-        SQL;
+            SELECT
+                dpcr.contact_id,
+                c.contact_name,
+                dpcr.role
+            FROM
+                `:db`.`dashboard_playlist` AS dp
+                INNER JOIN `:db`.`dashboard_playlist_contact_relation` dpcr ON dpcr.playlist_id = dp.id
+                INNER JOIN `:db`.`contact` AS c ON c.contact_id = dpcr.contact_id
+            WHERE
+                dp.id = :playlistId
+            SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
@@ -148,7 +149,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
 
         $contactShares = [];
 
-        /** @var array{contact_id: int, contact_name: string, role: string} $result*/
+        /** @var array{contact_id: int, contact_name: string, role: string} $result */
         foreach ($statement as $result) {
             $contactShares[] = new PlaylistContactShare(
                 $playlistId,
@@ -172,7 +173,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
     private function findContactShareByPlaylistIdAndContactGroupIds(int $playlistId, array $contactGroupIds): array
     {
         $bindContactGroups = [];
-        foreach($contactGroupIds as $key => $contactGroupId) {
+        foreach ($contactGroupIds as $key => $contactGroupId) {
             $bindContactGroups[':cg_' . $key] = $contactGroupId;
         }
 
@@ -210,13 +211,13 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
 
         $contactShares = [];
 
-        /** @var array{contact_id: int, contact_name: string, role: string} $result*/
+        /** @var array{contact_id: int, contact_name: string, role: string} $result */
         foreach ($statement as $result) {
             $contactShares[] = new PlaylistContactShare(
                 $playlistId,
                 $result['contact_id'],
                 $result['contact_name'],
-                $result['role' ]
+                $result['role']
             );
         }
 
@@ -227,6 +228,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
      * Find the shared contact groups for a playlist.
      *
      * @param int $playlistId
+     *
      * @return PlaylistContactGroupShare[]
      */
     private function findContactGroupShareByPlaylistId(int $playlistId): array
@@ -251,7 +253,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
 
         $contactGroupShares = [];
 
-        /** @var array{contactgroup_id: int, cg_name: string, role: string} $result*/
+        /** @var array{contactgroup_id: int, cg_name: string, role: string} $result */
         foreach ($statement as $result) {
             $contactGroupShares[] = new PlaylistContactGroupShare(
                 $playlistId,
@@ -267,7 +269,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
     /**
      * Find the contact groups shared to a playlist by given playlist id and contact group ids.
      *
-     * @param integer $playlistId
+     * @param int $playlistId
      * @param int[] $contactGroupIds
      *
      * @return PlaylistContactGroupShare[]
@@ -275,7 +277,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
     private function findContactGroupShareByPlaylistIdAndContactGroupIds(int $playlistId, array $contactGroupIds): array
     {
         $bindContactGroups = [];
-        foreach($contactGroupIds as $key => $contactGroupId) {
+        foreach ($contactGroupIds as $key => $contactGroupId) {
             $bindContactGroups[':cg_' . $key] = $contactGroupId;
         }
 
@@ -286,19 +288,19 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
         $bindContactGroupsString = implode(', ', array_keys($bindContactGroups));
 
         $query = <<<SQL
-        SELECT
-            dpcgr.contactgroup_id,
-            cg.cg_name,
-            dpcgr.role
-        FROM
-            `:db`.`dashboard_playlist` AS dp
-            INNER JOIN `:db`.`dashboard_playlist_contactgroup_relation` dpcgr ON dpcgr.playlist_id = dp.id
-            INNER JOIN `:db`.`contactgroup` AS cg ON cg.cg_id = dpcgr.contactgroup_id
-        WHERE
-            dp.id = :playlistId
-        AND
-            dpcgr.contactgroup_id IN ({$bindContactGroupsString})
-        SQL;
+            SELECT
+                dpcgr.contactgroup_id,
+                cg.cg_name,
+                dpcgr.role
+            FROM
+                `:db`.`dashboard_playlist` AS dp
+                INNER JOIN `:db`.`dashboard_playlist_contactgroup_relation` dpcgr ON dpcgr.playlist_id = dp.id
+                INNER JOIN `:db`.`contactgroup` AS cg ON cg.cg_id = dpcgr.contactgroup_id
+            WHERE
+                dp.id = :playlistId
+            AND
+                dpcgr.contactgroup_id IN ({$bindContactGroupsString})
+            SQL;
 
     $statement = $this->db->prepare($this->translateDbName($query));
     $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
@@ -310,13 +312,13 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
 
     $contactGroupShares = [];
 
-    /** @var array{contactgroup_id: int, cg_name: string, role: string} $result*/
+    /** @var array{contactgroup_id: int, cg_name: string, role: string} $result */
     foreach ($statement as $result) {
         $contactGroupShares[] = new PlaylistContactGroupShare(
             $playlistId,
             $result['contactgroup_id'],
             $result['cg_name'],
-            $result['role' ]
+            $result['role']
         );
     }
 
