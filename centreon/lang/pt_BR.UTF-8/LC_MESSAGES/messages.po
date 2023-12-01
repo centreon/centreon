@@ -17132,9 +17132,6 @@ msgstr ""
 # msgid "Rotation time"
 # msgstr ""
 
-# msgid "Second"
-# msgstr ""
-
 # msgid "Select dashboards"
 # msgstr ""
 

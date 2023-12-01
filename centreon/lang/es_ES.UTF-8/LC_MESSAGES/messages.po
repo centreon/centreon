@@ -16668,9 +16668,6 @@ msgstr "Modo avanzado"
 # msgid "Rotation time"
 # msgstr ""
 
-# msgid "Second"
-# msgstr ""
-
 # msgid "Select dashboards"
 # msgstr ""
 

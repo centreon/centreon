@@ -18492,9 +18492,6 @@ msgstr "Propriétés de la liste de lecture"
 msgid "Rotation time"
 msgstr "Temps de rotation"
 
-msgid "Second"
-msgstr "Seconde"
-
 msgid "Select dashboards"
 msgstr "Sélectionner des tableaux de bord"
 
