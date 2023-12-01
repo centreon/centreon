@@ -159,7 +159,7 @@ jobs:
               break
             else
               echo "The issue with ID $issue_id exists."
-              testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data '{"query": "mutation { updateTestType(issueId: \"'$issue_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
+              testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data '{"query": "mutation { updateTestType(issueId: \"'$issue_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
               summaries+=("$summary")
             fi
           done
@@ -217,7 +217,7 @@ jobs:
                 xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
 
                 # Execute GraphQL mutation to update the testType
-                testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data '{"query": "mutation { updateTestType(issueId: \"'$test_case_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
+                testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data '{"query": "mutation { updateTestType(issueId: \"'$test_case_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
 
                 # Check if the mutation was successful
                 if [ "$(echo "$testType_mutation_response" | jq -r '.data.updateTestType')" != "null" ]; then
