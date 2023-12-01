@@ -117,7 +117,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
         $contactShares = $this->findContactShareByPlaylistIdAndContactGroupIds($playlistId, $contactGroupIds);
         $contactGroupShares = $this->findContactGroupShareByPlaylistIdAndContactGroupIds($playlistId, $contactGroupIds);
 
-        return new PlaylistShare(1,$contactShares,$contactGroupShares);
+        return new PlaylistShare($playlistId, $contactShares, $contactGroupShares);
     }
 
     /**
@@ -189,7 +189,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
                 `:db`.`dashboard_playlist` AS dp
                 INNER JOIN `:db`.`dashboard_playlist_contact_relation` dpcr ON dpcr.playlist_id = dp.id
                 INNER JOIN `:db`.`contact` AS c ON c.contact_id = dpcr.contact_id
-                INNER JOIN `:db`.`contactgroup_contact_relation` AS cgcr ON cgcr = dpcr.contact_id
+                INNER JOIN `:db`.`contactgroup_contact_relation` AS cgcr ON cgcr.contact_contact_id = dpcr.contact_id
             WHERE
                 dp.id = :playlistId
             AND
@@ -231,7 +231,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
             SELECT
                 dpcgr.contactgroup_id,
                 cg.cg_name,
-                dpcgr.role AS contactgroup_role
+                dpcgr.role
             FROM
                 `:db`.`dashboard_playlist` AS dp
                 INNER JOIN `:db`.`dashboard_playlist_contactgroup_relation` dpcgr ON dpcgr.playlist_id = dp.id
@@ -251,7 +251,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
                 $playlistId,
                 $result['contactgroup_id'],
                 $result['cg_name'],
-                $result['role' ]
+                $result['role']
             );
         }
 
@@ -282,7 +282,7 @@ class DbReadPlaylistShareRepository extends AbstractRepositoryRDB implements Rea
         SELECT
             dpcgr.contactgroup_id,
             cg.cg_name,
-            dpcgr.role AS contactgroup_role
+            dpcgr.role
         FROM
             `:db`.`dashboard_playlist` AS dp
             INNER JOIN `:db`.`dashboard_playlist_contactgroup_relation` dpcgr ON dpcgr.playlist_id = dp.id

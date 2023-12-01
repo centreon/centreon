@@ -120,7 +120,7 @@ final class ListPlaylistShares
                 'name' => $contactShare->getContactGroupName(),
                 'role' => $contactShare->getRole()
             ];
-        }, $shares->getPlaylistContactShares());
+        }, $shares->getPlaylistContactGroupShares());
 
         return $response;
     }
