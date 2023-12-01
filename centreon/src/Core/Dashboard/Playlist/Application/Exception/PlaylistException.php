@@ -143,6 +143,16 @@ class PlaylistException extends \Exception
     }
 
     /**
+     * @param int $playlistId
+     *
+     * @return self
+     */
+    public static function playlistNotShared(int $playlistId): self
+    {
+        return new self(sprintf(_('The following playlist is not shared with you: [%d].'), $playlistId));
+    }
+
+    /**
      * @param int[] $userIds
      *
      * @return self
