@@ -1,5 +1,4 @@
 import { Provider, createStore } from 'jotai';
-import { should } from 'chai';
 
 import { Method, QueryProvider } from '@centreon/ui';
 
@@ -23,7 +22,7 @@ import { labelRequired, labelSave } from '../../../Dashboard/translatedLabels';
 import PlaylistConfig from './PlaylistConfig';
 import { initialValue } from './utils';
 
-const initializePlaylistConfigCreation = () => {
+const initializePlaylistConfigCreation = (): void => {
   const store = createStore();
 
   cy.fixture(`Dashboards/dashboards.json`).then((dashboards) => {
@@ -58,7 +57,7 @@ const initializePlaylistConfigCreation = () => {
   });
 };
 
-const initializePlaylistConfigEdition = () => {
+const initializePlaylistConfigEdition = (): void => {
   const store = createStore();
 
   cy.fixture(`Dashboards/dashboards.json`).then((dashboards) => {
