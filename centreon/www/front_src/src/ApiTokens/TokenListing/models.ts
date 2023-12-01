@@ -1,5 +1,7 @@
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
+import { Duration } from '../TokenCreation/models';
+
 import { Fields, SortOrder } from './Actions/Search/Filter/models';
 
 export interface DataListing {
@@ -39,4 +41,11 @@ export interface Token {
 export interface SortParams {
   sortField: string;
   sortOrder: string;
+}
+
+export interface CreateTokenFormValues {
+  duration: Duration | null;
+  token: null | string;
+  tokenName: string;
+  userName: PersonalInformation;
 }

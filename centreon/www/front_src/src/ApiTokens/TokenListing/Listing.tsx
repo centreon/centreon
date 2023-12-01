@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import Divider from '@mui/material/Divider';
 
 import { MemoizedListing as TokenListing } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import TokenCreationButton from '../TokenCreation';
 import CreateTokenDialog from '../TokenCreation/CreateTokenDialog';
@@ -22,6 +21,7 @@ const Listing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const isCreateToken = useAtomValue(isCreateTokenAtom);
+
   const {
     dataListing,
     changePage,
@@ -35,12 +35,7 @@ const Listing = (): JSX.Element | null => {
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
 
-  if (dataListing?.isError) {
-    return null;
-  }
-
   return (
-    // <FormikProvider value={formik}>
     <div className={classes.container}>
       <Title msg={t(labelApiToken)} />
       <Divider className={classes.divider} />
@@ -73,7 +68,6 @@ const Listing = (): JSX.Element | null => {
       />
       {isCreateToken && <CreateTokenDialog />}
     </div>
-    // </FormikProvider>
   );
 };
 export default Listing;

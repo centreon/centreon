@@ -1,3 +1,3 @@
-import { atomWithStorage } from 'jotai/utils';
+import { atom } from 'jotai';
 
-export const isCreateTokenAtom = atomWithStorage('test', false);
+export const isCreateTokenAtom = atom(false);

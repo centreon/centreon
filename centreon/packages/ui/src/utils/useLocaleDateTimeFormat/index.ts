@@ -9,11 +9,11 @@ import shortLocales from './sortLocales';
 
 interface FormatParameters {
   date: Date | string;
-  formatString?: string;
+  formatString: string;
 }
 
 export interface LocaleDateTimeFormat {
-  format: (dateFormat: FormatParameters) => string | dayjs.Dayjs;
+  format: (dateFormat: FormatParameters) => string;
   toDate: (date: Date | string) => string;
   toDateTime: (date: Date | string) => string;
   toHumanizedDuration: (duration: number) => string;
@@ -30,41 +30,35 @@ const dateTimeFormat = `${dateFormat} ${timeFormat}`;
 const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   const { locale, timezone } = useAtomValue(userAtom);
 
-  const format = ({
-    date,
-    formatString
-  }: FormatParameters): string | dayjs.Dayjs => {
+  const format = ({ date, formatString }: FormatParameters): string => {
     const normalizedLocale = locale.substring(0, 2);
 
     const timezoneDate = dayjs(
       new Date(date).toLocaleString('en', { timeZone: timezone })
     ).locale(normalizedLocale);
-    if (formatString) {
-      return timezoneDate.format(formatString);
-    }
 
-    return timezoneDate;
+    return timezoneDate.format(formatString);
   };
 
   const toDateTime = (date: Date | string): string => {
     return format({
       date,
       formatString: dateTimeFormat
-    }) as string;
+    });
   };
 
   const toDate = (date: Date | string): string => {
     return format({
       date,
       formatString: dateFormat
-    }) as string;
+    });
   };
 
   const toTime = (date: Date | string): string => {
     return format({
       date,
       formatString: timeFormat
-    }) as string;
+    });
   };
 
   const toIsoString = (date: Date): string => {
