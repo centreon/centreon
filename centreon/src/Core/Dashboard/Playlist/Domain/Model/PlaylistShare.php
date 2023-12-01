@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class PlaylistShare
 {
     /**
@@ -35,6 +37,7 @@ class PlaylistShare
         private readonly array $playlistContactShares,
         private readonly array $playlistContactGroupShares
     ) {
+        Assertion::positiveInt($playlistId, 'PlaylistShare::playlistId');
     }
 
     public function getPlaylistId(): int

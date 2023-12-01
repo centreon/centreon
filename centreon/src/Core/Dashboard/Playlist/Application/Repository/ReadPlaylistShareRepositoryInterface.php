@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Application\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Playlist\Domain\Model\PlaylistShare;
 
@@ -57,7 +58,7 @@ interface ReadPlaylistShareRepositoryInterface
      *
      * @param int $playlistId
      *
-     * @throws \Throwable
+     * @throws \Throwable|AssertionFailedException
      *
      * @return PlaylistShare
      */
@@ -69,7 +70,7 @@ interface ReadPlaylistShareRepositoryInterface
      * @param int $playlistId
      * @param int[] $contactGroupIds
      *
-     * @throws \Throwable
+     * @throws \Throwable|AssertionFailedException
      *
      * @return PlaylistShare
      */

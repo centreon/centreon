@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Application\UseCase\ListPlaylistShares;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -89,11 +90,16 @@ final class ListPlaylistShares
                 $presenter->presentResponse(
                     new InvalidArgumentResponse(PlaylistException::playlistNotShared($playlistId))
                 );
+
+                return;
             }
 
             $shares = $this->findPlaylistShares($playlistId);
 
             $presenter->presentResponse($this->createResponse($shares));
+        } catch (AssertionFailedException $ex) {
+            $this->error(PlaylistException::errorWhileListingShares()->getMessage(), ['trace' => (string) $ex]);
+            $presenter->presentResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
             $this->error(PlaylistException::errorWhileListingShares()->getMessage(), ['trace' => (string) $ex]);
             $presenter->presentResponse(new ErrorResponse(PlaylistException::errorWhileListingShares()));
@@ -103,24 +109,23 @@ final class ListPlaylistShares
     /**
      * @param int $playlistId
      *
-     * @throws \Throwable
+     * @throws \Throwable|AssertionFailedException
      *
      * @return PlaylistShare
      */
     private function findPlaylistShares(int $playlistId): PlaylistShare {
         if ($this->rights->hasAdminRole()) {
             return $this->readPlaylistShareRepository->findByPlaylistId($playlistId);
-        }  
-            $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
-            $userContactGroupIds = array_map(
-                fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $userContactGroups
-            );
+        }
+        $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
+        $userContactGroupIds = array_map(
+            fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $userContactGroups
+        );
 
-            return $this->readPlaylistShareRepository->findByPlaylistIdAndContactGroupIds(
-                $playlistId,
-                $userContactGroupIds
-            );
-        
+        return $this->readPlaylistShareRepository->findByPlaylistIdAndContactGroupIds(
+            $playlistId,
+            $userContactGroupIds
+        );
     }
 
     /**

@@ -23,14 +23,32 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class PlaylistContactShare
 {
+    public const PLAYLIST_VIEWER_ROLE = 'viewer';
+    public const PLAYLIST_EDITOR_ROLE = 'editor';
+    public const PLAYLIST_ROLES = [self::PLAYLIST_VIEWER_ROLE, self::PLAYLIST_EDITOR_ROLE];
+
+    /**
+     * @param int $playlistId
+     * @param int $contactId
+     * @param string $contactName
+     * @param string $role
+     *
+     * @throws \Assert\AssertionFailedException
+     */
     public function __construct(
         private readonly int $playlistId,
         private readonly int $contactId,
         private readonly string $contactName,
         private readonly string $role,
     ) {
+        Assertion::positiveInt($playlistId, 'PlaylistContactShare::playlistId');
+        Assertion::positiveInt($contactId, 'PlaylistContactShare::contactId');
+        Assertion::notEmptyString($contactName, 'PlaylistContactShare::contactName');
+        Assertion::inArray($role, self::PLAYLIST_ROLES, 'PlaylistContactShare::role');
     }
 
     public function getPlaylistId(): int
