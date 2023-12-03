@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import { useIsViewerUser } from '../hooks';
 
 import Filter from './Filter';
-import AddPlaylist from './Add';
+import AddPlaylist from './AddPlaylist';
 import { useActionsStyles } from './useActionsStyles';
 
 const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
