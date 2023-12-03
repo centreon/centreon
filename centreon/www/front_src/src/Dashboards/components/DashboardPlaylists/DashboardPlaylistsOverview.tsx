@@ -48,7 +48,7 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
         />
       ) : (
         <div style={{ height: '100vh', width: '100%' }}>
-          <Listing data={data} loading={loading} />
+          <Listing data={data} loading={loading} openConfig = {openConfig} />
         </div>
       )}
     </DataTable>

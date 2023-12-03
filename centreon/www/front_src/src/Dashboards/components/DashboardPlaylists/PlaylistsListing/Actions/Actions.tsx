@@ -6,14 +6,14 @@ import Filter from './Filter';
 import AddPlaylist from './Add';
 import { useActionsStyles } from './useActionsStyles';
 
-const Actions = (): JSX.Element => {
+const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
   const { classes } = useActionsStyles();
 
   const isViewer = useIsViewerUser();
 
   return (
     <Box className={classes.actions}>
-      {!isViewer && <AddPlaylist />}
+      {!isViewer && <AddPlaylist openConfig={openConfig} />}
       <Filter />
     </Box>
   );

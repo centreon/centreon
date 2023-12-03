@@ -6,7 +6,7 @@ import { Button } from '@centreon/ui/components';
 
 import { labelCreate } from '../translatedLabels';
 
-const AddPlaylist = (): JSX.Element => {
+const AddPlaylist = ({openConfig } : {openConfig  : () => void}): JSX.Element => {
   const { t } = useTranslation();
 
   return (
@@ -17,7 +17,7 @@ const AddPlaylist = (): JSX.Element => {
       iconVariant="start"
       size="small"
       variant="primary"
-      onClick={() => undefined}
+      onClick={openConfig}
     >
       {t(labelCreate)}
     </Button>

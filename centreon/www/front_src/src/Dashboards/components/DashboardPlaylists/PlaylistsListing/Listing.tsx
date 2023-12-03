@@ -9,9 +9,14 @@ import useListing from './useListing';
 interface ListingProp {
   data?: PlaylistListingType;
   loading: boolean;
+  openConfig: () => void;
 }
 
-const Listing = ({ data: listingData, loading }: ListingProp): JSX.Element => {
+const Listing = ({
+  data: listingData,
+  loading,
+  openConfig
+}: ListingProp): JSX.Element => {
   const columns = useListingColumns();
 
   const {
@@ -34,7 +39,7 @@ const Listing = ({ data: listingData, loading }: ListingProp): JSX.Element => {
 
   return (
     <MemoizedListing
-      actions={<Actions />}
+      actions={<Actions openConfig={openConfig} />}
       checkable={!isViewer}
       columnConfiguration={{
         selectedColumnIds,
