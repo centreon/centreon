@@ -23,6 +23,7 @@ import Actions from './Actions';
 import Share from './Share';
 import Role from './Role';
 import RotationTime from './RotationTime';
+import Description from './Decription';
 
 const useListingColumns = (): Array<Column> => {
   const { t } = useTranslation();
@@ -58,13 +59,25 @@ const useListingColumns = (): Array<Column> => {
             type: ColumnType.component
           }
         ]),
-    {
-      disablePadding: false,
-      getFormattedString: ({ description }): string => description,
-      id: 'description',
-      label: t(labelDescription),
-      type: ColumnType.string
-    },
+    ...(isViewer
+      ? [
+          {
+            disablePadding: false,
+            getFormattedString: ({ description }): string => description,
+            id: 'description',
+            label: t(labelDescription),
+            type: ColumnType.string
+          }
+        ]
+      : [
+          {
+            Component: Description,
+            disablePadding: false,
+            id: 'description',
+            label: t(labelDescription),
+            type: ColumnType.component
+          }
+        ]),
     {
       Component: RotationTime,
       disablePadding: false,
