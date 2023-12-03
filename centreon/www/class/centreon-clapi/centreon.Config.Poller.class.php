@@ -499,18 +499,10 @@ class CentreonConfigPoller
             /* Change files owner */
             if ($apacheUser != "") {
                 foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
-                    //handle path traversal vulnerability
-                    if (strpos($file, '..') !== false) {
-                        throw new Exception('Path traversal found');
-                    }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
                 }
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
-                    //handle path traversal vulnerability
-                    if (strpos($file, '..') !== false) {
-                        throw new Exception('Path traversal found');
-                    }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
                 }
@@ -556,10 +548,6 @@ class CentreonConfigPoller
                 /* Change files owner */
                 if ($apacheUser != "") {
                     foreach (glob(rtrim($centreonBrokerDirCfg, "/") . "/" . "/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
-                        //handle path traversal vulnerability
-                        if (strpos($file, '..') !== false) {
-                            throw new Exception('Path traversal found');
-                        }
                         @chown($file, $apacheUser);
                         @chgrp($file, $apacheUser);
                     }
@@ -696,10 +684,6 @@ class CentreonConfigPoller
             mkdir("{$trapdPath}/{$pollerId}");
         }
         $filename = "{$trapdPath}/{$pollerId}/centreontrapd.sdb";
-        //handle path traversal vulnerability
-        if (strpos($filename, '..') !== false) {
-            throw new Exception('Path traversal found');
-        }
         passthru("$centreonDir/bin/generateSqlLite '{$pollerId}' '{$filename}' 2>&1");
         exec("echo 'SYNCTRAP:" . $pollerId . "' >> " . $this->centcore_pipe, $stdout, $return);
         return $return;
