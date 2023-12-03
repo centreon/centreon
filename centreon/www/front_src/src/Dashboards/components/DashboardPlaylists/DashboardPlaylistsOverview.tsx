@@ -9,37 +9,49 @@ import {
   labelCreateAPlaylist,
   labelWelcomeToThePlaylistInterface
 } from '../../translatedLabels';
-import { Listing } from './Listing';
+import { Listing } from './PlaylistsListing';
 
 import { playlistConfigInitialValuesAtom } from './atoms';
+import { useDashboardUserPermissions } from '../DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
+import { useDashboardPlaylistsOverview } from './useDashboardPlaylistsOverview';
 
 const DashboardPlaylistsOverview = (): JSX.Element => {
   const { t } = useTranslation();
   const setPlaylistConfigInitialValues = useSetAtom(
     playlistConfigInitialValuesAtom
   );
+  const {isEmptyList , loading , data} = useDashboardPlaylistsOverview()
+
 
   const openConfig = useCallback(() => {
     setPlaylistConfigInitialValues({
+      dashboards: [],
       description: '',
-      name: ''
+      isPublic: false,
+      name: '',
+      rotationTime: 10
     });
   }, []);
 
+  const { canCreateOrManageDashboards } =
+  useDashboardUserPermissions(); // can replaced with playlist version
+
+
   return (
     <DataTable variant="listing">
-      {false ? (
+      {/* handle empty data case */}
+      {isEmptyList  ? (
         <DataTable.EmptyState
-          canCreate
+          canCreate = {canCreateOrManageDashboards}
           labels={{
-            actions: { create: t(labelCreateAPlaylist) },
-            title: t(labelWelcomeToThePlaylistInterface)
-          }}
+              actions: { create: t(labelCreateAPlaylist) },
+              title: t(labelWelcomeToThePlaylistInterface)
+            }}
           onCreate={openConfig}
         />
       ) : (
         <div style={{ height: '100vh', width: '100%' }}>
-          <Listing />
+          <Listing loading = {loading} data = {data} />
         </div>
       )}
     </DataTable>

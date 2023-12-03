@@ -11,14 +11,14 @@ import {
 } from './atom';
 import { PlaylistListingType } from './models';
 import { buildlistPlaylistsEndpoint, listPlaylistsDecoder } from './api';
+import { formatListingData } from './utils';
 
-interface UseListing {
+interface UseLoadListing {
   data?: PlaylistListingType;
   loading: boolean;
-  refetch;
 }
 
-const useListing = (): UseListing => {
+const useLoadListing = (): UseLoadListing => {
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
   const sortField = useAtomValue(sortFieldAtom);
@@ -33,11 +33,7 @@ const useListing = (): UseListing => {
     }
   };
 
-  const {
-    data,
-    isLoading: loading,
-    refetch
-  } = useFetchQuery<PlaylistListingType>({
+  const { data, isLoading: loading } = useFetchQuery<PlaylistListingType>({
     decoder: listPlaylistsDecoder,
     getEndpoint: () => {
       return buildlistPlaylistsEndpoint({
@@ -47,14 +43,10 @@ const useListing = (): UseListing => {
         sort
       });
     },
-    getQueryKey: () => ['playlists', sortField, sortOrder, page, limit, search],
-    queryOptions: {
-      refetchOnMount: false,
-      suspense: false
-    }
+    getQueryKey: () => ['playlists', sortField, sortOrder, page, limit, search]
   });
 
-  return { data, loading, refetch };
+  return { data: formatListingData({ data }), loading };
 };
 
-export default useListing;
+export default useLoadListing;
