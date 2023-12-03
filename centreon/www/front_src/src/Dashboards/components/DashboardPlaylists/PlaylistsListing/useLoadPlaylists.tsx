@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 import { useAtomValue } from 'jotai';
 
 import { useFetchQuery } from '@centreon/ui';
@@ -19,6 +21,8 @@ interface UseLoadPlaylists {
 }
 
 const useLoadPlaylists = (): UseLoadPlaylists => {
+  const [isMounting, setIsMounting] = useState(true);
+
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
   const sortField = useAtomValue(sortFieldAtom);
@@ -45,9 +49,13 @@ const useLoadPlaylists = (): UseLoadPlaylists => {
     },
     getQueryKey: () => ['playlists', sortField, sortOrder, page, limit, search],
     queryOptions: {
-      suspense: false
+      suspense: isMounting
     }
   });
+
+  useEffect(() => {
+    setIsMounting(false);
+  }, []);
 
   return { data: formatListingData({ data }), loading };
 };

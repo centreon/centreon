@@ -23,6 +23,7 @@ import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDash
 import { DashboardLayout } from '../../../models';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
+import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 
 const DashboardsOverview = (): ReactElement => {
   const { t } = useTranslation();
@@ -71,8 +72,8 @@ const DashboardsOverview = (): ReactElement => {
   }, []);
 
   return (
-    <>
-      <PageLayout.Actions>
+    <> 
+     <PageLayout.Actions>
         {!isEmptyList && canCreateOrManageDashboards && (
           <Button
             aria-label="create"
@@ -112,7 +113,7 @@ const DashboardsOverview = (): ReactElement => {
           ))
         )}
       </DataTable>
-    </>
+      </>
   );
 };
 

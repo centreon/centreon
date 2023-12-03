@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { Suspense, useCallback } from 'react';
 
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -32,26 +32,25 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
     });
   }, []);
 
-  const { canCreateOrManageDashboards } = useDashboardUserPermissions(); // can replaced with playlist version
+  const { canCreateOrManageDashboards } = useDashboardUserPermissions();
 
   return (
-    <DataTable variant="listing">
-      {/* handle empty data case */}
-      {isEmptyList ? (
-        <DataTable.EmptyState
-          canCreate={canCreateOrManageDashboards}
-          labels={{
-            actions: { create: t(labelCreateAPlaylist) },
-            title: t(labelWelcomeToThePlaylistInterface)
-          }}
-          onCreate={openConfig}
-        />
-      ) : (
-        <div style={{ height: '100vh', width: '100%' }}>
-          <Listing data={data} loading={loading} openConfig = {openConfig} />
-        </div>
-      )}
-    </DataTable>
+      <DataTable variant="listing">
+        {isEmptyList ? (
+          <DataTable.EmptyState
+            canCreate={canCreateOrManageDashboards}
+            labels={{
+              actions: { create: t(labelCreateAPlaylist) },
+              title: t(labelWelcomeToThePlaylistInterface)
+            }}
+            onCreate={openConfig}
+          />
+        ) : (
+          <div style={{ height: '100vh', width: '100%' }}>
+            <Listing data={data} loading={loading} openConfig = {openConfig} />
+          </div>
+        )}
+      </DataTable>
   );
 };
 
