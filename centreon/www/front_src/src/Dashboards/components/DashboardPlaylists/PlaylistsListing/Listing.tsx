@@ -26,7 +26,8 @@ const Listing = ({ data: listingData, loading }: ListingProp): JSX.Element => {
     setSelectedColumnIds,
     setSelectedRows,
     sortf,
-    sorto
+    sorto,
+    getRowProperty
   } = useListing({ columns });
 
   const isViewer = useIsViewerUser();
@@ -59,9 +60,9 @@ const Listing = ({ data: listingData, loading }: ListingProp): JSX.Element => {
       subItems={{
         canCheckSubItems: false,
         enable: true,
+        getRowProperty,
         labelCollapse: 'Collapse',
-        labelExpand: 'Expand',
-        rowProperty: 'shares'
+        labelExpand: 'Expand'
       }}
       totalRows={listingData?.meta.total}
       onLimitChange={setLimit}

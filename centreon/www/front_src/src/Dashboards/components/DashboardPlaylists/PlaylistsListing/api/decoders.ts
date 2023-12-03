@@ -7,6 +7,7 @@ import {
   Dashboard,
   NamedEntity,
   PlaylistType,
+  Role,
   Share
 } from '../models';
 
@@ -30,7 +31,7 @@ const contactDecoder = JsonDecoder.object<Contact>(
   {
     id: JsonDecoder.number,
     name: JsonDecoder.string,
-    role: JsonDecoder.string
+    role: JsonDecoder.enumeration(Role, 'role')
   },
   'Contact'
 );
@@ -52,6 +53,7 @@ const PlaylistDecoder = JsonDecoder.object<PlaylistType>(
     id: JsonDecoder.number,
     isPublic: JsonDecoder.nullable(JsonDecoder.boolean),
     name: JsonDecoder.string,
+    ownRole: JsonDecoder.enumeration(Role, 'ownRole'),
     publicLink: JsonDecoder.nullable(JsonDecoder.string),
     rotationTime: JsonDecoder.number,
     shares: shareDecoder,
@@ -61,6 +63,7 @@ const PlaylistDecoder = JsonDecoder.object<PlaylistType>(
   {
     createdAt: 'created_at',
     isPublic: 'is_public',
+    ownRole: 'own_role',
     publicLink: 'public_link',
     rotationTime: 'rotation_time',
     updatedAt: 'updated_at'

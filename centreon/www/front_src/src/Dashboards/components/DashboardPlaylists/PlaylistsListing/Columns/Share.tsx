@@ -6,15 +6,19 @@ import { Box } from '@mui/material';
 
 import { ComponentColumnProps } from '@centreon/ui';
 
+import { Role as RoleType, ShareType } from '../models';
 import { labelShares } from '../translatedLabels';
-import { ShareType } from '../models';
 
 import { useColumnStyles } from './useColumnStyles';
 
 const Share = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useColumnStyles();
   const { t } = useTranslation();
-  const { shares, role, shareName, type } = row;
+  const { shares, role, shareName, type, ownRole } = row;
+
+  if (equals(ownRole, RoleType.Viewer)) {
+    return <Box className={classes.line}>-</Box>;
+  }
 
   const isNestedRow = !isNil(role);
 

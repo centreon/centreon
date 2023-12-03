@@ -35,6 +35,7 @@ export interface PlaylistType {
   id: number;
   isPublic: boolean | null;
   name: string;
+  ownRole: Role;
   publicLink?: string | null;
   rotationTime: number;
   shares: Share;

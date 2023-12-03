@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import ShareIcon from '@mui/icons-material/Share';
@@ -11,6 +11,7 @@ import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
+import { Role as RoleType } from '../../models';
 import {
   labelMoreActions,
   labelSettings,
@@ -25,9 +26,11 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
 
+  const { role, ownRole } = row;
+
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
-  const isNestedRow = !isNil(row?.role);
+  const isNestedRow = !isNil(role);
 
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
   const closeMoreActions = (): void => setMoreActionsOpen(null);
@@ -58,6 +61,10 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         <UnShareIcon className={classes.icon} />
       </IconButton>
     );
+  }
+
+  if (equals(ownRole, RoleType.Viewer)) {
+    return <Box className={classes.line}>-</Box>;
   }
 
   return (

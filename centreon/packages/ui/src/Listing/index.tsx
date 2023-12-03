@@ -121,9 +121,9 @@ export interface Props<TRow> {
   subItems?: {
     canCheckSubItems: boolean;
     enable: boolean;
+    getRowProperty: (row?) => string;
     labelCollapse: string;
     labelExpand: string;
-    rowProperty: string;
   };
   totalRows?: number;
   viewerModeConfiguration?: ViewerModeConfiguration;
@@ -176,9 +176,9 @@ const Listing = <TRow extends { id: RowId }>({
   subItems = {
     canCheckSubItems: false,
     enable: false,
+    getRowProperty: () => '',
     labelCollapse: 'Collapse',
-    labelExpand: 'Expand',
-    rowProperty: ''
+    labelExpand: 'Expand'
   }
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
@@ -211,10 +211,10 @@ const Listing = <TRow extends { id: RowId }>({
         ? reduce<TRow, Array<TRow>>(
             (acc, row): Array<TRow> => {
               if (
-                row[subItems.rowProperty] &&
+                row[subItems.getRowProperty()] &&
                 subItemsPivots.includes(row.id)
               ) {
-                return [...acc, row, ...row[subItems.rowProperty]];
+                return [...acc, row, ...row[subItems.getRowProperty()]];
               }
 
               return [...acc, row];
@@ -449,7 +449,7 @@ const Listing = <TRow extends { id: RowId }>({
       reduce<TRow | number, Array<string | number>>(
         (acc, row) => [
           ...acc,
-          ...pluck('id', row[subItems?.rowProperty || ''] || [])
+          ...pluck('id', row[subItems?.getRowProperty() || ''] || [])
         ],
         [],
         rows
@@ -620,7 +620,7 @@ const Listing = <TRow extends { id: RowId }>({
                             listingVariant={listingVariant}
                             row={row}
                             rowColorConditions={rowColorConditions}
-                            subItemsRowProperty={subItems?.rowProperty}
+                            subItemsRowProperty={subItems?.getRowProperty(row)}
                           />
                         ))}
                       </ListingRow>

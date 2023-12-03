@@ -1,8 +1,9 @@
 import { useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { prop } from 'ramda';
+import { prop, equals } from 'ramda';
 
+import { Role, PlaylistType } from './models';
 import {
   pageAtom,
   limitAtom,
@@ -10,11 +11,11 @@ import {
   sortFieldAtom,
   selectedRowsAtom
 } from './atom';
-import { PlaylistType } from './models';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
   changeSort: ({ sortOrder, sortField }) => void;
+  getRowProperty: (row) => string;
   page?: number;
   predefinedRowsSelection;
   resetColumns: () => void;
@@ -62,9 +63,18 @@ const useListing = ({ columns }): UseListing => {
     }
   ];
 
+  const getRowProperty = (row): string => {
+    if (equals(row?.ownRole, Role.Viewer)) {
+      return '';
+    }
+
+    return 'shares';
+  };
+
   return {
     changePage,
     changeSort,
+    getRowProperty,
     page,
     predefinedRowsSelection,
     resetColumns,
