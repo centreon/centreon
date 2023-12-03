@@ -9,10 +9,10 @@ import {
   labelCreateAPlaylist,
   labelWelcomeToThePlaylistInterface
 } from '../../translatedLabels';
-import { Listing } from './PlaylistsListing';
-
-import { playlistConfigInitialValuesAtom } from './atoms';
 import { useDashboardUserPermissions } from '../DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
+
+import { Listing } from './PlaylistsListing';
+import { playlistConfigInitialValuesAtom } from './atoms';
 import { useDashboardPlaylistsOverview } from './useDashboardPlaylistsOverview';
 
 const DashboardPlaylistsOverview = (): JSX.Element => {
@@ -20,8 +20,7 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
   const setPlaylistConfigInitialValues = useSetAtom(
     playlistConfigInitialValuesAtom
   );
-  const {isEmptyList , loading , data} = useDashboardPlaylistsOverview()
-
+  const { isEmptyList, loading, data } = useDashboardPlaylistsOverview();
 
   const openConfig = useCallback(() => {
     setPlaylistConfigInitialValues({
@@ -33,25 +32,23 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
     });
   }, []);
 
-  const { canCreateOrManageDashboards } =
-  useDashboardUserPermissions(); // can replaced with playlist version
-
+  const { canCreateOrManageDashboards } = useDashboardUserPermissions(); // can replaced with playlist version
 
   return (
     <DataTable variant="listing">
       {/* handle empty data case */}
-      {isEmptyList  ? (
+      {isEmptyList ? (
         <DataTable.EmptyState
-          canCreate = {canCreateOrManageDashboards}
+          canCreate={canCreateOrManageDashboards}
           labels={{
-              actions: { create: t(labelCreateAPlaylist) },
-              title: t(labelWelcomeToThePlaylistInterface)
-            }}
+            actions: { create: t(labelCreateAPlaylist) },
+            title: t(labelWelcomeToThePlaylistInterface)
+          }}
           onCreate={openConfig}
         />
       ) : (
         <div style={{ height: '100vh', width: '100%' }}>
-          <Listing loading = {loading} data = {data} />
+          <Listing data={data} loading={loading} />
         </div>
       )}
     </DataTable>
