@@ -1,6 +1,6 @@
 import { isEmpty } from 'ramda';
 
-import useLoadListing from './PlaylistsListing/useLoadListing';
+import useLoadPlaylists from './PlaylistsListing/useLoadPlaylists';
 import { PlaylistListingType } from './PlaylistsListing/models';
 
 type UsePlaylistOverview = {
@@ -10,7 +10,7 @@ type UsePlaylistOverview = {
 };
 
 const useDashboardPlaylistsOverview = (): UsePlaylistOverview => {
-  const { loading, data } = useLoadListing();
+  const { loading, data } = useLoadPlaylists();
 
   const isEmptyList = isEmpty(data?.result || []);
 

@@ -13,12 +13,12 @@ import { PlaylistListingType } from './models';
 import { buildlistPlaylistsEndpoint, listPlaylistsDecoder } from './api';
 import { formatListingData } from './utils';
 
-interface UseLoadListing {
+interface UseLoadPlaylists {
   data?: PlaylistListingType;
   loading: boolean;
 }
 
-const useLoadListing = (): UseLoadListing => {
+const useLoadPlaylists = (): UseLoadPlaylists => {
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
   const sortField = useAtomValue(sortFieldAtom);
@@ -43,10 +43,13 @@ const useLoadListing = (): UseLoadListing => {
         sort
       });
     },
-    getQueryKey: () => ['playlists', sortField, sortOrder, page, limit, search]
+    getQueryKey: () => ['playlists', sortField, sortOrder, page, limit, search],
+    queryOptions: {
+      suspense: false
+    }
   });
 
   return { data: formatListingData({ data }), loading };
 };
 
-export default useLoadListing;
+export default useLoadPlaylists;
