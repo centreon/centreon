@@ -19,7 +19,7 @@ import { useIsViewerUser } from '../hooks';
 
 import ActivatePublicLink from './ActivatePublicLink';
 import PublicLink from './PublicLink';
-import Actions from './Actions';
+import Actions from './Actions/Actions';
 import Share from './Share';
 import Role from './Role';
 import RotationTime from './RotationTime';
