@@ -1,6 +1,4 @@
-import { useState } from 'react';
-
-import { equals, isNil } from 'ramda';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import ShareIcon from '@mui/icons-material/Share';
@@ -21,19 +19,19 @@ import {
 import { useColumnStyles } from '../useColumnStyles';
 
 import MoreActions from './MoreActions';
+import useActions from './useActions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
 
-  const { role, ownRole } = row;
-
-  const [moreActionsOpen, setMoreActionsOpen] = useState(null);
-
-  const isNestedRow = !isNil(role);
-
-  const openMoreActions = (event): void => setMoreActionsOpen(event.target);
-  const closeMoreActions = (): void => setMoreActionsOpen(null);
+  const {
+    closeMoreActions,
+    initializePlaylistConfiguration,
+    moreActionsOpen,
+    openMoreActions,
+    isNestedRow
+  } = useActions(row);
 
   const actions = [
     {
@@ -46,7 +44,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       Icon: SettingsIcon,
       className: classes.icon,
       label: labelSettings,
-      onClick: (): void => undefined
+      onClick: initializePlaylistConfiguration
     },
     {
       Icon: MoreIcon,
@@ -63,7 +61,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     );
   }
 
-  if (equals(ownRole, RoleType.Viewer)) {
+  if (equals(row?.ownRole, RoleType.Viewer)) {
     return <Box className={classes.line}>-</Box>;
   }
 
