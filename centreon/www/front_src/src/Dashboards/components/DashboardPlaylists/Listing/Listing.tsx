@@ -16,6 +16,7 @@ import {
 } from './atom';
 import { Actions } from './Actions';
 import { formatShares } from './utils';
+import { useIsViewerUser } from './hooks';
 
 const Listing = (): JSX.Element => {
   const columns = useListingColumns();
@@ -73,10 +74,12 @@ const Listing = (): JSX.Element => {
     }
   ];
 
+  const isViewer = useIsViewerUser();
+
   return (
     <MemoizedListing
-      checkable
       actions={<Actions />}
+      checkable={!isViewer}
       columnConfiguration={{
         selectedColumnIds,
         sortable: true

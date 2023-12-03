@@ -15,6 +15,7 @@ import {
   labelShares,
   labelUpdate
 } from '../translatedLabels';
+import { useIsViewerUser } from '../hooks';
 
 import ActivatePublicLink from './ActivatePublicLink';
 import PublicLink from './PublicLink';
@@ -25,8 +26,9 @@ import RotationTime from './RotationTime';
 
 const useListingColumns = (): Array<Column> => {
   const { t } = useTranslation();
+  const isViewer = useIsViewerUser();
 
-  return [
+  const columns = [
     {
       disablePadding: false,
       getFormattedString: ({ name }): string => name,
@@ -36,22 +38,26 @@ const useListingColumns = (): Array<Column> => {
       sortable: true,
       type: ColumnType.string
     },
-    {
-      Component: Share,
-      disablePadding: false,
-      displaySubItemsCaret: true,
-      id: 'shares',
-      label: t(labelShares),
-      type: ColumnType.component,
-      width: 'max-content'
-    },
-    {
-      Component: Role,
-      disablePadding: false,
-      id: 'role',
-      label: t(labelRole),
-      type: ColumnType.component
-    },
+    ...(isViewer
+      ? []
+      : [
+          {
+            Component: Share,
+            disablePadding: false,
+            displaySubItemsCaret: true,
+            id: 'shares',
+            label: t(labelShares),
+            type: ColumnType.component,
+            width: 'max-content'
+          },
+          {
+            Component: Role,
+            disablePadding: false,
+            id: 'role',
+            label: t(labelRole),
+            type: ColumnType.component
+          }
+        ]),
     {
       disablePadding: false,
       getFormattedString: ({ description }): string => description,
@@ -93,14 +99,18 @@ const useListingColumns = (): Array<Column> => {
       sortable: true,
       type: ColumnType.string
     },
-    {
-      Component: Actions,
-      clickable: true,
-      disablePadding: false,
-      id: 'actions',
-      label: t(labelActions),
-      type: ColumnType.component
-    },
+    ...(isViewer
+      ? []
+      : [
+          {
+            Component: Actions,
+            clickable: true,
+            disablePadding: false,
+            id: 'actions',
+            label: t(labelActions),
+            type: ColumnType.component
+          }
+        ]),
     {
       Component: PublicLink,
       clickable: true,
@@ -109,15 +119,21 @@ const useListingColumns = (): Array<Column> => {
       label: t(labelPublicLink),
       type: ColumnType.component
     },
-    {
-      Component: ActivatePublicLink,
-      clickable: true,
-      disablePadding: false,
-      id: 'isPublic',
-      label: t(labelPrivatePublic),
-      type: ColumnType.component
-    }
+    ...(isViewer
+      ? []
+      : [
+          {
+            Component: ActivatePublicLink,
+            clickable: true,
+            disablePadding: false,
+            id: 'isPublic',
+            label: t(labelPrivatePublic),
+            type: ColumnType.component
+          }
+        ])
   ];
+
+  return columns;
 };
 
 export default useListingColumns;
