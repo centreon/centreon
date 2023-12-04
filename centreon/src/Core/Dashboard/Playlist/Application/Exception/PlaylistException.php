@@ -85,7 +85,7 @@ class PlaylistException extends \Exception
      */
     public static function errorWhileListingShares(): self
     {
-        return new self(_('Error while listing playlist shares'));
+        return new self(_('Error while listing the playlist shares'));
     }
 
     /**

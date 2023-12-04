@@ -12,11 +12,11 @@ put:
         schema:
           $ref: 'Schema/Playlist/UpdatePlaylistShareRequest.yaml'
   responses:
-  '204': { $ref: '../../Common/Response/NoContent.yaml' }
-  '400': { $ref: '../../Common/Response/BadRequest.yaml' }
-  '404': { $ref: '../../Common/response/NotFound.yaml'}
-  '403': { $ref: '../../Common/Response/Forbidden.yaml' }
-  '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+    '204': { $ref: '../../Common/Response/NoContent.yaml' }
+    '400': { $ref: '../../Common/Response/BadRequest.yaml' }
+    '404': { $ref: '../../Common/response/NotFound.yaml'}
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
 get:
   tags:
     - Dashboard
@@ -25,8 +25,8 @@ get:
   parameters:
     - $ref: 'QueryParameter/PlaylistId.yaml'
   responses:
-  '200': { $ref: '../../Common/Response/NoContent.yaml' }
-  '400': { $ref: '../../Common/Response/BadRequest.yaml' }
-  '404': { $ref: '../../Common/response/NotFound.yaml'}
-  '403': { $ref: '../../Common/Response/Forbidden.yaml' }
-  '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+    '200': { $ref: '../../Common/Response/NoContent.yaml' }
+    '400': { $ref: '../../Common/Response/BadRequest.yaml' }
+    '404': { $ref: '../../Common/response/NotFound.yaml'}
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
