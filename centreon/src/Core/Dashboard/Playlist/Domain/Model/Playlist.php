@@ -35,9 +35,6 @@ class Playlist
     public const MINIMUM_ROTATION_TIME = 10; // time in seconds
     public const MAXIMUM_ROTATION_TIME = 60; // time in seconds
 
-    /** @var DashboardOrder[] */
-    private array $dashboardsOrder = [];
-
     private ?string $description = null;
 
     private ?int $authorId = null;
@@ -76,6 +73,27 @@ class Playlist
         return $this->dashboardIds;
     }
 
+    /**
+     * @param int[] $
+     *
+     * @return self
+     */
+    public function setDashboardIds(array $dashboardIds): self
+    {
+        $this->dashboardIds = [];
+        foreach($dashboardIds as $dashboardId) {
+            $this->addDashboardId($dashboardId);
+        }
+
+        return $this;
+    }
+
+    public function addDashboardId(int $dashboardId): self {
+        $this->dashboardIds[] = $dashboardId;
+
+        return $this;
+    }
+
     public function getRotationTime(): int
     {
         return $this->rotationTime;
@@ -85,47 +103,6 @@ class Playlist
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
-    }
-
-    /**
-     * @param DashboardOrder[] $dashboardsOrder
-     *
-     * @throws NewPlaylistException
-     *
-     * @return self
-     */
-    public function setDashboardsOrder(array $dashboardsOrder): self
-    {
-        $this->dashboardsOrder = [];
-
-        foreach ($dashboardsOrder as $dashboardOrder) {
-            $this->addDashboardsOrder($dashboardOrder);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param DashboardOrder $dashboardOrder
-     *
-     * @throws NewPlaylistException
-     *
-     * @return self
-     */
-    public function addDashboardsOrder(DashboardOrder $dashboardOrder): self
-    {
-        $this->validateDashboardOrder($dashboardOrder);
-        $this->dashboardsOrder[] = $dashboardOrder;
-
-        return $this;
-    }
-
-    /**
-     * @return DashboardOrder[]
-     */
-    public function getDashboardsOrder(): array
-    {
-        return $this->dashboardsOrder;
     }
 
     /**
@@ -157,7 +134,7 @@ class Playlist
         return $this->isPublic;
     }
 
-    public function setAuthor(?int $authorId): self
+    public function setAuthorId(?int $authorId): self
     {
         $this->authorId = $authorId;
 
@@ -167,19 +144,5 @@ class Playlist
     public function getAuthorId(): ?int
     {
         return $this->authorId;
-    }
-
-    /**
-     * @param DashboardOrder $dashboardOrder
-     *
-     * @throws NewPlaylistException
-     */
-    private function validateDashboardOrder(DashboardOrder $dashboardOrder): void
-    {
-        foreach ($this->dashboardsOrder as $existingDashboardOrder) {
-            if ($existingDashboardOrder->getOrder() === $dashboardOrder->getOrder()) {
-                throw PlaylistException::orderMustBeUnique();
-            }
-        }
     }
 }

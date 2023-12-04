@@ -83,7 +83,8 @@ final class CreatePlaylist
 
             $this->validateNameAndDashboards($request);
             $newPlaylist = $this->createNewPlaylistModel($request);
-            $playlistId = $this->writePlaylist($newPlaylist);
+            $newDashboardOrders = $this->createDashboardsOrder($request->dashboards);
+            $playlistId = $this->writePlaylist($newPlaylist, $newDashboardOrders);
             $this->info('retrieving new playlist');
             $playlist = $this->readPlaylistRepository->find($playlistId);
             if (! $playlist) {
@@ -187,17 +188,21 @@ final class CreatePlaylist
             $request->name,
             $request->rotationTime,
             $request->isPublic,
-            new PlaylistAuthor($this->user->getId(), $this->user->getAlias())
+            $this->user->getId()
         ))
         ->setDescription($request->description);
 
-        $dashboardsOrder = [];
-        foreach ($request->dashboards as $dashboard) {
-            $dashboardsOrder[] = new DashboardOrder($dashboard['id'], $dashboard['order']);
-        }
-        $newPlaylist->setDashboardsOrder($dashboardsOrder);
-
         return $newPlaylist;
+    }
+
+    private function createDashboardsOrder(array $requestDashboardsOrder): array
+    {
+        $dashboardsOrder = [];
+        foreach ($requestDashboardsOrder as $dashboardOrder) {
+            $dashboardsOrder[] = new DashboardOrder($dashboardOrder['id'], $dashboardOrder['order']);
+        }
+
+        return $dashboardsOrder;
     }
 
     /**
@@ -207,7 +212,7 @@ final class CreatePlaylist
      *
      * @return int
      */
-    private function writePlaylist(NewPlaylist $newPlaylist): int
+    private function writePlaylist(NewPlaylist $newPlaylist, array $dashboardsOrder): int
     {
         $transactionAlreadyStarted = $this->dataStorageEngine->isAlreadyinTransaction();
         try {
@@ -218,7 +223,7 @@ final class CreatePlaylist
             $this->info('add playlist in data storage');
             $playlistId = $this->writePlaylistRepository->add($newPlaylist);
             $this->info('add dashboards <=> playlist relation in data storage');
-            $this->writePlaylistRepository->addDashboardsToPlaylist($playlistId, $newPlaylist->getDashboardsOrder());
+            $this->writePlaylistRepository->addDashboardsToPlaylist($playlistId, $dashboardsOrder);
             if (! $transactionAlreadyStarted) {
                 $this->info('commit transaction');
                 $this->dataStorageEngine->commitTransaction();

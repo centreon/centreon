@@ -351,7 +351,6 @@ it('should present a CreatePlaylistResponse when a playlist is correctly created
         ->willReturn(
             (new Playlist(1, $playlistName, $rotationTime, $isPublic))
                 ->setDescription($description)
-                ->setDashboardsOrder([new DashboardOrder(1,1)])
                 ->setAuthor(new PlaylistAuthor(1, 'admin'))
         );
 

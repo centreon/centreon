@@ -60,7 +60,7 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     {
         $query = <<<'SQL'
                 SELECT
-                    dpl.*, c.contact_alias, dplr.*
+                    dpl.*, c.contact_alias, GROUP_CONCAT(dplr.dashboard_id) as dashboard_ids
                 FROM `:db`.dashboard_playlist AS dpl
                 LEFT JOIN `:db`.contact AS c
                     ON dpl.created_by = c.contact_id
@@ -73,8 +73,8 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
         $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_STR);
         $statement->execute();
 
-        /** @var false|_Playlist[] $data */
-        $data = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        /** @var false|_Playlist $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
 
         return $data ? $this->createPlaylistFromRecord($data) : null;
     }
@@ -125,14 +125,14 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     {
         $bind = [];
         foreach ($dashboards as $key => $dashboard) {
-            $bind['dashboard_' . $key] = $dashboard->getId();
+            $bind[':dashboard_' . $key] = $dashboard->getId();
         }
         if ([] === $bind) {
             return [];
         }
         $dashboardIdsAsString = implode(', ', array_keys($bind));
         $query = <<<SQL
-            SELECT dashboard_id, order FROM dashboard_playlist_relation
+            SELECT dashboard_id, `order` FROM `:db`.`dashboard_playlist_relation`
             WHERE playlist_id = :playlistId
             AND dashboard_id IN ({$dashboardIdsAsString})
             SQL;
@@ -151,28 +151,25 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     }
 
     /**
-     * @param _Playlist[] $data
+     * @param _Playlist $data
      *
      * @return Playlist
      */
     private function createPlaylistFromRecord(array $data): Playlist
     {
-        $playlistConfiguration = $data[0];
         $playlist = new Playlist(
-            $playlistConfiguration['id'],
-            $playlistConfiguration['name'],
-            $playlistConfiguration['rotation_time'],
-            (bool) $playlistConfiguration['is_public'],
-            $playlistConfiguration['created_at']
+            $data['id'],
+            $data['name'],
+            $data['rotation_time'],
+            (bool) $data['is_public'],
+            (new \DateTimeImmutable())->setTimestamp($data['created_at'])
         );
-        $playlist->setDescription($playlistConfiguration['description']);
-        $dashboardsOrder = [];
-        foreach ($data as $recordRow) {
-            if ($recordRow['dashboard_id'] !== null && $recordRow['order'] !== null) {
-                $dashboardsOrder[] = new DashboardOrder($recordRow['dashboard_id'], $recordRow['order']);
-            }
+        $playlist->setDescription($data['description']);
+        $playlist->setAuthorId($data['created_by']);
+        $dashboardIds = $data['dashboard_ids'] ? explode(',', $data['dashboard_ids']) : [];
+        foreach($dashboardIds as $dashboardId) {
+            $playlist->addDashboardId((int) $dashboardId);
         }
-        $playlist->setDashboardsOrder($dashboardsOrder);
 
         return $playlist;
     }
@@ -181,7 +178,7 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     {
         $dashboardsOrder = [];
         foreach($data as $row) {
-            $dashboardsOrder = new DashboardOrder($row['dashboard_id'], $row['order']);
+            $dashboardsOrder[] = new DashboardOrder($row['dashboard_id'], $row['order']);
         }
 
         return $dashboardsOrder;

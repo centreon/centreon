@@ -53,7 +53,7 @@ class NewPlaylist
         private readonly string $name,
         private readonly int $rotationTime,
         private readonly bool $isPublic,
-        private readonly PlaylistAuthor $author
+        private readonly int $authorId
     ) {
         Assertion::minLength($name, self::NAME_MIN_LENGTH, 'NewPlaylist::name');
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewPlaylist::name');
@@ -87,57 +87,9 @@ class NewPlaylist
         return $this->createdAt;
     }
 
-    public function getAuthor(): ?PlaylistAuthor
+    public function getAuthorId(): int
     {
-        return $this->author;
-    }
-
-    public function setAuthor(?PlaylistAuthor $author): self
-    {
-        $this->author = $author;
-
-        return $this;
-    }
-
-    /**
-     * @return DashboardOrder[]
-     */
-    public function getDashboardsOrder(): array
-    {
-        return $this->dashboardsOrder;
-    }
-
-    /**
-     * @param DashboardOrder[] $dashboardsOrder
-     *
-     * @throws PlaylistException
-     *
-     * @return self
-     */
-    public function setDashboardsOrder(array $dashboardsOrder): self
-    {
-        $this->dashboardsOrder = [];
-
-        foreach ($dashboardsOrder as $dashboardOrder) {
-            $this->addDashboardsOrder($dashboardOrder);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param DashboardOrder $dashboardOrder
-     *
-     * @throws PlaylistException
-     *
-     * @return self
-     */
-    public function addDashboardsOrder(DashboardOrder $dashboardOrder): self
-    {
-        $this->validateDashboardOrder($dashboardOrder);
-        $this->dashboardsOrder[] = $dashboardOrder;
-
-        return $this;
+        return $this->authorId;
     }
 
     /**
@@ -162,19 +114,5 @@ class NewPlaylist
     public function getDescription(): ?string
     {
         return $this->description;
-    }
-
-    /**
-     * @param DashboardOrder $dashboardOrder
-     *
-     * @throws PlaylistException
-     */
-    private function validateDashboardOrder(DashboardOrder $dashboardOrder): void
-    {
-        foreach ($this->dashboardsOrder as $existingDashboardOrder) {
-            if ($existingDashboardOrder->getOrder() === $dashboardOrder->getOrder()) {
-                throw PlaylistException::orderMustBeUnique();
-            }
-        }
     }
 }

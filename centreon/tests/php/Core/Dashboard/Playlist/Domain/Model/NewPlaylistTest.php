@@ -83,6 +83,5 @@ it('should throw an exception when the description is too long', function () {
 )->getMessage());
 
 it('should throw an exception when many dashboards has the same order', function (){
-    (new NewPlaylist('playlist', 10, false, $this->author))
-        ->setDashboardsOrder([new DashboardOrder(1, 1), new DashboardOrder(2, 1)]);
+    (new NewPlaylist('playlist', 10, false, $this->author));
 })->throws(PlaylistException::orderMustBeUnique()->getMessage());
