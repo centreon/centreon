@@ -23,18 +23,20 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
 use Core\Dashboard\Playlist\Application\Repository\ReadPlaylistRepositoryInterface;
 use Core\Dashboard\Playlist\Application\Repository\WritePlaylistRepositoryInterface;
-use Core\Dashboard\Playlist\Domain\Exception\NewPlaylistException;
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
@@ -58,6 +60,8 @@ final class CreatePlaylist
         private readonly WritePlaylistRepositoryInterface $writePlaylistRepository,
         private readonly ReadPlaylistRepositoryInterface $readPlaylistRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly ContactRepositoryInterface $contactRepository,
+        private readonly ReadDashboardRepositoryInterface $dashboardRepository,
         private readonly DashboardRights $rights
     ) {
     }
@@ -90,9 +94,12 @@ final class CreatePlaylist
 
                 return;
             }
+            $author = $this->contactRepository->findById($playlist->getAuthorId());
+            $dashboards = $this->dashboardRepository->findByIds($playlist->getDashboardIds());
+            $dashboardOrders = $this->readPlaylistRepository->findDashboardOrders($playlistId, $dashboards);
 
-            $presenter->presentResponse($this->createResponse($playlist));
-        } catch (\Assert\AssertionFailedException|PlaylistException|NewPlaylistException $ex) {
+            $presenter->presentResponse($this->createResponse($playlist, $author, $dashboardOrders));
+        } catch (\Assert\AssertionFailedException|PlaylistException $ex) {
             $this->error('An error occured when creating playlist', ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 match ($ex->getCode()) {
@@ -111,7 +118,7 @@ final class CreatePlaylist
      *
      * @return CreatePlaylistResponse
      */
-    private function createResponse(Playlist $playlist): CreatePlaylistResponse
+    private function createResponse(Playlist $playlist, ?Contact $contact, array $dashboardsOrder): CreatePlaylistResponse
     {
         $response = new CreatePlaylistResponse();
 
@@ -123,13 +130,13 @@ final class CreatePlaylist
                 'id' => $dashboardOrder->getDashboardId(),
                 'order' => $dashboardOrder->getOrder(),
             ];
-        }, $playlist->getDashboardsOrder());
+        }, $dashboardsOrder);
         $response->rotationTime = $playlist->getRotationTime();
         $response->isPublic = $playlist->isPublic();
-        if ($playlist->getAuthor() !== null) {
+        if ($contact !== null) {
             $response->author = [
-                'id' => $playlist->getAuthor()->getId(),
-                'name' => $playlist->getAuthor()->getName(),
+                'id' => $contact->getId(),
+                'name' => $contact->getAlias(),
             ];
         }
         $response->createdAt = $playlist->getCreatedAt();
@@ -176,9 +183,13 @@ final class CreatePlaylist
      */
     private function createNewPlaylistModel(CreatePlaylistRequest $request): NewPlaylist
     {
-        $newPlaylist = (new NewPlaylist($request->name, $request->rotationTime, $request->isPublic))
-            ->setAuthor(new PlaylistAuthor($this->user->getId(), $this->user->getAlias()))
-            ->setDescription($request->description);
+        $newPlaylist = (new NewPlaylist(
+            $request->name,
+            $request->rotationTime,
+            $request->isPublic,
+            new PlaylistAuthor($this->user->getId(), $this->user->getAlias())
+        ))
+        ->setDescription($request->description);
 
         $dashboardsOrder = [];
         foreach ($request->dashboards as $dashboard) {

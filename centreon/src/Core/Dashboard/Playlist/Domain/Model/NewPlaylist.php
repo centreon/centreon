@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Playlist\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Dashboard\Playlist\Domain\Exception\NewPlaylistException;
+use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
 
 class NewPlaylist
 {
@@ -36,14 +36,11 @@ class NewPlaylist
     public const MAXIMUM_ROTATION_TIME = 60; // time in seconds
 
     /** @var DashboardOrder[] */
-    protected array $dashboardsOrder = [];
+    private array $dashboardsOrder = [];
 
-    protected ?string $description = null;
+    private ?string $description = null;
 
-    protected \DateTimeImmutable $createdAt;
-
-    /** If the author has been deleted, the author is null but the playlist is still accessible*/
-    protected ?PlaylistAuthor $author = null;
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @param string $name
@@ -53,9 +50,10 @@ class NewPlaylist
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        protected string $name,
-        protected int $rotationTime,
-        protected bool $isPublic
+        private readonly string $name,
+        private readonly int $rotationTime,
+        private readonly bool $isPublic,
+        private readonly PlaylistAuthor $author
     ) {
         Assertion::minLength($name, self::NAME_MIN_LENGTH, 'NewPlaylist::name');
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewPlaylist::name');
@@ -112,7 +110,7 @@ class NewPlaylist
     /**
      * @param DashboardOrder[] $dashboardsOrder
      *
-     * @throws NewPlaylistException
+     * @throws PlaylistException
      *
      * @return self
      */
@@ -130,7 +128,7 @@ class NewPlaylist
     /**
      * @param DashboardOrder $dashboardOrder
      *
-     * @throws NewPlaylistException
+     * @throws PlaylistException
      *
      * @return self
      */
@@ -169,13 +167,13 @@ class NewPlaylist
     /**
      * @param DashboardOrder $dashboardOrder
      *
-     * @throws NewPlaylistException
+     * @throws PlaylistException
      */
     private function validateDashboardOrder(DashboardOrder $dashboardOrder): void
     {
         foreach ($this->dashboardsOrder as $existingDashboardOrder) {
             if ($existingDashboardOrder->getOrder() === $dashboardOrder->getOrder()) {
-                throw NewPlaylistException::orderMustBeUnique();
+                throw PlaylistException::orderMustBeUnique();
             }
         }
     }

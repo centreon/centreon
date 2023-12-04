@@ -209,6 +209,50 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         );
     }
 
+    public function findByIds(array $ids): array
+    {
+        $bind = [];
+        foreach ($ids as $key => $id) {
+            $bind[':id_' . $key] = $id;
+        }
+        if ([] === $bind) {
+            return [];
+        }
+
+        $dashboardIdsAsString = implode(', ', array_keys($bind));
+
+        $query = <<<SQL
+            SELECT
+                d.id,
+                d.name,
+                d.description,
+                d.created_by,
+                d.updated_by,
+                d.created_at,
+                d.updated_at,
+                d.refresh_type,
+                d.refresh_interval
+            FROM `:db`.`dashboard` d
+            WHERE d.id IN ({$dashboardIdsAsString})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bind as $token => $id) {
+            $statement->bindValue($token, $id, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Retrieve data
+        $dashboards = [];
+        foreach ($statement as $result) {
+            /** @var DashboardResultSet $result */
+            $dashboards[] = $this->createDashboardFromArray($result);
+        }
+
+        return $dashboards;
+    }
+
     /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters

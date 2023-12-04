@@ -121,6 +121,35 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
         return (bool) $statement->fetchColumn();
     }
 
+    public function findDashboardOrders($playlistId, array $dashboards): array
+    {
+        $bind = [];
+        foreach ($dashboards as $key => $dashboard) {
+            $bind['dashboard_' . $key] = $dashboard->getId();
+        }
+        if ([] === $bind) {
+            return [];
+        }
+        $dashboardIdsAsString = implode(', ', array_keys($bind));
+        $query = <<<SQL
+            SELECT dashboard_id, order FROM dashboard_playlist_relation
+            WHERE playlist_id = :playlistId
+            AND dashboard_id IN ({$dashboardIdsAsString})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
+        foreach($bind as $token => $dashboardId) {
+            $statement->bindValue($token, $dashboardId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        /** @var false|_Playlist[] $data */
+        $data = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createDashboardsOrderFromRecord($data) : [];
+    }
+
     /**
      * @param _Playlist[] $data
      *
@@ -133,13 +162,10 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
             $playlistConfiguration['id'],
             $playlistConfiguration['name'],
             $playlistConfiguration['rotation_time'],
-            (bool) $playlistConfiguration['is_public']
+            (bool) $playlistConfiguration['is_public'],
+            $playlistConfiguration['created_at']
         );
         $playlist->setDescription($playlistConfiguration['description']);
-        if ($playlistConfiguration['contact_alias'] !== null && $playlistConfiguration['created_by'] !== null) {
-            $playlist->setAuthor(new PlaylistAuthor($playlistConfiguration['created_by'], $playlistConfiguration['contact_alias']));
-        }
-        $playlist->setCreatedAt((new \DateTimeImmutable())->setTimestamp($playlistConfiguration['created_at']));
         $dashboardsOrder = [];
         foreach ($data as $recordRow) {
             if ($recordRow['dashboard_id'] !== null && $recordRow['order'] !== null) {
@@ -149,5 +175,15 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
         $playlist->setDashboardsOrder($dashboardsOrder);
 
         return $playlist;
+    }
+
+    private function createDashboardsOrderFromRecord(array $data): array
+    {
+        $dashboardsOrder = [];
+        foreach($data as $row) {
+            $dashboardsOrder = new DashboardOrder($row['dashboard_id'], $row['order']);
+        }
+
+        return $dashboardsOrder;
     }
 }

@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Application\Repository;
 
+use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
+use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 interface ReadPlaylistRepositoryInterface
 {
@@ -31,6 +34,8 @@ interface ReadPlaylistRepositoryInterface
      * Find a playlist.
      *
      * @param int $playlistId
+     *
+     * @throws \Throwable
      *
      * @return Playlist|null
      */
@@ -41,6 +46,8 @@ interface ReadPlaylistRepositoryInterface
      *
      * @param string $name
      *
+     * @throws \Throwable
+     *
      * @return bool
      */
     public function existsByName(string $name): bool;
@@ -50,7 +57,21 @@ interface ReadPlaylistRepositoryInterface
      *
      * @param int $playlistId
      *
+     * @throws \Throwable
+     *
      * @return bool
      */
     public function exists(int $playlistId): bool;
+
+    /**
+     * Find Dashboard Orders by playlist
+     *
+     * @param int $playlistId
+     * @param Dashboard[] $dashboards
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardOrder[]
+     */
+    public function findDashboardOrders(int $playlistId, array $dashboards): array;
 }

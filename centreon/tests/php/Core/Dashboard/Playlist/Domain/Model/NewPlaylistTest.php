@@ -24,13 +24,18 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Playlist\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Dashboard\Playlist\Domain\Exception\NewPlaylistException;
+use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
+use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
+
+beforeEach(function () {
+    $this->author = new PlaylistAuthor(1,'admin');
+});
 
 it('should throw an exception when the playlist name is empty', function() {
     $name = str_repeat('a', NewPlaylist::NAME_MIN_LENGTH - 1);
-    new NewPlaylist($name, 10, false);
+    new NewPlaylist($name, 10, false, $this->author);
 })->throws(AssertionException::minLength(
     str_repeat('a', NewPlaylist::NAME_MIN_LENGTH - 1),
     NewPlaylist::NAME_MIN_LENGTH - 1,
@@ -40,7 +45,7 @@ it('should throw an exception when the playlist name is empty', function() {
 
 it('should throw an exception when the playlist name is too long', function() {
     $name = str_repeat('a', NewPlaylist::NAME_MAX_LENGTH + 1);
-    new NewPlaylist($name, 10, false);
+    new NewPlaylist($name, 10, false, $this->author);
 })->throws(AssertionException::maxLength(
     str_repeat('a', NewPlaylist::NAME_MAX_LENGTH + 1),
     NewPlaylist::NAME_MAX_LENGTH + 1,
@@ -49,7 +54,7 @@ it('should throw an exception when the playlist name is too long', function() {
 )->getMessage());
 
 it('should throw an exception when rotation time is out of range', function() {
-    new NewPlaylist('playlist', NewPlaylist::MINIMUM_ROTATION_TIME - 1, false);
+    new NewPlaylist('playlist', NewPlaylist::MINIMUM_ROTATION_TIME - 1, false, $this->author);
 })->throws(AssertionException::range(
     NewPlaylist::MINIMUM_ROTATION_TIME - 1,
     NewPlaylist::MINIMUM_ROTATION_TIME,
@@ -58,7 +63,8 @@ it('should throw an exception when rotation time is out of range', function() {
 )->getMessage());
 
 it('should throw an exception when the description is too short', function () {
-    (new NewPlaylist('playlist', 10, false))->setDescription(str_repeat('a', NewPlaylist::DESCRIPTION_MIN_LENGTH - 1));
+    (new NewPlaylist('playlist', 10, false, $this->author))
+        ->setDescription(str_repeat('a', NewPlaylist::DESCRIPTION_MIN_LENGTH - 1));
 })->throws(AssertionException::minLength(
     str_repeat('a', NewPlaylist::DESCRIPTION_MIN_LENGTH - 1),
     NewPlaylist::DESCRIPTION_MIN_LENGTH - 1,
@@ -67,7 +73,8 @@ it('should throw an exception when the description is too short', function () {
 )->getMessage());
 
 it('should throw an exception when the description is too long', function () {
-    (new NewPlaylist('playlist', 10, false))->setDescription(str_repeat('a', NewPlaylist::DESCRIPTION_MAX_LENGTH + 1));
+    (new NewPlaylist('playlist', 10, false, $this->author))
+        ->setDescription(str_repeat('a', NewPlaylist::DESCRIPTION_MAX_LENGTH + 1));
 })->throws(AssertionException::maxLength(
     str_repeat('a', NewPlaylist::DESCRIPTION_MAX_LENGTH + 1),
     NewPlaylist::DESCRIPTION_MAX_LENGTH + 1,
@@ -76,6 +83,6 @@ it('should throw an exception when the description is too long', function () {
 )->getMessage());
 
 it('should throw an exception when many dashboards has the same order', function (){
-    (new NewPlaylist('playlist', 10, false))
+    (new NewPlaylist('playlist', 10, false, $this->author))
         ->setDashboardsOrder([new DashboardOrder(1, 1), new DashboardOrder(2, 1)]);
-})->throws(NewPlaylistException::orderMustBeUnique()->getMessage());
+})->throws(PlaylistException::orderMustBeUnique()->getMessage());
