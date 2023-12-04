@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { prop, map, pipe, reject, propEq } from 'ramda';
 
 import { ColumnType, Column } from '@centreon/ui';
 
@@ -6,6 +7,7 @@ import {
   labelActions,
   labelCreationDate,
   labelCreator,
+  labelDashbords,
   labelDescription,
   labelName,
   labelPrivatePublic,
@@ -24,20 +26,26 @@ import Share from './Share';
 import Role from './Role';
 import RotationTime from './RotationTime';
 import Description from './Decription';
+import DashboardsCount from './DashboardsCount';
+import Name from './Name';
 
-const useListingColumns = (): Array<Column> => {
+const useListingColumns = (): {
+  columns: Array<Column>;
+  defaultColumnsIds: Array<string>;
+} => {
   const { t } = useTranslation();
   const isViewer = useIsViewerUser();
 
   const columns = [
     {
+      Component: Name,
+      clickable: true,
       disablePadding: false,
-      getFormattedString: ({ name }): string => name,
       id: 'name',
       label: t(labelName),
       sortField: 'name',
       sortable: true,
-      type: ColumnType.string
+      type: ColumnType.component
     },
     ...(isViewer
       ? []
@@ -78,6 +86,13 @@ const useListingColumns = (): Array<Column> => {
             type: ColumnType.component
           }
         ]),
+    {
+      Component: DashboardsCount,
+      disablePadding: false,
+      id: 'dashboards',
+      label: t(labelDashbords),
+      type: ColumnType.component
+    },
     {
       Component: RotationTime,
       disablePadding: false,
@@ -128,7 +143,7 @@ const useListingColumns = (): Array<Column> => {
       Component: PublicLink,
       clickable: true,
       disablePadding: false,
-      id: 'publicLink',
+      id: 'public_link',
       label: t(labelPublicLink),
       type: ColumnType.component
     },
@@ -139,14 +154,19 @@ const useListingColumns = (): Array<Column> => {
             Component: ActivatePublicLink,
             clickable: true,
             disablePadding: false,
-            id: 'isPublic',
+            id: 'is_public',
             label: t(labelPrivatePublic),
             type: ColumnType.component
           }
         ])
   ];
 
-  return columns;
+  const defaultColumnsIds = pipe(
+    reject(propEq('dashboards', 'id')),
+    map(prop('id'))
+  )(columns);
+
+  return { columns, defaultColumnsIds };
 };
 
 export default useListingColumns;

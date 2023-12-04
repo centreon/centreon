@@ -17,13 +17,12 @@ const Listing = ({
   loading,
   openConfig
 }: ListingProp): JSX.Element => {
-  const columns = useListingColumns();
+  const { columns, defaultColumnsIds } = useListingColumns();
 
   const {
     changePage,
     changeSort,
     page,
-    predefinedRowsSelection,
     resetColumns,
     selectedColumnIds,
     selectedRows,
@@ -33,8 +32,8 @@ const Listing = ({
     sortf,
     sorto,
     getRowProperty,
-    linkToPlaylist
-  } = useListing({ columns });
+    predefinedRowsSelection
+  } = useListing({ defaultColumnsIds });
 
   const isViewer = useIsViewerUser();
 
@@ -53,10 +52,10 @@ const Listing = ({
       memoProps={[
         columns,
         page,
-        predefinedRowsSelection,
         sorto,
         sortf,
-        selectedRows
+        selectedRows,
+        predefinedRowsSelection
       ]}
       predefinedRowsSelection={predefinedRowsSelection}
       rows={listingData?.result}
@@ -74,7 +73,6 @@ const Listing = ({
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
-      onRowClick={linkToPlaylist}
       onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}

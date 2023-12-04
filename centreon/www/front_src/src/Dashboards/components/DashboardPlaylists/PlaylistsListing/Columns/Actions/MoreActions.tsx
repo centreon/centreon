@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PublishLinkIcon from '@mui/icons-material/InsertLinkOutlined';
 import { Menu } from '@mui/material';
+import {useColumnStyles} from "../useColumnStyles"
 
 import {
   ActionsList,
@@ -23,6 +24,8 @@ interface Props {
 const MoreActions = ({ close, anchor }: Props): JSX.Element => {
   const { t } = useTranslation();
 
+  const {classes} = useColumnStyles()
+
   const actions: ActionsListActions = [
     {
       Icon: PublishLinkIcon,
@@ -39,7 +42,7 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
-      <ActionsList actions={actions} />
+      <ActionsList className={classes.moreActions} actions={actions} />
     </Menu>
   );
 };

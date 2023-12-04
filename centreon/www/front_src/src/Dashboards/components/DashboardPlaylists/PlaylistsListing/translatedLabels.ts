@@ -26,3 +26,4 @@ export const labelPublichYourPlaylist = 'Publich your playlist';
 export const labelShare = 'Share';
 export const labelSettings = 'Settings';
 export const labelMoreActions = 'More actions';
+export const labelDashbords = 'Dashboards';

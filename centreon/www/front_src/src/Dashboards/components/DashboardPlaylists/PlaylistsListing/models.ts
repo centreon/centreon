@@ -15,6 +15,7 @@ export interface NamedEntity {
 
 export interface Dashboard {
   id: number;
+  name: string;
   order: number;
 }
 

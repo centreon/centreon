@@ -22,6 +22,13 @@ export const useColumnStyles = makeStyles()((theme) => ({
   },
   linkIcon: {
     fontSize: theme.spacing(2.5)
+  },
+  moreActions: {
+    '& .MuiDivider-fullWidth': {
+      margin: theme.spacing(0.25)
+    },
+    paddingBottom: theme.spacing(0.25),
+    paddingTop: theme.spacing(0.25)
   }
 }));
 

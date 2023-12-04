@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { prop, equals, isNil } from 'ramda';
-import { useNavigate } from 'react-router';
+import { equals } from 'ramda';
 
 import { Role, PlaylistType } from './models';
 import {
@@ -17,7 +16,6 @@ interface UseListing {
   changePage: (updatedPage: number) => void;
   changeSort: ({ sortOrder, sortField }) => void;
   getRowProperty: (row) => string;
-  linkToPlaylist: (row) => void;
   page?: number;
   predefinedRowsSelection;
   resetColumns: () => void;
@@ -30,15 +28,16 @@ interface UseListing {
   sorto: 'asc' | 'desc';
 }
 
-const useListing = ({ columns }): UseListing => {
-  const navigate = useNavigate();
-
-  const [selectedColumnIds, setSelectedColumnIds] = useState<Array<string>>(
-    columns.map(prop('id'))
-  );
+const useListing = ({
+  defaultColumnsIds
+}: {
+  defaultColumnsIds: Array<string>;
+}): UseListing => {
+  const [selectedColumnIds, setSelectedColumnIds] =
+    useState<Array<string>>(defaultColumnsIds);
 
   const resetColumns = (): void => {
-    setSelectedColumnIds(columns.map(prop('id')));
+    setSelectedColumnIds(defaultColumnsIds);
   };
 
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
@@ -58,12 +57,12 @@ const useListing = ({ columns }): UseListing => {
 
   const predefinedRowsSelection = [
     {
-      label: 'activated',
-      rowCondition: (row): boolean => row?.isActivated
+      label: 'public',
+      rowCondition: (row): boolean => row?.isPublic
     },
     {
-      label: 'deactivated',
-      rowCondition: (row): boolean => !row?.isActivated
+      label: 'private',
+      rowCondition: (row): boolean => !row?.isPublic
     }
   ];
 
@@ -75,21 +74,10 @@ const useListing = ({ columns }): UseListing => {
     return 'shares';
   };
 
-  const linkToPlaylist = (row): void => {
-    const isNestedRow = !isNil(row?.role);
-
-    if (isNestedRow) {
-      return;
-    }
-
-    navigate(`/home/dashboards/playlists/${row?.id}`);
-  };
-
   return {
     changePage,
     changeSort,
     getRowProperty,
-    linkToPlaylist,
     page,
     predefinedRowsSelection,
     resetColumns,

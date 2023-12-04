@@ -22,6 +22,7 @@ const authorDecoder = JsonDecoder.object<NamedEntity>(
 const dashboardDecoder = JsonDecoder.object<Dashboard>(
   {
     id: JsonDecoder.number,
+    name: JsonDecoder.string,
     order: JsonDecoder.number
   },
   'Dashboard'
@@ -36,16 +37,26 @@ const contactDecoder = JsonDecoder.object<Contact>(
   'Contact'
 );
 
+const contactGroupDecoder = JsonDecoder.object<Contact>(
+  {
+    id: JsonDecoder.number,
+    name: JsonDecoder.string,
+    role: JsonDecoder.enumeration(Role, 'role')
+  },
+  'Contact group'
+);
+
 const shareDecoder = JsonDecoder.object<Share>(
   {
     contactgroups: JsonDecoder.optional(
-      JsonDecoder.array(contactDecoder, 'contact groups')
+      JsonDecoder.array(contactGroupDecoder, 'contact groups')
     ),
     contacts: JsonDecoder.optional(
       JsonDecoder.array(contactDecoder, 'contacts')
     )
   },
-  'Share'
+  'Share',
+  { contactgroups: 'contact_groups' }
 );
 
 const PlaylistDecoder = JsonDecoder.object<PlaylistType>(
