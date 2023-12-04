@@ -1,12 +1,14 @@
-import { useMemo } from 'react';
+import { Suspense, lazy, useMemo } from 'react';
 
 import { always, cond, equals } from 'ramda';
 import { useParams } from 'react-router';
 
+import { PageSkeleton } from '@centreon/ui';
+
 import { DashboardLayout } from '../models';
 
-import { Dashboard } from './Dashboard';
-import { Playlist } from './Playlist';
+const Dashboard = lazy(() => import('./Dashboard/Dashboard'));
+const Playlist = lazy(() => import('./Playlist/Playlist'));
 
 const Pages = (): JSX.Element => {
   const { layout } = useParams();
@@ -20,7 +22,11 @@ const Pages = (): JSX.Element => {
     [layout]
   );
 
-  return <Component />;
+  return (
+    <Suspense fallback={<PageSkeleton displayHeaderAndNavigation={false} />}>
+      <Component />
+    </Suspense>
+  );
 };
 
 export default Pages;
