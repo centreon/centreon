@@ -40,6 +40,7 @@ use Core\Notification\Application\Repository\NotificationResourceRepositoryInter
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotification;
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationRequest;
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
@@ -59,6 +60,7 @@ beforeEach(function():void {
     $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new UpdateNotificationPresenterStub($this->presenterFormatter);
+    $this->notificationRightsInterface = $this->createMock(NotificationRightsInterface::class);
 });
 
 it('should present a forbidden response when the user is not admin and does not have sufficient ACLs', function (): void {
@@ -72,7 +74,8 @@ it('should present a forbidden response when the user is not admin and does not 
         $this->contactGroupRepository,
         $this->resourceRepositoryProvider,
         $this->dataStorageEngine,
-        $contact
+        $contact,
+        $this->notificationRightsInterface,
     ))($request, $this->presenter);
 
     expect($this->presenter->responseStatus)
@@ -102,7 +105,8 @@ it('should present a not found response when the notification does not exists', 
             $this->contactGroupRepository,
             $this->resourceRepositoryProvider,
             $this->dataStorageEngine,
-            $contact
+            $contact,
+            $this->notificationRightsInterface,
         ))($request, $this->presenter);
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(NotFoundResponse::class);
@@ -142,7 +146,8 @@ it('should present an InvalidArgumentResponse when a different notification with
             $this->contactGroupRepository,
             $this->resourceRepositoryProvider,
             $this->dataStorageEngine,
-            $contact
+            $contact,
+            $this->notificationRightsInterface,
         ))($request, $this->presenter);
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(InvalidArgumentResponse::class)
@@ -181,7 +186,8 @@ it('should present an InvalidArgumentResponse when a message has an empty subjec
             $this->contactGroupRepository,
             $this->resourceRepositoryProvider,
             $this->dataStorageEngine,
-            $contact
+            $contact,
+            $this->notificationRightsInterface,
         ))($request, $this->presenter);
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(InvalidArgumentResponse::class)
@@ -253,7 +259,8 @@ it('should present a no content response when everything is ok', function (): vo
             $this->contactGroupRepository,
             $this->resourceRepositoryProvider,
             $this->dataStorageEngine,
-            $contact
+            $contact,
+            $this->notificationRightsInterface,
         ))($request, $this->presenter);
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(NoContentResponse::class);

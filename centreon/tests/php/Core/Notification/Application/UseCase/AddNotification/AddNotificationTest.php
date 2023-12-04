@@ -42,6 +42,7 @@ use Core\Notification\Application\Repository\NotificationResourceRepositoryInter
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\AddNotification\AddNotification;
 use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest;
 use Core\Notification\Domain\Model\Notification;
@@ -87,6 +88,7 @@ beforeEach(function (): void {
         $this->resourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->notificationRightsInterface = $this->createMock(NotificationRightsInterface::class),
     );
 
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);

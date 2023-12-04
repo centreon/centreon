@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\Notification\Application\UseCase\FindNotifiableContactGroups;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\FindNotifiableContactGroups;
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\FindNotifiableContactGroupsResponse;
 use Tests\Core\Notification\Infrastructure\API\FindNotifiableContactGroups\FindNotifiableContactGroupsPresenterStub;
@@ -35,18 +37,20 @@ use Tests\Core\Notification\Infrastructure\API\FindNotifiableContactGroups\FindN
 beforeEach(function () {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new FindNotifiableContactGroupsPresenterStub($this->presenterFormatter);
-    $this->readRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
+    $this->usecase = new FindNotifiableContactGroups(
+        $this->readRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
+        $this->contact = $this->createMock(ContactInterface::class),
+        $this->notificationRightsInterface = $this->createMock(NotificationRightsInterface::class),
+    );
 });
 
 it('should present a Not Found Response when there are no contact groups.', function () {
-    $useCase = new FindNotifiableContactGroups($this->readRepository);
-
     $this->readRepository
         ->expects($this->once())
         ->method('findAll')
         ->willReturn([]);
 
-    $useCase($this->presenter);
+    ($this->usecase)($this->presenter);
 
     expect($this->presenter->responseStatus)
         ->toBeInstanceOf(NotFoundResponse::class)
@@ -55,14 +59,13 @@ it('should present a Not Found Response when there are no contact groups.', func
 });
 
 it('should present an Error Response when an unhandled error occurs.', function () {
-    $useCase = new FindNotifiableContactGroups($this->readRepository);
 
     $this->readRepository
         ->expects($this->once())
         ->method('findAll')
         ->willThrowException(new \Exception());
 
-    $useCase($this->presenter);
+    ($this->usecase)($this->presenter);
 
     expect($this->presenter->responseStatus)
         ->toBeInstanceOf(ErrorResponse::class)
@@ -76,14 +79,12 @@ it('should present a FindNotifiableContactGroups Response.', function () {
         new ContactGroup(2, 'Editors'),
     ];
 
-    $useCase = new FindNotifiableContactGroups($this->readRepository);
-
     $this->readRepository
         ->expects($this->once())
         ->method('findAll')
         ->willReturn($contactGroups);
 
-    $useCase($this->presenter);
+    ($this->usecase)($this->presenter);
 
     expect($this->presenter->response)
         ->toBeInstanceOf(FindNotifiableContactGroupsResponse::class)
