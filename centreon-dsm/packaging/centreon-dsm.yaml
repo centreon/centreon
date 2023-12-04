@@ -47,7 +47,7 @@ contents:
       group: centreon
       mode: 0775
 
-  - src: "./README"
+  - src: "../README"
     dst: "/usr/share/centreon/www/modules/centreon-dsm/README"
     file_info:
       owner: "@APACHE_USER@"
