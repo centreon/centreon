@@ -14,7 +14,7 @@ put:
   responses:
     '204': { $ref: '../../Common/Response/NoContent.yaml' }
     '400': { $ref: '../../Common/Response/BadRequest.yaml' }
-    '404': { $ref: '../../Common/response/NotFound.yaml'}
+    '404': { $ref: '../../Common/Response/NotFound.yaml'}
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
 get:
