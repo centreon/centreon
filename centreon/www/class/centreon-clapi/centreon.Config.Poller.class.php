@@ -108,12 +108,12 @@ class CentreonConfigPoller
     private function writeToCentcorePipe($cmd, $id): int
     {
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $pipe = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+            $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
         } else {
             $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
         }
-        $full_command = sprintf("%s:%d", $cmd, $id);
-        $result = file_put_contents($pipe, $full_command, FILE_APPEND);
+        $fullCommand = sprintf("%s:%d" . PHP_EOL, $cmd, $id);
+        $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
         return ($result !== false) ? 0 : 1;
     }
 
