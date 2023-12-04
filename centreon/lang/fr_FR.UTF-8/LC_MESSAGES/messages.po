@@ -18476,3 +18476,9 @@ msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 
 msgid "Error while deleting a playlist"
 msgstr "Erreur lors de la suppression d'une liste de diffusion"
+
+msgid "Error while listing playlist shares"
+msgstr "Erreur lors du listing des partages de la liste de diffusion"
+
+msgid "The following playlist is not shared with you: [%d]"
+msgstr "La liste de diffusion suivante n'est pas partagé avec vous: [%d]"
