@@ -27,7 +27,6 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
@@ -49,7 +48,7 @@ use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Notification\Infrastructure\API\UpdateNotification\UpdateNotificationPresenterStub;
 
-beforeEach(function():void {
+beforeEach(function (): void {
     $this->readNotificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class);
     $this->writeNotificationRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -60,12 +59,12 @@ beforeEach(function():void {
     $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new UpdateNotificationPresenterStub($this->presenterFormatter);
-    $this->notificationRightsInterface = $this->createMock(NotificationRightsInterface::class);
+    $this->notificationRights = $this->createMock(NotificationRightsInterface::class);
 });
 
 it('should present a forbidden response when the user is not admin and does not have sufficient ACLs', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
-    $request= new UpdateNotificationRequest();
+    $request = new UpdateNotificationRequest();
     (new UpdateNotification(
         $this->readNotificationRepository,
         $this->writeNotificationRepository,
@@ -75,8 +74,11 @@ it('should present a forbidden response when the user is not admin and does not 
         $this->resourceRepositoryProvider,
         $this->dataStorageEngine,
         $contact,
-        $this->notificationRightsInterface,
-    ))($request, $this->presenter);
+        $this->notificationRights,
+    ))(
+        $request,
+        $this->presenter
+    );
 
     expect($this->presenter->responseStatus)
         ->toBeInstanceOf(ForbiddenResponse::class)
@@ -88,7 +90,7 @@ it('should present a not found response when the notification does not exists', 
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
-    $request= new UpdateNotificationRequest();
+    $request = new UpdateNotificationRequest();
     $request->id = 2;
 
     $this->readNotificationRepository
@@ -97,17 +99,20 @@ it('should present a not found response when the notification does not exists', 
         ->with($request->id)
         ->willReturn(false);
 
-        (new UpdateNotification(
-            $this->readNotificationRepository,
-            $this->writeNotificationRepository,
-            $this->readAccessGroupRepository,
-            $this->contactRepository,
-            $this->contactGroupRepository,
-            $this->resourceRepositoryProvider,
-            $this->dataStorageEngine,
-            $contact,
-            $this->notificationRightsInterface,
-        ))($request, $this->presenter);
+    (new UpdateNotification(
+        $this->readNotificationRepository,
+        $this->writeNotificationRepository,
+        $this->readAccessGroupRepository,
+        $this->contactRepository,
+        $this->contactGroupRepository,
+        $this->resourceRepositoryProvider,
+        $this->dataStorageEngine,
+        $contact,
+        $this->notificationRights,
+    ))(
+        $request,
+        $this->presenter
+    );
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(NotFoundResponse::class);
 });
@@ -138,23 +143,25 @@ it('should present an InvalidArgumentResponse when a different notification with
         ->with($request->name)
         ->willReturn($existingNotification);
 
-        (new UpdateNotification(
-            $this->readNotificationRepository,
-            $this->writeNotificationRepository,
-            $this->readAccessGroupRepository,
-            $this->contactRepository,
-            $this->contactGroupRepository,
-            $this->resourceRepositoryProvider,
-            $this->dataStorageEngine,
-            $contact,
-            $this->notificationRightsInterface,
-        ))($request, $this->presenter);
+    (new UpdateNotification(
+        $this->readNotificationRepository,
+        $this->writeNotificationRepository,
+        $this->readAccessGroupRepository,
+        $this->contactRepository,
+        $this->contactGroupRepository,
+        $this->resourceRepositoryProvider,
+        $this->dataStorageEngine,
+        $contact,
+        $this->notificationRights,
+    ))(
+        $request,
+        $this->presenter
+    );
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->responseStatus?->getMessage())
         ->toBe(NotificationException::nameAlreadyExists()->getMessage());
 });
-
 
 it('should present an InvalidArgumentResponse when a message has an empty subject', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
@@ -165,11 +172,11 @@ it('should present an InvalidArgumentResponse when a message has an empty subjec
     $request->name = 'notification';
     $request->messages = [
         [
-            "channel" => "Email",
-            "subject" => "",
-            "message" => "This is my message",
-            "formatted_message" => "<h1>This is my message</h1>",
-        ]
+            'channel' => 'Email',
+            'subject' => '',
+            'message' => 'This is my message',
+            'formatted_message' => '<h1>This is my message</h1>',
+        ],
     ];
 
     $this->readNotificationRepository
@@ -178,17 +185,20 @@ it('should present an InvalidArgumentResponse when a message has an empty subjec
         ->with($request->id)
         ->willReturn(true);
 
-        (new UpdateNotification(
-            $this->readNotificationRepository,
-            $this->writeNotificationRepository,
-            $this->readAccessGroupRepository,
-            $this->contactRepository,
-            $this->contactGroupRepository,
-            $this->resourceRepositoryProvider,
-            $this->dataStorageEngine,
-            $contact,
-            $this->notificationRightsInterface,
-        ))($request, $this->presenter);
+    (new UpdateNotification(
+        $this->readNotificationRepository,
+        $this->writeNotificationRepository,
+        $this->readAccessGroupRepository,
+        $this->contactRepository,
+        $this->contactGroupRepository,
+        $this->resourceRepositoryProvider,
+        $this->dataStorageEngine,
+        $contact,
+        $this->notificationRights,
+    ))(
+        $request,
+        $this->presenter
+    );
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->responseStatus?->getMessage())
@@ -199,24 +209,25 @@ it('should present a no content response when everything is ok', function (): vo
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
+    $this->notificationRights->method('isAdmin')->willReturn(true);
     $request = new UpdateNotificationRequest();
     $request->id = 1;
     $request->name = 'notification';
     $request->messages = [
         [
-            "channel" => "Email",
-            "subject" => "Subject",
-            "message" => "This is my message",
-            "formatted_message" => "<h1>This is my message</h1>",
-        ]
+            'channel' => 'Email',
+            'subject' => 'Subject',
+            'message' => 'This is my message',
+            'formatted_message' => '<h1>This is my message</h1>',
+        ],
     ];
     $request->resources = [
         [
-            "type" => "hostgroup",
-            "events" => 3,
-            "ids" => [1,2,3],
-            "includeServiceEvents" => 0
-        ]
+            'type' => 'hostgroup',
+            'events' => 3,
+            'ids' => [1, 2, 3],
+            'includeServiceEvents' => 0,
+        ],
     ];
     $request->users = [1];
 
@@ -245,23 +256,26 @@ it('should present a no content response when everything is ok', function (): vo
     $this->resourceRepository
         ->expects($this->once())
         ->method('exist')
-        ->willReturn([1,2,3]);
+        ->willReturn([1, 2, 3]);
     $this->contactRepository
         ->expects($this->once())
         ->method('exist')
         ->willReturn([1]);
 
-        (new UpdateNotification(
-            $this->readNotificationRepository,
-            $this->writeNotificationRepository,
-            $this->readAccessGroupRepository,
-            $this->contactRepository,
-            $this->contactGroupRepository,
-            $this->resourceRepositoryProvider,
-            $this->dataStorageEngine,
-            $contact,
-            $this->notificationRightsInterface,
-        ))($request, $this->presenter);
+    (new UpdateNotification(
+        $this->readNotificationRepository,
+        $this->writeNotificationRepository,
+        $this->readAccessGroupRepository,
+        $this->contactRepository,
+        $this->contactGroupRepository,
+        $this->resourceRepositoryProvider,
+        $this->dataStorageEngine,
+        $contact,
+        $this->notificationRights,
+    ))(
+        $request,
+        $this->presenter
+    );
 
     expect($this->presenter->responseStatus)->toBeInstanceOf(NoContentResponse::class);
 });
