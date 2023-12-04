@@ -17,13 +17,13 @@ import {
   labelNotificationName,
   labelSubject,
   labelSearchBusinessViews,
-  labelSearchContactsGroups,
+  // labelSearchContactsGroups,
   labelSearchContacts
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
-  contactGroupsEndpoint,
+  // contactGroupsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
@@ -36,7 +36,7 @@ import {
   usersResponse,
   hostGroupsResponse,
   serviceGroupsResponse,
-  contactGroupsResponse,
+  // contactGroupsResponse,
   platformVersions,
   formData,
   emailBodyText
@@ -88,12 +88,12 @@ const initialize = (): void => {
     response: usersResponse
   });
 
-  cy.interceptAPIRequest({
-    alias: 'contactGroupsEndpoint',
-    method: Method.GET,
-    path: `${contactGroupsEndpoint}**`,
-    response: contactGroupsResponse
-  });
+  // cy.interceptAPIRequest({
+  //   alias: 'contactGroupsEndpoint',
+  //   method: Method.GET,
+  //   path: `${contactGroupsEndpoint}**`,
+  //   response: contactGroupsResponse
+  // });
 
   cy.viewport('macbook-13');
 
@@ -116,9 +116,9 @@ const fillFormRequiredFields = (): void => {
   cy.waitForRequest('@getUsersEndpoint');
   cy.findByText('Guest').click();
 
-  cy.findByLabelText(labelSearchContactsGroups).click();
-  cy.waitForRequest('@contactGroupsEndpoint');
-  cy.findByText('contact_group1').click();
+  // cy.findByLabelText(labelSearchContactsGroups).click();
+  // cy.waitForRequest('@contactGroupsEndpoint');
+  // cy.findByText('contact_group1').click();
 };
 
 describe('Create Panel', () => {

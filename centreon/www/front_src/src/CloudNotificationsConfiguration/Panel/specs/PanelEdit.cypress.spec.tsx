@@ -379,21 +379,21 @@ describe('Edit Panel', () => {
     cy.makeSnapshot();
   });
 
-  it('displays the Contact Groups field with edited notification contact groups', () => {
-    cy.waitForRequest('@getNotificationRequest');
-    cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
+  // it('displays the Contact Groups field with edited notification contact groups', () => {
+  //   cy.waitForRequest('@getNotificationRequest');
+  //   cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
 
-    cy.get('#panel-content').scrollTo('bottom');
+  //   cy.get('#panel-content').scrollTo('bottom');
 
-    cy.get('@fieldContactsGroups')
-      .parent()
-      .within(() => {
-        cy.findByText('contact-group1').should('be.visible');
-        cy.findByText('contact-group2').should('be.visible');
-      });
+  //   cy.get('@fieldContactsGroups')
+  //     .parent()
+  //     .within(() => {
+  //       cy.findByText('contact-group1').should('be.visible');
+  //       cy.findByText('contact-group2').should('be.visible');
+  //     });
 
-    cy.makeSnapshot();
-  });
+  //   cy.makeSnapshot();
+  // });
 
   it('validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');

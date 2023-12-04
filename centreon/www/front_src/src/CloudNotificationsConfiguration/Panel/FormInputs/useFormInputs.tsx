@@ -20,9 +20,9 @@ import {
   labelTimePeriod,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelContactsGroups,
+  // labelContactsGroups,
   labelContacts,
-  labelSearchContactsGroups,
+  // labelSearchContactsGroups,
   labelSearchContacts,
   labelSearchBusinessViews,
   labelBusinessViews,
@@ -31,7 +31,7 @@ import {
 import { hostEvents, serviceEvents } from '../utils';
 import {
   businessViewsEndpoint,
-  contactGroupsEndpoint,
+  // contactGroupsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
