@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { prop, equals } from 'ramda';
+import { useNavigate } from 'react-router';
 
 import { Role, PlaylistType } from './models';
 import {
@@ -16,6 +17,7 @@ interface UseListing {
   changePage: (updatedPage: number) => void;
   changeSort: ({ sortOrder, sortField }) => void;
   getRowProperty: (row) => string;
+  linkToPlaylist: (row) => void;
   page?: number;
   predefinedRowsSelection;
   resetColumns: () => void;
@@ -29,6 +31,8 @@ interface UseListing {
 }
 
 const useListing = ({ columns }): UseListing => {
+  const navigate = useNavigate();
+
   const [selectedColumnIds, setSelectedColumnIds] = useState<Array<string>>(
     columns.map(prop('id'))
   );
@@ -71,10 +75,15 @@ const useListing = ({ columns }): UseListing => {
     return 'shares';
   };
 
+  const linkToPlaylist = (row): void => {
+    navigate(`/home/dashboards/playlists/${row?.id}`);
+  };
+
   return {
     changePage,
     changeSort,
     getRowProperty,
+    linkToPlaylist,
     page,
     predefinedRowsSelection,
     resetColumns,

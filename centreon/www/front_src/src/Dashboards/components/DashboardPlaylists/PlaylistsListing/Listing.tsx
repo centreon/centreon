@@ -32,7 +32,8 @@ const Listing = ({
     setSelectedRows,
     sortf,
     sorto,
-    getRowProperty
+    getRowProperty,
+    linkToPlaylist
   } = useListing({ columns });
 
   const isViewer = useIsViewerUser();
@@ -73,7 +74,7 @@ const Listing = ({
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
-      onRowClick={(): void => undefined}
+      onRowClick={linkToPlaylist}
       onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}
