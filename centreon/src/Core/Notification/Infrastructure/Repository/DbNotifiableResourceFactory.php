@@ -28,8 +28,8 @@ use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, Notifiab
 
 class DbNotifiableResourceFactory
 {
-    public const NO_HOST_EVENTS = '0';
-    public const NO_SERVICE_EVENTS = '0';
+    public const NO_HOST_EVENTS = 0;
+    public const NO_SERVICE_EVENTS = 0;
 
     /**
      * @param iterable<int,array{
