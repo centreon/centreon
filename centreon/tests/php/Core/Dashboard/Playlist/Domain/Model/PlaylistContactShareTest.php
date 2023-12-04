@@ -25,23 +25,24 @@ namespace Tests\Core\Dashboard\Playlist\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Playlist\Domain\Model\PlaylistContactShare;
+use Core\Dashboard\Playlist\Domain\Model\PlaylistShare;
 
 it('should throw an exception when the playlist id is negative', function () {
-    new PlaylistContactShare(-1, 1,'admin', PlaylistContactShare::PLAYLIST_EDITOR_ROLE);
+    new PlaylistContactShare(-1, 1,'admin', PlaylistShare::PLAYLIST_EDITOR_ROLE);
 })->throws(AssertionException::min(-1, 1,'PlaylistContactShare::playlistId')->getMessage());
 
 it('should throw an exception when the contact id is negative', function () {
-    new PlaylistContactShare(1, -1,'admin', PlaylistContactShare::PLAYLIST_EDITOR_ROLE);
+    new PlaylistContactShare(1, -1,'admin', PlaylistShare::PLAYLIST_EDITOR_ROLE);
 })->throws(AssertionException::min(-1, 1,'PlaylistContactShare::contactId')->getMessage());
 
 it('should throw an exception when the contact name is empty', function () {
-    new PlaylistContactShare(1, 1, '', PlaylistContactShare::PLAYLIST_EDITOR_ROLE);
+    new PlaylistContactShare(1, 1, '', PlaylistShare::PLAYLIST_EDITOR_ROLE);
 })->throws(AssertionException::notEmptyString('PlaylistContactShare::contactName')->getMessage());
 
 it('should throw an exception when the role is not an authorized value', function () {
     new PlaylistContactShare(1, 1, 'admin', 'invalid_role');
 })->throws(AssertionException::inArray(
     'invalid_role',
-    PlaylistContactShare::PLAYLIST_ROLES,
+    PlaylistShare::PLAYLIST_ROLES,
     'PlaylistContactShare::role'
 )->getMessage());

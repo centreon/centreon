@@ -27,6 +27,10 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class PlaylistShare
 {
+    public const PLAYLIST_VIEWER_ROLE = 'viewer';
+    public const PLAYLIST_EDITOR_ROLE = 'editor';
+    public const PLAYLIST_ROLES = [self::PLAYLIST_VIEWER_ROLE, self::PLAYLIST_EDITOR_ROLE];
+
     /**
      * @param int $playlistId
      * @param PlaylistContactShare[] $playlistContactShares

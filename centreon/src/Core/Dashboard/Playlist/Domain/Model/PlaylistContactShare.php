@@ -27,10 +27,6 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class PlaylistContactShare
 {
-    public const PLAYLIST_VIEWER_ROLE = 'viewer';
-    public const PLAYLIST_EDITOR_ROLE = 'editor';
-    public const PLAYLIST_ROLES = [self::PLAYLIST_VIEWER_ROLE, self::PLAYLIST_EDITOR_ROLE];
-
     /**
      * @param int $playlistId
      * @param int $contactId
@@ -48,7 +44,7 @@ class PlaylistContactShare
         Assertion::positiveInt($playlistId, 'PlaylistContactShare::playlistId');
         Assertion::positiveInt($contactId, 'PlaylistContactShare::contactId');
         Assertion::notEmptyString($contactName, 'PlaylistContactShare::contactName');
-        Assertion::inArray($role, self::PLAYLIST_ROLES, 'PlaylistContactShare::role');
+        Assertion::inArray($role, PlaylistShare::PLAYLIST_ROLES, 'PlaylistContactShare::role');
     }
 
     public function getPlaylistId(): int
