@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import PublishLinkIcon from '@mui/icons-material/InsertLinkOutlined';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Menu } from '@mui/material';
 
 import {
@@ -13,7 +12,6 @@ import {
 
 import {
   labelDelete,
-  labelDuplicate,
   labelPublichYourPlaylist
 } from '../../translatedLabels';
 
@@ -26,11 +24,6 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const actions: ActionsListActions = [
-    {
-      Icon: ContentCopyIcon,
-      label: t(labelDuplicate),
-      onClick: (): void => undefined
-    },
     {
       Icon: PublishLinkIcon,
       label: t(labelPublichYourPlaylist),
