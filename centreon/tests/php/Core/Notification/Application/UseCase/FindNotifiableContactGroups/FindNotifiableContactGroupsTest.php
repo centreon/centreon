@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -34,17 +34,18 @@ use Core\Notification\Application\UseCase\FindNotifiableContactGroups\FindNotifi
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\FindNotifiableContactGroupsResponse;
 use Tests\Core\Notification\Infrastructure\API\FindNotifiableContactGroups\FindNotifiableContactGroupsPresenterStub;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new FindNotifiableContactGroupsPresenterStub($this->presenterFormatter);
     $this->usecase = new FindNotifiableContactGroups(
         $this->readRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
-        $this->notificationRightsInterface = $this->createMock(NotificationRightsInterface::class),
+        $this->notificationRights = $this->createMock(NotificationRightsInterface::class),
     );
+    $this->notificationRights->method('isAdmin')->willReturn(true);
 });
 
-it('should present a Not Found Response when there are no contact groups.', function () {
+it('should present a Not Found Response when there are no contact groups.', function (): void {
     $this->readRepository
         ->expects($this->once())
         ->method('findAll')
@@ -58,8 +59,7 @@ it('should present a Not Found Response when there are no contact groups.', func
         ->toBe('Contact Groups not found');
 });
 
-it('should present an Error Response when an unhandled error occurs.', function () {
-
+it('should present an Error Response when an unhandled error occurs.', function (): void {
     $this->readRepository
         ->expects($this->once())
         ->method('findAll')
@@ -73,7 +73,7 @@ it('should present an Error Response when an unhandled error occurs.', function 
         ->toBe('Error while retrieving contact groups');
 });
 
-it('should present a FindNotifiableContactGroups Response.', function () {
+it('should present a FindNotifiableContactGroups Response.', function (): void {
     $contactGroups = [
         new ContactGroup(1, 'Administrators'),
         new ContactGroup(2, 'Editors'),
