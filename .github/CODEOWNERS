@@ -49,3 +49,4 @@ tsconfig.json           @centreon/owners-react
 **/selinux/             @centreon/owners-pipelines
 **/project/             @centreon/owners-pipelines
 **/packaging/           @centreon/owners-pipelines
+dependencies/**         @centreon/owners-pipelines

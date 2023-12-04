@@ -16320,7 +16320,7 @@ msgstr "Erweiterter Modus"
 # msgid "Playlists"
 # msgstr ""
 
-# msgid "Welcome to the playlist interface!"
+# msgid "Welcome to the Playlist interface!"
 # msgstr ""
 
 # msgid "Create a playlist"

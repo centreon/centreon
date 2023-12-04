@@ -92,7 +92,7 @@ jobs:
           baseline_file_path=""
           create_baseline_from=""
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}"
-          if [[ "${{ inputs.stability }}" == "testing" ]] || [[ ${{ github.base_ref }} =~ ^hotfix-[2-9][0-9].[0-9][0-9]-next ]]; then
+          if [[ "${{ inputs.stability }}" == "testing" ]] || [[ ${{ github.base_ref || github.ref_name }} =~ ^hotfix-[2-9][0-9].[0-9][0-9]-next ]]; then
             TARGETS=( "${{ github.base_ref || github.ref_name }}" "${{ inputs.major_version }}.x" master )
           else
             TARGETS=( "${{ github.base_ref || github.ref_name }}" "dev-${{ inputs.major_version }}.x" develop )
@@ -109,7 +109,7 @@ jobs:
               create_baseline_from="standard"
               break
             else
-              echo "::notice::Baseline file not found for branch $TARGET"
+              echo "::warning::Baseline file not found for branch $TARGET"
             fi
           done
 

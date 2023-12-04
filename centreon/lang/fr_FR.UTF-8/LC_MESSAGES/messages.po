@@ -18475,19 +18475,19 @@ msgid "You are not in the following contact group: [%s]"
 msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 
 msgid "Playlists"
-msgstr "Liste de lecture"
+msgstr "Listes de diffusion"
 
-msgid "Welcome to the playlist interface!"
-msgstr "Bienvenue dans l'interface de la liste de lecture !"
+msgid "Welcome to the Playlist interface!"
+msgstr "Bienvenue dans l'interface des listes de diffusion !"
 
 msgid "Create a playlist"
-msgstr "Ajouter une liste de lecture"
+msgstr "Ajouter une liste de diffusion"
 
 msgid "Playlist name"
-msgstr "Nom de la liste de lecture"
+msgstr "Nom de la liste de diffusion"
 
 msgid "Playlist properties"
-msgstr "Propriétés de la liste de lecture"
+msgstr "Propriétés de la liste de diffusion"
 
 msgid "Rotation time"
 msgstr "Temps de rotation"
@@ -18502,7 +18502,10 @@ msgid "Add a dashboard"
 msgstr "Ajouter un tableau de bord"
 
 msgid "Playlist created"
-msgstr "Liste de lecture créé"
+msgstr "Liste de diffusion créée"
 
 msgid "Playlist updated"
-msgstr "Liste de lecture mise à jour"
+msgstr "Liste de diffusion mise à jour"
+
+msgid "Error while deleting a playlist"
+msgstr "Erreur lors de la suppression d'une liste de diffusion"
