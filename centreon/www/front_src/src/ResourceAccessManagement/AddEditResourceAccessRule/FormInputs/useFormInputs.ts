@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 
-import { Group, InputProps, InputType } from '@centreon/ui';
+import { InputProps, Group, InputType } from '@centreon/ui';
 
 import {
+  labelContactGroups,
   labelContacts,
   labelDescription,
   labelName,
@@ -10,13 +11,14 @@ import {
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
+import { findContactGroupsEndpoint } from '../api/endpoints';
 
-type UseFormInputsType = {
+interface UseFormInputsState {
   groups: Array<Group>;
   inputs: Array<InputProps>;
-};
+}
 
-const useFormInputs = (): UseFormInputsType => {
+const useFormInputs = (): UseFormInputsState => {
   const { t } = useTranslation();
 
   const groups: Array<Group> = [
@@ -31,31 +33,49 @@ const useFormInputs = (): UseFormInputsType => {
     {
       name: t(labelContacts),
       order: 3
+    },
+    {
+      name: t(labelContactGroups),
+      order: 4
     }
   ];
 
   const inputs: Array<InputProps> = [
     {
-      dataTestId: 'resourceAccessRuleName',
-      fieldName: t(labelName),
+      dataTestId: t(labelName),
+      fieldName: 'ruleName',
       group: groups[0].name,
       label: t(labelName),
       required: true,
       type: InputType.Text
     },
     {
-      dataTestId: 'resourceAccessRuleDescription',
-      fieldName: t(labelDescription),
+      dataTestId: t(labelDescription),
+      fieldName: 'ruleDescription',
       group: groups[0].name,
       label: t(labelDescription),
+      required: true,
       type: InputType.Text
     },
     {
-      dataTestId: 'resourceAccessRuleStatus',
-      fieldName: t(labelStatus),
+      dataTestId: t(labelStatus),
+      fieldName: 'ruleActivated',
       group: groups[0].name,
       label: t(labelStatus),
       type: InputType.Switch
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        endpoint: findContactGroupsEndpoint
+      },
+      dataTestId: t(labelContactGroups),
+      disableSortedOptions: true,
+      fieldName: 'contactGroups.ids',
+      group: groups[3].name,
+      label: t(labelContactGroups),
+      required: true,
+      type: InputType.MultiConnectedAutocomplete
     }
   ];
 

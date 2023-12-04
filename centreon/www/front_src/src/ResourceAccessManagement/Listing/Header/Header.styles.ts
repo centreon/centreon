@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-const useStyle = makeStyles()((theme) => ({
+const useHeaderStyles = makeStyles()((theme) => ({
   actions: {
     alignItems: 'center',
     display: 'flex',
@@ -11,4 +11,4 @@ const useStyle = makeStyles()((theme) => ({
   }
 }));
 
-export default useStyle;
+export default useHeaderStyles;

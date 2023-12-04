@@ -1,10 +1,10 @@
 import { Box } from '@mui/system';
 
-import useStyle from './Header.styles';
 import AddButton from './AddButton';
+import useHeaderStyles from './Header.styles';
 
 const Header = (): JSX.Element => {
-  const { classes } = useStyle();
+  const { classes } = useHeaderStyles();
 
   return (
     <Box className={classes.actions}>

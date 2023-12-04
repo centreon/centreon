@@ -5,7 +5,7 @@ import { Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 
 import { labelAdd } from '../../translatedLabels';
-import { modalStateAtom } from '../../Modal/atom';
+import { modalStateAtom } from '../../atom';
 
 const AddButton = (): JSX.Element => {
   const { t } = useTranslation();

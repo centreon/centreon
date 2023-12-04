@@ -1,17 +1,19 @@
+import { ReactElement } from 'react';
+
 import { ListingPage } from '@centreon/ui';
 
 import { ResourceAccessRulesListing } from './Listing';
 import PageHeader from './PageHeader';
-import ResourceAccessRuleConfigModal from './Modal/ResourceAccessRuleConfigModal';
+import AddEditResourceAccessRuleModal from './AddEditResourceAccessRule/AddEditResourceAccessRuleModal';
 
-const ResourceAccessManagementPage = (): JSX.Element => {
+const ResourceAccessManagementPage = (): ReactElement => {
   return (
     <>
       <ListingPage
         filter={<PageHeader />}
         listing={<ResourceAccessRulesListing />}
       />
-      <ResourceAccessRuleConfigModal />
+      <AddEditResourceAccessRuleModal />
     </>
   );
 };

@@ -61,11 +61,9 @@ export type ResourceAccessRule = ResourceAccessRuleType & {
   datasets: Array<Array<Resource>>;
 };
 
-export type SortOrder = 'asc' | 'desc';
-
-export type UseResourceAccessRuleConfig = {
-  closeModal: () => void;
-  createResourceAccessRule: () => void;
-  isModalOpen: boolean;
-  mode: ModalMode;
+export type ContactGroup = {
+  id: number;
+  name: string;
 };
+
+export type SortOrder = 'asc' | 'desc';

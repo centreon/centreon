@@ -2,12 +2,12 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
-import useStyle from './PageHeader.styles';
 import { labelResourceAccessRules } from './translatedLabels';
 import Filter from './Filter';
+import usePageHeaderStyles from './PageHeader.styles';
 
 const Title = (): JSX.Element => {
-  const { classes } = useStyle();
+  const { classes } = usePageHeaderStyles();
   const { t } = useTranslation();
 
   return (
@@ -19,7 +19,7 @@ const Title = (): JSX.Element => {
 };
 
 const PageHeader = (): JSX.Element => {
-  const { classes } = useStyle();
+  const { classes } = usePageHeaderStyles();
 
   return (
     <Box className={classes.box}>
