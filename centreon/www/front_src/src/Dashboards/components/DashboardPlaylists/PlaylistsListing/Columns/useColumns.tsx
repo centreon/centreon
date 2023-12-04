@@ -74,7 +74,8 @@ const useListingColumns = (): {
             getFormattedString: ({ description }): string => description,
             id: 'description',
             label: t(labelDescription),
-            type: ColumnType.string
+            type: ColumnType.string,
+            width: '20%'
           }
         ]
       : [
