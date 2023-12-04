@@ -37,14 +37,14 @@ export const getInitialValues = ({
   users,
   messages,
   resources,
-  // contactgroups,
+  contactgroups,
   t,
   isBamModuleInstalled
 }: NotificationType & {
   isBamModuleInstalled?: boolean;
   t: TFunction;
 }): object => ({
-  // contactgroups,
+  contactgroups,
   hostGroups: formatResource({
     resourceType: ResourcesTypeEnum.HG,
     resources,
@@ -104,7 +104,7 @@ export const getEmptyInitialValues = ({
   isBamModuleInstalled?: boolean;
   t: TFunction;
 }): object => ({
-  // contactgroups: [],
+  contactgroups: [],
   hostGroups: {
     events: [],
     extra: {

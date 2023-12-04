@@ -16,7 +16,7 @@ import {
   labelSearchHostGroups,
   labelSearchServiceGroups,
   labelChooseAtLeastOneResource,
-  labelChooseAtleastOneContactOrContactGroup,
+  // labelChooseAtleastOneContactOrContactGroup,
   labelTimePeriod,
   labelSubject,
   labelMessageFieldShouldNotBeEmpty,
@@ -30,8 +30,8 @@ import {
   labelDiscard,
   labelNotificationDuplicated,
   labelSearchBusinessViews,
-  labelBusinessViewsEvents,
-  labelSearchContacts
+  labelBusinessViewsEvents
+  // labelSearchContacts
 } from '../../translatedLabels';
 import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
