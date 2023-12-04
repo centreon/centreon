@@ -9,9 +9,9 @@ priority: "optional"
 maintainer: "Centreon <contact@centreon.com>"
 description: |
   This add-on is built to manage passive alerts into slots of alerts. Alerts are not defined
-into the configuration. This module give possibility to collect all alerts into a tray of
-events.
-  Commit: "@COMMIT_HASH@"
+  into the configuration. This module give possibility to collect all alerts into a tray of
+  events.
+  Commit: @COMMIT_HASH@
 vendor: "Centreon"
 homepage: "https://github.com/centreon/centreon-dsm"
 license: "Apache-2.0"
