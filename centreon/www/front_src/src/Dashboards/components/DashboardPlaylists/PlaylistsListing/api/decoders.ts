@@ -38,8 +38,12 @@ const contactDecoder = JsonDecoder.object<Contact>(
 
 const shareDecoder = JsonDecoder.object<Share>(
   {
-    contactgroups: JsonDecoder.array(contactDecoder, 'contact groups'),
-    contacts: JsonDecoder.array(contactDecoder, 'contacts')
+    contactgroups: JsonDecoder.optional(
+      JsonDecoder.array(contactDecoder, 'contact groups')
+    ),
+    contacts: JsonDecoder.optional(
+      JsonDecoder.array(contactDecoder, 'contacts')
+    )
   },
   'Share'
 );
