@@ -10,6 +10,8 @@ info:
     + Added host endpoint (PATCH)
     + Added dashboard playlist endpoint (POST)
     + Added service enpdoint (PATCH)
+    + Added playlist delete endpoint (DELETE)
+    + Added playlist shares endpoint (PUT, GET)
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
