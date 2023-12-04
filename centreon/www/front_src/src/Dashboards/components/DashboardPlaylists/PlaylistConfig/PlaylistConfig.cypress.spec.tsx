@@ -22,7 +22,10 @@ import {
   labelRotationTime,
   labelSelectDashboards
 } from '../../../translatedLabels';
-import { labelRequired, labelSave } from '../../../Dashboard/translatedLabels';
+import {
+  labelRequired,
+  labelSave
+} from '../../../SingleInstancePage/translatedLabels';
 
 import PlaylistConfig from './PlaylistConfig';
 import { initialValue } from './utils';

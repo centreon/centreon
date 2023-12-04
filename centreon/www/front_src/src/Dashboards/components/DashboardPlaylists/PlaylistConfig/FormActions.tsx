@@ -10,7 +10,7 @@ import {
   playlistConfigInitialValuesAtom
 } from '../atoms';
 import { labelCancel } from '../../../translatedLabels';
-import { labelSave } from '../../../Dashboard/translatedLabels';
+import { labelSave } from '../../../SingleInstancePage/Dashboard/translatedLabels';
 
 const FormActions = (): JSX.Element => {
   const { t } = useTranslation();

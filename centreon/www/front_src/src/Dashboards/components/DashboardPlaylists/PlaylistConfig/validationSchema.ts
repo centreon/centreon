@@ -1,7 +1,7 @@
 import { ObjectSchema, array, number, object, string } from 'yup';
 
 import { PlaylistConfig } from '../models';
-import { labelRequired } from '../../../Dashboard/translatedLabels';
+import { labelRequired } from '../../../SingleInstancePage/Dashboard/translatedLabels';
 
 export const getValidationSchema = (t): ObjectSchema<object, PlaylistConfig> =>
   object<PlaylistConfig>().shape({
