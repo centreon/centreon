@@ -9,11 +9,12 @@ import {
 
 import { createTokenEndpoint } from '../api/endpoints';
 import useRefetch from '../useRefetch';
+import { CreateTokenFormValues } from '../TokenListing/models';
 
-import { CreatedToken, dataDuration, ParamsCreateToken } from './models';
+import { CreatedToken, dataDuration } from './models';
 
 interface UseCreateToken {
-  createToken: (params: ParamsCreateToken) => void;
+  createToken: (params: Required<CreateTokenFormValues>) => void;
   data?: ResponseError | CreatedToken;
   isMutating: boolean;
 }
@@ -38,11 +39,11 @@ const useCreateToken = (): UseCreateToken => {
   };
 
   const createToken = ({
-    tokenNameData,
-    durationData,
-    userData
-  }: ParamsCreateToken): void => {
-    const durationItem = dataDuration.find(({ id }) => id === durationData?.id);
+    tokenName,
+    duration,
+    user
+  }: Required<CreateTokenFormValues>): void => {
+    const durationItem = dataDuration.find(({ id }) => id === duration?.id);
 
     const expirationDate = getExpirationDate({
       unit: durationItem?.unit,
@@ -51,8 +52,8 @@ const useCreateToken = (): UseCreateToken => {
 
     mutateAsync({
       expiration_date: expirationDate,
-      name: tokenNameData,
-      user_id: userData.id
+      name: tokenName,
+      user_id: user?.id
     });
   };
 

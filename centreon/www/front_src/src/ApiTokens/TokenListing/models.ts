@@ -45,7 +45,6 @@ export interface SortParams {
 
 export interface CreateTokenFormValues {
   duration: Duration | null;
-  token: null | string;
   tokenName: string;
-  userName: PersonalInformation;
+  user: PersonalInformation | null;
 }

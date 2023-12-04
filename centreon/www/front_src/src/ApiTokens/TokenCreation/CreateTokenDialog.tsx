@@ -1,16 +1,21 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useFormik } from 'formik';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { object, string } from 'yup';
 
 import { Typography } from '@mui/material';
 
-import { Dialog, SingleAutocompleteField, TextField } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import {
+  Dialog,
+  SingleAutocompleteField,
+  SingleConnectedAutocompleteField,
+  TextField
+} from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
+import { buildListEndpoint, listConfiguredUser } from '../api/endpoints';
 import { labelCreateNewToken } from '../translatedLabels';
 
 import TokenInput from './TokenInput';
@@ -25,7 +30,6 @@ const CreateTokenDialog = (): JSX.Element => {
   const { t } = useTranslation();
 
   const [isCreateToken, setIsCreateToken] = useAtom(isCreateTokenAtom);
-  const user = useAtomValue(userAtom);
 
   const { createToken, data, isMutating } = useCreateToken();
 
@@ -33,7 +37,6 @@ const CreateTokenDialog = (): JSX.Element => {
     values,
     isValid,
     dirty,
-    errors,
     handleChange,
     setFieldValue,
     handleSubmit,
@@ -41,35 +44,37 @@ const CreateTokenDialog = (): JSX.Element => {
   } = useFormik<CreateTokenFormValues>({
     initialValues: {
       duration: null,
-      token: null,
       tokenName: '',
-      userName: { id: user.id as number, name: user.name }
+      user: null
     },
     onSubmit: (dataForm) => {
-      const {
-        duration: durationData,
-        tokenName: tokenNameData,
-        userName: userData
-      } = dataForm;
+      const { duration, tokenName, user } = dataForm;
 
-      createToken({ durationData, tokenNameData, userData });
+      createToken({ duration, tokenName, user });
     },
     validationSchema: object({
       duration: object({
         id: string().required(),
         name: string().required()
-      }).required('This field is required'),
-      tokenName: string().required('This field is required')
+      }).required(),
+      tokenName: string().required(),
+      user: object({
+        id: string().required(),
+        name: string().required()
+      }).required()
     })
   });
 
-  const { token, durationValue, tokenNameValue } = useCreateTokenFormValues({
+  const { token, duration, tokenName, user } = useCreateTokenFormValues({
     data,
     values
   });
 
-  const confirm = (): void => {
-    handleSubmit();
+  const getEndpointConfiguredUser = (dataConfiguredUser): string => {
+    return buildListEndpoint({
+      endpoint: listConfiguredUser,
+      parameters: { ...dataConfiguredUser, limit: 10 }
+    });
   };
 
   const closeDialog = (): void => {
@@ -79,6 +84,10 @@ const CreateTokenDialog = (): JSX.Element => {
 
   const changeDuration = (_, value): void => {
     setFieldValue('duration', value);
+  };
+
+  const changeUser = (_, value): void => {
+    setFieldValue('user', value);
   };
 
   const options = dataDuration.map(({ id, name }) => ({
@@ -94,7 +103,7 @@ const CreateTokenDialog = (): JSX.Element => {
       open={isCreateToken}
       submitting={isMutating}
       onCancel={token ? undefined : closeDialog}
-      onConfirm={token ? closeDialog : confirm}
+      onConfirm={token ? closeDialog : handleSubmit}
     >
       {token && (
         <Typography style={{ marginBottom: 20, width: 400 }}>
@@ -105,33 +114,34 @@ const CreateTokenDialog = (): JSX.Element => {
       <TextField
         dataTestId="tokenNameInput"
         disabled={Boolean(token)}
-        error={errors?.tokenName}
-        helperText={errors?.tokenName}
         id="tokenName"
         label="Token name"
         required={!token}
         style={{ marginBottom: 20, width: 400 }}
-        value={tokenNameValue}
+        value={tokenName}
         onChange={handleChange}
       />
       <SingleAutocompleteField
         disabled={Boolean(token)}
-        error={errors?.duration}
         id="duration"
         label="Duration"
         options={options}
         required={!token}
         style={{ marginBottom: 20, width: 400 }}
-        value={durationValue}
+        value={duration}
         onChange={changeDuration}
       />
-      <TextField
-        disabled
-        dataTestId="userInput"
-        id="userName"
+
+      <SingleConnectedAutocompleteField
+        disabled={Boolean(token)}
+        field="name"
+        getEndpoint={getEndpointConfiguredUser}
+        id="user"
         label="User"
+        required={!token}
         style={{ marginBottom: 20, width: 400 }}
-        value={values.userName.name}
+        value={user}
+        onChange={changeUser}
       />
       {token && <TokenInput token={token} />}
     </Dialog>

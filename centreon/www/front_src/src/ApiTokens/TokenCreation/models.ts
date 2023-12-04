@@ -19,16 +19,11 @@ export interface Duration {
 
 export type CreatedToken = Token & { token: string };
 
-export interface ParamsCreateToken {
-  durationData: Duration;
-  tokenNameData: string;
-  userData: PersonalInformation;
-}
-
 export interface UseCreateTokenFormValues {
-  durationValue: Omit<Duration, 'unit' | 'value'> | null;
-  token: string | null;
-  tokenNameValue: string;
+  duration: Omit<Duration, 'unit' | 'value'> | null;
+  token?: string;
+  tokenName: string;
+  user: PersonalInformation | null;
 }
 
 export const dataDuration: Array<Duration> = [

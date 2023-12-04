@@ -13,7 +13,7 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { buildListTokensEndpoint } from '../api/endpoints';
+import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
 
 import { DefaultParameters } from './Actions/Search/Filter/models';
 import { Columns } from './ComponentsColumn/models';
@@ -93,7 +93,8 @@ const interceptListTokens = ({
   alias = 'getListTokens'
 }): void => {
   cy.fixture(dataPath).then((data) => {
-    const endpoint = buildListTokensEndpoint({
+    const endpoint = buildListEndpoint({
+      endpoint: listTokensEndpoint,
       parameters: { ...parameters }
     });
     cy.interceptAPIRequest({
