@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PublishLinkIcon from '@mui/icons-material/InsertLinkOutlined';
 import { Menu } from '@mui/material';
-import {useColumnStyles} from "../useColumnStyles"
 
 import {
   ActionsList,
@@ -11,10 +10,8 @@ import {
   ActionsListActions
 } from '@centreon/ui';
 
-import {
-  labelDelete,
-  labelPublichYourPlaylist
-} from '../../translatedLabels';
+import { useColumnStyles } from '../useColumnStyles';
+import { labelDelete, labelPublichYourPlaylist } from '../../translatedLabels';
 
 interface Props {
   anchor: HTMLElement | null;
@@ -24,7 +21,7 @@ interface Props {
 const MoreActions = ({ close, anchor }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const {classes} = useColumnStyles()
+  const { classes } = useColumnStyles();
 
   const actions: ActionsListActions = [
     {
@@ -42,7 +39,7 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
-      <ActionsList className={classes.moreActions} actions={actions} />
+      <ActionsList actions={actions} className={classes.moreActions} />
     </Menu>
   );
 };

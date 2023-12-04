@@ -24,8 +24,12 @@ const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
   const { layout } = routerHooks.useParams();
 
-  const fallback = equals(layout , DashboardLayout.Library) ? <DashboardsOverviewSkeleton /> :  <DashboardsPlaylistSkeleton/>
-  
+  const fallback = equals(layout, DashboardLayout.Library) ? (
+    <DashboardsOverviewSkeleton />
+  ) : (
+    <DashboardsPlaylistSkeleton />
+  );
+
   return (
     <PageLayout>
       <PageLayout.Header>

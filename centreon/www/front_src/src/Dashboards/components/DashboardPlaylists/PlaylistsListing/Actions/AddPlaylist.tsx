@@ -6,7 +6,11 @@ import { Button } from '@centreon/ui/components';
 
 import { labelCreate } from '../translatedLabels';
 
-const AddPlaylist = ({openConfig } : {openConfig  : () => void}): JSX.Element => {
+const AddPlaylist = ({
+  openConfig
+}: {
+  openConfig: () => void;
+}): JSX.Element => {
   const { t } = useTranslation();
 
   return (
