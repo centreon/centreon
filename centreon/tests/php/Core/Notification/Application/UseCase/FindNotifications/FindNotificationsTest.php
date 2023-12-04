@@ -31,13 +31,14 @@ use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotifications;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
 use Core\Notification\Application\UseCase\FindNotifications\NotificationDto;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\Notification\Infrastructure\API\FindNotifications\FindNotificationsPresenterStub;
@@ -51,6 +52,7 @@ beforeEach(function (): void {
     $this->hgResourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->sgResourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->notificationRights = $this->createMock(NotificationRightsInterface::class);
 });
 
 it('should present an error response when the user is not admin and doesn\'t have sufficient ACLs', function (): void {
@@ -61,7 +63,8 @@ it('should present an error response when the user is not admin and doesn\'t hav
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->notificationRights,
     ))($this->presenter);
 
     expect($this->presenter->responseStatus)
@@ -85,7 +88,8 @@ it('should present an empty response when no notifications are configured', func
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->notificationRights,
     ))($this->presenter);
 
     expect($this->presenter->response)
@@ -149,7 +153,8 @@ it('should get the resources count with ACL calculation when the user is not adm
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->notificationRights,
     ))($this->presenter);
 });
 
@@ -196,7 +201,8 @@ it('should get the resources count without ACL calculation when the user is admi
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->notificationRights,
     ))($this->presenter);
 });
 
@@ -204,6 +210,7 @@ it('should present a FindNotificationsResponse when the use case is executed cor
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
+    $this->notificationRights->method('isAdmin')->willReturn(true);
 
     $notificationOne = new Notification(1,'notification-one', new ConfigurationTimePeriod(1, '24x7'), true);
     $notificationTwo = new Notification(2,'notification-two', new ConfigurationTimePeriod(1, '24x7'), true);
@@ -278,7 +285,8 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->notificationRights,
     ))($this->presenter);
 
     expect($this->presenter->response)

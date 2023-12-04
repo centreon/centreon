@@ -25,18 +25,18 @@ namespace Tests\Core\Notification\Application\UseCase\DeleteNotifications;
 
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Common\UseCase\{ForbiddenResponse, MultiStatusResponse};
-use Core\Notification\Application\Exception\NotificationException;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\DeleteNotifications\{DeleteNotifications, DeleteNotificationsRequest};
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DeleteNotificationsPresenterStub($this->presenterFormatter);
     $this->writeRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
 });
 
-it('should present a ForbiddenResponse when the user doesn\'t have access to endpoint', function () {
+it('should present a ForbiddenResponse when the user doesn\'t have access to endpoint', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
     $request = new DeleteNotificationsRequest();
     $request->ids = [1, 2];
@@ -48,7 +48,7 @@ it('should present a ForbiddenResponse when the user doesn\'t have access to end
         ->toBe(NotificationException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a Multi-Status Response when a bulk delete action is executed', function () {
+it('should present a Multi-Status Response when a bulk delete action is executed', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
@@ -68,19 +68,19 @@ it('should present a Multi-Status Response when a bulk delete action is executed
             [
                 'href' => 'centreon/api/latest/configuration/notifications/1',
                 'status' => 204,
-                'message' => null
+                'message' => null,
             ],
             [
                 'href' => 'centreon/api/latest/configuration/notifications/2',
                 'status' => 404,
-                'message' => 'Notification not found'
+                'message' => 'Notification not found',
             ],
             [
                 'href' => 'centreon/api/latest/configuration/notifications/3',
                 'status' => 500,
-                'message' => "Error while deleting a notification configuration"
-            ]
-        ]
+                'message' => 'Error while deleting a notification configuration',
+            ],
+        ],
     ];
 
     expect($this->presenter->response)

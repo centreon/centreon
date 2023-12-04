@@ -28,20 +28,18 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Notification\Application\Exception\NotificationException;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotification;
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
-use Tests\Core\Notification\Application\UseCase\DeleteNotification\DeleteNotificationPresenterStub;
+use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotification;
 
-
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DeleteNotificationPresenterStub();
     $this->writeRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
 });
 
-it('should present a ForbiddenResponse when the user doesn\'t have access to endpoint', function () {
+it('should present a ForbiddenResponse when the user doesn\'t have access to endpoint', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
 
@@ -51,7 +49,7 @@ it('should present a ForbiddenResponse when the user doesn\'t have access to end
         ->toBe(NotificationException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the notification to delete is not found', function () {
+it('should present a NotFoundResponse when the notification to delete is not found', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
@@ -69,7 +67,7 @@ it('should present a NotFoundResponse when the notification to delete is not fou
         ->toBe('Notification not found');
 });
 
-it('should present an ErrorResponse when an unhandled error occurs', function () {
+it('should present an ErrorResponse when an unhandled error occurs', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
@@ -87,7 +85,7 @@ it('should present an ErrorResponse when an unhandled error occurs', function ()
         ->toBe(NotificationException::errorWhileDeletingObject()->getMessage());
 });
 
-it('should present a NoContentResponse when a notification is deleted', function () {
+it('should present a NoContentResponse when a notification is deleted', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
