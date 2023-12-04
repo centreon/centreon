@@ -34,6 +34,10 @@ use Core\Contact\Domain\Model\ContactGroup;
 class DbReadContactGroupRepository extends AbstractRepositoryDRB implements ReadContactGroupRepositoryInterface
 {
     use LoggerTrait;
+    private const CONCORDANCE_ARRAY = [
+        'id' => 'cg_id',
+        'name' => 'cg_name',
+    ];
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
@@ -50,10 +54,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
 
-        $this->sqlRequestTranslator->setConcordanceArray([
-            'id' => 'cg_id',
-            'name' => 'cg_name',
-        ]);
+        $this->sqlRequestTranslator->setConcordanceArray(self::CONCORDANCE_ARRAY);
     }
 
     /**
@@ -61,6 +62,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAll(): array
     {
+        // We need to manage a state of the translator :(
+        $concordanceArraySaved = $this->sqlRequestTranslator->getConcordanceArray();
+        $this->sqlRequestTranslator->setConcordanceArray(self::CONCORDANCE_ARRAY);
+
         $request = 'SELECT SQL_CALC_FOUND_ROWS cg_id, cg_name FROM contactgroup';
 
         // Search
@@ -102,6 +107,9 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
         }
 
+        // Restoration of the concordance Array
+        $this->sqlRequestTranslator->setConcordanceArray($concordanceArraySaved);
+
         return $contactGroups;
     }
 
@@ -113,6 +121,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         $request = 'SELECT SQL_CALC_FOUND_ROWS cg_id, cg_name FROM contactgroup cg '
             . 'INNER JOIN contactgroup_contact_relation ccr '
             . 'ON ccr.contactgroup_cg_id = cg.cg_id';
+
+        // We need to manage a state of the translator :(
+        $concordanceArraySaved = $this->sqlRequestTranslator->getConcordanceArray();
+        $this->sqlRequestTranslator->setConcordanceArray(self::CONCORDANCE_ARRAY);
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -153,6 +165,9 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
         }
 
+        // Restoration of the concordance Array
+        $this->sqlRequestTranslator->setConcordanceArray($concordanceArraySaved);
+
         return $contactGroups;
     }
 
@@ -175,7 +190,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             $contactGroup = DbContactGroupFactory::createFromRecord($result);
         }
         $this->debug(
-            $contactGroup === null  ? 'No Contact Group found' : 'Contact Group Found',
+            $contactGroup === null ? 'No Contact Group found' : 'Contact Group Found',
             [
                 'contact_group_id' => $contactGroupId,
             ]
@@ -233,16 +248,18 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         }
         $contactGroups = [];
         $boundIds = implode(', ', array_keys($queryBindValues));
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT cg_id,cg_name FROM `:db`.contactgroup cg
-                INNER JOIN `:db`.contactgroup_contact_relation ccr
-                    ON ccr.contactgroup_cg_id = cg.cg_id
-                WHERE ccr.contact_contact_id = :userId
-                    AND cg_activate = '1'
-                    AND cg.cg_id IN ({$boundIds});
-                SQL
-        ));
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                    SELECT cg_id,cg_name FROM `:db`.contactgroup cg
+                    INNER JOIN `:db`.contactgroup_contact_relation ccr
+                        ON ccr.contactgroup_cg_id = cg.cg_id
+                    WHERE ccr.contact_contact_id = :userId
+                        AND cg_activate = '1'
+                        AND cg.cg_id IN ({$boundIds});
+                    SQL
+            )
+        );
         foreach ($queryBindValues as $bindKey => $contactGroupId) {
             $statement->bindValue($bindKey, $contactGroupId, \PDO::PARAM_INT);
         }
@@ -270,10 +287,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         }
         $contactGroupIdsAsString = implode(', ', array_keys($bind));
         $request = $this->translateDbName(
-           <<<SQL
-               SELECT cg_id FROM `:db`.contactgroup
-               WHERE cg_id IN ({$contactGroupIdsAsString})
-               SQL
+            <<<SQL
+                SELECT cg_id FROM `:db`.contactgroup
+                WHERE cg_id IN ({$contactGroupIdsAsString})
+                SQL
         );
         $statement = $this->db->prepare($request);
         foreach ($bind as $key => $value) {

@@ -40,6 +40,7 @@ use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\AddNotification\Factory\NewNotificationFactory;
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationMessageFactory;
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
@@ -64,6 +65,7 @@ final class AddNotification
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
+        private readonly NotificationRightsInterface $notificationRights,
     ) {
     }
 
@@ -107,7 +109,8 @@ final class AddNotification
                 $request->contactGroups,
                 $this->contactRepository,
                 $this->contactGroupRepository,
-                $this->user
+                $this->user,
+                $this->notificationRights
             );
 
             try {

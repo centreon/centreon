@@ -37,7 +37,7 @@ final class FindNotifiableContactGroupsController extends AbstractController
      */
     public function __invoke(
         FindNotifiableContactGroups $useCase,
-        FindNotifiableContactGroupsPresenter $presenter
+        FindNotifiableContactGroupsPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

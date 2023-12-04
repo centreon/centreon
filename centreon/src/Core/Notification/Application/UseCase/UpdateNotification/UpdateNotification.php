@@ -41,6 +41,7 @@ use Core\Notification\Application\Repository\NotificationResourceRepositoryInter
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationMessageFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationResourceFactory;
@@ -63,6 +64,7 @@ final class UpdateNotification
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
+        private readonly NotificationRightsInterface $notificationRights,
     ) {
     }
 
@@ -102,7 +104,8 @@ final class UpdateNotification
                 $request->contactGroups,
                 $this->contactRepository,
                 $this->contactGroupRepository,
-                $this->user
+                $this->user,
+                $this->notificationRights,
             );
 
             try {

@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Utility\Difference\BasicDifference;
 
 class NotificationValidator
@@ -43,6 +44,7 @@ class NotificationValidator
      * @param ContactRepositoryInterface $contactRepository
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param ContactInterface $user
+     * @param NotificationRightsInterface $notificationRights
      *
      * @throws \Throwable|NotificationException
      */
@@ -51,7 +53,8 @@ class NotificationValidator
         array $contactGroupsIds,
         ContactRepositoryInterface $contactRepository,
         ReadContactGroupRepositoryInterface $contactGroupRepository,
-        ContactInterface $user
+        ContactInterface $user,
+        NotificationRightsInterface $notificationRights,
     ): void {
         if (empty($userIds) && empty($contactGroupsIds)) {
             throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
@@ -60,7 +63,7 @@ class NotificationValidator
             $this->validateUsers($userIds, $contactRepository);
         }
         if (! empty($contactGroupsIds)) {
-            $this->validateContactGroups($contactGroupsIds, $contactGroupRepository, $user);
+            $this->validateContactGroups($contactGroupsIds, $contactGroupRepository, $user, $notificationRights);
         }
     }
 
@@ -97,17 +100,19 @@ class NotificationValidator
      * @param int[] $contactGroupIds
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param ContactInterface $user
+     * @param NotificationRightsInterface $notificationRights
      *
      * @throws \Throwable|NotificationException
      */
     private function validateContactGroups(
         array $contactGroupIds,
         ReadContactGroupRepositoryInterface $contactGroupRepository,
-        ContactInterface $user
+        ContactInterface $user,
+        NotificationRightsInterface $notificationRights,
     ):void {
         $contactGroupIds = array_unique($contactGroupIds);
 
-        if ($user->isAdmin()) {
+        if ($notificationRights->isAdmin($user)) {
             $contactGroups = $contactGroupRepository->findByIds($contactGroupIds);
         } else {
             $contactGroups = $contactGroupRepository->findByIdsAndUserId($contactGroupIds, $user->getId());
