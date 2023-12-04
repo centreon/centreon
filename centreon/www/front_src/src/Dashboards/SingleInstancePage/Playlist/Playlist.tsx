@@ -1,10 +1,20 @@
+import { Suspense } from 'react';
+
+import { isNil } from 'ramda';
+
 import { PageHeader, PageLayout } from '@centreon/ui/components';
+import { LoadingSkeleton } from '@centreon/ui';
 
 import PlaylistQuickAccess from './components/PlaylistQuickAccess';
 import { useGetPlaylist } from './hooks/useGetPlaylist';
+import PlaylistBody from './components/PlaylistBody';
 
-const Playlist = (): JSX.Element => {
+const Playlist = (): JSX.Element | null => {
   const { playlist } = useGetPlaylist();
+
+  if (isNil(playlist)) {
+    return null;
+  }
 
   return (
     <PageLayout>
@@ -21,7 +31,19 @@ const Playlist = (): JSX.Element => {
           </PageHeader.Main>
         </PageHeader>
       </PageLayout.Header>
-      <PageLayout.Body>coucou</PageLayout.Body>
+      <PageLayout.Body>
+        <Suspense
+          fallback={
+            <LoadingSkeleton height="20vh" variant="rectangular" width="100%" />
+          }
+        >
+          <PlaylistBody
+            dashboards={playlist.dashboards}
+            playlistId={playlist.id}
+            rotationTime={playlist.rotationTime}
+          />
+        </Suspense>
+      </PageLayout.Body>
     </PageLayout>
   );
 };

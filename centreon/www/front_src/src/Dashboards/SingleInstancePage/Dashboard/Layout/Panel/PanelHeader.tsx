@@ -20,14 +20,16 @@ import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
 
 interface PanelHeaderProps {
+  displayMoreActions: boolean;
   id: string;
-  setRefreshCount: (id) => void;
+  setRefreshCount?: (id) => void;
 }
 
 const PanelHeader = ({
   id,
-  setRefreshCount
-}: PanelHeaderProps): JSX.Element => {
+  setRefreshCount,
+  displayMoreActions
+}: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
 
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
@@ -56,21 +58,23 @@ const PanelHeader = ({
   return (
     <CardHeader
       action={
-        <div className={classes.panelActionsIcons}>
-          <IconButton
-            ariaLabel={t(labelMoreActions) as string}
-            onClick={openMoreActions}
-          >
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
-          <MorePanelActions
-            anchor={moreActionsOpen}
-            close={closeMoreActions}
-            duplicate={duplicate}
-            id={id}
-            setRefreshCount={setRefreshCount}
-          />
-        </div>
+        displayMoreActions && (
+          <div className={classes.panelActionsIcons}>
+            <IconButton
+              ariaLabel={t(labelMoreActions) as string}
+              onClick={openMoreActions}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+            <MorePanelActions
+              anchor={moreActionsOpen}
+              close={closeMoreActions}
+              duplicate={duplicate}
+              id={id}
+              setRefreshCount={setRefreshCount}
+            />
+          </div>
+        )
       }
       className={classes.panelHeader}
       title={panel?.options?.name || ''}

@@ -14,6 +14,7 @@ interface UseListPlaylistsSytate {
 
 export const useListPlaylists = (): UseListPlaylistsSytate => {
   const { data: playlists } = useFetchQuery({
+    baseEndpoint: 'http://localhost:5005/centreon/api/latest',
     decoder: buildListingDecoder({
       entityDecoder: namedEntityDecoder,
       entityDecoderName: 'playlist',

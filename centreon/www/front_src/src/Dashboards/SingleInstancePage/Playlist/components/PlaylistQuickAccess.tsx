@@ -51,7 +51,7 @@ const PlaylistQuickAccess = (): JSX.Element => {
         create={createPlaylist}
         elements={playlists}
         goBack={navigateToPlaylists}
-        isActive={(id) => equals(id, dashboardId)}
+        isActive={(id) => equals(id, Number(dashboardId))}
         labels={{
           create: labelCreateAPlaylist,
           goBack: labelPlaylists

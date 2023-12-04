@@ -46,7 +46,7 @@ const DashboardsQuickAccessMenu = ({
       create={createDashboard}
       elements={dashboards}
       goBack={navigateToDashboardLibrary}
-      isActive={(id) => equals(id, dashboard?.id)}
+      isActive={(id) => equals(id, Number(dashboard?.id))}
       labels={{
         create: labelCreateADashboard,
         goBack: labelDashboardLibrary

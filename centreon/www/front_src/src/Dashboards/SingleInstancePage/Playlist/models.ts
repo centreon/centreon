@@ -6,6 +6,11 @@ interface Share {
   role: string;
 }
 
+export enum OwnRole {
+  Editor = 'editor',
+  Viewer = 'viewer'
+}
+
 export interface Playlist {
   author: {
     id: number;
@@ -17,11 +22,12 @@ export interface Playlist {
   id: number;
   isPublic: boolean;
   name: string;
-  ownRole: 'viewer' | 'editor';
+  ownRole: OwnRole;
   publicLink: string | null;
+  rotationTime: number;
   shares: {
     contactgroups: Array<Share>;
     contacts: Array<Share>;
   };
-  updateAt: string;
+  updatedAt: string;
 }

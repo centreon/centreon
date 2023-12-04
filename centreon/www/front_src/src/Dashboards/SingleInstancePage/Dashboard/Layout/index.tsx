@@ -4,15 +4,14 @@ import { Layout } from 'react-grid-layout';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, isEmpty, map, propEq } from 'ramda';
 
-import { DashboardLayout, getColumnsFromScreenSize } from '@centreon/ui';
+import { getColumnsFromScreenSize } from '@centreon/ui';
 
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
-import { AddEditWidgetModal, AddWidgetPanel } from '../AddEditWidget';
 import { editProperties } from '../hooks/useCanEditDashboard';
+import { AddEditWidgetModal } from '../AddEditWidget';
 
-import DashboardPanel from './Panel/Panel';
-import PanelHeader from './Panel/PanelHeader';
+import PanelsLayout from './Layout';
 
 const addWidgetId = 'add_widget_panel';
 
@@ -89,34 +88,15 @@ const DashboardPageLayout = (): JSX.Element => {
 
   return (
     <>
-      <DashboardLayout.Layout
+      <PanelsLayout
+        displayMoreActions
+        canEdit={canEdit}
         changeLayout={changeLayout}
-        displayGrid={isEditing}
+        isEditing={isEditing}
         isStatic={!isEditing || showDefaultLayout}
-        layout={panels}
-      >
-        {panels.map(({ i, panelConfiguration, refreshCount }) => (
-          <DashboardLayout.Item
-            canMove={
-              canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
-            }
-            disablePadding={panelConfiguration?.isAddWidgetPanel}
-            header={
-              !panelConfiguration?.isAddWidgetPanel ? (
-                <PanelHeader id={i} setRefreshCount={setRefreshCount} />
-              ) : undefined
-            }
-            id={i}
-            key={i}
-          >
-            {panelConfiguration?.isAddWidgetPanel ? (
-              <AddWidgetPanel />
-            ) : (
-              <DashboardPanel id={i} refreshCount={refreshCount} />
-            )}
-          </DashboardLayout.Item>
-        ))}
-      </DashboardLayout.Layout>
+        panels={panels}
+        setRefreshCount={setRefreshCount}
+      />
       <AddEditWidgetModal />
     </>
   );

@@ -20,6 +20,7 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
     },
+    height: theme.spacing(2),
     padding: theme.spacing(0)
   }
 }));

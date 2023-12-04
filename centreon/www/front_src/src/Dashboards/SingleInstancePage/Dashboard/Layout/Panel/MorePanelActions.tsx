@@ -37,7 +37,7 @@ interface Props {
   close: () => void;
   duplicate: (event) => void;
   id: string;
-  setRefreshCount: (id) => void;
+  setRefreshCount?: (id) => void;
 }
 
 const MorePanelActions = ({
@@ -73,7 +73,7 @@ const MorePanelActions = ({
   };
 
   const refresh = (): void => {
-    setRefreshCount(id);
+    setRefreshCount?.(id);
     close();
   };
 

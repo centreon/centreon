@@ -68,11 +68,14 @@ export const getPanels = (dashboard?: Dashboard): Array<DashboardPanel> =>
   propOr([] as Array<DashboardPanel>, 'panels', dashboard);
 
 type UseDashboardDetailsProps = {
-  dashboardId: string;
+  dashboardId: string | number | null;
+  suspense?: false;
+  viewOnly?: boolean;
 };
 
 const useDashboardDetails = ({
-  dashboardId
+  dashboardId,
+  viewOnly
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const setDashboard = useSetAtom(dashboardAtom);
@@ -84,7 +87,10 @@ const useDashboardDetails = ({
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
-    getQueryKey: () => [resource.dashboard, dashboardId]
+    getQueryKey: () => [resource.dashboard, dashboardId],
+    queryOptions: {
+      enabled: !!dashboardId
+    }
   });
 
   const { hasEditPermission } = useDashboardUserPermissions();
@@ -103,7 +109,7 @@ const useDashboardDetails = ({
   );
 
   useEffect(() => {
-    if (!dashboard) {
+    if (!dashboard || viewOnly) {
       return;
     }
 
