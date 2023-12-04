@@ -47,19 +47,19 @@ contents:
       group: centreon
       mode: 0775
 
-  - src: "centreon-dsm/README"
+  - src: "./README"
     dst: "/usr/share/centreon/www/modules/centreon-dsm/README"
     file_info:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
-  - src: "centreon-dsm/www/modules/centreon-dsm"
+  - src: "./www/modules/centreon-dsm"
     dst: "/usr/share/centreon/www/modules/centreon-dsm"
     file_info:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
-  - src: "centreon-dsm/cron"
+  - src: "./cron"
     dst: "/etc/cron.d"
     file_info:
       owner: "@APACHE_USER@"
