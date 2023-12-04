@@ -34,7 +34,23 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Exception\TimeRangeException;
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
+use Utility\SqlConcatenator;
 
+/**
+ * @phpstan-type _timeperiod array{
+ *     tp_id: int,
+ *     tp_name: string,
+ *     tp_alias: string,
+ *     tp_monday: string,
+ *     tp_tuesday: string,
+ *     tp_wednesday: string,
+ *     tp_thursday: string,
+ *     tp_friday: string,
+ *     tp_saturday: string,
+ *     tp_sunday: string,
+ *     template_id: int,
+ * }
+ */
 class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTimePeriodRepositoryInterface
 {
     use LoggerTrait;
@@ -75,19 +91,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         $statement->execute();
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             /**
-             * @var array{
-             *     tp_id: int,
-             *     tp_name: string,
-             *     tp_alias: string,
-             *     tp_monday: string,
-             *     tp_tuesday: string,
-             *     tp_wednesday: string,
-             *     tp_thursday: string,
-             *     tp_friday: string,
-             *     tp_saturday: string,
-             *     tp_sunday: string,
-             *     template_id: int,
-             * } $result
+             * @var _timeperiod $result
              */
             $newTimePeriod = $this->createTimePeriod($result);
             $timePeriod[$newTimePeriod->getId()] = $newTimePeriod;
@@ -98,6 +102,37 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIds(array $timePeriodIds): array
+    {
+        if ([] === $timePeriodIds) {
+
+            return $timePeriodIds;
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(<<<'SQL'
+            SELECT * FROM `:db`.timeperiod WHERE tp_id IN (:ids)
+            SQL);
+        $concatenator->storeBindValueMultiple(':ids', $timePeriodIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $timeperiods = [];
+        foreach ($statement as $row) {
+            /**
+             * @var _timeperiod $row
+             */
+            $timeperiods[] = $this->createTimePeriod($row);
+        }
+
+        return $timeperiods;
     }
 
     /**
@@ -149,19 +184,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
 
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             /**
-             * @var array{
-             *     tp_id: int,
-             *     tp_name: string,
-             *     tp_alias: string,
-             *     tp_monday: string,
-             *     tp_tuesday: string,
-             *     tp_wednesday: string,
-             *     tp_thursday: string,
-             *     tp_friday: string,
-             *     tp_saturday: string,
-             *     tp_sunday: string,
-             *     template_id: int,
-             * } $result
+             * @var _timeperiod $result
              */
             $timePeriod = $this->createTimePeriod($result);
             $timePeriods[$result['tp_id']] = $timePeriod;
@@ -282,19 +305,7 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     }
 
     /**
-     * @param array{
-     *     tp_id: int,
-     *     tp_name: string,
-     *     tp_alias: string,
-     *     tp_monday: string,
-     *     tp_tuesday: string,
-     *     tp_wednesday: string,
-     *     tp_thursday: string,
-     *     tp_friday: string,
-     *     tp_saturday: string,
-     *     tp_sunday: string,
-     *     template_id: int
-     * } $data
+     * @param _timeperiod $data
      *
      * @throws AssertionFailedException
      * @throws TimeRangeException
