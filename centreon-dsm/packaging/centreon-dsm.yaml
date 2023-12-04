@@ -53,13 +53,13 @@ contents:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
-  - src: "./www/modules/centreon-dsm"
+  - src: "../www/modules/centreon-dsm"
     dst: "/usr/share/centreon/www/modules/centreon-dsm"
     file_info:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
-  - src: "./cron"
+  - src: "../cron"
     dst: "/etc/cron.d"
     file_info:
       owner: "@APACHE_USER@"
