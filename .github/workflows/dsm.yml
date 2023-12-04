@@ -76,7 +76,7 @@ jobs:
 
       - name: Change macro
         run: |
-          find ./centreon-dsm -type f | xargs sed -i -f packaging/src/centreon-macroreplacement.txt
+          find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
         shell: bash
 
       - name: Package
