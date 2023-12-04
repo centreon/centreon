@@ -53,12 +53,11 @@ post:
             - $ref: 'Schema/NewToken.yaml'
   responses:
     '201':
-      allOf:
-        - $ref: '../../Common/Response/Created.yaml'
-        - content:
-            application/json:
-              schema:
-                $ref: 'Schema/NewTokenResponse.yaml'
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/NewTokenResponse.yaml'
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '403':

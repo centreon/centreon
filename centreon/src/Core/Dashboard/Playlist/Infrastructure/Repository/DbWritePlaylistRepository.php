@@ -75,4 +75,18 @@ class DbWritePlaylistRepository extends AbstractRepositoryRDB implements WritePl
             $statement->execute();
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $playlistId): void
+    {
+        $query = <<<'SQL'
+            DELETE FROM `:db`.dashboard_playlist WHERE id = :playlistId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
 }
