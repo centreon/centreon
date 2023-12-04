@@ -39,7 +39,7 @@ export const labelAccessRightsStatsRemoved = 'removed';
 export const labelAccessRightsStatsUpdated = 'updated';
 export const labelPlaylists = 'Playlists';
 export const labelWelcomeToThePlaylistInterface =
-  'Welcome to the playlist interface!';
+  'Welcome to the Playlist interface!';
 export const labelCreateAPlaylist = 'Create a playlist';
 export const labelPlaylistName = 'Playlist name';
 export const labelPlaylistProperties = 'Playlist properties';
