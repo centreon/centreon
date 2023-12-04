@@ -28,4 +28,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 interface NotificationRightsInterface
 {
     public function isAdmin(ContactInterface $contact): bool;
+
+    public function isEditor(ContactInterface $contact): bool;
 }

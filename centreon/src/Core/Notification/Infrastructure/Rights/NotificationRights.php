@@ -26,10 +26,18 @@ namespace Core\Notification\Infrastructure\Rights;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * Helps to manage ACLs for ON-PREM + SAAS for the notifications.
+ */
 final class NotificationRights implements NotificationRightsInterface
 {
     private const CUSTOMER_ADMIN_ACL = 'customer_admin_acl';
+    private const CUSTOMER_EDITOR_ACL = 'customer_editor_acl';
+
+    /** @var array<int, array<string>> */
+    private array $accessGroupNamesByContactId = [];
 
     public function __construct(
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
@@ -40,17 +48,39 @@ final class NotificationRights implements NotificationRightsInterface
     public function isAdmin(ContactInterface $contact): bool
     {
         if ($this->isCloudPlatform) {
-            $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
-
-            foreach ($accessGroups as $accessGroup) {
-                if (self::CUSTOMER_ADMIN_ACL === $accessGroup->getName()) {
-                    return true;
-                }
-            }
-
-            return false;
+            return \in_array(
+                self::CUSTOMER_ADMIN_ACL,
+                $this->getContactAccessGroupNames($contact),
+                true
+            );
         }
 
         return $contact->isAdmin();
+    }
+
+    public function isEditor(ContactInterface $contact): bool
+    {
+        if ($this->isCloudPlatform) {
+            return \in_array(
+                self::CUSTOMER_EDITOR_ACL,
+                $this->getContactAccessGroupNames($contact),
+                true
+            );
+        }
+
+        return $contact->isAdmin();
+    }
+
+    /**
+     * @param ContactInterface $contact
+     *
+     * @return array<string>
+     */
+    private function getContactAccessGroupNames(ContactInterface $contact): array
+    {
+        return $this->accessGroupNamesByContactId[$contact->getId()] ??= array_map(
+            static fn(AccessGroup $accessGroup) => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($contact)
+        );
     }
 }

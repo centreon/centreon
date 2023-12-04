@@ -33,7 +33,6 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
@@ -45,14 +44,14 @@ use Core\Notification\Application\Repository\WriteNotificationRepositoryInterfac
 use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\AddNotification\AddNotification;
 use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest;
+use Core\Notification\Domain\Model\ConfigurationResource;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ConfigurationResource;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
-use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Domain\Model\TimePeriod;
@@ -65,7 +64,7 @@ beforeEach(function (): void {
     $this->request->name = 'notification-name';
     $this->request->timeperiodId = 2;
     $this->request->users = [20, 21];
-    $this->request->contactGroups = [5,6];
+    $this->request->contactGroups = [5, 6];
     $this->request->resources = [
         ['type' => 'hostgroup', 'ids' => [12, 25], 'events' => 5, 'includeServiceEvents' => 1],
     ];
@@ -74,7 +73,7 @@ beforeEach(function (): void {
             'channel' => 'Slack',
             'subject' => 'some subject',
             'message' => 'some message',
-            'formatted_message' => '<h1> A Test Message </h1>'
+            'formatted_message' => '<h1> A Test Message </h1>',
         ],
     ];
     $this->request->isActivated = true;
@@ -88,7 +87,7 @@ beforeEach(function (): void {
         $this->resourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->notificationRightsInterface = $this->createMock(NotificationRightsInterface::class),
+        $this->notificationRights = $this->createMock(NotificationRightsInterface::class),
     );
 
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
@@ -203,7 +202,7 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the resource IDs does not exist', function (): void {
-    $this->user
+    $this->notificationRights
         ->method('isAdmin')
         ->willReturn(true);
     $this->resourceRepositoryProvider
@@ -233,7 +232,7 @@ it('should throw an InvalidArgumentResponse if at least one of the resource IDs 
 it('should throw an InvalidArgumentResponse if at least one resource ID is not provided', function (): void {
     $this->request->resources[0]['ids'] = [];
 
-    $this->user
+    $this->notificationRights
         ->expects($this->exactly(0))
         ->method('isAdmin')
         ->willReturn(true);
@@ -259,7 +258,7 @@ it('should throw an InvalidArgumentResponse if at least one resource ID is not p
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
-    $this->user
+    $this->notificationRights
         ->expects($this->atLeast(1))
         ->method('isAdmin')
         ->willReturn(true);
@@ -306,9 +305,9 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
-    $this->request->users = [10,12];
+    $this->request->users = [10, 12];
 
-    $this->user
+    $this->notificationRights
         ->expects($this->atLeast(1))
         ->method('isAdmin')
         ->willReturn(true);
@@ -351,7 +350,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs is n
 });
 
 it('should present an ErrorResponse if the newly created service severity cannot be retrieved', function (): void {
-    $this->user
+    $this->notificationRights
         ->expects($this->atLeast(1))
         ->method('isAdmin')
         ->willReturn(true);
@@ -394,7 +393,7 @@ it('should present an ErrorResponse if the newly created service severity cannot
         ->willReturn(
             [
                 new ContactGroup($this->request->contactGroups[0], 'contactgroup'),
-                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1')
+                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1'),
             ]
         );
     $this->writeNotificationRepository
@@ -425,7 +424,7 @@ it('should present an ErrorResponse if the newly created service severity cannot
 });
 
 it('should return created object on success', function (): void {
-    $this->user
+    $this->notificationRights
         ->expects($this->atLeast(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -468,7 +467,7 @@ it('should return created object on success', function (): void {
         ->willReturn(
             [
                 new ContactGroup($this->request->contactGroups[0], 'contactgroup'),
-                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1')
+                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1'),
             ]
         );
     $this->writeNotificationRepository

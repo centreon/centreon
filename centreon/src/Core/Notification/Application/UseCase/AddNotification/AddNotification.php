@@ -99,7 +99,8 @@ final class AddNotification
             $notificationResourceFactory = new NotificationResourceFactory(
                 $this->resourceRepositoryProvider,
                 $this->readAccessGroupRepository,
-                $this->user
+                $this->user,
+                $this->notificationRights
             );
             $newResources = $notificationResourceFactory->createMultipleResource($request->resources);
 
@@ -183,7 +184,7 @@ final class AddNotification
     {
         $resources = [];
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if ($this->user->isAdmin()) {
+            if ($this->notificationRights->isAdmin($this->user)) {
                 $resource = $repository->findByNotificationId($notificationId);
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
