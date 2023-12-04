@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { prop, equals } from 'ramda';
+import { prop, equals, isNil } from 'ramda';
 import { useNavigate } from 'react-router';
 
 import { Role, PlaylistType } from './models';
@@ -76,6 +76,12 @@ const useListing = ({ columns }): UseListing => {
   };
 
   const linkToPlaylist = (row): void => {
+    const isNestedRow = !isNil(row?.role);
+
+    if (isNestedRow) {
+      return;
+    }
+
     navigate(`/home/dashboards/playlists/${row?.id}`);
   };
 
