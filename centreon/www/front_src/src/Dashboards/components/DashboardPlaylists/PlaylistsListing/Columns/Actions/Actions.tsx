@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import ShareIcon from '@mui/icons-material/Share';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import MoreIcon from '@mui/icons-material/MoreHoriz';
-import UnShareIcon from '@mui/icons-material/PersonRemoveOutlined';
+import UnShareIcon from '@mui/icons-material/PersonRemove';
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
