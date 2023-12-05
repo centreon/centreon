@@ -19,13 +19,17 @@ import {
 
 import { useColumnStyles } from './useColumnStyles';
 
-const Tooltip = (): JSX.Element => {
+const Tooltip = ({ copyLink }: { copyLink: () => void }): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
 
   return (
     <Box>
-      <Typography className={classes.copyLink} variant="body1">
+      <Typography
+        className={classes.copyLink}
+        variant="body1"
+        onClick={copyLink}
+      >
         {t(labelCopyLink)}
       </Typography>
       <Typography variant="body2">{t(labelCopyLinkTooltip)}</Typography>
@@ -45,12 +49,16 @@ const PublicLink = ({ row }: ComponentColumnProps): JSX.Element => {
     successMessage: labelLinkHasBeenCopied
   });
 
+  const copyThePublicLink = (): void => {
+    copy(publicLink);
+  };
+
   if (!isNestedRow) {
     return (
       <IconButton
         disabled={!isPublic}
-        title={isPublic && <Tooltip />}
-        onClick={() => copy(publicLink)}
+        title={isPublic && <Tooltip copyLink={copyThePublicLink} />}
+        onClick={copyThePublicLink}
       >
         <LinkIcon className={classes.linkIcon} />
       </IconButton>

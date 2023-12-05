@@ -38,4 +38,4 @@ export const dashboardsContactsEndpoint = `${baseEndpoint}/configuration/dashboa
 
 export const dashboardsContactGroupsEndpoint = `${baseEndpoint}/configuration/dashboards/contactgroups`;
 
-export const playlistsEndpoint = '/configuration/dashboards/playlists';
+export const playlistsEndpoint = `${baseEndpoint}/configuration/dashboards/playlists`;

@@ -11,7 +11,7 @@ import {
 } from '@centreon/ui';
 
 import { useColumnStyles } from '../useColumnStyles';
-import { labelDelete, labelPublichYourPlaylist } from '../../translatedLabels';
+import { labelDelete, labelPublishYourPlaylist } from '../../translatedLabels';
 
 interface Props {
   anchor: HTMLElement | null;
@@ -26,7 +26,7 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
   const actions: ActionsListActions = [
     {
       Icon: PublishLinkIcon,
-      label: t(labelPublichYourPlaylist),
+      label: t(labelPublishYourPlaylist),
       onClick: (): void => undefined
     },
     ActionsListActionDivider.divider,

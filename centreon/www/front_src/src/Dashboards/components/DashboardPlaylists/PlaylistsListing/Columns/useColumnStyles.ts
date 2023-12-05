@@ -11,6 +11,7 @@ export const useColumnStyles = makeStyles()((theme) => ({
     marginLeft: theme.spacing(0.5)
   },
   copyLink: {
+    cursor: 'pointer',
     marginBottom: theme.spacing(1)
   },
   icon: {
