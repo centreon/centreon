@@ -18485,3 +18485,57 @@ msgstr "Ajouter une liste de diffusion"
 
 msgid "Error while deleting a playlist"
 msgstr "Erreur lors de la suppression d'une liste de diffusion"
+
+msgid "Shares"
+msgstr ""
+
+msgid "Role"
+msgstr ""
+
+msgid "Rotation time"
+msgstr ""
+
+msgid "Creator"
+msgstr ""
+
+msgid "Creation date"
+msgstr ""
+
+msgid "Update"
+msgstr ""
+
+msgid "Public link"
+msgstr ""
+
+msgid "Private/Public"
+msgstr ""
+
+msgid "Copy link"
+msgstr ""
+
+msgid "Anyone with the link can view your playlist. Be cautious when you share it"
+msgstr ""
+
+msgid "failed to copy the link"
+msgstr ""
+
+msgid "link has been copied"
+msgstr ""
+
+msgid "Unshare"
+msgstr ""
+
+msgid "Viewer"
+msgstr ""
+
+msgid "Editor"
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "Publish your playlist"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
