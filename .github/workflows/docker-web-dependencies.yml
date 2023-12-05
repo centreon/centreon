@@ -49,4 +49,4 @@ jobs:
             "DATABASE=${{ matrix.database }}"
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:MON-23368-mysql
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}-${{ matrix.database }}:MON-23368-mysql
