@@ -25,7 +25,7 @@ import {
 import {
   labelRequired,
   labelSave
-} from '../../../SingleInstancePage/translatedLabels';
+} from '../../../SingleInstancePage/Dashboard/translatedLabels';
 
 import PlaylistConfig from './PlaylistConfig';
 import { initialValue } from './utils';

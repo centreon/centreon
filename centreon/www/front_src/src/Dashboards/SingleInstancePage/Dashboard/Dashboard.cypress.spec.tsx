@@ -22,22 +22,21 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   federatedWidgetsAtom,
   federatedWidgetsPropertiesAtom
-} from '../../federatedModules/atoms';
-import { DashboardRole } from '../api/models';
+} from '../../../federatedModules/atoms';
+import { DashboardRole } from '../../api/models';
 import {
   dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
   getDashboardAccessRightsEndpoint,
   getDashboardEndpoint
-} from '../api/endpoints';
-import { dialogStateAtom } from '../components/DashboardLibrary/DashboardAccessRights/useDashboardAccessRights';
-import { labelDelete } from '../translatedLabels';
+} from '../../api/endpoints';
+import { dialogStateAtom } from '../../components/DashboardLibrary/DashboardAccessRights/useDashboardAccessRights';
+import { labelDelete } from '../../translatedLabels';
 
 import { routerParams } from './hooks/useDashboardDetails';
 import {
   labelAddAWidget,
-  labelDeleteAWidget,
   labelDeleteWidget,
   labelDoYouWantToDeleteThisWidget,
   labelEditDashboard,
@@ -57,7 +56,7 @@ import {
   labelInterval,
   labelUnsavedChanges
 } from './translatedLabels';
-import { Dashboard } from './Dashboard';
+import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {

@@ -6,7 +6,11 @@ import { LinearProgress } from '@mui/material';
 
 import { displayedDashboardAtom } from '../atoms';
 
-const TimeLeftLoader = ({ rotationTime }) => {
+interface Props {
+  rotationTime: number;
+}
+
+const TimeLeftLoader = ({ rotationTime }: Props): JSX.Element => {
   const [progress, setProgress] = useState(100);
   const timeLeftRef = useRef<NodeJS.Timeout | null>(null);
 
