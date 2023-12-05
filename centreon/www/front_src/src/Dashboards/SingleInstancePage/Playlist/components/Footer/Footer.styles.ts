@@ -44,6 +44,9 @@ export const usePlayerStyles = makeStyles()((theme) => ({
 
 export const useDashboardsStyles = makeStyles()((theme) => ({
   container: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1),
     marginTop: theme.spacing(2),
     width: '75vw'
   },
@@ -54,6 +57,7 @@ export const useDashboardsStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     backgroundColor: lighten(theme.palette.common.black, 0.35),
     borderRadius: theme.shape.borderRadius,
+    cursor: 'pointer',
     display: 'flex',
     height: theme.spacing(8),
     minHeight: theme.spacing(8),
@@ -68,6 +72,11 @@ export const useDashboardsStyles = makeStyles()((theme) => ({
     overflowX: 'auto',
     paddingBottom: theme.spacing(0.5),
     width: '100%'
+  },
+  icon: {
+    color: theme.palette.common.white,
+    height: theme.spacing(3),
+    width: theme.spacing(3)
   },
   text: {
     textAlign: 'center'

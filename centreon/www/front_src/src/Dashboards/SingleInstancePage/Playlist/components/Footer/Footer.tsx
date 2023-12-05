@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { Box, Paper, Slide } from '@mui/material';
 
 import { Dashboard } from '../../../../components/DashboardPlaylists/models';
@@ -13,11 +15,12 @@ interface Props {
 
 const Footer = ({ dashboards }: Props): JSX.Element => {
   const { classes } = useFooterStyles();
-  const { openFooter } = useOpenFooter();
+  const playlistFooterRef = useRef<HTMLDivElement | null>(null);
+  const { openFooter } = useOpenFooter(playlistFooterRef);
 
   return (
     <Slide direction="up" in={openFooter}>
-      <Paper className={classes.footerContainer}>
+      <Paper className={classes.footerContainer} ref={playlistFooterRef}>
         <Box className={classes.footer}>
           <Player dashboards={dashboards} />
           <Dashboards dashboards={dashboards} />

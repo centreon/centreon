@@ -53,3 +53,18 @@ export const changeDashboardDerivedAtom = atom(
     );
   }
 );
+
+interface SelectDashboardProps {
+  dashboardId: number;
+  dashboards: Array<Dashboard>;
+}
+
+export const selectDashboardDerivedAtom = atom(
+  null,
+  (_, set, { dashboardId, dashboards }: SelectDashboardProps) => {
+    const dashboardIds = pluck('id', dashboards);
+    const selectedDashboardIndex = findIndex(equals(dashboardId), dashboardIds);
+
+    set(displayedDashboardAtom, dashboardIds[selectedDashboardIndex]);
+  }
+);
