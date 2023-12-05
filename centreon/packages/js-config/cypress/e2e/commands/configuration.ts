@@ -390,6 +390,18 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('exportConfiguration', () => {
+  cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
+
+  cy.get('button[data-testid="Export configuration"]').click();
+
+  cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
+
+  cy.wait('@generateAndReloadPollers').then(() => {
+    cy.contains('Configuration exported and reloaded').should('have.length', 1);
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -404,6 +416,7 @@ declare global {
         props: ExecuteActionViaClapiProps
       ) => Cypress.Chainable;
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
+      exportConfiguration: () => Cypress.Chainable;
     }
   }
 }
