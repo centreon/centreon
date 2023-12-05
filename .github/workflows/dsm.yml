@@ -85,11 +85,11 @@ jobs:
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             if [ ! -x /sbin/chkconfig ]; then
               apt-get update
-              apt-get install /sbin/chkconfig
+              apt-get install -y chkconfig
             fi
           else
             if [ ! -x /sbin/chkconfig ]; then
-              dnf install /sbin/chkconfig
+              dnf install -y chkconfig
             fi
           fi
         shell: bash
