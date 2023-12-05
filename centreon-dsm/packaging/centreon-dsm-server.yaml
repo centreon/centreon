@@ -25,11 +25,6 @@ contents:
       group: centreon
       mode: 0775
 
-  - dst: "/etc/cron.d/centreon-dsm"
-    type: dir
-    file_info:
-      mode: 0775
-
   - dst: "/usr/lib/systemd/system/dsmd.service"
     type: dir
     file_info:
