@@ -96,12 +96,7 @@ Requires:   centreon-broker-cbd >= %{thismajor}, centreon-broker-cbd < %{nextmaj
 Requires:   bc
 Requires:   cronie
 Requires:   initscripts
-%if 0%{?el7}
-Requires:   httpd24
-Requires:   mysql
-%else
 Requires:   httpd
-%endif
 Requires:   php-common >= 8.1
 Requires:   php-cli
 Requires:   php-pdo
