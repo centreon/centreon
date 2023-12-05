@@ -2,6 +2,7 @@
   "extends": "./packages/js-config/tsconfig/index",
   "compilerOptions": {
     "baseUrl": "./",
+    "moduleResolution": "Bundler",
     "typeRoots": [
       "./types",
       "./node_modules/@types"

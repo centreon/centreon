@@ -34,7 +34,7 @@ export const PageQuickAccess = ({
 
   return (
     <Menu>
-      <Menu.Button />
+      <Menu.Button data-testid="quickaccess" />
       <Menu.Items>
         {elements &&
           elements.map((element) => (

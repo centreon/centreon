@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-import { Box, Paper, Slide } from '@mui/material';
+import { Box, Paper, Slide, Divider } from '@mui/material';
 
 import { Dashboard } from '../../../../components/DashboardPlaylists/models';
 
@@ -23,6 +23,7 @@ const Footer = ({ dashboards }: Props): JSX.Element => {
       <Paper className={classes.footerContainer} ref={playlistFooterRef}>
         <Box className={classes.footer}>
           <Player dashboards={dashboards} />
+          <Divider className={classes.divider} orientation="vertical" />
           <Dashboards dashboards={dashboards} />
         </Box>
       </Paper>

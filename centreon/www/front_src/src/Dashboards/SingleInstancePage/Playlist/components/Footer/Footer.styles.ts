@@ -3,8 +3,11 @@ import { makeStyles } from 'tss-react/mui';
 import { lighten } from '@mui/system';
 
 export const useFooterStyles = makeStyles()((theme) => ({
+  divider: {
+    height: '80%'
+  },
   footer: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(3),
@@ -17,7 +20,7 @@ export const useFooterStyles = makeStyles()((theme) => ({
     borderRadius: 0,
     bottom: 0,
     color: theme.palette.common.white,
-    height: theme.spacing(15),
+    height: theme.spacing(12),
     overflow: 'hidden',
     position: 'fixed',
     width: '100%'
@@ -35,19 +38,20 @@ export const usePlayerStyles = makeStyles()((theme) => ({
     width: theme.spacing(3)
   },
   player: {
+    alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    marginLeft: theme.spacing(5),
-    marginTop: theme.spacing(3)
+    height: '100%',
+    marginLeft: theme.spacing(5)
   }
 }));
 
 export const useDashboardsStyles = makeStyles()((theme) => ({
   container: {
+    alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(1),
-    marginTop: theme.spacing(2),
     width: '75vw'
   },
   dashboard: {
