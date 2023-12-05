@@ -47,8 +47,8 @@ contents:
       owner: "@APACHE_USER@"
       group: "@APACHE_GROUP@"
 
-  - src: "../cron"
-    dst: "/etc/cron.d"
+  - src: "../cron/centreon-dsm"
+    dst: "/etc/cron.d/centreon-dsm"
 
 scripts:
   postinstall: ./scripts/centreon-dsm-server-postinstall.sh
