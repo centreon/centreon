@@ -210,7 +210,7 @@ const platformVersions = {
 };
 
 const formData = {
-  contactgroups: [1],
+  // contactgroups: [1],
   is_activated: true,
   messages: [
     {

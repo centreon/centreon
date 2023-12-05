@@ -62,24 +62,27 @@ const useValidationSchema = ({
       })
     });
 
-  const contactsSchema = (dependency): Yup.ArraySchema<Yup.AnySchema> =>
-    Yup.array().when(dependency, {
-      is: (value) => isEmpty(value),
-      otherwise: Yup.array(),
-      then: Yup.array().min(
-        1,
-        t(labelChooseAtleastOneContactOrContactGroup) as string
-      )
-    });
+  // const contactsSchema = (dependency): Yup.ArraySchema<Yup.AnySchema> =>
+  //   Yup.array().when(dependency, {
+  //     is: (value) => isEmpty(value),
+  //     otherwise: Yup.array(),
+  //     then: Yup.array().min(
+  //       1,
+  //       t(labelChooseAtleastOneContactOrContactGroup) as string
+  //     )
+  //   });
 
   const validationSchema = Yup.object().shape(
     {
-      contactgroups: contactsSchema('users'),
+      // contactgroups: contactsSchema('users'),
       hostGroups: resourceSchema('serviceGroups.ids', 'businessviews.ids'),
       messages: messagesSchema,
       name: validateName,
       serviceGroups: resourceSchema('hostGroups.ids', 'businessviews.ids'),
-      users: contactsSchema('contactgroups'),
+      users: Yup.array().min(
+        1,
+        t(labelChooseAtleastOneContactOrContactGroup) as string
+      ),
       ...(isBamModuleInstalled
         ? {
             businessviews: resourceSchema('hostGroups.ids', 'serviceGroups.ids')
@@ -87,7 +90,7 @@ const useValidationSchema = ({
         : {})
     },
     [
-      ['users', 'contactgroups'],
+      // ['users', 'contactgroups'],
       ['hostGroups', 'serviceGroups'],
       ['hostGroups', 'businessviews'],
       ['serviceGroups', 'businessviews']
