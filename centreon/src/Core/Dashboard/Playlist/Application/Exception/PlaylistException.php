@@ -83,6 +83,14 @@ class PlaylistException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileListingShares(): self
+    {
+        return new self(_('Error while listing the playlist shares'));
+    }
+
+    /**
+     * @return self
+     */
     public static function dashboardShouldBeUnique(): self
     {
         return new self(_('You cannot add the same dashboard to a playlist several times.'));
@@ -140,6 +148,16 @@ class PlaylistException extends \Exception
     public static function playlistNotSharedAsEditor(int $playlistId): self
     {
         return new self(sprintf(_('You do not have editing rights on the following playlist: [%d].'), $playlistId));
+    }
+
+    /**
+     * @param int $playlistId
+     *
+     * @return self
+     */
+    public static function playlistNotShared(int $playlistId): self
+    {
+        return new self(sprintf(_('The following playlist is not shared with you: [%d]'), $playlistId));
     }
 
     /**
