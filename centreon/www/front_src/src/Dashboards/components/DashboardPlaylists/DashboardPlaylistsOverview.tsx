@@ -46,8 +46,8 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
           onCreate={openConfig}
         />
       ) : (
-        <div style={{ minHeight : "75vh" , minWidth: '100%' }}>
-          <Listing  data={data} loading={loading} openConfig={openConfig} />
+        <div style={{ minHeight: '75vh', minWidth: '100%' }}>
+          <Listing data={data} loading={loading} openConfig={openConfig} />
         </div>
       )}
     </DataTable>
