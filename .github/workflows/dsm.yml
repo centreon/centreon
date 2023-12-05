@@ -79,6 +79,14 @@ jobs:
           find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
         shell: bash
 
+      - name: Add dsm server requiered
+        run: |
+          if [ ! -x /sbin/chkconfig ]; then
+            apt-get update
+            apt-get install /sbin/chkconfig
+          fi
+        shell: bash
+
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:
