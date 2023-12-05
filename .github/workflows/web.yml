@@ -182,7 +182,7 @@ jobs:
   frontend-web-lint:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v4
