@@ -28,7 +28,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Dashboard\Playlist\Application\Repository\ReadPlaylistRepositoryInterface;
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 /**
  * @phpstan-type _Playlist array{
@@ -41,9 +40,7 @@ use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
  *     created_at: int,
  *     updated_at: ?int,
  *     is_public: int,
- *     contact_alias: ?string,
- *     dashboard_id: ?int,
- *     order: ?int
+ *     dashboard_ids: ?string,
  * }
  */
 class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlaylistRepositoryInterface
@@ -60,10 +57,8 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     {
         $query = <<<'SQL'
                 SELECT
-                    dpl.*, c.contact_alias, GROUP_CONCAT(dplr.dashboard_id) as dashboard_ids
+                    dpl.*, GROUP_CONCAT(dplr.dashboard_id) as dashboard_ids
                 FROM `:db`.dashboard_playlist AS dpl
-                LEFT JOIN `:db`.contact AS c
-                    ON dpl.created_by = c.contact_id
                 LEFT JOIN `:db`.dashboard_playlist_relation dplr
                     ON dpl.id = dplr.playlist_id
                 WHERE dpl.id = :playlistId

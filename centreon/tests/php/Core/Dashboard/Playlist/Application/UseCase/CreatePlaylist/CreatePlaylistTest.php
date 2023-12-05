@@ -39,10 +39,8 @@ use Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist\CreatePlaylist;
 use Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist\CreatePlaylistRequest;
 use Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist\CreatePlaylistResponse;
 use Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist\CreatePlaylistValidator;
-use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 beforeEach(function() {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1)->setAlias('admin');
@@ -351,7 +349,7 @@ it('should present a CreatePlaylistResponse when a playlist is correctly created
         ->willReturn(
             (new Playlist(1, $playlistName, $rotationTime, $isPublic))
                 ->setDescription($description)
-                ->setAuthor(new PlaylistAuthor(1, 'admin'))
+                ->setAuthorId(1)
         );
 
     $useCase($presenter, $request);

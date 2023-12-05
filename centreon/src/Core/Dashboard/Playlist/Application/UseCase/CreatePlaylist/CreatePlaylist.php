@@ -40,7 +40,6 @@ use Core\Dashboard\Playlist\Application\Repository\WritePlaylistRepositoryInterf
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 final class CreatePlaylist
 {

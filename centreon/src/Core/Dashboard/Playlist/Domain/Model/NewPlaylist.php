@@ -35,9 +35,6 @@ class NewPlaylist
     public const MINIMUM_ROTATION_TIME = 10; // time in seconds
     public const MAXIMUM_ROTATION_TIME = 60; // time in seconds
 
-    /** @var DashboardOrder[] */
-    private array $dashboardsOrder = [];
-
     private ?string $description = null;
 
     private \DateTimeImmutable $createdAt;

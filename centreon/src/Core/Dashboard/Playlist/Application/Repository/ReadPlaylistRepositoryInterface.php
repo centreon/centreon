@@ -26,7 +26,6 @@ namespace Core\Dashboard\Playlist\Application\Repository;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 interface ReadPlaylistRepositoryInterface
 {
