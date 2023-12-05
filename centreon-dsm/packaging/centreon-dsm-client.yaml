@@ -22,13 +22,6 @@ contents:
       group: centreon
       mode: 0775
 
-overrides:
-  deb:
-    depends:
-      - debhelper-compat (=12)
-      - lsb-base
-      - perl:native
-
 rpm:
   summary: Centreon-dsm client
   signature:

@@ -27,6 +27,8 @@ contents:
 
   - dst: "/etc/cron.d/centreon-dsm"
     type: dir
+    file_info:
+      mode: 0775
 
   - dst: "/usr/lib/systemd/system/dsmd.service"
     type: dir
@@ -59,7 +61,7 @@ scripts:
 overrides:
   rpm:
     depends:
-      - /sbin/chkconfig
+      - "/sbin/chkconfig"
       - centreon-web >= ${MAJOR_VERSION}
       - centreon-web < ${NEXT_MAJOR_VERSION}
   deb:
