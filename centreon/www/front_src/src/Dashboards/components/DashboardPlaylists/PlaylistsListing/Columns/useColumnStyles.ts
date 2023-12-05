@@ -24,7 +24,7 @@ export const useColumnStyles = makeStyles()((theme) => ({
     fontSize: theme.spacing(2.5)
   },
   moreActions: {
-    '& .MuiDivider-fullWidth': {
+    '& .MuiDivider-root': {
       margin: theme.spacing(0.25)
     },
     paddingBottom: theme.spacing(0.25),

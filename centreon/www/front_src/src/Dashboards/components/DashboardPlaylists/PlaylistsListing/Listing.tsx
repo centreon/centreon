@@ -2,7 +2,6 @@ import { MemoizedListing } from '@centreon/ui';
 
 import useListingColumns from './Columns/useColumns';
 import { Actions } from './Actions';
-import { useIsViewerUser } from './hooks';
 import { PlaylistListingType } from './models';
 import useListing from './useListing';
 
@@ -31,16 +30,12 @@ const Listing = ({
     setSelectedRows,
     sortf,
     sorto,
-    getRowProperty,
-    predefinedRowsSelection
+    getRowProperty
   } = useListing({ defaultColumnsIds });
-
-  const isViewer = useIsViewerUser();
 
   return (
     <MemoizedListing
       actions={<Actions openConfig={openConfig} />}
-      checkable={!isViewer}
       columnConfiguration={{
         selectedColumnIds,
         sortable: true
@@ -49,15 +44,7 @@ const Listing = ({
       currentPage={(page || 1) - 1}
       limit={listingData?.meta.limit}
       loading={loading}
-      memoProps={[
-        columns,
-        page,
-        sorto,
-        sortf,
-        selectedRows,
-        predefinedRowsSelection
-      ]}
-      predefinedRowsSelection={predefinedRowsSelection}
+      memoProps={[columns, page, sorto, sortf, selectedRows]}
       rows={listingData?.result}
       selectedRows={selectedRows}
       sortField={sortf}

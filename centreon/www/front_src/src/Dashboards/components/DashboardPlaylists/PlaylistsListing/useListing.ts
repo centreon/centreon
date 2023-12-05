@@ -17,7 +17,6 @@ interface UseListing {
   changeSort: ({ sortOrder, sortField }) => void;
   getRowProperty: (row) => string;
   page?: number;
-  predefinedRowsSelection;
   resetColumns: () => void;
   selectedColumnIds: Array<string>;
   selectedRows: Array<PlaylistType>;
@@ -55,17 +54,6 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const predefinedRowsSelection = [
-    {
-      label: 'public',
-      rowCondition: (row): boolean => row?.isPublic
-    },
-    {
-      label: 'private',
-      rowCondition: (row): boolean => !row?.isPublic
-    }
-  ];
-
   const getRowProperty = (row): string => {
     if (equals(row?.ownRole, Role.Viewer)) {
       return '';
@@ -79,7 +67,6 @@ const useListing = ({
     changeSort,
     getRowProperty,
     page,
-    predefinedRowsSelection,
     resetColumns,
     selectedColumnIds,
     selectedRows,
