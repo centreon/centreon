@@ -8,6 +8,7 @@ import { LoadingSkeleton } from '@centreon/ui';
 import PlaylistQuickAccess from './components/PlaylistQuickAccess';
 import { useGetPlaylist } from './hooks/useGetPlaylist';
 import PlaylistBody from './components/PlaylistBody';
+import Footer from './components/Footer/Footer';
 
 const Playlist = (): JSX.Element | null => {
   const { playlist } = useGetPlaylist();
@@ -44,6 +45,7 @@ const Playlist = (): JSX.Element | null => {
           />
         </Suspense>
       </PageLayout.Body>
+      <Footer dashboards={playlist.dashboards} />
     </PageLayout>
   );
 };

@@ -58,7 +58,7 @@ const PlaylistQuickAccess = (): JSX.Element => {
         }}
         navigateToElement={navigateToPlaylist}
       />
-      <PlaylistConfig />
+      <PlaylistConfig navigateToCreatedPlaylist />
     </>
   );
 };
