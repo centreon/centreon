@@ -147,6 +147,7 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
         new ResourceMetric(
             1,
             "Centreon-Server_Ping",
+            3,
             [
                 new PerformanceMetric(2,'rta','ms', 20, 50, 0, 11.2, 12.2, 8.2, 14.2),
             ]
@@ -154,6 +155,7 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
         new ResourceMetric(
             2,
             "Centreon-Server_Ping_1",
+            3,
             [
                 new PerformanceMetric(5,'rta','ms', 20, 50, null, 21.2, 22.2, 21.2, 24.2),
             ]
@@ -184,6 +186,7 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
 
     $this->expect($metricOne)->toBeInstanceOf(MetricInformationDto::class);
     $this->expect($metricOne->serviceId)->toBe(1);
+    $this->expect($metricOne->parentId)->toBe(3);
     $this->expect($metricOne->resourceName)->toBe('Centreon-Server_Ping');
     $this->expect($metricOne->currentValue)->toBe(12.2);
     $this->expect($metricOne->warningHighThreshold)->toBe(20.0);
@@ -195,6 +198,7 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
 
     $this->expect($metricTwo)->toBeInstanceOf(MetricInformationDto::class);
     $this->expect($metricTwo->serviceId)->toBe(2);
+    $this->expect($metricTwo->parentId)->toBe(3);
     $this->expect($metricTwo->resourceName)->toBe('Centreon-Server_Ping_1');
     $this->expect($metricTwo->currentValue)->toBe(22.2);
     $this->expect($metricTwo->warningHighThreshold)->toBe(20.0);

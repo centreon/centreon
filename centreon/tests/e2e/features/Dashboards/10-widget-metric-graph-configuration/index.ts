@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PatternType } from '../../../support/commands';
+import { checkServicesAreMonitored } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
@@ -36,6 +36,12 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -63,7 +69,6 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
 });
 
 afterEach(() => {
@@ -81,7 +86,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -173,7 +178,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
     dashboards.default,
     metricsGraphWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -263,7 +268,7 @@ Given('a dashboard that includes a configured Metrics Graph widget', () => {
     dashboards.default,
     metricsGraphWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -302,7 +307,7 @@ Given('a dashboard featuring two Metrics Graph widgets', () => {
     dashboards.default,
     metricsGraphDoublecWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -345,7 +350,7 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
     dashboards.default,
     metricsGraphWidget
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -386,6 +391,8 @@ Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
     cy.contains('Centreon-Server: Packet Loss (%)').should('exist');
+    cy.get('g.visx-axis-left').should('exist');
+    cy.get('g.visx-axis-right').should('exist');
   }
 );
 

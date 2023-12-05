@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { animated, useTransition } from '@react-spring/web';
@@ -16,6 +16,9 @@ import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
 import routeMap from '../../reactRoutes/routeMap';
+import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
+
+import DeprecatedRoute from './DeprecatedRoute';
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
 const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
@@ -112,10 +115,21 @@ const ReactRouterContent = ({
   allowedPages,
   pathname
 }: Props): JSX.Element => {
+  const parameters = useParams();
+
   return useMemoComponent({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
         <Routes location={pathname}>
+          {...deprecatedRoutes
+            .filter((route) => !route.ignoreWhen?.(pathname))
+            .map(({ deprecatedRoute, newRoute }) => (
+              <Route
+                element={<DeprecatedRoute newRoute={newRoute} />}
+                key={deprecatedRoute.path}
+                path={deprecatedRoute.path}
+              />
+            ))}
           {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
             const isLogoutPage = path === routeMap.logout;
             const isAllowed =
@@ -146,7 +160,14 @@ const ReactRouterContent = ({
         </Routes>
       </Suspense>
     ),
-    memoProps: [externalPagesFetched, federatedModules, allowedPages, pathname]
+    memoProps: [
+      externalPagesFetched,
+      federatedModules,
+      allowedPages,
+      pathname,
+      parameters,
+      deprecatedRoutes
+    ]
   });
 };
 

@@ -5,6 +5,7 @@ import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import { apiActionV1 } from '../commons';
 import '../features/Dashboards/commands';
+import metricsGraphWidget from '../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
 
 Cypress.Commands.add(
   'getByLabel',
@@ -299,10 +300,13 @@ interface requestOnDatabaseProps {
   query: string;
 }
 
+type metricsGraphWidgetJSONData = typeof metricsGraphWidget;
+
 declare global {
   namespace Cypress {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
+      enableDashboardFeature: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({
         patternType,
@@ -316,7 +320,7 @@ declare global {
       }: GetByTestIdProps) => Cypress.Chainable;
       insertDashboardWithMetricsGraphWidget: (
         dashboard: Dashboard,
-        patch: string
+        patch: metricsGraphWidgetJSONData
       ) => Cypress.Chainable;
       insertDashboardWithSingleMetricWidget: (
         dashboard: Dashboard,
@@ -336,7 +340,6 @@ declare global {
       setUserTokenApiV1: (fixtureFile?: string) => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
-      enableDashboardFeature: () => Cypress.Chainable;
     }
   }
 }
