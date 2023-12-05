@@ -60,11 +60,11 @@ runs:
             jf rt download $ARTIFACT --flat
           done
 
-          for ARTIFACT_DL in $(dir); do
-            ARCH=$(echo $ARTIFACT_DL | grep -oP '(x86_64|noarch)')
+          for ARTIFACT_DL in $(dir|grep *.rpm); do
             echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
             jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat
           done
+          rm *.rpm
         done
 
       shell: bash
