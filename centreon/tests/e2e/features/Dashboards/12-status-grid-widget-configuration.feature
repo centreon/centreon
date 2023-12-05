@@ -19,7 +19,6 @@ Feature: Configuring status grid widget
     Then the list of available statuses to display is updated in the configuration properties
     And the widget is updated to reflect that change in displayed resource type
 
-
   @TEST_MON-24945
   Scenario: Deleting a Status Grid widget
     Given a dashboard featuring two Status Grid widgets
