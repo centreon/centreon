@@ -56,8 +56,14 @@ runs:
 
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
-            echo "[DEBUG] - Promoting $ARTIFACT to stable."
-            jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
+            echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
+            jf rt download $ARTIFACT --flat
+          done
+
+          for ARTIFACT_DL in $(dir); do
+            ARCH=$(echo $ARTIFACT_DL | grep -oP '(x86_64|noarch)')
+            echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
+            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat
           done
         done
 
@@ -88,8 +94,14 @@ runs:
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
-          echo "[DEBUG] - Promoting $ARTIFACT to stable."
-          jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
+          echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
+          jf rt download $ARTIFACT --flat
+        done
+
+        for ARTIFACT_DL in $(dir); do
+          ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
+          echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
+          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
 
       shell: bash
