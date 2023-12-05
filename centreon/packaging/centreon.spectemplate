@@ -200,6 +200,7 @@ Install a database server optimized for use with Centreon.
 Summary:     Centreon Perl libraries
 Group:       Development/Libraries
 License:     Apache-2.0
+Requires:    mariadb-server
 Requires:    centreon-common = %{version}-%{release}
 Requires:    perl perl(DBI) perl(FindBin) perl(Getopt::Long) perl(IO::Handle) perl(POSIX) perl(Pod::Usage) perl(Sys::Syslog)
 Provides:    perl(centreon::common::db) perl(centreon::common::lock) perl(centreon::common::lock::file) perl(centreon::common::lock::sql) perl(centreon::common::logger) perl(centreon::common::misc) perl(centreon::script) perl(centreon::script::centreontrapd) perl(centreon::script::centreontrapdforward) perl(centreon::script::centFillTrapDB) perl(centreon::script::centreonSyncArchives) perl(centreon::script::centreonSyncPlugins) perl(centreon::script::centreon_trap_send) perl(centreon::script::dashboardBuilder) perl(centreon::script::eventReportBuilder) perl(centreon::script::logAnalyser) perl(centreon::script::logAnalyserBroker) perl(centreon::script::centreon_health)
@@ -502,8 +503,11 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{__cp} centreon/tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
 %{__cp} centreon/packaging/src/sudoersCentreonPlugins %buildroot%{_sysconfdir}/sudoers.d/centreon-plugins
 
+# MySQL/MariaDB custom configuration
 %{__install} -d %buildroot%{_sysconfdir}/my.cnf.d/
 %{__cp} additional/centreon-mysql.cnf %buildroot%{_sysconfdir}/my.cnf.d/centreon.cnf
+%{__install} -d %buildroot%{_sysconfdir}/systemd/system/mariadb.service.d
+%{__cp} additional/mariadb-systemd.conf %buildroot%{_sysconfdir}/systemd/system/mariadb.service.d/centreon.conf
 
 # Translations
 %{__cp} -r centreon/www/locale %buildroot%{_datadir}/centreon/www/
@@ -789,8 +793,10 @@ fi
 
 %files database
 
+# MySQL/MariaDB configuration
 %defattr(-, root, root, -)
 %config(noreplace) %{_sysconfdir}/my.cnf.d/centreon.cnf
+%config(noreplace) %{_sysconfdir}/systemd/system/mariadb.service.d/centreon.conf
 
 ######################################################
 # Package centreon-trap
