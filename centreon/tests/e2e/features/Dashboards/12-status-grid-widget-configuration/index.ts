@@ -322,7 +322,6 @@ When('the dashboard administrator user deletes one of the widgets', () => {
     label: 'Delete',
     tag: 'li'
   }).realClick();
-  cy.wait('@resourceRequest');
 });
 
 Then('only the contents of the other widget are displayed', () => {
