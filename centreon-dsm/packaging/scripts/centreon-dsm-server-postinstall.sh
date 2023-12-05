@@ -1,5 +1,7 @@
 #!/bin/bash
 
-/sbin/chkconfig --add dsmd
-/sbin/chkconfig --level 345 dsmd on
-service dsmd start > /dev/null 2>&1 || echo "Failed to start dsmd service"
+systemctl daemon-reload ||:
+systemctl unmask dsmd.service ||:
+systemctl preset dsmd.service ||:
+systemctl enable dsmd.service ||:
+systemctl restart dsmd.service ||:
