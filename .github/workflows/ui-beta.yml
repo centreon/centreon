@@ -76,4 +76,3 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
-          release_branch: ${{ env.base_branch }}
