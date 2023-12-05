@@ -1,8 +1,7 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, pluck, propEq, reject } from 'ramda';
-import { useAtomValue } from 'jotai';
+import { T, always, cond, equals, isEmpty, propEq, reject } from 'ramda';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -21,7 +20,6 @@ import {
   labelServiceGroup
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
-import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
@@ -37,7 +35,6 @@ interface UseResourcesState {
   deleteResource: (index: number) => () => void;
   deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
-  getOptionDisabled: (index: number) => (option) => boolean | undefined;
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
@@ -100,9 +97,6 @@ const resourceQueryParameters = [
 const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
-  const singleResourceTypeSelection = useAtomValue(
-    singleResourceTypeSelectionAtom
-  );
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -183,21 +177,6 @@ const useResources = (propertyName: string): UseResourcesState => {
       [T, always('name')]
     ])(resourceType);
 
-  const getOptionDisabled =
-    (index: number) =>
-    (option): boolean | undefined => {
-      const resources = value?.[index].resources;
-
-      if (singleResourceTypeSelection && isEmpty(resources)) {
-        return false;
-      }
-
-      return (
-        singleResourceTypeSelection &&
-        !pluck('name', resources || []).includes(option.name)
-      );
-    };
-
   useEffect(() => {
     if (!isEmpty(value)) {
       return;
@@ -219,7 +198,6 @@ const useResources = (propertyName: string): UseResourcesState => {
     deleteResource,
     deleteResourceItem,
     error: errorToDisplay,
-    getOptionDisabled,
     getResourceResourceBaseEndpoint,
     getSearchField,
     resourceTypeOptions,

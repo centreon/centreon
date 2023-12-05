@@ -16,6 +16,7 @@ import routeMap from '../../../reactRoutes/routeMap';
 import { useUpdateDashboard } from '../../api/useUpdateDashboard';
 import { labelDashboardUpdated } from '../../translatedLabels';
 import { resetDashboardDerivedAtom } from '../../Dashboard/atoms';
+import { DashboardLayout } from '../../models';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
@@ -83,7 +84,10 @@ const useDashboardConfig = (): UseDashboardConfig => {
   const navigate = useNavigate();
   const navigateToDashboard = (dashboardId: string | number): void =>
     navigate({
-      pathname: generatePath(routeMap.dashboard, { dashboardId }),
+      pathname: generatePath(routeMap.dashboard, {
+        dashboardId,
+        layout: DashboardLayout.Library
+      }),
       search: createSearchParams({ edit: 'true' }).toString()
     });
 

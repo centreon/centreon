@@ -51,20 +51,6 @@ $createNotificationContactgroupRelationTable = function (CentreonDB $pearDB) use
 try {
     $createNotificationContactgroupRelationTable($pearDB);
 } catch (\Exception $e) {
-
-    $createDashboardsPlaylistTables($pearDB);
-
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
-    }
-
-    if ($pearDB->inTransaction()) {
-        $pearDB->commit();
-    }
-} catch (\Exception $e) {
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
-    }
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage

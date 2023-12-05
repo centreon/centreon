@@ -101,6 +101,27 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     }
 
     /**
+     * @inheritDoc
+     */
+    public function exists(int $id): bool
+    {
+        $query = <<<'SQL'
+            SELECT
+                1
+            FROM
+                `:db`.`dashboard_playlist` dpl
+            WHERE
+                dpl.id = :id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param _Playlist[] $data
      *
      * @return Playlist
