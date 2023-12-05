@@ -56,7 +56,6 @@ scripts:
 overrides:
   rpm:
     depends:
-      - "/sbin/chkconfig"
       - centreon-web >= ${MAJOR_VERSION}
       - centreon-web < ${NEXT_MAJOR_VERSION}
   deb:
