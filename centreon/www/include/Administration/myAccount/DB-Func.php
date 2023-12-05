@@ -258,7 +258,7 @@ function checkAutologinValue(array $fields)
 
     return count($errors) > 0 ? $errors : true;
 }
-function updateContactInDBIfLocal($contact_id = null){
+function progressiveContactUpdate($contact_id = null){
     global $pearDB, $centreon, $form;
 
     if (!$contact_id){
@@ -315,7 +315,7 @@ function updateContactInDBIfLocal($contact_id = null){
         $stmt->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
         $stmt->execute();
         $stmt->closeCursor();
-        if (isset($ret["contact_passwd"]) && !empty($ret["contact_passwd"])) {
+        if (! empty($ret["contact_passwd"])) {
             $hashedPassword = password_hash($ret["contact_passwd"], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
             $contact = new \CentreonContact($pearDB);
             $contact->renewPasswordByContactId($contact_id, $hashedPassword);
