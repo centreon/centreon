@@ -422,7 +422,7 @@ if ($o == "c") {
 $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
-    updateContactInDBIfLocal($cct['contact_id']);
+    progressiveContactUpdate($cct['contact_id']);
     $o = null;
     $features = $form->getSubmitValue('features');
 
