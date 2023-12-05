@@ -80,10 +80,17 @@ jobs:
         shell: bash
 
       - name: Add dsm server requiered
+        if: ${{ matrix.package_extension == 'deb' }}
         run: |
-          if [ ! -x /sbin/chkconfig ]; then
-            apt-get update
-            apt-get install /sbin/chkconfig
+          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+            if [ ! -x /sbin/chkconfig ]; then
+              apt-get update
+              apt-get install /sbin/chkconfig
+            fi
+          else
+            if [ ! -x /sbin/chkconfig ]; then
+              dnf install /sbin/chkconfig
+            fi
           fi
         shell: bash
 
