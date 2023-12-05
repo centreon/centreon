@@ -257,7 +257,6 @@ jobs:
         get-version,
         translation-build,
         backend-dependencies,
-        backend-lint,
         backend-unit-test,
         frontend-build,
         frontend-lint,
