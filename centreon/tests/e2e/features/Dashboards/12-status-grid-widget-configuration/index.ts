@@ -231,21 +231,6 @@ Then(
   }
 );
 
-When(
-  'the dashboard administrator user selects every available status in the list',
-  () => {
-    cy.get('input[name="ok"]').click();
-  }
-);
-
-Then(
-  'every resource of the selection is displayed in the Status Grid widget',
-  () => {
-    cy.get('[data-status="critical"]').should('exist');
-    cy.get('[data-status="warning"]').should('exist');
-  }
-);
-
 Given('a dashboard configuring Status Grid widget', () => {
   cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);

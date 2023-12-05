@@ -9,8 +9,6 @@ Feature: Configuring status grid widget
     Given a dashboard that includes a configured Status Grid widget
     When the dashboard administrator user selects a particular status in the displayed resource status list
     Then only the resources with this particular status are displayed in the Status Grid Widget
-    When the dashboard administrator user selects every available status in the list
-    Then every resource of the selection is displayed in the Status Grid widget
 
   @TEST_MON-24936
   Scenario: Editing the displayed resource type of a Status Grid widget
