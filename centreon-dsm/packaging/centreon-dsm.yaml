@@ -16,64 +16,12 @@ vendor: "Centreon"
 homepage: "https://github.com/centreon/centreon-dsm"
 license: "Apache-2.0"
 
-contents:
-  - dst: "www/modules/centreon-dsm/CHANGELOG"
-    type: dir
-
-  - dst: "/usr/share/centreon/bin/dsmd.pl"
-    type: dir
-    file_info:
-      owner: centreon
-      group: centreon
-      mode: 0775
-
-  - dst: "/etc/cron.d/centreon-dsm"
-    type: dir
-
-  - dst: "/usr/lib/systemd/system/dsmd.service"
-    type: dir
-    file_info:
-      mode: 0775
-
-  - dst: "/etc/sysconfig/dsmd"
-    type: dir
-    file_info:
-      mode: 0775
-
-  - dst: "/usr/share/centreon/bin/dsmclient.pl"
-    type: dir
-    file_info:
-      owner: centreon
-      group: centreon
-      mode: 0775
-
-  - src: "../README"
-    dst: "/usr/share/centreon/www/modules/centreon-dsm/README"
-    file_info:
-      owner: "@APACHE_USER@"
-      group: "@APACHE_GROUP@"
-
-  - src: "../www/modules/centreon-dsm"
-    dst: "/usr/share/centreon/www/modules/centreon-dsm"
-    file_info:
-      owner: "@APACHE_USER@"
-      group: "@APACHE_GROUP@"
-
-  - src: "../cron"
-    dst: "/etc/cron.d"
-    file_info:
-      owner: "@APACHE_USER@"
-      group: "@APACHE_GROUP@"
-
-scripts:
-  postinstall: ./scripts/centreon-dsm-postinstall.sh
-
 overrides:
   rpm:
     depends:
       - centreon
-      - centreon-web >= ${MAJOR_VERSION}
-      - centreon-web < ${NEXT_MAJOR_VERSION}
+      - centreon-dsm-client = ${VERSION}-${RELEASE}
+      - centreon-dsm-server = ${VERSION}-${RELEASE}
   deb:
     depends:
       - "centreon-dsm-client (>= ${MAJOR_VERSION}~)"
