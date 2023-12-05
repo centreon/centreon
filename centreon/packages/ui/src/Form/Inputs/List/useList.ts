@@ -63,7 +63,7 @@ export const useList = ({ fieldName }): UseListState => {
       return {
         ...item,
         id: Number(item?.id),
-        order: idx
+        order: inc(idx)
       };
     });
 
