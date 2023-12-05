@@ -37,7 +37,7 @@ runs:
     - name: Install Cypress binary
       uses: nick-fields/retry@v2
       with:
-        timeout_seconds: 120
+        timeout_seconds: 200
         max_attempts: 10
         retry_wait_seconds: 30
         retry_on: error
