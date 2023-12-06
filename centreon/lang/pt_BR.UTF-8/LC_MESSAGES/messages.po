@@ -17123,5 +17123,5 @@ msgstr ""
 # msgid "Create a playlist"
 # msgstr ""
 
-# msgid "Choose at least 1 contact"
+# msgid "Add at least 1 contact"
 # msgstr ""
