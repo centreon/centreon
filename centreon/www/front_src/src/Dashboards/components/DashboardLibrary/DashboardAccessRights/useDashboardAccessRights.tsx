@@ -13,13 +13,13 @@ import {
   DashboardAccessRightsContactGroup,
   DashboardsContact,
   DashboardsContactGroup
-} from '../../api/models';
-import routeMap from '../../../reactRoutes/routeMap';
-import { useListDashboardsContacts } from '../../api/useListDashboardsContacts';
-import { useListDashboardsContactGroups } from '../../api/useListDashboardsContactGroups';
-import { List } from '../../api/meta.models';
-import { useListAccessRightsContacts } from '../../api/useListAccessRightsContacts';
-import { useListAccessRightsContactGroups } from '../../api/useListAccessRightsContactGroups';
+} from '../../../api/models';
+import routeMap from '../../../../reactRoutes/routeMap';
+import { useListDashboardsContacts } from '../../../api/useListDashboardsContacts';
+import { useListDashboardsContactGroups } from '../../../api/useListDashboardsContactGroups';
+import { List } from '../../../api/meta.models';
+import { useListAccessRightsContacts } from '../../../api/useListAccessRightsContacts';
+import { useListAccessRightsContactGroups } from '../../../api/useListAccessRightsContactGroups';
 
 import { transformAccessRightContactOrContactGroup } from './useDashboardAccessRights.utils';
 import { useDashboardAccessRightsBatchUpdate } from './useDashboardAccessRightsBatchUpdate';

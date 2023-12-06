@@ -1,5 +1,5 @@
-import { Dashboard, isDashboardList } from '../../api/models';
-import { useListDashboards } from '../../api/useListDashboards';
+import { Dashboard, isDashboardList } from '../../../api/models';
+import { useListDashboards } from '../../../api/useListDashboards';
 
 type UseDashboardsQuickAccess = {
   dashboards: Array<Dashboard>;

@@ -24,7 +24,7 @@ import {
   labelCopyLinkToDashboardError,
   labelCopyLinkToDashboardSuccess,
   labelUpdate
-} from '../../translatedLabels';
+} from '../../../translatedLabels';
 
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 

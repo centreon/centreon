@@ -8,14 +8,14 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { Button, Menu } from '@centreon/ui/components';
 
-import { Dashboard } from '../../api/models';
-import routeMap from '../../../reactRoutes/routeMap';
+import { Dashboard } from '../../../api/models';
+import routeMap from '../../../../reactRoutes/routeMap';
 import {
   labelCreateADashboard,
   labelDashboardLibrary
-} from '../../translatedLabels';
+} from '../../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
-import { DashboardLayout } from '../../models';
+import { DashboardLayout } from '../../../models';
 
 import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
 

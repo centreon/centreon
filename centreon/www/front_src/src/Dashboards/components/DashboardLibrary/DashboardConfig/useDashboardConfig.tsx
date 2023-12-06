@@ -10,13 +10,13 @@ import { equals } from 'ramda';
 
 import { useSnackbar } from '@centreon/ui';
 
-import { Dashboard, isDashboard } from '../../api/models';
-import { useCreateDashboard } from '../../api/useCreateDashboard';
-import routeMap from '../../../reactRoutes/routeMap';
-import { useUpdateDashboard } from '../../api/useUpdateDashboard';
-import { labelDashboardUpdated } from '../../translatedLabels';
-import { resetDashboardDerivedAtom } from '../../Dashboard/atoms';
-import { DashboardLayout } from '../../models';
+import { Dashboard, isDashboard } from '../../../api/models';
+import { useCreateDashboard } from '../../../api/useCreateDashboard';
+import routeMap from '../../../../reactRoutes/routeMap';
+import { useUpdateDashboard } from '../../../api/useUpdateDashboard';
+import { labelDashboardUpdated } from '../../../translatedLabels';
+import { resetDashboardDerivedAtom } from '../../../Dashboard/atoms';
+import { DashboardLayout } from '../../../models';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
