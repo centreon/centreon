@@ -581,6 +581,7 @@ if [ "$1" = 0 ]; then
 fi
 
 # Lua script for notifications
+%defattr(-,root,root,-)
 %attr(-,centreon-broker,centreon-broker) %{_datadir}/centreon-broker/lua/centreon-cloud-notifications.lua
 
 ######################################################
