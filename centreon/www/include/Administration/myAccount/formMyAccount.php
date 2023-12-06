@@ -106,7 +106,7 @@ $attrsText = ["size" => "35"];
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Change my settings"));
 $form->addElement('header', 'information', _("General Information"));
-if ($cct["contact_auth_type"] === 'local') {
+if ($centreon->user->authType === 'local') {
     $form->addElement('text', 'contact_name', _("Name"), $attrsText);
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
     $form->addElement('text', 'contact_email', _("Email"), $attrsText);
@@ -119,7 +119,7 @@ if ($cct["contact_auth_type"] === 'local') {
 }
 
 
-if ($cct["contact_auth_type"] === 'local') {
+if ($centreon->user->authType === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
         "SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1"
@@ -422,7 +422,7 @@ if ($o == "c") {
 $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
-    if ($cct['contact_auth_type'] === 'local') {
+    if ($centreon->user->authType === 'local') {
         updateLocalContactInDB($centreon->user->get_id());
     } else {
         updateContactInDB($centreon->user->get_id());
