@@ -63,6 +63,7 @@ if (!isset($centreonFeature)) {
  */
 $passwordSecurityPolicy = (new CentreonContact($pearDB))->getPasswordSecurityPolicy();
 $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
+$isUserLocal = $centreon->user->authType === "local";
 
 /*
  * Database retrieve information for the User
@@ -106,7 +107,7 @@ $attrsText = ["size" => "35"];
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Change my settings"));
 $form->addElement('header', 'information', _("General Information"));
-if ($centreon->user->authType === 'local') {
+if ($isUserLocal) {
     $form->addElement('text', 'contact_name', _("Name"), $attrsText);
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
     $form->addElement('text', 'contact_email', _("Email"), $attrsText);
@@ -118,7 +119,7 @@ if ($centreon->user->authType === 'local') {
 $form->addElement('text', 'contact_pager', _("Pager"), $attrsText, $attrsText);
 
 
-if ($centreon->user->authType === 'local') {
+if ($isUserLocal) {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
         "SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1"
@@ -419,9 +420,8 @@ if ($o == "c") {
 }
 
 $sessionKeyFreeze = 'administration-form-my-account-freeze';
-
 if ($form->validate()) {
-    if ($centreon->user->authType === 'local') {
+    if ($isUserLocal) {
         updateLocalContactInDB($centreon->user->get_id());
     } else {
         updateContactInDB($centreon->user->get_id());
