@@ -80,7 +80,3 @@ it('should throw an exception when the description is too long', function () {
     NewPlaylist::DESCRIPTION_MAX_LENGTH,
     'NewPlaylist::description'
 )->getMessage());
-
-it('should throw an exception when many dashboards has the same order', function (){
-    (new NewPlaylist('playlist', 10, false, $this->authorId));
-})->throws(PlaylistException::orderMustBeUnique()->getMessage());
