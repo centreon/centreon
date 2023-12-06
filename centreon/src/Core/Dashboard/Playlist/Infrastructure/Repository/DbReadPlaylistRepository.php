@@ -139,7 +139,7 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
         }
         $statement->execute();
 
-        /** @var false|_Playlist[] $data */
+        /** @var false|array<array{dashboard_id: int, order: int}> $data */
         $data = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
         return $data ? $this->createDashboardsOrderFromRecord($data) : [];
