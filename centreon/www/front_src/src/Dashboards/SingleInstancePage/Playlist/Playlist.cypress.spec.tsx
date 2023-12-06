@@ -171,7 +171,7 @@ describe('Playlist', () => {
   });
 });
 
-describes('Playlist - Quick access', () => {
+describe('Playlist - Quick access', () => {
   it('opens the playlist config when the quick acces poppin is open and the button is clicked', () => {
     initialize();
 
