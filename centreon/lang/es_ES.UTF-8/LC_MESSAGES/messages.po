@@ -16584,6 +16584,9 @@ msgstr "Modo avanzado"
 # msgid "Resource Access Management"
 # msgstr ""
 
+# msgid "Refine your filter on a single metric by adding more resources."
+# msgstr ""
+
 # msgid "Unselect all"
 # msgstr ""
 
@@ -16645,4 +16648,16 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "You are not allowed to list media"
+# msgstr ""
+
+# msgid "Playlists"
+# msgstr ""
+
+# msgid "Welcome to the Playlist interface!"
+# msgstr ""
+
+# msgid "Create a playlist"
+# msgstr ""
+
+# msgid "Add at least 1 contact"
 # msgstr ""

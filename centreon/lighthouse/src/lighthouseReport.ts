@@ -11,6 +11,7 @@ import { baseConfig } from './defaults';
 import type { NavigateProps } from './models';
 import { generateReportForDashboardsPage } from './pages/dashboards';
 import { generateReportForNotificationsPage } from './pages/notifications';
+import { generateReportForResourceStatusPageFilterInteraction } from './pages/interactions/resourceStatus/filters';
 
 const createReportFile = async (report): Promise<void> => {
   const lighthouseFolderExists = fs.existsSync('report');
@@ -28,6 +29,9 @@ const captureReport = async (): Promise<void> => {
     headless: "new",
   });
   const page = await browser.newPage();
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'en'
+  });
 
   const flow = await startFlow(page, {
     name: 'Centreon Web pages',
@@ -60,6 +64,14 @@ const captureReport = async (): Promise<void> => {
   });
 
   await generateReportForResourceStatusPage({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan,
+  });
+
+  await generateReportForResourceStatusPageFilterInteraction({
     endTimespan,
     navigate,
     page,

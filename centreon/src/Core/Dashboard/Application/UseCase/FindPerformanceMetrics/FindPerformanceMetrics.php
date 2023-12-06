@@ -107,6 +107,7 @@ final class FindPerformanceMetrics
             $resourceMetricDto = new ResourceMetricDto();
             $resourceMetricDto->serviceId = $resourceMetric->getServiceId();
             $resourceMetricDto->resourceName = $resourceMetric->getResourceName();
+            $resourceMetricDto->parentId = $resourceMetric->getParentId();
             $resourceMetricDto->metrics = array_map(
                 fn (PerformanceMetric $metric) => [
                     'id' => $metric->getId(),

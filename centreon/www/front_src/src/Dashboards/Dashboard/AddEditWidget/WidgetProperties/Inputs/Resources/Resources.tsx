@@ -1,6 +1,5 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 import { or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
@@ -15,12 +14,10 @@ import {
   labelResourceType,
   labelResources,
   labelSelectAResource,
-  labelSelectResourceType,
-  labelYouCanChooseOnResourcePerResourceType
+  labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { singleResourceTypeSelectionAtom } from '../../../atoms';
 import { areResourcesFullfilled } from '../utils';
 import { editProperties } from '../../../../hooks/useCanEditDashboard';
 
@@ -35,10 +32,6 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
-  const singleResourceTypeSelection = useAtomValue(
-    singleResourceTypeSelectionAtom
-  );
-
   const {
     value,
     getResourceTypeOptions,
@@ -49,7 +42,6 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    getOptionDisabled,
     deleteResourceItem
   } = useResources(propertyName);
 
@@ -63,7 +55,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Avatar compact className={avatarClasses.widgetAvatar}>
           2
         </Avatar>
-        <Typography>{t(labelResources)}</Typography>
+        <Typography className={classes.resourceTitle}>
+          {t(labelResources)}
+        </Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <div className={classes.resourceComposition}>
@@ -78,7 +72,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
               deleteButtonHidden={deleteButtonHidden}
-              key={`${index}`}
+              key={`${index}${resource.resources[0]}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
             >
@@ -93,7 +87,6 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               />
               <MultiConnectedAutocompleteField
                 allowUniqOption
-                get
                 chipProps={{
                   color: 'primary',
                   onDelete: (_, option): void =>
@@ -109,7 +102,6 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                 getEndpoint={getResourceResourceBaseEndpoint(
                   resource.resourceType
                 )}
-                getOptionDisabled={getOptionDisabled(index)}
                 label={t(labelSelectAResource)}
                 limitTags={2}
                 queryKey={`${resource.resourceType}-${index}`}
@@ -119,11 +111,6 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
             </ItemComposition.Item>
           ))}
         </ItemComposition>
-        {singleResourceTypeSelection && (
-          <Typography sx={{ color: 'action.disabled' }}>
-            {t(labelYouCanChooseOnResourcePerResourceType)}
-          </Typography>
-        )}
         {error && <FormHelperText error>{t(error)}</FormHelperText>}
       </div>
     </div>
