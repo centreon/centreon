@@ -15,19 +15,11 @@ homepage: "https://github.com/centreon/centreon-dsm"
 license: "Apache-2.0"
 
 contents:
-  - dst: "www/modules/centreon-dsm/CHANGELOG"
-    type: dir
-
-  - dst: "/usr/share/centreon/bin/dsmd.pl"
-    type: dir
+  - src: "../bin/dsmd.pl"
+    dst: "/usr/share/centreon/bin/dsmd.pl"
     file_info:
       owner: centreon
       group: centreon
-      mode: 0775
-
-  - dst: "/etc/sysconfig/dsmd"
-    type: dir
-    file_info:
       mode: 0775
 
   - src: "../README"
