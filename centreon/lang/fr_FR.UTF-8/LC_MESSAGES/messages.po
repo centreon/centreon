@@ -18483,8 +18483,8 @@ msgstr "Bienvenue dans l'interface des listes de diffusion !"
 msgid "Create a playlist"
 msgstr "Ajouter une liste de diffusion"
 
-msgid "Playlists"
-msgstr "Listes de diffusion"
+msgid "Error while deleting a playlist"	
+msgstr "Erreur lors de la suppression d'une liste de diffusion"
 
 msgid "Shares"
 msgstr "Partages"
