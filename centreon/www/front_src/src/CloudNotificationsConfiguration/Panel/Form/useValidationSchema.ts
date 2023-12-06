@@ -47,21 +47,18 @@ const useValidationSchema = ({
     dependency1: string,
     dependency2: string
   ): ObjectSchema<ObjectShape> =>
-    object().when([dependency1, dependency2], ([value1, value2]) => {
-      if (
+    object().when([dependency1, dependency2], {
+      is: (value1, value2) =>
         and(
           or(isNil(value1), isEmpty(value1)),
           or(isNil(value2), isEmpty(value2))
-        )
-      ) {
-        return object().shape({
-          ids: array().min(1, t(labelChooseAtLeastOneResource as string))
-        });
-      }
-
-      return object().shape({
+        ),
+      otherwise: object().shape({
         ids: array()
-      });
+      }),
+      then: object().shape({
+        ids: array().min(1, t(labelChooseAtLeastOneResource) as string)
+      })
     });
 
   const validationSchema = object().shape(
