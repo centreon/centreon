@@ -56,7 +56,7 @@ interface ReadDashboardRepositoryInterface
     ): array;
 
     /**
-     * Find dashboards by their ids
+     * Find dashboards by their ids.
      *
      * @param int[] $ids
      *

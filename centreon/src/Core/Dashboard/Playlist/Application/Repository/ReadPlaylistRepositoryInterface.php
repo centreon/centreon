@@ -63,7 +63,7 @@ interface ReadPlaylistRepositoryInterface
     public function exists(int $playlistId): bool;
 
     /**
-     * Find Dashboard Orders by playlist
+     * Find Dashboard Orders by playlist.
      *
      * @param int $playlistId
      * @param Dashboard[] $dashboards

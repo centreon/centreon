@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
 
 class Playlist
 {
@@ -39,8 +39,20 @@ class Playlist
 
     private ?int $authorId = null;
 
+    /**
+     * @var int[]
+     */
     private array $dashboardIds = [];
 
+    /**
+     * @param int $id
+     * @param string $name
+     * @param int $rotationTime
+     * @param bool $isPublic
+     * @param \DateTimeImmutable $createdAt
+     *
+     * @throws AssertionFailedException
+     */
     public function __construct(
         private readonly int $id,
         private readonly string $name,
@@ -74,21 +86,22 @@ class Playlist
     }
 
     /**
-     * @param int[] $
+     * @param int[] $dashboardIds
      *
      * @return self
      */
     public function setDashboardIds(array $dashboardIds): self
     {
         $this->dashboardIds = [];
-        foreach($dashboardIds as $dashboardId) {
+        foreach ($dashboardIds as $dashboardId) {
             $this->addDashboardId($dashboardId);
         }
 
         return $this;
     }
 
-    public function addDashboardId(int $dashboardId): self {
+    public function addDashboardId(int $dashboardId): self
+    {
         $this->dashboardIds[] = $dashboardId;
 
         return $this;
@@ -99,7 +112,6 @@ class Playlist
         return $this->rotationTime;
     }
 
-
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -108,7 +120,7 @@ class Playlist
     /**
      * @param string|null $description
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return self
      */

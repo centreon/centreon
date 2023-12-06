@@ -90,7 +90,7 @@ final class CreatePlaylist
                 $request->isPublic,
                 $this->user->getId()
             ))
-            ->setDescription($request->description);
+                ->setDescription($request->description);
 
             $newDashboardOrders = $this->createDashboardsOrder($request->dashboards);
             $playlistId = $this->writePlaylist($newPlaylist, $newDashboardOrders);
@@ -109,7 +109,7 @@ final class CreatePlaylist
             $dashboardOrders = $this->readPlaylistRepository->findDashboardOrders($playlistId, $dashboards);
 
             $presenter->presentResponse($this->createResponse($playlist, $author, $dashboardOrders));
-        } catch (AssertionFailedException | PlaylistException $ex) {
+        } catch (AssertionFailedException|PlaylistException $ex) {
             $this->error('An error occurred when creating playlist', ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 match ($ex->getCode()) {
@@ -127,6 +127,7 @@ final class CreatePlaylist
      * @param Playlist $playlist
      * @param Contact|null $contact
      * @param DashboardOrder[] $dashboardsOrder
+     *
      * @return CreatePlaylistResponse
      */
     private function createResponse(
@@ -187,6 +188,7 @@ final class CreatePlaylist
 
     /**
      * @param array<array{id:int, order:int}> $requestDashboardsOrder
+     *
      * @return DashboardOrder[]
      */
     private function createDashboardsOrder(array $requestDashboardsOrder): array

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
 
@@ -43,8 +44,9 @@ class NewPlaylist
      * @param string $name
      * @param int $rotationTime
      * @param bool $isPublic
+     * @param int $authorId
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function __construct(
         private readonly string $name,

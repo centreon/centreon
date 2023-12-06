@@ -134,7 +134,7 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
 
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
-        foreach($bind as $token => $dashboardId) {
+        foreach ($bind as $token => $dashboardId) {
             $statement->bindValue($token, $dashboardId, \PDO::PARAM_INT);
         }
         $statement->execute();
@@ -162,13 +162,18 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
         $playlist->setDescription($data['description']);
         $playlist->setAuthorId($data['created_by']);
         $dashboardIds = $data['dashboard_ids'] ? explode(',', $data['dashboard_ids']) : [];
-        foreach($dashboardIds as $dashboardId) {
+        foreach ($dashboardIds as $dashboardId) {
             $playlist->addDashboardId((int) $dashboardId);
         }
 
         return $playlist;
     }
 
+    /**
+     * @param array<array{dashboard_id: int, order: int}> $data
+     *
+     * @return DashboardOrder[]
+     */
     private function createDashboardsOrderFromRecord(array $data): array
     {
         $dashboardsOrder = [];
