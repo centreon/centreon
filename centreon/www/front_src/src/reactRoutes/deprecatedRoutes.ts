@@ -36,7 +36,9 @@ export const deprecatedRoutes: Array<DeprecatedRoute> = [
       path: '/home/dashboards/:dashboardId'
     },
     ignoreWhen: (pathname: string): boolean =>
-      pathname.includes('/home/dashboards/library'),
+      ['/home/dashboards/library', '/home/dashboards/playlists'].includes(
+        pathname
+      ),
     newRoute: {
       parameters: [
         {

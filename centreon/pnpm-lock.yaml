@@ -787,6 +787,9 @@ importers:
       '@types/jest':
         specifier: ^27.5.0
         version: 27.5.2
+      '@types/mocha':
+        specifier: ^10.0.6
+        version: 10.0.6
       '@types/ramda':
         specifier: ^0.29.6
         version: 0.29.8
@@ -3094,7 +3097,6 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/android-arm64@0.19.5:
@@ -3111,7 +3113,6 @@ packages:
     cpu: [arm]
     os: [android]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/android-arm@0.19.5:
@@ -3128,7 +3129,6 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/android-x64@0.19.5:
@@ -3145,7 +3145,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/darwin-arm64@0.19.5:
@@ -3162,7 +3161,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/darwin-x64@0.19.5:
@@ -3179,7 +3177,6 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/freebsd-arm64@0.19.5:
@@ -3196,7 +3193,6 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/freebsd-x64@0.19.5:
@@ -3213,7 +3209,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-arm64@0.19.5:
@@ -3230,7 +3225,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-arm@0.19.5:
@@ -3247,7 +3241,6 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-ia32@0.19.5:
@@ -3272,7 +3265,6 @@ packages:
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-loong64@0.19.5:
@@ -3289,7 +3281,6 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-mips64el@0.19.5:
@@ -3306,7 +3297,6 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-ppc64@0.19.5:
@@ -3323,7 +3313,6 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-riscv64@0.19.5:
@@ -3340,7 +3329,6 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-s390x@0.19.5:
@@ -3357,7 +3345,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-x64@0.19.5:
@@ -3374,7 +3361,6 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/netbsd-x64@0.19.5:
@@ -3391,7 +3377,6 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/openbsd-x64@0.19.5:
@@ -3408,7 +3393,6 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/sunos-x64@0.19.5:
@@ -3425,7 +3409,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/win32-arm64@0.19.5:
@@ -3442,7 +3425,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/win32-ia32@0.19.5:
@@ -3459,7 +3441,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/win32-x64@0.19.5:
@@ -3675,7 +3656,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 20.9.0
+      '@types/node': 20.10.0
       jest-mock: 28.1.3
 
   /@jest/environment@29.7.0:
@@ -3709,7 +3690,7 @@ packages:
     dependencies:
       '@jest/types': 28.1.3
       '@sinonjs/fake-timers': 9.1.2
-      '@types/node': 20.9.0
+      '@types/node': 20.10.0
       jest-message-util: 28.1.3
       jest-mock: 28.1.3
       jest-util: 28.1.3
@@ -6980,7 +6961,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.3
       '@svgr/babel-preset': 8.1.0(@babel/core@7.23.3)
-      '@svgr/core': 8.1.0(typescript@5.2.2)
+      '@svgr/core': 8.1.0(typescript@5.3.2)
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
     transitivePeerDependencies:
@@ -7625,7 +7606,7 @@ packages:
   /@types/docker-modem@3.0.6:
     resolution: {integrity: sha512-yKpAGEuKRSS8wwx0joknWxsmLha78wNMe9R2S3UNsVOkZded8UqOrV8KoeDXoXsjndxwyF3eIhyClGbO1SEhEg==}
     dependencies:
-      '@types/node': 20.9.0
+      '@types/node': 20.10.0
       '@types/ssh2': 1.11.16
     dev: false
 
@@ -7779,7 +7760,7 @@ packages:
   /@types/jsdom@16.2.15:
     resolution: {integrity: sha512-nwF87yjBKuX/roqGYerZZM0Nv1pZDMAT5YhOHYeM/72Fic+VEqJh4nyoqoapzJnW3pUlfxPY5FhgsJtM+dRnQQ==}
     dependencies:
-      '@types/node': 20.9.0
+      '@types/node': 20.10.0
       '@types/parse5': 6.0.3
       '@types/tough-cookie': 4.0.5
     dev: true
@@ -7823,6 +7804,10 @@ packages:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
     dev: true
 
+  /@types/mocha@10.0.6:
+    resolution: {integrity: sha512-dJvrYWxP/UcXm36Qn36fxhUKu8A/xMRXVT2cliFF1Z7UA9liG5Psj3ezNSZw+5puH2czDXRLcXQxf8JbJt0ejg==}
+    dev: true
+
   /@types/ms@0.7.34:
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
     dev: true
@@ -7830,7 +7815,7 @@ packages:
   /@types/node-fetch@2.6.9:
     resolution: {integrity: sha512-bQVlnMLFJ2d35DkPNjEPmd9ueO/rh5EiaZt2bhqiSarPjZIuIV6bPQVqcrEyvNo+AfTrRGVazle1tl597w3gfA==}
     dependencies:
-      '@types/node': 18.18.13
+      '@types/node': 20.10.0
       form-data: 4.0.0
     dev: true
 
@@ -8114,7 +8099,7 @@ packages:
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
     requiresBuild: true
     dependencies:
-      '@types/node': 20.9.0
+      '@types/node': 20.10.0
     optional: true
 
   /@typescript-eslint/eslint-plugin@6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.2.2):
@@ -13044,7 +13029,6 @@ packages:
       '@esbuild/win32-arm64': 0.18.20
       '@esbuild/win32-ia32': 0.18.20
       '@esbuild/win32-x64': 0.18.20
-    dev: true
 
   /esbuild@0.19.5:
     resolution: {integrity: sha512-bUxalY7b1g8vNhQKdB24QDmHeY4V4tw/s6Ak5z+jJX9laP5MoQseTOMemAr0gxssjNcH0MCViG8ONI2kksvfFQ==}
@@ -15200,7 +15184,7 @@ packages:
       pretty-error: 2.1.2
       tapable: 1.1.3
       util.promisify: 1.0.0
-      webpack: 5.89.0(@swc/core@1.3.96)(webpack-cli@5.1.4)
+      webpack: 5.89.0(@swc/core@1.3.96)(esbuild@0.18.20)(webpack-cli@5.1.4)
     dev: true
 
   /html-webpack-plugin@5.5.3(webpack@5.89.0):
@@ -15214,7 +15198,7 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
-      webpack: 5.89.0(@swc/core@1.3.96)(webpack-cli@5.1.4)
+      webpack: 5.89.0(@swc/core@1.3.96)(esbuild@0.18.20)(webpack-cli@5.1.4)
     dev: true
 
   /htmlparser2@3.10.1:
@@ -16547,7 +16531,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 20.9.0
+      '@types/node': 20.10.0
 
   /jest-mock@29.7.0:
     resolution: {integrity: sha512-ITOMZn+UkYS4ZFh83xYAOzWStloNzJFO2s8DWrE4lhtGD+AorgnbkiKERe4wQVBydIGPx059g6riW5Btp6Llnw==}
@@ -16761,7 +16745,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 20.9.0
+      '@types/node': 20.10.0
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -22111,7 +22095,7 @@ packages:
       webpack: ^1 || ^2 || ^3 || ^4 || ^5
     dependencies:
       chalk: 4.1.2
-      webpack: 5.89.0(@swc/core@1.3.96)(webpack-cli@5.1.4)
+      webpack: 5.89.0(@swc/core@1.3.96)(esbuild@0.18.20)(webpack-cli@5.1.4)
     dev: true
 
   /speedline-core@1.4.3:
@@ -22770,7 +22754,6 @@ packages:
       serialize-javascript: 6.0.1
       terser: 5.24.0
       webpack: 5.89.0(@swc/core@1.3.96)(esbuild@0.18.20)(webpack-cli@5.1.4)
-    dev: true
 
   /terser-webpack-plugin@5.3.9(@swc/core@1.3.96)(webpack@5.89.0):
     resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
@@ -23953,7 +23936,7 @@ packages:
       mime-types: 2.1.35
       range-parser: 1.2.1
       schema-utils: 4.2.0
-      webpack: 5.89.0(@swc/core@1.3.96)(webpack-cli@5.1.4)
+      webpack: 5.89.0(@swc/core@1.3.96)(esbuild@0.18.20)(webpack-cli@5.1.4)
 
   /webpack-dev-server@4.15.1(webpack-cli@5.1.4)(webpack@5.89.0):
     resolution: {integrity: sha512-5hbAst3h3C3L8w6W4P96L5vaV0PxSmJhxZvWKYIdgxOQm8pNZ5dEOmmSLBVpP85ReeyRt6AS1QJNyo/oFFPeVA==}
@@ -23996,7 +23979,7 @@ packages:
       serve-index: 1.9.1
       sockjs: 0.3.24
       spdy: 4.0.2
-      webpack: 5.89.0(@swc/core@1.3.96)(webpack-cli@5.1.4)
+      webpack: 5.89.0(@swc/core@1.3.96)(esbuild@0.18.20)(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.9.1)(webpack-dev-server@4.15.1)(webpack@5.89.0)
       webpack-dev-middleware: 5.3.3(webpack@5.89.0)
       ws: 8.14.2
@@ -24061,7 +24044,6 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
-    dev: true
 
   /webpack@5.89.0(@swc/core@1.3.96)(webpack-cli@5.1.4):
     resolution: {integrity: sha512-qyfIC10pOr70V+jkmud8tMfajraGCZMBWJtrmuBymQKCrLTRejBI8STDp1MCyZu/QTdZSeacCQYpYNQVOzX5kw==}
