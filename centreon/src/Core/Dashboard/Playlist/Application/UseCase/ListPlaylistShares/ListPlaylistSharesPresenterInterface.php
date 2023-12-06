@@ -21,15 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Playlist\Domain\Exception;
+namespace Core\Dashboard\Playlist\Application\UseCase\ListPlaylistShares;
 
-class NewPlaylistException extends \Exception
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface ListPlaylistSharesPresenterInterface
 {
-    /**
-     * @return self
-     */
-    public static function orderMustBeUnique(): self
-    {
-        return new self(_('The order in which dashboards are displayed must be unique.'));
-    }
+    public function presentResponse(ListPlaylistSharesResponse|ResponseStatusInterface $response): void;
 }

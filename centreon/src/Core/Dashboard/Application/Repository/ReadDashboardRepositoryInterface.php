@@ -56,6 +56,17 @@ interface ReadDashboardRepositoryInterface
     ): array;
 
     /**
+     * Find dashboards by their ids.
+     *
+     * @param int[] $ids
+     *
+     * @throws \Throwable
+     *
+     * @return Dashboard[]
+     */
+    public function findByIds(array $ids): array;
+
+    /**
      * Find one dashboard without acl.
      *
      * @param int $dashboardId

@@ -21,21 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Playlist\Domain\Model;
+namespace Tests\Core\Dashboard\Playlist\Domain\Model;
 
-class PlaylistAuthor
-{
-    public function __construct(private int $id, private string $name)
-    {
-    }
+use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Dashboard\Playlist\Domain\Model\PlaylistShare;
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-}
+it('should throw an exception when the playlist id is negative', function () {
+    new PlaylistShare(-1, [], []);
+})->throws(AssertionException::min(-1, 1,'PlaylistShare::playlistId')->getMessage());
