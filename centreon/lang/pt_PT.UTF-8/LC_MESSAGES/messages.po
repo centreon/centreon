@@ -17103,3 +17103,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are not allowed to list media"
 # msgstr ""
 
+
+# msgid "Choose at least 1 contact"
+# msgstr ""

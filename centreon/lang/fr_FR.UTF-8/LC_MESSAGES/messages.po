@@ -18482,3 +18482,6 @@ msgstr "Erreur lors du listing des partages de la liste de diffusion"
 
 msgid "The following playlist is not shared with you: [%d]"
 msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
+
+msgid "Choose at least 1 contact"
+msgstr "Veuillez sélectionner au moins 1 contact"
