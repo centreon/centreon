@@ -146,6 +146,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return (bool) $statement->fetchColumn();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findOneByContact(int $dashboardId, ContactInterface $contact): ?Dashboard
     {
         $query = <<<'SQL'
@@ -190,6 +193,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return $data ? $this->createDashboardFromArray($data) : null;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameter(
         ?RequestParametersInterface $requestParameters
     ): array {
@@ -199,6 +205,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         );
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameterAndContact(
         ?RequestParametersInterface $requestParameters,
         ContactInterface $contact
@@ -209,6 +218,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         );
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findByIds(array $ids): array
     {
         $bind = [];
@@ -295,6 +307,11 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return $dashboards;
     }
 
+    /**
+     * @param int|null $contactId
+     *
+     * @return SqlConcatenator
+     */
     private function getFindDashboardConcatenator(?int $contactId): SqlConcatenator
     {
         $concatenator = (new SqlConcatenator())
