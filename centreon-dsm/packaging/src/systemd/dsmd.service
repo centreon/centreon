@@ -23,7 +23,7 @@ After=centreon.service
 ReloadPropagatedFrom=centreon.service
 
 [Service]
-ExecStart=/usr/bin/perl /usr/bin/dsm $OPTIONS
+ExecStart=/usr/bin/perl /usr/bin/dsmd $OPTIONS
 Type=simple
 User=centreon-dsm
 
