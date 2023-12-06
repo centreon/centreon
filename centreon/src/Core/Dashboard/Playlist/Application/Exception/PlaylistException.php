@@ -187,4 +187,12 @@ class PlaylistException extends \Exception
             implode(', ', $contactGroupIds)
         ));
     }
+
+    /**
+     * @return self
+     */
+    public static function orderMustBeUnique(): self
+    {
+        return new self(_('The order in which dashboards are displayed must be unique.'));
+    }
 }
