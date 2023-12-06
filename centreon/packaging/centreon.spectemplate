@@ -68,6 +68,7 @@ Requires(post): /usr/sbin/groupdel
 Requires(post): /usr/sbin/userdel
 Requires:       centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
 Requires:       centreon-engine-daemon >= %{thismajor}, centreon-engine-daemon < %{nextmajor}
+Requires:       lua-curl
 
 %description common
 %{COMMIT_HASH}
@@ -517,6 +518,10 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 # Translations
 %{__cp} -r centreon/www/locale %buildroot%{_datadir}/centreon/www/
 
+# Install Lua script
+%{__install} -d $RPM_BUILD_ROOT%{_datadir}/centreon-broker/lua/
+%{__cp} -rp lua/centreon-cloud-notifications.lua $RPM_BUILD_ROOT%{_datadir}/centreon-broker/lua/
+
 ######################################################
 # Package centreon
 ######################################################
@@ -574,6 +579,9 @@ if [ "$1" = 0 ]; then
     %{_bindir}/gpasswd --delete centreon centreon-engine > /dev/null 2>&1 || :
     %{_bindir}/gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
 fi
+
+# Lua script for notifications
+%attr(-,centreon-broker,centreon-broker) %{_datadir}/centreon-broker/lua/centreon-cloud-notifications.lua
 
 ######################################################
 # Package centreon-common-selinux
