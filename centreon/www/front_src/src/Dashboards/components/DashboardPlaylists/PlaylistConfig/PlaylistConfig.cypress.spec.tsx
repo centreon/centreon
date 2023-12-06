@@ -1,4 +1,5 @@
 import { Provider, createStore } from 'jotai';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method, QueryProvider } from '@centreon/ui';
 import {
@@ -121,11 +122,13 @@ const initializePlaylistConfigEdition = (): void => {
 
   cy.mount({
     Component: (
-      <QueryProvider>
-        <Provider store={store}>
-          <PlaylistConfig />
-        </Provider>
-      </QueryProvider>
+      <BrowserRouter>
+        <QueryProvider>
+          <Provider store={store}>
+            <PlaylistConfig />
+          </Provider>
+        </QueryProvider>
+      </BrowserRouter>
     )
   });
 };
