@@ -25,11 +25,6 @@ contents:
       group: centreon
       mode: 0775
 
-  - dst: "/usr/lib/systemd/system/dsmd.service"
-    type: dir
-    file_info:
-      mode: 0775
-
   - dst: "/etc/sysconfig/dsmd"
     type: dir
     file_info:
@@ -50,13 +45,24 @@ contents:
   - src: "../cron/centreon-dsm"
     dst: "/etc/cron.d/centreon-dsm"
 
-  - src: "../libinstall/systemd/dsmd.systemd"
-    dst: "/etc/systemd/system/dsmd.systemd"
+  - src: "../libinstall/systemd/dsmd.rpm.systemd"
+    dst: "/etc/systemd/system/dsmd.service"
     file_info:
       mode: 0755
     packager: rpm
-  - src: "../libinstall/systemd/dsmd.systemd"
-    dst: "/lib/systemd/system/dsmd.systemd"
+  - src: "../libinstall/systemd/dsmd.deb.systemd"
+    dst: "/lib/systemd/system/dsmd.service"
+    file_info:
+      mode: 0755
+    packager: deb
+
+  - src: "../libinstall/systemd/dsmd.sysconfig"
+    dst: "/etc/sysconfig/dsmd"
+    file_info:
+      mode: 0755
+    packager: rpm
+  - src: "../libinstall/systemd/dsmd.sysconfig"
+    dst: "/etc/default/dsmd"
     file_info:
       mode: 0755
     packager: deb
