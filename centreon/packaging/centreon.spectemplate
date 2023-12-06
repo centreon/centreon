@@ -68,7 +68,6 @@ Requires(post): /usr/sbin/groupdel
 Requires(post): /usr/sbin/userdel
 Requires:       centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
 Requires:       centreon-engine-daemon >= %{thismajor}, centreon-engine-daemon < %{nextmajor}
-Requires:       lua-curl
 
 %description common
 %{COMMIT_HASH}
@@ -130,6 +129,7 @@ Requires:   net-snmp-perl
 Requires:   net-snmp-utils
 Requires:   rsync
 Requires:   brotli
+Requires:   lua-curl
 Requires(post): /etc/sudoers
 Provides:   centreon-backup
 Obsoletes:  centreon-backup
@@ -580,10 +580,6 @@ if [ "$1" = 0 ]; then
     %{_bindir}/gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
 fi
 
-# Lua script for notifications
-%defattr(-,root,root,-)
-%attr(-,centreon-broker,centreon-broker) %{_datadir}/centreon-broker/lua/centreon-cloud-notifications.lua
-
 ######################################################
 # Package centreon-common-selinux
 ######################################################
@@ -705,6 +701,9 @@ fi
 
 %defattr(-, root, root, -)
 %{_datadir}/centreon/examples
+
+# Lua script for notifications
+%attr(-,centreon-broker,centreon-broker) %{_datadir}/centreon-broker/lua/centreon-cloud-notifications.lua
 
 %defattr(-, centreon, centreon, 0775)
 %{_localstatedir}/lib/centreon/centcore

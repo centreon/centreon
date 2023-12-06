@@ -14,7 +14,6 @@ Depends:
     centreon-database (>= ${centreon:version}~),
     centreon-central (<< ${centreon:versionThreshold}~),
     centreon-database (<< ${centreon:versionThreshold}~),
-    lua-curl
 Description: Centreon is a network, system, applicative supervision and monitoring tool,
  it is based upon the most effective Open Source monitoring engine : Nagios.
  Centreon provides a new frontend and new functionalities to Nagios.
@@ -144,7 +143,8 @@ Depends:
     php8.1-readline,
     php8.1-sqlite3,
     php-pear,
-    rrdtool
+    rrdtool,
+    lua-curl
 Recommends: ntp | bsd-mailx
 Suggests: nagios-images
 Replaces: centreon-widget-engine-status
