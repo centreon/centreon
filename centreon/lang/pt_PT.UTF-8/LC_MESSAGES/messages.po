@@ -17135,3 +17135,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Playlist updated"
 # msgstr ""
+
+# msgid "Add at least 1 contact"
+# msgstr ""

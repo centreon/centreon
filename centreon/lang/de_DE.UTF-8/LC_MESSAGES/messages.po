@@ -16349,3 +16349,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Playlist updated"
 # msgstr ""
+
+# msgid "Add at least 1 contact"
+# msgstr ""

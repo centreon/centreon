@@ -50,7 +50,7 @@ class DbWritePlaylistRepository extends AbstractRepositoryRDB implements WritePl
         $statement->bindValue(':description', $playlist->getDescription(), \PDO::PARAM_STR);
         $statement->bindValue(':rotationTime', $playlist->getRotationTime(), \PDO::PARAM_INT);
         $statement->bindValue(':createdAt', $playlist->getCreatedAt()->getTimestamp(), \PDO::PARAM_INT);
-        $statement->bindValue(':createdBy', $playlist->getAuthor()?->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':createdBy', $playlist->getAuthorId(), \PDO::PARAM_INT);
         $statement->bindValue(':isPublic', $playlist->isPublic(), \PDO::PARAM_INT);
 
         $statement->execute();
