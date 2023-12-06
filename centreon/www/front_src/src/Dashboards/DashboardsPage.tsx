@@ -2,6 +2,7 @@ import { ReactElement, Suspense } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { always, cond, equals } from 'ramda';
+import { always, cond, equals } from 'ramda';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 
@@ -36,7 +37,11 @@ const DashboardsPage = (): ReactElement => {
         <PageHeader>
           <PageHeader.Main>
             <PageHeader.Title title={t(getTitle(layout as DashboardLayout))} />
+            <PageHeader.Title title={t(getTitle(layout as DashboardLayout))} />
           </PageHeader.Main>
+          <PageHeader.Actions>
+            <DashboardNavbar />
+          </PageHeader.Actions>
           <PageHeader.Actions>
             <DashboardNavbar />
           </PageHeader.Actions>

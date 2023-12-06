@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Application\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Dashboard\Playlist\Domain\Model\PlaylistShare;
 
 interface ReadPlaylistShareRepositoryInterface
 {
@@ -33,7 +35,44 @@ interface ReadPlaylistShareRepositoryInterface
      * @param int $playlistId
      * @param ContactInterface $contact
      *
+     * @throws \Throwable
+     *
      * @return bool
      */
     public function existsAsEditor(int $playlistId, ContactInterface $contact): bool;
+
+    /**
+     * Check if a user has a given playlist shared with him.
+     *
+     * @param int $playlistId
+     * @param ContactInterface $contact
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function exists(int $playlistId, ContactInterface $contact): bool;
+
+    /**
+     * Find all the shares contact and contactgroups of a playlist.
+     *
+     * @param int $playlistId
+     *
+     * @throws \Throwable|AssertionFailedException
+     *
+     * @return PlaylistShare
+     */
+    public function findByPlaylistId(int $playlistId): PlaylistShare;
+
+    /**
+     * Find contact and contactgroups shares of a playlist, based on given contactgroup ids.
+     *
+     * @param int $playlistId
+     * @param int[] $contactGroupIds
+     *
+     * @throws \Throwable|AssertionFailedException
+     *
+     * @return PlaylistShare
+     */
+    public function findByPlaylistIdAndContactGroupIds(int $playlistId, array $contactGroupIds): PlaylistShare;
 }
