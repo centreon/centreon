@@ -31,7 +31,7 @@ import {
   getDashboardAccessRightsEndpoint,
   getDashboardEndpoint
 } from '../api/endpoints';
-import { dialogStateAtom } from '../components/DashboardAccessRights/useDashboardAccessRights';
+import { dialogStateAtom } from '../components/DashboardLibrary/DashboardAccessRights/useDashboardAccessRights';
 import { labelDelete } from '../translatedLabels';
 
 import { routerParams } from './hooks/useDashboardDetails';

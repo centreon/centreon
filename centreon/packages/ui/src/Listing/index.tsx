@@ -229,7 +229,6 @@ const Listing = <TRow extends { id: RowId }>({
   const { classes } = useListingStyles({
     dataStyle,
     getGridTemplateColumn,
-    limit,
     listingVariant,
     rows: rowsToDisplay
   });

@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Dashboard\Playlist\Domain\Exception\NewPlaylistException;
 
 class NewPlaylist
 {
@@ -35,27 +35,23 @@ class NewPlaylist
     public const MINIMUM_ROTATION_TIME = 10; // time in seconds
     public const MAXIMUM_ROTATION_TIME = 60; // time in seconds
 
-    /** @var DashboardOrder[] */
-    protected array $dashboardsOrder = [];
+    private ?string $description = null;
 
-    protected ?string $description = null;
-
-    protected \DateTimeImmutable $createdAt;
-
-    /** If the author has been deleted, the author is null but the playlist is still accessible*/
-    protected ?PlaylistAuthor $author = null;
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @param string $name
      * @param int $rotationTime
      * @param bool $isPublic
+     * @param int $authorId
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     public function __construct(
-        protected string $name,
-        protected int $rotationTime,
-        protected bool $isPublic
+        private readonly string $name,
+        private readonly int $rotationTime,
+        private readonly bool $isPublic,
+        private readonly int $authorId
     ) {
         Assertion::minLength($name, self::NAME_MIN_LENGTH, 'NewPlaylist::name');
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewPlaylist::name');
@@ -89,57 +85,9 @@ class NewPlaylist
         return $this->createdAt;
     }
 
-    public function getAuthor(): ?PlaylistAuthor
+    public function getAuthorId(): int
     {
-        return $this->author;
-    }
-
-    public function setAuthor(?PlaylistAuthor $author): self
-    {
-        $this->author = $author;
-
-        return $this;
-    }
-
-    /**
-     * @return DashboardOrder[]
-     */
-    public function getDashboardsOrder(): array
-    {
-        return $this->dashboardsOrder;
-    }
-
-    /**
-     * @param DashboardOrder[] $dashboardsOrder
-     *
-     * @throws NewPlaylistException
-     *
-     * @return self
-     */
-    public function setDashboardsOrder(array $dashboardsOrder): self
-    {
-        $this->dashboardsOrder = [];
-
-        foreach ($dashboardsOrder as $dashboardOrder) {
-            $this->addDashboardsOrder($dashboardOrder);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param DashboardOrder $dashboardOrder
-     *
-     * @throws NewPlaylistException
-     *
-     * @return self
-     */
-    public function addDashboardsOrder(DashboardOrder $dashboardOrder): self
-    {
-        $this->validateDashboardOrder($dashboardOrder);
-        $this->dashboardsOrder[] = $dashboardOrder;
-
-        return $this;
+        return $this->authorId;
     }
 
     /**
@@ -164,19 +112,5 @@ class NewPlaylist
     public function getDescription(): ?string
     {
         return $this->description;
-    }
-
-    /**
-     * @param DashboardOrder $dashboardOrder
-     *
-     * @throws NewPlaylistException
-     */
-    private function validateDashboardOrder(DashboardOrder $dashboardOrder): void
-    {
-        foreach ($this->dashboardsOrder as $existingDashboardOrder) {
-            if ($existingDashboardOrder->getOrder() === $dashboardOrder->getOrder()) {
-                throw NewPlaylistException::orderMustBeUnique();
-            }
-        }
     }
 }
