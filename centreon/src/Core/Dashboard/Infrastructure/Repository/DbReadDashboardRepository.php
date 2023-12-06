@@ -81,6 +81,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return (bool) $statement->fetchColumn();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findOne(int $dashboardId): ?Dashboard
     {
         $query = <<<'SQL'
