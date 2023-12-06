@@ -15,8 +15,8 @@ homepage: "https://github.com/centreon/centreon-dsm"
 license: "Apache-2.0"
 
 contents:
-  - dst: "/usr/share/centreon/bin/dsmclient.pl"
-    type: dir
+  - src: "../bin/dsmd.pl"
+    dst: "/usr/share/centreon/bin/dsmd.pl"
     file_info:
       owner: centreon
       group: centreon
