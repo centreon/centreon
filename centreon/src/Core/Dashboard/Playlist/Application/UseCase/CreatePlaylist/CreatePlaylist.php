@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
@@ -51,6 +52,8 @@ final class CreatePlaylist
      * @param WritePlaylistRepositoryInterface $writePlaylistRepository
      * @param ReadPlaylistRepositoryInterface $readPlaylistRepository
      * @param DataStorageEngineInterface $dataStorageEngine
+     * @param ContactRepositoryInterface $contactRepository
+     * @param ReadDashboardRepositoryInterface $dashboardRepository
      * @param DashboardRights $rights
      */
     public function __construct(
@@ -81,7 +84,14 @@ final class CreatePlaylist
             }
 
             $this->validateNameAndDashboards($request);
-            $newPlaylist = $this->createNewPlaylistModel($request);
+            $newPlaylist = (new NewPlaylist(
+                $request->name,
+                $request->rotationTime,
+                $request->isPublic,
+                $this->user->getId()
+            ))
+            ->setDescription($request->description);
+
             $newDashboardOrders = $this->createDashboardsOrder($request->dashboards);
             $playlistId = $this->writePlaylist($newPlaylist, $newDashboardOrders);
             $this->info('retrieving new playlist');
@@ -94,13 +104,13 @@ final class CreatePlaylist
 
                 return;
             }
-            $author = $this->contactRepository->findById($playlist->getAuthorId());
+            $author = $this->contactRepository->findById($this->user->getId());
             $dashboards = $this->dashboardRepository->findByIds($playlist->getDashboardIds());
             $dashboardOrders = $this->readPlaylistRepository->findDashboardOrders($playlistId, $dashboards);
 
             $presenter->presentResponse($this->createResponse($playlist, $author, $dashboardOrders));
-        } catch (\Assert\AssertionFailedException|PlaylistException $ex) {
-            $this->error('An error occured when creating playlist', ['trace' => (string) $ex]);
+        } catch (AssertionFailedException | PlaylistException $ex) {
+            $this->error('An error occurred when creating playlist', ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 match ($ex->getCode()) {
                     PlaylistException::CODE_CONFLICT => new ConflictResponse($ex),
@@ -108,18 +118,22 @@ final class CreatePlaylist
                 }
             );
         } catch (\Throwable $ex) {
-            $this->error('An error occured when creating playlist', ['trace' => (string) $ex]);
+            $this->error('An error occurred when creating playlist', ['trace' => (string) $ex]);
             $presenter->presentResponse(new ErrorResponse(PlaylistException::errorWhileCreating()));
         }
     }
 
     /**
      * @param Playlist $playlist
-     *
+     * @param Contact|null $contact
+     * @param DashboardOrder[] $dashboardsOrder
      * @return CreatePlaylistResponse
      */
-    private function createResponse(Playlist $playlist, ?Contact $contact, array $dashboardsOrder): CreatePlaylistResponse
-    {
+    private function createResponse(
+        Playlist $playlist,
+        ?Contact $contact,
+        array $dashboardsOrder
+    ): CreatePlaylistResponse {
         $response = new CreatePlaylistResponse();
 
         $response->id = $playlist->getId();
@@ -172,28 +186,9 @@ final class CreatePlaylist
     }
 
     /**
-     * Create NewPlaylist Entity.
-     *
-     * @param CreatePlaylistRequest $request
-     *
-     * @throws \Assert\AssertionFailedException
-     * @throws NewPlaylistException
-     *
-     * @return NewPlaylist
+     * @param array<array{id:int, order:int}> $requestDashboardsOrder
+     * @return DashboardOrder[]
      */
-    private function createNewPlaylistModel(CreatePlaylistRequest $request): NewPlaylist
-    {
-        $newPlaylist = (new NewPlaylist(
-            $request->name,
-            $request->rotationTime,
-            $request->isPublic,
-            $this->user->getId()
-        ))
-        ->setDescription($request->description);
-
-        return $newPlaylist;
-    }
-
     private function createDashboardsOrder(array $requestDashboardsOrder): array
     {
         $dashboardsOrder = [];
@@ -206,10 +201,9 @@ final class CreatePlaylist
 
     /**
      * @param NewPlaylist $newPlaylist
-     *
-     * @throws \Throwable
-     *
+     * @param DashboardOrder[] $dashboardsOrder
      * @return int
+     * @throws \Throwable
      */
     private function writePlaylist(NewPlaylist $newPlaylist, array $dashboardsOrder): int
     {
@@ -228,7 +222,7 @@ final class CreatePlaylist
                 $this->dataStorageEngine->commitTransaction();
             }
         } catch (\Throwable $ex) {
-            $this->error('An error occured', ['trace' => (string) $ex]);
+            $this->error('An error occurred', ['trace' => (string) $ex]);
             if (! $transactionAlreadyStarted) {
                 $this->info('rollback transaction');
                 $this->dataStorageEngine->rollbackTransaction();
