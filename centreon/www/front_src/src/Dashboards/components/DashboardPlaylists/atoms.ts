@@ -7,4 +7,3 @@ export const playlistConfigInitialValuesAtom = atom<PlaylistConfig | null>(
 );
 
 export const askBeforeClosePlaylistConfigAtom = atom(false);
-
