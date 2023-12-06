@@ -1,7 +1,17 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, propEq, reject } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  isEmpty,
+  propEq,
+  reject,
+  pluck,
+  includes
+} from 'ramda';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -48,7 +58,7 @@ interface ResourceTypeOption {
   name: string;
 }
 
-const resourceTypeOptions: Array<ResourceTypeOption> = [
+const resourceTypeOptions = [
   {
     id: WidgetResourceType.hostGroup,
     name: labelHostGroup
@@ -181,6 +191,18 @@ const useResources = (propertyName: string): UseResourcesState => {
       [equals('host'), always('host.name')],
       [T, always('name')]
     ])(resourceType);
+
+  const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
+    const resourcetypesIds = pluck('resourceType', value || []);
+
+    const newResourceTypeOptions = reject(
+      ({ id }) =>
+        !equals(id, resource.resourceType) && includes(id, resourcetypesIds),
+      resourceTypeOptions
+    );
+
+    return newResourceTypeOptions;
+  };
 
   useEffect(() => {
     if (!isEmpty(value)) {
