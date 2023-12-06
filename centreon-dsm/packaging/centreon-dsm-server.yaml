@@ -50,6 +50,17 @@ contents:
   - src: "../cron/centreon-dsm"
     dst: "/etc/cron.d/centreon-dsm"
 
+  - src: "./systemd/dsmd.service"
+    dst: "/etc/systemd/system/dsmd.service"
+    file_info:
+      mode: 0755
+    packager: rpm
+  - src: "./systemd/dsmd.service"
+    dst: "/lib/systemd/system/dsmd.service"
+    file_info:
+      mode: 0755
+    packager: deb
+
 scripts:
   postinstall: ./scripts/centreon-dsm-server-postinstall.sh
 
