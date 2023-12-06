@@ -1,5 +1,5 @@
 import { useSetAtom } from 'jotai';
-import { generatePath, useNavigate, useParams } from 'react-router';
+import { generatePath } from 'react-router';
 import { equals } from 'ramda';
 
 import { PageLayout } from '@centreon/ui/components';
@@ -13,14 +13,15 @@ import {
   labelCreateAPlaylist,
   labelPlaylists
 } from '../../../translatedLabels';
+import { router } from '../utils';
 
 import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 
 const PlaylistQuickAccess = (): JSX.Element => {
-  const { dashboardId } = useParams();
+  const { dashboardId } = router.useParams();
   const { playlists } = useListPlaylists();
 
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
 
   const setPlaylistConfigInitialValues = useSetAtom(
     playlistConfigInitialValuesAtom

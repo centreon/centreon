@@ -20,7 +20,11 @@ const Footer = ({ dashboards }: Props): JSX.Element => {
 
   return (
     <Slide direction="up" in={openFooter}>
-      <Paper className={classes.footerContainer} ref={playlistFooterRef}>
+      <Paper
+        className={classes.footerContainer}
+        id="footer"
+        ref={playlistFooterRef}
+      >
         <Box className={classes.footer}>
           <Player dashboards={dashboards} />
           <Divider className={classes.divider} orientation="vertical" />

@@ -27,18 +27,21 @@ const Player = ({ dashboards }: Props): JSX.Element => {
     <Box className={classes.player}>
       <IconButton
         disableRipple
+        data-testid="previous"
         icon={<SkipPreviousIcon className={classes.icon} />}
         size="small"
         onClick={previous}
       />
       <IconButton
         disableRipple
+        data-is-playing={isRotatingDashboards}
         icon={<PlayPauseIcon className={classes.icon} data-size="large" />}
         size="small"
         onClick={playPause}
       />
       <IconButton
         disableRipple
+        data-testid="next"
         icon={<SkipNextIcon className={classes.icon} />}
         size="small"
         onClick={next}
