@@ -85,13 +85,11 @@ define("STATUS_CRITICAL", 2);
 define("STATUS_UNKNOWN", 3);
 define("STATUS_PENDING", 4);
 define("STATUS_ACKNOWLEDGEMENT", 5);
-define("STATUS_NOTIFICATION", 6);
 define("STATUS_UP", 0);
 define("STATUS_DOWN", 1);
 define("STATUS_UNREACHABLE", 2);
 define("TYPE_SOFT", 0);
 define("TYPE_HARD", 1);
-
 
 /**
  * Defining constants for the ACK message types
@@ -260,7 +258,7 @@ $warning = isset($inputs["warning"]) ? htmlentities($inputs["warning"]) : "true"
 $critical = isset($inputs["critical"]) ? htmlentities($inputs["critical"]) : "true";
 $unknown = isset($inputs["unknown"]) ? htmlentities($inputs["unknown"]) : "true";
 $acknowledgement = isset($inputs["acknowledgement"]) ? htmlentities($inputs["acknowledgement"]) : "true";
-$notification = isset($inputs["notification"]) ? htmlentities($inputs["notification"]) : "true";
+$notification = isset($inputs["notification"]) ? htmlentities($inputs["notification"]) : "false";
 $alert = isset($inputs["alert"]) ? htmlentities($inputs["alert"]) : "true";
 $oh = isset($inputs["oh"]) ? htmlentities($inputs["oh"]) : "false";
 $error = isset($inputs["error"]) ? htmlentities($inputs["error"]) : "false";
@@ -324,7 +322,6 @@ $tab_color_service = array(
     STATUS_CRITICAL => 'service_critical',
     STATUS_UNKNOWN => 'service_unknown',
     STATUS_ACKNOWLEDGEMENT => 'service_acknowledgement',
-    STATUS_NOTIFICATION => 'service_notification',
     STATUS_PENDING => 'pending'
 );
 $tab_color_host = array(
@@ -351,8 +348,7 @@ $tab_status_service = array(
     "1" => "WARNING",
     "2" => "CRITICAL",
     "3" => "UNKNOWN",
-    "5" => "ACKNOWLEDGEMENT",
-    "6" => "NOTIFICATION"
+    "5" => "ACKNOWLEDGEMENT"
 );
 $acknowlegementMessageType = [
     'badgeColor' => 'ack',
@@ -442,9 +438,6 @@ if ($unknown == 'true') {
 }
 if ($acknowledgement == 'true') {
     array_push($svc_msg_status_set, "'" . STATUS_ACKNOWLEDGEMENT . "'");
-}
-if ($notification == 'true') {
-    array_push($svc_msg_status_set, "'" . STATUS_NOTIFICATION . "'");
 }
 
 $flag_begin = 0;
@@ -679,8 +672,7 @@ if (count($tab_host_ids) == 0 && count($tab_svc) == 0) {
             $ok == 'true' || $warning == 'true' ||
             $critical == 'true' ||
             $unknown == 'true' ||
-            $acknowledgement == 'true' ||
-            $notification == 'true'
+            $acknowledgement == 'true'
         )
     ) {
         $req_append = "";

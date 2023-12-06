@@ -35,7 +35,6 @@ class Request
     private const STATUS_CRITICAL = 2;
     private const STATUS_UNKNOWN = 3;
     private const STATUS_ACKNOWLEDGEMENT = 5;
-    private const STATUS_NOTIFICATION = 6;
     private ?int $is_admin;
     /**
      * @var array<string,mixed>
@@ -58,7 +57,6 @@ class Request
     private string $critical = 'true';
     private string $unknown = 'true';
     private string $acknowledgement = 'true';
-    private string $notification = 'true';
     private string $alert = 'true';
     private string $oh = 'false';
     private string $error = 'false';
@@ -459,10 +457,6 @@ class Request
         if ($this->getAcknowledgement() === 'true') {
             $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_ACKNOWLEDGEMENT);
         }
-        if ($this->getNotification() === 'true') {
-            $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_NOTIFICATION);
-        }
-
         return $this->svcMsgStatusSet;
     }
 
