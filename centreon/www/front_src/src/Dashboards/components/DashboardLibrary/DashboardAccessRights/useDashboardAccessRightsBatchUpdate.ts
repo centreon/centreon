@@ -1,12 +1,12 @@
 import { ContactAccessRightStateResource } from '@centreon/ui/components';
 
-import { NamedEntity } from '../../api/models';
-import { useCreateAccessRightsContact } from '../../api/useCreateAccessRightsContact';
-import { useUpdateAccessRightsContact } from '../../api/useUpdateAccessRightsContact';
-import { useDeleteAccessRightsContact } from '../../api/useDeleteAccessRightsContact';
-import { useCreateAccessRightsContactGroup } from '../../api/useCreateAccessRightsContactGroup';
-import { useUpdateAccessRightsContactGroup } from '../../api/useUpdateAccessRightsContactGroup';
-import { useDeleteAccessRightsContactGroup } from '../../api/useDeleteAccessRightsContactGroup';
+import { NamedEntity } from '../../../api/models';
+import { useCreateAccessRightsContact } from '../../../api/useCreateAccessRightsContact';
+import { useUpdateAccessRightsContact } from '../../../api/useUpdateAccessRightsContact';
+import { useDeleteAccessRightsContact } from '../../../api/useDeleteAccessRightsContact';
+import { useCreateAccessRightsContactGroup } from '../../../api/useCreateAccessRightsContactGroup';
+import { useUpdateAccessRightsContactGroup } from '../../../api/useUpdateAccessRightsContactGroup';
+import { useDeleteAccessRightsContactGroup } from '../../../api/useDeleteAccessRightsContactGroup';
 
 import {
   transformContactAccessRightToCreateDto,

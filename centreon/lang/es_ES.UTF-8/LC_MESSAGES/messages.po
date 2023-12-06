@@ -16650,5 +16650,14 @@ msgstr "Modo avanzado"
 # msgid "You are not allowed to list media"
 # msgstr ""
 
+# msgid "Playlists"
+# msgstr ""
+
+# msgid "Welcome to the Playlist interface!"
+# msgstr ""
+
+# msgid "Create a playlist"
+# msgstr ""
+
 # msgid "Choose at least 1 contact"
 # msgstr ""

@@ -3,7 +3,7 @@ import { equals } from 'ramda';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { Dashboard, DashboardRole } from '../../api/models';
+import { Dashboard, DashboardRole } from '../../../api/models';
 
 type UseDashboardUserPermissions = {
   canCreateOrManageDashboards: boolean;

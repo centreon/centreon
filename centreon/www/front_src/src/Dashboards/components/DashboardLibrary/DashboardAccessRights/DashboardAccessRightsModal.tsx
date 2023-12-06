@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelEditAccessRights } from '../../translatedLabels';
+import { labelEditAccessRights } from '../../../translatedLabels';
 
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 import { DashboardAccessRightsForm } from './DashboardAccessRightsForm';
