@@ -157,13 +157,15 @@ describe('Playlist', () => {
       'true'
     );
 
-    cy.get('#page-body').trigger('mousemove', 100, 100);
+    cy.get('#page-body').trigger('mousemove', 110, 110);
 
     cy.get('[data-dashboardId="2"]', { timeout: 6_000 }).should(
       'have.attr',
       'data-selected',
       'true'
     );
+
+    cy.get('#page-body').trigger('mousemove', 120, 120);
 
     cy.waitForRequest('@getDashboard2');
 
