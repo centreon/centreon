@@ -13,10 +13,12 @@ const dashboards = Array(20)
     order: inc(idx)
   }));
 
-const initialize = (): ReturnType<typeof createStore> => {
+const initialize = (
+  displayedDashboard: number | null = 1
+): ReturnType<typeof createStore> => {
   const store = createStore();
 
-  store.set(displayedDashboardAtom, 1);
+  store.set(displayedDashboardAtom, displayedDashboard);
 
   cy.mount({
     Component: (
@@ -130,6 +132,30 @@ describe('Footer', () => {
       'have.attr',
       'data-selected',
       'true'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('does not display any dashboard as selected when no dashboard is selected', () => {
+    initialize(null);
+
+    cy.get('#page-body').trigger('mousemove', 100, 100);
+
+    cy.get('[data-dashboardId="1"]').should(
+      'have.attr',
+      'data-selected',
+      'false'
+    );
+    cy.get('[data-dashboardId="2"]').should(
+      'have.attr',
+      'data-selected',
+      'false'
+    );
+    cy.get('[data-dashboardId="3"]').should(
+      'have.attr',
+      'data-selected',
+      'false'
     );
 
     cy.makeSnapshot();
