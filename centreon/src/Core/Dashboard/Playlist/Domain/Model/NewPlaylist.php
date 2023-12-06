@@ -25,7 +25,6 @@ namespace Core\Dashboard\Playlist\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Dashboard\Playlist\Application\Exception\PlaylistException;
 
 class NewPlaylist
 {

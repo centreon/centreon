@@ -204,8 +204,10 @@ final class CreatePlaylist
     /**
      * @param NewPlaylist $newPlaylist
      * @param DashboardOrder[] $dashboardsOrder
-     * @return int
+     *
      * @throws \Throwable
+     *
+     * @return int
      */
     private function writePlaylist(NewPlaylist $newPlaylist, array $dashboardsOrder): int
     {

@@ -39,9 +39,7 @@ class Playlist
 
     private ?int $authorId = null;
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private array $dashboardIds = [];
 
     /**
@@ -80,6 +78,9 @@ class Playlist
         return $this->name;
     }
 
+    /**
+     * @return int[]
+     */
     public function getDashboardIds(): array
     {
         return $this->dashboardIds;
