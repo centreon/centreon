@@ -1,7 +1,7 @@
 #!/bin/bash
 
 systemctl daemon-reload ||:
-systemctl unmask dsmd.service ||:
-systemctl preset dsmd.service ||:
-systemctl enable dsmd.service ||:
-systemctl restart dsmd.service ||:
+systemctl unmask dsmd.systemd ||:
+systemctl preset dsmd.systemd ||:
+systemctl enable dsmd.systemd ||:
+systemctl restart dsmd.systemd ||:
