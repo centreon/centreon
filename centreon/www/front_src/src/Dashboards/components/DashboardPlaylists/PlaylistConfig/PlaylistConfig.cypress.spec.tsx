@@ -72,11 +72,13 @@ const initializePlaylistConfigCreation = (): void => {
 
   cy.mount({
     Component: (
-      <QueryProvider>
-        <Provider store={store}>
-          <PlaylistConfig />
-        </Provider>
-      </QueryProvider>
+      <BrowserRouter>
+        <QueryProvider>
+          <Provider store={store}>
+            <PlaylistConfig />
+          </Provider>
+        </QueryProvider>
+      </BrowserRouter>
     )
   });
 };
