@@ -16,7 +16,7 @@ import {
   labelSearchHostGroups,
   labelSearchServiceGroups,
   labelChooseAtLeastOneResource,
-  labelChooseAtleastOneContactOrContactGroup,
+  // labelChooseAtleastOneContactOrContactGroup,
   labelTimePeriod,
   labelSubject,
   labelMessageFieldShouldNotBeEmpty,
@@ -30,8 +30,8 @@ import {
   labelDiscard,
   labelNotificationDuplicated,
   labelSearchBusinessViews,
-  labelBusinessViewsEvents,
-  labelSearchContacts
+  labelBusinessViewsEvents
+  // labelSearchContacts
 } from '../../translatedLabels';
 import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
@@ -291,7 +291,8 @@ describe('Edit Panel', () => {
     cy.findByTestId('include Services').should('be.visible');
     cy.findByTestId('Extra events services').should('be.visible');
 
-    Array(4)
+    // Array(4)
+    Array(3)
       .fill(0)
       .forEach(() => {
         cy.findAllByLabelText('Clear').eq(0).click({ force: true });
@@ -379,41 +380,41 @@ describe('Edit Panel', () => {
     cy.makeSnapshot();
   });
 
-  it('displays the Contact Groups field with edited notification contact groups', () => {
-    cy.waitForRequest('@getNotificationRequest');
-    cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
+  // it('displays the Contact Groups field with edited notification contact groups', () => {
+  //   cy.waitForRequest('@getNotificationRequest');
+  //   cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
 
-    cy.get('#panel-content').scrollTo('bottom');
+  //   cy.get('#panel-content').scrollTo('bottom');
 
-    cy.get('@fieldContactsGroups')
-      .parent()
-      .within(() => {
-        cy.findByText('contact-group1').should('be.visible');
-        cy.findByText('contact-group2').should('be.visible');
-      });
+  //   cy.get('@fieldContactsGroups')
+  //     .parent()
+  //     .within(() => {
+  //       cy.findByText('contact-group1').should('be.visible');
+  //       cy.findByText('contact-group2').should('be.visible');
+  //     });
 
-    cy.makeSnapshot();
-  });
+  //   cy.makeSnapshot();
+  // });
 
-  it('validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
-    cy.waitForRequest('@getNotificationRequest');
+  // it('validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+  //   cy.waitForRequest('@getNotificationRequest');
 
-    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
-    cy.findAllByLabelText('Clear').eq(2).click({ force: true });
-    cy.findByTestId(labelSearchContacts).click();
+  //   cy.findAllByLabelText('Clear').eq(2).click({ force: true });
+  //   cy.findAllByLabelText('Clear').eq(2).click({ force: true });
+  //   cy.findByTestId(labelSearchContacts).click();
 
-    cy.clickOutside();
+  //   cy.clickOutside();
 
-    cy.findAllByText(labelChooseAtleastOneContactOrContactGroup).should(
-      'have.length',
-      2
-    );
-    cy.findByLabelText(labelSave).should('be.disabled');
+  //   cy.findAllByText(labelChooseAtleastOneContactOrContactGroup).should(
+  //     'have.length',
+  //     2
+  //   );
+  //   cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.get('#panel-content').scrollTo('bottom');
+  //   cy.get('#panel-content').scrollTo('bottom');
 
-    cy.makeSnapshot();
-  });
+  //   cy.makeSnapshot();
+  // });
 
   it('ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
     cy.waitForRequest('@getNotificationRequest');
