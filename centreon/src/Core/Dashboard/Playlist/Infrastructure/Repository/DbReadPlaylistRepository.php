@@ -28,7 +28,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Dashboard\Playlist\Application\Repository\ReadPlaylistRepositoryInterface;
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 /**
  * @phpstan-type _Playlist array{
@@ -41,9 +40,7 @@ use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
  *     created_at: int,
  *     updated_at: ?int,
  *     is_public: int,
- *     contact_alias: ?string,
- *     dashboard_id: ?int,
- *     order: ?int
+ *     dashboard_ids: ?string,
  * }
  */
 class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlaylistRepositoryInterface
@@ -60,10 +57,8 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     {
         $query = <<<'SQL'
                 SELECT
-                    dpl.*, c.contact_alias, dplr.*
+                    dpl.*, GROUP_CONCAT(dplr.dashboard_id) as dashboard_ids
                 FROM `:db`.dashboard_playlist AS dpl
-                LEFT JOIN `:db`.contact AS c
-                    ON dpl.created_by = c.contact_id
                 LEFT JOIN `:db`.dashboard_playlist_relation dplr
                     ON dpl.id = dplr.playlist_id
                 WHERE dpl.id = :playlistId
@@ -73,8 +68,8 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
         $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_STR);
         $statement->execute();
 
-        /** @var false|_Playlist[] $data */
-        $data = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        /** @var false|_Playlist $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
 
         return $data ? $this->createPlaylistFromRecord($data) : null;
     }
@@ -121,33 +116,71 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
         return (bool) $statement->fetchColumn();
     }
 
+    public function findDashboardOrders($playlistId, array $dashboards): array
+    {
+        $bind = [];
+        foreach ($dashboards as $key => $dashboard) {
+            $bind[':dashboard_' . $key] = $dashboard->getId();
+        }
+        if ([] === $bind) {
+            return [];
+        }
+        $dashboardIdsAsString = implode(', ', array_keys($bind));
+        $query = <<<SQL
+            SELECT dashboard_id, `order` FROM `:db`.`dashboard_playlist_relation`
+            WHERE playlist_id = :playlistId
+            AND dashboard_id IN ({$dashboardIdsAsString})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
+        foreach ($bind as $token => $dashboardId) {
+            $statement->bindValue($token, $dashboardId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        /** @var false|array<array{dashboard_id: int, order: int}> $data */
+        $data = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createDashboardsOrderFromRecord($data) : [];
+    }
+
     /**
-     * @param _Playlist[] $data
+     * @param _Playlist $data
      *
      * @return Playlist
      */
     private function createPlaylistFromRecord(array $data): Playlist
     {
-        $playlistConfiguration = $data[0];
         $playlist = new Playlist(
-            $playlistConfiguration['id'],
-            $playlistConfiguration['name'],
-            $playlistConfiguration['rotation_time'],
-            (bool) $playlistConfiguration['is_public']
+            $data['id'],
+            $data['name'],
+            $data['rotation_time'],
+            (bool) $data['is_public'],
+            (new \DateTimeImmutable())->setTimestamp($data['created_at'])
         );
-        $playlist->setDescription($playlistConfiguration['description']);
-        if ($playlistConfiguration['contact_alias'] !== null && $playlistConfiguration['created_by'] !== null) {
-            $playlist->setAuthor(new PlaylistAuthor($playlistConfiguration['created_by'], $playlistConfiguration['contact_alias']));
+        $playlist->setDescription($data['description']);
+        $playlist->setAuthorId($data['created_by']);
+        $dashboardIds = $data['dashboard_ids'] ? explode(',', $data['dashboard_ids']) : [];
+        foreach ($dashboardIds as $dashboardId) {
+            $playlist->addDashboardId((int) $dashboardId);
         }
-        $playlist->setCreatedAt((new \DateTimeImmutable())->setTimestamp($playlistConfiguration['created_at']));
-        $dashboardsOrder = [];
-        foreach ($data as $recordRow) {
-            if ($recordRow['dashboard_id'] !== null && $recordRow['order'] !== null) {
-                $dashboardsOrder[] = new DashboardOrder($recordRow['dashboard_id'], $recordRow['order']);
-            }
-        }
-        $playlist->setDashboardsOrder($dashboardsOrder);
 
         return $playlist;
+    }
+
+    /**
+     * @param array<array{dashboard_id: int, order: int}> $data
+     *
+     * @return DashboardOrder[]
+     */
+    private function createDashboardsOrderFromRecord(array $data): array
+    {
+        $dashboardsOrder = [];
+        foreach ($data as $row) {
+            $dashboardsOrder[] = new DashboardOrder($row['dashboard_id'], $row['order']);
+        }
+
+        return $dashboardsOrder;
     }
 }
