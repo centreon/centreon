@@ -37,7 +37,7 @@ export const labelConfirmAddNotification = 'Confirm notification creation';
 export const labelChooseAtLeastOneResource = 'Choose at least 1 resource';
 export const labelChooseAtleastOneServiceGroup =
   'Choose at least 1 service group';
-export const labelChooseAtleastOneContact = 'Choose at least 1 contact';
+export const labelChooseAtleastOneContact = 'Add at least 1 contact';
 export const labelMessageFieldShouldNotBeEmpty =
   'The message field should not be empty!';
 export const labelClosePanel = 'Close the panel';
