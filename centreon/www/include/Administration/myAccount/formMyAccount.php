@@ -110,13 +110,12 @@ if ($centreon->user->authType === 'local') {
     $form->addElement('text', 'contact_name', _("Name"), $attrsText);
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
     $form->addElement('text', 'contact_email', _("Email"), $attrsText);
-    $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
 } else {
     $form->addElement('text', 'contact_name', _("Name"), $attrsText, $attrsText)->freeze();
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText)->freeze();
     $form->addElement('text', 'contact_email', _("Email"), $attrsText, $attrsText)->freeze();
-    $form->addElement('text', 'contact_pager', _("Pager"), $attrsText, $attrsText)->freeze();
 }
+$form->addElement('text', 'contact_pager', _("Pager"), $attrsText, $attrsText);
 
 
 if ($centreon->user->authType === 'local') {
