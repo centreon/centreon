@@ -520,7 +520,7 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 
 # Install Lua script
 %{__install} -d $RPM_BUILD_ROOT%{_datadir}/centreon-broker/lua/
-%{__cp} -rp lua/centreon-cloud-notifications.lua $RPM_BUILD_ROOT%{_datadir}/centreon-broker/lua/
+%{__cp} -rp centreon/lua/centreon-cloud-notifications.lua $RPM_BUILD_ROOT%{_datadir}/centreon-broker/lua/
 
 ######################################################
 # Package centreon
