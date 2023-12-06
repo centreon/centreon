@@ -177,7 +177,7 @@ class DbReadPlaylistRepository extends AbstractRepositoryRDB implements ReadPlay
     private function createDashboardsOrderFromRecord(array $data): array
     {
         $dashboardsOrder = [];
-        foreach($data as $row) {
+        foreach ($data as $row) {
             $dashboardsOrder[] = new DashboardOrder($row['dashboard_id'], $row['order']);
         }
 
