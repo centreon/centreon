@@ -50,13 +50,13 @@ contents:
   - src: "../cron/centreon-dsm"
     dst: "/etc/cron.d/centreon-dsm"
 
-  - src: "./src/systemd/dsmd.service"
-    dst: "/etc/systemd/system/dsmd.service"
+  - src: "./libinstall/systemd/dsmd.systemd"
+    dst: "/etc/systemd/system/dsmd.systemd"
     file_info:
       mode: 0755
     packager: rpm
-  - src: "./src/systemd/dsmd.service"
-    dst: "/lib/systemd/system/dsmd.service"
+  - src: "./libinstall/systemd/dsmd.systemd"
+    dst: "/lib/systemd/system/dsmd.systemd"
     file_info:
       mode: 0755
     packager: deb
