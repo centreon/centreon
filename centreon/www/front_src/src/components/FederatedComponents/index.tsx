@@ -34,6 +34,10 @@ interface Props extends Record<string, unknown> {
 const getFederatedComponents = (
   federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>
 ): Array<string> => {
+  if (equals(type(federatedComponentsConfiguration), 'Object')) {
+    return federatedComponentsConfiguration.federatedComponents;
+  }
+
   return flatten(
     pluck('federatedComponents', federatedComponentsConfiguration)
   );
