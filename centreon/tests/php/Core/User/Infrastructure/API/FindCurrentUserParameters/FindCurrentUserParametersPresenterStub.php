@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\User\Application\UseCase\FindCurrentUserParameters;
+namespace Tests\Core\User\Infrastructure\API\FindCurrentUserParameters;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersPresenterInterface;
