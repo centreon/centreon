@@ -56,6 +56,10 @@ before(() => {
   }).as('generateAndReloadPollers');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.startWebContainer();
@@ -147,6 +151,10 @@ before(() => {
 });
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards?'
