@@ -13,8 +13,8 @@ export enum UnitDate {
 export interface Duration {
   id: string;
   name: string;
-  unit: UnitDate;
-  value: number;
+  unit: UnitDate | null;
+  value: number | null;
 }
 
 export type CreatedToken = Token & { token: string };
@@ -31,7 +31,7 @@ export const dataDuration: Array<Duration> = [
   { id: '30days', name: '30 days', unit: UnitDate.Day, value: 30 },
   { id: '60days', name: '60 days', unit: UnitDate.Day, value: 60 },
   { id: '90days', name: '90 days', unit: UnitDate.Day, value: 90 },
-  { id: 'oneyear', name: '1 year', unit: UnitDate.Year, value: 1 },
+  { id: '1year', name: '1 year', unit: UnitDate.Year, value: 1 },
   { id: 'customize', name: 'Customize', unit: null, value: null }
 ];
 

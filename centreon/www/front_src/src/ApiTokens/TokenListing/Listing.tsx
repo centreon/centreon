@@ -6,7 +6,7 @@ import Divider from '@mui/material/Divider';
 import { MemoizedListing as TokenListing } from '@centreon/ui';
 
 import TokenCreationButton from '../TokenCreation';
-import CreateTokenDialog from '../TokenCreation/CreateTokenDialog';
+import CreateTokenDialog from '../TokenCreation/TokenCreationDialog';
 import { isCreateTokenAtom } from '../TokenCreation/atoms';
 import { labelApiToken } from '../translatedLabels';
 

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { equals } from 'ramda';
 
 import {
   Method,
@@ -7,9 +8,9 @@ import {
   useMutationQuery
 } from '@centreon/ui';
 
+import { CreateTokenFormValues } from '../TokenListing/models';
 import { createTokenEndpoint } from '../api/endpoints';
 import useRefetch from '../useRefetch';
-import { CreateTokenFormValues } from '../TokenListing/models';
 
 import { CreatedToken, dataDuration } from './models';
 
@@ -41,8 +42,20 @@ const useCreateToken = (): UseCreateToken => {
   const createToken = ({
     tokenName,
     duration,
-    user
+    user,
+    customizeDate
   }: Required<CreateTokenFormValues>): void => {
+    if (equals(duration?.id, 'customize')) {
+      const expirationDate = toIsoString(customizeDate);
+
+      mutateAsync({
+        expiration_date: expirationDate,
+        name: tokenName,
+        user_id: user?.id
+      });
+
+      return;
+    }
     const durationItem = dataDuration.find(({ id }) => id === duration?.id);
 
     const expirationDate = getExpirationDate({

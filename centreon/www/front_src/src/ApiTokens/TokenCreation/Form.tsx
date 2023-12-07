@@ -1,9 +1,8 @@
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import { useFormik } from 'formik';
+import { useRef, useState } from 'react';
+
+import { useFormikContext } from 'formik';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { object, string } from 'yup';
 
 import { Typography } from '@mui/material';
 
@@ -18,20 +17,24 @@ import { CreateTokenFormValues } from '../TokenListing/models';
 import { buildListEndpoint, listConfiguredUser } from '../api/endpoints';
 import { labelCreateNewToken } from '../translatedLabels';
 
+import CustomTimePeriod from './CustomTimePeriod';
 import TokenInput from './TokenInput';
 import { isCreateTokenAtom } from './atoms';
 import { dataDuration } from './models';
-import useCreateToken from './useCreateToken';
-import useCreateTokenFormValues from './useCreateTokenFormValues';
+import useCreateTokenFormValues from './useTokenFormValues';
 
-dayjs.extend(relativeTime);
-
-const CreateTokenDialog = (): JSX.Element => {
+const FormCreation = ({ data, isMutating }): JSX.Element => {
   const { t } = useTranslation();
 
-  const [isCreateToken, setIsCreateToken] = useAtom(isCreateTokenAtom);
+  const [isDisplayingDaTimePicker, setIsDisplayingDateTimePicker] =
+    useState(false);
 
-  const { createToken, data, isMutating } = useCreateToken();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(true);
+
+  const refTest = useRef();
+
+  const [isCreateToken, setIsCreateToken] = useAtom(isCreateTokenAtom);
 
   const {
     values,
@@ -40,30 +43,9 @@ const CreateTokenDialog = (): JSX.Element => {
     handleChange,
     setFieldValue,
     handleSubmit,
-    resetForm
-  } = useFormik<CreateTokenFormValues>({
-    initialValues: {
-      duration: null,
-      tokenName: '',
-      user: null
-    },
-    onSubmit: (dataForm) => {
-      const { duration, tokenName, user } = dataForm;
-
-      createToken({ duration, tokenName, user });
-    },
-    validationSchema: object({
-      duration: object({
-        id: string().required(),
-        name: string().required()
-      }).required(),
-      tokenName: string().required(),
-      user: object({
-        id: string().required(),
-        name: string().required()
-      }).required()
-    })
-  });
+    resetForm,
+    errors
+  } = useFormikContext<CreateTokenFormValues>();
 
   const { token, duration, tokenName, user } = useCreateTokenFormValues({
     data,
@@ -82,7 +64,16 @@ const CreateTokenDialog = (): JSX.Element => {
     setIsCreateToken(false);
   };
 
-  const changeDuration = (_, value): void => {
+  const changeDuration = (e, value): void => {
+    if (value.id === 'customize') {
+      setIsDisplayingDateTimePicker(true);
+      setAnchorEl(refTest?.current);
+      setOpen(true);
+      setFieldValue('duration', value);
+
+      return;
+    }
+
     setFieldValue('duration', value);
   };
 
@@ -99,7 +90,7 @@ const CreateTokenDialog = (): JSX.Element => {
     <Dialog
       confirmDisabled={!dirty || !isValid}
       labelConfirm={token ? 'Close' : 'Generate new Token'}
-      labelTitle={token ? 'Token has been created' : t(labelCreateNewToken)}
+      labelTitle={token ? `Token has been created` : t(labelCreateNewToken)}
       open={isCreateToken}
       submitting={isMutating}
       onCancel={token ? undefined : closeDialog}
@@ -123,14 +114,24 @@ const CreateTokenDialog = (): JSX.Element => {
       />
       <SingleAutocompleteField
         disabled={Boolean(token)}
+        error={errors?.duration?.invalidDate}
+        getOptionItemLabel={(option) => option?.name}
         id="duration"
         label="Duration"
         options={options}
+        ref={refTest}
         required={!token}
         style={{ marginBottom: 20, width: 400 }}
         value={duration}
         onChange={changeDuration}
       />
+      {isDisplayingDaTimePicker && (
+        <CustomTimePeriod
+          anchorElDuration={{ anchorEl, setAnchorEl }}
+          openPicker={{ open, setOpen }}
+          setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
+        />
+      )}
 
       <SingleConnectedAutocompleteField
         disabled={Boolean(token)}
@@ -148,4 +149,4 @@ const CreateTokenDialog = (): JSX.Element => {
   );
 };
 
-export default CreateTokenDialog;
+export default FormCreation;

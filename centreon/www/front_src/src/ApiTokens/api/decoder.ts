@@ -27,7 +27,7 @@ const tokenDecoder = JsonDecoder.object<Token>(
   'Token'
 );
 
-export const listTokensDecoder = buildListingDecoder({
+export const listTokensDecoder = buildListingDecoder<Token>({
   entityDecoder: tokenDecoder,
   entityDecoderName: 'Tokens',
   listingDecoderName: 'listTokens'

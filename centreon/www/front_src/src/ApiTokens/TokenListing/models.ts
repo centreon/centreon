@@ -44,7 +44,8 @@ export interface SortParams {
 }
 
 export interface CreateTokenFormValues {
-  duration: Duration | null;
+  customizeDate: null | Date;
+  duration: Omit<Duration, 'unit'> | null;
   tokenName: string;
   user: PersonalInformation | null;
 }

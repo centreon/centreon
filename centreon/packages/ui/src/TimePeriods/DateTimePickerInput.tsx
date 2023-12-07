@@ -4,7 +4,11 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
-import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import {
+  DateTimePicker,
+  DateTimePickerProps,
+  LocalizationProvider
+} from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { userAtom } from '@centreon/ui-context';
@@ -33,8 +37,9 @@ const DateTimePickerInput = ({
   property,
   changeDate,
   disabled = false,
-  desktopMediaQuery
-}: Props): JSX.Element => {
+  desktopMediaQuery,
+  ...rest
+}: Props & DateTimePickerProps<dayjs.Dayjs>): JSX.Element => {
   const desktopPickerMediaQuery =
     '@media (min-width: 1024px) or (pointer: fine)';
 
@@ -69,6 +74,7 @@ const DateTimePickerInput = ({
         minDate={minDate && formatDate(minDate)}
         value={formatDate(date)}
         onChange={changeTime}
+        {...rest}
       />
     </LocalizationProvider>
   );
