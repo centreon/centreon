@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { concat, equals, filter, flatten, isNil, pathEq, pluck } from 'ramda';
+import { concat, equals, filter, flatten, isNil, pluck } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
