@@ -106,7 +106,7 @@ $attrsText = ["size" => "35"];
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Change my settings"));
 $form->addElement('header', 'information', _("General Information"));
-if ($centreon->user->authType === 'local') {
+if ($cct['contact_auth_type'] === 'local') {
     $form->addElement('text', 'contact_name', _("Name"), $attrsText);
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
     $form->addElement('text', 'contact_email', _("Email"), $attrsText);
@@ -117,7 +117,7 @@ if ($centreon->user->authType === 'local') {
 }
 $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
 
-if ($centreon->user->authType === 'local') {
+if ($cct['contact_auth_type'] === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
         "SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1"
@@ -383,7 +383,7 @@ $form->applyFilter('contact_name', 'myReplace');
 $form->addRule('contact_name', _("Compulsory name"), 'required');
 $form->addRule('contact_alias', _("Compulsory alias"), 'required');
 $form->addRule('contact_email', _("Valid Email"), 'required');
-if ($centreon->user->authType === 'local') {
+if ($cct['contact_auth_type'] === 'local') {
     $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
 }
 $form->registerRule('exist', 'callback', 'testExistence');
@@ -420,7 +420,7 @@ if ($o == "c") {
 $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
-    if ($centreon->user->authType === 'local') {
+    if ($cct['contact_auth_type'] === 'local') {
         updateContactInDB($centreon->user->get_id());
     } else {
         updateLocalContactInDB($centreon->user->get_id());
