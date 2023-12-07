@@ -25,8 +25,8 @@ namespace Tests\Core\User\Application\UseCase\FindUsers;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -44,7 +44,7 @@ beforeEach(function (): void {
         $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->requestParameters = $this->createMock(SqlRequestParametersTranslator::class),
+        $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->isCloudPlatform = false,
     );
 
