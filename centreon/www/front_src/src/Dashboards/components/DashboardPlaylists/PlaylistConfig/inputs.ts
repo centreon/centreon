@@ -5,7 +5,7 @@ import { InputProps, InputType } from '@centreon/ui';
 import {
   labelDefineTheOrderOfDashboards,
   labelDescription,
-  labelPlaylistName,
+  labelName,
   labelSelectDashboards
 } from '../../../translatedLabels';
 
@@ -17,7 +17,7 @@ export const inputs: Array<InputProps> = [
   {
     fieldName: 'name',
     group: '',
-    label: labelPlaylistName,
+    label: labelName,
     type: InputType.Text
   },
   {
