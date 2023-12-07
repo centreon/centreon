@@ -53,4 +53,4 @@ export const labelPlaylistUpdated = 'Playlist updated';
 export const labelRotationTimeShouldBeAtLeast =
   'Rotation time must be at least 10 seconds.';
 export const labelRotationTimeShouldBeAtMost =
-  'Rotation time must be at most 60 seconds.';
+  'Rotation time cannot exceed 60 seconds.';

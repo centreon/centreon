@@ -17153,5 +17153,5 @@ msgstr ""
 # msgid "Rotation time must be at least 10 seconds."
 # msgstr ""
 
-# msgid "Rotation time must be at most 60 seconds."
+# msgid "Rotation time cannot exceed 60 seconds."
 # msgstr ""
