@@ -498,6 +498,32 @@ describe('AddEditWidgetModal', () => {
         });
       });
 
+      it('does not suggest a selected resource type when adding new resource', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data (example)').click();
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.findByText('Host 0').click();
+
+        cy.findByLabelText(labelRefineFilter).click();
+
+        cy.findAllByTestId(labelResourceType)
+          .eq(1)
+          .parent()
+          .children()
+          .eq(0)
+          .click();
+
+        cy.findAllByText(/^Host$/).should('have.length', 1);
+
+        cy.makeSnapshot();
+      });
+
       it('removes resource item when delete icon is clicked', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data (example)').click();
