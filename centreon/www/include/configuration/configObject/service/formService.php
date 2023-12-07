@@ -174,11 +174,11 @@ const PASSWORD_REPLACEMENT_VALUE = '**********';
 /**
  * Database retrieve information for Service.
  *
- * @param unknown_type $arg
+ * @param ?string $arg
  */
 function myDecodeService($arg)
 {
-    $arg = str_replace('#BR#', '\\n', $arg);
+    $arg = str_replace('#BR#', '\\n', $arg ?? '');
     $arg = str_replace('#T#', '\\t', $arg);
     $arg = str_replace('#R#', '\\r', $arg);
     $arg = str_replace('#S#', '/', $arg);

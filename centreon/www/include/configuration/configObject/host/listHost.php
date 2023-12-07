@@ -306,7 +306,7 @@ $search = tidySearchKey($search, $advanced_search);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = array();
-$search = str_replace('\_', "_", $search);
+$search = str_replace('\_', "_", $search ?? '');
 
 
 $centreonToken = createCSRFToken();
