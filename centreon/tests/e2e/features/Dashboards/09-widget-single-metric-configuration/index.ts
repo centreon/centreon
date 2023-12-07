@@ -11,7 +11,10 @@ import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/wid
 
 before(() => {
   cy.startWebContainer();
-  cy.enableDashboardFeature();
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
