@@ -1,6 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PatternType } from '../../../support/commands';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
@@ -9,16 +8,13 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-      ? 'apache'
-      : 'www-data';
+    ? 'apache'
+    : 'www-data';
   cy.execInContainer({
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
     name: Cypress.env('dockerName')
@@ -121,19 +117,20 @@ Then('configuration properties for the Top Bottom widget are displayed', () => {
   cy.getByTestId({ testId: 'Top' }).should('exist');
 });
 
-When('the dashboard administrator user selects a list of resources and the metric for the widget to report on',
+When(
+  'the dashboard administrator user selects a list of resources and the metric for the widget to report on',
   () => {
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-      cy.getByTestId({ testId: 'Resource type' }).realClick();
-      cy.getByLabel({ label: 'Host Group' }).click();
-      cy.getByTestId({ testId: 'Select resource' }).click();
-      cy.contains('Linux-Servers').realClick();
-      cy.getByTestId({ testId: 'Select metric' }).click();
-      cy.contains('rta (ms) / Includes 1 resources').realClick();
-      cy.wait('@dashboardMetricsTop');
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Host Group' }).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.contains('Linux-Servers').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).click();
+    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.wait('@dashboardMetricsTop');
   }
 );
 
@@ -166,12 +163,12 @@ Given('a dashboard configured with a Top Bottom widget', () => {
   })
     .contains(dashboards.default.name)
     .click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'More actions' }).click();
-    cy.get('li[aria-label="Edit widget"]').click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.get('li[aria-label="Edit widget"]').click();
 });
 
 When(
@@ -181,14 +178,17 @@ When(
   }
 );
 
-Then('the bar associated with the host is removed from the Top Bottom widget preview', () => {
-  cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-    .eq(1)
-    .should('not.exist');
-  cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-    .eq(1)
-    .should('not.exist');
-});
+Then(
+  'the bar associated with the host is removed from the Top Bottom widget preview',
+  () => {
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' })
+      .eq(1)
+      .should('not.exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' })
+      .eq(1)
+      .should('not.exist');
+  }
+);
 
 When(
   'the dashboard administrator user adds a host from the dataset selection of the Top Bottom widget',
@@ -202,15 +202,17 @@ When(
   }
 );
 
-Then('the bar associated with the host is added in the Top Bottom widget preview', () => {
-  cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-    .eq(1)
-    .should('exist');
-  cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-    .eq(1)
-    .should('exist');
-});
-
+Then(
+  'the bar associated with the host is added in the Top Bottom widget preview',
+  () => {
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' })
+      .eq(1)
+      .should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' })
+      .eq(1)
+      .should('exist');
+  }
+);
 
 Given('a dashboard having a configured Top Bottom widget', () => {
   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
@@ -247,7 +249,10 @@ Then('a second Top Bottom widget is displayed on the dashboard', () => {
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
-  cy.insertDashboardWithSingleMetricWidget(dashboards.default, dashbboardWithTwoTopBottomWidgets);
+  cy.insertDashboardWithSingleMetricWidget(
+    dashboards.default,
+    dashbboardWithTwoTopBottomWidgets
+  );
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
   cy.getByLabel({
     label: 'view',
@@ -255,12 +260,12 @@ Given('a dashboard featuring two Top Bottom widgets', () => {
   })
     .contains(dashboards.default.name)
     .click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.wait('@dashboardMetricsTop')
-    cy.getByTestId({ testId: 'More actions' }).eq(0).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.wait('@dashboardMetricsTop');
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
@@ -294,14 +299,14 @@ Given('a dashboard with a configured Top Bottom widget', () => {
   cy.get('li[aria-label="Edit widget"]').click();
 });
 
-  When(
-    'the dashboard administrator user selects the option to hide the value labels',
+When(
+  'the dashboard administrator user selects the option to hide the value labels',
   () => {
     cy.getByLabel({
       label: 'Show value labels',
       tag: 'input'
     }).click();
-    cy.wait('@dashboardMetricsTop')
+    cy.wait('@dashboardMetricsTop');
   }
 );
 
