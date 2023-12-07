@@ -6,6 +6,11 @@ properties:
     description: User id
     example: 1
 
+  name:
+    type: string
+    description: User full name
+    example: John Doe
+
   alias:
     type: string
     description: User alias / login
