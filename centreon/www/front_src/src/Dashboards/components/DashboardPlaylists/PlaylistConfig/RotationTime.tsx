@@ -57,7 +57,10 @@ const RotationTime = ({
           onChange={change}
         />
         <Typography>
-          {pluralizedT({ count: value, label: labelSecond })}
+          {pluralizedT({
+            count: value,
+            label: labelSecond
+          }).toLocaleLowerCase()}
         </Typography>
         <Typography>({t(labelRotationTime).toLocaleLowerCase()})</Typography>
       </div>
