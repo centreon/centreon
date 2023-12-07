@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { concat, filter, isNil, pathEq } from 'ramda';
+import { concat, equals, filter, flatten, isNil, pathEq, pluck } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -11,6 +11,7 @@ import {
 } from '../../federatedModules/atoms';
 import { Remote } from '../../federatedModules/Load';
 import {
+  FederatedComponentsConfiguration,
   FederatedModule,
   StyleMenuSkeleton
 } from '../../federatedModules/models';
@@ -20,6 +21,14 @@ interface Props extends Record<string, unknown> {
   isFederatedWidget?: boolean;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
+
+const getFederatedComponents = (
+  federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>
+): Array<string> => {
+  return flatten(
+    pluck('federatedComponents', federatedComponentsConfiguration)
+  );
+};
 
 const FederatedModules = ({
   federatedModulesConfigurations,
@@ -37,7 +46,7 @@ const FederatedModules = ({
             federatedComponentsConfiguration,
             moduleName
           }) => {
-            return federatedComponentsConfiguration.federatedComponents.map(
+            return getFederatedComponents(federatedComponentsConfiguration).map(
               (component) => {
                 return (
                   <Remote
@@ -83,12 +92,23 @@ const getLoadableComponents = ({
 
   const components = path
     ? filter(
-        pathEq(path, ['federatedComponentsConfiguration', 'path']),
+        ({ federatedComponentsConfiguration }) =>
+          federatedComponentsConfiguration.some(({ path: federatedPath }) =>
+            equals(path, federatedPath)
+          ),
         federatedModules
       )
     : federatedModules;
 
-  return components;
+  return path
+    ? components.map(({ federatedComponentsConfiguration, ...rest }) => ({
+        ...rest,
+        federatedComponentsConfiguration:
+          federatedComponentsConfiguration.filter(({ path: federatedPath }) =>
+            equals(path, federatedPath)
+          )
+      }))
+    : components;
 };
 
 const defaultStyleMenuSkeleton = {
