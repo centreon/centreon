@@ -31,7 +31,7 @@ const TokenInput = ({ token }: Props): JSX.Element => {
         dataTestId="tokenInput"
         id="token"
         label="Token"
-        style={{ width: 380 }}
+        style={{ width: '100%' }}
         type={isVisible ? 'text' : 'password'}
         value={token}
       />

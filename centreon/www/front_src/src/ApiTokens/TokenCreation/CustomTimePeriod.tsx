@@ -28,6 +28,7 @@ const CustomTimePeriod = ({
   const validateDate = (date): void => {
     if (!dayjs(date).isValid()) {
       setFieldValue('duration', null);
+      setFieldValue('customizeDate', null);
 
       return;
     }

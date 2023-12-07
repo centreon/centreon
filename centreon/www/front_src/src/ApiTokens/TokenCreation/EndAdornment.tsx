@@ -15,6 +15,7 @@ export const endAdornment =
       <IconButton
         aria-label="toggle password visibility"
         edge="end"
+        style={{ marginRight: 4 }}
         onClick={onClick}
       >
         {isVisible ? <Visibility /> : <VisibilityOff />}
