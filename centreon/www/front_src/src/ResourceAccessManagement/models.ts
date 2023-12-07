@@ -1,4 +1,4 @@
-import { Column, SelectEntry } from '@centreon/ui';
+import { Column } from '@centreon/ui';
 
 export enum ModalMode {
   Create = 'create',
@@ -52,18 +52,20 @@ export type ResourceAccessRuleType = {
   name: string;
 };
 
-type Resource = {
+export type Resource = {
   resourceType: string;
-  resources: Array<SelectEntry>;
+  resources: Array<number>;
+};
+
+export type Contact = {
+  id: number;
+  name: string;
 };
 
 export type ResourceAccessRule = ResourceAccessRuleType & {
+  contactGroups: Array<Contact>;
+  contacts: Array<Contact>;
   datasets: Array<Array<Resource>>;
-};
-
-export type ContactGroup = {
-  id: number;
-  name: string;
 };
 
 export type SortOrder = 'asc' | 'desc';
