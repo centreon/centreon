@@ -1,6 +1,15 @@
 import { useMemo } from 'react';
 
-import { concat, equals, filter, flatten, isNil, pluck } from 'ramda';
+import {
+  concat,
+  equals,
+  filter,
+  flatten,
+  isNil,
+  pluck,
+  reject,
+  type
+} from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -90,15 +99,20 @@ const getLoadableComponents = ({
     return null;
   }
 
+  const filteredFederatedModules = reject(
+    (federatedModule) => equals(type(federatedModule), 'String'),
+    federatedModules
+  );
+
   const components = path
     ? filter(
         ({ federatedComponentsConfiguration }) =>
           federatedComponentsConfiguration.some(({ path: federatedPath }) =>
             equals(path, federatedPath)
           ),
-        federatedModules
+        filteredFederatedModules
       )
-    : federatedModules;
+    : filteredFederatedModules;
 
   return path
     ? components.map(({ federatedComponentsConfiguration, ...rest }) => ({
