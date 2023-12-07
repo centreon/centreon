@@ -10,36 +10,35 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
 
-const serviceOk = 'service_test_ok';
-const hostsToCheck = [{ name: 'host2' }, { name: 'host3' }];
-const servicesToCheck = [
-  { name: serviceOk },
-  { name: 'service3' },
-  { name: 'service2' }
-];
+const services = {
+  serviceCritical: { host: 'host3', template: 'SNMP-Linux-Load-Average' },
+  serviceOk: { host: 'host1', template: 'Ping-LAN' },
+  serviceWarning: { host: 'host2', template: 'SNMP-Linux-Memory' }
+};
+
 const resultsToSubmit = [
   {
-    host: 'host2',
+    host: services.serviceWarning.host,
     output: 'submit_status_2',
     service: 'service3',
     status: 'critical'
   },
   {
-    host: 'host2',
+    host: services.serviceWarning.host,
     output: 'submit_status_2',
     service: 'service2',
     status: 'warning'
   },
   {
-    host: 'host2',
+    host: services.serviceWarning.host,
     output: 'submit_status_2',
-    service: serviceOk,
+    service: 'serviceOk',
     status: 'ok'
   },
   {
-    host: 'host3',
+    host: services.serviceCritical.host,
     output: 'submit_status_2',
-    service: serviceOk,
+    service: 'serviceOk',
     status: 'ok'
   }
 ];
@@ -75,55 +74,56 @@ before(() => {
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
   cy.addHostForWidget({
-    name: 'host2',
+    name: services.serviceOk.host,
     template: 'generic-host'
   })
     .addService({
       activeCheckEnabled: false,
-      host: 'host2',
+      host: services.serviceOk.host,
       maxCheckAttempts: 1,
-      name: serviceOk,
-      template: 'Ping-LAN'
+      name: 'serviceOk',
+      template: services.serviceOk.template
     })
     .addService({
       activeCheckEnabled: false,
-      host: 'host2',
+      host: services.serviceOk.host,
       maxCheckAttempts: 1,
       name: 'service2',
-      template: 'SNMP-Linux-Memory'
+      template: services.serviceWarning.template
     })
     .addService({
       activeCheckEnabled: false,
-      host: 'host2',
+      host: services.serviceOk.host,
       maxCheckAttempts: 1,
       name: 'service3',
-      template: 'SNMP-Linux-Load-Average'
+      template: services.serviceCritical.template
     })
     .applyPollerConfiguration();
+
   cy.addHostForWidget({
-    name: 'host3',
+    name: services.serviceCritical.host,
     template: 'generic-host'
   })
     .addService({
       activeCheckEnabled: false,
-      host: 'host3',
+      host: services.serviceCritical.host,
       maxCheckAttempts: 1,
-      name: serviceOk,
-      template: 'Ping-LAN'
+      name: 'serviceOk',
+      template: services.serviceOk.template
     })
     .addService({
       activeCheckEnabled: false,
-      host: 'host3',
+      host: services.serviceCritical.host,
       maxCheckAttempts: 1,
       name: 'service2',
-      template: 'SNMP-Linux-Memory'
+      template: services.serviceWarning.template
     })
     .addService({
       activeCheckEnabled: false,
-      host: 'host3',
+      host: services.serviceCritical.host,
       maxCheckAttempts: 1,
       name: 'service3',
-      template: 'SNMP-Linux-Load-Average'
+      template: services.serviceCritical.template
     })
     .applyPollerConfiguration();
 
@@ -132,12 +132,16 @@ before(() => {
   });
 
   cy.exportConfiguration();
-  checkHostsAreMonitored(hostsToCheck);
-  checkServicesAreMonitored(servicesToCheck);
+  checkHostsAreMonitored(
+    Object.keys(services).map((service) => ({ name: services[service].host }))
+  );
+  checkServicesAreMonitored(
+    Object.keys(services).map((service) => ({ name: service, status: 'ok' }))
+  );
   cy.submitResults(resultsToSubmit);
   checkServicesAreMonitored([
     { name: 'service3', status: 'critical' },
-    { name: serviceOk, status: 'ok' }
+    { name: 'serviceOk', status: 'ok' }
   ]);
 
   cy.logoutViaAPI();
