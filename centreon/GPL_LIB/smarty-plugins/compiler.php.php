@@ -21,8 +21,8 @@
 
 /**
  * The {php} tag :
- * - was deprecated in Smarty v3
- * - was abandoned in Smarty v4
+ * - was deprecated in Smarty v3 (in 2011)
+ * - was abandoned in Smarty v4 (in 2021)
  *
  * We need to support it, even it is VERY unsafe to use it, because legacy.
  *

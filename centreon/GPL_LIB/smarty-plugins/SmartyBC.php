@@ -25,12 +25,26 @@
  * It was deprecated in v3, but removed in v4, then we needed to reintroduce it to avoid
  * breaking the legacy everywhere.
  *
+ * This class was created by smarty in september 2011 : we need to get rid of it asap !
+ *
  * "BC" stands for "Backward Compatibility".
  *
  * @see Smarty_Compiler_Php
  */
 class SmartyBC extends Smarty
 {
+    /** @var array<callable-string>  */
+    private const SMARTY_V3_DEPRECATED_PHP_MODIFIERS = [
+        'count',
+        'sizeof',
+        'in_array',
+        'is_array',
+        'time',
+        'urlencode',
+        'rawurlencode',
+        'json_encode',
+    ];
+
     /**
      * Smarty 2 BC.
      *
@@ -51,6 +65,11 @@ class SmartyBC extends Smarty
     public function __construct()
     {
         parent::__construct();
+
+        // We need to explicitly define these plugins to avoid breaking a future smarty upgrade.
+        foreach (self::SMARTY_V3_DEPRECATED_PHP_MODIFIERS as $phpFunction) {
+            $this->registerPlugin(self::PLUGIN_MODIFIER, $phpFunction, $phpFunction);
+        }
     }
 
     /**
