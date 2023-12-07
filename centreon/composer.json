@@ -100,7 +100,9 @@
         },
         "classmap": ["www/class/", "lib/Centreon"],
         "files" : [
+            "GPL_LIB/smarty-plugins/compiler.php.php",
             "GPL_LIB/smarty-plugins/function.eval.php",
+            "GPL_LIB/smarty-plugins/SmartyBC.php",
             "www/api/exceptions.php",
             "www/api/class/webService.class.php",
             "www/lib/HTML/QuickForm/HTML_QuickFormCustom.php",
