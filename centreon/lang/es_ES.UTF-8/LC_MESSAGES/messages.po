@@ -16685,3 +16685,9 @@ msgstr "Modo avanzado"
 
 # msgid "Add at least 1 contact"
 # msgstr ""
+
+# msgid "Rotation time must be at least 10 seconds."
+# msgstr ""
+
+# msgid "Rotation time must be at most 60 seconds."
+# msgstr ""

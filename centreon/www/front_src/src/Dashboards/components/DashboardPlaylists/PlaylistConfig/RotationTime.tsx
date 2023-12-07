@@ -59,7 +59,7 @@ const RotationTime = ({
         <Typography>
           {pluralizedT({ count: value, label: labelSecond })}
         </Typography>
-        <Typography>({t(labelRotationTime)})</Typography>
+        <Typography>({t(labelRotationTime).toLocaleLowerCase()})</Typography>
       </div>
       {isTouched && error && (
         <FormHelperText error>{error as string | undefined}</FormHelperText>

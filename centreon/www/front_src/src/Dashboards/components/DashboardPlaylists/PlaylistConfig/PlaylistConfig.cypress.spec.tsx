@@ -20,6 +20,8 @@ import {
   labelPlaylistName,
   labelPlaylistProperties,
   labelRotationTime,
+  labelRotationTimeShouldBeAtLeast,
+  labelRotationTimeShouldBeAtMost,
   labelSelectDashboards
 } from '../../../translatedLabels';
 import { labelRequired, labelSave } from '../../../Dashboard/translatedLabels';
@@ -193,12 +195,12 @@ describe('Playlist Configuration: creation', () => {
     cy.findByTestId(labelRotationTime).type('{selectall}61');
 
     cy.contains(labelSave).should('be.disabled');
-    cy.contains('must be less than or equal to 60').should('be.visible');
+    cy.contains(labelRotationTimeShouldBeAtMost).should('be.visible');
 
     cy.findByTestId(labelRotationTime).type('{selectall}8');
 
     cy.contains(labelSave).should('be.disabled');
-    cy.contains('must be greater than or equal to 10').should('be.visible');
+    cy.contains(labelRotationTimeShouldBeAtLeast).should('be.visible');
 
     cy.makeSnapshot();
   });
