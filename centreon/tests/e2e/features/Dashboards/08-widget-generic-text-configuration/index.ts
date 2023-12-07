@@ -1,16 +1,13 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { patternInfo } from '../../../support/commands';
+import { PatternType } from '../../../support/commands';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );
@@ -125,7 +122,7 @@ Then("the Generic text widget is added in the dashboard's layout", () => {
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains('Your widget has been created successfully!').should('exist');
   cy.getByTestId({
-    patternInfo: patternInfo.startsWith,
+    patternInfo: PatternType.startsWith,
     testId: 'panel_/widgets/generictext'
   }).should('exist');
 });
