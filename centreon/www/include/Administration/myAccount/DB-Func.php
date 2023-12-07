@@ -258,7 +258,8 @@ function checkAutologinValue(array $fields)
 
     return count($errors) > 0 ? $errors : true;
 }
-function updateLocalContactInDB($contact_id = null){
+function updateLocalContactInDB($contact_id = null): void
+{
     global $pearDB, $centreon, $form;
 
     if (! $contact_id){
