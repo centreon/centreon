@@ -27,7 +27,7 @@ const resultsToSubmit = [
   {
     host: services.serviceWarning.host,
     output: 'submit_status_2',
-    service: services.serviceCritical.name,
+    service: services.serviceCritical.name, // Corrected this line
     status: 'critical'
   },
   {
@@ -52,24 +52,8 @@ const resultsToSubmit = [
 before(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
-  }).as('listAllDashboards');
-  cy.intercept({
-    method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
-  }).as('addContactToDashboardShareList');
-  cy.intercept({
-    method: 'GET',
-    url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
-  }).as('performanceData');
-  cy.intercept({
-    method: 'GET',
     url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
   }).as('generateAndReloadPollers');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
@@ -164,9 +148,21 @@ before(() => {
 
 beforeEach(() => {
   cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/dashboards?'
+  }).as('listAllDashboards');
+  cy.intercept({
+    method: 'POST',
+    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+  }).as('addContactToDashboardShareList');
+  cy.intercept({
     method: 'PATCH',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
+  cy.intercept({
+    method: 'GET',
+    url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
+  }).as('performanceData');
   cy.intercept({
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
