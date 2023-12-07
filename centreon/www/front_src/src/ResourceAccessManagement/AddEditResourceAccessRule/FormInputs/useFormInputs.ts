@@ -1,17 +1,25 @@
 import { useTranslation } from 'react-i18next';
 
+import { Variant } from '@mui/material/styles/createTypography';
+
 import { InputProps, Group, InputType } from '@centreon/ui';
 
 import {
   labelContactGroups,
   labelContacts,
+  labelContactsAndContactGroups,
   labelDescription,
   labelName,
   labelResourceSelection,
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
-import { findContactGroupsEndpoint } from '../api/endpoints';
+import {
+  findContactGroupsEndpoint,
+  findContactsEndpoint
+} from '../api/endpoints';
+
+import { useInputStyles } from './Inputs.styles';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -20,62 +28,108 @@ interface UseFormInputsState {
 
 const useFormInputs = (): UseFormInputsState => {
   const { t } = useTranslation();
+  const { classes } = useInputStyles();
+
+  const titleAttributes = {
+    classes: { root: classes.titleGroup },
+    variant: 'subtitle1' as Variant
+  };
 
   const groups: Array<Group> = [
     {
       name: t(labelRuleProperies),
-      order: 1
+      order: 1,
+      titleAttributes
     },
     {
       name: t(labelResourceSelection),
-      order: 2
+      order: 2,
+      titleAttributes
     },
     {
-      name: t(labelContacts),
-      order: 3
-    },
-    {
-      name: t(labelContactGroups),
-      order: 4
+      name: t(labelContactsAndContactGroups),
+      order: 3,
+      titleAttributes
     }
   ];
 
   const inputs: Array<InputProps> = [
     {
-      dataTestId: t(labelName),
-      fieldName: 'ruleName',
-      group: groups[0].name,
-      label: t(labelName),
-      required: true,
-      type: InputType.Text
-    },
-    {
-      dataTestId: t(labelDescription),
-      fieldName: 'ruleDescription',
-      group: groups[0].name,
-      label: t(labelDescription),
-      required: true,
-      type: InputType.Text
-    },
-    {
-      dataTestId: t(labelStatus),
-      fieldName: 'ruleActivated',
-      group: groups[0].name,
-      label: t(labelStatus),
-      type: InputType.Switch
-    },
-    {
-      connectedAutocomplete: {
-        additionalConditionParameters: [],
-        endpoint: findContactGroupsEndpoint
+      dataTestId: t(labelRuleProperies),
+      fieldName: 'ruleProperties',
+      grid: {
+        alignItems: 'left',
+        className: classes.ruleProperties,
+        columns: [
+          {
+            dataTestId: t(labelName),
+            fieldName: 'name',
+            label: t(labelName),
+            required: true,
+            type: InputType.Text
+          },
+          {
+            dataTestId: t(labelDescription),
+            fieldName: 'description',
+            label: t(labelDescription),
+            text: {
+              multilineRows: 4
+            },
+            type: InputType.Text
+          },
+          {
+            dataTestId: t(labelStatus),
+            fieldName: 'isActivated',
+            label: t(labelStatus),
+            type: InputType.Switch
+          }
+        ]
       },
-      dataTestId: t(labelContactGroups),
-      disableSortedOptions: true,
-      fieldName: 'contactGroups.ids',
-      group: groups[3].name,
-      label: t(labelContactGroups),
-      required: true,
-      type: InputType.MultiConnectedAutocomplete
+      group: groups[0].name,
+      label: t(labelRuleProperies),
+      type: InputType.Grid
+    },
+    {
+      fieldName: '',
+      grid: {
+        alignItems: 'center',
+        className: classes.resourceSelection,
+        columns: [
+          {
+            dataTestId: t(labelResourceSelection),
+            fieldName: 'datasetFilters',
+            label: t(labelResourceSelection),
+            type: InputType.Custom
+          },
+          {
+            connectedAutocomplete: {
+              additionalConditionParameters: [],
+              endpoint: findContactsEndpoint
+            },
+            dataTestId: t(labelContacts),
+            disableSortedOptions: true,
+            fieldName: 'contacts',
+            label: t(labelContacts),
+            required: true,
+            type: InputType.MultiConnectedAutocomplete
+          },
+          {
+            connectedAutocomplete: {
+              additionalConditionParameters: [],
+              endpoint: findContactGroupsEndpoint
+            },
+            dataTestId: t(labelContactGroups),
+            disableSortedOptions: true,
+            fieldName: 'contactGroups',
+            label: t(labelContactGroups),
+            required: true,
+            type: InputType.MultiConnectedAutocomplete
+          }
+        ]
+      },
+      group: groups[1].name,
+      label: '',
+      type: InputType.Grid
     }
   ];
 

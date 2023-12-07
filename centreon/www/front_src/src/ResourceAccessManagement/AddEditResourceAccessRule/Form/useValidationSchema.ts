@@ -53,10 +53,10 @@ const useValidationSchema = (): UseValidationSchemaState => {
   const validationSchema = object().shape(
     {
       contactGroups: contactsSchema('contacts'),
-      contacts: contactsSchema('contactgroups'),
+      contacts: contactsSchema('contactGroups'),
       name: validateName
     },
-    []
+    [['contacts', 'contactGroups']]
   );
 
   return { validationSchema };

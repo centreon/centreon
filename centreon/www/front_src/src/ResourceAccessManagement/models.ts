@@ -5,6 +5,16 @@ export enum ModalMode {
   Edit = 'edit'
 }
 
+export enum ResourceTypeEnum {
+  Host = 'Host',
+  HostCategory = 'Host Category',
+  HostGroup = 'Host Group',
+  MetaService = 'Meta Service',
+  Service = 'Service',
+  ServiceCategory = 'Service Category',
+  ServiceGroup = 'Service Group'
+}
+
 export interface Listing {
   changePage: (page: number) => void;
   changeSort: ({
@@ -52,20 +62,20 @@ export type ResourceAccessRuleType = {
   name: string;
 };
 
-export type Resource = {
+export type Dataset = {
   resourceType: string;
-  resources: Array<number>;
+  resources: Array<NamedEntity>;
 };
 
-export type Contact = {
+export type NamedEntity = {
   id: number;
   name: string;
 };
 
 export type ResourceAccessRule = ResourceAccessRuleType & {
-  contactGroups: Array<Contact>;
-  contacts: Array<Contact>;
-  datasets: Array<Array<Resource>>;
+  contactGroups: Array<NamedEntity>;
+  contacts: Array<NamedEntity>;
+  datasets: Array<Array<Dataset>>;
 };
 
 export type SortOrder = 'asc' | 'desc';

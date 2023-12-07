@@ -13,3 +13,4 @@ export const resourceAccessRuleEndpoint = ({ id }: Props): string =>
     : `${resourceAccessRulesEndpoint}/${id}`;
 
 export const findContactGroupsEndpoint = `${baseEndpoint}/configuration/contacts/groups`;
+export const findContactsEndpoint = `${baseEndpoint}/configuration/users`;

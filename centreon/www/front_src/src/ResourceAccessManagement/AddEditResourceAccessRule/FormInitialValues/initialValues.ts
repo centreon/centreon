@@ -1,5 +1,5 @@
 export const getEmptyInitialValues = (): object => ({
-  constactGroups: [],
+  contactGroups: [],
   contacts: [],
   description: '',
   isActivated: true,

@@ -12,6 +12,7 @@ export const labelRuleProperies = 'Rule properties';
 export const labelResourceSelection = 'Resource selection';
 export const labelContacts = 'Contacts';
 export const labelContactGroups = 'Contact groups';
+export const labelContactsAndContactGroups = 'Contacts / Contact groups';
 export const labelSelectContacts = 'Select contacts';
 export const labelSelectContactGroups = 'Select contact groups';
 export const labelCreateRuleDataset = 'Create resource datasets';
