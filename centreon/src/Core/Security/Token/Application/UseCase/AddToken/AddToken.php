@@ -109,10 +109,8 @@ final class AddToken
         $this->validation->assertIsValidUser($request->userId);
         $this->validation->assertIsValidName($request->name, $request->userId);
 
-        $expirationDate = new \DateTimeImmutable($request->expirationDate->format('Y-m-d'));
-
         $newToken = new NewToken(
-            expirationDate: $expirationDate,
+            expirationDate: \DateTimeImmutable::createFromInterface($request->expirationDate),
             userId: $request->userId,
             configurationProviderId: $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),
             name: new TrimmedString($request->name),
