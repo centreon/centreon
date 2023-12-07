@@ -50,7 +50,7 @@ jobs:
     prepare-release:
       needs: [check-team-membership]
       runs-on: common
-      if: ${{ github.ref == 'MON-32911-create-workflow-to-manually-trigger-all-components-at-once' && needs.check-team-membership.outputs.user_allowed == '200' }}
+      if: ${{ github.ref_name == 'MON-32911-create-workflow-to-manually-trigger-all-components-at-once' && needs.check-team-membership.outputs.user_allowed == '200' }}
 
       steps:
         - name: Checkout sources
