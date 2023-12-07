@@ -102,7 +102,7 @@ if ($o == "c") {
 $langs = [];
 $langs = getLangs();
 $attrsText = ["size" => "35"];
-
+$cct['contact_auth_type'] = $centreon->user->authType;
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Change my settings"));
 $form->addElement('header', 'information', _("General Information"));
@@ -116,7 +116,6 @@ if ($cct['contact_auth_type'] === 'local') {
     $form->addElement('text', 'contact_email', _("Email"), $attrsText)->freeze();
 }
 $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
-$cct['contact_auth_type'] = $centreon->user->authType;
 if ($cct['contact_auth_type'] === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
