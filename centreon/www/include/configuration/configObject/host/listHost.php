@@ -127,7 +127,7 @@ if (isset($search) && !empty($search)) {
 if ($template) {
     $templateFROM = ', host_template_relation htr ';
     $templateWHERE = " htr.host_host_id = h.host_id "
-        . "AND htr.host_tpl_id = '{$template}' AND ";
+        . "AND htr.host_tpl_id = " . CentreonUtils::quote($template) . " AND ";
 } else {
     $templateFROM = '';
     $templateWHERE = '';
@@ -247,7 +247,7 @@ $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 $aclFrom = '';
 $aclCond = '';
 if (!$centreon->user->admin) {
-    $aclFrom = ", {$aclDbName}.centreon_acl acl";
+    $aclFrom = ", `{$aclDbName}`.centreon_acl acl";
     $aclCond
         = ' AND h.host_id = acl.host_id AND acl.service_id IS NULL '
         . 'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
