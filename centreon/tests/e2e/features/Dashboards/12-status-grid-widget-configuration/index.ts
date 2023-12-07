@@ -11,38 +11,44 @@ import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/stat
 import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
 
 const services = {
-  serviceCritical: { host: 'host3', template: 'SNMP-Linux-Load-Average' },
-  serviceOk: { host: 'host1', template: 'Ping-LAN' },
-  serviceWarning: { host: 'host2', template: 'SNMP-Linux-Memory' }
+  serviceCritical: {
+    host: 'host3',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
+  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceWarning: {
+    host: 'host2',
+    name: 'service2',
+    template: 'SNMP-Linux-Memory'
+  }
 };
-
 const resultsToSubmit = [
   {
     host: services.serviceWarning.host,
     output: 'submit_status_2',
-    service: 'service3',
+    service: services.serviceCritical.name,
     status: 'critical'
   },
   {
     host: services.serviceWarning.host,
     output: 'submit_status_2',
-    service: 'service2',
+    service: services.serviceWarning.name,
     status: 'warning'
   },
   {
     host: services.serviceWarning.host,
     output: 'submit_status_2',
-    service: 'serviceOk',
+    service: services.serviceOk.name,
     status: 'ok'
   },
   {
     host: services.serviceCritical.host,
     output: 'submit_status_2',
-    service: 'serviceOk',
+    service: services.serviceOk.name,
     status: 'ok'
   }
 ];
-
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -81,7 +87,7 @@ before(() => {
       activeCheckEnabled: false,
       host: services.serviceOk.host,
       maxCheckAttempts: 1,
-      name: 'serviceOk',
+      name: services.serviceOk.name,
       template: services.serviceOk.template
     })
     .addService({
@@ -95,7 +101,7 @@ before(() => {
       activeCheckEnabled: false,
       host: services.serviceOk.host,
       maxCheckAttempts: 1,
-      name: 'service3',
+      name: services.serviceCritical.name,
       template: services.serviceCritical.template
     })
     .applyPollerConfiguration();
@@ -108,7 +114,7 @@ before(() => {
       activeCheckEnabled: false,
       host: services.serviceCritical.host,
       maxCheckAttempts: 1,
-      name: 'serviceOk',
+      name: services.serviceOk.name,
       template: services.serviceOk.template
     })
     .addService({
@@ -122,7 +128,7 @@ before(() => {
       activeCheckEnabled: false,
       host: services.serviceCritical.host,
       maxCheckAttempts: 1,
-      name: 'service3',
+      name: services.serviceCritical.name,
       template: services.serviceCritical.template
     })
     .applyPollerConfiguration();
@@ -132,16 +138,18 @@ before(() => {
   });
 
   cy.exportConfiguration();
-  checkHostsAreMonitored(
-    Object.keys(services).map((service) => ({ name: services[service].host }))
-  );
-  checkServicesAreMonitored(
-    Object.keys(services).map((service) => ({ name: service, status: 'ok' }))
-  );
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
   cy.submitResults(resultsToSubmit);
   checkServicesAreMonitored([
-    { name: 'service3', status: 'critical' },
-    { name: 'serviceOk', status: 'ok' }
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
   ]);
 
   cy.logoutViaAPI();
@@ -156,25 +164,9 @@ before(() => {
 
 beforeEach(() => {
   cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
-  }).as('listAllDashboards');
-  cy.intercept({
-    method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
-  }).as('addContactToDashboardShareList');
-  cy.intercept({
     method: 'PATCH',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
-  cy.intercept({
-    method: 'GET',
-    url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
-  }).as('performanceData');
   cy.intercept({
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
