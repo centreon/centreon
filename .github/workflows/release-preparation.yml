@@ -36,7 +36,7 @@ jobs:
               https://api.github.com/orgs/centreon/teams/${{env.team}}/memberships/${{github.triggering_actor}})
             echo "user_allowed=$GH_API_RETURN_CODE" >> $GITHUB_OUTPUT
 
-            echo "API returned code $GH_APIT_RETURN_CODE."
+            echo "API returned code $GH_API_RETURN_CODE."
 
             if [[ $GH_API_RETURN_CODE == '200' ]]; then
               echo "Actor is member of release team."
