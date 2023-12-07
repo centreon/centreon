@@ -1,0 +1,123 @@
+name: release-preparation
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+jobs:
+    get-version:
+      uses: ./.github/workflows/get-version.yml
+      with:
+        version_file: centreon/www/install/insertBaseConf.sql
+
+    check-team-membership:
+      needs: [get-version]
+      runs-on: common
+      outputs:
+        user_allowed: ${{ steps.user_allowed.outputs.user_allowed}}
+      env:
+        team: "release-management"
+        pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+      steps:
+        - name: Check team membership for actor.
+          id: user_allowed
+          run: |
+            # Only allow users from ${{ env.team }} to trigger this workflow.
+            GH_API_RETURN_CODE=$(curl \
+              -s -L \
+              -o /dev/null \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ env.pat }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              -w %{http_code} \
+              https://api.github.com/orgs/centreon/teams/${{env.team}}/memberships/${{github.triggering_actor}})
+            echo "user_allowed=$GH_API_RETURN_CODE" >> $GITHUB_OUTPUT
+
+            echo "API returned code $GH_APIT_RETURN_CODE."
+
+            if [[ $GH_API_RETURN_CODE == '200' ]]; then
+              echo "Actor is member of release team."
+            else
+              echo "Actor is not member of release team."
+              exit 1
+            fi
+
+          shell: bash
+
+    prepare-release:
+      needs: [check-team-membership]
+      runs-on: common
+      if: ${{ github.ref == 'MON-32911-create-workflow-to-manually-trigger-all-components-at-once' && needs.check-team-membership.outputs.user_allowed == '200' }}
+
+      steps:
+        - name: Checkout sources
+          uses: actions/checkout@v4
+
+        - name: Clone repositories and trigger workflows
+          env:
+            major_version: ${{ needs.get-version.outputs.major_version }}
+
+          run: |
+            set -eux
+            REPOS=("centreon-collect" "centreon" "centreon-modules")
+            MAJOR="${{ inputs.major_version }}"
+
+            # List of names for components as per their repsective workflow name attribute
+            OSS_COMPONENT_LIST=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
+            MODULES_COMPONENT_LIST=("anomaly-detection" "autodiscovery" "bam" "it-edition-extensions" "cloud-business-extensions" "cloud-extensions" "lm" "map" "mbi" "php-pecl-gnupg" "ppm" "sourceguardian-loader")
+            COLLECT_COMPONENT_LIST=("Centreon collect")
+            # AGENT_COMPONENT_LISt=("centreon-agent")
+
+            # Prepare dirs
+            mkdir release-full-build && cd release-full-build
+
+            # Clone repositories
+            git clone https://github.com/centreon/centreon.git
+            git clone https://github.com/centreon/centreon-modules.git
+            git clone https://github.com/centreon/centreon-collect.git
+
+            # Checkout and update each repositories
+            if [[ ${REPOS[@]} ]]; then
+              for repo in ${REPOS[@]}; do
+                cd $repo
+                git checkout develop
+                git fetch --all -p && git pull --all --rebase
+                echo "Create release-$MAJOR-next for $repo"
+                git checkout -b release-$MAJOR-next
+                echo "Pushing release-$MAJOR-next to $repo repository"
+                git push origin release-$MAJOR-next
+
+                #echo "Sync branche release with latest develop state."
+                #git checkout release-$MAJOR-next
+                #git fetch --all -p && git pull --all --rebase
+                #git rebase develop
+                #git push origin release-$MAJOR-next --force
+
+                case $repo in
+                  centreon-collect)
+                          while read line; do
+                            echo "Running collect workflow using release-$1-next branch from $repo repository"
+                        gh workflow run $line -r release-$1-next
+                        done <../component-collect.list
+                        ;;
+                  centreon)
+                        while read line; do
+                          echo "Running $line workflow using release-$1-next branch from $repo repository"
+                          gh workflow run $line -r release-$1-next
+                        done <../component-oss.list
+                        ;;
+                  centreon-modules)
+                        while read line; do
+                          echo "Running $line workflow using release-$1-next branch from $repo repository"
+                          gh workflow run $line -r release-$1-next
+                        done <../component-modules.list
+                        ;;
+                esac
+                cd ..
+              done
+            fi
+          shell: bash
+
