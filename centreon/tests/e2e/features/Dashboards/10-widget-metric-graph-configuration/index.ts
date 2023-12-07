@@ -382,6 +382,7 @@ Then(
   }
 );
 
+
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
