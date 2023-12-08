@@ -102,18 +102,18 @@ jobs:
                   centreon-collect)
                           while read line; do
                             echo "Running collect workflow using release-$1-next branch from $repo repository"
-                        gh workflow run $line -r release-$1-next
+                        gh workflow run "$line" -r release-$1-next
                         done <../component-collect.list
                         ;;
                   centreon)
                         while read line; do
                           echo "Running $line workflow using release-$1-next branch from $repo repository"
-                          gh workflow run $line -r release-$1-next
+                          gh workflow run "$line" -r release-$1-next
                         done <../component-oss.list
                         ;;
                   centreon-modules)
                         while read line; do
-                          echo "Running $line workflow using release-$1-next branch from $repo repository"
+                          echo "Running "$line" workflow using release-$1-next branch from $repo repository"
                           gh workflow run $line -r release-$1-next
                         done <../component-modules.list
                         ;;
