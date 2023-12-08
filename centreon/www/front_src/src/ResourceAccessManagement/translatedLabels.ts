@@ -30,3 +30,15 @@ export const labelAddNewDataset = 'Add new dataset';
 export const labelRefineFilter = 'Refine filter';
 export const labelChooseAtLeastOneContactOrContactGroup =
   'Choose at least one contact or contact group';
+export const labelHost = 'Host';
+export const labelHostCategory = 'Host category';
+export const labelHostGroup = 'Host group';
+export const labelMetaService = 'Metaservice';
+export const labelService = 'Service';
+export const labelServiceCategory = 'Service category';
+export const labelServiceGroup = 'Service group';
+export const labelPleaseSelectAResource = 'Please select a resource';
+export const labelDelete = 'Delete';
+export const labelResourceType = 'Resource type';
+export const labelSelectResourceType = 'Select resource type';
+export const labelSelectResource = 'Select resource';

@@ -20,6 +20,7 @@ import {
 } from '../api/endpoints';
 
 import { useInputStyles } from './Inputs.styles';
+import ResourceDataset from './ResourceDataset';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -90,46 +91,40 @@ const useFormInputs = (): UseFormInputsState => {
       type: InputType.Grid
     },
     {
-      fieldName: '',
-      grid: {
-        alignItems: 'center',
-        className: classes.resourceSelection,
-        columns: [
-          {
-            dataTestId: t(labelResourceSelection),
-            fieldName: 'datasetFilters',
-            label: t(labelResourceSelection),
-            type: InputType.Custom
-          },
-          {
-            connectedAutocomplete: {
-              additionalConditionParameters: [],
-              endpoint: findContactsEndpoint
-            },
-            dataTestId: t(labelContacts),
-            disableSortedOptions: true,
-            fieldName: 'contacts',
-            label: t(labelContacts),
-            required: true,
-            type: InputType.MultiConnectedAutocomplete
-          },
-          {
-            connectedAutocomplete: {
-              additionalConditionParameters: [],
-              endpoint: findContactGroupsEndpoint
-            },
-            dataTestId: t(labelContactGroups),
-            disableSortedOptions: true,
-            fieldName: 'contactGroups',
-            label: t(labelContactGroups),
-            required: true,
-            type: InputType.MultiConnectedAutocomplete
-          }
-        ]
+      custom: {
+        Component: () => <ResourceDataset propertyName="service" />
       },
+      dataTestId: t(labelResourceSelection),
+      fieldName: 'datasetFilters',
       group: groups[1].name,
-      label: '',
-      type: InputType.Grid
+      label: t(labelResourceSelection),
+      type: InputType.Custom
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        endpoint: findContactsEndpoint
+      },
+      dataTestId: t(labelContacts),
+      disableSortedOptions: true,
+      fieldName: 'contacts',
+      group: groups[2].name,
+      label: t(labelContacts),
+      required: true,
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        endpoint: findContactGroupsEndpoint
+      },
+      dataTestId: t(labelContactGroups),
+      disableSortedOptions: true,
+      fieldName: 'contactGroups',
+      group: groups[2].name,
+      label: t(labelContactGroups),
+      required: true,
+      type: InputType.MultiConnectedAutocomplete
     }
   ];
 

@@ -7,12 +7,12 @@ export enum ModalMode {
 
 export enum ResourceTypeEnum {
   Host = 'Host',
-  HostCategory = 'Host Category',
-  HostGroup = 'Host Group',
-  MetaService = 'Meta Service',
+  HostCategory = 'Host category',
+  HostGroup = 'Host group',
+  MetaService = 'Metaservice',
   Service = 'Service',
-  ServiceCategory = 'Service Category',
-  ServiceGroup = 'Service Group'
+  ServiceCategory = 'Service category',
+  ServiceGroup = 'Service group'
 }
 
 export interface Listing {
@@ -63,7 +63,7 @@ export type ResourceAccessRuleType = {
 };
 
 export type Dataset = {
-  resourceType: string;
+  resourceType: 'host-group' | 'host-category' | 'host' | 'service';
   resources: Array<NamedEntity>;
 };
 
