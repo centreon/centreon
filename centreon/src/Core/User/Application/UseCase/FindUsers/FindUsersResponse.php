@@ -21,18 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\User\Application\UseCase\FindCurrentUserParameters;
+namespace Core\User\Application\UseCase\FindUsers;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersPresenterInterface;
-use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersResponse;
-
-class FindCurrentUserParametersPresenterStub implements FindCurrentUserParametersPresenterInterface
+final class FindUsersResponse
 {
-    public FindCurrentUserParametersResponse|ResponseStatusInterface $data;
-
-    public function presentResponse(ResponseStatusInterface|FindCurrentUserParametersResponse $data): void
-    {
-        $this->data = $data;
-    }
+    /** @var UserDto[] */
+    public array $users = [];
 }
