@@ -59,6 +59,7 @@ jobs:
         - name: Clone repositories and trigger workflows
           env:
             major_version: ${{ needs.get-version.outputs.major_version }}
+            pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
           run: |
             set -eux
@@ -76,7 +77,7 @@ jobs:
 
             # Clone repositories
             git clone https://github.com/centreon/centreon.git
-            git clone https://github.com/centreon/centreon-modules.git
+            git clone https://${{ env.pat }}@github.com/centreon/centreon-modules.git
             git clone https://github.com/centreon/centreon-collect.git
 
             # Checkout and update each repositories
