@@ -59,7 +59,7 @@ jobs:
 
     env:
       IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
-      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
+      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-alma9
 
     steps:
       - name: Checkout sources
