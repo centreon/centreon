@@ -27,7 +27,7 @@ const resultsToSubmit = [
   {
     host: services.serviceWarning.host,
     output: 'submit_status_2',
-    service: services.serviceCritical.name, // Corrected this line
+    service: services.serviceCritical.name,
     status: 'critical'
   },
   {
@@ -67,7 +67,8 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
-  cy.addHostForWidget({
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
     template: 'generic-host'
   })
@@ -94,7 +95,8 @@ before(() => {
     })
     .applyPollerConfiguration();
 
-  cy.addHostForWidget({
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
     name: services.serviceCritical.host,
     template: 'generic-host'
   })
