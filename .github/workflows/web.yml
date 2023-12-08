@@ -296,7 +296,7 @@ jobs:
   dockerize:
     runs-on: ubuntu-22.04
     needs: [get-version, package]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')  && needs.get-version.outputs.stability != 'stable' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       matrix:
