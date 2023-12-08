@@ -77,9 +77,9 @@ jobs:
             mkdir release-full-build && cd release-full-build
 
             # Clone repositories
-            git clone https://github.com/centreon/centreon.git
+            git clone https://${{ env.pat }}@github.com/centreon/centreon.git
             git clone https://${{ env.pat }}@github.com/centreon/centreon-modules.git
-            git clone https://github.com/centreon/centreon-collect.git
+            git clone https://${{ env.pat }}@github.com/centreon/centreon-collect.git
 
             # Checkout and update each repositories
             if [[ ${REPOS[@]} ]]; then
