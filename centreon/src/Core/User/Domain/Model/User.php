@@ -21,15 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Configuration\User\Model;
+namespace Core\User\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Contact\Domain\Model\ContactTemplate;
 
-/**
- * This class represent a User being created.
- */
-class NewUser
+class User
 {
     public const MIN_ALIAS_LENGTH = 1,
                  MAX_ALIAS_LENGTH = 255,
@@ -39,7 +36,6 @@ class NewUser
                  MAX_EMAIL_LENGTH = 255,
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
-                 MAX_USER_INTERFACE_DENSITY_LENGTH = 100,
                  THEME_LIGHT = 'light',
                  THEME_DARK = 'dark',
                  USER_INTERFACE_DENSITY_EXTENDED = 'extended',
@@ -48,34 +44,47 @@ class NewUser
     /** @var bool */
     protected bool $isActivate = true;
 
-    /** @var bool */
-    protected bool $isAdmin = false;
-
-    /** @var string */
-    protected string $theme = self::THEME_LIGHT;
-
     /** @var ContactTemplate|null */
     protected ?ContactTemplate $contactTemplate = null;
 
-    protected string $userInterfaceDensity = self::USER_INTERFACE_DENSITY_COMPACT;
-
-    protected bool $canReachFrontend = true;
-
     /**
+     * @param int $id
      * @param string $alias
      * @param string $name
      * @param string $email
+     * @param bool $isAdmin
+     * @param string $theme
+     * @param string $userInterfaceDensity
+     * @param bool $canReachFrontend
      *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
+        private int $id,
         protected string $alias,
         protected string $name,
         protected string $email,
+        protected bool $isAdmin,
+        protected string $theme,
+        protected string $userInterfaceDensity,
+        protected bool $canReachFrontend
     ) {
+        Assertion::positiveInt($this->id, 'User::id');
+
         $this->setAlias($alias);
         $this->setName($name);
         $this->setEmail($email);
+        $this->setTheme($theme);
+        $this->setUserInterfaceDensity($userInterfaceDensity);
+        $this->setCanReachFrontend($canReachFrontend);
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     /**
@@ -253,17 +262,6 @@ class NewUser
      */
     public function setUserInterfaceDensity(string $userInterfaceDensity): self
     {
-        Assertion::notEmptyString(
-            $userInterfaceDensity,
-            'User::userInterfaceViewMode'
-        );
-
-        Assertion::maxLength(
-            $userInterfaceDensity,
-            self::MAX_USER_INTERFACE_DENSITY_LENGTH,
-            'User::userInterfaceViewMode'
-        );
-
         if (
             $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_EXTENDED
             && $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_COMPACT
