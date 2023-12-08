@@ -398,19 +398,19 @@ jobs:
             --include-path-file .github/docker/slim-configuration/include-path.txt \
             --include-bin-file .github/docker/slim-configuration/include-bin.txt \
             --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            --tag ${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Push standard slim image
-        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store standard slim image in local archive
         run: |
           mkdir -p /tmp/cache/docker-image
-          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker save --output /tmp/cache/docker-image/${{ matrix.project }}-slim-${{ matrix.os }}.tar ${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -419,14 +419,14 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ matrix.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store standard slim image in cache
         uses: actions/cache/save@v3
         with:
           path: /tmp/cache/docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+          key: docker-image-${{ matrix.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
     needs: [dockerize, changes, get-version]
