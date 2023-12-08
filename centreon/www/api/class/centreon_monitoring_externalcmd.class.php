@@ -119,7 +119,8 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                                 AND acl.service_id IS NULL
                                 AND h.name = ?
                                 AND acl.group_id IN (' . $userAcl->getAccessGroupsString() . ')';
-                            $result = $this->pearDBMonitoring->query($query, array($commandSplitted[1]));
+                            $result = $this->pearDBMonitoring->prepare($query);
+                            $result->execute([$commandSplitted[1]]);
                             if ($result->fetch() === false) {
                                 throw new RestBadRequestException(_('Host not found'));
                             }
