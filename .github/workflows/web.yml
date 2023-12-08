@@ -352,6 +352,9 @@ jobs:
   api-integration-test:
     needs: [dockerize]
     uses: ./.github/workflows/behat-test.yml
+
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+
     with:
       name: api
       module_name: centreon
@@ -366,6 +369,9 @@ jobs:
   legacy-e2e-test:
     needs: [dockerize]
     uses: ./.github/workflows/behat-test.yml
+
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+
     with:
       name: e2e
       module_name: centreon
@@ -379,7 +385,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - name: Checkout sources
@@ -417,7 +423,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
