@@ -30,7 +30,7 @@
  * </pre>
  *
  * After <pre>
- *     {displaySvg svgPath='SVG-PATH' color='#COLOR' height=200.0 width=300.0}
+ *     {displaysvg svgPath='SVG-PATH' color='#COLOR' height=200.0 width=300.0}
  * </pre>
  */
 class Smarty_Compiler_Displaysvg extends Smarty_Internal_CompileBase
