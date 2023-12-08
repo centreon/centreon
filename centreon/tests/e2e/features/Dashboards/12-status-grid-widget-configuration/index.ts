@@ -125,7 +125,6 @@ before(() => {
     jsonName: 'admin'
   });
 
-  cy.exportConfiguration();
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -194,7 +193,7 @@ after(() => {
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
   cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -233,7 +232,7 @@ Then(
 
 Given('a dashboard configuring Status Grid widget', () => {
   cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -285,7 +284,7 @@ Given('a dashboard featuring two Status Grid widgets', () => {
     dashboards.default,
     twoStatusGridWidgets
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -392,7 +391,7 @@ Then("the Status Grid widget is added in the dashboard's layout", () => {
 
 Given('a dashboard with a configured Status Grid widget', () => {
   cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -432,7 +431,7 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
 
 Given('a dashboard having a configured Status Grid widget', () => {
   cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
