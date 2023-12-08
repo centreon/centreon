@@ -422,7 +422,7 @@ if ($form->validate()) {
     if ($cct['contact_auth_type'] === 'local') {
         updateContactInDB($centreon->user->get_id());
     } else {
-        updateLocalContactInDB($centreon->user->get_id());
+        updateNonLocalContactInDB($centreon->user->get_id());
     }
     $o = null;
     $features = $form->getSubmitValue('features');
