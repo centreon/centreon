@@ -211,8 +211,28 @@ Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
     return cy
-      .exec(`docker image inspect ${image} || docker pull ${image}`)
-      .task('startContainer', { image, name, portBindings });
+      .exec('docker image list --format "{{.Repository}}:{{.Tag}}"')
+      .then(({ stdout }) => {
+        if (
+          stdout.match(
+            new RegExp(
+              `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
+              'm'
+            )
+          )
+        ) {
+          cy.log(`Local docker image found : ${image}`);
+
+          return cy.wrap(image);
+        }
+
+        cy.log(`Pulling remote docker image : ${image}`);
+
+        return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
+      })
+      .then((imageName) =>
+        cy.task('startContainer', { image: imageName, name, portBindings })
+      );
   }
 );
 
