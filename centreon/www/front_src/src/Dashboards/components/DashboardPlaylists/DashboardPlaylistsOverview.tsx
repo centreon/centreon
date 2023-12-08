@@ -14,6 +14,7 @@ import { useDashboardUserPermissions } from '../DashboardLibrary/DashboardUserPe
 import { Listing } from './PlaylistsListing';
 import { playlistConfigInitialValuesAtom } from './atoms';
 import { useDashboardPlaylistsOverview } from './useDashboardPlaylistsOverview';
+import PlaylistConfig from './PlaylistConfig/PlaylistConfig';
 
 const DashboardPlaylistsOverview = (): JSX.Element => {
   const { t } = useTranslation();
