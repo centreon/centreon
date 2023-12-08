@@ -17,11 +17,11 @@ const Filter = (): JSX.Element => {
 
   const { t } = useTranslation();
 
-  const serSearchVAlue = useSetAtom(searchAtom);
+  const setSearchVAlue = useSetAtom(searchAtom);
 
   const searchDebounced = useRef(
     debounce<(search) => void>((debouncedSearch): void => {
-      serSearchVAlue(debouncedSearch);
+      setSearchVAlue(debouncedSearch);
     }, 500)
   );
 
