@@ -14,60 +14,16 @@ inputs:
   module:
     description: "module"
     required: true
-<<<<<<< HEAD
 runs:
   using: "composite"
   steps:
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
-=======
-  feature_file_path:
-    description: "feature file"
-    required: true
-  dependencies_lock_file:
-    description: "The frontend dependencies lock file path"
-    required: true
-
-runs:
-  using: "composite"
-  steps:
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 7
-        run_install: false
-
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-        cache: pnpm
-        cache-dependency-path: ${{ inputs.dependencies_lock_file }}
-
-    - name: Install dependencies
-      run: |
-        pnpm install --frozen-lockfile
-        pnpm cypress install --force
-      working-directory: ${{ inputs.module }}/tests/e2e
->>>>>>> aac75c4e8c (enh(ci): store docker slim images to github cache (#1893) (#2806))
       shell: bash
-      env:
-        CYPRESS_INSTALL_BINARY: "0"
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-<<<<<<< HEAD
     - name: "Run Cypress"
       run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/.github/scripts/cypress-e2e-testing.sh" --net="host" docker.centreon.com/centreon/cypress:${{ inputs.image_cypress_version }}
       shell: bash
-=======
-    - name: Install Cypress binary
-      uses: nick-fields/retry@v2
-      with:
-        timeout_seconds: 120
-        max_attempts: 10
-        retry_wait_seconds: 30
-        retry_on: error
-        command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
->>>>>>> aac75c4e8c (enh(ci): store docker slim images to github cache (#1893) (#2806))
 
     - name: Archive videos
       uses: actions/upload-artifact@v3
