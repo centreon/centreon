@@ -17151,9 +17151,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Role"
 # msgstr ""
 
-# msgid "Rotation time"
-# msgstr ""
-
 # msgid "Creator"
 # msgstr ""
 

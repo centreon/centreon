@@ -18531,9 +18531,6 @@ msgstr "Partages"
 msgid "Role"
 msgstr "Rôle"
 
-msgid "Rotation time"
-msgstr "Temps de rotation"
-
 msgid "Creator"
 msgstr "Créateur"
 

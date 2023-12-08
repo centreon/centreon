@@ -16698,8 +16698,6 @@ msgstr "Modo avanzado"
 # msgid "Role"
 # msgstr ""
 
-# msgid "Rotation time"
-# msgstr ""
 
 # msgid "Creator"
 # msgstr ""
