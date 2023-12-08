@@ -37,23 +37,23 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
 
   return (
     <>
-    <DataTable variant="listing">
-      {isEmptyList ? (
-        <DataTable.EmptyState
-          canCreate={canCreateOrManageDashboards}
-          labels={{
-            actions: { create: t(labelCreateAPlaylist) },
-            title: t(labelWelcomeToThePlaylistInterface)
-          }}
-          onCreate={openConfig}
-        />
-      ) : (
-        <div style={{ minHeight: '75vh', minWidth: '100%' }}>
-          <Listing data={data} loading={loading} openConfig={openConfig} />
-        </div>
-      )}
-    </DataTable>
-    <PlaylistConfig />
+      <DataTable variant="listing">
+        {isEmptyList ? (
+          <DataTable.EmptyState
+            canCreate={canCreateOrManageDashboards}
+            labels={{
+              actions: { create: t(labelCreateAPlaylist) },
+              title: t(labelWelcomeToThePlaylistInterface)
+            }}
+            onCreate={openConfig}
+          />
+        ) : (
+          <div style={{ minHeight: '75vh', minWidth: '100%' }}>
+            <Listing data={data} loading={loading} openConfig={openConfig} />
+          </div>
+        )}
+      </DataTable>
+      <PlaylistConfig />
     </>
   );
 };
