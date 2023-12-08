@@ -3,7 +3,7 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 
-import { DateTimePickerInput } from '@centreon/ui';
+import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 
@@ -17,6 +17,8 @@ const CustomTimePeriod = ({
   setIsDisplayingDateTimePicker
 }): JSX.Element => {
   const { setFieldValue, values } = useFormikContext<CreateTokenFormValues>();
+  const { format } = useLocaleDateTimeFormat();
+
   const { customizeDate } = values;
 
   const { open, setOpen } = openPicker;
@@ -24,21 +26,6 @@ const CustomTimePeriod = ({
   const { anchorEl, setAnchorEl } = anchorElDuration;
 
   const [endDate, setEndDate] = useState<Date>(customizeDate ?? minDate);
-
-  const validateDate = (date): void => {
-    if (!dayjs(date).isValid()) {
-      setFieldValue('duration', null);
-      setFieldValue('customizeDate', null);
-
-      return;
-    }
-
-    setFieldValue('duration', {
-      id: 'customize',
-      name: 'Customize'
-    });
-    setFieldValue('customizeDate', endDate);
-  };
 
   const changeDate = ({ date }): void => {
     const currentDate = dayjs(date).toDate();
@@ -52,12 +39,16 @@ const CustomTimePeriod = ({
   };
 
   const onClose = (): void => {
-    validateDate(endDate);
+    setFieldValue('duration', {
+      id: 'customize',
+      name: format({ date: endDate, formatString: 'LLL' })
+    });
+    setFieldValue('customizeDate', endDate);
     initialize();
   };
 
   const slotProps = {
-    actionBar: { actions: ['cancel', 'accept'], style: { padding: 0 } },
+    actionBar: { actions: ['accept'], style: { padding: 0 } },
     popper: { anchorEl }
   };
 
