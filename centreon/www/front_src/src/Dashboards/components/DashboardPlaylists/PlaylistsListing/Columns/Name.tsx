@@ -1,9 +1,12 @@
 import { isNil } from 'ramda';
-import { useNavigate } from 'react-router';
+import { generatePath, useNavigate } from 'react-router';
 
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps } from '@centreon/ui';
+
+import routeMap from '../../../../../reactRoutes/routeMap';
+import { DashboardLayout } from '../../../../models';
 
 const Name = ({ row }: ComponentColumnProps): JSX.Element => {
   const navigate = useNavigate();
@@ -17,7 +20,12 @@ const Name = ({ row }: ComponentColumnProps): JSX.Element => {
   }
 
   const linkToPlaylist = (): void => {
-    navigate(`/home/dashboards/playlists/${id}`);
+    navigate(
+      generatePath(routeMap.dashboard, {
+        dashboardId: id,
+        layout: DashboardLayout.Playlist
+      })
+    );
   };
 
   return <Box onClick={linkToPlaylist}>{name}</Box>;
