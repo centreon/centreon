@@ -1,6 +1,6 @@
 FROM centos:7 AS web_fresh
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 yum clean all --enablerepo=*
 
@@ -38,7 +38,7 @@ EOF
 RUN mkdir /tmp/rpms-centreon
 COPY *.rpm /tmp/rpms-centreon/
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
 yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
@@ -96,7 +96,7 @@ FROM web_fresh AS web_standard
 
 COPY ./.github/scripts/sql /tmp/sql
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 service mysql start
 mysql centreon < /tmp/sql/standard.sql
