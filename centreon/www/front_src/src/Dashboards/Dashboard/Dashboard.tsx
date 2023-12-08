@@ -12,12 +12,12 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { DashboardsQuickAccessMenu } from '../components/DashboardsQuickAccess/DashboardsQuickAccessMenu';
-import { DashboardConfigModal } from '../components/DashboardConfig/DashboardConfigModal';
-import { useDashboardConfig } from '../components/DashboardConfig/useDashboardConfig';
+import { DashboardsQuickAccessMenu } from '../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
+import { DashboardConfigModal } from '../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
+import { useDashboardConfig } from '../components/DashboardLibrary/DashboardConfig/useDashboardConfig';
 import { Dashboard as DashboardType } from '../api/models';
-import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/DashboardAccessRightsModal';
-import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
+import { DashboardAccessRightsModal } from '../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
+import { useDashboardAccessRights } from '../components/DashboardLibrary/DashboardAccessRights/useDashboardAccessRights';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
