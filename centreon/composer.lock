@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8373c43b46d69a38788e738d6d144395",
+    "content-hash": "9ca5201c11268615ce83362b0d8b3327",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6875,16 +6875,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "23.04.x-dev",
             "source": {
                 "type": "git",
                 "url": "git@github.com:centreon/centreon-test-lib.git",
-                "reference": "e2e9fc1a51c0e10c40c9dd4b0fc63d670d778e76"
+                "reference": "0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/e2e9fc1a51c0e10c40c9dd4b0fc63d670d778e76",
-                "reference": "e2e9fc1a51c0e10c40c9dd4b0fc63d670d778e76",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a",
+                "reference": "0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a",
                 "shasum": ""
             },
             "require": {
@@ -6909,7 +6909,6 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -6932,7 +6931,7 @@
                 "phpunit",
                 "testing"
             ],
-            "time": "2023-11-23T14:56:04+00:00"
+            "time": "2023-12-08T11:20:10+00:00"
         },
         {
             "name": "composer/pcre",
