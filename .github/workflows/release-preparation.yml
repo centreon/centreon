@@ -64,7 +64,8 @@ jobs:
           run: |
             set -eux
             REPOS=("centreon-collect" "centreon" "centreon-modules")
-            MAJOR="${{ inputs.major_version }}"
+            #MAJOR="${{ inputs.major_version }}"
+            MAJOR="24.04"
 
             # List of names for components as per their repsective workflow name attribute
             OSS_COMPONENT_LIST=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
