@@ -121,7 +121,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     );
     const shouldResetDescription =
       equals(values.moduleName, 'centreon-widget-generictext') &&
-      !isGenericText(selectedWidget.federatedComponentsConfiguration.path);
+      !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
     setSingleHostPerMetric(selectedWidgetProperties.singleHostPerMetric);
@@ -143,7 +143,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         name: currentValues.options.name,
         openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },
-      panelConfiguration: selectedWidget.federatedComponentsConfiguration
+      panelConfiguration: selectedWidget.federatedComponentsConfiguration[0]
     }));
   };
 

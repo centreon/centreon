@@ -35,6 +35,7 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
   const { canCreateOrManageDashboards } = useDashboardUserPermissions();
 
   return (
+    <>
     <DataTable variant="listing">
       {isEmptyList ? (
         <DataTable.EmptyState
@@ -51,6 +52,8 @@ const DashboardPlaylistsOverview = (): JSX.Element => {
         </div>
       )}
     </DataTable>
+    <PlaylistConfig />
+    </>
   );
 };
 

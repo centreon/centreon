@@ -9,7 +9,7 @@ export interface FederatedComponentsConfiguration {
 }
 
 export interface FederatedModule {
-  federatedComponentsConfiguration: FederatedComponentsConfiguration;
+  federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>;
   federatedPages: Array<PageComponent>;
   moduleFederationName: string;
   moduleName: string;

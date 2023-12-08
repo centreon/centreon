@@ -24,7 +24,7 @@ interface DefaultCriteriaValues {
 }
 
 const defaultSortField = 'status_severity_code';
-const defaultSortOrder = SortOrder.asc;
+const defaultSortOrder = SortOrder.desc;
 
 const getDefaultCriterias = (
   {

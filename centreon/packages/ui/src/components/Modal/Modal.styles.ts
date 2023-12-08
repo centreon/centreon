@@ -49,14 +49,15 @@ const useStyles = makeStyles<{
     }
   },
   modalActions: {
-    bottom: 0,
+    '&[data-fixed="true"]': {
+      position: 'fixed'
+    },
     bottom: theme.spacing(2),
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(2),
     justifyContent: 'flex-end',
-    position: 'fixed',
-    right: theme.spacing(2)
+    right: theme.spacing(2.5)
   },
   modalBody: {
     '& > p': {

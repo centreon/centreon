@@ -18483,6 +18483,30 @@ msgstr "Bienvenue dans l'interface des listes de diffusion !"
 msgid "Create a playlist"
 msgstr "Ajouter une liste de diffusion"
 
+msgid "Playlist name"
+msgstr "Nom de la liste de diffusion"
+
+msgid "Playlist properties"
+msgstr "Propriétés de la liste de diffusion"
+
+msgid "Rotation time"
+msgstr "Temps de rotation"
+
+msgid "Select dashboards"
+msgstr "Sélectionner des tableaux de bord"
+
+msgid "Define the order of dashboards"
+msgstr "Définir l'ordre des tableaux de bord"
+
+msgid "Add a dashboard"
+msgstr "Ajouter un tableau de bord"
+
+msgid "Playlist created"
+msgstr "Liste de diffusion créée"
+
+msgid "Playlist updated"
+msgstr "Liste de diffusion mise à jour"
+
 msgid "Error while deleting a playlist"
 msgstr "Erreur lors de la suppression d'une liste de diffusion"
 
@@ -18491,6 +18515,15 @@ msgstr "Erreur lors du listing des partages de la liste de diffusion"
 
 msgid "The following playlist is not shared with you: [%d]"
 msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
+
+msgid "Add at least 1 contact"
+msgstr "Ajoutez au moins 1 contact"
+
+msgid "Rotation time must be at least 10 seconds."
+msgstr "Le temps de rotation doit être au moins de 10 secondes."
+
+msgid "Rotation time cannot exceed 60 seconds."
+msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
 
 msgid "Shares"
 msgstr "Partages"
