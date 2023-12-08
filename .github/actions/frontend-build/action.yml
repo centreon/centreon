@@ -4,6 +4,9 @@ inputs:
   base_directory:
     description: The base directory
     required: true
+  dependencies_lock_file:
+    description: "The frontend dependencies lock file path"
+    required: true
   index_file:
     description: The index.html file path
     required: true
@@ -30,6 +33,10 @@ runs:
       with:
         working-directory: ${{ inputs.base_directory }}
         install-command: npm ci --legacy-peer-deps
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Build frontend
       run: npm run build

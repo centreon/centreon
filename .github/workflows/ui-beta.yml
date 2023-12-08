@@ -11,7 +11,6 @@ on:
 
 env:
   directory: "centreon/packages/ui"
-  centreon_directory: "centreon"
   package: "ui"
   base_branch: dev-22.10.x
 
@@ -29,7 +28,6 @@ jobs:
       - uses: ./.github/actions/frontend-lint
         with:
           frontend_directory: ${{ env.directory }}
-          installation_directory: ${{ env.centreon_directory }}
           module_name: centreon-ui
 
   unit-test:
@@ -47,9 +45,10 @@ jobs:
           sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
           sudo apt update
           sudo apt install -y google-chrome-stable
+
       - name: Install Centreon dependencies
         run: npm ci --legacy-peer-deps
-        working-directory: ${{ env.centreon_directory }}
+        working-directory: ${{ env.directory }}
 
       - name: Build Storybook
         run: npm run build:storybook
