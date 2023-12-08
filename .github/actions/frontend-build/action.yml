@@ -4,9 +4,6 @@ inputs:
   base_directory:
     description: The base directory
     required: true
-  dependencies_lock_file:
-    description: "The frontend dependencies lock file path"
-    required: true
   index_file:
     description: The index.html file path
     required: true

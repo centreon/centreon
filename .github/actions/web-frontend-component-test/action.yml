@@ -4,9 +4,6 @@ inputs:
   working_directory:
     description: The frontend directory
     required: true
-  dependencies_lock_file:
-    description: "The frontend dependencies lock file path"
-    required: true
 
 runs:
   using: "composite"
@@ -24,7 +21,7 @@ runs:
         working-directory: ${{ inputs.working_directory }}
         publish-summary: false
 
-    - name: Archive test results
+    - name: Archive videos
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:

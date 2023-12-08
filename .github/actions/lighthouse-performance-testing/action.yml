@@ -16,9 +16,6 @@ inputs:
   path:
     description: "path"
     required: true
-  dependencies_lock_file:
-    description: "The frontend dependencies lock file path"
-    required: true
 runs:
   using: "composite"
   steps:
@@ -59,4 +56,4 @@ runs:
     - name: Run lighthouse
       run: npm run run:lighthouse
       shell: bash
-      working-directory: ${{ inputs.path }}
+      working-directory: centreon/lighthouse

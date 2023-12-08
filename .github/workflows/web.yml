@@ -109,7 +109,6 @@ jobs:
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           index_file: ${{ env.base_directory }}/www/index.html
           static_directory: ${{ env.base_directory }}/www/static
           index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
@@ -170,7 +169,6 @@ jobs:
         with:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -481,7 +479,6 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
-          dependencies_lock_file: centreon/pnpm-lock.yaml
 
       - name: Publish report to S3
         if: ${{ github.event_name == 'push' }}
