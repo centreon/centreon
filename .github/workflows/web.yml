@@ -303,16 +303,11 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
-      fail-fast: false
       matrix:
         include:
           - project: centreon-web
             distrib: centos7
             distrib_rpm: el7
-            module_name: web
-          - project: centreon-web
-            distrib: alma8
-            distrib_rpm: el8
             module_name: web
 
     steps:
