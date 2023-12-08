@@ -18541,7 +18541,7 @@ msgid "Creation date"
 msgstr "Date de création"
 
 msgid "Update"
-msgstr "Mettre à jour"
+msgstr "Mise à jour"
 
 msgid "Public link"
 msgstr "Lien public"
@@ -18552,17 +18552,17 @@ msgstr "Privé/Public"
 msgid "Copy link"
 msgstr "Copier le lien"
 
-msgid "Anyone with the link can view your playlist. Be cautious when you share it"
-msgstr "Toute personne possédant le lien peut voir votre playlist. Soyez prudent lorsque vous le partagez"
+msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+msgstr "Toute personne disposant du lien peut consulter votre liste de diffusion. Soyez vigilant lorsque vous le partagez."
 
-msgid "failed to copy the link"
-msgstr "Échec de la copie du lien"
+msgid "Failed to copy the link."
+msgstr "Échec de la copie du lien."
 
-msgid "link has been copied"
-msgstr "Lien copié"
+msgid "Link has been copied!"
+msgstr "Lien copié!"
 
-msgid "Unshare"
-msgstr "Arrêter de partager"
+msgid "Stop sharing"
+msgstr "Arrêter le partage"
 
 msgid "Viewer"
 msgstr "Visionneur"
@@ -18574,7 +18574,7 @@ msgid "Create"
 msgstr "Créer"
 
 msgid "Publish your playlist"
-msgstr "Publier votre playlist"
+msgstr "Publier votre liste de diffusion"
 
 msgid "Settings"
 msgstr "Paramètres"

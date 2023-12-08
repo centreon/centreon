@@ -17183,16 +17183,16 @@ msgstr ""
 # msgid "Copy link"
 # msgstr ""
 
-# msgid "Anyone with the link can view your playlist. Be cautious when you share it"
+# msgid "Anyone with the link can view your playlist. Be cautious when you share it."
 # msgstr ""
 
-# msgid "failed to copy the link"
+# msgid "Failed to copy the link."
 # msgstr ""
 
-# msgid "link has been copied"
+# msgid "Link has been copied!"
 # msgstr ""
 
-# msgid "Unshare"
+# msgid "Stop sharing"
 # msgstr ""
 
 # msgid "Viewer"
