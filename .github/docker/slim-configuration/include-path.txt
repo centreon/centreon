@@ -8,7 +8,6 @@
 /etc/profile
 /etc/profile.d
 /etc/inputrc
-/opt/rh/httpd24/root/etc/httpd
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
@@ -17,7 +16,12 @@
 /usr/libexec/sudo
 /usr/lib64/perl5/vendor_perl
 /var/www/html
+/opt/rh/httpd24/root/etc/httpd/conf
+/opt/rh/httpd24/root/etc/httpd/conf.d
+/opt/rh/httpd24/root/etc/httpd/conf.modules.d
 /opt/rh/httpd24/root/usr/lib64/httpd/modules
+/opt/rh/httpd24/root/var/run/httpd
+/opt/rh/httpd24/root/var/lib/httpd
 /var/lib/php/session
 /usr/share/centreon
 /var/cache/centreon
