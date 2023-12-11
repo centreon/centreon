@@ -99,7 +99,7 @@ const interceptListTokens = ({
     cy.interceptAPIRequest({
       alias,
       method: Method.GET,
-      path: endpoint,
+      path: `./api/latest${endpoint}`,
       response: data
     });
   });
