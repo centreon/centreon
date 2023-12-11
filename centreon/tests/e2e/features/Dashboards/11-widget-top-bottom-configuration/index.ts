@@ -353,9 +353,9 @@ Then(
           .get('.visx-group text:first-child')
           .invoke('text')
           .then((text) => {
-            const floatValue = parseFloat(text);
+            const metricRegex = /\d+\.\d{3,}/;
 
-            return floatValue !== 0;
+            return metricRegex.test(text);
           }),
       { interval: 1000, timeout: 10000 }
     );
