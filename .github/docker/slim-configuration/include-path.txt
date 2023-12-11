@@ -8,7 +8,7 @@
 /etc/profile
 /etc/profile.d
 /etc/inputrc
-/opt/rh/httpd24/root
+/opt/rh/httpd24/root/etc/httpd
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
