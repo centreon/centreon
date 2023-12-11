@@ -94,7 +94,7 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   responseFile = 'playlistsAdminUser',
-  endpoint = `${playlistsEndpoint}?**`
+  endpoint = `./api/latest${playlistsEndpoint}?**`
 }): void => {
   store.set(userAtom, {
     alias: 'admin',
