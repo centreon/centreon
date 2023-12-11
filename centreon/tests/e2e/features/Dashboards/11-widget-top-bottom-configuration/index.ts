@@ -347,14 +347,24 @@ When(
 Then(
   'the displayed value format for this metric has been updated from human-readable to exhaustive',
   () => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get('.visx-group text:first-child')
+          .invoke('text')
+          .then((text) => {
+            const floatValue = parseFloat(text);
+
+            return floatValue !== 0;
+          }),
+      { interval: 1000, timeout: 10000 }
+    );
     cy.get('.visx-group text:first-child')
       .invoke('text')
-      .then((text) => {
+      .should((text) => {
         const floatValue = parseFloat(text);
-        const decimalPart = (floatValue % 1).toFixed(3).split('.')[1];
-        if (floatValue !== 0 && decimalPart.length > 2) {
-          expect(text).to.match(/\d+\.\d{3,}/);
-        }
+        expect(floatValue).not.to.equal(0);
+        expect(text).to.match(/\d+\.\d{3,}/);
       });
   }
 );
