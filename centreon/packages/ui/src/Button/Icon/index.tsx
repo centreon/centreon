@@ -21,7 +21,7 @@ type Props = {
   ariaLabel?: string;
   className?: string;
   onClick: (event) => void;
-  title?: string;
+  title?: string | JSX.Element;
   tooltipClassName?: string;
   tooltipPlacement?:
     | 'bottom'
