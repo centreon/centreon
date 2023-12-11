@@ -1,7 +1,7 @@
 import { any, isEmpty, isNil, not, or, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme, Tooltip, TypographyTypeMap } from '@mui/material';
+import { Theme, Tooltip, TypographyProps } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 import { getNormalizedId } from '../../utils';
@@ -18,7 +18,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
 interface Props extends Record<string, unknown> {
   className?: string;
   labelLoading?: string;
-  labelProps?: TypographyTypeMap['props'];
+  labelProps?: TypographyProps;
   labelSave?: string;
   labelSucceeded?: string;
   loading?: boolean;
