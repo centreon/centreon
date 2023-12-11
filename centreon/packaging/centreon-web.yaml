@@ -373,6 +373,12 @@ contents:
       group: "centreon"
       mode: 0775
 
+  - src: "../lua/centreon-cloud-notifications.lua"
+    dst: "/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua"
+    file_info:
+      owner: "centreon-broker"
+      group: "centreon-broker"
+
   - dst: "/var/lib/centreon/installs"
     type: dir
     file_info:
@@ -472,6 +478,7 @@ overrides:
       - net-snmp-utils
       - rsync
       - brotli
+      - lua-curl
     provides:
       - centreon-backup
       - centreon-clapi
@@ -549,6 +556,7 @@ overrides:
       - gettext
       - rsync
       - brotli
+      - lua-curl
     provides:
       - centreon-web-apache
       - centreon-web-common
