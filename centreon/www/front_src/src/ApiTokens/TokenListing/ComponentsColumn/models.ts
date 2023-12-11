@@ -1,6 +1,6 @@
 import { Column } from '@centreon/ui';
 
-export enum Columns {
+export enum Column {
   Actions = 'Actions',
   CreationDate = 'Creation Date',
   Creator = 'Creator',
