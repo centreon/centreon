@@ -76,10 +76,6 @@ export const selectedResourceDetailsEndpointDerivedAtom = atom((get) => {
     newWord: './'
   });
 
-  if (!isNil(selectedResourceDetails?.parentResourceId)) {
-    return `${resourcesEndpoint}/${selectedResourceDetails?.parentResourceType}s/${selectedResourceDetails?.parentResourceId}`;
-  }
-
   return resourceDetailsEndPoint;
 });
 
