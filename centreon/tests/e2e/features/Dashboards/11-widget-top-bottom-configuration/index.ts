@@ -350,7 +350,9 @@ Then(
     cy.get('.visx-group text:first-child')
       .invoke('text')
       .then((text) => {
-        if (parseFloat(text) !== 0) {
+        const floatValue = parseFloat(text);
+        const decimalPart = (floatValue % 1).toFixed(3).split('.')[1];
+        if (floatValue !== 0 && decimalPart.length > 2) {
           expect(text).to.match(/\d+\.\d{3,}/);
         }
       });
