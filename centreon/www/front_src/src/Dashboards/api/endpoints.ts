@@ -38,7 +38,7 @@ export const dashboardsContactsEndpoint = `${baseEndpoint}/configuration/dashboa
 
 export const dashboardsContactGroupsEndpoint = `${baseEndpoint}/configuration/dashboards/contactgroups`;
 
-export const playlistsEndpoint = `${baseEndpoint}/configuration/dashboards/playlists`;
+export const playlistsEndpoint = `/configuration/dashboards/playlists`;
 
 export const playlistEndpoint = (id: number | string): string =>
   `/configuration/dashboards/playlists/${id}`;
