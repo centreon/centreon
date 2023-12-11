@@ -50,3 +50,7 @@ export const labelDefineTheOrderOfDashboards = 'Define the order of dashboards';
 export const labelAddADashboard = 'Add a dashboard';
 export const labelPlaylistCreated = 'Playlist created';
 export const labelPlaylistUpdated = 'Playlist updated';
+export const labelRotationTimeShouldBeAtLeast =
+  'Rotation time must be at least 10 seconds.';
+export const labelRotationTimeShouldBeAtMost =
+  'Rotation time cannot exceed 60 seconds.';

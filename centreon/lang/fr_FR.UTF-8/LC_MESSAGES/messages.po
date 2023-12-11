@@ -18518,3 +18518,9 @@ msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
 
 msgid "Add at least 1 contact"
 msgstr "Ajoutez au moins 1 contact"
+
+msgid "Rotation time must be at least 10 seconds."
+msgstr "Le temps de rotation doit être au moins de 10 secondes."
+
+msgid "Rotation time cannot exceed 60 seconds."
+msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."

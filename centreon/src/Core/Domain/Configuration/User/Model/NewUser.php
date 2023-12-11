@@ -263,7 +263,7 @@ class NewUser
             self::MAX_USER_INTERFACE_DENSITY_LENGTH,
             'User::userInterfaceViewMode'
         );
-        
+
         if (
             $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_EXTENDED
             && $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_COMPACT

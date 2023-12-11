@@ -18,9 +18,11 @@ import {
   labelAddADashboard,
   labelCancel,
   labelDescription,
-  labelPlaylistName,
+  labelName,
   labelPlaylistProperties,
   labelRotationTime,
+  labelRotationTimeShouldBeAtLeast,
+  labelRotationTimeShouldBeAtMost,
   labelSelectDashboards
 } from '../../../translatedLabels';
 import {
@@ -140,7 +142,7 @@ describe('Playlist Configuration: creation', () => {
 
   it('displays the creation form', () => {
     cy.contains(labelPlaylistProperties).should('be.visible');
-    cy.findByLabelText(labelPlaylistName).should('be.visible');
+    cy.findByLabelText(labelName).should('be.visible');
     cy.findByLabelText(labelDescription).should('be.visible');
     cy.contains(labelSelectDashboards).should('be.visible');
     cy.findAllByLabelText(labelAddADashboard).should('have.length', 2);
@@ -153,7 +155,7 @@ describe('Playlist Configuration: creation', () => {
   });
 
   it('sends the playlist configuration when required fields are fullfilled and the corresponding button is clicked', () => {
-    cy.findByLabelText(labelPlaylistName).type('New playlist');
+    cy.findByLabelText(labelName).type('New playlist');
 
     cy.findAllByLabelText(labelAddADashboard).eq(0).click();
 
@@ -179,7 +181,7 @@ describe('Playlist Configuration: creation', () => {
   });
 
   it('does not send the playlist configuration when the name is missing', () => {
-    cy.findByLabelText(labelPlaylistName).click();
+    cy.findByLabelText(labelName).click();
     cy.findByLabelText(labelDescription).click();
 
     cy.contains(labelSave).should('be.disabled');
@@ -189,7 +191,7 @@ describe('Playlist Configuration: creation', () => {
   });
 
   it('does not send the playlist configuration when the rotation time is outside the boundary', () => {
-    cy.findByLabelText(labelPlaylistName).type('Playlist name');
+    cy.findByLabelText(labelName).type('Playlist name');
 
     cy.findAllByLabelText(labelAddADashboard).eq(0).click();
     cy.contains('My Dashboard').click();
@@ -201,18 +203,18 @@ describe('Playlist Configuration: creation', () => {
     cy.findByTestId(labelRotationTime).type('{selectall}61');
 
     cy.contains(labelSave).should('be.disabled');
-    cy.contains('must be less than or equal to 60').should('be.visible');
+    cy.contains(labelRotationTimeShouldBeAtMost).should('be.visible');
 
     cy.findByTestId(labelRotationTime).type('{selectall}8');
 
     cy.contains(labelSave).should('be.disabled');
-    cy.contains('must be greater than or equal to 10').should('be.visible');
+    cy.contains(labelRotationTimeShouldBeAtLeast).should('be.visible');
 
     cy.makeSnapshot();
   });
 
   it('displays a modal when the form is updated and the cancel button is clicked', () => {
-    cy.findByLabelText(labelPlaylistName).type('playlist');
+    cy.findByLabelText(labelName).type('playlist');
     cy.contains(labelCancel).click();
 
     cy.contains('Do you want to save the changes?').should('be.visible');
@@ -225,7 +227,7 @@ describe('Playlist Configuration: edition', () => {
   beforeEach(initializePlaylistConfigEdition);
 
   it('displays the form with prefilled values', () => {
-    cy.findByLabelText(labelPlaylistName).should('have.value', 'Playlist');
+    cy.findByLabelText(labelName).should('have.value', 'Playlist');
     cy.findByLabelText(labelDescription).should('have.value', 'Description');
     cy.findByLabelText('sort-1').should('be.visible');
     cy.findByLabelText('sort-2').should('be.visible');
@@ -238,7 +240,7 @@ describe('Playlist Configuration: edition', () => {
   });
 
   it('sends the updated playlist configuration when some fields are changed', () => {
-    cy.findByLabelText(labelPlaylistName).type('updated');
+    cy.findByLabelText(labelName).type('updated');
 
     cy.findByLabelText('delete-1').click();
 
@@ -254,7 +256,7 @@ describe('Playlist Configuration: edition', () => {
   });
 
   it('displays a modal when the form is updated and the cancel button is clicked', () => {
-    cy.findByLabelText(labelPlaylistName).type('updated');
+    cy.findByLabelText(labelName).type('updated');
     cy.contains(labelCancel).click();
 
     cy.contains('Do you want to save the changes?').should('be.visible');
@@ -263,7 +265,7 @@ describe('Playlist Configuration: edition', () => {
   });
 
   it('displays a modal when the form is updated with errors and the cancel button is clicked', () => {
-    cy.findByLabelText(labelPlaylistName).clear();
+    cy.findByLabelText(labelName).clear();
     cy.contains(labelCancel).click();
 
     cy.contains('Do you want to resolve the errors?').should('be.visible');
