@@ -17,7 +17,7 @@ interface WrapperLabelProps {
 const WrapperLabel = ({
   label,
   ...rest
-}: WrapperLabelProps & TypographyTypeMap['props']): JSX.Element => {
+}: WrapperLabelProps & TypographyProps): JSX.Element => {
   return <Typography {...rest}>{label}</Typography>;
 };
 
