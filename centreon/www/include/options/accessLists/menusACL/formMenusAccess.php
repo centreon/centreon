@@ -318,7 +318,8 @@ $form->setRequiredNote(_("Required field"));
 /*
  * Smarty template Init
  */
-$tpl = initSmartyTpl($path, new Smarty());
+$tpl = new Smarty();
+$tpl = initSmartyTpl($path, $tpl);
 
 /*
  * Just watch a LCA information

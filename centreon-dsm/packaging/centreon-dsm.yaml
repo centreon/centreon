@@ -1,0 +1,33 @@
+name: "centreon-dsm"
+arch: "${ARCH}"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  This add-on is built to manage passive alerts into slots of alerts. Alerts are not defined
+  into the configuration. This module give possibility to collect all alerts into a tray of
+  events.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://github.com/centreon/centreon-dsm"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - centreon-dsm-client = ${VERSION}-${RELEASE}${DIST}
+      - centreon-dsm-server = ${VERSION}-${RELEASE}${DIST}
+  deb:
+    depends:
+      - "centreon-dsm-client (= ${VERSION}-${RELEASE}${DIST})"
+      - "centreon-dsm-server (= ${VERSION}-${RELEASE}${DIST})"
+
+rpm:
+  summary: Centreon-dsm add-on for Centreon
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

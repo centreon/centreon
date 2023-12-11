@@ -4,9 +4,9 @@ get:
   summary: Get configured users
   description: |
     Get list of configured users
-    
+
     The available parameters to **search** / **sort_by** are:
-    
+
     * id
     * alias
     * name
@@ -25,4 +25,7 @@ get:
                   $ref: 'Schema/User.Listing.yaml'
               meta:
                 $ref: '../../Common/Schema/Meta.yaml'
-    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

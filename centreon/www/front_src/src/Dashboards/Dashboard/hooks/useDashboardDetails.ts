@@ -11,7 +11,7 @@ import { Dashboard, DashboardPanel, resource } from '../../api/models';
 import { dashboardDecoder } from '../../api/decoders';
 import { FederatedModule } from '../../../federatedModules/models';
 import { federatedWidgetsAtom } from '../../../federatedModules/atoms';
-import { useDashboardUserPermissions } from '../../components/DashboardUserPermissions/useDashboardUserPermissions';
+import { useDashboardUserPermissions } from '../../components/DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
 import { Panel, PanelConfiguration } from '../models';
 import {
   dashboardAtom,
@@ -51,8 +51,8 @@ export const formatPanel = ({
     minW: panel.layout.minWidth,
     name: panel.name,
     options: panel.widgetSettings.options,
-    panelConfiguration:
-      federatedWidget?.federatedComponentsConfiguration as PanelConfiguration,
+    panelConfiguration: federatedWidget
+      ?.federatedComponentsConfiguration[0] as PanelConfiguration,
     static: staticPanel,
     w: panel.layout.width,
     x: panel.layout.x,

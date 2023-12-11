@@ -83,6 +83,14 @@ class PlaylistException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileListingShares(): self
+    {
+        return new self(_('Error while listing the playlist shares'));
+    }
+
+    /**
+     * @return self
+     */
     public static function dashboardShouldBeUnique(): self
     {
         return new self(_('You cannot add the same dashboard to a playlist several times.'));
@@ -143,6 +151,16 @@ class PlaylistException extends \Exception
     }
 
     /**
+     * @param int $playlistId
+     *
+     * @return self
+     */
+    public static function playlistNotShared(int $playlistId): self
+    {
+        return new self(sprintf(_('The following playlist is not shared with you: [%d]'), $playlistId));
+    }
+
+    /**
      * @param int[] $userIds
      *
      * @return self
@@ -186,5 +204,13 @@ class PlaylistException extends \Exception
             _('You are not in the following contact group: [%s]'),
             implode(', ', $contactGroupIds)
         ));
+    }
+
+    /**
+     * @return self
+     */
+    public static function orderMustBeUnique(): self
+    {
+        return new self(_('The order in which dashboards are displayed must be unique.'));
     }
 }

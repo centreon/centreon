@@ -20,9 +20,7 @@ import {
   labelTimePeriod,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelContactsGroups,
   labelContacts,
-  labelSearchContactsGroups,
   labelSearchContacts,
   labelSearchBusinessViews,
   labelBusinessViews,
@@ -31,7 +29,6 @@ import {
 import { hostEvents, serviceEvents } from '../utils';
 import {
   businessViewsEndpoint,
-  contactGroupsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
@@ -311,39 +308,6 @@ const useFormInputs = ({
             dataTestId: 'Search contacts',
             fieldName: 'users',
             label: t(labelSearchContacts),
-            required: true,
-            type: InputType.MultiConnectedAutocomplete
-          },
-          {
-            custom: {
-              Component: Box
-            },
-            fieldName: '',
-            label: '',
-            type: InputType.Custom
-          }
-        ],
-        gridTemplateColumns: handleGridTemplate(panelWidth)
-      },
-      group: basicFormGroups[1].name,
-      inputClassName: classes.input,
-      label: '',
-      type: InputType.Grid
-    },
-    {
-      additionalLabel: t(labelContactsGroups),
-      additionalLabelClassName: classes.additionalLabel,
-      fieldName: '',
-      grid: {
-        columns: [
-          {
-            connectedAutocomplete: {
-              additionalConditionParameters: [],
-              endpoint: contactGroupsEndpoint
-            },
-            dataTestId: 'Search contact groups',
-            fieldName: 'contactgroups',
-            label: t(labelSearchContactsGroups),
             required: true,
             type: InputType.MultiConnectedAutocomplete
           },
