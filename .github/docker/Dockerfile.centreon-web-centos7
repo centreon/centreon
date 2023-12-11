@@ -41,7 +41,7 @@ COPY *.rpm /tmp/rpms-centreon/
 RUN bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
-yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
+yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime jq
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
