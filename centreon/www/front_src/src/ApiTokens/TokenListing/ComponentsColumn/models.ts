@@ -1,4 +1,4 @@
-import { Column } from '@centreon/ui';
+import { Column as ColumnTable } from '@centreon/ui';
 
 export enum Column {
   Actions = 'Actions',
@@ -31,7 +31,7 @@ export const defaultSelectedColumnIds: Array<string> = [
 ];
 
 export interface UseColumns {
-  columns: Array<Column>;
+  columns: Array<ColumnTable>;
   onResetColumns: () => void;
   onSelectColumns: (updatedColumnIds: Array<string>) => void;
   selectedColumnIds: Array<string>;

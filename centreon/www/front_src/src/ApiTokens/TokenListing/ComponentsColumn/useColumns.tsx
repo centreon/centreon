@@ -3,7 +3,11 @@ import { useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+import {
+  Column as ColumnTable,
+  ColumnType,
+  useLocaleDateTimeFormat
+} from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { labelActive, labelRevoked } from '../../translatedLabels';
@@ -12,7 +16,7 @@ import { Row } from '../models';
 import Title from '../Title';
 
 import ActionsColumn from './ActionsColumn';
-import { Columns, UseColumns, defaultSelectedColumnIds } from './models';
+import { Column, UseColumns, defaultSelectedColumnIds } from './models';
 
 const dateFormat = 'L';
 
@@ -34,7 +38,7 @@ export const useColumns = (): UseColumns => {
     setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
-  const columns: Array<Column> = useMemo(() => {
+  const columns: Array<ColumnTable> = useMemo(() => {
     return [
       {
         Component: ({ row }: Row) => (
@@ -44,7 +48,7 @@ export const useColumns = (): UseColumns => {
           />
         ),
         id: 'status',
-        label: Columns.Status,
+        label: Column.Status,
         sortable: true,
         type: ColumnType.component
       },
@@ -53,7 +57,7 @@ export const useColumns = (): UseColumns => {
           return <Title msg={row.name} variant="body2" />;
         },
         id: 'token_name',
-        label: Columns.Name,
+        label: Column.Name,
         sortField: 'token_name',
         sortable: true,
         type: ColumnType.component
@@ -69,7 +73,7 @@ export const useColumns = (): UseColumns => {
           />
         ),
         id: 'creation_date',
-        label: Columns.CreationDate,
+        label: Column.CreationDate,
         sortField: 'creation_date',
         sortable: true,
         type: ColumnType.component
@@ -85,7 +89,7 @@ export const useColumns = (): UseColumns => {
           />
         ),
         id: 'expiration_date',
-        label: Columns.ExpirationDate,
+        label: Column.ExpirationDate,
         sortField: 'expiration_date',
         sortable: true,
         type: ColumnType.component
@@ -95,7 +99,7 @@ export const useColumns = (): UseColumns => {
           <Title msg={row.user.name} variant="body2" />
         ),
         id: 'user_name',
-        label: Columns.User,
+        label: Column.User,
         sortField: 'user.name',
         sortable: true,
         type: ColumnType.component
@@ -105,7 +109,7 @@ export const useColumns = (): UseColumns => {
           <Title msg={row.creator.name} variant="body2" />
         ),
         id: 'creator_name',
-        label: Columns.Creator,
+        label: Column.Creator,
         sortField: 'creator.name',
         sortable: true,
         type: ColumnType.component
@@ -113,7 +117,7 @@ export const useColumns = (): UseColumns => {
       {
         Component: ActionsColumn,
         id: 'actions',
-        label: Columns.Actions,
+        label: Column.Actions,
         type: ColumnType.component
       }
     ];

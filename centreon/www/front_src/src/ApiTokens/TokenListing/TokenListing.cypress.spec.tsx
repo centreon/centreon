@@ -16,7 +16,7 @@ import { userAtom } from '@centreon/ui-context';
 import { buildListTokensEndpoint } from '../api/endpoints';
 
 import { DefaultParameters } from './Actions/Search/Filter/models';
-import { Columns } from './ComponentsColumn/models';
+import { Column } from './ComponentsColumn/models';
 import Listing from './Listing';
 
 dayjs.extend(utcPlugin);
@@ -26,31 +26,31 @@ dayjs.extend(LocalizedFormat);
 const columns = [
   {
     id: 'status',
-    label: Columns.Status
+    label: Column.Status
   },
   {
     id: 'token_name',
-    label: Columns.Name
+    label: Column.Name
   },
   {
     id: 'creation_date',
-    label: Columns.CreationDate
+    label: Column.CreationDate
   },
   {
     id: 'expiration_date',
-    label: Columns.ExpirationDate
+    label: Column.ExpirationDate
   },
   {
     id: 'user_name',
-    label: Columns.User
+    label: Column.User
   },
   {
     id: 'creator_name',
-    label: Columns.Creator
+    label: Column.Creator
   },
   {
     id: 'actions',
-    label: Columns.Actions
+    label: Column.Actions
   }
 ];
 
