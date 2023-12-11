@@ -20,26 +20,29 @@
  */
 
 /**
- * Smarty eval function.
+ * This plugin exists to avoid using the deprecated {php} tag
+ * when we use it only for the pagination.
  *
- * @param array $params
- * @param Smarty $smarty
+ * Before <pre>
+ *     {php}
+ *     include('./include/common/pagination.php');
+ *     {/php}
+ * </pre>
  *
- * @throws SmartyException
- *
- * @return false|string|void
+ * After <pre>
+ *     {pagination}
+ * </pre>
  */
-function smarty_function_eval($params, &$smarty)
+class Smarty_Compiler_Pagination extends Smarty_Internal_CompileBase
 {
-    if (! isset($params['var'])) {
-        $smarty->trigger_error("eval: missing 'var' parameter");
-
-        return;
+    /**
+     * @param array<mixed> $args
+     * @param Smarty_Internal_TemplateCompilerBase $compiler
+     *
+     * @return string
+     */
+    public function compile($args, Smarty_Internal_TemplateCompilerBase $compiler): string
+    {
+        return "<?php include('./include/common/pagination.php'); ?>";
     }
-
-    if ($params['var'] === '') {
-        return;
-    }
-
-    return $smarty->fetch('eval:' . $params['var']);
 }

@@ -1423,7 +1423,7 @@ function check_session($sid, $pearDB)
 
 function db2str($string)
 {
-    $string = str_replace('#BR#', "\\n", $string);
+    $string = str_replace('#BR#', "\\n", $string ?? '');
     $string = str_replace('#T#', "\\t", $string);
     $string = str_replace('#R#', "\\r", $string);
     $string = str_replace('#S#', "/", $string);
