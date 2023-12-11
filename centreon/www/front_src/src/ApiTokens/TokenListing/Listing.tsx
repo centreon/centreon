@@ -9,9 +9,9 @@ import { labelApiToken } from '../translatedLabels';
 import Actions from './Actions';
 import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
+import Title from './Title';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
-import Title from './Title';
 
 const Listing = (): JSX.Element | null => {
   const { classes } = useStyles();
@@ -28,10 +28,6 @@ const Listing = (): JSX.Element | null => {
 
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
-
-  if (dataListing?.isError) {
-    return null;
-  }
 
   return (
     <div className={classes.container}>

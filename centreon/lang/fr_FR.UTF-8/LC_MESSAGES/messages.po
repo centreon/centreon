@@ -18531,3 +18531,5 @@ msgstr "Le temps de rotation doit être au moins de 10 secondes."
 msgid "Rotation time cannot exceed 60 seconds."
 msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
 
+# msgid "Revoked"
+# msgstr "Révoqué"

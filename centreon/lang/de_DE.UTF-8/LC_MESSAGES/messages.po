@@ -16364,3 +16364,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Create new token"
 # msgstr ""
+
+# msgid "Revoked"
+# msgstr ""

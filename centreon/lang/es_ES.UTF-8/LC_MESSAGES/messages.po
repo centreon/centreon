@@ -16691,3 +16691,6 @@ msgstr "Modo avanzado"
 
 # msgid "Rotation time cannot exceed 60 seconds."
 # msgstr ""
+
+# msgid "Revoked"
+# msgstr ""

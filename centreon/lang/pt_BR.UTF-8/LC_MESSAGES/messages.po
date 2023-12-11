@@ -17161,3 +17161,6 @@ msgstr ""
 
 # msgid "Create new token"
 # msgstr ""
+
+# msgid "Revoked"
+# msgstr ""

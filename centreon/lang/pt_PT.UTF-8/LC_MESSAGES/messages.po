@@ -17149,3 +17149,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Create new token"
 # msgstr ""
+
+# msgid "Revoked"
+# msgstr ""
