@@ -247,9 +247,10 @@ $aclFrom = '';
 $aclCond = '';
 if (!$centreon->user->admin) {
     $aclFrom = ", `{$aclDbName}`.centreon_acl acl";
+    $aclGroupIds = implode(',', array_map(CentreonUtils::quote(...), $acl->getAccessGroups()));
     $aclCond
         = ' AND h.host_id = acl.host_id AND acl.service_id IS NULL '
-        . 'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
+        . 'AND acl.group_id IN (' . ($aclGroupIds ?: '0') . ') ';
 }
 
 if ($hostgroup) {
@@ -264,7 +265,6 @@ if ($hostgroup) {
             AND h.host_id = hr.host_host_id
             AND hr.hostgroup_hg_id = " . CentreonUtils::quote($hostgroup) . " $sqlFilterCase $aclCond
             ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
-        $dbResult->execute($mainQueryParameters);
     } else {
         $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
@@ -274,7 +274,6 @@ if ($hostgroup) {
             AND h.host_id = hr.host_host_id
             AND hr.hostgroup_hg_id = " . CentreonUtils::quote($hostgroup) . " $sqlFilterCase $aclCond
             ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
-        $dbResult->execute($mainQueryParameters);
     }
 } else {
     if ($poller) {
@@ -286,7 +285,6 @@ if ($hostgroup) {
             AND h.host_id = ns_host_relation.host_host_id
             AND ns_host_relation.nagios_server_id = " . CentreonUtils::quote($poller) . " $sqlFilterCase $aclCond
             ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
-        $dbResult->execute($mainQueryParameters);
     } else {
         $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
@@ -294,9 +292,9 @@ if ($hostgroup) {
             FROM host h $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1' $sqlFilterCase $aclCond
             ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
-        $dbResult->execute($mainQueryParameters);
     }
 }
+$dbResult->execute($mainQueryParameters);
 
 $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 include './include/common/checkPagination.php';
