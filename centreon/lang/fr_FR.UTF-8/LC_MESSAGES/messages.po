@@ -18524,3 +18524,54 @@ msgstr "Le temps de rotation doit être au moins de 10 secondes."
 
 msgid "Rotation time cannot exceed 60 seconds."
 msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
+
+msgid "Shares"
+msgstr "Partages"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Creator"
+msgstr "Créateur"
+
+msgid "Creation date"
+msgstr "Date de création"
+
+msgid "Update"
+msgstr "Mise à jour"
+
+msgid "Public link"
+msgstr "Lien public"
+
+msgid "Private/Public"
+msgstr "Privé/Public"
+
+msgid "Copy link"
+msgstr "Copier le lien"
+
+msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+msgstr "Toute personne disposant du lien peut consulter votre liste de diffusion. Soyez vigilant lorsque vous le partagez."
+
+msgid "Failed to copy the link."
+msgstr "Échec de la copie du lien."
+
+msgid "Link has been copied!"
+msgstr "Lien copié!"
+
+msgid "Stop sharing"
+msgstr "Arrêter le partage"
+
+msgid "Viewer"
+msgstr "Viewer"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Publish your playlist"
+msgstr "Publier votre liste de diffusion"
+
+msgid "Settings"
+msgstr "Paramètres"

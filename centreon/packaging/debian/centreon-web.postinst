@@ -31,6 +31,11 @@ if [ "$1" = "configure" ] ; then
       /usr/share/centreon/.env \
       /usr/share/centreon/.env.local.php
   fi
+  if [ "$(getent passwd centreon-broker)" ]; then
+        chown centreon-broker:centreon-broker \
+            /usr/share/centreon-broker/lua/centreon-cloud-notifications.lua \
+        2> /dev/null || :
+  fi
 
   # Generate HASH secret for Symfony application
   REPLY=$(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")

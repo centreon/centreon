@@ -13,6 +13,7 @@ import DashboardPageLayout from './components/DashboardPageLayout';
 import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
 import { DashboardLayout } from './models';
 import { routerHooks } from './routerHooks';
+import DashboardsPlaylistSkeleton from './components/DashboardPlaylists/DashboardsPlaylistSkeleton';
 
 const getTitle = cond([
   [equals(DashboardLayout.Library), always(labelDashboardLibrary)],
@@ -22,6 +23,12 @@ const getTitle = cond([
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
   const { layout } = routerHooks.useParams();
+
+  const fallback = equals(layout, DashboardLayout.Library) ? (
+    <DashboardsOverviewSkeleton />
+  ) : (
+    <DashboardsPlaylistSkeleton />
+  );
 
   return (
     <PageLayout>
@@ -36,7 +43,7 @@ const DashboardsPage = (): ReactElement => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <Suspense fallback={<DashboardsOverviewSkeleton />}>
+        <Suspense fallback={fallback}>
           <DashboardPageLayout />
         </Suspense>
       </PageLayout.Body>

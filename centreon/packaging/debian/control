@@ -143,7 +143,8 @@ Depends:
     php8.1-readline,
     php8.1-sqlite3,
     php-pear,
-    rrdtool
+    rrdtool,
+    lua-curl
 Recommends: ntp | bsd-mailx
 Suggests: nagios-images
 Replaces: centreon-widget-engine-status
