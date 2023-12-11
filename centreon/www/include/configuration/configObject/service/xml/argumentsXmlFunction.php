@@ -41,7 +41,7 @@
 */
 function myDecodeValue($arg)
 {
-    $arg = str_replace('#S#', "/", $arg);
+    $arg = str_replace('#S#', "/", $arg ?? '');
     $arg = str_replace('#BS#', "\\", $arg);
     return html_entity_decode($arg, ENT_QUOTES, "UTF-8");
 }

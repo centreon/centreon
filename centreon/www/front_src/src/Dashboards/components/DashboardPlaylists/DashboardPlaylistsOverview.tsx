@@ -11,33 +11,47 @@ import {
 } from '../../translatedLabels';
 import { useDashboardUserPermissions } from '../DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
 
+import { Listing } from './PlaylistsListing';
 import { playlistConfigInitialValuesAtom } from './atoms';
+import { useDashboardPlaylistsOverview } from './useDashboardPlaylistsOverview';
 import PlaylistConfig from './PlaylistConfig/PlaylistConfig';
-import { initialValue } from './PlaylistConfig/utils';
 
 const DashboardPlaylistsOverview = (): JSX.Element => {
   const { t } = useTranslation();
   const setPlaylistConfigInitialValues = useSetAtom(
     playlistConfigInitialValuesAtom
   );
-
-  const { canCreateOrManageDashboards } = useDashboardUserPermissions();
+  const { isEmptyList, loading, data } = useDashboardPlaylistsOverview();
 
   const openConfig = useCallback(() => {
-    setPlaylistConfigInitialValues(initialValue);
+    setPlaylistConfigInitialValues({
+      dashboards: [],
+      description: '',
+      isPublic: false,
+      name: '',
+      rotationTime: 10
+    });
   }, []);
+
+  const { canCreateOrManageDashboards } = useDashboardUserPermissions();
 
   return (
     <>
       <DataTable variant="listing">
-        <DataTable.EmptyState
-          canCreate={canCreateOrManageDashboards}
-          labels={{
-            actions: { create: t(labelCreateAPlaylist) },
-            title: t(labelWelcomeToThePlaylistInterface)
-          }}
-          onCreate={openConfig}
-        />
+        {isEmptyList ? (
+          <DataTable.EmptyState
+            canCreate={canCreateOrManageDashboards}
+            labels={{
+              actions: { create: t(labelCreateAPlaylist) },
+              title: t(labelWelcomeToThePlaylistInterface)
+            }}
+            onCreate={openConfig}
+          />
+        ) : (
+          <div style={{ minHeight: '75vh', minWidth: '100%' }}>
+            <Listing data={data} loading={loading} openConfig={openConfig} />
+          </div>
+        )}
       </DataTable>
       <PlaylistConfig />
     </>

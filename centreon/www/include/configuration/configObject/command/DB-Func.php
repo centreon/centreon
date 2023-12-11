@@ -41,7 +41,7 @@ if (!isset($centreon)) {
 if (!function_exists("myDecodeCommand")) {
     function myDecodeCommand($arg)
     {
-        $arg = str_replace('#BR#', "\\n", $arg);
+        $arg = str_replace('#BR#', "\\n", $arg ?? '');
         $arg = str_replace('#T#', "\\t", $arg);
         $arg = str_replace('#R#', "\\r", $arg);
         $arg = str_replace('#S#', "/", $arg);
