@@ -49,7 +49,42 @@ require_once "Centreon/Object/Ldap/ServerLdap.php";
 class CentreonLDAP extends CentreonObject
 {
     protected $db;
-    protected $baseParams;
+
+    protected string $action;
+
+    protected array $baseParams = [
+        'alias' => '',
+        'bind_dn' => '',
+        'bind_pass' => '',
+        'group_base_search' => '',
+        'group_filter' => '',
+        'group_member' => '',
+        'group_name' => '',
+        'ldap_auto_import' => '',
+        'ldap_contact_tmpl' => '',
+        'ldap_default_cg' => '',
+        'ldap_dns_use_domain' => '',
+        'ldap_connection_timeout' => '',
+        'ldap_search_limit' => '',
+        'ldap_search_timeout' => '',
+        'ldap_srv_dns' => '',
+        'ldap_store_password' => '',
+        'ldap_template' => '',
+        'protocol_version' => '',
+        'user_base_search' => '',
+        'user_email' => '',
+        'user_filter' => '',
+        'user_firstname' => '',
+        'user_lastname' => '',
+        'user_name' => '',
+        'user_pager' => '',
+        'user_group' => '',
+        'ldap_auto_sync' => '',
+        'ldap_sync_interval' => '',
+    ];
+
+    protected array $serverParams = ['host_address', 'host_port', 'host_order', 'use_ssl', 'use_tls'];
+
     const NB_ADD_PARAM = 2;
     const AR_NOT_EXIST = "LDAP configuration ID not found";
 
@@ -67,36 +102,7 @@ class CentreonLDAP extends CentreonObject
     {
         parent::__construct($dependencyInjector);
         $this->object = new \Centreon_Object_Ldap($dependencyInjector);
-        $this->baseParams = array(
-            'alias' => '',
-            'bind_dn' => '',
-            'bind_pass' => '',
-            'group_base_search' => '',
-            'group_filter' => '',
-            'group_member' => '',
-            'group_name' => '',
-            'ldap_auto_import' => '',
-            'ldap_contact_tmpl' => '',
-            'ldap_default_cg' => '',
-            'ldap_dns_use_domain' => '',
-            'ldap_connection_timeout' => '',
-            'ldap_search_limit' => '',
-            'ldap_search_timeout' => '',
-            'ldap_srv_dns' => '',
-            'ldap_store_password' => '',
-            'ldap_template' => '',
-            'protocol_version' => '',
-            'user_base_search' => '',
-            'user_email' => '',
-            'user_filter' => '',
-            'user_firstname' => '',
-            'user_lastname' => '',
-            'user_name' => '',
-            'user_pager' => '',
-            'user_group' => ''
-        );
-        $this->serverParams = array('host_address', 'host_port', 'host_order', 'use_ssl', 'use_tls');
-        $this->action = "LDAP";
+        $this->action = 'LDAP';
     }
 
     /**
@@ -123,7 +129,7 @@ class CentreonLDAP extends CentreonObject
      * Get Ldap Configuration Id
      *
      * @param string $name
-     * @return mixed | returns null if no ldap id is found
+     * @return mixed returns null if no ldap id is found
      * @throws CentreonClapiException
      */
     public function getLdapId($name)
@@ -171,7 +177,7 @@ class CentreonLDAP extends CentreonObject
     }
 
     /**
-     * @param null $arName
+     * @param string|null $arName
      * @throws CentreonClapiException
      */
     public function showserver($arName = null)
@@ -185,7 +191,7 @@ class CentreonLDAP extends CentreonObject
         }
         $sql = "SELECT ldap_host_id, host_address, host_port, use_ssl, use_tls, host_order
                 FROM auth_ressource_host
-                WHERE auth_ressource_id = :auth_ressource_id 
+                WHERE auth_ressource_id = :auth_ressource_id
                 ORDER BY host_order";
         $statement = $this->db->prepare($sql);
         $statement->bindValue(':auth_ressource_id', (int) $arId, \PDO::PARAM_INT);
@@ -223,7 +229,7 @@ class CentreonLDAP extends CentreonObject
         }
         $stmt = $this->db->prepare(
             "INSERT INTO auth_ressource (ar_name, ar_description, ar_enable, ar_type)
-            VALUES (:arName, :description, '1', '')"
+            VALUES (:arName, :description, '1', 'ldap')"
         );
         $stmt->bindValue(':arName', $name, \PDO::PARAM_STR);
         $stmt->bindValue(':description', $description, \PDO::PARAM_STR);
