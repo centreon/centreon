@@ -84,239 +84,239 @@ after(() => {
   cy.stopWebContainer();
 });
 
-// Given(
-//   "a dashboard in the dashboard administrator user's dashboard library",
-//   () => {
-//     cy.insertDashboard({ ...dashboards.default });
-//     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.default.name)
-//       .click();
-//   }
-// );
+Given(
+  "a dashboard in the dashboard administrator user's dashboard library",
+  () => {
+    cy.insertDashboard({ ...dashboards.default });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.default.name)
+      .click();
+  }
+);
 
-// When(
-//   'the dashboard administrator user selects the option to add a new widget',
-//   () => {
-//     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
-//     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-//     cy.getByTestId({ testId: 'AddIcon' }).click();
-//   }
-// );
+When(
+  'the dashboard administrator user selects the option to add a new widget',
+  () => {
+    cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
+    cy.getByTestId({ testId: 'edit_dashboard' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).click();
+  }
+);
 
-// When('selects the widget type "Top Bottom"', () => {
-//   cy.getByTestId({ testId: 'Widget type' }).click();
-//   cy.contains('Top/bottom').click();
-// });
+When('selects the widget type "Top Bottom"', () => {
+  cy.getByTestId({ testId: 'Widget type' }).click();
+  cy.contains('Top/bottom').click();
+});
 
-// Then('configuration properties for the Top Bottom widget are displayed', () => {
-//   cy.getByTestId({ testId: 'Bottom' }).should('exist');
-//   cy.getByTestId({ testId: 'Top' }).should('exist');
-// });
+Then('configuration properties for the Top Bottom widget are displayed', () => {
+  cy.getByTestId({ testId: 'Bottom' }).should('exist');
+  cy.getByTestId({ testId: 'Top' }).should('exist');
+});
 
-// When(
-//   'the dashboard administrator user selects a list of resources and the metric for the widget to report on',
-//   () => {
-//     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
-//     cy.getByLabel({ label: 'RichTextEditor' })
-//       .eq(0)
-//       .type(genericTextWidgets.default.description);
-//     cy.getByTestId({ testId: 'Resource type' }).realClick();
-//     cy.getByLabel({ label: 'Host Group' }).click();
-//     cy.getByTestId({ testId: 'Select resource' }).click();
-//     cy.contains('Linux-Servers').realClick();
-//     cy.getByTestId({ testId: 'Select metric' }).click();
-//     cy.contains('rta (ms) / Includes 1 resources').realClick();
-//     cy.wait('@dashboardMetricsTop');
-//   }
-// );
+When(
+  'the dashboard administrator user selects a list of resources and the metric for the widget to report on',
+  () => {
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'RichTextEditor' })
+      .eq(0)
+      .type(genericTextWidgets.default.description);
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Host Group' }).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.contains('Linux-Servers').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).click();
+    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.wait('@dashboardMetricsTop');
+  }
+);
 
-// Then(
-//   'a top of best-performing resources for this metbric are displayed in the widget preview',
-//   () => {
-//     cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-//     cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
-//       'be.visible'
-//     );
-//     cy.contains('#1 Centreon-Server_Ping').should('be.visible');
-//   }
-// );
+Then(
+  'a top of best-performing resources for this metbric are displayed in the widget preview',
+  () => {
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
+      'be.visible'
+    );
+    cy.contains('#1 Centreon-Server_Ping').should('be.visible');
+  }
+);
 
-// When('the user saves the Top Bottom widget', () => {
-//   cy.getByTestId({ testId: 'confirm' }).click();
-// });
+When('the user saves the Top Bottom widget', () => {
+  cy.getByTestId({ testId: 'confirm' }).click();
+});
 
-// Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
-//   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
-//   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
-// });
+Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
+});
 
-// Given('a dashboard configured with a Top Bottom widget', () => {
-//   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.default.name)
-//     .click();
-//   cy.getByLabel({
-//     label: 'Edit dashboard',
-//     tag: 'button'
-//   }).click();
-//   cy.getByTestId({ testId: 'More actions' }).click();
-//   cy.get('li[aria-label="Edit widget"]').click();
-// });
+Given('a dashboard configured with a Top Bottom widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.get('li[aria-label="Edit widget"]').click();
+});
 
-// When(
-//   'the dashboard administrator user removes a host from the dataset selection of the Top Bottom widget',
-//   () => {
-//     cy.getByTestId({ testId: 'CancelIcon' }).click();
-//   }
-// );
+When(
+  'the dashboard administrator user removes a host from the dataset selection of the Top Bottom widget',
+  () => {
+    cy.getByTestId({ testId: 'CancelIcon' }).click();
+  }
+);
 
-// Then(
-//   'the bar associated with the host is removed from the Top Bottom widget preview',
-//   () => {
-//     cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-//       .eq(1)
-//       .should('not.exist');
-//     cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-//       .eq(1)
-//       .should('not.exist');
-//   }
-// );
+Then(
+  'the bar associated with the host is removed from the Top Bottom widget preview',
+  () => {
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' })
+      .eq(1)
+      .should('not.exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' })
+      .eq(1)
+      .should('not.exist');
+  }
+);
 
-// When(
-//   'the dashboard administrator user adds a host from the dataset selection of the Top Bottom widget',
-//   () => {
-//     cy.getByTestId({ testId: 'Resource type' }).realClick();
-//     cy.getByLabel({ label: 'Host Group' }).click();
-//     cy.getByTestId({ testId: 'Select resource' }).click();
-//     cy.contains('Linux-Servers').realClick();
-//     cy.getByTestId({ testId: 'Select metric' }).click();
-//     cy.contains('rta (ms) / Includes 1 resources').realClick();
-//   }
-// );
+When(
+  'the dashboard administrator user adds a host from the dataset selection of the Top Bottom widget',
+  () => {
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Host Group' }).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.contains('Linux-Servers').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).click();
+    cy.contains('rta (ms) / Includes 1 resources').realClick();
+  }
+);
 
-// Then(
-//   'the bar associated with the host is added in the Top Bottom widget preview',
-//   () => {
-//     cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-//       .eq(1)
-//       .should('exist');
-//     cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-//       .eq(1)
-//       .should('exist');
-//   }
-// );
+Then(
+  'the bar associated with the host is added in the Top Bottom widget preview',
+  () => {
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' })
+      .eq(1)
+      .should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' })
+      .eq(1)
+      .should('exist');
+  }
+);
 
-// Given('a dashboard having a configured Top Bottom widget', () => {
-//   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.default.name)
-//     .click();
-// });
+Given('a dashboard having a configured Top Bottom widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+});
 
-// When(
-//   'the dashboard administrator user duplicates the Top Bottom widget',
-//   () => {
-//     cy.getByLabel({
-//       label: 'Edit dashboard',
-//       tag: 'button'
-//     }).click();
-//     cy.getByTestId({ testId: 'MoreVertIcon' }).click();
-//     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-//     cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
-//     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-//   }
-// );
+When(
+  'the dashboard administrator user duplicates the Top Bottom widget',
+  () => {
+    cy.getByLabel({
+      label: 'Edit dashboard',
+      tag: 'button'
+    }).click();
+    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  }
+);
 
-// Then('a second Top Bottom widget is displayed on the dashboard', () => {
-//   cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-//     .eq(1)
-//     .should('be.visible');
-//   cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-//     .eq(1)
-//     .should('be.visible');
-// });
+Then('a second Top Bottom widget is displayed on the dashboard', () => {
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' })
+    .eq(1)
+    .should('be.visible');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' })
+    .eq(1)
+    .should('be.visible');
+});
 
-// Given('a dashboard featuring two Top Bottom widgets', () => {
-//   cy.insertDashboardWithSingleMetricWidget(
-//     dashboards.default,
-//     dashbboardWithTwoTopBottomWidgets
-//   );
-//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.default.name)
-//     .click();
-//   cy.getByLabel({
-//     label: 'Edit dashboard',
-//     tag: 'button'
-//   }).click();
-//   cy.wait('@dashboardMetricsTop');
-//   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
-// });
+Given('a dashboard featuring two Top Bottom widgets', () => {
+  cy.insertDashboardWithSingleMetricWidget(
+    dashboards.default,
+    dashbboardWithTwoTopBottomWidgets
+  );
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.wait('@dashboardMetricsTop');
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
+});
 
-// When('the dashboard administrator user deletes one of the widgets', () => {
-//   cy.getByTestId({ testId: 'DeleteIcon' }).click();
-//   cy.getByLabel({
-//     label: 'Delete',
-//     tag: 'li'
-//   }).realClick();
-// });
+When('the dashboard administrator user deletes one of the widgets', () => {
+  cy.getByTestId({ testId: 'DeleteIcon' }).click();
+  cy.getByLabel({
+    label: 'Delete',
+    tag: 'li'
+  }).realClick();
+});
 
-// Then('only the contents of the other widget are displayed', () => {
-//   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-//   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
-// });
+Then('only the contents of the other widget are displayed', () => {
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
+});
 
-// Given('a dashboard with a configured Top Bottom widget', () => {
-//   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-//   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-//   cy.wait('@listAllDashboards');
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.default.name)
-//     .click();
-//   cy.getByLabel({
-//     label: 'Edit dashboard',
-//     tag: 'button'
-//   }).click();
-//   cy.getByTestId({ testId: 'More actions' }).click();
-//   cy.get('li[aria-label="Edit widget"]').click();
-// });
+Given('a dashboard with a configured Top Bottom widget', () => {
+  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.get('li[aria-label="Edit widget"]').click();
+});
 
-// When(
-//   'the dashboard administrator user selects the option to hide the value labels',
-//   () => {
-//     cy.getByLabel({
-//       label: 'Show value labels',
-//       tag: 'input'
-//     }).click();
-//     cy.wait('@dashboardMetricsTop');
-//   }
-// );
+When(
+  'the dashboard administrator user selects the option to hide the value labels',
+  () => {
+    cy.getByLabel({
+      label: 'Show value labels',
+      tag: 'input'
+    }).click();
+    cy.wait('@dashboardMetricsTop');
+  }
+);
 
-// Then(
-//   'the value labels for all hosts in the Top Bottom widget are hidden in view mode',
-//   () => {
-//     cy.getByTestId({ testId: 'confirm' }).click();
-//     cy.get('.visx-group text:first-child').should('not.exist');
-//   }
-// );
+Then(
+  'the value labels for all hosts in the Top Bottom widget are hidden in view mode',
+  () => {
+    cy.getByTestId({ testId: 'confirm' }).click();
+    cy.get('.visx-group text:first-child').should('not.exist');
+  }
+);
 
 Given('a dashboard containing a Top Bottom widget', () => {
   cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
