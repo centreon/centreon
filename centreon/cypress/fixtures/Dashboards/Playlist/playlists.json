@@ -1,0 +1,21 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "name": "Playlist 1"
+    },
+    {
+      "id": 2,
+      "name": "Playlist 2"
+    },
+    {
+      "id": 3,
+      "name": "Playlist 3"
+    }
+  ],
+  "meta": {
+    "total": 3,
+    "limit": 30,
+    "page": 1
+  }
+}

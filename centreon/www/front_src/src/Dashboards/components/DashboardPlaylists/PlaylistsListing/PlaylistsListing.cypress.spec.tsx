@@ -94,7 +94,7 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   responseFile = 'playlistsAdminUser',
-  endpoint = `${playlistsEndpoint}?**`
+  endpoint = `./api/latest${playlistsEndpoint}?**`
 }): void => {
   store.set(userAtom, {
     alias: 'admin',
@@ -365,7 +365,7 @@ const initializeSortingAndMount = (): void => {
       cy.interceptAPIRequest({
         alias: `getplaylists/${label}/desc`,
         method: Method.GET,
-        path: requestEndpointDesc,
+        path: `./api/latest${requestEndpointDesc}`,
         response: playlists
       });
     });
@@ -381,7 +381,7 @@ const initializeSortingAndMount = (): void => {
       cy.interceptAPIRequest({
         alias: `getplaylists/${label}/asc`,
         method: Method.GET,
-        path: requestEndpointAsc,
+        path: `./api/latest${requestEndpointAsc}`,
         response: playlists
       });
     });
