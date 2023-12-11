@@ -5,7 +5,9 @@
 /usr/lib64/libbrotlienc.so.1.0.9
 /usr/lib64/liblua-5.1.so
 /usr/lib64/libldap-2.4.so.2
+/opt/rh/httpd24/root/sbin/httpd
 /opt/rh/httpd24/root/etc/httpd/logs
 /opt/rh/httpd24/root/etc/httpd/modules
 /opt/rh/httpd24/root/etc/httpd/run
 /opt/rh/httpd24/root/etc/httpd/state
+/opt/rh/httpd24/root/etc/httpd/modules/mod_access_compat.so
