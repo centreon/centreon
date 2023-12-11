@@ -17,7 +17,7 @@ const Filter = (): JSX.Element => {
 
   const searchDebounced = useRef(
     debounce<(search) => void>((debouncedSearch): void => {
-      setSearchVAlue(debouncedSearch);
+      setSearchValue(debouncedSearch);
     }, 500)
   );
 
