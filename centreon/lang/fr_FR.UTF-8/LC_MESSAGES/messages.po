@@ -18370,3 +18370,6 @@ msgstr "Erreur lors de la suppression d'une liste de diffusion"
 
 msgid "You are not allowed to log in"
 msgstr "Vous n'êtes pas autorisé à vous connecter"
+
+msgid "Add at least 1 contact"
+msgstr "Ajoutez au moins 1 contact"

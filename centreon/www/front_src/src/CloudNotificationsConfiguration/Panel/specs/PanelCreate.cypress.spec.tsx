@@ -9,21 +9,19 @@ import {
   labelActiveOrInactive,
   labelChangeName,
   labelSearchHostGroups,
-  // labelSearchServiceGroups,
-  // labelSuccessfulNotificationAdded,
+  labelSearchServiceGroups,
+  labelSuccessfulNotificationAdded,
   labelClosePanel,
   labelDoYouWantToQuitWithoutSaving,
   labelYourFormHasUnsavedChanges,
   labelNotificationName,
   labelSubject,
-  labelSearchBusinessViews
-  // labelSearchContactsGroups,
-  // labelSearchContacts
+  labelSearchBusinessViews,
+  labelSearchContacts
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
-  // contactGroupsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
@@ -36,9 +34,8 @@ import {
   usersResponse,
   hostGroupsResponse,
   serviceGroupsResponse,
-  // contactGroupsResponse,
   platformVersions,
-  // formData,
+  formData,
   emailBodyText
 } from './testUtils';
 
@@ -88,13 +85,6 @@ const initialize = (): void => {
     response: usersResponse
   });
 
-  // cy.interceptAPIRequest({
-  //   alias: 'contactGroupsEndpoint',
-  //   method: Method.GET,
-  //   path: `${contactGroupsEndpoint}**`,
-  //   response: contactGroupsResponse
-  // });
-
   cy.viewport('macbook-13');
 
   cy.mount({
@@ -102,24 +92,20 @@ const initialize = (): void => {
   });
 };
 
-// const fillFormRequiredFields = (): void => {
-//   cy.findByLabelText(labelNotificationName).type('notification#1');
-//   cy.findByLabelText(labelSearchHostGroups).click();
-//   cy.waitForRequest('@getHostsGroupsEndpoint');
-//   cy.findByText('Firewall').click();
+const fillFormRequiredFields = (): void => {
+  cy.findByLabelText(labelNotificationName).type('notification#1');
+  cy.findByLabelText(labelSearchHostGroups).click();
+  cy.waitForRequest('@getHostsGroupsEndpoint');
+  cy.findByText('Firewall').click();
 
-//   cy.findByLabelText(labelSearchServiceGroups).click();
-//   cy.waitForRequest('@getServiceGroupsEndpoint');
-//   cy.findByText('MySQL-Servers').click();
+  cy.findByLabelText(labelSearchServiceGroups).click();
+  cy.waitForRequest('@getServiceGroupsEndpoint');
+  cy.findByText('MySQL-Servers').click();
 
-//   cy.findByLabelText(labelSearchContacts).click();
-//   cy.waitForRequest('@getUsersEndpoint');
-//   cy.findByText('Guest').click();
-
-//   // cy.findByLabelText(labelSearchContactsGroups).click();
-//   // cy.waitForRequest('@contactGroupsEndpoint');
-//   // cy.findByText('contact_group1').click();
-// };
+  cy.findByLabelText(labelSearchContacts).click();
+  cy.waitForRequest('@getUsersEndpoint');
+  cy.findByText('Guest').click();
+};
 
 describe('Create Panel', () => {
   beforeEach(initialize);
@@ -144,35 +130,37 @@ describe('Create Panel', () => {
     cy.makeSnapshot();
   });
 
-  // it('confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
-  //   cy.findByLabelText(labelSave).should('be.disabled');
+  it('confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
+    cy.findByLabelText(labelSave).should('be.disabled');
 
-  //   fillFormRequiredFields();
+    fillFormRequiredFields();
+    cy.clickOutside();
 
-  //   cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('top');
 
-  //   cy.findByLabelText(labelSave).should('not.be.disabled');
+    cy.findByLabelText(labelSave).should('not.be.disabled');
 
-  //   cy.makeSnapshot();
-  // });
+    cy.makeSnapshot();
+  });
 
-  // it('sends a request to add a new notification with the form values when the Confirm button is clicked', () => {
-  //   cy.findByLabelText(labelSave).should('be.disabled');
+  it('sends a request to add a new notification with the form values when the Confirm button is clicked', () => {
+    cy.findByLabelText(labelSave).should('be.disabled');
 
-  //   fillFormRequiredFields();
+    fillFormRequiredFields();
+    cy.clickOutside();
 
-  //   cy.get('#panel-content').scrollTo('top');
+    cy.get('#panel-content').scrollTo('top');
 
-  //   cy.findByLabelText(labelSave).click();
+    cy.findByLabelText(labelSave).click();
 
-  //   cy.waitForRequest('@addNotificationRequest').then(({ request }) => {
-  //     expect(JSON.parse(request.body)).to.deep.equal(formData);
-  //   });
+    cy.waitForRequest('@addNotificationRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formData);
+    });
 
-  //   cy.findByText(labelSuccessfulNotificationAdded).should('be.visible');
+    cy.findByText(labelSuccessfulNotificationAdded).should('be.visible');
 
-  //   cy.makeSnapshot();
-  // });
+    cy.makeSnapshot();
+  });
 
   it('confirms that the Close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
