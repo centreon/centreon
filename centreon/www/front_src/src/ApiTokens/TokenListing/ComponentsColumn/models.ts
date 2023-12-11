@@ -1,4 +1,3 @@
-/* eslint-disable typescript-sort-keys/string-enum */
 import { Column } from '@centreon/ui';
 
 export enum Columns {
@@ -11,18 +10,25 @@ export enum Columns {
   User = 'User'
 }
 
-export enum selectableColumnsIds {
+export enum SelectableColumnsIds {
+  Actions = 'actions',
+  CreationDate = 'creation_date',
+  CreatorName = 'creator_name',
+  ExpirationDate = 'expiration_date',
   Status = 'status',
   TokenName = 'token_name',
-  CreationDate = 'creation_date',
-  ExpirationDate = 'expiration_date',
-  UserName = 'user_name',
-  CreatorName = 'creator_name',
-  Actions = 'actions'
+  UserName = 'user_name'
 }
 
-export const defaultSelectedColumnIds: Array<string> =
-  Object.values(selectableColumnsIds);
+export const defaultSelectedColumnIds: Array<string> = [
+  SelectableColumnsIds.Status,
+  SelectableColumnsIds.TokenName,
+  SelectableColumnsIds.CreationDate,
+  SelectableColumnsIds.ExpirationDate,
+  SelectableColumnsIds.UserName,
+  SelectableColumnsIds.CreatorName,
+  SelectableColumnsIds.Actions
+];
 
 export interface UseColumns {
   columns: Array<Column>;
