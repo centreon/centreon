@@ -13,7 +13,7 @@ import { labelSearch } from '../translatedLabels';
 const Filter = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const setSearchVAlue = useSetAtom(searchAtom);
+  const setSearchValue = useSetAtom(searchAtom);
 
   const searchDebounced = useRef(
     debounce<(search) => void>((debouncedSearch): void => {
