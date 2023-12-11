@@ -30,6 +30,10 @@ export const useColumnStyles = makeStyles()((theme) => ({
     },
     paddingBottom: theme.spacing(0.25),
     paddingTop: theme.spacing(0.25)
+  },
+  name: {
+    color: 'inherit',
+    textDecoration: 'none'
   }
 }));
 
