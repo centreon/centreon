@@ -386,7 +386,6 @@ jobs:
           slim build --show-clogs --show-blogs \
             --include-shell \
             --http-probe-off \
-            --check-version=false \
             --verbose \
             --exec-file .github/docker/slim-configuration/exec.txt \
             --include-path-file .github/docker/slim-configuration/include-path.txt \
