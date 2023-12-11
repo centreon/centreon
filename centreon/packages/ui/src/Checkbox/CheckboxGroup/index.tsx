@@ -2,7 +2,7 @@ import { equals, includes } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import FormGroup, { FormGroupProps } from '@mui/material/FormGroup';
-import { TypographyTypeMap } from '@mui/material/Typography';
+import { TypographyProps } from '@mui/material/Typography';
 
 import Checkbox, { LabelPlacement } from '../Checkbox';
 
@@ -13,7 +13,7 @@ interface Props {
   disabled?: boolean;
   formGroupProps?: FormGroupProps;
   labelPlacement?: LabelPlacement;
-  labelProps?: TypographyTypeMap['props'];
+  labelProps?: TypographyProps;
   onChange?: (e) => void;
   options: Array<string>;
   values: Array<string>;

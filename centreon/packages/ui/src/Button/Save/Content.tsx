@@ -1,6 +1,6 @@
 import CheckIcon from '@mui/icons-material/Check';
 import SaveIcon from '@mui/icons-material/Save';
-import { Typography, TypographyTypeMap } from '@mui/material';
+import { Typography, TypographyProps } from '@mui/material';
 
 interface Props {
   labelLoading: string;
@@ -17,7 +17,7 @@ interface WrapperLabelProps {
 const WrapperLabel = ({
   label,
   ...rest
-}: WrapperLabelProps & TypographyTypeMap['props']): JSX.Element => {
+}: WrapperLabelProps & TypographyProps): JSX.Element => {
   return <Typography {...rest}>{label}</Typography>;
 };
 
@@ -28,7 +28,7 @@ const Content = ({
   loading,
   labelLoading,
   ...rest
-}: Props & TypographyTypeMap['props']): JSX.Element | string | null => {
+}: Props & TypographyProps): JSX.Element | string | null => {
   if (loading) {
     return <WrapperLabel label={labelLoading} {...rest} />;
   }
