@@ -18562,7 +18562,7 @@ msgid "Stop sharing"
 msgstr "Arrêter le partage"
 
 msgid "Viewer"
-msgstr "Visionneur"
+msgstr "Viewer"
 
 msgid "Editor"
 msgstr "Éditeur"
