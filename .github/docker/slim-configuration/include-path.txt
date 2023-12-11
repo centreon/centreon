@@ -20,7 +20,6 @@
 /opt/rh/httpd24/root/etc/httpd/conf
 /opt/rh/httpd24/root/etc/httpd/conf.d
 /opt/rh/httpd24/root/etc/httpd/conf.modules.d
-/opt/rh/httpd24/root/usr/lib64/httpd/modules
 /opt/rh/httpd24/root/var/run/httpd
 /opt/rh/httpd24/root/var/lib/httpd
 /var/lib/php/session
