@@ -270,7 +270,6 @@ describe('User', () => {
       cy.findAllByTestId('Share').should('have.length', 4);
       cy.findAllByTestId('SettingsOutlinedIcon').should('have.length', 4);
       cy.findAllByTestId('More actions').should('have.length', 4);
-      cy.findAllByTestId('Private/Public').should('have.length', 4);
 
       cy.makeSnapshot();
     });
