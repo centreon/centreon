@@ -10,20 +10,12 @@ services:
     ports: ["80", "3306"]
     profiles: ["web-fresh"]
 
-  webdriver:
-    image: "@SELENIUM_IMAGE@"
-    environment: ["SCREEN_WIDTH=1600", "SCREEN_HEIGHT=2000"]
-    ports: ["4444", "5900"]
-    profiles: ["webdriver"]
-    shm_size: "2g"
-
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest
     ports: ["389"]
     profiles: ["openldap"]
 
   squid-simple:
-
     image: docker.centreon.com/centreon/mon-squid-simple:latest
     ports: ["3128"]
     profiles: ["squid-simple"]
