@@ -43,6 +43,7 @@ class SmartyBC extends Smarty
         'urlencode',
         'rawurlencode',
         'json_encode',
+        'strtotime',
     ];
 
     /**
