@@ -15,7 +15,6 @@ import { labelWelcomeToThePlaylistInterface } from '../../../translatedLabels';
 
 import {
   labelDelete,
-  labelLinkHasBeenCopied,
   labelMoreActions,
   labelPublishYourPlaylist
 } from './translatedLabels';
@@ -219,49 +218,6 @@ describe('User', () => {
       cy.findAllByTestId('DescriptionOutlinedIcon').eq(0).trigger('mouseover');
 
       cy.findByText('Sample description for Playlist 1').should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('disables copy public link when public link is deactivatd', () => {
-      initializeAndMount(administratorRole);
-
-      cy.waitForRequest('@getplaylists');
-
-      cy.findAllByTestId('Private/Public')
-        .eq(1)
-        .find('input')
-        .should('not.be.checked');
-
-      cy.findAllByTestId('LinkIcon').eq(1).parent().should('be.disabled');
-
-      cy.makeSnapshot();
-    });
-
-    it('copies the public link when it is enabled and public link button was clicked', () => {
-      initializeAndMount(administratorRole);
-
-      cy.waitForRequest('@getplaylists');
-
-      cy.window()
-        .its('navigator.clipboard')
-        .then((clipboard) =>
-          cy.stub(clipboard, 'writeText').resolves().as('writeText')
-        );
-
-      cy.findAllByTestId('Private/Public')
-        .eq(0)
-        .find('input')
-        .should('be.checked');
-
-      cy.findAllByTestId('LinkIcon').eq(0).parent().click();
-
-      cy.get('@writeText')
-        .should('have.been.calledOnce')
-        .its('firstCall.args.0')
-        .should('equal', 'https://example.com/public-link');
-
-      cy.findByText(labelLinkHasBeenCopied).should('be.visible');
 
       cy.makeSnapshot();
     });

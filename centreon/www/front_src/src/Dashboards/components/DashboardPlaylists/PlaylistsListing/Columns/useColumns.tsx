@@ -144,6 +144,7 @@ const useListingColumns = (): {
       Component: PublicLink,
       clickable: true,
       disablePadding: false,
+      getHiddenCondition: () => true,
       id: 'public_link',
       label: t(labelPublicLink),
       type: ColumnType.component
@@ -155,6 +156,7 @@ const useListingColumns = (): {
             Component: ActivatePublicLink,
             clickable: true,
             disablePadding: false,
+            getHiddenCondition: () => true,
             id: 'is_public',
             label: t(labelPrivatePublic),
             type: ColumnType.component
