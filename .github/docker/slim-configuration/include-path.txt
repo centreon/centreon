@@ -17,11 +17,7 @@
 /usr/lib64/perl5/vendor_perl
 /var/www/html
 /var/log/httpd24
-/opt/rh/httpd24/root/etc/httpd/conf
-/opt/rh/httpd24/root/etc/httpd/conf.d
-/opt/rh/httpd24/root/etc/httpd/conf.modules.d
-/opt/rh/httpd24/root/var/run/httpd
-/opt/rh/httpd24/root/var/lib/httpd
+/opt/rh/httpd24/root
 /var/lib/php/session
 /usr/share/centreon
 /var/cache/centreon
