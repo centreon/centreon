@@ -15,7 +15,7 @@ import { useCreateDashboard } from '../../../api/useCreateDashboard';
 import routeMap from '../../../../reactRoutes/routeMap';
 import { useUpdateDashboard } from '../../../api/useUpdateDashboard';
 import { labelDashboardUpdated } from '../../../translatedLabels';
-import { resetDashboardDerivedAtom } from '../../../Dashboard/atoms';
+import { resetDashboardDerivedAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 import { DashboardLayout } from '../../../models';
 
 const dialogStateAtom = atom<{

@@ -17,6 +17,7 @@ export const PageLayoutBody = ({
     <section
       className={classes.pageLayoutBody}
       data-has-background={hasBackground}
+      id="page-body"
     >
       {children}
     </section>
