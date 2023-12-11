@@ -15,7 +15,7 @@ import {
 } from '../../api/endpoints';
 import {
   labelCreateAPlaylist,
-  labelPlaylistName,
+  labelName,
   labelPlaylistProperties,
   labelPlaylists
 } from '../../translatedLabels';
@@ -191,7 +191,7 @@ describe('Playlist - Quick access', () => {
     cy.findByTestId('quickaccess').click();
     cy.contains(labelCreateAPlaylist).click();
 
-    cy.findByLabelText(labelPlaylistName).type('playlist');
+    cy.findByLabelText(labelName).type('playlist');
 
     cy.contains(labelSave).click();
 
