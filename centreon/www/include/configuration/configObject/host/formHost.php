@@ -225,13 +225,13 @@ if (
 
     if (! $isCloudPlatform) {
         // Set Host Notification Options
-        $tmp = explode(',', $host['host_notification_options']);
+        $tmp = explode(',', $host['host_notification_options'] ?? '');
         foreach ($tmp as $key => $value) {
             $host['host_notifOpts'][trim($value)] = 1;
         }
 
         // Set Stalking Options
-        $tmp = explode(',', $host['host_stalking_options']);
+        $tmp = explode(',', $host['host_stalking_options'] ?? '');
         foreach ($tmp as $key => $value) {
             $host['host_stalOpts'][trim($value)] = 1;
         }

@@ -17,14 +17,19 @@ const personalInformationDecoder = (
 
 const tokenDecoder = JsonDecoder.object<Token>(
   {
-    creation_date: JsonDecoder.string,
+    creationDate: JsonDecoder.string,
     creator: personalInformationDecoder('creator'),
-    expiration_date: JsonDecoder.string,
-    is_revoked: JsonDecoder.boolean,
+    expirationDate: JsonDecoder.string,
+    isRevoked: JsonDecoder.boolean,
     name: JsonDecoder.string,
     user: personalInformationDecoder('user')
   },
-  'Token'
+  'Token',
+  {
+    creationDate: 'creation_date',
+    expirationDate: 'expiration_date',
+    isRevoked: 'is_revoked'
+  }
 );
 
 export const listTokensDecoder = buildListingDecoder<Token>({

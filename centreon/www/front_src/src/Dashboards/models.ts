@@ -1,3 +1,4 @@
 export enum DashboardLayout {
-  Library = 'library'
+  Library = 'library',
+  Playlist = 'playlists'
 }

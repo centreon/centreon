@@ -12,8 +12,21 @@ put:
         schema:
           $ref: 'Schema/Playlist/UpdatePlaylistShareRequest.yaml'
   responses:
-  "204": { $ref: '../../Common/Response/NoContent.yaml' }
-  '400': { $ref: '../../Common/Response/BadRequest.yaml' }
-  '403': { $ref: '../../Common/Response/Forbidden.yaml' }
-  '409': { $ref: '../../Common/Response/Conflict.yaml'}
-  '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+    '204': { $ref: '../../Common/Response/NoContent.yaml' }
+    '400': { $ref: '../../Common/Response/BadRequest.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml'}
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+get:
+  tags:
+    - Dashboard
+  summary: "List Dashboard Playlist Shares"
+  description: "List the contact and/or contactgroups a playlist is shared with"
+  parameters:
+    - $ref: 'QueryParameter/PlaylistId.yaml'
+  responses:
+    '200': { $ref: '../../Common/Response/NoContent.yaml' }
+    '400': { $ref: '../../Common/Response/BadRequest.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml'}
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

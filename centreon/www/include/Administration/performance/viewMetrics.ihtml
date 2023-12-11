@@ -7,9 +7,7 @@
 				{$form.o1.html}
 				&nbsp;&nbsp;&nbsp;
 			</td>
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 	<table class="ListTable">
@@ -54,9 +52,7 @@
 				&nbsp;&nbsp;&nbsp;
 			</td>
 			<input name="o" value="{$o}" type="hidden">
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 <input type='hidden' id='limit' name='limit' value='{$limit}'>

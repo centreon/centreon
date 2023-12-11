@@ -8,6 +8,8 @@ import { userAtom } from '@centreon/ui-context';
 
 import { labelActive, labelRevoked } from '../../translatedLabels';
 import { selectedColumnIdsAtom } from '../atoms';
+import { Row } from '../models';
+import Title from '../Title';
 
 import ActionsColumn from './ActionsColumn';
 import Information from './Information';
@@ -36,9 +38,10 @@ export const useColumns = (): UseColumns => {
   const columns: Array<Column> = useMemo(() => {
     return [
       {
-        Component: ({ row }) => (
-          <Information
-            data={row.is_revoked ? t(labelRevoked) : t(labelActive)}
+        Component: ({ row }: Row) => (
+          <Title
+            msg={row.isRevoked ? t(labelRevoked) : t(labelActive)}
+            variant="body2"
           />
         ),
         id: 'status',
@@ -47,8 +50,8 @@ export const useColumns = (): UseColumns => {
         type: ColumnType.component
       },
       {
-        Component: ({ row }) => {
-          return <Information data={row.name} />;
+        Component: ({ row }: Row) => {
+          return <Title msg={row.name} variant="body2" />;
         },
         id: 'token_name',
         label: Columns.Name,
@@ -57,12 +60,13 @@ export const useColumns = (): UseColumns => {
         type: ColumnType.component
       },
       {
-        Component: ({ row }) => (
-          <Information
-            data={format({
-              date: row.creation_date,
+        Component: ({ row }: Row) => (
+          <Title
+            msg={format({
+              date: row.creationDate,
               formatString: dateFormat
             })}
+            variant="body2"
           />
         ),
         id: 'creation_date',
@@ -72,12 +76,13 @@ export const useColumns = (): UseColumns => {
         type: ColumnType.component
       },
       {
-        Component: ({ row }) => (
-          <Information
-            data={format({
-              date: row.expiration_date,
+        Component: ({ row }: Row) => (
+          <Title
+            msg={format({
+              date: row.expirationDate,
               formatString: dateFormat
             })}
+            variant="body2"
           />
         ),
         id: 'expiration_date',
@@ -87,7 +92,9 @@ export const useColumns = (): UseColumns => {
         type: ColumnType.component
       },
       {
-        Component: ({ row }) => <Information data={row.user.name} />,
+        Component: ({ row }: Row) => (
+          <Title msg={row.user.name} variant="body2" />
+        ),
         id: 'user_name',
         label: Columns.User,
         sortField: 'user.name',
@@ -95,7 +102,9 @@ export const useColumns = (): UseColumns => {
         type: ColumnType.component
       },
       {
-        Component: ({ row }) => <Information data={row.creator.name} />,
+        Component: ({ row }: Row) => (
+          <Title msg={row.creator.name} variant="body2" />
+        ),
         id: 'creator_name',
         label: Columns.Creator,
         sortField: 'creator.name',

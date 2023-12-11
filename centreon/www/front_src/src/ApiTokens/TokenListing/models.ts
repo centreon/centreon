@@ -30,12 +30,15 @@ export interface PersonalInformation {
 }
 
 export interface Token {
-  creation_date: string;
+  creationDate: string;
   creator: PersonalInformation;
-  expiration_date: string;
-  is_revoked: boolean;
+  expirationDate: string;
+  isRevoked: boolean;
   name: string;
   user: PersonalInformation;
+}
+export interface Row {
+  row: Token;
 }
 
 export interface SortParams {
