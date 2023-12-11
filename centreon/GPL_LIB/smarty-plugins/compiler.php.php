@@ -27,8 +27,6 @@
  * We need to support it, even it is VERY unsafe to use it, because legacy.
  *
  * It was possible to use it Smarty v3 thanks to {@see SmartyBC}.
- *
- * !!! This plugin SHOULD BE REMOVED as fast as possible in the near future !!!
  */
 class Smarty_Compiler_Php extends Smarty_Internal_CompileBase
 {
