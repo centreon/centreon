@@ -12,6 +12,7 @@
 /etc/sudoers
 /etc/sudoers.d
 /etc/pam.d
+/etc/ssl
 /etc/centreon-gorgone
 /usr/libexec/sudo
 /usr/lib64/perl5/vendor_perl
