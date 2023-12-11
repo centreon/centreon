@@ -72,6 +72,7 @@ const DateTimePickerInput = ({
         disabled={disabled}
         maxDate={maxDate && formatDate(maxDate)}
         minDate={minDate && formatDate(minDate)}
+        minDateTime={rest?.minDateTime && formatDate(rest?.minDateTime)}
         value={formatDate(date)}
         onChange={changeTime}
         {...rest}

@@ -23,6 +23,7 @@ const CustomTimePeriod = ({
 
   const { open, setOpen } = openPicker;
   const minDate = dayjs().add(1, 'd').toDate();
+  const minDateTime = dayjs(minDate).add(5, 'm').startOf('s');
   const { anchorEl, setAnchorEl } = anchorElDuration;
 
   const [endDate, setEndDate] = useState<Date>(customizeDate ?? minDate);
@@ -61,6 +62,7 @@ const CustomTimePeriod = ({
       closeOnSelect={false}
       date={endDate}
       minDate={minDate}
+      minDateTime={minDateTime}
       open={open}
       propsPickerEnd={{ open, slotProps, slots }}
       slotProps={slotProps}
