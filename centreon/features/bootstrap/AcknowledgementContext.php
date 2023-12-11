@@ -29,7 +29,7 @@ class AcknowledgementContext extends CentreonContext
             )
         );
         $page->save();
-        $this->restartAllPollers();
+        $this->reloadAllPollers();
         $this->submitServiceResult(
             'Centreon-Server',
             'AcceptanceTestService',
