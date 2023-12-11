@@ -44,6 +44,7 @@ class SmartyBC extends Smarty
         'rawurlencode',
         'json_encode',
         'strtotime',
+        'number_format',
     ];
 
     /**
