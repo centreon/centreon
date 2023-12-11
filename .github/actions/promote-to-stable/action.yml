@@ -57,7 +57,7 @@ runs:
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to stable."
-            jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+            jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
           done
         done
 
@@ -89,7 +89,7 @@ runs:
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Promoting $ARTIFACT to stable."
-          jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+          jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
         done
 
       shell: bash
