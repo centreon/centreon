@@ -76,6 +76,9 @@ jobs:
             # Prepare dirs
             mkdir release-full-build && cd release-full-build
 
+            # Enable credential-cache helper
+            git config credential.helper cache
+
             # Clone repositories
             git clone https://${{ env.pat }}@github.com/centreon/centreon.git
             git clone https://${{ env.pat }}@github.com/centreon/centreon-modules.git
@@ -90,7 +93,7 @@ jobs:
                 echo "Create release-$MAJOR-next for $repo"
                 git checkout -b release-$MAJOR-next
                 echo "Pushing release-$MAJOR-next to $repo repository"
-                git push origin release-$MAJOR-next
+                git push https://${{ env.pat }}@github.com/centreon/$repo.git release-$MAJOR-next
 
                 #echo "Sync branche release with latest develop state."
                 #git checkout release-$MAJOR-next
