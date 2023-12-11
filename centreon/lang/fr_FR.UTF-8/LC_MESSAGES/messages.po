@@ -18565,7 +18565,7 @@ msgid "Viewer"
 msgstr "Viewer"
 
 msgid "Editor"
-msgstr "Éditeur"
+msgstr "Editor"
 
 msgid "Create"
 msgstr "Créer"
