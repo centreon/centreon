@@ -129,21 +129,26 @@ class CentreonConnector
          * Inserting into database
          */
         try {
-            $success = $this->dbConnection->query('INSERT INTO `connector` (
-                                        `name`,
-                                        `description`,
-                                        `command_line`,
-                                        `enabled`,
-                                        `created`,
-                                        `modified`
-                                    ) VALUES (?, ?, ?, ?, ?, ?)', array(
+            $success = $this->dbConnection->prepare(
+                <<<SQL
+                    INSERT INTO `connector` (
+                                `name`,
+                                `description`,
+                                `command_line`,
+                                `enabled`,
+                                `created`,
+                                `modified`
+                                ) VALUES (?, ?, ?, ?, ?, ?)
+                    SQL
+            );
+            $success->execute([
                 $connector['name'],
                 $connector['description'],
                 $connector['command_line'],
                 $connector['enabled'],
                 $now = time(),
                 $now
-            ));
+            ]);
         } catch (\PDOException $e) {
             throw new RuntimeException('Cannot insert connector; Check the database schema');
         }
@@ -153,10 +158,10 @@ class CentreonConnector
          */
         if ($returnId) {
             try {
-                $lastIdQueryResult = $this->dbConnection->query(
-                    'SELECT `id` FROM `connector` WHERE `name` = ? LIMIT 1',
-                    array($connector['name'])
+                $lastIdQueryResult = $this->dbConnection->prepare(
+                    'SELECT `id` FROM `connector` WHERE `name` = ? LIMIT 1'
                 );
+                $lastIdQueryResult->execute([$connector['name']]);
             } catch (\PDOException $e) {
                 throw new RuntimeException('Cannot get last insert ID');
             }
@@ -195,20 +200,25 @@ class CentreonConnector
             throw new InvalidArgumentException('Id is not integer');
         }
         try {
-            $result = $this->dbConnection->query('SELECT
-                                                `id`,
-                                                `name`,
-                                                `description`,
-                                                `command_line`,
-                                                `enabled`,
-                                                `created`,
-                                                `modified`
-                                             FROM
-                                                `connector`
-                                             WHERE
-                                                `id` = ?
-                                             LIMIT
-                                                1', array($id));
+            $result = $this->dbConnection->prepare(
+                <<<SQL
+                    SELECT
+                       `id`,
+                       `name`,
+                       `description`,
+                       `command_line`,
+                       `enabled`,
+                       `created`,
+                       `modified`
+                    FROM
+                       `connector`
+                    WHERE
+                       `id` = ?
+                    LIMIT
+                       1
+                    SQL
+            );
+            $result->execute([$id]);
         } catch (\PDOException $e) {
             throw new RuntimeException('Cannot select connector');
         }
@@ -277,10 +287,10 @@ class CentreonConnector
             $sqlParts = implode(', ', $sqlParts);
             $values[] = $id;
             try {
-                $updateResult = $this->dbConnection->query(
-                    "UPDATE  `connector` SET $sqlParts WHERE  `connector`.`id` = ? LIMIT 1",
-                    $values
+                $updateResult = $this->dbConnection->prepare(
+                    "UPDATE  `connector` SET $sqlParts WHERE  `connector`.`id` = ? LIMIT 1"
                 );
+                $updateResult->execute($values);
             } catch (\PDOException $e) {
                 throw new RuntimeException('Cannot update connector');
             }
@@ -322,7 +332,8 @@ class CentreonConnector
             throw new InvalidArgumentException('Id should be integer');
         }
         try {
-            $this->dbConnection->query('DELETE FROM `connector` WHERE `id` = ? LIMIT 1', array($id));
+            $result = $this->dbConnection->prepare('DELETE FROM `connector` WHERE `id` = ? LIMIT 1');
+            $result->execute([$id]);
         } catch (\PDOException $e) {
             throw new RuntimeException('Cannot delete connector');
         }
@@ -499,20 +510,20 @@ class CentreonConnector
             if (!is_numeric($connectorId)) {
                 throw new InvalidArgumentException('Id is not an integer');
             }
-            $existsResult = $this->dbConnection->query(
-                'SELECT `id` FROM `connector` WHERE `id` = ? AND `name` = ? LIMIT 1',
-                array($connectorId, $name)
+            $existsResult = $this->dbConnection->prepare(
+                'SELECT `id` FROM `connector` WHERE `id` = ? AND `name` = ? LIMIT 1'
             );
+            $existsResult->execute([$connectorId, $name]);
             if ((boolean)$existsResult->fetchRow()) {
                 return true;
             }
         }
 
         try {
-            $existsResult = $this->dbConnection->query(
-                'SELECT `id` FROM `connector` WHERE `name` = ? LIMIT 1',
-                array($name)
+            $existsResult = $this->dbConnection->prepare(
+                'SELECT `id` FROM `connector` WHERE `name` = ? LIMIT 1'
             );
+            $existsResult->execute([$name]);
         } catch (\PDOException $e) {
             throw new RuntimeException(
                 'Cannot verify if connector name already in use; Query not valid; Check the database schema'

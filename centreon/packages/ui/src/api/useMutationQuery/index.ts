@@ -70,6 +70,7 @@ const useMutationQuery = <T extends object, TMeta>({
   onMutate,
   onError,
   onSuccess,
+  onSettled,
   baseEndpoint
 }: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
@@ -101,6 +102,7 @@ const useMutationQuery = <T extends object, TMeta>({
     },
     onError,
     onMutate,
+    onSettled,
     onSuccess
   });
 

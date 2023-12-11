@@ -1,20 +1,12 @@
 import { and, isEmpty, isNil, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import {
-  AnySchema,
-  ArraySchema,
-  ObjectSchema,
-  ObjectShape,
-  array,
-  object,
-  string
-} from 'yup';
+import { ObjectSchema, ObjectShape, array, object, string } from 'yup';
 
 import {
   labelRequired,
   labelChooseAtLeastOneResource,
-  labelChooseAtleastOneContactOrContactGroup,
+  labelChooseAtleastOneContact,
   labelMessageFieldShouldNotBeEmpty,
   labelThisNameAlreadyExists
 } from '../../translatedLabels';
@@ -52,8 +44,8 @@ const useValidationSchema = ({
   });
 
   const resourceSchema = (
-    dependency1,
-    dependency2
+    dependency1: string,
+    dependency2: string
   ): ObjectSchema<ObjectShape> =>
     object().when([dependency1, dependency2], ([value1, value2]) => {
       if (
@@ -72,26 +64,13 @@ const useValidationSchema = ({
       });
     });
 
-  const contactsSchema = (dependency): ArraySchema<AnySchema> =>
-    array().when(dependency, ([value]) => {
-      if (isEmpty(value)) {
-        return array().min(
-          1,
-          t(labelChooseAtleastOneContactOrContactGroup) as string
-        );
-      }
-
-      return array();
-    });
-
   const validationSchema = object().shape(
     {
-      contactgroups: contactsSchema('users'),
       hostGroups: resourceSchema('serviceGroups.ids', 'businessviews.ids'),
       messages: messagesSchema,
       name: validateName,
       serviceGroups: resourceSchema('hostGroups.ids', 'businessviews.ids'),
-      users: contactsSchema('contactgroups'),
+      users: array().min(1, t(labelChooseAtleastOneContact) as string),
       ...(isBamModuleInstalled
         ? {
             businessviews: resourceSchema('hostGroups.ids', 'serviceGroups.ids')
@@ -99,7 +78,6 @@ const useValidationSchema = ({
         : {})
     },
     [
-      ['users', 'contactgroups'],
       ['hostGroups', 'serviceGroups'],
       ['hostGroups', 'businessviews'],
       ['serviceGroups', 'businessviews']

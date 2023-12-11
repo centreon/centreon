@@ -25,6 +25,7 @@ namespace Tests\Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -42,7 +43,6 @@ use Core\Dashboard\Playlist\Application\UseCase\CreatePlaylist\CreatePlaylistVal
 use Core\Dashboard\Playlist\Domain\Model\DashboardOrder;
 use Core\Dashboard\Playlist\Domain\Model\NewPlaylist;
 use Core\Dashboard\Playlist\Domain\Model\Playlist;
-use Core\Dashboard\Playlist\Domain\Model\PlaylistAuthor;
 
 beforeEach(function() {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1)->setAlias('admin');
@@ -56,6 +56,7 @@ beforeEach(function() {
         $this->readPlaylistRepository
     );
     $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
+    $this->contactRepository = $this->createMock(ContactRepositoryInterface::class);
 });
 
 it('should present a Forbidden Response when the user has no rights to create playlist', function () {
@@ -65,6 +66,8 @@ it('should present a Forbidden Response when the user has no rights to create pl
         $this->writePlaylistRepository,
         $this->readPlaylistRepository,
         $this->dataStorageEngine,
+        $this->contactRepository,
+        $this->readDashboardRepository,
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
@@ -91,6 +94,8 @@ it('should present a ConflictResponse When a playlist with same name already exi
         $this->writePlaylistRepository,
         $this->readPlaylistRepository,
         $this->dataStorageEngine,
+        $this->contactRepository,
+        $this->readDashboardRepository,
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
@@ -123,10 +128,12 @@ it('should present a InvalidArgumentResponse when a dahsboard in the playlist do
         $this->writePlaylistRepository,
         $this->readPlaylistRepository,
         $this->dataStorageEngine,
+        $this->contactRepository,
+        $this->readDashboardRepository,
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
-    $request= new CreatePlaylistRequest();
+    $request = new CreatePlaylistRequest();
     $request->name = 'playlist';
     $request->dashboards = [['id' => $unexistentDashboardId, 'order' => 1]];
 
@@ -154,6 +161,8 @@ it('should present an InvalidArgumentResponse when a dashboard is more than one 
         $this->writePlaylistRepository,
         $this->readPlaylistRepository,
         $this->dataStorageEngine,
+        $this->contactRepository,
+        $this->readDashboardRepository,
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
@@ -188,6 +197,8 @@ it(
             $this->writePlaylistRepository,
             $this->readPlaylistRepository,
             $this->dataStorageEngine,
+            $this->contactRepository,
+            $this->readDashboardRepository,
             $this->rights
         );
         $presenter = new CreatePlaylistPresenterStub();
@@ -231,6 +242,8 @@ it('should present an InvalidArgumentResponse when the playlist has invalid valu
         $this->writePlaylistRepository,
         $this->readPlaylistRepository,
         $this->dataStorageEngine,
+        $this->contactRepository,
+        $this->readDashboardRepository,
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
@@ -273,6 +286,8 @@ it('should present an ErrorResponse when an error occured while writing playlist
         $this->writePlaylistRepository,
         $this->readPlaylistRepository,
         $this->dataStorageEngine,
+        $this->contactRepository,
+        $this->readDashboardRepository,
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
@@ -320,6 +335,8 @@ it('should present a CreatePlaylistResponse when a playlist is correctly created
         $this->writePlaylistRepository,
         $this->readPlaylistRepository,
         $this->dataStorageEngine,
+        $this->contactRepository,
+        $this->readDashboardRepository,
         $this->rights
     );
     $presenter = new CreatePlaylistPresenterStub();
@@ -349,11 +366,20 @@ it('should present a CreatePlaylistResponse when a playlist is correctly created
         ->expects($this->once())
         ->method('find')
         ->willReturn(
-            (new Playlist(1, $playlistName, $rotationTime, $isPublic))
+            (new Playlist(1, $playlistName, $rotationTime, $isPublic, new \DateTimeImmutable()))
                 ->setDescription($description)
-                ->setDashboardsOrder([new DashboardOrder(1,1)])
-                ->setAuthor(new PlaylistAuthor(1, 'admin'))
+                ->setAuthorId(1)
         );
+
+    $this->contactRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn((new Contact())->setId(1)->setAlias('admin'));
+
+    $this->readPlaylistRepository
+        ->expects($this->once())
+        ->method('findDashboardOrders')
+        ->willReturn([new DashboardOrder(1,1)]);
 
     $useCase($presenter, $request);
     $response = $presenter->data;

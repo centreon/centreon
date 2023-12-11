@@ -16317,6 +16317,48 @@ msgstr "Erweiterter Modus"
 # msgid "You are not allowed to list media"
 # msgstr ""
 
+# msgid "Playlists"
+# msgstr ""
+
+# msgid "Welcome to the Playlist interface!"
+# msgstr ""
+
+# msgid "Create a playlist"
+# msgstr ""
+
+# msgid "Playlist name"
+# msgstr ""
+
+# msgid "Playlist properties"
+# msgstr ""
+
+# msgid "Rotation time"
+# msgstr ""
+
+# msgid "Select dashboards"
+# msgstr ""
+
+# msgid "Define the order of dashboards"
+# msgstr ""
+
+# msgid "Add a dashboard"
+# msgstr ""
+
+# msgid "Playlist created"
+# msgstr ""
+
+# msgid "Playlist updated"
+# msgstr ""
+
+# msgid "Add at least 1 contact"
+# msgstr ""
+
+# msgid "Rotation time must be at least 10 seconds."
+# msgstr ""
+
+# msgid "Rotation time cannot exceed 60 seconds."
+# msgstr ""
+
 # msgid "API token"
 # msgstr ""
 

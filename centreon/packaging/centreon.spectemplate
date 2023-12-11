@@ -129,6 +129,7 @@ Requires:   net-snmp-perl
 Requires:   net-snmp-utils
 Requires:   rsync
 Requires:   brotli
+Requires:   lua-curl
 Requires(post): /etc/sudoers
 Provides:   centreon-backup
 Obsoletes:  centreon-backup
@@ -517,6 +518,10 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 # Translations
 %{__cp} -r centreon/www/locale %buildroot%{_datadir}/centreon/www/
 
+# Install Lua script
+%{__install} -d $RPM_BUILD_ROOT%{_datadir}/centreon-broker/lua/
+%{__cp} -rp centreon/lua/centreon-cloud-notifications.lua $RPM_BUILD_ROOT%{_datadir}/centreon-broker/lua/
+
 ######################################################
 # Package centreon
 ######################################################
@@ -696,6 +701,9 @@ fi
 
 %defattr(-, root, root, -)
 %{_datadir}/centreon/examples
+
+# Lua script for notifications
+%attr(-,centreon-broker,centreon-broker) %{_datadir}/centreon-broker/lua/centreon-cloud-notifications.lua
 
 %defattr(-, centreon, centreon, 0775)
 %{_localstatedir}/lib/centreon/centcore
