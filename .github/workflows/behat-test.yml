@@ -90,7 +90,7 @@ jobs:
           working-directory: ${{ inputs.module_name }}
           composer-options: "--optimize-autoloader"
 
-      - name: Retore standard slim image in cache
+      - name: Restore standard slim image in cache
         uses: actions/cache/restore@v3
         with:
           path: /tmp/cache/docker-image
