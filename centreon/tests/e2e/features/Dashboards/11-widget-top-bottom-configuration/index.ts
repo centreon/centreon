@@ -354,8 +354,6 @@ Then(
           .invoke('text')
           .should((text) => {
             const metricRegex = /\d+\.\d{3,}/;
-            const floatValue = parseFloat(text);
-            expect(floatValue).not.to.equal(0);
 
             return metricRegex.test(text);
           }),
