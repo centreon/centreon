@@ -72,13 +72,14 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: centreon/tests/rest_api
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Get test execution and test plan ids
-        uses: ./.github//workflows/create-xray-test-plan-and-test-execution
+        uses: ./.github/workflows/create-xray-test-plan-and-test-execution
 
       - name: Generate Xray Token
         id: generate-xray-token
