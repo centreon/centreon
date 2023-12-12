@@ -23,6 +23,10 @@ runs:
       run: npm ci --legacy-peer-deps
       working-directory: ${{ inputs.installation_directory || inputs.frontend_directory }}
       shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Run ESLint
       run: npm run eslint -- -f json -o eslint-report.json --max-warnings 0

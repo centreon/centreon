@@ -83,6 +83,7 @@ class RestApiContext extends CentreonContext
             'npm install -g newman && newman run' .
             ' tests/rest_api/' . $this->restCollection .
             ' --color off --disable-unicode --reporter-cli-no-assertions' .
+            ' --timeout-script 60000' .
             ' --environment ' . $this->envfile .
             ' > ' . $this->logfile,
             $output,
