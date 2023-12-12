@@ -7,8 +7,8 @@ RUN bash -e <<EOF
 
 service mysql start
 
-mysqldump centreon > /usr/local/src/centreon.sql
-mysqldump centreon_storage > /usr/local/src/centreon_storage.sql
+mysqldump --add-drop-database --databases centreon > /usr/local/src/centreon.sql
+mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/centreon_storage.sql
 
 service mysql stop
 
