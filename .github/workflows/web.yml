@@ -301,10 +301,6 @@ jobs:
             distrib: centos7
             distrib_rpm: el7
             module_name: web
-          - project: centreon-web
-            distrib: alma8
-            distrib_rpm: el8
-            module_name: web
 
     steps:
       - name: Checkout sources
@@ -317,8 +313,8 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Use cache RPM files
-        uses: actions/cache@v3
+      - name: Restore RPM files
+        uses: actions/cache/restore@v3
         with:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
@@ -334,6 +330,18 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_fresh
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+          pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
@@ -346,8 +354,63 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
+      - uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_standard
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+          pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
+      - name: Setup docker slim
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.7
+        shell: bash
+
+      - name: Build standard slim image
+        run: |
+          slim build --show-clogs --show-blogs \
+            --include-shell \
+            --http-probe-off \
+            --exec-file .github/docker/slim-configuration/exec.txt \
+            --include-path-file .github/docker/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/slim-configuration/path-perms.txt \
+            --tag ${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }} \
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Push standard slim image
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Store standard slim image in local archive
+        run: |
+          mkdir -p /tmp/cache/docker-image
+          docker save --output /tmp/cache/docker-image/${{ matrix.project }}-slim-${{ matrix.distrib }}.tar ${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Clear previous docker image from cache
+        run: |
+          curl \
+            -X DELETE \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ matrix.project }}-slim-${{ matrix.distrib }}-${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Store standard slim image in cache
+        uses: actions/cache/save@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ matrix.project }}-slim-${{ matrix.distrib }}-${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
     needs: [get-version, dockerize]

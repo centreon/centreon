@@ -1,0 +1,3 @@
+/usr/bin/sudo:4111
+/usr/lib64/nagios/plugins/check_icmp:4755
+/usr/lib64/nagios/plugins/check_dhcp:4755
