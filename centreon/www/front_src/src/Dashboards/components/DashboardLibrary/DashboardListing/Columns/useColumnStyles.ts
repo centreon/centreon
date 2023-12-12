@@ -1,7 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { styled, Switch as MUISwitch } from '@mui/material';
-
 export const useColumnStyles = makeStyles()((theme) => ({
   actions: {
     display: 'flex',
