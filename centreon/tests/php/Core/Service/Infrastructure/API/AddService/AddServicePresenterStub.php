@@ -31,6 +31,7 @@ use Core\Service\Application\UseCase\AddService\AddServiceResponse;
 class AddServicePresenterStub extends AbstractPresenter implements AddServicePresenterInterface
 {
     public ResponseStatusInterface|AddServiceResponse $response;
+
     public function presentResponse(ResponseStatusInterface|AddServiceResponse $response): void
     {
         $this->response = $response;

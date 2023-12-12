@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { execSync } from 'child_process';
 
 import puppeteer from 'puppeteer';
 import { startFlow } from 'lighthouse';
@@ -8,6 +9,9 @@ import { generateReportForResourceStatusPage } from './pages/resourceStatus';
 import { generateReportForAuthenticationPage } from './pages/authentication';
 import { baseConfig } from './defaults';
 import type { NavigateProps } from './models';
+import { generateReportForDashboardsPage } from './pages/dashboards';
+import { generateReportForNotificationsPage } from './pages/notifications';
+import { generateReportForResourceStatusPageFilterInteraction } from './pages/interactions/resourceStatus/filters';
 
 const createReportFile = async (report): Promise<void> => {
   const lighthouseFolderExists = fs.existsSync('report');
@@ -22,13 +26,18 @@ const createReportFile = async (report): Promise<void> => {
 const captureReport = async (): Promise<void> => {
   const browser = await puppeteer.launch({
     args: ['--lang=en-US,en', '--no-sandbox', '--disable-setuid-sandbox'],
-    headless: true,
+    headless: "new",
   });
   const page = await browser.newPage();
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'en'
+  });
 
   const flow = await startFlow(page, {
     name: 'Centreon Web pages',
   });
+
+  execSync(`docker cp ./features.json ${process.env.DOCKER_NAME || 'centreon-dev'}:/usr/share/centreon/config/features.json`);
 
   const navigate = async ({ url, name }: NavigateProps): Promise<void> => {
     await flow.navigate(url, { formFactor: 'desktop', name, ...baseConfig });
@@ -62,7 +71,31 @@ const captureReport = async (): Promise<void> => {
     startTimespan,
   });
 
+  await generateReportForResourceStatusPageFilterInteraction({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan,
+  });
+
   await generateReportForAuthenticationPage({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan,
+  });
+
+  await generateReportForDashboardsPage({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan,
+  });
+
+  await generateReportForNotificationsPage({
     endTimespan,
     navigate,
     page,

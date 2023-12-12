@@ -82,12 +82,13 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
             if ($isAlreadyInTransaction === false) {
                 $this->db->commit();
             }
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             if ($isAlreadyInTransaction === false) {
                 $this->db->rollBack();
             }
+            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 
-            throw $e;
+            throw $exception;
         }
     }
 

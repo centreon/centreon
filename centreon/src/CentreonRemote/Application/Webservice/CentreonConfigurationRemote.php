@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,17 +23,16 @@ namespace CentreonRemote\Application\Webservice;
 
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
-use CentreonRemote\Domain\Value\ServerWizardIdentity;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
+use CentreonRemote\Domain\Value\ServerWizardIdentity;
 
 /**
  * @OA\Tag(name="centreon_configuration_remote", description="")
  */
 class CentreonConfigurationRemote extends CentreonWebServiceAbstract
 {
-
     /**
-     * Name of web service object
+     * Name of web service object.
      *
      * @return string
      */
@@ -48,9 +47,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *   description="Get remotes servers waitlist",
      *   tags={"centreon_configuration_remote"},
      *   security={{"Session": {}}},
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="object",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"centreon_configuration_remote"},
@@ -59,9 +60,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the API object class",
      *       required=true
      *   ),
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="action",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"getWaitList"},
@@ -70,10 +73,13 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the action in the API class",
      *       required=true
      *   ),
+     *
      *   @OA\Response(
      *       response=200,
      *       description="JSON with the IPs inside the waitlist",
+     *
      *       @OA\JsonContent(
+     *
      *          @OA\Property(property="ip", type="string"),
      *          @OA\Property(property="version", type="string")
      *      )
@@ -95,7 +101,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * Get Pollers servers waitlist
+     * Get Pollers servers waitlist.
      *
      * @return array<int, array<mixed>>
      */
@@ -115,9 +121,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *   description="Get list with connected remotes",
      *   tags={"centreon_configuration_remote"},
      *   security={{"Session": {}}},
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="object",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"centreon_configuration_remote"},
@@ -126,9 +134,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the API object class",
      *       required=true
      *   ),
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="action",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"getRemotesList"},
@@ -137,10 +147,13 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the action in the API class",
      *       required=true
      *   ),
+     *
      *   @OA\Response(
      *       response=200,
      *       description="JSON with the IPs of connected remotes",
+     *
      *       @OA\JsonContent(
+     *
      *          @OA\Property(property="id", type="string"),
      *          @OA\Property(property="ip", type="string"),
      *          @OA\Property(property="name", type="string")
@@ -151,13 +164,14 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      * Get list with connected remotes
      *
      * @return array<int, array<mixed>>
+     *
      * @example [['id' => 'poller id', 'ip' => 'poller ip address', 'name' => 'poller name']]
      */
     public function getList(): array
     {
         $list = [];
         foreach ($this->postGetRemotesList() as $row) {
-            $row['id'] = (int)$row['id'];
+            $row['id'] = (int) $row['id'];
             $list[] = $row;
         }
 
@@ -170,9 +184,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *   description="Get list with connected remotes",
      *   tags={"centreon_configuration_remote"},
      *   security={{"Session": {}}},
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="object",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"centreon_configuration_remote"},
@@ -181,9 +197,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the API object class",
      *       required=true
      *   ),
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="action",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"getRemotesList"},
@@ -192,10 +210,13 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the action in the API class",
      *       required=true
      *   ),
+     *
      *   @OA\Response(
      *       response=200,
      *       description="JSON with the IPs of connected remotes",
+     *
      *       @OA\JsonContent(
+     *
      *          @OA\Property(property="id", type="string"),
      *          @OA\Property(property="ip", type="string"),
      *          @OA\Property(property="name", type="string")
@@ -206,13 +227,14 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      * Get list with connected remotes
      *
      * @return array<int, array<mixed>>
+     *
      * @example [['id' => 'poller id', 'ip' => 'poller ip address', 'name' => 'poller name']]
      */
     public function postGetRemotesList(): array
     {
-        $query = 'SELECT ns.id, ns.ns_ip_address as ip, ns.name FROM nagios_server as ns ' .
-            'JOIN remote_servers as rs ON rs.server_id = ns.id ' .
-            'WHERE rs.is_connected = 1';
+        $query = 'SELECT ns.id, ns.ns_ip_address as ip, ns.name FROM nagios_server as ns '
+            . 'JOIN remote_servers as rs ON rs.server_id = ns.id '
+            . 'WHERE rs.is_connected = 1';
         $statement = $this->pearDB->query($query);
 
         return $statement->fetchAll();
@@ -224,9 +246,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *   description="Link centreon remote server",
      *   tags={"centreon_configuration_remote"},
      *   security={{"Session": {}}},
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="object",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"centreon_configuration_remote"},
@@ -235,9 +259,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the API object class",
      *       required=true
      *   ),
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="action",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"linkCentreonRemoteServer"},
@@ -246,8 +272,10 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *       description="the name of the action in the API class",
      *       required=true
      *   ),
+     *
      *   @OA\RequestBody(
      *       required=true,
+     *
      *       @OA\JsonContent(
      *          required={
      *              "manage_broker_configuration",
@@ -255,6 +283,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *              "centreon_central_ip",
      *              "server_name"
      *          },
+     *
      *          @OA\Property(
      *              property="manage_broker_configuration",
      *              type="string",
@@ -317,10 +346,13 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *          )
      *       )
      *   ),
+     *
      *   @OA\Response(
      *       response=200,
      *       description="JSON",
+     *
      *       @OA\JsonContent(
+     *
      *          @OA\Property(property="success", type="boolean"),
      *          @OA\Property(property="task_id", type="integer")
      *       )
@@ -329,11 +361,12 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *
      * Link centreon remote server
      *
-     * @return array<string,bool|int|string|null>
      * @throws \RestBadRequestException
      * @throws \Exception
-     * @example ['success' => true, 'task_id' => 'task id']
      *
+     * @return array<string,bool|int|string|null>
+     *
+     * @example ['success' => true, 'task_id' => 'task id']
      * @example ['error' => true, 'message' => 'error message']
      */
     public function postLinkCentreonRemoteServer(): array
@@ -365,15 +398,15 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
 
         // Check IPv6, IPv4 and FQDN format
         if (
-            !filter_var($serverIP, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && !filter_var($serverIP, FILTER_VALIDATE_IP)
+            ! filter_var($serverIP, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+            && ! filter_var($serverIP, FILTER_VALIDATE_IP)
         ) {
-            return ['error' => true, 'message' => "Invalid IP address"];
+            return ['error' => true, 'message' => 'Invalid IP address'];
         }
         $dbAdapter = $this->getDi()['centreon.db-manager']->getAdapter('configuration_db');
 
         /**
-         * Avoid Ip duplication
+         * Avoid Ip duplication.
          */
         $statement = $this->pearDB->prepare(
             'SELECT COUNT(*) as `total` FROM `nagios_server` WHERE `ns_ip_address` = :serverIp'
@@ -381,15 +414,15 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $statement->bindValue(':serverIp', $serverIP, \PDO::PARAM_STR);
         $statement->execute();
         $isInNagios = $statement->fetch(\PDO::FETCH_ASSOC);
-        if ((int)$isInNagios['total'] > 0) {
+        if ((int) $isInNagios['total'] > 0) {
             throw new \Exception(_('This IP Address already exist'));
         }
 
         $sql = 'SELECT * FROM `remote_servers` WHERE `ip` = ?';
         $dbAdapter->query($sql, [$serverIP]);
-        $hasIpInTable = (bool)$dbAdapter->count();
+        $hasIpInTable = (bool) $dbAdapter->count();
 
-        if (!$hasIpInTable) {
+        if (! $hasIpInTable) {
             $httpMethod = parse_url($this->arguments['server_ip'], PHP_URL_SCHEME) ?: 'http';
             $httpPort = parse_url($this->arguments['server_ip'], PHP_URL_PORT) ?: '';
         } else {
@@ -427,7 +460,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         // Add configuration of the new server in the database (poller, engine, broker...)
         try {
             // If server not linked to a poller, then it is linked to central server
-            if (!$pollerConfigurationBridge->hasPollersForUpdating()) {
+            if (! $pollerConfigurationBridge->hasPollersForUpdating()) {
                 $serverConfigurationService->isLinkedToCentralServer();
             }
 
@@ -483,7 +516,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
-                'children_pollers' => $pollers ?? null
+                'children_pollers' => $pollers ?? null,
             ]);
             // if it is poller wizard and poller is linked to another poller/remote server (instead of central)
         } elseif ($pollerConfigurationBridge->hasPollersForUpdating()) {
@@ -498,7 +531,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
-                'parent' => $parentPoller->getId()
+                'parent' => $parentPoller->getId(),
             ]);
         } else {
             $this->updateServerInPlatformTopology([
@@ -513,7 +546,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * Authorize to access to the action
+     * Authorize to access to the action.
      *
      * @param string $action The action name
      * @param \CentreonUser $user The current user
@@ -531,7 +564,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * Add server ip in table of remote servers
+     * Add server ip in table of remote servers.
      *
      * @param int $serverId the poller id
      * @param string $serverIP the IP of the server
@@ -594,7 +627,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * Set current centreon instance as central
+     * Set current centreon instance as central.
      */
     private function setCentreonInstanceAsCentral(): void
     {
@@ -602,7 +635,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
 
         $sql = "SELECT * FROM `informations` WHERE `key` = 'isCentral'";
         $dbAdapter->query($sql);
-        $hasInfoRecord = (bool)$dbAdapter->count();
+        $hasInfoRecord = (bool) $dbAdapter->count();
 
         if ($hasInfoRecord) {
             $sql = "UPDATE `informations` SET `value` = 'yes' WHERE `key` = 'isCentral'";
@@ -617,27 +650,29 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * Create New Task for export
+     * Create New Task for export.
+     *
+     * @param array<string,mixed> $params
      *
      * @return bool|int
-     * @param array<string,mixed> $params
      */
     private function createExportTask(array $params)
     {
-        return $this->getDi()['centreon.taskservice']->addTask(Task::TYPE_EXPORT, array('params' => $params));
+        return $this->getDi()['centreon.taskservice']->addTask(Task::TYPE_EXPORT, ['params' => $params]);
     }
 
     /**
      * @param array<string,mixed> $topologyInformation
+     *
      * @throws \Exception
      */
     private function updateServerInPlatformTopology(array $topologyInformation): void
     {
         /**
-         * Get platform_topology id
+         * Get platform_topology id.
          */
         $statement = $this->pearDB->prepare(
-            "SELECT id, server_id as nagios_id FROM `platform_topology` WHERE address = :address"
+            'SELECT id, server_id as nagios_id FROM `platform_topology` WHERE address = :address'
         );
         $statement->bindValue(':address', $topologyInformation['address'], \PDO::PARAM_STR);
         $statement->execute();
@@ -646,9 +681,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         if (isset($server['nagios_id'])) {
             throw new \Exception(_('This server is already registered'));
         }
-        if (!empty($topologyInformation['parent'])) {
+        if (! empty($topologyInformation['parent'])) {
             $statement = $this->pearDB->prepare('SELECT id FROM platform_topology WHERE server_id = :serverId');
-            $statement->bindValue(':serverId', (int)$topologyInformation['parent'], \PDO::PARAM_INT);
+            $statement->bindValue(':serverId', (int) $topologyInformation['parent'], \PDO::PARAM_INT);
             $statement->execute();
             $parent = $statement->fetch(\PDO::FETCH_ASSOC);
         } else {
@@ -660,10 +695,10 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             }
         }
         /**
-         * If the server is already registered in platform_topology Update else insert
+         * If the server is already registered in platform_topology Update else insert.
          */
         $insertedPlatform = [];
-        if (!empty($server['id'])) {
+        if (! empty($server['id'])) {
             $statement = $this->pearDB->prepare(
                 "UPDATE `platform_topology` SET
                 `name` = :name,
@@ -673,9 +708,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 WHERE id = :topologyId"
             );
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
-            $statement->bindValue(':parentId', (int)$parent['id'], \PDO::PARAM_INT);
+            $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);
             $statement->bindValue(':nagiosId', $topologyInformation['nagios_id'], \PDO::PARAM_INT);
-            $statement->bindValue(':topologyId', (int)$server['id'], \PDO::PARAM_INT);
+            $statement->bindValue(':topologyId', (int) $server['id'], \PDO::PARAM_INT);
             $statement->execute();
         } else {
             $statement = $this->pearDB->prepare(
@@ -685,20 +720,20 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             $statement->bindValue(':address', $topologyInformation['address'], \PDO::PARAM_STR);
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
             $statement->bindValue(':type', $topologyInformation['type'], \PDO::PARAM_STR);
-            $statement->bindValue(':parentId', (int)$parent['id'], \PDO::PARAM_INT);
+            $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);
             $statement->bindValue(':serverId', $topologyInformation['nagios_id'], \PDO::PARAM_INT);
             $statement->execute();
             /**
-             * Get the new registered platform IP
+             * Get the new registered platform IP.
              */
             $statement = $this->pearDB->prepare('SELECT MAX(id) as last_id FROM `platform_topology`');
             $statement->execute();
             $insertedPlatform = $statement->fetch(\PDO::FETCH_ASSOC);
         }
         /**
-         * If it's a remote with attached poller. Update their parent id
+         * If it's a remote with attached poller. Update their parent id.
          */
-        if (!empty($topologyInformation['children_pollers'])) {
+        if (! empty($topologyInformation['children_pollers'])) {
             $statement = $this->pearDB->prepare(
                 "UPDATE `platform_topology`
                 SET parent_id = :parentId, `pending` = '0'
@@ -707,10 +742,10 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             foreach ($topologyInformation['children_pollers'] as $poller) {
                 $statement->bindValue(
                     ':parentId',
-                    isset($insertedPlatform['last_id']) ? (int)$insertedPlatform['last_id'] : (int)$server['id'],
+                    isset($insertedPlatform['last_id']) ? (int) $insertedPlatform['last_id'] : (int) $server['id'],
                     \PDO::PARAM_INT
                 );
-                $statement->bindValue(':pollerId', (int)$poller->getId(), \PDO::PARAM_INT);
+                $statement->bindValue(':pollerId', (int) $poller->getId(), \PDO::PARAM_INT);
                 $statement->execute();
             }
         }

@@ -67,6 +67,21 @@
                     }
                 }
             }
+        },
+        "refresh": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "interval": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                }
+            }
         }
     }
 }

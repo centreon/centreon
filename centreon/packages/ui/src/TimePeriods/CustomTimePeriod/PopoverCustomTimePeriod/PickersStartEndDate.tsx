@@ -1,12 +1,16 @@
 import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 import { userAtom } from '@centreon/ui-context';
-import { useDateTimePickerAdapter } from '@centreon/ui';
 
 import DateTimePickerInput from '../../DateTimePickerInput';
 import {
@@ -18,6 +22,9 @@ import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 import ErrorText from './ErrorText';
 import { PickersData, PickersStartEndDateDirection } from './models';
 import { PickersStartEndDateModel } from './usePickersStartEndDate';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const useStyles = makeStyles()((theme) => ({
   error: {
@@ -34,6 +41,7 @@ const useStyles = makeStyles()((theme) => ({
     textAlign: 'left'
   },
   row: {
+    alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(1)
@@ -63,11 +71,12 @@ const PickerDateWithLabel = ({
   direction = PickersStartEndDateDirection.column
 }: PropsPickersDateWithLabel): JSX.Element => {
   const { classes, cx } = useStyles();
+  const { t } = useTranslation();
   const isRow = equals(direction, PickersStartEndDateDirection.row);
 
   return (
     <div aria-label={label} className={cx({ [classes.row]: isRow })}>
-      <Typography component={isRow ? 'div' : 'p'}>{label}</Typography>
+      <Typography component={isRow ? 'div' : 'p'}>{t(label)}</Typography>
       <DateTimePickerInput
         changeDate={changeDate}
         date={date}
@@ -101,15 +110,14 @@ const PickersStartEndDate = ({
   direction = PickersStartEndDateDirection.column
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
-  const { Adapter } = useDateTimePickerAdapter();
 
   const { locale } = useAtomValue(userAtom);
   const error = useAtomValue(errorTimePeriodAtom);
 
-  const maxStart = rangeStartDate?.max;
+  const maxStart = rangeStartDate?.max || endDate;
   const minStart = rangeStartDate?.min;
   const maxEnd = rangeEndDate?.max;
-  const minEnd = rangeEndDate?.min;
+  const minEnd = rangeEndDate?.min || startDate;
 
   const styleContainer = equals(direction, PickersStartEndDateDirection.column)
     ? classes.verticalDirection
@@ -123,7 +131,7 @@ const PickersStartEndDate = ({
   return (
     <LocalizationProvider
       adapterLocale={locale.substring(0, 2)}
-      dateAdapter={Adapter}
+      dateAdapter={AdapterDayjs}
     >
       <div className={styleContainer}>
         <PickerDateWithLabel
@@ -132,7 +140,7 @@ const PickersStartEndDate = ({
           direction={direction}
           disabled={disabled?.isDisabledStartPicker}
           label="From"
-          maxDate={maxStart}
+          maxDate={maxStart || undefined}
           minDate={minStart}
           property={CustomTimePeriodProperty.start}
         />
@@ -141,9 +149,9 @@ const PickersStartEndDate = ({
           date={endDate}
           direction={direction}
           disabled={disabled?.isDisabledEndPicker}
-          label="To"
+          label="to"
           maxDate={maxEnd}
-          minDate={minEnd}
+          minDate={minEnd || undefined}
           property={CustomTimePeriodProperty.end}
         />
       </div>

@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react';
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { animated, useTransition } from '@react-spring/web';
 
 import { styled } from '@mui/material';
 
@@ -15,6 +16,9 @@ import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
 import routeMap from '../../reactRoutes/routeMap';
+import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
+
+import DeprecatedRoute from './DeprecatedRoute';
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
 const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
@@ -26,14 +30,35 @@ const PageContainer = styled('div')(() => ({
   overflow: 'auto'
 }));
 
+export const pageTransitionConfig = {
+  config: {
+    duration: 150
+  },
+  enter: {
+    height: '100%',
+    opacity: '1',
+    width: '100%'
+  },
+  from: {
+    height: '100%',
+    opacity: '0',
+    width: '100%'
+  },
+  leave: {
+    height: '100%',
+    opacity: '0',
+    width: '100%'
+  }
+};
+
 interface IsAllowedPageProps {
   allowedPages?: Array<string | Array<string>>;
   path?: string;
 }
 
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
-  flatten(allowedPages || []).some((allowedPage) =>
-    path?.includes(allowedPage)
+  flatten(allowedPages || []).some(
+    (allowedPage) => path?.includes(allowedPage)
   );
 
 const getExternalPageRoutes = ({
@@ -41,7 +66,13 @@ const getExternalPageRoutes = ({
   federatedModules
 }): Array<JSX.Element> => {
   return federatedModules?.map(
-    ({ federatedPages, remoteEntry, moduleFederationName, moduleName }) => {
+    ({
+      federatedPages,
+      remoteEntry,
+      moduleFederationName,
+      moduleName,
+      remoteUrl
+    }) => {
       return federatedPages?.map(({ component, route }) => {
         if (not(isAllowedPage({ allowedPages, path: route }))) {
           return null;
@@ -58,6 +89,7 @@ const getExternalPageRoutes = ({
                   moduleFederationName={moduleFederationName}
                   moduleName={moduleName}
                   remoteEntry={remoteEntry}
+                  remoteUrl={remoteUrl}
                 />
               </PageContainer>
             }
@@ -74,23 +106,34 @@ interface Props {
   allowedPages?: Array<string | Array<string>>;
   externalPagesFetched: boolean;
   federatedModules: Array<FederatedModule>;
+  pathname: string;
 }
 
 const ReactRouterContent = ({
   federatedModules,
   externalPagesFetched,
-  allowedPages
+  allowedPages,
+  pathname
 }: Props): JSX.Element => {
+  const parameters = useParams();
+
   return useMemoComponent({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
-        <Routes>
+        <Routes location={pathname}>
+          {...deprecatedRoutes
+            .filter((route) => !route.ignoreWhen?.(pathname))
+            .map(({ deprecatedRoute, newRoute }) => (
+              <Route
+                element={<DeprecatedRoute newRoute={newRoute} />}
+                key={deprecatedRoute.path}
+                path={deprecatedRoute.path}
+              />
+            ))}
           {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
             const isLogoutPage = path === routeMap.logout;
             const isAllowed =
-              isLogoutPage ||
-              isNil(allowedPages) ||
-              isAllowedPage({ allowedPages, path });
+              isLogoutPage || isAllowedPage({ allowedPages, path });
 
             return (
               <Route
@@ -117,23 +160,40 @@ const ReactRouterContent = ({
         </Routes>
       </Suspense>
     ),
-    memoProps: [externalPagesFetched, federatedModules, allowedPages]
+    memoProps: [
+      externalPagesFetched,
+      federatedModules,
+      allowedPages,
+      pathname,
+      parameters,
+      deprecatedRoutes
+    ]
   });
 };
 
 const ReactRouter = (): JSX.Element => {
   const federatedModules = useAtomValue(federatedModulesAtom);
   const { allowedPages } = useNavigation();
+  const { pathname } = useLocation();
+
+  const transitions = useTransition(pathname, pageTransitionConfig);
+
+  if (isNil(allowedPages)) {
+    return <PageSkeleton />;
+  }
 
   const externalPagesFetched = not(isNil(federatedModules));
 
-  return (
-    <ReactRouterContent
-      allowedPages={allowedPages}
-      externalPagesFetched={externalPagesFetched}
-      federatedModules={federatedModules as Array<FederatedModule>}
-    />
-  );
+  return transitions((style, item) => (
+    <animated.div style={style}>
+      <ReactRouterContent
+        allowedPages={allowedPages}
+        externalPagesFetched={externalPagesFetched}
+        federatedModules={federatedModules as Array<FederatedModule>}
+        pathname={item}
+      />
+    </animated.div>
+  ));
 };
 
 export default ReactRouter;

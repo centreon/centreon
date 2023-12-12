@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 import { useSetAtom } from 'jotai';
 
 import debounce from '@mui/utils/debounce';
@@ -11,22 +10,14 @@ import { SearchField } from '@centreon/ui';
 import { searchAtom } from '../atom';
 import { labelSearch } from '../translatedLabels';
 
-const useStyle = makeStyles()((theme) => ({
-  search: {
-    width: theme.spacing(50)
-  }
-}));
-
 const Filter = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { classes } = useStyle();
-
-  const serSearchVAlue = useSetAtom(searchAtom);
+  const setSearchValue = useSetAtom(searchAtom);
 
   const searchDebounced = useRef(
     debounce<(search) => void>((debouncedSearch): void => {
-      serSearchVAlue(debouncedSearch);
+      setSearchValue(debouncedSearch);
     }, 500)
   );
 
@@ -37,9 +28,9 @@ const Filter = (): JSX.Element => {
   return (
     <SearchField
       debounced
-      className={classes.search}
+      fullWidth
       dataTestId={t(labelSearch)}
-      placeholder={t(labelSearch)}
+      placeholder={t(labelSearch) as string}
       onChange={onChange}
     />
   );

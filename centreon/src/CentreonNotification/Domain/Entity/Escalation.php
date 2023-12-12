@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,11 +22,11 @@
 namespace CentreonNotification\Domain\Entity;
 
 use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
-use Symfony\Component\Serializer\Annotation as Serializer;
 use PDO;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 /**
- * Escalation entity
+ * Escalation entity.
  *
  * @codeCoverageIgnore
  */
@@ -35,7 +35,7 @@ class Escalation implements Mapping\MetadataInterface
     public const SERIALIZER_GROUP_LIST = 'escalation-list';
 
     /**
-     * Use class metadata instead calling of this constant
+     * Use class metadata instead calling of this constant.
      *
      * <example>
      * $this->repository->getClassMetadata()->getTableName()
@@ -46,18 +46,20 @@ class Escalation implements Mapping\MetadataInterface
 
     /**
      * @Serializer\Groups({Escalation::SERIALIZER_GROUP_LIST})
+     *
      * @var int an identification of entity
      */
     private $id;
 
     /**
      * @Serializer\Groups({Escalation::SERIALIZER_GROUP_LIST})
+     *
      * @var string escalation name
      */
     private $name;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadMetadata(Mapping\ClassMetadata $metadata): void
     {
@@ -68,9 +70,8 @@ class Escalation implements Mapping\MetadataInterface
 
     /**
      * @param int $id
-     * @return void
      */
-    public function setId(int $id = null): void
+    public function setId(?int $id = null): void
     {
         $this->id = $id;
     }
@@ -85,9 +86,8 @@ class Escalation implements Mapping\MetadataInterface
 
     /**
      * @param string $name
-     * @return void
      */
-    public function setName(string $name = null): void
+    public function setName(?string $name = null): void
     {
         $this->name = $name;
     }

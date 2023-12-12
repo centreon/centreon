@@ -34,10 +34,10 @@ class NotificationMessageFactory
      *
      * @param NotificationChannel $messageType
      * @param array{
-     *  channel:string,
-     *  subject:string,
-     *  message:string,
-     *  formatted_message:string
+     *    channel: string,
+     *    subject: string,
+     *    message: string,
+     *    formatted_message: string
      * } $message
      *
      * @throws \Assert\AssertionFailedException
@@ -58,9 +58,10 @@ class NotificationMessageFactory
      * Create multiple NotificationMessage.
      *
      * @param array<array{
-     *  channel:string,
-     *  subject:string,
-     *  message:string
+     *     channel: string,
+     *     subject: string,
+     *     message: string,
+     *     formatted_message: string
      * }> $messages
      *
      * @throws \Assert\AssertionFailedException

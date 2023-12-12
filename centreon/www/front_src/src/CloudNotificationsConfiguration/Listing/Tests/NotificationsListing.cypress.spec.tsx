@@ -21,7 +21,7 @@ import {
   labelThisNameAlreadyExists
 } from '../../translatedLabels';
 import { notificationEndpoint } from '../../Panel/api/endpoints';
-import { getNotificationResponse } from '../../Panel/Tests/testUtils';
+import { getNotificationResponse } from '../../Panel/specs/testUtils';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
 import { buildNotificationsEndpoint } from '../api/endpoints';
@@ -40,17 +40,19 @@ const store = createStore();
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <Provider store={store}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <>
-            <Listing />
-            <DeleteConfirmationDialog />
-            <DuplicationForm />
-          </>
-        </SnackbarProvider>
-      </TestQueryProvider>
-    </Provider>
+    <div style={{ height: '100vh' }}>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <>
+              <Listing />
+              <DeleteConfirmationDialog />
+              <DuplicationForm />
+            </>
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
+    </div>
   );
 };
 
@@ -166,7 +168,7 @@ describe('Notifications Listing', () => {
 
     cy.contains('notification1').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('executes a get notifications request after updating limit param', () => {
@@ -190,7 +192,7 @@ describe('Notifications Listing', () => {
 
     cy.contains('notification1').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('executes a listing request with an updated page param when a change page action is clicked', () => {
@@ -222,7 +224,7 @@ describe('Notifications Listing', () => {
 
     cy.contains('notification1').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -245,7 +247,7 @@ describe('Listing header: Delete button', () => {
     cy.findByLabelText('Select row 3').click();
     cy.findByTestId('delete multiple notifications').should('not.be.disabled');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a confirmation dialog upon clicking the Delete button', () => {
@@ -258,7 +260,7 @@ describe('Listing header: Delete button', () => {
     cy.findByText(labelDelete);
     cy.findByText(labelCancel).click();
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
   it('displays a success message after a successful deletion', () => {
     mockedBulkDelete(multipleNotificationsSuccessResponse);
@@ -272,7 +274,7 @@ describe('Listing header: Delete button', () => {
 
     cy.waitForRequest('@defaultRequest');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
   it('displays a warning message containing the names of the notifications that failed to be deleted if the deletion of some notifications fails', () => {
     mockedBulkDelete(multipleNotificationsWarningResponse);
@@ -291,7 +293,7 @@ describe('Listing header: Delete button', () => {
     cy.waitForRequest('@defaultRequest');
     cy.findByText(warningMessage);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
   it('displays an error message if the deletion of all notifications fails', () => {
     mockedBulkDelete(multipleNotificationsfailedResponse);
@@ -307,7 +309,7 @@ describe('Listing header: Delete button', () => {
     cy.waitForRequest('@deleteNotificationsRequest');
     cy.findByText(labelFailedToDeleteSelectedNotifications);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -341,7 +343,7 @@ describe('Listing row actions: Delete button', () => {
     cy.findByText(labelDeleteNotificationWarning);
     cy.findByText(labelCancel).click();
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a success message after successful deletion', () => {
@@ -355,7 +357,7 @@ describe('Listing row actions: Delete button', () => {
 
     cy.findByText(labelNotificationSuccessfullyDeleted);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed deletion', () => {
@@ -378,7 +380,7 @@ describe('Listing row actions: Delete button', () => {
 
     cy.findByText('internal server error');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -420,7 +422,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findByText(labelDuplicate).should('be.disabled');
     cy.findByText(labelDiscard).click();
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('validates that the name field is not empty and the name does not already exist', () => {
@@ -441,7 +443,7 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('disables the Confirm button if the name is empty or already exists', () => {
@@ -456,7 +458,7 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a success message after a successful duplication', () => {
@@ -473,7 +475,7 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findByText(labelNotificationDuplicated);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed duplication request', () => {
@@ -503,7 +505,7 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findByText(errorMessage).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -530,9 +532,9 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableAsc${label}`
       });
 
-      cy.contains('notification1').should('be.visible');
+      cy.contains('notification1').should('exist');
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `column sorting --  executes a listing request when the ${label} column is clicked`
       );
     });

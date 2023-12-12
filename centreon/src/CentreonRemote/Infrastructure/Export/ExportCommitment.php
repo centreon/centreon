@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,48 +21,31 @@
 
 namespace CentreonRemote\Infrastructure\Export;
 
-use CentreonRemote\Infrastructure\Export\ExportParserJson;
-use CentreonRemote\Infrastructure\Export\ExportParserInterface;
-
 final class ExportCommitment
 {
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private $pollers;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $path;
 
-    /**
-     * @var \CentreonRemote\Infrastructure\Export\ExportParserInterface
-     */
+    /** @var \CentreonRemote\Infrastructure\Export\ExportParserInterface */
     private $parser;
 
-    /**
-     * @var array<mixed>
-     */
+    /** @var array<mixed> */
     private $exporters;
 
-    /**
-     * @var array<mixed>
-     */
+    /** @var array<mixed> */
     private $meta;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $filePermission = 0775;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $remote;
 
     /**
-     * Construct
+     * Construct.
      *
      * @param int $remote
      * @param int[] $pollers
@@ -72,14 +55,14 @@ final class ExportCommitment
      * @param array<int,string> $exporters
      */
     public function __construct(
-        int $remote = null,
-        array $pollers = null,
-        array $meta = null,
-        ExportParserInterface $parser = null,
-        string $path = null,
-        array $exporters = null
+        ?int $remote = null,
+        ?array $pollers = null,
+        ?array $meta = null,
+        ?ExportParserInterface $parser = null,
+        ?string $path = null,
+        ?array $exporters = null
     ) {
-        if ($remote && $pollers && !in_array($remote, $pollers)) {
+        if ($remote && $pollers && ! in_array($remote, $pollers)) {
             $pollers[] = $remote;
         }
 

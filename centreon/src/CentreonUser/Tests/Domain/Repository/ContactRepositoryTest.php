@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,10 +21,10 @@
 
 namespace CentreonUser\Tests\Domain\Repository;
 
-use CentreonUser\Domain\Repository\ContactRepository;
-use CentreonUser\Domain\Entity\Contact;
-use PHPUnit\Framework\TestCase;
 use Centreon\Tests\Resources\Traits;
+use CentreonUser\Domain\Entity\Contact;
+use CentreonUser\Domain\Repository\ContactRepository;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group CentreonUser
@@ -35,7 +35,7 @@ class ContactRepositoryTest extends TestCase
     use Traits\CheckListOfIdsTrait;
 
     /**
-     * Test the method checkListOfIds
+     * Test the method checkListOfIds.
      */
     public function testCheckListOfIds(): void
     {

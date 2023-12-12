@@ -137,12 +137,13 @@ $attrBtnSuccess = array(
 $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
 //Init Smarty
-$tpl = initSmartyTpl($path, new Smarty());
+$tpl = new Smarty();
+$tpl = initSmartyTpl($path, $tpl);
 
 $tabAction = array();
 $tabAction["a"] = _("Added");
 $tabAction["c"] = _("Changed");
-$tabAction["mc"] = _("Massive Change");
+$tabAction["mc"] = _("Mass Change");
 $tabAction["enable"] = _("Enabled");
 $tabAction["disable"] = _("Disabled");
 $tabAction["d"] = _("Deleted");
@@ -150,7 +151,7 @@ $tabAction["d"] = _("Deleted");
 $badge = array(
     _("Added") => "ok",
     _("Changed") => "warning",
-    _("Massive Change") => 'warning',
+    _("Mass Change") => 'warning',
     _("Deleted") => 'critical',
     _("Enabled") => 'ok',
     _("Disabled") => 'critical'
@@ -388,8 +389,8 @@ $tpl->assign('form', $renderer->toArray());
 $tpl->assign('search_object_str', _("Object"));
 $tpl->assign('search_user_str', _("User"));
 $tpl->assign('Search', _('Search'));
-$tpl->assign('searchO', htmlentities($searchO));
-$tpl->assign('searchU', htmlentities($searchU));
+$tpl->assign('searchO', htmlentities($searchO ?? ''));
+$tpl->assign('searchU', htmlentities($searchU ?? ''));
 $tpl->assign('obj_str', _("Object Type"));
 $tpl->assign('type_id', $otype);
 

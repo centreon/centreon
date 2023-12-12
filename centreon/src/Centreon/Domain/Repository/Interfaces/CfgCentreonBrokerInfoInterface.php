@@ -18,7 +18,7 @@ interface CfgCentreonBrokerInfoInterface
     /**
      * Insert broker configuration in database (table cfg_centreonbroker_info)
      *
-     * @param CfgCentreonBrokerInfo $brokerInfoEntity the broker info entity
+     * @param CfgCentreonBrokerInfo $cfgCentreonBrokerInfo the broker info entity
      */
     public function add(CfgCentreonBrokerInfo $cfgCentreonBrokerInfo): void;
 }

@@ -12,7 +12,12 @@ export const adaptNotification = ({
 }): object => ({
   contactgroups: map(prop('id'), contactgroups),
   is_activated: isActivated,
-  messages,
+  messages: [
+    {
+      ...messages[0],
+      formatted_message: messages[0].formattedMessage
+    }
+  ],
   name,
   resources: pipe(
     map((resource: ResourceType) => ({

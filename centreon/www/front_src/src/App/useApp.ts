@@ -125,7 +125,7 @@ const useApp = (): UseAppState => {
         });
       })
       .catch((error) => {
-        if (pathEq(['response', 'status'], 401)(error)) {
+        if (pathEq(401, ['response', 'status'])(error)) {
           logout();
         }
       });
@@ -144,7 +144,7 @@ const useApp = (): UseAppState => {
     keepAliveRequest({
       endpoint: keepAliveEndpoint
     }).catch((error) => {
-      if (not(pathEq(['response', 'status'], 401, error))) {
+      if (not(pathEq(401, ['response', 'status'], error))) {
         return;
       }
       logout();

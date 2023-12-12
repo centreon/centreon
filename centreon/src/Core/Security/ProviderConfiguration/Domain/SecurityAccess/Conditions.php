@@ -25,10 +25,12 @@ namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SamlCustomConfiguration;
 
 /**
  * Configured conditions must be satisfied to be authorized.
@@ -41,7 +43,6 @@ class Conditions implements SecurityAccessInterface
 
     public function __construct(
         private readonly LoginLoggerInterface $loginLogger,
-        private readonly AttributePathFetcher $attributePathFetcher
     ) {
     }
 
@@ -55,6 +56,12 @@ class Conditions implements SecurityAccessInterface
     {
         $scope = $configuration->getType();
         $customConfiguration = $configuration->getCustomConfiguration();
+        if (
+            ! $customConfiguration instanceof OpenIdCustomConfiguration
+            && ! $customConfiguration instanceof SamlCustomConfiguration
+        ) {
+            throw ConfigurationException::unexpectedCustomConfiguration($customConfiguration::class);
+        }
         $authenticationConditions = $customConfiguration->getAuthenticationConditions();
         if (! $authenticationConditions->isEnabled()) {
             $this->loginLogger->info($scope, 'Authentication conditions disabled');
@@ -109,14 +116,13 @@ class Conditions implements SecurityAccessInterface
         }
 
         $conditionMatches = array_intersect($providerAuthenticationConditions, $localConditions);
-        if (empty($conditionMatches)) {
+        if (count($conditionMatches) !== count($localConditions)) {
             $this->error(
                 'Configured attribute value not found in conditions endpoint',
                 [
                     'configured_authorized_values' => $authenticationConditions->getAuthorizedValues(),
                 ]
             );
-
             $this->loginLogger->exception(
                 $scope,
                 'Configured attribute value not found in conditions endpoint: %s, message: %s',

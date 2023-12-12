@@ -8,9 +8,7 @@
                 {/if}
 			</td>
 			
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
     <table class="ListTable">
@@ -54,9 +52,7 @@
 			    {/if}
             </td>
 			
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
     <input type='hidden' name='o' id='o' value='42' />

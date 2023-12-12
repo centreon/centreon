@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,18 +21,18 @@
 
 namespace CentreonNotification\Domain\Repository;
 
+use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
+use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\DatabaseConnection;
 use CentreonNotification\Domain\Entity\Escalation;
-use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
 
 class EscalationRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
 
-    /** @var int $resultCountForPagination */
+    /** @var int */
     private int $resultCountForPagination = 0;
 
     /**
@@ -44,7 +44,7 @@ class EscalationRepository extends AbstractRepositoryRDB implements PaginationRe
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function entityClass(): string
     {
@@ -52,9 +52,10 @@ class EscalationRepository extends AbstractRepositoryRDB implements PaginationRe
     }
 
     /**
-     * Check list of IDs
+     * Check list of IDs.
      *
      * @param int[] $ids
+     *
      * @return bool
      */
     public function checkListOfIds(array $ids): bool
@@ -67,9 +68,9 @@ class EscalationRepository extends AbstractRepositoryRDB implements PaginationRe
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
         $sql = 'SELECT SQL_CALC_FOUND_ROWS `esc_id`, `esc_name` FROM `:db`.escalation';
 
@@ -134,6 +135,14 @@ class EscalationRepository extends AbstractRepositoryRDB implements PaginationRe
         return $results;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getPaginationListTotal(): int
+    {
+        return $this->resultCountForPagination;
+    }
+
     private function createEscalationFromArray(array $data): Escalation
     {
         $escalation = new Escalation();
@@ -141,13 +150,5 @@ class EscalationRepository extends AbstractRepositoryRDB implements PaginationRe
         $escalation->setName($data['esc_name']);
 
         return $escalation;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaginationListTotal(): int
-    {
-        return $this->resultCountForPagination;
     }
 }

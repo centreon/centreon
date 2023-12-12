@@ -25,6 +25,18 @@ namespace Core\Metric\Domain\Model;
 
 class Metric
 {
+    private ?string $unit = null;
+
+    private ?float $currentValue = null;
+
+    private ?float $warningHighThreshold = null;
+
+    private ?float $warningLowThreshold = null;
+
+    private ?float $criticalHighThreshold = null;
+
+    private ?float $criticalLowThreshold = null;
+
     /**
      * @param int $id
      * @param string $name
@@ -47,5 +59,77 @@ class Metric
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function setUnit(?string $unit): self
+    {
+        $this->unit = $unit;
+
+        return $this;
+    }
+
+    public function getUnit(): ?string
+    {
+        return $this->unit;
+    }
+
+    public function setCurrentValue(?float $currentValue): self
+    {
+        $this->currentValue = $currentValue;
+
+        return $this;
+    }
+
+    public function getCurrentValue(): ?float
+    {
+        return $this->currentValue;
+    }
+
+    public function setWarningHighThreshold(?float $warningHighThreshold): self
+    {
+        $this->warningHighThreshold = $warningHighThreshold;
+
+        return $this;
+    }
+
+    public function getWarningHighThreshold(): ?float
+    {
+        return $this->warningHighThreshold;
+    }
+
+    public function setWarningLowThreshold(?float $warningLowThreshold): self
+    {
+        $this->warningLowThreshold = $warningLowThreshold;
+
+        return $this;
+    }
+
+    public function getWarningLowThreshold(): ?float
+    {
+        return $this->warningLowThreshold;
+    }
+
+    public function setCriticalHighThreshold(?float $criticalHighThreshold): self
+    {
+        $this->criticalHighThreshold = $criticalHighThreshold;
+
+        return $this;
+    }
+
+    public function getCriticalHighThreshold(): ?float
+    {
+        return $this->criticalHighThreshold;
+    }
+
+    public function setCriticalLowThreshold(?float $criticalLowThreshold): self
+    {
+        $this->criticalLowThreshold = $criticalLowThreshold;
+
+        return $this;
+    }
+
+    public function getCriticalLowThreshold(): ?float
+    {
+        return $this->criticalLowThreshold;
     }
 }

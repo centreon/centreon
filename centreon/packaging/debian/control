@@ -74,14 +74,14 @@ Depends:
     centreon-engine (>= ${centreon:version}~),
     centreon-broker-cbmod (>= ${centreon:version}~),
     centreon-connector (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
+    centreon-gorgone-centreon-config (>= ${centreon:version}~),
     centreon-common (<< ${centreon:versionThreshold}~),
     centreon-poller-centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-trap (<< ${centreon:versionThreshold}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-broker-cbmod (<< ${centreon:versionThreshold}~),
     centreon-connector (<< ${centreon:versionThreshold}~),
-    centreon-gorgone (<< ${centreon:versionThreshold}~),
+    centreon-gorgone-centreon-config (<< ${centreon:versionThreshold}~),
     libdbd-mysql-perl,
     libdbd-sqlite3-perl,
     centreon-plugin-applications-databases-mysql,
@@ -106,8 +106,10 @@ Description: This package add rights and default directories for a poller
 Package: centreon-web-common
 Architecture: all
 Depends:
+    centreon-poller-centreon-engine (>= ${centreon:version}~),
     centreon-common (>= ${centreon:version}~),
     centreon-perl-libs (>= ${centreon:version}~),
+    centreon-poller-centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-common (<< ${centreon:versionThreshold}~),
     centreon-perl-libs (<< ${centreon:versionThreshold}~),
     php8.1,
@@ -123,10 +125,10 @@ Depends:
     lsb-release,
     centreon-broker-cbd (>= ${centreon:version}~),
     centreon-web-common (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
+    centreon-gorgone-centreon-config (>= ${centreon:version}~),
     centreon-broker-cbd (<< ${centreon:versionThreshold}~),
     centreon-web-common (<< ${centreon:versionThreshold}~),
-    centreon-gorgone (<< ${centreon:versionThreshold}~),
+    centreon-gorgone-centreon-config (<< ${centreon:versionThreshold}~),
     php8.1-curl,
     php8.1-intl,
     php8.1-xml,
@@ -141,9 +143,52 @@ Depends:
     php8.1-readline,
     php8.1-sqlite3,
     php-pear,
-    rrdtool
+    rrdtool,
+    lua-curl
 Recommends: ntp | bsd-mailx
 Suggests: nagios-images
+Replaces: centreon-widget-engine-status
+Conflicts: centreon-widget-engine-status
+Provides: centreon-widget-engine-status
+Replaces: centreon-widget-global-health
+Conflicts: centreon-widget-global-health
+Provides: centreon-widget-global-health
+Replaces: centreon-widget-graph-monitoring
+Conflicts: centreon-widget-graph-monitoring
+Provides: centreon-widget-graph-monitoring
+Replaces: centreon-widget-grid-map
+Conflicts: centreon-widget-grid-map
+Provides: centreon-widget-grid-map
+Replaces: centreon-widget-httploader
+Conflicts: centreon-widget-httploader
+Provides: centreon-widget-httploader
+Replaces: centreon-widget-host-monitoring
+Conflicts: centreon-widget-host-monitoring
+Provides: centreon-widget-host-monitoring
+Replaces: centreon-widget-hostgroup-monitoring
+Conflicts: centreon-widget-hostgroup-monitoring
+Provides: centreon-widget-hostgroup-monitoring
+Replaces: centreon-widget-live-top10-cpu-usage
+Conflicts: centreon-widget-live-top10-cpu-usage
+Provides: centreon-widget-live-top10-cpu-usage
+Replaces: centreon-widget-live-top10-memory-usage
+Conflicts: centreon-widget-live-top10-memory-usage
+Provides: centreon-widget-live-top10-memory-usage
+Replaces: centreon-widget-ntopng-listing
+Conflicts: centreon-widget-ntopng-listing
+Provides: centreon-widget-ntopng-listing
+Replaces: centreon-widget-service-monitoring
+Conflicts: centreon-widget-service-monitoring
+Provides: centreon-widget-service-monitoring
+Replaces: centreon-widget-servicegroup-monitoring
+Conflicts: centreon-widget-servicegroup-monitoring
+Provides: centreon-widget-servicegroup-monitoring
+Replaces: centreon-widget-single-metric
+Conflicts: centreon-widget-single-metric
+Provides: centreon-widget-single-metric
+Replaces: centreon-widget-tactical-overview
+Conflicts: centreon-widget-tactical-overview
+Provides: centreon-widget-tactical-overview
 Description: This package contains WebUI files.
 
 Package: centreon-perl-libs
@@ -205,15 +250,15 @@ Depends:
 Description: This package contains Centreon Trap engine
 
 Package: centreon-poller-centreon-engine
-Architecture: any
+Architecture: all
 Depends:
     centreon-broker-cbmod (>= ${centreon:version}~),
     centreon-engine (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
+    centreon-gorgone-centreon-config (>= ${centreon:version}~),
     centreon-trap (>= ${centreon:version}~),
     centreon-broker-cbmod (<< ${centreon:versionThreshold}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
-    centreon-gorgone (<< ${centreon:versionThreshold}~),
+    centreon-gorgone-centreon-config (<< ${centreon:versionThreshold}~),
     centreon-trap (<< ${centreon:versionThreshold}~),
     centreon-plugin-applications-databases-mysql,
     centreon-plugin-applications-monitoring-centreon-central,

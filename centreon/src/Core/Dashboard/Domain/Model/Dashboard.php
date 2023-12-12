@@ -47,6 +47,7 @@ class Dashboard
      * @param ?int $updatedBy
      * @param \DateTimeImmutable $createdAt
      * @param \DateTimeImmutable $updatedAt
+     * @param Refresh $refresh
      *
      * @throws AssertionFailedException
      */
@@ -58,6 +59,7 @@ class Dashboard
         protected readonly ?int $updatedBy,
         protected readonly \DateTimeImmutable $createdAt,
         protected readonly \DateTimeImmutable $updatedAt,
+        private readonly Refresh $refresh,
     ) {
         $this->name = trim($name);
         $this->description = trim($description);
@@ -101,5 +103,10 @@ class Dashboard
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function getRefresh(): Refresh
+    {
+        return $this->refresh;
     }
 }

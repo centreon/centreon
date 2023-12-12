@@ -51,7 +51,9 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
      */
     public function findAuthenticationTokensByToken(string $token): ?AuthenticationTokens
     {
-        $statement = $this->db->prepare($this->translateDbName('
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                '
             SELECT sat.user_id, sat.provider_configuration_id,
               provider_token.id as pt_id,
               provider_token.token AS provider_token,
@@ -65,7 +67,9 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
             INNER JOIN `:db`.security_token provider_token ON provider_token.id = sat.provider_token_id
             LEFT JOIN `:db`.security_token refresh_token ON refresh_token.id = sat.provider_token_refresh_id
             WHERE sat.token = :token
-        '));
+        '
+            )
+        );
         $statement->bindValue(':token', $token);
         $statement->execute();
 

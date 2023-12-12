@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -33,14 +33,14 @@ jobs:
     needs: lint
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
       - uses: ./.github/actions/npm-publish-package-beta
         with:
           directory: ${{ env.directory }}
-          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
           release_branch: ${{ env.base_branch }}

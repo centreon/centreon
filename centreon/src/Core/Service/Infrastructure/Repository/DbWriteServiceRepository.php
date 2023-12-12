@@ -26,8 +26,10 @@ namespace Core\Service\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\NewService;
+use Core\Service\Domain\Model\Service;
 use Core\Service\Infrastructure\Model\NotificationTypeConverter;
 use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
 
@@ -163,141 +165,7 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
             SQL
         );
         $statement = $this->db->prepare($request);
-        $statement->bindValue(
-            ':contact_group_additive_inheritance',
-            $newService->isContactGroupAdditiveInheritance(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':contact_additive_inheritance',
-            $newService->isContactAdditiveInheritance(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(':command_id', $newService->getCommandId(), \PDO::PARAM_INT);
-        $statement->bindValue(
-            ':command_arguments',
-            $this->serializeArguments($newService->getCommandArguments())
-        );
-        $statement->bindValue(':event_handler_id', $newService->getEventHandlerId(), \PDO::PARAM_INT);
-        $statement->bindValue(
-            ':event_handler_arguments',
-            $this->serializeArguments($newService->getEventHandlerArguments())
-        );
-        $statement->bindValue(
-            ':acknowledgement_timeout',
-            $newService->getAcknowledgementTimeout(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':is_activated',
-            $newService->isActivated()
-        );
-        $statement->bindValue(
-            ':active_checks_enabled',
-            (string) YesNoDefaultConverter::toInt($newService->getActiveChecks())
-        );
-        $statement->bindValue(
-            ':event_handler_enabled',
-            (string) YesNoDefaultConverter::toInt($newService->getEventHandlerEnabled())
-        );
-        $statement->bindValue(
-            ':flap_detection_enabled',
-            (string) YesNoDefaultConverter::toInt($newService->getFlapDetectionEnabled())
-        );
-        $statement->bindValue(
-            ':check_freshness',
-            (string) YesNoDefaultConverter::toInt($newService->getCheckFreshness())
-        );
-        $statement->bindValue(
-            ':notifications_enabled',
-            (string) YesNoDefaultConverter::toInt($newService->getNotificationsEnabled())
-        );
-        $statement->bindValue(
-            ':passive_checks_enabled',
-            (string) YesNoDefaultConverter::toInt($newService->getPassiveCheck())
-        );
-        $statement->bindValue(
-            ':volatility',
-            (string) YesNoDefaultConverter::toInt($newService->getVolatility())
-        );
-        $statement->bindValue(
-            ':low_flap_threshold',
-            $newService->getLowFlapThreshold(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':high_flap_threshold',
-            $newService->getHighFlapThreshold(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':max_check_attempts',
-            $newService->getMaxCheckAttempts(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':description',
-            $newService->getName()
-        );
-        $statement->bindValue(
-            ':comment',
-            $newService->getComment()
-        );
-        $statement->bindValue(
-            ':freshness_threshold',
-            $newService->getFreshnessThreshold(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':normal_check_interval',
-            $newService->getNormalCheckInterval(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':notification_interval',
-            $newService->getNotificationInterval(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':notification_options',
-            NotificationTypeConverter::toString($newService->getNotificationTypes())
-        );
-        $statement->bindValue(
-            ':recovery_notification_delay',
-            $newService->getRecoveryNotificationDelay(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':retry_check_interval',
-            $newService->getRetryCheckInterval(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':service_template_id',
-            $newService->getServiceTemplateParentId(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':first_notification_delay',
-            $newService->getFirstNotificationDelay(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':check_time_period_id',
-            $newService->getCheckTimePeriodId(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':notification_time_period_id',
-            $newService->getNotificationTimePeriodId(),
-            \PDO::PARAM_INT
-        );
-
-        $statement->bindValue(
-            ':geo_coords',
-            $newService->getGeoCoords(),
-            \PDO::PARAM_STR
-        );
+        $this->bindServiceBasicValues($statement, $newService);
 
         $isAlreadyInTransaction = $this->db->inTransaction();
         if (! $isAlreadyInTransaction) {
@@ -327,8 +195,88 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
     }
 
     /**
+     * @inheritDoc
+     */
+    public function update(Service $service): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $this->updateBasicInformations($service);
+            $this->updateExtensionService($service);
+            $this->updateSeverity($service);
+            $this->updateHost($service);
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+
+    }
+
+    private function updateBasicInformations(Service $service): void
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            UPDATE `:db`.service
+            SET
+                cg_additive_inheritance = :contact_group_additive_inheritance,
+                contact_additive_inheritance = :contact_additive_inheritance,
+                command_command_id = :command_id,
+                command_command_id_arg = :command_arguments,
+                command_command_id2 = :event_handler_id,
+                command_command_id_arg2 = :event_handler_arguments,
+                service_acknowledgement_timeout = :acknowledgement_timeout,
+                service_activate = :is_activated,
+                service_event_handler_enabled = :event_handler_enabled,
+                service_active_checks_enabled = :active_checks_enabled,
+                service_flap_detection_enabled = :flap_detection_enabled,
+                service_check_freshness = :check_freshness,
+                service_notifications_enabled = :notifications_enabled,
+                service_passive_checks_enabled = :passive_checks_enabled,
+                service_is_volatile = :volatility,
+                service_low_flap_threshold = :low_flap_threshold,
+                service_high_flap_threshold = :high_flap_threshold,
+                service_max_check_attempts = :max_check_attempts,
+                service_description = :description,
+                service_comment = :comment,
+                service_freshness_threshold = :freshness_threshold,
+                service_normal_check_interval = :normal_check_interval,
+                service_notification_interval = :notification_interval,
+                service_notification_options = :notification_options,
+                service_recovery_notification_delay = :recovery_notification_delay,
+                service_retry_check_interval = :retry_check_interval,
+                service_template_model_stm_id = :service_template_id,
+                service_first_notification_delay = :first_notification_delay,
+                timeperiod_tp_id = :check_time_period_id,
+                timeperiod_tp_id2 = :notification_time_period_id,
+                geo_coords = :geo_coords
+            WHERE service_id = :service_id
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':service_id', $service->getId(), \PDO::PARAM_INT);
+        $this->bindServiceBasicValues($statement, $service);
+
+        $statement->execute();
+    }
+
+    /**
      * @param int $serviceId
      * @param NewService $service
+     *
+     * @throws \Throwable
      */
     private function addExtensionService(int $serviceId, NewService $service): void
     {
@@ -367,6 +315,49 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
     }
 
     /**
+     * @param Service $service
+     *
+     * @throws \Throwable
+     */
+    private function updateExtensionService(Service $service): void
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            UPDATE `:db`.extended_service_information
+            SET
+                esi_action_url = :action_url,
+                esi_icon_image = :icon_id,
+                esi_icon_image_alt = :icon_alternative_text,
+                esi_notes = :notes,
+                esi_notes_url = :notes_url,
+                graph_id = :graph_template_id
+            WHERE service_service_id = :service_id
+            SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':service_id', $service->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':action_url', $service->getActionUrl());
+        $statement->bindValue(':icon_id', $service->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(':icon_alternative_text', $service->getIconAlternativeText());
+        $statement->bindValue(':notes', $service->getNote());
+        $statement->bindValue(':notes_url', $service->getNoteUrl());
+        $statement->bindValue(':graph_template_id', $service->getGraphTemplateId(), \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @param Service $service
+     *
+     * @throws \Throwable
+     */
+    private function updateHost(Service $service): void
+    {
+        $this->deleteLinkToHost($service->getId());
+        $this->linkHost($service->getId(), $service->getHostId());
+    }
+
+    /**
      * Link host to service template.
      *
      * @param int $serviceId
@@ -392,6 +383,34 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
         $statement->bindParam(':service_id', $serviceId, \PDO::PARAM_INT);
         $statement->bindParam(':host_id', $hostId, \PDO::PARAM_INT);
         $statement->execute();
+    }
+
+    /**
+     * @param int $serviceId
+     *
+     * @throws \PDOException
+     */
+    private function deleteLinkToHost(int $serviceId): void
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            DELETE FROM `:db`.host_service_relation
+            WHERE service_service_id = :service_id
+            SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindParam(':service_id', $serviceId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @param Service $service
+     *
+     * @throws \Throwable
+     */
+    private function updateSeverity(Service $service): void
+    {
+        $this->deleteLinkToSeverity($service->getId());
+        $this->linkSeverity($service->getId(), $service->getSeverityId());
     }
 
     /**
@@ -426,6 +445,30 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
     }
 
     /**
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     */
+    private function deleteLinkToSeverity(int $serviceId): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                DELETE screl
+                    FROM `:db`.service_categories_relation screl
+                    JOIN service_categories sc
+                        ON screl.sc_id = sc.sc_id
+                        AND sc.level IS NOT NULL
+                    WHERE screl.service_service_id = :serviceId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
      * @param list<string> $arguments
      *
      * @return string
@@ -438,5 +481,151 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
         }
 
         return $serializedArguments;
+    }
+
+    /**
+     * @param \PDOStatement $statement
+     * @param NewService|Service $service
+     *
+     * @throws \Throwable
+     */
+    private function bindServiceBasicValues(\PDOStatement $statement, NewService|Service $service): void
+    {
+        $statement->bindValue(
+            ':contact_group_additive_inheritance',
+            $service->isContactGroupAdditiveInheritance(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':contact_additive_inheritance',
+            $service->isContactAdditiveInheritance(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(':command_id', $service->getCommandId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':command_arguments',
+            $this->serializeArguments($service->getCommandArguments())
+        );
+        $statement->bindValue(':event_handler_id', $service->getEventHandlerId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':event_handler_arguments',
+            $this->serializeArguments($service->getEventHandlerArguments())
+        );
+        $statement->bindValue(
+            ':acknowledgement_timeout',
+            $service->getAcknowledgementTimeout(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':is_activated',
+            (new BoolToEnumNormalizer())->normalize($service->isActivated()),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':active_checks_enabled',
+            (string) YesNoDefaultConverter::toInt($service->getActiveChecks())
+        );
+        $statement->bindValue(
+            ':event_handler_enabled',
+            (string) YesNoDefaultConverter::toInt($service->getEventHandlerEnabled())
+        );
+        $statement->bindValue(
+            ':flap_detection_enabled',
+            (string) YesNoDefaultConverter::toInt($service->getFlapDetectionEnabled())
+        );
+        $statement->bindValue(
+            ':check_freshness',
+            (string) YesNoDefaultConverter::toInt($service->getCheckFreshness())
+        );
+        $statement->bindValue(
+            ':notifications_enabled',
+            (string) YesNoDefaultConverter::toInt($service->getNotificationsEnabled())
+        );
+        $statement->bindValue(
+            ':passive_checks_enabled',
+            (string) YesNoDefaultConverter::toInt($service->getPassiveCheck())
+        );
+        $statement->bindValue(
+            ':volatility',
+            (string) YesNoDefaultConverter::toInt($service->getVolatility())
+        );
+        $statement->bindValue(
+            ':low_flap_threshold',
+            $service->getLowFlapThreshold(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':high_flap_threshold',
+            $service->getHighFlapThreshold(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':max_check_attempts',
+            $service->getMaxCheckAttempts(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':description',
+            $service->getName()
+        );
+        $statement->bindValue(
+            ':comment',
+            $service->getComment()
+        );
+        $statement->bindValue(
+            ':freshness_threshold',
+            $service->getFreshnessThreshold(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':normal_check_interval',
+            $service->getNormalCheckInterval(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':notification_interval',
+            $service->getNotificationInterval(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':notification_options',
+            NotificationTypeConverter::toString($service->getNotificationTypes())
+        );
+        $statement->bindValue(
+            ':recovery_notification_delay',
+            $service->getRecoveryNotificationDelay(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':retry_check_interval',
+            $service->getRetryCheckInterval(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':service_template_id',
+            $service->getServiceTemplateParentId(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':first_notification_delay',
+            $service->getFirstNotificationDelay(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':check_time_period_id',
+            $service->getCheckTimePeriodId(),
+            \PDO::PARAM_INT
+        );
+        $statement->bindValue(
+            ':notification_time_period_id',
+            $service->getNotificationTimePeriodId(),
+            \PDO::PARAM_INT
+        );
+
+        $statement->bindValue(
+            ':geo_coords',
+            $service->getGeoCoords(),
+            \PDO::PARAM_STR
+        );
     }
 }

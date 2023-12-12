@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,7 @@ namespace CentreonCommand\Domain\Entity;
 use Symfony\Component\Serializer\Annotation as Serializer;
 
 /**
- * Command entity
+ * Command entity.
  *
  * @codeCoverageIgnore
  */
@@ -39,21 +39,22 @@ class Command
 
     /**
      * @Serializer\Groups({Command::SERIALIZER_GROUP_LIST})
+     *
      * @var int an identification of entity
      */
     private $id;
 
     /**
      * @Serializer\Groups({Command::SERIALIZER_GROUP_LIST})
+     *
      * @var string
      */
     private $name;
 
     /**
      * @param int $id
-     * @return void
      */
-    public function setId(int $id = null): void
+    public function setId(?int $id = null): void
     {
         $this->id = $id;
     }
@@ -68,9 +69,8 @@ class Command
 
     /**
      * @param string $name
-     * @return void
      */
-    public function setName(string $name = null): void
+    public function setName(?string $name = null): void
     {
         $this->name = $name;
     }
@@ -84,12 +84,13 @@ class Command
     }
 
     /**
-     * Convert type from string to integer
+     * Convert type from string to integer.
      *
      * @param string $name
+     *
      * @return int|null
      */
-    public static function getTypeIdFromName(string $name = null): ?int
+    public static function getTypeIdFromName(?string $name = null): ?int
     {
         switch ($name) {
             case 'notification':

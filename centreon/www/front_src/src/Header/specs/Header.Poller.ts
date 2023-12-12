@@ -48,18 +48,20 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@pollerButton').within(() => {
           cy.findByText('Pollers').should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DeviceHubIcon').should('be.visible');
         });
       });
 
       it('hides top counters at very small size', () => {
         initialize();
-        getElements();
-
         cy.viewport(599, 300);
-        cy.get('@databaseIndicator').should('not.be.visible');
-        cy.get('@latencyIndicator').should('not.be.visible');
+        cy.findByRole('button', { name: labelPollers, timeout: 5000 }).should(
+          'be.visible'
+        );
+
+        cy.findByRole('status', { name: 'database' }).should('not.exist');
+        cy.findByRole('status', { name: 'latency' }).should('not.exist');
       });
     });
 
@@ -242,7 +244,7 @@ export default (): void =>
         cy.get('@pollerButton').should('be.visible');
         cy.get('@pollerButton').click();
         submenuShouldBeOpened('Pollers');
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('closes the submenu by clicking outside, using esc key, or clicking again on the button', () => {
@@ -276,7 +278,7 @@ export default (): void =>
           .should('contain.text', labelAllPollers)
           .should('contain.text', '12');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('hides the total number if there is not any issue', () => {
@@ -341,7 +343,7 @@ export default (): void =>
             .should('contain.text', expectedItems[index].qty);
         });
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       describe('configuration', () => {
@@ -397,7 +399,37 @@ export default (): void =>
             'include',
             `main.php?p=${pollerConfigurationPageNumber}`
           );
-          cy.matchImageSnapshot();
+          cy.makeSnapshot();
+        });
+
+        it('closes the submenu when clicking on the poller button', () => {
+          initialize({
+            navigationList: {
+              result: [
+                {
+                  children: [
+                    {
+                      groups: [],
+                      is_react: false,
+                      label: 'Resources Status',
+                      options: null,
+                      page: pollerConfigurationPageNumber,
+                      show: true,
+                      url: '/config/'
+                    }
+                  ]
+                }
+              ]
+            }
+          });
+
+          openSubMenu('Pollers');
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).click();
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).should(
+            'not.be.visible'
+          );
         });
 
         it('displays the export configuration button if user is allowed', () => {
@@ -408,7 +440,7 @@ export default (): void =>
           cy.get(`[data-testid="${labelExportConfiguration}"]`)
             .as('exportbutton')
             .should('be.visible');
-          cy.matchImageSnapshot();
+          cy.makeSnapshot();
         });
 
         it('opens the export configuration’s modal, and close it on clicking the cancel button', () => {
@@ -435,7 +467,7 @@ export default (): void =>
             .as('cancelExport')
             .should('be.visible');
 
-          cy.matchImageSnapshot();
+          cy.makeSnapshot();
 
           cy.get('@cancelExport').click();
 

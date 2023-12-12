@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
+
 import { SvgIconComponent } from '@mui/icons-material';
 
 import { ResourcesTypeEnum, ChannelsEnum, TimeperiodType } from '../models';
@@ -18,15 +20,16 @@ export interface MultiIconCheckBoxProps {
 export enum EventsType {
   Critical = 'Critical',
   Down = 'Down',
-  Ok = 'Ok',
-  Unkown = 'Unkown',
+  Ok = 'Recovery',
+  Unknown = 'Unknown',
   Unreachable = 'Unreachable',
-  Up = 'Up',
+  Up = 'Recovery',
   Warning = 'Warning'
 }
 
 export interface MessageType {
   channel: ChannelsEnum;
+  formattedMessage: string;
   message: string;
   subject: string;
 }

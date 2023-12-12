@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,9 +29,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class CommandRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
-    /**
-     * @var int $resultCountForPagination
-     */
+    /** @var int */
     private int $resultCountForPagination = 0;
 
     /**
@@ -43,12 +41,12 @@ class CommandRepository extends AbstractRepositoryRDB implements PaginationRepos
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationList(
         $filters = null,
-        int $limit = null,
-        int $offset = null,
+        ?int $limit = null,
+        ?int $offset = null,
         $ordering = []
     ): array {
         $sql = 'SELECT SQL_CALC_FOUND_ROWS `command_id` AS `id`, `command_name` AS `name` '
@@ -108,13 +106,12 @@ class CommandRepository extends AbstractRepositoryRDB implements PaginationRepos
         }
 
         $stmt->setFetchMode(\PDO::FETCH_CLASS, Command::class);
-        $result = $stmt->fetchAll();
 
-        return $result;
+        return $stmt->fetchAll();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationListTotal(): int
     {

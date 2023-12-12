@@ -65,7 +65,6 @@ class ImagesRepository extends AbstractRepositoryRDB implements PaginationReposi
         $sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM `' . ImageDir::TABLE . '`,`' . ImageDir::JOIN_TABLE . '` vidr,`' . Image::TABLE . '` '
             . 'WHERE `img_id` = `vidr`.`img_img_id` AND `dir_id` = `vidr`.`dir_dir_parent_id`';
 
-        $isWhere = true;
         if ($filters !== null) {
             if (array_key_exists('search', $filters) && $filters['search']) {
                 $sql .= ' AND `img_name` LIKE :search';
@@ -79,8 +78,7 @@ class ImagesRepository extends AbstractRepositoryRDB implements PaginationReposi
                     $collector->addValue($key, $id, PDO::PARAM_INT);
                     unset($x, $id);
                 }
-                $sql .= $isWhere ? ' AND' : ' WHERE';
-                $sql .= ' `img_id` IN (' . implode(',', $idsListKey) . ')';
+                $sql .= ' AND `img_id` IN (' . implode(',', $idsListKey) . ')';
             }
         }
 

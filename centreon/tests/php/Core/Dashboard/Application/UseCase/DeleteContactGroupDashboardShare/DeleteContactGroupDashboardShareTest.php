@@ -37,7 +37,9 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\DeleteContactGroupDashboardShare\DeleteContactGroupDashboardShare;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 
 beforeEach(closure: function (): void {
     $this->presenter = new DeleteContactGroupDashboardSharePresenterStub();
@@ -58,6 +60,7 @@ beforeEach(closure: function (): void {
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
+        new Refresh(RefreshType::Global, null),
     );
 
     $this->testedContactGroup = $this->createMock(ContactGroup::class);

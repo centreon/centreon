@@ -15,7 +15,8 @@ import { getDashboardAccessRightsContactGroupsEndpoint } from './endpoints';
 import { dashboardAccessRightsContactGroupDecoder } from './decoders';
 
 type UseCreateAccessRightsContactGroup<
-  TData extends DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
+  TData extends
+    DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
   TVariables extends CreateAccessRightDto = CreateAccessRightDto,
   TError = ResponseError
 > = {
@@ -35,7 +36,7 @@ const useCreateAccessRightsContactGroup =
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       mutate: omittedMutate,
       ...mutationData
-    } = useMutationQuery<DashboardAccessRightsContactGroup>({
+    } = useMutationQuery<DashboardAccessRightsContactGroup, { dashboardId }>({
       decoder: dashboardAccessRightsContactGroupDecoder,
       getEndpoint: ({ dashboardId }) =>
         getDashboardAccessRightsContactGroupsEndpoint(dashboardId),

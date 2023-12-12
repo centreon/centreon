@@ -79,7 +79,7 @@ describe('About page', () => {
 
     cy.contains('Copyright © 2005 - 2021').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the about page in dark mode', () => {
@@ -94,6 +94,6 @@ describe('About page', () => {
 
     cy.contains('Copyright © 2005 - 2021').should('exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

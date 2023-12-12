@@ -50,6 +50,11 @@ class FilterCriteria
     private $objectType;
 
     /**
+     * @var array<mixed>|null Value of the searchData
+     */
+    private $searchData;
+
+    /**
      * @return string|null
      */
     public function getName(): ?string
@@ -119,5 +124,22 @@ class FilterCriteria
     {
         $this->objectType = $objectType;
         return $this;
+    }
+
+    /**
+     * @param mixed[]|null $searchData 
+     * @return FilterCriteria 
+     */
+    public function setSearchData($searchData): FilterCriteria
+    {
+        $this->searchData = $searchData;
+
+        return $this;
+    }
+
+    /** @return mixed[]|null  */
+    public function getSearchData()
+    {
+        return $this->searchData;
     }
 }

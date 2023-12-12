@@ -258,7 +258,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $toplogySubquery =
             $contact->isAdmin()
             ? 'SELECT topology.topology_id, 1 AS access_right
-                FROM topology'
+                FROM `:db`.topology'
             : 'SELECT topology.topology_id, acltr.access_right
                 FROM `:db`.contact contact
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
@@ -561,6 +561,9 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'generate_cfg':
                 $contact->addRole(Contact::ROLE_GENERATE_CONFIGURATION);
+                break;
+            case 'manage_tokens':
+                $contact->addRole(Contact::ROLE_MANAGE_TOKENS);
                 break;
         }
     }

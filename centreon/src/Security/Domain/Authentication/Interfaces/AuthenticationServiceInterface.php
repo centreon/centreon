@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,26 +18,26 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Interfaces;
 
+use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Security\Domain\Authentication\Exceptions\ProviderException;
-use Centreon\Domain\Authentication\Exception\AuthenticationException;
 
-/**
- * @package Security\Domain\Authentication\Interfaces
- */
 interface AuthenticationServiceInterface
 {
     /**
-     * Check authentication token
+     * Check authentication token.
      *
      * @param string $token
-     * @return boolean
+     *
      * @throws ProviderException
      * @throws AuthenticationException
+     *
+     * @return bool
      */
     public function isValidToken(string $token): bool;
 
@@ -45,26 +45,31 @@ interface AuthenticationServiceInterface
      * Delete a session.
      *
      * @param string $sessionToken
+     *
      * @throws AuthenticationException
      */
     public function deleteSession(string $sessionToken): void;
 
     /**
-     * Delete all expired API tokens
+     * Delete all expired API tokens.
+     *
      * @throws AuthenticationException
      */
     public function deleteExpiredSecurityTokens(): void;
 
     /**
      * @param AuthenticationTokens $authenticationToken
+     *
      * @throws AuthenticationException
      */
     public function updateAuthenticationTokens(AuthenticationTokens $authenticationToken): void;
 
     /**
      * @param string $token
-     * @return AuthenticationTokens|null
+     *
      * @throws AuthenticationException
+     *
+     * @return AuthenticationTokens|null
      */
     public function findAuthenticationTokensByToken(string $token): ?AuthenticationTokens;
 }

@@ -138,7 +138,7 @@ final class FindNotifications
      *
      * @throws \Throwable $ex
      *
-     * @return array<string,array<int,int>
+     * @return array<string, array<int,int>>
      */
     private function getResourcesCountWithACL(array $repositories, array $notificationsIds): array
     {
@@ -162,7 +162,7 @@ final class FindNotifications
      *
      * @throws \Throwable $ex
      *
-     * @return array<string,array<int,int>
+     * @return array<string, array<int,int>>
      */
     private function getResourcesCountForAdmin(array $repositories, array $notificationsIds): array
     {

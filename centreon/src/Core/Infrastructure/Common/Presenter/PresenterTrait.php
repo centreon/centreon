@@ -38,7 +38,7 @@ trait PresenterTrait
      */
     public function formatDateToIso8601(?\DateTimeInterface $date): ?string
     {
-        return $date !== null ? $date->format(\DateTime::ATOM) : $date;
+        return $date !== null ? $date->format(\DateTimeInterface::ATOM) : $date;
     }
 
     /**

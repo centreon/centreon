@@ -119,7 +119,7 @@ beforeEach(function (): void {
         ),
     ];
     $this->users = array_map(
-        (fn($userId) => new ConfigurationUser($userId, "user_name_{$userId}")),
+        (fn($userId) => new ConfigurationUser($userId, "user_name_{$userId}", "email_{$userId}@centreon.com")),
         $this->request->users
     );
 

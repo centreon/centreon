@@ -1,5 +1,8 @@
+import pluralize from 'pluralize';
 import {
+  __,
   allPass,
+  compose,
   concat,
   endsWith,
   filter,
@@ -25,32 +28,29 @@ import {
   split,
   startsWith,
   trim,
-  without,
-  __,
-  compose
+  without
 } from 'ramda';
-import pluralize from 'pluralize';
 
-import type { SelectEntry } from '@centreon/ui';
+import { type SelectEntry } from '@centreon/ui';
 
+import getDefaultCriterias from '../default';
 import {
   Criteria,
   CriteriaDisplayProps,
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
-import getDefaultCriterias from '../default';
 
 import {
-  CriteriaId,
-  criteriaNameToQueryLanguageName,
-  criteriaNameSortOrder,
-  CriteriaValueSuggestionsProps,
-  searchableFields,
   AutocompleteSuggestionProps,
-  staticCriteriaNames,
+  CriteriaId,
+  criteriaNameSortOrder,
+  criteriaNameToQueryLanguageName,
+  CriteriaValueSuggestionsProps,
+  dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
-  dynamicCriteriaValuesByName
+  searchableFields,
+  staticCriteriaNames
 } from './models';
 
 const singular = pluralize.singular as (string) => string;
@@ -96,13 +96,13 @@ const parse = ({
     const pluralizedKey = pluralize(unmappedCriteriaKey);
 
     const defaultCriteria = find(
-      propEq('name', pluralizedKey),
+      propEq(pluralizedKey, 'name'),
       getDefaultCriterias()
     );
 
     const objectType = defaultCriteria?.object_type || null;
 
-    return {
+    const result = {
       name: pluralizedKey,
       object_type: objectType,
       type: 'multi_select',
@@ -124,6 +124,8 @@ const parse = ({
         };
       })
     };
+
+    return result;
   });
 
   const criteriasWithSearch = [
@@ -147,7 +149,7 @@ const parse = ({
 
   return sortBy(
     ({ name }) => criteriaNameSortOrder[name],
-    reject(propEq('name', 'sort'), [
+    reject(propEq('sort', 'name'), [
       ...defaultCriterias,
       ...criteriasWithSearch
     ])
@@ -155,8 +157,8 @@ const parse = ({
 };
 
 const build = (criterias: Array<Criteria>): string => {
-  const nameEqualsSearch = propEq('name', 'search');
-  const nameEqualsSort = propEq('name', 'sort');
+  const nameEqualsSearch = propEq('search', 'name');
+  const nameEqualsSort = propEq('sort', 'name');
   const hasEmptyValue = propSatisfies(isEmpty, 'value');
 
   const rejectSearch = reject(nameEqualsSearch);
@@ -361,10 +363,10 @@ const getAutocompleteSuggestions = ({
 };
 
 export {
-  parse,
   build,
+  DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
-  searchableFields,
-  DynamicCriteriaParametersAndValues
+  parse,
+  searchableFields
 };

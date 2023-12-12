@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Monitoring\Icon as LegacyIconModel;
 use Centreon\Domain\Monitoring\Notes;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
@@ -41,6 +42,8 @@ class DbResourceFactory
      * @param array<string,int|string|null> $record
      * @param ResourceTypeInterface[] $availableResourceTypes
      *
+     * @throws AssertionFailedException
+     *
      * @return ResourceEntity
      */
     public static function createFromRecord(array $record, array $availableResourceTypes): ResourceEntity
@@ -57,13 +60,13 @@ class DbResourceFactory
                 ->setName(self::getStatusAsString(HostResourceType::TYPE_NAME, (int) $record['parent_status']))
                 ->setSeverityCode(self::normalizeSeverityCode((int) $record['parent_status_ordered']));
 
-            /** @var string|null */
+            /** @var string|null $name */
             $name = $record['parent_name'];
 
-            /** @var string|null */
+            /** @var string|null $alias */
             $alias = $record['parent_alias'];
 
-            /** @var string|null */
+            /** @var string|null $fqdn */
             $fqdn = $record['parent_fqdn'];
 
             $parent = (new ResourceEntity())
@@ -108,16 +111,16 @@ class DbResourceFactory
             );
         }
 
-        /** @var string|null */
+        /** @var string|null $name */
         $name = $record['name'];
 
-        /** @var string|null */
+        /** @var string|null $alias */
         $alias = $record['alias'];
 
-        /** @var string|null */
+        /** @var string|null $fqdn */
         $fqdn = $record['address'];
 
-        /** @var string|null */
+        /** @var string|null $information */
         $information = $record['output'];
 
         $resource = (new ResourceEntity())

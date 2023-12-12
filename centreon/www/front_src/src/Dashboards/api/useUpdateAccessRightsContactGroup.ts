@@ -14,7 +14,8 @@ import {
 import { getDashboardAccessRightsContactGroupEndpoint } from './endpoints';
 
 type UseUpdateAccessRightsContactGroup<
-  TData extends DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
+  TData extends
+    DashboardAccessRightsContactGroup = DashboardAccessRightsContactGroup,
   TVariables extends UpdateAccessRightDto = UpdateAccessRightDto,
   TError = ResponseError
 > = {
@@ -34,7 +35,10 @@ const useUpdateAccessRightsContactGroup =
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       mutate: omittedMutate,
       ...mutationData
-    } = useMutationQuery<DashboardAccessRightsContactGroup>({
+    } = useMutationQuery<
+      DashboardAccessRightsContactGroup,
+      { dashboardId; id }
+    >({
       getEndpoint: ({ id, dashboardId }) =>
         getDashboardAccessRightsContactGroupEndpoint(dashboardId, id),
       method: Method.PATCH,

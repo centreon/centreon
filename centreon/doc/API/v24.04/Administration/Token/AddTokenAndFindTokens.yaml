@@ -1,0 +1,68 @@
+get:
+  tags:
+    - Authentication token
+  summary: "Find all API authentication tokens"
+  description: |
+    Return all API authentication tokens.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * token_name
+    * user.id
+    * user.name
+    * creator.id
+    * creator.name
+    * creation_date
+    * expiration_date
+    * is_revoked
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/Token.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+post:
+  tags:
+    - Authentication token
+  summary: "Add an API authentication token"
+  description: "Add an API authentication token"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          allOf:
+            - required: ["name", "user_id", "expiration_date"]
+            - $ref: 'Schema/NewToken.yaml'
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/NewTokenResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

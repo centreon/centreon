@@ -3,6 +3,10 @@
 import './commands/configuration';
 import './commands/monitoring';
 
+import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
+
+installLogsCollector({ enableExtendedCollector: true });
+
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
 const artifactIllegalCharactersMatcher = /[,\s/|<>*?:"]/g;
@@ -143,7 +147,7 @@ interface LoginByTypeOfUserProps {
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ jsonName, loginViaApi }): Cypress.Chainable => {
+  ({ jsonName = 'admin', loginViaApi = false }): Cypress.Chainable => {
     if (loginViaApi) {
       return cy
         .fixture(`users/${jsonName}.json`)
@@ -174,13 +178,11 @@ Cypress.Commands.add(
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
 
-    return cy
-      .get('.SnackbarContent-root > .MuiPaper-root')
-      .then(($snackbar) => {
-        if ($snackbar.text().includes('Login succeeded')) {
-          cy.wait('@getNavigationList');
-        }
-      });
+    return cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.wait('@getNavigationList');
+      }
+    });
   }
 );
 
@@ -207,7 +209,20 @@ interface ExecInContainerProps {
 Cypress.Commands.add(
   'execInContainer',
   ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
-    return cy.exec(`docker exec -i ${name} ${command}`);
+    return cy
+      .exec(`docker exec -i ${name} ${command}`, { failOnNonZeroExit: false })
+      .then((result) => {
+        if (result.code) {
+          // output will not be truncated
+          throw new Error(`
+            Execution of "${command}" failed
+            Exit code: ${result.code}
+            Stdout:\n${result.stdout}
+            Stderr:\n${result.stderr}`);
+        }
+
+        return cy.wrap(result);
+      });
   }
 );
 
@@ -225,29 +240,20 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
-    return cy
-      .exec('docker image list --format "{{.Repository}}:{{.Tag}}"')
-      .then(({ stdout }) => {
-        if (
-          stdout.match(
-            new RegExp(
-              `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
-              'm'
-            )
-          )
-        ) {
-          cy.log(`Local docker image found : ${image}`);
+    cy.log(`Starting container ${name} from image ${image}`);
 
-          return cy.wrap(image);
-        }
+    return cy.task(
+      'startContainer',
+      { image, name, portBindings },
+      { timeout: 600000 } // 10 minutes because docker pull can be very slow
+    );
+  }
+);
 
-        cy.log(`Pulling remote docker image : ${image}`);
-
-        return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
-      })
-      .then((imageName) =>
-        cy.task('startContainer', { image: imageName, name, portBindings })
-      );
+Cypress.Commands.add(
+  'createDirectory',
+  (directoryPath: string): Cypress.Chainable => {
+    return cy.task('createDirectory', directoryPath);
   }
 );
 
@@ -277,12 +283,13 @@ Cypress.Commands.add(
         portBindings: [{ destination: 4000, source: 80 }]
       })
       .then(() => {
-        const baseUrl = 'http://0.0.0.0:4000';
+        const baseUrl = 'http://127.0.0.1:4000';
 
         Cypress.config('baseUrl', baseUrl);
 
-        return cy.exec(
-          `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
+        return cy.task(
+          'waitOn',
+          `${baseUrl}/centreon/api/latest/platform/installation/status`
         );
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
@@ -299,7 +306,7 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+    const logDirectory = `results/logs/${Cypress.spec.name.replace(
       artifactIllegalCharactersMatcher,
       '_'
     )}/${Cypress.currentTest.title.replace(
@@ -309,7 +316,7 @@ Cypress.Commands.add(
 
     return cy
       .visitEmptyPage()
-      .exec(`mkdir -p "${logDirectory}"`)
+      .createDirectory(logDirectory)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
         name,
@@ -324,6 +331,11 @@ Cypress.Commands.add(
         destination: `${logDirectory}/centreon`,
         name,
         source: '/var/log/centreon'
+      })
+      .copyFromContainer({
+        destination: `${logDirectory}/centreon-gorgone`,
+        name,
+        source: '/var/log/centreon-gorgone'
       })
       .then(() => {
         if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
@@ -343,6 +355,24 @@ Cypress.Commands.add(
           { failOnNonZeroExit: false }
         );
       })
+      .then(() => {
+        if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+          return cy.copyFromContainer({
+            destination: `${logDirectory}/httpd`,
+            name,
+            source: '/var/log/httpd'
+          });
+        }
+
+        return cy.copyFromContainer(
+          {
+            destination: `${logDirectory}/apache2`,
+            name,
+            source: '/var/log/apache2'
+          },
+          { failOnNonZeroExit: false }
+        );
+      })
       .exec(`chmod -R 755 "${logDirectory}"`)
       .stopContainer({ name });
   }
@@ -355,9 +385,11 @@ interface StopContainerProps {
 Cypress.Commands.add(
   'stopContainer',
   ({ name }: StopContainerProps): Cypress.Chainable => {
+    cy.log(`Stopping container ${name}`);
+
     cy.exec(`docker logs ${name}`).then(({ stdout }) => {
       cy.writeFile(
-        `cypress/results/logs/${Cypress.spec.name.replace(
+        `results/logs/${Cypress.spec.name.replace(
           artifactIllegalCharactersMatcher,
           '_'
         )}/${Cypress.currentTest.title.replace(
@@ -405,6 +437,41 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'insertDashboardWithWidget',
+  (dashboardBody, patchBody) => {
+    cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        {
+          timeout: 10000
+        }
+      );
+      cy.request({
+        body: patchBody,
+        method: 'PATCH',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      });
+    });
+  }
+);
+
 interface ShareDashboardToUserProps {
   dashboardName: string;
   role: string;
@@ -417,6 +484,30 @@ interface ListingRequestResult {
       id: number;
     }>;
   };
+}
+
+interface PatchDashboardBody {
+  panels: Array<{
+    layout: {
+      height: number;
+      min_height: number;
+      min_width: number;
+      width: number;
+      x: number;
+      y: number;
+    };
+    name: string;
+    widget_settings: {
+      options: {
+        description: {
+          content: string;
+          enabled: boolean;
+        };
+        name: string;
+      };
+    };
+    widget_type: string;
+  }>;
 }
 
 Cypress.Commands.add(
@@ -480,6 +571,7 @@ declare global {
         props: CopyToContainerProps,
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
+      createDirectory: (directoryPath: string) => Cypress.Chainable;
       execInContainer: ({
         command,
         name
@@ -490,9 +582,14 @@ declare global {
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
+      insertDashboardWithWidget: (
+        dashboard: Dashboard,
+        patch: PatchDashboardBody
+      ) => Cypress.Chainable;
+
       loginByTypeOfUser: ({
-        jsonName = 'admin',
-        loginViaApi = false
+        jsonName,
+        loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({

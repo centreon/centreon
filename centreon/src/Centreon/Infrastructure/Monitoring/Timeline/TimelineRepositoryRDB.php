@@ -131,6 +131,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
 
         $request = "
             SELECT SQL_CALC_FOUND_ROWS
+                1 AS REALTIME,
                 log.id,
                 log.type,
                 log.date,
@@ -162,12 +163,6 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
 
         // comment events
         $subRequests[] = $this->prepareQueryForTimelineCommentEvents($collector, $hostId, $serviceId);
-
-        if (empty($subRequests)) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal(0);
-
-            return [];
-        }
 
         $request .= implode('UNION ALL ', $subRequests);
 
@@ -227,7 +222,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
         $collector->bind($statement);
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
         $this->sqlRequestTranslator->getRequestParameters()->setTotal(
             (int) $result->fetchColumn()
         );

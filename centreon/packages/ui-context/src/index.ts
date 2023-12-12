@@ -7,6 +7,10 @@ export { default as acknowledgementAtom } from './acknowledgementAtom';
 export { default as resourceStorageOptimizationModeAtom } from './resourceStorageOptimizationMode';
 export { default as platformNameAtom } from './platformNameAtom';
 export { ThemeMode, ListingVariant, DashboardGlobalRole } from './types';
+export {
+  platformFeaturesAtom,
+  featureFlagsDerivedAtom
+} from './platformFeauresAtom';
 
 export type {
   User,
@@ -17,5 +21,7 @@ export type {
   CloudServices,
   Acknowledgement,
   Acl,
-  DashboardRolesAndPermissions
+  DashboardRolesAndPermissions,
+  FeatureFlags,
+  PlatformFeatures
 } from './types';

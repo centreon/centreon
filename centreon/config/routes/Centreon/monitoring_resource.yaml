@@ -1,9 +1,3 @@
-centreon_application_monitoring_resource_list:
-    methods: GET
-    path: /monitoring/resources
-    controller: 'Centreon\Application\Controller\MonitoringResourceController::list'
-    condition: "request.attributes.get('version') >= 21.10"
-
 centreon_application_monitoring_resource_details_host:
     methods: GET
     path: /monitoring/resources/hosts/{hostId}

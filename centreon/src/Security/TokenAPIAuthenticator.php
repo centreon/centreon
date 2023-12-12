@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security;
@@ -26,42 +27,33 @@ use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
-use Security\Domain\Authentication\Model\ProviderToken;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CredentialsExpiredException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
 /**
  * Class used to authenticate a request by using a security token.
- *
- * @package Security
  */
 class TokenAPIAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
-    /**
-     * @var AuthenticationRepositoryInterface
-     */
+    /** @var AuthenticationRepositoryInterface */
     private $authenticationRepository;
 
-    /**
-     * @var ContactRepositoryInterface
-     */
+    /** @var ContactRepositoryInterface */
     private $contactRepository;
 
-    /**
-     * @var LocalProvider
-     */
+    /** @var LocalProvider */
     private $localProvider;
 
     /**
@@ -84,10 +76,10 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
     /**
      * @inheritDoc
      */
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(Request $request, ?AuthenticationException $authException = null)
     {
         $data = [
-            'message' => _('Authentication Required')
+            'message' => _('Authentication Required'),
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
@@ -107,7 +99,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
+            'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
@@ -122,11 +114,12 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @return SelfValidatingPassport
      * @throws CustomUserMessageAuthenticationException
      * @throws TokenNotFoundException
+     *
+     * @return SelfValidatingPassport
      */
     public function authenticate(Request $request): SelfValidatingPassport
     {
@@ -152,10 +145,11 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
      *
      * @param string $apiToken
      *
-     * @return UserInterface
      * @throws TokenNotFoundException
      * @throws CredentialsExpiredException
      * @throws ContactDisabledException
+     *
+     * @return UserInterface
      */
     private function getUserAndUpdateToken(string $apiToken): UserInterface
     {
@@ -170,7 +164,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
         if ($contact === null) {
             throw new UserNotFoundException();
         }
-        if (!$contact->isActive()) {
+        if (! $contact->isActive()) {
             throw new ContactDisabledException();
         }
 

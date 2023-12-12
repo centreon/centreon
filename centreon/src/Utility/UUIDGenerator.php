@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Utility;
 
-use Utility\Interfaces\UUIDGeneratorInterface;
 use Symfony\Component\Uid\Uuid;
+use Utility\Interfaces\UUIDGeneratorInterface;
 
 class UUIDGenerator implements UUIDGeneratorInterface
 {

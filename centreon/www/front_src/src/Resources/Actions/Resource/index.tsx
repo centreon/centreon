@@ -133,7 +133,7 @@ const ResourceActions = (): JSX.Element => {
   };
 
   const areSelectedResourcesOk = all(
-    pathEq(['status', 'severity_code'], SeverityCode.OK),
+    pathEq(SeverityCode.OK, ['status', 'severity_code']),
     selectedResources
   );
 
@@ -148,7 +148,7 @@ const ResourceActions = (): JSX.Element => {
   const disableSubmitStatus =
     !hasOneResourceSelected ||
     !canSubmitStatus(selectedResources) ||
-    !head(selectedResources)?.passive_checks;
+    !head(selectedResources)?.has_passive_checks_enabled;
 
   const disableAddComment =
     !hasOneResourceSelected || !canComment(selectedResources);

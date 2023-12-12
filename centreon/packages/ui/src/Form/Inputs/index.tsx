@@ -21,6 +21,7 @@ import CheckboxGroup from './CheckboxGroup';
 import Checkbox from './Checkbox';
 import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
+import List from './List/List';
 
 export const getInput = R.cond<
   Array<InputType>,
@@ -66,6 +67,7 @@ export const getInput = R.cond<
     R.equals(InputType.CheckboxGroup) as (b: InputType) => boolean,
     R.always(CheckboxGroup)
   ],
+  [R.equals(InputType.List) as (b: InputType) => boolean, R.always(List)],
   [R.T, R.always(TextInput)]
 ]);
 
@@ -185,7 +187,7 @@ const Inputs = ({
         const hasGroupTitle = R.not(R.isNil(groupName));
 
         const groupProps = hasGroupTitle
-          ? R.find(R.propEq('name', groupName), groups)
+          ? R.find(R.propEq(groupName, 'name'), groups)
           : ({} as Group);
 
         const isFirstElement = areGroupsOpen || R.equals(index, 0);

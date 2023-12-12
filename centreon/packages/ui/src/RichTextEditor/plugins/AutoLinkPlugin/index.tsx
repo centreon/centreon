@@ -1,7 +1,11 @@
+import { useEffect, useState } from 'react';
+
 import {
   AutoLinkPlugin,
   LinkMatcher
 } from '@lexical/react/LexicalAutoLinkPlugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { BLUR_COMMAND, COMMAND_PRIORITY_LOW, FOCUS_COMMAND } from 'lexical';
 
 interface LinkAttributes {
   rel?: null | string;
@@ -56,7 +60,42 @@ const AutoCompleteLinkPlugin = ({
   openLinkInNewTab
 }: {
   openLinkInNewTab: boolean;
-}): JSX.Element => {
+}): JSX.Element | null => {
+  const [editor] = useLexicalComposerContext();
+  const [hasFocus, setFocus] = useState(false);
+
+  useEffect(
+    () =>
+      editor.registerCommand(
+        BLUR_COMMAND,
+        () => {
+          setFocus(false);
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+    []
+  );
+
+  useEffect(
+    () =>
+      editor.registerCommand(
+        FOCUS_COMMAND,
+        () => {
+          setFocus(true);
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+    []
+  );
+
+  if (!hasFocus) {
+    return null;
+  }
+
   return <AutoLinkPlugin matchers={getMatchers(openLinkInNewTab)} />;
 };
 

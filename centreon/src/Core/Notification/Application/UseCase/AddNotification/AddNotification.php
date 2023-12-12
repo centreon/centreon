@@ -290,7 +290,7 @@ final class AddNotification
             'notification' => $this->readNotificationRepository->findById($newNotificationId)
                 ?? throw NotificationException::errorWhileRetrievingObject(),
             'messages' => $this->readNotificationRepository->findMessagesByNotificationId($newNotificationId),
-            'users' => $this->readNotificationRepository->findUsersByNotificationId($newNotificationId),
+            'users' => array_values($this->readNotificationRepository->findUsersByNotificationId($newNotificationId)),
             'contactgroups' => $this->readNotificationRepository->findContactGroupsByNotificationId($newNotificationId),
             'resources' => $this->findResourcesByNotificationId($newNotificationId),
         ];

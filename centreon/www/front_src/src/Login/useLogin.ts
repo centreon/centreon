@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
+import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
 import { useAtom, useSetAtom, useAtomValue } from 'jotai';
@@ -67,11 +68,11 @@ const getForcedProviders = filter<ProviderConfiguration>(
 );
 
 const getExternalProviders = reject<ProviderConfiguration>(
-  propEq('name', 'local')
+  propEq('local', 'name')
 );
 
 const getActiveProviders = filter<ProviderConfiguration>(
-  propEq('isActive', true)
+  propEq(true, 'isActive')
 );
 
 const defaultLoginPageCustomisation: LoginPageCustomisation = {
@@ -89,6 +90,8 @@ export const router = {
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
   const { sendLogin } = usePostLogin();
+
+  const [cookies] = useCookies(['REDIRECT_URI']);
 
   const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
     decoder: providersConfigurationDecoder,
@@ -131,7 +134,7 @@ const useLogin = (): UseLoginState => {
 
   const checkPasswordExpiration = useCallback(
     ({ error, alias, setSubmitting }) => {
-      const isUserNotAllowed = propEq('statusCode', 401, error);
+      const isUserNotAllowed = propEq(401, 'statusCode', error);
 
       const { password_is_expired: passwordIsExpired } = prop(
         'additionalInformation',
@@ -173,10 +176,11 @@ const useLogin = (): UseLoginState => {
           return;
         }
         showSuccessMessage(t(labelLoginSucceeded));
-        getInternalTranslation().then(() =>
-          loadUser()?.then(() =>
-            navigate(prop('redirectUri', response as Redirect))
-          )
+        getInternalTranslation().then(
+          () =>
+            loadUser()?.then(() =>
+              navigate(prop('redirectUri', response as Redirect))
+            )
         );
       })
       .catch((error) =>
@@ -187,8 +191,8 @@ const useLogin = (): UseLoginState => {
   const getBrowserLocale = (): string => navigator.language.slice(0, 2);
 
   useEffect(() => {
-    getExternalTranslation().then(() =>
-      i18n.changeLanguage?.(getBrowserLocale())
+    getExternalTranslation().then(
+      () => i18n.changeLanguage?.(getBrowserLocale())
     );
   }, []);
 
@@ -217,6 +221,13 @@ const useLogin = (): UseLoginState => {
           loginPageCustomisationData?.textPosition ||
           defaultLoginPageCustomisation.textPosition
       };
+
+  useEffect(() => {
+    if (!prop('REDIRECT_URI', cookies)) {
+      return;
+    }
+    navigate(cookies.REDIRECT_URI);
+  }, [cookies]);
 
   useEffect(() => {
     if (isEmpty(forcedProviders)) {

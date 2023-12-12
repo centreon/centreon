@@ -56,7 +56,7 @@ class RepositoryMock extends ServiceEntityRepository
      * Find entity by parameters
      *
      * @param array $params
-     * @return \Centreon\Test\Mock\EntityMock|null
+     * @return EntityMock|null
      */
     public function findOneBy(array $params)
     {
@@ -66,7 +66,7 @@ class RepositoryMock extends ServiceEntityRepository
     /**
      * Validate entity
      *
-     * @param \Centreon\Test\Mock\EntityMock $object
+     * @param EntityMock $object
      * @return bool
      */
     public function validateEntity(EntityMock $object): bool

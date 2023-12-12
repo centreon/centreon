@@ -31,13 +31,23 @@ if [ "$1" = "configure" ] ; then
       /usr/share/centreon/.env \
       /usr/share/centreon/.env.local.php
   fi
+  if [ "$(getent passwd centreon-broker)" ]; then
+        chown centreon-broker:centreon-broker \
+            /usr/share/centreon-broker/lua/centreon-cloud-notifications.lua \
+        2> /dev/null || :
+  fi
+
+  # Generate HASH secret for Symfony application
+  REPLY=$(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")
 
   # Replace macros ----
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/centreon
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/console
+  sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/migration
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/export-mysql-indexes
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/generateSqlLite
   sed -i "s#@PHP_BIN@#/usr/bin/php#g" /usr/share/centreon/bin/import-mysql-indexes
+  sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env.local.php
 
   chmod +x \
     /usr/share/centreon/bin/centFillTrapDB \

@@ -103,31 +103,20 @@ class FilterController extends AbstractController
          */
         $user = $this->getUser();
 
-        $filterToAdd = json_decode((string) $request->getContent(), true);
-        if (!is_array($filterToAdd)) {
-            throw new FilterException(_('Error when decoding sent data'));
-        }
-
-        $this->validateFilterSchema(
-            $filterToAdd,
+        $payload = $this->validateAndRetrieveDataSent(
+            $request,
             $this->getParameter('centreon_path') . 'config/json_validator/latest/Centreon/Filter/AddOrUpdate.json'
         );
 
         /**
          * @var FilterCriteria[] $filterCriterias
          */
-        $filterCriterias = [];
-        foreach ($filterToAdd['criterias'] as $filterCriteria) {
-            $filterCriterias[] = EntityCreator::createEntityByArray(
-                FilterCriteria::class,
-                $filterCriteria
-            );
-        }
+        $filterCriterias = $this->createFilterCriterias($payload);
 
         $filter = (new Filter())
             ->setPageName($pageName)
             ->setUserId($user->getId())
-            ->setName($filterToAdd['name'])
+            ->setName($payload['name'])
             ->setCriterias($filterCriterias);
 
         $filterId = $this->filterService->addFilter($filter);
@@ -136,6 +125,25 @@ class FilterController extends AbstractController
         $context = (new Context())->setGroups(self::SERIALIZER_GROUPS_MAIN);
 
         return $this->view($filter)->setContext($context);
+    }
+
+    /**
+     * @param array<mixed> $data 
+     * @return FilterCriteria[] 
+     */
+    private function createFilterCriterias(array $data): array
+    {
+        $filterCriterias = [];
+        foreach ($data['criterias'] as $criteria) {
+            $filterCriterias[] = (new FilterCriteria())
+                ->setName($criteria['name'])
+                ->setType($criteria['type'])
+                ->setValue($criteria['value'])
+                ->setObjectType($criteria['object_type'])
+                ->setSearchData($criteria['search_data']);
+        }
+
+        return $filterCriterias;    
     }
 
     /**
@@ -161,15 +169,15 @@ class FilterController extends AbstractController
         $user = $this->getUser();
         $this->filterService->filterByContact($user);
 
-        $filterToUpdate = json_decode((string) $request->getContent(), true);
-        if (!is_array($filterToUpdate)) {
-            throw new FilterException(_('Error when decoding sent data'));
-        }
-
-        $this->validateFilterSchema(
-            $filterToUpdate,
+        $payload = $this->validateAndRetrieveDataSent(
+            $request,
             $this->getParameter('centreon_path') . 'config/json_validator/latest/Centreon/Filter/AddOrUpdate.json'
         );
+
+        /**
+         * @var FilterCriteria[] $filterCriterias
+         */
+        $filterCriterias = $this->createFilterCriterias($payload);
 
         $filter = $this->filterService->findFilterByUserId($user->getId(), $pageName, $filterId);
         if ($filter === null) {
@@ -178,19 +186,8 @@ class FilterController extends AbstractController
             );
         }
 
-        /**
-         * @var FilterCriteria[] $filterCriterias
-         */
-        $filterCriterias = [];
-        foreach ($filterToUpdate['criterias'] as $filterCriteria) {
-            $filterCriterias[] = EntityCreator::createEntityByArray(
-                FilterCriteria::class,
-                $filterCriteria
-            );
-        }
-
         $filter
-            ->setName($filterToUpdate['name'])
+            ->setName($payload['name'])
             ->setCriterias($filterCriterias)
             ->setOrder($filter->getOrder());
 

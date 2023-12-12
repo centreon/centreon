@@ -1,62 +1,45 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  *
  */
 
 namespace CentreonModule\Tests\Infrastructure\Service;
 
-use PHPUnit\Framework\TestCase;
-use Pimple\Container;
-use Pimple\Psr11\Container as ContainerWrap;
 use Centreon\Test\Mock;
 use Centreon\Test\Traits\TestCaseExtensionTrait;
+use CentreonLegacy\Core\Configuration\Configuration;
+use CentreonModule\Infrastructure\Entity\Module;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\Infrastructure\Source;
 use CentreonModule\Tests\Infrastructure\Source\ModuleSourceTest;
 use CentreonModule\Tests\Infrastructure\Source\WidgetSourceTest;
-use CentreonModule\Infrastructure\Entity\Module;
-use CentreonLegacy\Core\Configuration\Configuration;
 use CentreonModule\Tests\Resources\Traits\SourceDependencyTrait;
+use PHPUnit\Framework\TestCase;
+use Pimple\Container;
+use Pimple\Psr11\Container as ContainerWrap;
 
 class CentreonModuleServiceTest extends TestCase
 {
     use TestCaseExtensionTrait;
     use SourceDependencyTrait;
 
-    /**
-     * @var CentreonModuleService|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var CentreonModuleService|\PHPUnit\Framework\MockObject\MockObject */
     private $service;
 
     protected function setUp(): void
@@ -66,8 +49,7 @@ class CentreonModuleServiceTest extends TestCase
                 'initSources',
             ])
             ->setConstructorArgs([new ContainerWrap(new Container())])
-            ->getMock()
-        ;
+            ->getMock();
 
         $sources = [];
         $sourcesTypes = [
@@ -86,15 +68,13 @@ class CentreonModuleServiceTest extends TestCase
                     'update',
                     'remove',
                 ])
-                ->getMock()
-            ;
+                ->getMock();
 
             $sources[$type]
                 ->method('getList')
                 ->will($this->returnCallback(function () use ($type) {
                     return [$type];
-                }))
-            ;
+                }));
             $sources[$type]
                 ->method('getDetail')
                 ->will($this->returnCallback(function () use ($type) {
@@ -106,8 +86,7 @@ class CentreonModuleServiceTest extends TestCase
                     $entity->setUpdated(false);
 
                     return $entity;
-                }))
-            ;
+                }));
             $sources[$type]
                 ->method('install')
                 ->will($this->returnCallback(function ($id) use ($type) {
@@ -120,8 +99,7 @@ class CentreonModuleServiceTest extends TestCase
                     $entity->setUpdated(false);
 
                     return $entity;
-                }))
-            ;
+                }));
             $sources[$type]
                 ->method('update')
                 ->will($this->returnCallback(function ($id) use ($type) {
@@ -134,16 +112,14 @@ class CentreonModuleServiceTest extends TestCase
                     $entity->setUpdated(false);
 
                     return $entity;
-                }))
-            ;
+                }));
             $sources[$type]
                 ->method('remove')
                 ->will($this->returnCallback(function ($id) {
                     if ($id === ModuleSourceTest::$moduleName) {
                         throw new \Exception('Removed');
                     }
-                }))
-            ;
+                }));
         }
 
         // load sources

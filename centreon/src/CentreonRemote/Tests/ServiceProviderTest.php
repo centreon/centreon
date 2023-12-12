@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,19 +21,18 @@
 
 namespace CentreonRemote\Tests;
 
+use Centreon\Infrastructure\Service\CentcoreConfigService;
+use Centreon\Test\Mock;
+use CentreonACL;
+use CentreonRemote\Domain;
+use CentreonRemote\Domain\Exporter;
+use CentreonRemote\Domain\Service\ConfigurationWizard;
+use CentreonRemote\Infrastructure\Service;
+use CentreonRemote\ServiceProvider;
+use CentreonRestHttp;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Pimple\Psr11\ServiceLocator;
-use CentreonRemote\ServiceProvider;
-use Centreon\Test\Mock;
-use Centreon\Infrastructure\Service\CentcoreConfigService;
-use CentreonRemote\Domain;
-use CentreonRemote\Domain\Service\ConfigurationWizard;
-use CentreonRemote\Infrastructure\Service;
-use CentreonRemote\Domain\Exporter;
-use CentreonACL;
-use CentreonRemote\Application\Clapi\CentreonRemoteServer;
-use CentreonRestHttp;
 
 /**
  * @group CentreonRemote
@@ -41,14 +40,10 @@ use CentreonRestHttp;
  */
 class ServiceProviderTest extends TestCase
 {
-    /**
-     * @var Container
-     */
+    /** @var Container */
     protected $container;
 
-    /**
-     * @var ServiceProvider
-     */
+    /** @var ServiceProvider */
     protected $provider;
 
     protected function setUp(): void
@@ -63,17 +58,17 @@ class ServiceProviderTest extends TestCase
             ->getMock();
 
         $this->container['realtime_db'] = $this->container['configuration_db'] = new Mock\CentreonDB;
-        $this->container['configuration_db']->addResultSet("SELECT * FROM informations WHERE `key` = :key LIMIT 1", []);
+        $this->container['configuration_db']->addResultSet('SELECT * FROM informations WHERE `key` = :key LIMIT 1', []);
 
         $this->container['rest_http'] = $this->getMockBuilder(CentreonRestHttp::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $locator = new ServiceLocator($this->container, ['realtime_db', 'configuration_db']);
-        $this->container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] =
-            new \Centreon\Infrastructure\Service\CentreonDBManagerService($locator);
-        $this->container[\Centreon\ServiceProvider::CENTREON_WEBSERVICE] =
-        $this->container[\Centreon\ServiceProvider::CENTREON_CLAPI] = new class {
+        $this->container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+            = new \Centreon\Infrastructure\Service\CentreonDBManagerService($locator);
+        $this->container[\Centreon\ServiceProvider::CENTREON_WEBSERVICE]
+        = $this->container[\Centreon\ServiceProvider::CENTREON_CLAPI] = new class {
             public function add(): self
             {
                 return $this;
@@ -84,10 +79,10 @@ class ServiceProviderTest extends TestCase
             return [];
         };
 
-        $this->container[\Centreon\ServiceProvider::CENTREON_BROKER_REPOSITORY] =
-            new \Centreon\Domain\Repository\CfgCentreonBrokerRepository($this->container['configuration_db']);
-        $this->container['centreon.broker_configuration_service'] =
-            new \Centreon\Domain\Service\BrokerConfigurationService();
+        $this->container[\Centreon\ServiceProvider::CENTREON_BROKER_REPOSITORY]
+            = new \Centreon\Domain\Repository\CfgCentreonBrokerRepository($this->container['configuration_db']);
+        $this->container['centreon.broker_configuration_service']
+            = new \Centreon\Domain\Service\BrokerConfigurationService();
 
         $this->provider->register($this->container);
     }
@@ -103,14 +98,10 @@ class ServiceProviderTest extends TestCase
             'centreon.notifymaster' => Domain\Service\NotifyMasterService::class,
             'centreon.taskservice' => Domain\Service\TaskService::class,
             'centreon_remote.informations_service' => Domain\Service\InformationsService::class,
-            'centreon_remote.remote_connection_service' =>
-                ConfigurationWizard\RemoteConnectionConfigurationService::class,
-            'centreon_remote.poller_connection_service' =>
-                ConfigurationWizard\PollerConnectionConfigurationService::class,
-            'centreon_remote.poller_config_service' =>
-                ConfigurationWizard\LinkedPollerConfigurationService::class,
-            'centreon_remote.poller_config_bridge' =>
-                ConfigurationWizard\PollerConfigurationRequestBridge::class,
+            'centreon_remote.remote_connection_service' => ConfigurationWizard\RemoteConnectionConfigurationService::class,
+            'centreon_remote.poller_connection_service' => ConfigurationWizard\PollerConnectionConfigurationService::class,
+            'centreon_remote.poller_config_service' => ConfigurationWizard\LinkedPollerConfigurationService::class,
+            'centreon_remote.poller_config_bridge' => ConfigurationWizard\PollerConfigurationRequestBridge::class,
 
             'centreon_remote.export' => Service\ExportService::class,
             'centreon_remote.exporter' => Service\ExporterService::class,

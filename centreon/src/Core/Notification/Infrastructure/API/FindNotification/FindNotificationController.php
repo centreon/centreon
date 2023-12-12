@@ -36,7 +36,7 @@ final class FindNotificationController extends AbstractController
      */
     public function __invoke(int $notificationId, FindNotification $useCase, FindNotificationPresenter $presenter): Response
     {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $useCase($notificationId, $presenter);
 

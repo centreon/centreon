@@ -73,7 +73,7 @@ describe('Authentication configuration', () => {
   it('displays the local authentication tab by default', () => {
     cy.waitForRequest('@getLocalAuthenticationConfiguration');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it.only('displays the OpenID Connect configuration when the corresponding tab is clicked', () => {
@@ -96,7 +96,7 @@ describe('Authentication configuration', () => {
 
     cy.get('@OpenidConnectTab').scrollIntoView();
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the Web SSO configuration when the corresponding tab is clicked', () => {
@@ -104,7 +104,7 @@ describe('Authentication configuration', () => {
 
     cy.waitForRequest('@getWebSSOConfiguration');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the SAML configuration when the corresponding tab is clicked', () => {
@@ -120,6 +120,6 @@ describe('Authentication configuration', () => {
 
     cy.findAllByLabelText(labelSAMLConfiguration).eq(1).scrollIntoView();
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

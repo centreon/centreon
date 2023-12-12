@@ -113,7 +113,7 @@ class CentreonAuthLDAP
             $this->contactInfos['contact_ldap_dn'] = $this->ldap->findUserDn($this->contactInfos['contact_alias']);
         } elseif (
             ($userDn = $this->ldap->findUserDn($this->contactInfos['contact_alias']))
-            && $userDn !== $this->contactInfos['contact_ldap_dn']
+            && mb_strtolower($userDn, 'UTF-8') !== mb_strtolower($this->contactInfos['contact_ldap_dn'], 'UTF-8') //Ignore case for LDAP and database contact info comparison
         ) { // validate if user exists in this resource
             if (! $userDn) {
                 //User resource error

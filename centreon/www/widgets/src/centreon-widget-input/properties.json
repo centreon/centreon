@@ -7,11 +7,6 @@
       "defaultValue": "",
       "label": "Generic text",
       "required": true
-    },
-    "refreshInterval": {
-      "type": "refresh-interval",
-      "defaultValue": "default",
-      "label": "Interval"
     }
   },
   "moduleName": "centreon-widget-input"

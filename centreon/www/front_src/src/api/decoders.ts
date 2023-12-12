@@ -5,7 +5,9 @@ import {
   DashboardGlobalRole,
   DashboardRolesAndPermissions,
   ListingVariant,
-  ThemeMode
+  ThemeMode,
+  FeatureFlags,
+  PlatformFeatures
 } from '@centreon/ui-context';
 
 import {
@@ -93,7 +95,10 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
   {
     modules: JsonDecoder.dictionary(versionDecoder, 'Modules'),
     web: versionDecoder,
-    widgets: JsonDecoder.dictionary(versionDecoder, 'Widgets')
+    widgets: JsonDecoder.dictionary(
+      JsonDecoder.nullable(versionDecoder),
+      'Widgets'
+    )
   },
   'Platform versions',
   {
@@ -103,12 +108,31 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
   }
 );
 
-export const platformFeaturesDecoder = JsonDecoder.object<PlatformVersions>(
+export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
+    adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
+    dashboard: JsonDecoder.optional(JsonDecoder.boolean),
+    notification: JsonDecoder.optional(JsonDecoder.boolean),
+    resourceStatusFilterRevamp: JsonDecoder.optional(JsonDecoder.boolean),
+    resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),
+    vault: JsonDecoder.optional(JsonDecoder.boolean)
+  },
+  'Feature flags',
+  {
+    adExclusionPeriods: 'ad_exclusion_periods',
+    resourceStatusFilterRevamp: 'resource_status_filter_revamp',
+    resourceStatusTreeView: 'resource_status_tree_view'
+  }
+);
+
+export const platformFeaturesDecoder = JsonDecoder.object<PlatformFeatures>(
+  {
+    featureFlags: featuresFlagDecoder,
     isCloudPlatform: JsonDecoder.boolean
   },
   'Platform features',
   {
+    featureFlags: 'feature_flags',
     isCloudPlatform: 'is_cloud_platform'
   }
 );

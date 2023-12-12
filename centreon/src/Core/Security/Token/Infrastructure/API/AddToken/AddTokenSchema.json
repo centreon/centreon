@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add token",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "user_id",
+        "expiration_date"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "user_id": {
+            "type": "integer"
+        },
+        "expiration_date":{
+            "type": "string",
+            "format": "date-time"
+        }
+    }
+}
+
+

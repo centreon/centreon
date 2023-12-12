@@ -31,6 +31,9 @@ use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId as OpenIdProvider;
+use Core\Security\Authentication\Infrastructure\Provider\SAML as SamlProvider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 class AclUpdater implements AclUpdaterInterface
@@ -66,7 +69,12 @@ class AclUpdater implements AclUpdaterInterface
             $aclConditions = $customConfiguration->getACLConditions();
             if ($aclConditions->isEnabled()) {
                 $aclConditionMatches = $provider->getAclConditionsMatches();
-                /** @phpstan-ignore-next-line */
+                if (
+                    ! $this->provider instanceof OpenIdProvider
+                    && ! $this->provider instanceof SamlProvider
+                ) {
+                    throw ProviderException::unexpectedProvider(($this->provider)::class);
+                }
                 $userAccessGroups = $this->provider->getUserAccessGroupsFromClaims($aclConditionMatches);
                 $this->updateAccessGroupsForUser($user, $userAccessGroups);
             }
@@ -113,11 +121,12 @@ class AclUpdater implements AclUpdaterInterface
      */
     private function updateContactGroupsForUser(ContactInterface $user, array $contactGroups): void
     {
+        $contactGroup = null;
         try {
             $this->info('Updating user contact group', [
                 'user_id' => $user->getId(),
                 'contact_group_id' => [
-                    array_map(fn ($contactGroup) => $contactGroup->getId(), $contactGroups),
+                    array_map(fn($contactGroup) => $contactGroup->getId(), $contactGroups),
                 ],
             ]);
             $this->dataStorageEngine->startTransaction();
@@ -130,7 +139,7 @@ class AclUpdater implements AclUpdaterInterface
             $this->dataStorageEngine->rollbackTransaction();
             $this->error('Error during contact group update', [
                 'user_id' => $user->getId(),
-                'contact_group_id' => $contactGroup->getId(),
+                'contact_group_id' => $contactGroup?->getId(),
                 'trace' => $ex->getTraceAsString(),
             ]);
         }

@@ -104,8 +104,11 @@ services:
 
     Centreon\Application\Controller\MonitoringResourceController:
         arguments:
-            $resourceTypes: !tagged_iterator 'monitoring.resource.type'
             $hyperMediaProviders: !tagged_iterator 'realtime.hypermedia'
+
+    Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator:
+        arguments:
+          $resourceTypes: !tagged_iterator 'monitoring.resource.type'
 
     Core\Security\Authentication\Application\UseCase\Login\Login:
         arguments:

@@ -1,5 +1,4 @@
-import { useState } from 'react';
-
+import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 
 import Box from '@mui/material/Box';
@@ -10,6 +9,7 @@ import { ThemeMode } from '@centreon/ui-context';
 
 import { Page } from '../models';
 import { headerHeight } from '../../Header';
+import { isSidebarOpenAtom } from '../navigationAtoms';
 
 import Logo from './Logo';
 import NavigationMenu from './Menu';
@@ -76,7 +76,7 @@ export interface Props {
 }
 
 export default ({ navigationData }: Props): JSX.Element => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useAtom(isSidebarOpenAtom);
 
   const toggleNavigation = (): void => {
     setIsMenuOpen((currentIsMenuOpened) => !currentIsMenuOpened);

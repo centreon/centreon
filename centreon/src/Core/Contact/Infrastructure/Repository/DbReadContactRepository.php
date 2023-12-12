@@ -73,4 +73,82 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
 
         return $names;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $userId): bool
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1 FROM `:db`.contact
+                WHERE contact_id = :userId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exist(array $userIds): array
+    {
+        $bind = [];
+        foreach ($userIds as $key => $userId) {
+            $bind[":user_{$key}"] = $userId;
+        }
+        if ($bind === []) {
+            return [];
+        }
+
+        $contactIdsAsString = implode(', ', array_keys($bind));
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT contact_id FROM `:db`.contact
+                WHERE contact_id IN ({$contactIdsAsString})
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        foreach ($bind as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactIdsByContactGroups(array $contactGroupIds): array
+    {
+        $bind = [];
+        foreach ($contactGroupIds as $key => $contactGroupId) {
+            $bind[":contactGroup_{$key}"] = $contactGroupId;
+        }
+        if ($bind === []) {
+            return [];
+        }
+        $bindAsString = implode(', ', array_keys($bind));
+        $request = <<<SQL
+            SELECT
+                contact_contact_id
+            FROM
+                `:db`.`contactgroup_contact_relation` cgcr
+            WHERE
+                cgcr.contactgroup_cg_id IN ({$bindAsString})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bind as $token => $bindValue) {
+            $statement->bindValue($token, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
 }

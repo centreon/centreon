@@ -18,7 +18,8 @@ export enum InputType {
   Grid,
   Custom,
   Checkbox,
-  CheckboxGroup
+  CheckboxGroup,
+  List
 }
 
 interface FieldsTableGetRequiredProps {
@@ -52,6 +53,7 @@ export interface InputProps {
     Component: React.ComponentType<InputPropsWithoutGroup>;
   };
   dataTestId?: string;
+  disableSortedOptions?: boolean;
   fieldName: string;
   fieldsTable?: {
     additionalFieldsToMemoize?: Array<string>;
@@ -75,9 +77,16 @@ export interface InputProps {
   hideInput?: (values: FormikValues) => boolean;
   inputClassName?: string;
   label: string;
+  list?: {
+    AddItem: React.ComponentType<{ addItem }>;
+    SortContent: React.ComponentType<object>;
+    addItemLabel?: string;
+    itemProps: Array<string>;
+    sortLabel?: string;
+  };
   radio?: {
     options?: Array<{
-      label: string;
+      label: string | JSX.Element;
       value: boolean | string;
     }>;
     row?: boolean;

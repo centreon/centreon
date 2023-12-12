@@ -30,7 +30,39 @@ interface ReadContactRepositoryInterface
      *
      * @param int ...$ids
      *
+     * @throws \Throwable
+     *
      * @return array<int, array{id: int, name: string}>
      */
     public function findNamesByIds(int ...$ids): array;
+
+    /**
+     * Check user existence by its id.
+     *
+     * @param int $userId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function exists(int $userId): bool;
+
+    /**
+     * Check existence of provided users
+     * Return an array of the existing user IDs out of the provided ones.
+     *
+     * @param int[] $userIds
+     *
+     * @return int[]
+     */
+    public function exist(array $userIds): array;
+
+    /**
+     * Find contact_ids link to given contactGroups.
+     *
+     * @param int[] $contactGroupIds
+     *
+     * @return int[]
+     */
+    public function findContactIdsByContactGroups(array $contactGroupIds): array;
 }

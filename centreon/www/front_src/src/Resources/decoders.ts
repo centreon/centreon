@@ -44,9 +44,9 @@ const severityDecoder = JsonDecoder.object<Severity>(
 );
 
 const commonDecoders = {
-  acknowledged: JsonDecoder.optional(JsonDecoder.boolean),
-  active_checks: JsonDecoder.optional(JsonDecoder.boolean),
   duration: JsonDecoder.optional(JsonDecoder.string),
+  has_active_checks_enabled: JsonDecoder.optional(JsonDecoder.boolean),
+  has_passive_checks_enabled: JsonDecoder.optional(JsonDecoder.boolean),
   icon: JsonDecoder.optional(
     JsonDecoder.object<Icon>(
       {
@@ -58,9 +58,11 @@ const commonDecoders = {
     )
   ),
   id: JsonDecoder.number,
-  in_downtime: JsonDecoder.optional(JsonDecoder.boolean),
   information: JsonDecoder.optional(JsonDecoder.string),
+  is_acknowledged: JsonDecoder.optional(JsonDecoder.boolean),
 
+  is_in_downtime: JsonDecoder.optional(JsonDecoder.boolean),
+  is_notification_enabled: JsonDecoder.optional(JsonDecoder.boolean),
   last_check: JsonDecoder.optional(JsonDecoder.string),
   links: JsonDecoder.optional(
     JsonDecoder.object<ResourceLinks>(
@@ -109,8 +111,6 @@ const commonDecoders = {
     )
   ),
   name: JsonDecoder.string,
-  notification_enabled: JsonDecoder.optional(JsonDecoder.boolean),
-  passive_checks: JsonDecoder.optional(JsonDecoder.boolean),
   service_id: JsonDecoder.optional(JsonDecoder.number),
   severity: JsonDecoder.optional(severityDecoder),
   severity_level: JsonDecoder.optional(JsonDecoder.number),

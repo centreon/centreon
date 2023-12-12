@@ -306,7 +306,7 @@ class MassiveChangeServicesContext extends CentreonContext
     }
 
     /**
-     * @When I have applied Massive Change operation to several services
+     * @When I have applied Mass Change operation to several services
      */
     public function iHaveAppliedMassiveChangeOperationToSeveralServices()
     {
@@ -323,7 +323,7 @@ class MassiveChangeServicesContext extends CentreonContext
         ));
         $checkbox = $this->assertFind('css', 'input[type="checkbox"][name="select[' . $object['id'] . ']"]');
         $this->currentPage->checkCheckbox($checkbox);
-        $this->selectInList('select[name="o1"]', 'Massive Change');
+        $this->selectInList('select[name="o1"]', 'Mass Change');
         $this->currentPage = new MassiveChangeServiceConfigurationPage($this, false);
         $this->currentPage->setProperties($this->updatedProperties);
         $this->currentPage->save();

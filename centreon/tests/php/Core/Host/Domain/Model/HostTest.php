@@ -27,9 +27,9 @@ use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\YesNoDefault;
 use Core\Domain\Common\GeoCoords;
+use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
-use Core\Host\Domain\Model\Host;
 
 beforeEach(function (): void {
     $this->createHost = static function (array $fields = []): Host {
@@ -49,7 +49,7 @@ beforeEach(function (): void {
                 'iconAlternative' => 'iconAlternative-value',
                 'comment' => 'comment-value',
                 'checkCommandArgs' => ['arg1', 'arg2'],
-                'eventHandlerCommandArgs' =>  ['arg3', 'arg4'],
+                'eventHandlerCommandArgs' => ['arg3', 'arg4'],
                 'notificationOptions' => [HostEvent::Down, HostEvent::Unreachable],
                 'timezoneId' => 1,
                 'severityId' => 1,
@@ -81,8 +81,6 @@ beforeEach(function (): void {
             ]
         );
     };
-
-
 });
 
 it('should return properly set host instance (all properties)', function (): void {
@@ -186,46 +184,46 @@ it('should return properly set host instance (mandatory properties only)', funct
 
 // mandatory fields
 it(
-    "should throw an exception when host name is an empty string",
+    'should throw an exception when host name is an empty string',
     fn() => ($this->createHost)(['name' => '    '])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::notEmptyString("Host::name")->getMessage()
+    AssertionException::notEmptyString('Host::name')->getMessage()
 );
 it(
-    "should throw an exception when host name is set to an empty string", function(): void {
+    'should throw an exception when host name is set to an empty string', function (): void {
         $host = ($this->createHost)();
         $host->setName('   ');
 })->throws(
     InvalidArgumentException::class,
-    AssertionException::notEmptyString("Host::name")->getMessage()
+    AssertionException::notEmptyString('Host::name')->getMessage()
 );
 
 it(
-    "should throw an exception when host address does not respect format",
+    'should throw an exception when host address does not respect format',
     fn() => ($this->createHost)(['address' => 'hello world'])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::ipOrDomain('hello world', "Host::address")->getMessage()
+    AssertionException::ipOrDomain('hello world', 'Host::address')->getMessage()
 );
 it(
-    "should throw an exception when host address does not respect format in setter", function(): void {
+    'should throw an exception when host address does not respect format in setter', function (): void {
         $host = ($this->createHost)();
         $host->setAddress('hello world');
     }
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::ipOrDomain('hello world', "Host::address")->getMessage()
+    AssertionException::ipOrDomain('hello world', 'Host::address')->getMessage()
 );
 
 // name and conmmands args should be formated
-it("should return trimmed and formatted field name after construct", function (): void {
+it('should return trimmed and formatted field name after construct', function (): void {
     $host = ($this->createHost)(['name' => '    host name   ']);
 
     expect($host->getName())->toBe('host_name');
 });
 
-it("should trim and format field name when set", function (): void {
+it('should trim and format field name when set', function (): void {
     $host = ($this->createHost)();
     $host->setName('    some new name   ');
 
@@ -241,7 +239,7 @@ foreach (
     it(
         "should return a trimmed field {$field}",
         function () use ($field): void {
-            $host = ($this->createHost)([$field => ["  arg1  ", "  arg2  "]]);
+            $host = ($this->createHost)([$field => ['  arg1  ', '  arg2  ']]);
             $valueFromGetter = $host->{'get' . $field}();
 
             expect($valueFromGetter)->toBe(['arg1', 'arg2']);
@@ -259,7 +257,7 @@ foreach (
         "should set a trimmed field {$field}",
         function () use ($field): void {
             $host = ($this->createHost)();
-            $host->{'set' . $field}(["  arg1  ", "  arg2  "]);
+            $host->{'set' . $field}(['  arg1  ', '  arg2  ']);
 
             expect($host->{'get' . $field}())->toBe(['arg1', 'arg2']);
         }
@@ -349,7 +347,7 @@ foreach (
     $tooLongStr = str_repeat('a', $length + 1);
     it(
         "should throw an exception when host {$field} is set too long",
-        function () use ($field, $tooLongStr) {
+        function () use ($field, $tooLongStr): void {
             $host = ($this->createHost)();
             $host->{'set' . $field}($tooLongStr);
         }
@@ -395,7 +393,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host {$field} set value is not > 0",
-        function() use ($field): void {
+        function () use ($field): void {
             $host = ($this->createHost)();
             $host->{'set' . $field}(0);
         }
@@ -445,7 +443,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host {$field} set value is not >= 0",
-        function() use ($field): void {
+        function () use ($field): void {
             $host = ($this->createHost)();
             $host->{'set' . $field}(-1);
         }

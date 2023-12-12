@@ -1,0 +1,11 @@
+@REQ_MON-22122
+Feature: OpenID Connect authentication
+    As an admin of Centreon Platform
+    I want to be able to use an external authentication provider
+    So that Platform users can use existing authentication services to authenticate
+
+  @TEST_MON-22130
+  Scenario: Assign users from third party authentication service to ACL groups
+    Given an administrator is logged in the platform
+    When the administrator sets valid settings in the Roles mapping and saves
+    Then the users from the 3rd party authentication service are affected to ACL groups

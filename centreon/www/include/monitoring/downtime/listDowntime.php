@@ -162,7 +162,7 @@ if ($DBRESULT->rowCount()) {
 }
 
 /* --------------- Services ---------------*/
-$request = "(SELECT SQL_CALC_FOUND_ROWS DISTINCT d.internal_id as internal_downtime_id, d.entry_time, duration,
+$request = "(SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
         d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
         d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
         s.description as service_description " . $extrafields . " " .
@@ -190,7 +190,7 @@ $request .= "AND s.description LIKE :service " .
     " AND d.author LIKE :author";
 
 /* --------------- Hosts --------------- */
-$request .= ") UNION (SELECT DISTINCT d.internal_id as internal_downtime_id, d.entry_time, duration,
+$request .= ") UNION (SELECT DISTINCT 1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
   d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
   d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
    '' as service_description " . $extrafields .
@@ -221,7 +221,7 @@ $downtimesStatement->bindValue(':offset', $num * $limit, \PDO::PARAM_INT);
 $downtimesStatement->bindValue(':limit', $limit, \PDO::PARAM_INT);
 $downtimesStatement->execute();
 
-$rows = $pearDBO->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDBO->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
 
 for ($i = 0; $data = $downtimesStatement->fetchRow(); $i++) {
     $tab_downtime_svc[$i] = $data;

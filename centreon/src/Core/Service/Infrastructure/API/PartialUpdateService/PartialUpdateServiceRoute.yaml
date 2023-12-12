@@ -1,0 +1,7 @@
+PartialUpdateService:
+  methods: PATCH
+  path: /configuration/services/{serviceId}
+  requirements:
+    serviceId: '\d+'
+  controller: 'Core\Service\Infrastructure\API\PartialUpdateService\PartialUpdateServiceController'
+  condition: "request.attributes.get('version') >= 24.04"

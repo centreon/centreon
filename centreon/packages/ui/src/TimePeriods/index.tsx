@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 
-import { Responsive } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
@@ -13,13 +12,15 @@ import utcPlugin from 'dayjs/plugin/utc';
 
 import { Paper } from '@mui/material';
 
+import { ParentSize } from '..';
+
 import CustomTimePeriod from './CustomTimePeriod';
 import SelectedTimePeriod from './SelectedTimePeriod';
 import { useStyles } from './TimePeriods.styles';
 import {
   CustomTimePeriod as CustomTimePeriodModel,
   EndStartInterval,
-  TimePeriod
+  TimePeriod as TimePeriodModel
 } from './models';
 import useTimePeriod from './useTimePeriod';
 
@@ -33,7 +34,7 @@ interface Parameters extends EndStartInterval {
 export interface Props {
   adjustTimePeriodData?: Omit<CustomTimePeriodModel, 'timelineEventsLimit'>;
   disabled?: boolean;
-  extraTimePeriods?: Array<Omit<TimePeriod, 'timelineEventsLimit'>>;
+  extraTimePeriods?: Array<Omit<TimePeriodModel, 'timelineEventsLimit'>>;
   getIsError?: (value: boolean) => void;
   getParameters?: ({ start, end, timelineEventsLimit }: Parameters) => void;
   renderExternalComponent?: ReactNode;
@@ -57,7 +58,7 @@ const TimePeriod = ({
 
   return (
     <div>
-      <Responsive.ParentSize>
+      <ParentSize>
         {({ width }): JSX.Element => {
           return (
             <Paper className={classes.header} style={{ width }}>
@@ -71,7 +72,7 @@ const TimePeriod = ({
             </Paper>
           );
         }}
-      </Responsive.ParentSize>
+      </ParentSize>
     </div>
   );
 };

@@ -31,23 +31,23 @@ interface MetricRepositoryInterface
      * Find metrics data linked to a service.
      *
      * @param Service $service
-     * @param \Datetime $start start date
-     * @param \Datetime $end end date
+     * @param \DateTimeInterface $start start date
+     * @param \DateTimeInterface $end end date
      * @return array
      * @throws \Exception
      */
-    public function findMetricsByService(Service $service, \DateTime $start, \DateTime $end): array;
+    public function findMetricsByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array;
 
     /**
      * Find status data linked to a service.
      *
      * @param Service $service
-     * @param \Datetime $start start date
-     * @param \Datetime $end end date
+     * @param \DateTimeInterface $start start date
+     * @param \DateTimeInterface $end end date
      * @return array
      * @throws \Exception
      */
-    public function findStatusByService(Service $service, \DateTime $start, \DateTime $end): array;
+    public function findStatusByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array;
 
     /**
      * @param ContactInterface $contact

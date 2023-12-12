@@ -105,12 +105,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             // add webservice to get frontend hooks and pages installed by modules and widgets
             ->add(Webservice\CentreonFrontendComponent::class);
 
-        if (defined('OpenApi\UNDEFINED') !== false) {
-            $pimple[static::CENTREON_WEBSERVICE]->add(\Centreon\Application\Webservice\OpenApiWebservice::class);
-        }
-
         $pimple[static::CENTREON_I18N_SERVICE] = function (Container $pimple): I18nService {
-            $pimple['translator']; // bind lang
+            $phpstan_needs_this_variable = $pimple['translator']; // bind lang
 
             $service = new I18nService(
                 $pimple[LegacyServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION],
@@ -214,7 +210,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::CENTREON_BROKER_CONFIGURATION_SERVICE] =
             function (Container $container): BrokerConfigurationService {
-                $service = new BrokerConfigurationService($container['configuration_db']);
+                $service = new BrokerConfigurationService();
                 $service->setBrokerInfoRepository($container[ServiceProvider::CENTREON_BROKER_INFO_REPOSITORY]);
 
                 return $service;

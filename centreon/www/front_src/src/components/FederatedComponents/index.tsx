@@ -1,6 +1,15 @@
 import { useMemo } from 'react';
 
-import { concat, filter, isNil, pathEq } from 'ramda';
+import {
+  concat,
+  equals,
+  filter,
+  flatten,
+  isNil,
+  pluck,
+  reject,
+  type
+} from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -11,6 +20,7 @@ import {
 } from '../../federatedModules/atoms';
 import { Remote } from '../../federatedModules/Load';
 import {
+  FederatedComponentsConfiguration,
   FederatedModule,
   StyleMenuSkeleton
 } from '../../federatedModules/models';
@@ -20,6 +30,18 @@ interface Props extends Record<string, unknown> {
   isFederatedWidget?: boolean;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
+
+const getFederatedComponents = (
+  federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>
+): Array<string> => {
+  if (equals(type(federatedComponentsConfiguration), 'Object')) {
+    return federatedComponentsConfiguration.federatedComponents;
+  }
+
+  return flatten(
+    pluck('federatedComponents', federatedComponentsConfiguration)
+  );
+};
 
 const FederatedModules = ({
   federatedModulesConfigurations,
@@ -37,7 +59,7 @@ const FederatedModules = ({
             federatedComponentsConfiguration,
             moduleName
           }) => {
-            return federatedComponentsConfiguration.federatedComponents.map(
+            return getFederatedComponents(federatedComponentsConfiguration).map(
               (component) => {
                 return (
                   <Remote
@@ -81,14 +103,36 @@ const getLoadableComponents = ({
     return null;
   }
 
-  const components = path
-    ? filter(
-        pathEq(['federatedComponentsConfiguration', 'path'], path),
-        federatedModules
-      )
-    : federatedModules;
+  const filteredFederatedModules = reject(
+    (federatedModule) => equals(type(federatedModule), 'String'),
+    federatedModules
+  );
 
-  return components;
+  const components = path
+    ? filter(({ federatedComponentsConfiguration }) => {
+        if (equals(type(federatedComponentsConfiguration), 'Object')) {
+          return equals(path, federatedComponentsConfiguration.path);
+        }
+
+        return federatedComponentsConfiguration?.some(
+          ({ path: federatedPath }) => equals(path, federatedPath)
+        );
+      }, filteredFederatedModules)
+    : filteredFederatedModules;
+
+  return path
+    ? components.map(({ federatedComponentsConfiguration, ...rest }) => ({
+        ...rest,
+        federatedComponentsConfiguration: equals(
+          type(federatedComponentsConfiguration),
+          'Object'
+        )
+          ? federatedComponentsConfiguration
+          : federatedComponentsConfiguration?.filter(
+              ({ path: federatedPath }) => equals(path, federatedPath)
+            )
+      }))
+    : components;
 };
 
 const defaultStyleMenuSkeleton = {

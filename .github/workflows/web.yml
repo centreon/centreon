@@ -1,5 +1,9 @@
 name: web
-
+run-name:
+  ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
+  github.event_name == 'pull_request' && github.event.pull_request.title ||
+  github.event_name == 'push' && github.event.head_commit.message ||
+  github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -7,11 +11,10 @@ concurrency:
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: "0 3 * * *"
   pull_request:
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -20,9 +23,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
-    tags:
-      - centreon-*
 
 env:
   base_directory: centreon
@@ -34,8 +34,9 @@ jobs:
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
+      has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: dorny/paths-filter@v2
         id: filter
@@ -64,11 +65,25 @@ jobs:
               - '**/config/**'
               - '**/composer.*'
               - '**/tests/api/**'
+              - '**/tests/rest_api/collections/**'
               - '**/tests/php/**'
               - '**/tests/clapi_export/**'
               - '**/www/!(front_src)/**'
               - '**/doc/API/**'
+            has_features_changes:
+              - '**/tests/e2e/**/*.feature'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  gherkin-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: centreon/tests/e2e/features
 
   get-version:
     uses: ./.github/workflows/get-version.yml
@@ -92,10 +107,9 @@ jobs:
   frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -112,7 +126,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -124,10 +138,9 @@ jobs:
   backend-dependencies:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/backend-dependencies
         with:
@@ -136,7 +149,6 @@ jobs:
 
   translation-build:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     runs-on: ubuntu-22.04
     container:
@@ -146,7 +158,7 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: |
           cd centreon
@@ -169,11 +181,11 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -183,11 +195,11 @@ jobs:
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -197,20 +209,20 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
           run_install: false
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: pnpm
           cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
@@ -232,8 +244,8 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
@@ -243,11 +255,11 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -279,7 +291,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -294,13 +306,30 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: Run of php-cs-fixer
-        run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
+      - name: Run of php-cs-fixer with strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+        working-directory: centreon
+
+      - name: Run of php-cs-fixer without strict_type
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
+        working-directory: centreon
+
+      - name: Run of phpstan on /src at level 4
+        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
+        working-directory: centreon
+
+      - name: Run of phpstan on /src/Core at level 6 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=6 --configuration=phpstan.core.neon
+        working-directory: centreon
+
+      - name: Run of phpstan on /tests at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
         working-directory: centreon
 
   package:
     needs:
       [
+        gherkin-lint,
         get-version,
         translation-build,
         backend-dependencies,
@@ -369,7 +398,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Generate information according to matrix os
         id: matrix_include
@@ -490,9 +519,31 @@ jobs:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
-  api-integration-test:
+  newman-test:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    uses: ./.github/workflows/newman.yml
+    with:
+      collection_path: centreon/tests/rest_api/collections
+      image_name: centreon-web
+      os: alma9
+      container_name: my_centreon_container
+      centreon_url: http://localhost
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9:${{ github.head_ref || github.ref_name }}
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  api-integration-test:
+    needs: [get-version, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     strategy:
       fail-fast: false
       matrix:
@@ -507,13 +558,13 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
     needs: [get-version, changes, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
       matrix:
@@ -531,8 +582,27 @@ jobs:
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  e2e-test:
+  create-xray-test-plan-and-test-execution:
     needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      os: ${{ matrix.os }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  e2e-test:
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -545,14 +615,19 @@ jobs:
       module_name: centreon
       image_name: centreon-web
       os: ${{ matrix.os }}
-      features_path: tests/e2e/cypress/e2e
+      features_path: tests/e2e/features
       major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
-      package_directory: centreon/tests/e2e/cypress/fixtures/packages
+      package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
+      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   performances-test:
     runs-on: ubuntu-22.04
@@ -560,7 +635,7 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -609,7 +684,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -649,7 +724,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -681,7 +756,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -703,7 +778,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -714,3 +789,32 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  deploy-platform-nightly:
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+        deliver-rpm
+      ]
+    if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Trigger platform deployment
+        uses: ./.github/actions/nightly-platform-deploy
+        with:
+          ref: main
+          bu: RD
+          poller_number: 1
+          system_name: Alma8
+          centreon_branch: develop
+          configured_resources: false
+          install_business_modules: false
+          instance_password: ${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}
+          cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}

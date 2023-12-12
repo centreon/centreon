@@ -25,7 +25,7 @@ namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use Core\Metric\Domain\Model\PerformanceMetric;
 
-class DownloadPerformanceMetricResponse
+final class DownloadPerformanceMetricResponse
 {
     /** @var PerformanceMetric[] */
     public iterable $performanceMetrics = [];
@@ -33,7 +33,7 @@ class DownloadPerformanceMetricResponse
     public string $filename;
 
     /**
-     * @param iterable $performanceMetrics
+     * @param iterable<PerformanceMetric> $performanceMetrics
      * @param string $filename
      */
     public function __construct(iterable $performanceMetrics, string $filename)

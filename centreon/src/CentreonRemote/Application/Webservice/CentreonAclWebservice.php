@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,7 @@ use Centreon\Domain\Repository\TopologyRepository;
 class CentreonAclWebservice extends CentreonWebServiceAbstract
 {
     /**
-     * Name of web service object
+     * Name of web service object.
      *
      * @return string
      */
@@ -43,9 +43,11 @@ class CentreonAclWebservice extends CentreonWebServiceAbstract
      *   path="/internal.php?object=centreon_acl_webservice&action=getCurrentAcl",
      *   description="Get list of ACLs",
      *   tags={"centreon_acl_webservice"},
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="object",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"centreon_acl_webservice"},
@@ -54,9 +56,11 @@ class CentreonAclWebservice extends CentreonWebServiceAbstract
      *       description="the name of the API object class",
      *       required=true
      *   ),
+     *
      *   @OA\Parameter(
      *       in="query",
      *       name="action",
+     *
      *       @OA\Schema(
      *          type="string",
      *          enum={"getCurrentAcl"},
@@ -65,11 +69,14 @@ class CentreonAclWebservice extends CentreonWebServiceAbstract
      *       description="the name of the action in the API class",
      *       required=true
      *   ),
+     *
      *   @OA\Response(
      *      response="200",
      *      description="OK",
+     *
      *       @OA\MediaType(
      *          mediaType="application/json",
+     *
      *          @OA\Schema(type="array", items={"type": "string"})
      *      )
      *   )
@@ -83,6 +90,7 @@ class CentreonAclWebservice extends CentreonWebServiceAbstract
         if (empty($user)) {
             return [];
         }
+
         return $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
             ->getRepository(TopologyRepository::class)
             ->getReactTopologiesPerUserWithAcl($user);

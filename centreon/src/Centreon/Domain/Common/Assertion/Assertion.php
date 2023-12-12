@@ -144,6 +144,25 @@ class Assertion
     }
 
     /**
+     * Assert that a date is bigger as a given limit.
+     *
+     * @param \DateTimeInterface $value
+     * @param \DateTimeInterface $minDate
+     * @param string|null $propertyPath
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function minDate(
+        \DateTimeInterface $value,
+        \DateTimeInterface $minDate,
+        ?string $propertyPath = null
+    ): void {
+        if ($value->getTimestamp() < $minDate->getTimestamp()) {
+            throw AssertionException::maxDate($value, $minDate, $propertyPath);
+        }
+    }
+
+    /**
      * Determines if the value is greater or equal than given limit.
      *
      * Same as {@see self::min()} but with a different message.

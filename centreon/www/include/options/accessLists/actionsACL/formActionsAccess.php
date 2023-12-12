@@ -199,6 +199,10 @@ $ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "b
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
+// Administration section
+$form->addElement('header', 'administration', _("Administration"));
+$form->addElement('checkbox', 'manage_tokens', _("Manage the organization's authentication tokens"));
+
 // Further informations
 $form->addElement('header', 'furtherInfos', _("Additional Information"));
 $groupActivation[] = $form->createElement('radio', 'acl_action_activate', null, _("Enabled"), '1');

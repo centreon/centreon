@@ -1,0 +1,5 @@
+CreatePlaylist:
+  methods: POST
+  path: /configuration/dashboards/playlists
+  controller: 'Core\Dashboard\Playlist\Infrastructure\API\CreatePlaylist\CreatePlaylistController'
+  condition: "request.attributes.get('version') >= 23.10"

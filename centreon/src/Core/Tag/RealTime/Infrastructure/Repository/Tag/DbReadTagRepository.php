@@ -60,7 +60,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
     {
         $this->info('Fetching tags from database of type', ['type' => $typeId]);
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS id, name, `type`
+        $request = 'SELECT SQL_CALC_FOUND_ROWS 1 AS REALTIME, id, name, `type`
             FROM `:dbstg`.tags';
 
         // Handle search
@@ -92,7 +92,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
         $statement->execute();
 
         // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
@@ -119,7 +119,7 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
             ]
         );
 
-        $request = 'SELECT tags.id AS id, tags.name AS name, tags.`type` AS `type`
+        $request = 'SELECT 1 AS REALTIME, tags.id AS id, tags.name AS name, tags.`type` AS `type`
             FROM `:dbstg`.tags
             LEFT JOIN `:dbstg`.resources_tags
                 ON tags.tag_id = resources_tags.tag_id
