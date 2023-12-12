@@ -150,21 +150,20 @@ final class FindPerformanceMetricsData
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
-            /**
-             * array<int<0, max>, array>.
-             */
-            $metricsData[] = $this->metricRepositoryLegacy->findMetricsByService(
+            /** @var _MetricData $data */
+            $data = $this->metricRepositoryLegacy->findMetricsByService(
                 $service,
                 $request->startDate,
                 $request->endDate
             );
+            $metricsData[] = $data;
         }
         if ([] === $metricsData) {
             throw MetricException::metricsNotFound();
         }
-        $factory = new PerformanceMetricsDataFactory();
 
-        return $factory->createFromRecords($metricsData, $request->metricNames);
+        return (new PerformanceMetricsDataFactory())
+            ->createFromRecords($metricsData, $request->metricNames);
     }
 
     private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
