@@ -14,7 +14,7 @@ service mysql stop
 
 dnf remove centreon-database mariadb-server
 
-dnf install https://github.com/mydumper/mydumper/releases/download/v0.15.2-6/mydumper-0.15.2-6.el9.x86_64.rpm
+dnf install -y https://github.com/mydumper/mydumper/releases/download/v0.15.2-6/mydumper-0.15.2-6.el9.x86_64.rpm
 
 EOF
 
