@@ -71,9 +71,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+            {pagination}
         </tr>
     </table>
     <table class="ListTable">
