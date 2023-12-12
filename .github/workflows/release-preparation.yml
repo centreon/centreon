@@ -20,7 +20,7 @@ jobs:
         user_allowed: ${{ steps.user_allowed.outputs.user_allowed}}
       env:
         team: "release-management"
-        pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+        pat: ${{ secrets.MAJOR_RELEASE_TOKEN }}
       steps:
         - name: Check team membership for actor.
           id: user_allowed
@@ -59,7 +59,7 @@ jobs:
         - name: Clone repositories and trigger workflows
           env:
             major_version: ${{ needs.get-version.outputs.major_version }}
-            pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+            pat: ${{ secrets.MAJOR_RELEASE_TOKEN }}
 
           run: |
             set -eux
