@@ -44,7 +44,7 @@ const reactRoutes = [
     path: routeMap.dashboards
   },
   {
-    comp: lazy(() => import('../Dashboards/Dashboard')),
+    comp: lazy(() => import('../Dashboards/SingleInstancePage/Pages')),
     path: routeMap.dashboard
   },
   {
