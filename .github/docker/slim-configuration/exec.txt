@@ -8,8 +8,8 @@ cp /opt/rh/httpd24/root/usr/lib64/httpd/modules/* /opt/rh/httpd24/root/etc/httpd
 source /opt/rh/httpd24/enable
 httpd -k start
 sleep 5
-curl -s https://api.imp.centreon.com/api/pluginpack/pluginpack
-curl -s -x http://localhost:80 https://api.imp.centreon.com/api/pluginpack/pluginpack
+#curl -s https://api.imp.centreon.com/api/pluginpack/pluginpack
+#curl -s -x http://localhost:80 https://api.imp.centreon.com/api/pluginpack/pluginpack
 
 su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 
