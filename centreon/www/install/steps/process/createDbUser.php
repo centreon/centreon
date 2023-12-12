@@ -170,7 +170,6 @@ try {
                     }
                     $resultPrivileges = explode(', ', $matches[1]);
 
-
                     //Check that user has sufficient privileges to perform all needed actions.
                     $missingPrivileges = [];
                     if ($resultPrivileges[0] !== 'ALL PRIVILEGES') {
