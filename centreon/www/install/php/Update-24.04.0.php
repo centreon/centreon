@@ -263,7 +263,7 @@ try {
     $errorMessage = 'Unable to insert topology for Resource Access Management';
     $insertTopologyForResourceAccessManagement($pearDB);
 
-    $errorMessage = "Could not update topology for api tokens";
+    $errorMessage = "Could not update topology for API tokens";
     $updateTopologyForApiTokens($pearDB);
 
     $pearDB->commit();
