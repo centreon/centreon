@@ -1,6 +1,8 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+import { isNil } from 'ramda';
 
+import { resourcesEndpoint } from '../api/endpoint';
 import { replaceBasename } from '../helpers';
 import { Resource } from '../models';
 
@@ -73,6 +75,10 @@ export const selectedResourceDetailsEndpointDerivedAtom = atom((get) => {
     endpoint: selectedResourceDetails?.resourcesDetailsEndpoint || '',
     newWord: './'
   });
+
+  if (!isNil(selectedResourceDetails?.parentResourceId)) {
+    return `${resourcesEndpoint}/${selectedResourceDetails?.parentResourceType}s/${selectedResourceDetails?.parentResourceId}`;
+  }
 
   return resourceDetailsEndPoint;
 });
