@@ -165,3 +165,5 @@ export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePerio
 export { default as DateTimePickerInput } from './TimePeriods/DateTimePickerInput';
 export * from './ParentSize';
 export { default as Subtitle } from './Typography/Subtitle';
+export { default as TablePagination } from './Listing/ActionBar/Pagination';
+export { default as PaginationActions } from './Listing/ActionBar/PaginationActions';

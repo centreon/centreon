@@ -26,7 +26,7 @@ import {
 import {
   labelGlobalRefreshInterval,
   labelManualRefreshOnly
-} from '../../../Dashboard/translatedLabels';
+} from '../../../SingleInstancePage/Dashboard/translatedLabels';
 
 import { useDashboardConfig } from './useDashboardConfig';
 
