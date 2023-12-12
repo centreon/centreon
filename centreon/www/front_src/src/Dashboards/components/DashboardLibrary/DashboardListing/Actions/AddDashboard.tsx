@@ -16,7 +16,7 @@ const AddDashboard = ({
   return (
     <Button
       aria-label={t(labelCreate)}
-      data-testid="add-dashboard"
+      data-testid="create-dashboard"
       icon={<AddIcon />}
       iconVariant="start"
       size="small"
