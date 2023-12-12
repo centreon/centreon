@@ -71,9 +71,7 @@
                 <a class='btc bt_success' href="{$msg.addL}">{$msg.add}</a>
             </td>
             <td class='toolbarPagination'>
-                {php}
-                    include('./include/common/pagination.php');
-                {/php}
+                {pagination}
             </td>
         </tr>
     </table>
