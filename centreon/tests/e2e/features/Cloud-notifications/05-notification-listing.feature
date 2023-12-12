@@ -17,11 +17,13 @@ Feature: Listing Notification Rules
 
   Scenario Outline: Listing Notification Rules with Pagination
     Given the user has <count> Notification Rules
-    And the number of results per page is set to <max_per_page>
-    And the current page is <current_page>
+    When the user sets the number of results per page to <max_per_page>
+    And the user sets current page to <current_page>
     Then the user sees the total results as <count>
     And the user sees the link to the previous page status as <previous_page>
+    And the user clicks on the link to navigate to the previous page with status enabled
     And the user sees the link to the next page status as <next_page>
+    And the user clicks on the link to navigate to the next page with status enabled
 
     Examples:
       | count | max_per_page | current_page | previous_page | next_page |
