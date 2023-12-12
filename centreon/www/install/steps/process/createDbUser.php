@@ -85,11 +85,12 @@ $mandatoryPrivileges = [
     'CREATE',
     'DROP',
     'INDEX',
-    'ALTER VIEW',
+    'ALTER',
     'LOCK TABLES',
     'CREATE TEMPORARY TABLES',
     'EVENT',
     'CREATE VIEW',
+    'ALTER VIEW',
     'SHOW VIEW',
     'REFERENCES'
 ];
