@@ -34,6 +34,7 @@ src/*                                                           usr/share/centre
 vendor/*                                                        usr/share/centreon/vendor
 www/*                                                           usr/share/centreon/www
 api/*                                                           usr/share/centreon/api
+lua/*                                                           usr/share/centreon-broker/lua
 
 tmpl/install/centreon.cron => etc/cron.d/centreon
 tmpl/install/centstorage.cron => etc/cron.d/centstorage

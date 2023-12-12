@@ -1,0 +1,36 @@
+{
+  "id": 1,
+  "name": "Playlist",
+  "author": {
+    "id": 1,
+    "name": "admin"
+  },
+  "created_at": "",
+  "rotation_time": 5,
+  "dashboards": [
+    {
+      "id": 1,
+      "name": "Dashboard 1",
+      "order": 1
+    },
+    {
+      "id": 2,
+      "name": "Dashboard 2",
+      "order": 2
+    },
+    {
+      "id": 3,
+      "name": "Dashboard 3",
+      "order": 3
+    }
+  ],
+  "description": "A small description",
+  "is_public": false,
+  "own_role": "viewer",
+  "public_link": null,
+  "shares": {
+    "contacts": [],
+    "contactgroups": []
+  },
+  "updated_at": ""
+}
