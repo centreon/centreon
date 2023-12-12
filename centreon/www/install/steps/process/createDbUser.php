@@ -70,19 +70,12 @@ if ($parameters['address'] != "127.0.0.1" && $parameters['address'] != "localhos
     $host = explode(":", $getIpQuery->fetchAll(PDO::FETCH_COLUMN)[0])[0];
 }
 
-$queryValues = [];
-$queryValues[':dbUser'] = $parameters['db_user'];
-$queryValues[':host'] = $host;
-$queryValues[':dbPass'] = $parameters['db_password'];
+$queryValues = [
+    ':dbUser' => $parameters['db_user'],
+    ':host' => $host,
+    ':dbPass' => $parameters['db_password'],
+];
 
-// Compatibility adaptation for mysql 8 with php7.1 before 7.1.16, or php7.2 before 7.2.4.
-$createUser = "CREATE USER :dbUser@:host IDENTIFIED BY :dbPass";
-
-// As ALTER USER won't work on a mariaDB < 10.2, we need to check it before trying this request
-$checkMysqlVersion = "SHOW VARIABLES WHERE Variable_name LIKE 'version%'";
-
-// creating the user - mandatory for MySQL DB
-$alterQuery = "ALTER USER :dbUser@:host IDENTIFIED WITH mysql_native_password BY :dbPass";
 $query = "GRANT ALL PRIVILEGES ON `%s`.* TO " . $parameters['db_user'] . "@" . $host . " WITH GRANT OPTION";
 $flushQuery = "FLUSH PRIVILEGES";
 
@@ -158,25 +151,6 @@ try {
                             break;
                     }
                     $resultPrivileges = explode(', ', $matches[1]);
-
-                    //Check that user has sufficient privileges to perform all needed actions.
-                    $missingPrivileges = [];
-                    if ($resultPrivileges[0] !== 'ALL PRIVILEGES') {
-                        foreach ($mandatoryPrivileges as $mandatoryPrivilege) {
-                            if (!in_array($mandatoryPrivilege, $resultPrivileges)) {
-                                $missingPrivileges[] = $mandatoryPrivilege;
-                            }
-                        }
-                        if (!empty($missingPrivileges)) {
-                            throw new \Exception(
-                                sprintf(
-                                    'Missing privileges %s on user %s',
-                                    implode(', ', $missingPrivileges),
-                                    $queryValues[':dbUser']
-                                )
-                            );
-                        }
-                    }
                 }
             }
         }
