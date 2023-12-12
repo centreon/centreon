@@ -1,4 +1,8 @@
-import { PersonalInformation, Token } from '../TokenListing/models';
+import { Dispatch, SetStateAction } from 'react';
+
+import { SelectEntry } from '@centreon/ui';
+
+import { Token } from '../TokenListing/models';
 
 export enum UnitDate {
   Day = 'd',
@@ -20,10 +24,10 @@ export interface Duration {
 export type CreatedToken = Token & { token: string };
 
 export interface UseCreateTokenFormValues {
-  duration: Omit<Duration, 'unit' | 'value'> | null;
+  duration: SelectEntry | null;
   token?: string;
   tokenName: string;
-  user: PersonalInformation | null;
+  user: SelectEntry | null;
 }
 
 export const dataDuration: Array<Duration> = [
@@ -36,3 +40,20 @@ export const dataDuration: Array<Duration> = [
 ];
 
 export const maxDays = 90;
+
+export interface AnchorElDuration {
+  anchorEl: HTMLDivElement | null;
+  setAnchorEl: Dispatch<SetStateAction<HTMLDivElement | null>>;
+}
+
+export interface OpenPicker {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+export interface ErrorForm {
+  invalidDate?: string;
+  msg: string;
+}
+
+export type ErrorKeys = 'duration' | 'user' | 'tokenName';

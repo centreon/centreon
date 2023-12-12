@@ -164,7 +164,7 @@ const AutocompleteField = React.forwardRef(
       getOptionItemLabel = (option) => option.name,
       ...autocompleteProps
     }: Props,
-    ref
+    ref?: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
     const { classes, cx } = useStyles({ hideInput });
     const { t } = useTranslation();

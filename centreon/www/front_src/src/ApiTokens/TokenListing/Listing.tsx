@@ -7,7 +7,7 @@ import { MemoizedListing as TokenListing } from '@centreon/ui';
 
 import TokenCreationButton from '../TokenCreation';
 import CreateTokenDialog from '../TokenCreation/TokenCreationDialog';
-import { isCreateTokenAtom } from '../TokenCreation/atoms';
+import { isCreatingTokenAtom } from '../TokenCreation/atoms';
 import { labelApiToken } from '../translatedLabels';
 
 import Actions from './Actions';
@@ -20,7 +20,7 @@ import { useTokenListing } from './useTokenListing';
 const Listing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const isCreateToken = useAtomValue(isCreateTokenAtom);
+  const isCreatingToken = useAtomValue(isCreatingTokenAtom);
 
   const {
     dataListing,
@@ -66,7 +66,7 @@ const Listing = (): JSX.Element | null => {
         onSelectColumns={onSelectColumns}
         onSort={onSort}
       />
-      {isCreateToken && <CreateTokenDialog />}
+      {isCreatingToken && <CreateTokenDialog />}
     </div>
   );
 };

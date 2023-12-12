@@ -1,3 +1,3 @@
 import { atom } from 'jotai';
 
-export const isCreateTokenAtom = atom(false);
+export const isCreatingTokenAtom = atom(false);

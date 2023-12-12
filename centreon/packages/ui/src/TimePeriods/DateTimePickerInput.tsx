@@ -27,6 +27,7 @@ interface Props {
   disabled?: boolean;
   maxDate?: Date;
   minDate?: Date;
+  minDateTime?: Date;
   property: CustomTimePeriodProperty | string;
 }
 
@@ -34,6 +35,7 @@ const DateTimePickerInput = ({
   date,
   maxDate,
   minDate,
+  minDateTime,
   property,
   changeDate,
   disabled = false,
@@ -72,7 +74,7 @@ const DateTimePickerInput = ({
         disabled={disabled}
         maxDate={maxDate && formatDate(maxDate)}
         minDate={minDate && formatDate(minDate)}
-        minDateTime={rest?.minDateTime && formatDate(rest?.minDateTime)}
+        minDateTime={minDateTime && formatDate(minDateTime)}
         value={formatDate(date)}
         onChange={changeTime}
         {...rest}

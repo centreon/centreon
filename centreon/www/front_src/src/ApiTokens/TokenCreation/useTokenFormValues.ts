@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { equals } from 'ramda';
 
-import { ResponseError } from '@centreon/ui';
+import { ResponseError, SelectEntry } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 
@@ -32,8 +32,12 @@ const useTokenFormValues = ({
       .map((item) => (item === 'a' ? 1 : item))
       .join(' ');
   };
-  const getDuration = ({ startTime, endTime, isCustomizeDate }) => {
-    // customize
+
+  const getDuration = ({
+    startTime,
+    endTime,
+    isCustomizeDate
+  }): SelectEntry => {
     const endDate = dayjs(endTime);
     const startDate = dayjs(startTime);
 
@@ -75,9 +79,9 @@ const useTokenFormValues = ({
     const userValue = currentData.user;
 
     const durationValue = getDuration({
-      endTime: currentData.expiration_date,
+      endTime: currentData.expirationDate,
       isCustomizeDate: equals(values?.duration?.id, 'customize'),
-      startTime: currentData.creation_date
+      startTime: currentData.creationDate
     });
 
     return {

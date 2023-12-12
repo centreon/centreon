@@ -1,8 +1,15 @@
 import { useState } from 'react';
 
+import { useTranslation } from 'react-i18next';
+
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 import { IconButton, TextField, useCopyToClipboard } from '@centreon/ui';
+
+import {
+  labelTokenCopiedToTheClipboard,
+  labelTokenCouldNotBeCopied
+} from '../translatedLabels';
 
 import { endAdornment } from './EndAdornment';
 
@@ -11,12 +18,13 @@ interface Props {
 }
 
 const TokenInput = ({ token }: Props): JSX.Element => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
 
-  const successMessage = 'Token copied to the clipboard';
-  const errorMessage = 'Token could not be copied';
-
-  const { copy } = useCopyToClipboard({ errorMessage, successMessage });
+  const { copy } = useCopyToClipboard({
+    errorMessage: t(labelTokenCouldNotBeCopied),
+    successMessage: t(labelTokenCopiedToTheClipboard)
+  });
 
   const handleVisibility = (): void => {
     setIsVisible(!isVisible);
