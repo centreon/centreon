@@ -155,3 +155,5 @@ export { default as ActionsList } from './ActionsList';
 export { getStatusColors, SeverityCode } from './utils/statuses';
 
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
+export { default as TablePagination } from './Listing/ActionBar/Pagination';
+export { default as PaginationActions } from './Listing/ActionBar/PaginationActions';
