@@ -12,7 +12,7 @@ mysqldump centreon_storage > /usr/local/src/centreon_storage.sql
 
 service mysql stop
 
-dnf remove centreon-database mariadb-server
+dnf remove -y centreon-database mariadb-server
 
 dnf install -y https://github.com/mydumper/mydumper/releases/download/v0.15.2-6/mydumper-0.15.2-6.el9.x86_64.rpm
 
