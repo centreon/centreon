@@ -1,8 +1,17 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useInputStyles = makeStyles()((theme) => ({
+  addDatasetButton: {
+    width: '33%'
+  },
+  contactsAndContactGroups: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '50%'
+  },
   resourceSelection: {
     display: 'flex',
+    flexDirection: 'column',
     width: '50%'
   },
   ruleProperties: {

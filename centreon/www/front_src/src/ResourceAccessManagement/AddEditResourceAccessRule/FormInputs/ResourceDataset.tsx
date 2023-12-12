@@ -46,11 +46,6 @@ const ResourceDataset = ({ propertyName }: Props): ReactElement => {
 
   return (
     <div className={classes.resourcesContainer}>
-      <div className={classes.resourcesHeader}>
-        <Typography className={classes.resourceTitle}>
-          {t(labelResourceSelection)}
-        </Typography>
-      </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
           IconAdd={<FilterIcon />}
