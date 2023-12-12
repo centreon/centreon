@@ -347,13 +347,18 @@ When(
 Then(
   'the displayed value format for this metric has been updated from human-readable to exhaustive',
   () => {
-    cy.get('.visx-group text:first-child')
-      .invoke('text')
-      .then((text) => {
-        if (parseFloat(text) !== 0) {
-          expect(text).to.match(/\d+\.\d{3,}/);
-        }
-      });
+    cy.waitUntil(
+      () =>
+        cy
+          .get('.visx-group text:first-child')
+          .invoke('text')
+          .should((text) => {
+            const metricRegex = /\d+\.\d{3,}/;
+
+            return metricRegex.test(text);
+          }),
+      { interval: 1000, timeout: 10000 }
+    );
   }
 );
 
