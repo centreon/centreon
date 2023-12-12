@@ -64,6 +64,7 @@ jobs:
   associate-test-cases:
     runs-on: ubuntu-22.04
     # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+
     outputs:
       test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-plan-id.outputs.test_plan_id }}
@@ -76,6 +77,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Get test execution and test plan ids
+        uses: ./.github//workflows/create-xray-test-plan-and-test-execution
 
       - name: Generate Xray Token
         id: generate-xray-token
