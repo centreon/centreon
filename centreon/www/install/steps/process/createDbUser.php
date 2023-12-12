@@ -76,7 +76,7 @@ $queryValues = [
     ':dbPass' => $parameters['db_password'],
 ];
 
-// Set defined privileges for the user.	$query = "GRANT ALL PRIVILEGES ON `%s`.* TO " . $parameters['db_user'] . "@" . $host . " WITH GRANT OPTION";
+// Set defined privileges for the user.
 $mandatoryPrivileges = [
     'SELECT',
     'UPDATE',
