@@ -76,6 +76,24 @@ $queryValues = [
     ':dbPass' => $parameters['db_password'],
 ];
 
+// Set defined privileges for the user.	$query = "GRANT ALL PRIVILEGES ON `%s`.* TO " . $parameters['db_user'] . "@" . $host . " WITH GRANT OPTION";
+$mandatoryPrivileges = [
+    'SELECT',
+    'UPDATE',
+    'DELETE',
+    'INSERT',
+    'CREATE',
+    'DROP',
+    'INDEX',
+    'ALTER',
+    'LOCK TABLES',
+    'CREATE TEMPORARY TABLES',
+    'EVENT',
+    'CREATE VIEW',
+    'SHOW VIEW',
+    'REFERENCES'
+];
+$privilegesQuery = implode(', ', $mandatoryPrivileges);
 $query = "GRANT ALL PRIVILEGES ON `%s`.* TO " . $parameters['db_user'] . "@" . $host . " WITH GRANT OPTION";
 $flushQuery = "FLUSH PRIVILEGES";
 
@@ -151,6 +169,26 @@ try {
                             break;
                     }
                     $resultPrivileges = explode(', ', $matches[1]);
+
+
+                    //Check that user has sufficient privileges to perform all needed actions.
+                    $missingPrivileges = [];
+                    if ($resultPrivileges[0] !== 'ALL PRIVILEGES') {
+                        foreach ($mandatoryPrivileges as $mandatoryPrivilege) {
+                            if (!in_array($mandatoryPrivilege, $resultPrivileges)) {
+                                $missingPrivileges[] = $mandatoryPrivilege;
+                            }
+                        }
+                        if (!empty($missingPrivileges)) {
+                            throw new \Exception(
+                                sprintf(
+                                    'Missing privileges %s on user %s',
+                                    implode(', ', $missingPrivileges),
+                                    $queryValues[':dbUser']
+                                )
+                            );
+                        }
+                    }
                 }
             }
         }
