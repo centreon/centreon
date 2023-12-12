@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  web:
+    env_file:
+      - .env
+    image: "docker.centreon.com/centreon-web-without-database:MON-23368-containers"
+    restart: 'always'
+    depends_on:
+      - mariadb
+    ports:
+      - '8080:80'
+    links:
+      - mariadb
+    environment:
+      MYSQL_HOST: mariadb
+  mariadb:
+    env_file:
+      - .env
+    image: "mariadb:${MARIADB_VERSION}"
+    restart: 'always'
