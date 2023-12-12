@@ -28,6 +28,10 @@ on:
       stability:
         required: true
         type: string
+      xray_keys_and_ids:
+          description: "The test execution and the test plan keys and ids"
+          required: true
+          type: string
     secrets:
       registry_username:
         required: true
@@ -78,8 +82,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Get test execution and test plan ids
-        uses: ./.github/workflows/create-xray-test-plan-and-test-execution
+      - name: Test Execution Key
+        id: get-test-execution-key
+        run: |
+          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          echo "The Test Execution KEY : $test_execution_key"
+          echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Generate Xray Token
         id: generate-xray-token
