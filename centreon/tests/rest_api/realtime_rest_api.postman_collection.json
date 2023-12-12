@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "567914fc-3440-4bae-a58d-cc047cbd5958",
+		"_postman_id": "392ffdb7-a412-48b0-ae8b-133aa807a7d6",
 		"name": "Centreon Web Rest API realtime",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1366693"
 	},
 	"item": [
 		{
@@ -620,8 +621,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "11-Commands",
@@ -681,8 +681,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage commands.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage commands."
 				},
 				{
 					"name": "21-Contacts",
@@ -1066,8 +1065,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage contact.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage contact."
 				},
 				{
 					"name": "22-Contactgroups",
@@ -1181,8 +1179,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage contact groups.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage contact groups."
 				},
 				{
 					"name": "23-Hostgroups",
@@ -1242,8 +1239,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage host groups.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage host groups."
 				},
 				{
 					"name": "24-Hosts_Categories",
@@ -1357,8 +1353,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage host categories.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage host categories."
 				},
 				{
 					"name": "25-Services_Categories",
@@ -1472,8 +1467,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage service categories.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage service categories."
 				},
 				{
 					"name": "26-Servicegroups",
@@ -1533,8 +1527,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage service groups.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage service groups."
 				},
 				{
 					"name": "30-Hosts_Templates",
@@ -2025,8 +2018,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "31-Hosts",
@@ -2523,7 +2515,6 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "f3ee00c0-a0b5-4789-abbe-8064884869c1",
 										"exec": [
 											"tests[\"Status code is 200\"] = responseCode.code === 200;"
 										],
@@ -2578,7 +2569,6 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "6d650ea5-2b6a-41c6-acdc-66dae41befdf",
 										"exec": [
 											"tests[\"Status code is 200\"] = responseCode.code === 200;"
 										],
@@ -2628,8 +2618,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage hosts",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage hosts"
 				},
 				{
 					"name": "40-Services_Templates",
@@ -3013,8 +3002,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage service templates.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage service templates."
 				},
 				{
 					"name": "41-Services",
@@ -3349,7 +3337,6 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "4b48e66d-4ef8-4790-9485-f38834c44b43",
 										"exec": [
 											"tests[\"Status code is 200\"] = responseCode.code === 200;"
 										],
@@ -3404,7 +3391,6 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "e9dd0ce3-1f18-4398-9905-91dbb1e5deb8",
 										"exec": [
 											"tests[\"Status code is 200\"] = responseCode.code === 200;"
 										],
@@ -3459,7 +3445,6 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "e9dd0ce3-1f18-4398-9905-91dbb1e5deb8",
 										"exec": [
 											"tests[\"Status code is 200\"] = responseCode.code === 200;"
 										],
@@ -3514,7 +3499,6 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "305f6bd3-0d62-4973-b79e-09058f034f88",
 										"exec": [
 											"tests[\"Status code is 200\"] = responseCode.code === 200;"
 										],
@@ -3564,8 +3548,7 @@
 							"response": []
 						}
 					],
-					"description": "Tests all commands to manage services.",
-					"_postman_isSubFolder": true
+					"description": "Tests all commands to manage services."
 				},
 				{
 					"name": "99-Generate",
@@ -3576,7 +3559,6 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "0c2e928b-1180-42a2-af87-9cd81b858f27",
 										"exec": [
 											"tests[\"Status code is 200\"] = responseCode.code === 200;",
 											"",
@@ -3634,8 +3616,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				}
 			]
 		},
@@ -3671,10 +3652,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts",
 									"protocol": "http",
@@ -3700,8 +3677,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Host list with limit parameter",
@@ -3732,10 +3708,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit={{my_limit}}",
 									"protocol": "http",
@@ -3791,10 +3763,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit=2&fields=name",
 									"protocol": "http",
@@ -3854,10 +3822,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit=2&fields=id,name,alias,address,state,state_type,output,max_check_attempts,check_attempt,last_check,next_check,last_state_change,last_hard_state_change,acknowledged,instance,instance_id,criticality,passive_checks,active_checks,notify,action_url,notes_url,notes,icon_image,icon_image_alt,scheduled_downtime_depth,flapping",
 									"protocol": "http",
@@ -3891,8 +3855,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Host list with viewType parameter",
@@ -3923,10 +3886,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&viewType=all,unhandled,problems",
 									"protocol": "http",
@@ -3982,10 +3941,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&viewType=all",
 									"protocol": "http",
@@ -4042,10 +3997,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&viewType=unhandled",
 									"protocol": "http",
@@ -4102,10 +4053,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&viewType=problems",
 									"protocol": "http",
@@ -4161,10 +4108,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit={{my_limit}}&viewType=all,unhandled,problems",
 									"protocol": "http",
@@ -4224,10 +4167,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit={{my_limit}}&viewType=all",
 									"protocol": "http",
@@ -4288,10 +4227,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit={{my_limit}}&viewType=unhandled",
 									"protocol": "http",
@@ -4352,10 +4287,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit={{my_limit}}&viewType=problems",
 									"protocol": "http",
@@ -4389,8 +4320,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Host list with status filter",
@@ -4422,10 +4352,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&status=up&fields=name, state",
 									"protocol": "http",
@@ -4486,10 +4412,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&status=down&fields=name, state",
 									"protocol": "http",
@@ -4550,10 +4472,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&status=unreachable&fields=name, state",
 									"protocol": "http",
@@ -4614,10 +4532,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&status=pending&fields=name, state",
 									"protocol": "http",
@@ -4677,10 +4591,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&limit={{my_limit}}&status=all&fields=name, state",
 									"protocol": "http",
@@ -4718,8 +4628,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Host list by Host",
@@ -4750,10 +4659,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}",
 									"protocol": "http",
@@ -4810,10 +4715,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}&status=up",
 									"protocol": "http",
@@ -4874,10 +4775,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}&status=down",
 									"protocol": "http",
@@ -4938,10 +4835,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}&status=pending",
 									"protocol": "http",
@@ -5002,10 +4895,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}&status=unreachable",
 									"protocol": "http",
@@ -5065,10 +4954,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}&fields=id",
 									"protocol": "http",
@@ -5128,10 +5013,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_hosts&search={{host_name}}&fields=id,name,alias,address,state,state_type,output,max_check_attempts,check_attempt,last_check,next_check,last_state_change,last_hard_state_change,acknowledged,instance,instance_id,criticality,passive_checks,active_checks,notify,action_url,notes_url,notes,icon_image,icon_image_alt,scheduled_downtime_depth,flapping",
 									"protocol": "http",
@@ -5165,8 +5046,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				}
 			]
 		},
@@ -5202,10 +5082,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services",
 									"protocol": "http",
@@ -5231,8 +5107,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Service list by host and service",
@@ -5263,10 +5138,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&searchHost={{host_name}}",
 									"protocol": "http",
@@ -5322,10 +5193,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&searchHost={{host_name}}&searchService={{service_description}}",
 									"protocol": "http",
@@ -5385,10 +5252,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&searchHost={{host_name}}&searchService={{service_description}}",
 									"protocol": "http",
@@ -5422,8 +5285,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Service list with limit parameter",
@@ -5454,10 +5316,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&limit={{my_limit}}",
 									"protocol": "http",
@@ -5513,10 +5371,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&limit={{my_limit}}&fields=service_id",
 									"protocol": "http",
@@ -5619,10 +5473,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&limit={{my_limit}}&fields=host_id,host_name,host_alias,host_address,host_state,host_state_type,host_output,host_last_check,host_next_check,host_acknowledged,instance,instance_id,host_action_url,host_notes_url,host_icon_image,description,state,state_type,service_id,output,perfdata,current_attempt,last_update,last_state_change,last_hard_state_change,last_check,next_check,max_check_attempts,notes,notes_url,action_url,icon_image,display_name,notify,acknowledged,passive_checks,active_checks,event_handler_enabled,flapping,scheduled_downtime_depth,flap_detection,criticality",
 									"protocol": "http",
@@ -5656,8 +5506,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Service list with viewType parameter",
@@ -5689,10 +5538,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&viewType=problems",
 									"protocol": "http",
@@ -5749,10 +5594,6 @@
 										"value": "{{token}}"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&viewType=unhandled_critical",
 									"protocol": "http",
@@ -5782,8 +5623,7 @@
 							},
 							"response": []
 						}
-					],
-					"_postman_isSubFolder": true
+					]
 				}
 			]
 		},
@@ -5796,7 +5636,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "6d650ea5-2b6a-41c6-acdc-66dae41befdf",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;",
 									"",
@@ -5860,7 +5699,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "6d650ea5-2b6a-41c6-acdc-66dae41befdf",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;",
 									"",
@@ -5924,7 +5762,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "65b7552d-40e3-4319-b092-05e2570ff1a5",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;",
 									"",
@@ -5988,7 +5825,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "231967f9-39a6-4a89-8a6c-c60745b6507e",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;",
 									"",
@@ -6052,7 +5888,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "b7ca0ef2-cb1b-4ce0-835a-9517ec006d8f",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;",
 									"",
@@ -6072,7 +5907,7 @@
 									"            \"services\": { \"type\": \"string\" }",
 									"        },",
 									"        \"additionalProperties\": false,",
-									"        \"required \": [\"hosts \"]",
+									"        \"required \": [\"hosts\"]",
 									"    }",
 									"};",
 									"",
@@ -6146,7 +5981,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "b7ca0ef2-cb1b-4ce0-835a-9517ec006d8f",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;",
 									"",
@@ -6248,7 +6082,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "b7ca0ef2-cb1b-4ce0-835a-9517ec006d8f",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;",
 									"",
@@ -6351,7 +6184,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "fc9cb2ef-eaa0-4eb2-af68-af682c1bc004",
 								"exec": [
 									"tests[\"Status code is 200\"] = responseCode.code === 200;"
 								],
@@ -6406,7 +6238,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "5361d46e-6312-4e29-a991-4edc94cd4425",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -6416,7 +6247,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "ea8d41af-e291-4bc7-97be-742bfab32eaf",
 						"type": "text/javascript",
 						"exec": [
 							""
