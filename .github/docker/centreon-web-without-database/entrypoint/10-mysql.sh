@@ -1,7 +1,9 @@
 #!/bin/sh
 
-mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} 2>/dev/null < /usr/local/src/centreon.sql
-mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} 2>/dev/null < /usr/local/src/centreon_storage.sql
+sleep 30
+
+mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon.sql
+mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon_storage.sql
 
 sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/centreon.conf.php
 sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/conf.pm
