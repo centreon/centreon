@@ -37,7 +37,7 @@ use Utility\SqlConcatenator;
 class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
-    private const RESOURCE_TYPE = 'servicegroup';
+    private const RESOURCE_TYPE = NotificationResource::SERVICEGROUP_RESOURCE_TYPE;
     private const EVENT_ENUM = NotificationServiceEvent::class;
     private const EVENT_ENUM_CONVERTER = NotificationServiceEventConverter::class;
 
