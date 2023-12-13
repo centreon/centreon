@@ -37,20 +37,3 @@ export const labelAccessRightStateUpdated = 'updated';
 export const labelAccessRightsStatsAdded = 'added';
 export const labelAccessRightsStatsRemoved = 'removed';
 export const labelAccessRightsStatsUpdated = 'updated';
-export const labelPlaylists = 'Playlists';
-export const labelWelcomeToThePlaylistInterface =
-  'Welcome to the Playlist interface!';
-export const labelCreateAPlaylist = 'Create a playlist';
-export const labelPlaylistName = 'Playlist name';
-export const labelPlaylistProperties = 'Playlist properties';
-export const labelRotationTime = 'Rotation time';
-export const labelSecond = 'Second';
-export const labelSelectDashboards = 'Select dashboards';
-export const labelDefineTheOrderOfDashboards = 'Define the order of dashboards';
-export const labelAddADashboard = 'Add a dashboard';
-export const labelPlaylistCreated = 'Playlist created';
-export const labelPlaylistUpdated = 'Playlist updated';
-export const labelRotationTimeShouldBeAtLeast =
-  'Rotation time must be at least 10 seconds.';
-export const labelRotationTimeShouldBeAtMost =
-  'Rotation time cannot exceed 60 seconds.';
