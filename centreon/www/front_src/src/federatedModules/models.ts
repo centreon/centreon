@@ -18,8 +18,8 @@ export interface FederatedModule {
 }
 
 interface PageComponent {
+  children?: string;
   component: string;
-  externalComponent?: string;
   route: string;
 }
 

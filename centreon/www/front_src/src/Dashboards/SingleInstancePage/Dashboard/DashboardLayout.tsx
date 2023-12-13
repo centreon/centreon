@@ -17,7 +17,14 @@ const DashboardLayout = ({ displayedDashboardId }: Props): JSX.Element => {
     viewOnly: true
   });
 
-  return <PanelsLayout isStatic panels={dashboard.layout} />;
+  return (
+    <PanelsLayout
+      isStatic
+      canEdit={false}
+      displayMoreActions={false}
+      panels={dashboard.layout}
+    />
+  );
 };
 
 export default DashboardLayout;

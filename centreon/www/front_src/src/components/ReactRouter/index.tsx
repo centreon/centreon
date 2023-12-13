@@ -79,15 +79,13 @@ const getExternalPageRoutes = ({
       moduleName,
       remoteUrl
     }) => {
-      return federatedPages?.map(({ component, route, externalComponent }) => {
+      return federatedPages?.map(({ component, route, children }) => {
         if (not(isAllowedPage({ allowedPages, path: route }))) {
           return null;
         }
 
         const ChildrenComponent: ((props) => JSX.Element) | null | undefined =
-          externalComponent
-            ? externalComponentsMapping[externalComponent]
-            : undefined;
+          children ? externalComponentsMapping[children] : undefined;
 
         return (
           <Route

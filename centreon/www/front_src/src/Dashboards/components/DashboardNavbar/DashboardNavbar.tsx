@@ -27,7 +27,7 @@ const DashboardNavbar = (): JSX.Element => {
       >
         {t(labelDashboardLibrary)}
       </Link>
-      <FederatedComponent path="/dashboards/playlists/navLink" />
+      <FederatedComponent path="/it-edition-extensions/playlists/NavigationLink" />
     </nav>
   );
 };
