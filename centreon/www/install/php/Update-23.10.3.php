@@ -28,92 +28,6 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 23.10.3: ';
 $errorMessage = '';
 
-/**
- * $errorMessage is passed by reference to handle errors on each query instead of a global error on the function call.
- */
-$createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to create table: dashboard_playlist';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist` (
-                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `name` VARCHAR(255) NOT NULL,
-                `description` TEXT NULL,
-                `rotation_time` TINYINT UNSIGNED NOT NULL,
-                `created_at` INT(11) UNSIGNED NOT NULL,
-                `updated_at` INT(11) UNSIGNED NULL,
-                `created_by` INT NULL,
-                `updated_by` INT NULL,
-                `is_public` TINYINT(1) NOT NULL,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY (`name`),
-                CONSTRAINT `dashboard_playlist_author_id`
-                FOREIGN KEY (`created_by`)
-                REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
-                CONSTRAINT `dashboard_playlist_editor_id`
-                FOREIGN KEY (`updated_by`)
-                REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-
-    $errorMessage = 'Unable to create table: dashboard_playlist_relation';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist_relation` (
-                `dashboard_id` INT UNSIGNED NOT NULL,
-                `playlist_id` INT UNSIGNED NOT NULL,
-                `order` INT(11) NOT NULL,
-                UNIQUE KEY(`dashboard_id`, `playlist_id`),
-                CONSTRAINT `AK_PlaylisId_Order` UNIQUE (`playlist_id`, `order`),
-                FOREIGN KEY (`dashboard_id`)
-                REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
-                CONSTRAINT `dashboard_playlist_relation_playlist_id`
-                FOREIGN KEY (`playlist_id`)
-                REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-
-    $errorMessage = 'Unable to create table: dashboard_playlist_contact_relation';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist_contact_relation` (
-                `contact_id` INT(11) NOT NULL,
-                `playlist_id` INT UNSIGNED NOT NULL,
-                `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
-                KEY `role_index` (`role`),
-                UNIQUE KEY(`contact_id`, `playlist_id`),
-                CONSTRAINT `dashboard_playlist_contact_relation_contact_id`
-                FOREIGN KEY (`contact_id`)
-                REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
-                CONSTRAINT `dashboard_playlist_contact_relation_playlist_id`
-                FOREIGN KEY (`playlist_id`)
-                REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-
-    $errorMessage = 'Unable to create table: dashboard_playlist_contactgroup_relation';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist_contactgroup_relation` (
-                `contactgroup_id` INT(11) NOT NULL,
-                `playlist_id` INT UNSIGNED NOT NULL,
-                `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
-                KEY `role_index` (`role`),
-                UNIQUE KEY(`contactgroup_id`, `playlist_id`),
-                CONSTRAINT `dashboard_playlist_contactgroup_relation_contactgroup_id`
-                FOREIGN KEY (`contactgroup_id`)
-                REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
-                CONSTRAINT `dashboard_playlist_contactgroup_relation_playlist_id`
-                FOREIGN KEY (`playlist_id`)
-                REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-};
-
 $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
     if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
         $pearDB->query(
@@ -143,7 +57,6 @@ $populateDashboardTables = function(CentreonDb $pearDB): void {
 };
 
 try {
-    $createDashboardsPlaylistTables($pearDB);
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
     $populateDashboardTables($pearDB);
 } catch (\Exception $e) {
