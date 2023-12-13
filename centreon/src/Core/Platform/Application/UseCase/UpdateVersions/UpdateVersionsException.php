@@ -87,14 +87,6 @@ class UpdateVersionsException extends \Exception
      */
     public static function errorWhenApplyingPostUpdate(\Throwable $ex): self
     {
-        return new self(
-            sprintf(
-                '%s: %s',
-                _('An error occurred when applying post update actions'),
-                $ex->getMessage()
-            ),
-            0,
-            $ex
-        );
+        return new self(_('An error occurred when applying post update actions'), 0, $ex);
     }
 }
