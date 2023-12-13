@@ -4,6 +4,7 @@
 Feature: Migration of commands from a source platform to a target platform
 
   Background:
+<<<<<<< HEAD
     Given an admin user who wants to migrate commands from a platform source to a platform target
     And the user has access to both the source and target platforms
     And another non-admin user has the necessary rights to manage commands
@@ -11,11 +12,23 @@ Feature: Migration of commands from a source platform to a target platform
 
   Scenario: Command creation on the source platform
     Given a non-admin user logged in the source platform
+=======
+    Given a user who wants to migrate commands from a platform source to a platform target
+    And the user has access to both the source and target platforms
+    And the user has the necessary rights to manage commands
+
+  Scenario: Command creation on the source platform
+    Given a user logged in the source platform
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     When the user create a new command
     Then the command is created
 
   Scenario: Execution of the migration script with the complete command
+<<<<<<< HEAD
     Given an admin user logged in the terminal of the source platform
+=======
+    Given a root user logged in the terminal of the source platform
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     When the user run the following command in the terminal :
     """
         php /usr/share/centreon/bin/migration command:all {target_url}
@@ -23,20 +36,32 @@ Feature: Migration of commands from a source platform to a target platform
     Then a command line is displayed asking for the API token of the target platform
 
   Scenario: Successful execution of the migration script
+<<<<<<< HEAD
     Given an admin user who has enters the correct command line
+=======
+    Given a root user who has enters the correct command line
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     And a new command line displayed asking for the API token of the target platform
     When the user enters the correct API token
     Then the migration script is executed without errors
 
   Scenario: Wrong token entered
+<<<<<<< HEAD
     Given an admin user who has enters the correct command line
+=======
+    Given a root user who has enters the correct command line
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     And a new command line displayed asking for the API token of the target platform
     When the user enters a wrong API token
     Then the migration script is not executed
     And an error is displayed
 
   Scenario: Execution of the migration script without the target platform IP
+<<<<<<< HEAD
     Given an admin user logged in the terminal of the source platform
+=======
+    Given a root user logged in the terminal of the source platform
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     When the user run the following command in the terminal :
     """
         php /usr/share/centreon/bin/migration command:all
@@ -45,6 +70,7 @@ Feature: Migration of commands from a source platform to a target platform
     And an error is displayed for missing url
 
   Scenario: Validating presence of migrated command on the target platform
+<<<<<<< HEAD
     Given a non-admin user logged in to the target platform
     And the migration script runs successfully
     When the user go to the command listing
@@ -52,30 +78,52 @@ Feature: Migration of commands from a source platform to a target platform
 
   Scenario: Comparing command details between platforms
     Given a non-admin user logged in to the source and target platforms
+=======
+    Given a user is logged in to the target platform
+    And the migration script runs successfully
+    When the user go to the command listing
+    Then the same command than in the source platform is created and displayed
+
+  Scenario: Comparing command details between platforms
+    Given a user is logged in to the source and target platforms
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     And the original and migrated commands are displayed
     When the user compares the commands parameters
     Then the parameters are identical on both platforms
 
   Scenario: Editing the command on the target platform
+<<<<<<< HEAD
     Given a non-admin user logged in to the target platform
+=======
+    Given a user is logged in to the target platform
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     And the migrated command is displayed
     When the user updates the command
     Then the command is successfully updated
 
   Scenario: Comparing monitoring information of services based on the command
+<<<<<<< HEAD
     Given a non-admin user logged in to the source and target platforms
+=======
+    Given a user is logged in to the source and target platforms
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     When the user creates a service based on the command on each platforms
     And export the configuration of both platforms
     And run a check on each platform
     Then the services must have the same output on both platforms
 
   Scenario: Validating monitoring graph on the target platform
+<<<<<<< HEAD
     Given a non-admin user logged in to target platform
+=======
+    Given a user is logged in to target platform
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
     And a monitored service based on the command
     When a graph is created with the service monitoring information
     Then the graph is correctly displayed and its informations are correct
 
   Scenario: Deleting the command on the target platform
+<<<<<<< HEAD
     Given a non-admin user logged in to target platform
     When the user delete the command
     Then the command is deleted and no longer displayed
@@ -85,3 +133,8 @@ Feature: Migration of commands from a source platform to a target platform
     When the user re-execute the migration script a second time
     Then the migration script is executed 
     And errors are displayed when trying to migrate commands with already existing names in the target platform
+=======
+    Given a user is logged in to target platform
+    When the user delete the command
+    Then the command is deleted and no longer displayed
+>>>>>>> df5dc5f11aff9cdc72efa00fa8882641dc867d50
