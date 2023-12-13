@@ -57,7 +57,6 @@ $populateDashboardTables = function(CentreonDb $pearDB): void {
 };
 
 try {
-    $createDashboardsPlaylistTables($pearDB);
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
     $populateDashboardTables($pearDB);
 } catch (\Exception $e) {
