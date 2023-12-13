@@ -126,7 +126,7 @@ try {
         if (strpos($versionName, "MySQL") !== false && version_compare($versionNumber, '8.0.0', '>=')) {
             // Compatibility adaptation for mysql 8 with php7.1 before 7.1.16, or php7.2 before 7.2.4.
             $prepareAlter = $link->prepare(
-                "ALTER USER :dbUser@:host IDENTIFIED WITH mysql_native_password BY :dbPass"
+                "DROP USER :dbUser@:host IDENTIFIED WITH mysql_native_password BY :dbPass"
             );
             foreach ($queryValues as $key => $value) {
                 $prepareAlter->bindValue($key, $value, \PDO::PARAM_STR);
