@@ -116,13 +116,8 @@ jobs:
           echo "Response from Get Test Plan:"
           echo "$response"
 
-          # Extracting issueId with testType name "API"
-          api_issue_ids=$(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId')
 
-          echo "API Issue IDs:$api_issue_ids"
-          echo "$api_issue_ids"
-
-          # Parsing and processing tests id
+          # Parsing and processing tests id having API as a testType
           issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
           echo "$issue_ids"
 
