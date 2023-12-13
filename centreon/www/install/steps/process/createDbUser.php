@@ -90,7 +90,6 @@ $mandatoryPrivileges = [
     'CREATE TEMPORARY TABLES',
     'EVENT',
     'CREATE VIEW',
-    'DROP VIEW',
     'SHOW VIEW',
     'REFERENCES'
 ];
