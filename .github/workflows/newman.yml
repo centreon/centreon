@@ -85,12 +85,12 @@ jobs:
       - name: Test Execution and test plan Keys
         id: get-test-ids
         run: |
-          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
-          test_plan_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
-          echo "The Test Execution KEY : $test_execution_key"
-          echo "The Test Plan KEY : $test_plan_key"
-          echo "test_plan_key=$test_plan_key" >> $GITHUB_OUTPUT
-          echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
+          test_execution_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_id_'${{ inputs.os }})
+          test_plan_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_id_'${{ inputs.os }})
+          echo "The Test Execution ID : $test_execution_id"
+          echo "The Test Plan ID : $test_plan_id"
+          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
+          echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Generate Xray Token
@@ -107,7 +107,7 @@ jobs:
           xray_graphql_getTestPlan='{
             "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
             "variables": {
-              "issueId": "${{ steps.get-test-ids.outputs.test_plan_key }}"
+              "issueId": "${{ steps.get-test-ids.outputs.test_plan_id }}"
             }
           }'
 
