@@ -43,21 +43,30 @@ class AddServiceGroupPresenter extends AbstractPresenter
             $data instanceof CreatedResponse
             && ($payload = $data->getPayload()) instanceof AddServiceGroupResponse
         ) {
-            $this->presentCreatedPayload($data, $payload);
+            parent::present($this->presentCreatedPayload($data, $payload));
+        } else {
+            parent::present($data);
         }
-
-        parent::present($data);
     }
 
     /**
-     * @param CreatedResponse<mixed, AddServiceGroupResponse> $createdResponse
+     * @param CreatedResponse<int, AddServiceGroupResponse> $createdResponse
      * @param AddServiceGroupResponse $addServiceGroupResponse
+     *
+     * @return CreatedResponse<int, array{
+     *     id: int,
+     *     name: string,
+     *     alias: string|null,
+     *     geo_coords: string|null,
+     *     comment: string|null,
+     *     is_activated: bool,
+     * }>
      */
     private function presentCreatedPayload(
         CreatedResponse $createdResponse,
         AddServiceGroupResponse $addServiceGroupResponse
-    ): void {
-        $createdResponse->setPayload(
+    ): CreatedResponse {
+        return $createdResponse->withPayload(
             [
                 'id' => $addServiceGroupResponse->id,
                 'name' => $addServiceGroupResponse->name,

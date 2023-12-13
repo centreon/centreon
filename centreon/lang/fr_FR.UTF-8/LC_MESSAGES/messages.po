@@ -18345,6 +18345,60 @@ msgstr "Gestion de l'accès aux ressources"
 msgid "Refine filter"
 msgstr "Affiner le filtre"
 
+msgid "Refine your filter on a single metric by adding more resources."
+msgstr "Affinez votre filtre sur une seule métrique en ajoutant d'autres ressources."
+
+msgid "Unselect all"
+msgstr "Tout désélectionner"
+
+msgid "Display up to"
+msgstr "Afficher jusqu'à"
+
+msgid "tiles"
+msgstr "tuiles"
+
+msgid "You must fill in more resources."
+msgstr "Vous devez indiquer plus de ressources."
+
+msgid "All services on this host are working fine."
+msgstr "Tous les services de cet hôtes fonctionnent correctement."
+
+msgid "All metrics on this service are working fine."
+msgstr "Toutes les métriques de ce service fonctionnent correctement."
+
+msgid "Metric name"
+msgstr "Nom de la métrique"
+
+msgid "Status grid"
+msgstr "Grille de statut"
+
+msgid "Displays a status overview for selected resources."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
+
+msgid "Display with this resource type"
+msgstr "Afficher avec ce type de ressource"
+
+msgid "Display resources with this status"
+msgstr "Afficher les ressources avec ce statut"
+
+msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
+msgstr "Pour un hôte, le statut affiché dans la tuile est le pire parmi son propre statut et les statuts de ses services."
+
+msgid "For a service, the service status is displayed."
+msgstr "Pour un service, le statut du service est affiché."
+
+msgid "Display resources with this state"
+msgstr "Afficher les ressources avec cet état"
+
+msgid "Sort by"
+msgstr "Trier par"
+
+msgid "See more on the Resources Status page"
+msgstr "Voir plus dans la page Statut des ressources"
+
+msgid "You are not allowed to log in"
+msgstr "Vous n'êtes pas autorisé à vous connecter"
+
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -18386,3 +18440,138 @@ msgstr "Vous n'êtes pas autorisé à éditer un service"
 
 msgid "Error while updating a service"
 msgstr "Erreur lors de la mise à jour d'un service"
+
+msgid "Error while searching for media"
+msgstr "Erreur lors de la recherche de médias"
+
+msgid "You are not allowed to list media"
+msgstr "Vous n'êtes pas autorisé à lister les médias"
+
+msgid "Error while updating playlist shares"
+msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
+
+msgid "You cannot share the same playlist to a contact several times"
+msgstr "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un contact"
+
+msgid "You cannot share the same playlist to a contact group several times"
+msgstr "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un groupe de contacts"
+
+msgid "The following playlist does not exist: [%d]"
+msgstr "La liste de diffusion suivante n'existe  : [%d]"
+
+msgid "You do not have editing rights on the following playlist: [%d]"
+msgstr "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante : [%d]"
+
+msgid "The following contact does not exist: [%s]"
+msgstr "Le contact suivant n'existe pas : [%s]"
+
+msgid "The following contact group does not exist: [%s]"
+msgstr "Le groupe de contact suivant n'existe pas : [%s]"
+
+msgid "The following contact is not in your contact groups: [%s]"
+msgstr "Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
+
+msgid "You are not in the following contact group: [%s]"
+msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
+
+msgid "Playlists"
+msgstr "Listes de diffusion"
+
+msgid "Welcome to the Playlist interface!"
+msgstr "Bienvenue dans l'interface des listes de diffusion !"
+
+msgid "Create a playlist"
+msgstr "Ajouter une liste de diffusion"
+
+msgid "Playlist name"
+msgstr "Nom de la liste de diffusion"
+
+msgid "Playlist properties"
+msgstr "Propriétés de la liste de diffusion"
+
+msgid "Rotation time"
+msgstr "Temps de rotation"
+
+msgid "Select dashboards"
+msgstr "Sélectionner des tableaux de bord"
+
+msgid "Define the order of dashboards"
+msgstr "Définir l'ordre des tableaux de bord"
+
+msgid "Add a dashboard"
+msgstr "Ajouter un tableau de bord"
+
+msgid "Playlist created"
+msgstr "Liste de diffusion créée"
+
+msgid "Playlist updated"
+msgstr "Liste de diffusion mise à jour"
+
+msgid "Error while deleting a playlist"
+msgstr "Erreur lors de la suppression d'une liste de diffusion"
+
+msgid "Error while listing the playlist shares"
+msgstr "Erreur lors du listing des partages de la liste de diffusion"
+
+msgid "The following playlist is not shared with you: [%d]"
+msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
+
+msgid "Add at least 1 contact"
+msgstr "Ajoutez au moins 1 contact"
+
+msgid "Rotation time must be at least 10 seconds."
+msgstr "Le temps de rotation doit être au moins de 10 secondes."
+
+msgid "Rotation time cannot exceed 60 seconds."
+msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
+
+msgid "Shares"
+msgstr "Partages"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Creator"
+msgstr "Créateur"
+
+msgid "Creation date"
+msgstr "Date de création"
+
+msgid "Update"
+msgstr "Mise à jour"
+
+msgid "Public link"
+msgstr "Lien public"
+
+msgid "Private/Public"
+msgstr "Privé/Public"
+
+msgid "Copy link"
+msgstr "Copier le lien"
+
+msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+msgstr "Toute personne disposant du lien peut consulter votre liste de diffusion. Soyez vigilant lorsque vous le partagez."
+
+msgid "Failed to copy the link."
+msgstr "Échec de la copie du lien."
+
+msgid "Link has been copied!"
+msgstr "Lien copié!"
+
+msgid "Stop sharing"
+msgstr "Arrêter le partage"
+
+msgid "Viewer"
+msgstr "Viewer"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Publish your playlist"
+msgstr "Publier votre liste de diffusion"
+
+msgid "Settings"
+msgstr "Paramètres"

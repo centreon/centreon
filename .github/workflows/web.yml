@@ -15,7 +15,6 @@ on:
   pull_request:
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -24,9 +23,6 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
-    tags:
-      - centreon-*
 
 env:
   base_directory: centreon
@@ -226,7 +222,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: pnpm
           cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
@@ -322,8 +318,8 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
         working-directory: centreon
 
-      - name: Run of phpstan on /src/Core at level 4 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.core.neon
+      - name: Run of phpstan on /src/Core at level 7 + Centreon Custom Rules
+        run: vendor/bin/phpstan analyse --no-progress --level=7 --configuration=phpstan.core.neon
         working-directory: centreon
 
       - name: Run of phpstan on /tests at level 2
@@ -538,7 +534,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       client_id: ${{ secrets.XRAY_CLIENT_ID }}
       client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
@@ -562,7 +558,7 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
@@ -626,8 +622,7 @@ jobs:
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      test_plan_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_plan_key }}
-      test_execution_key: ${{ needs.create-xray-test-plan-and-test-execution.outputs.test_execution_key }}
+      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -685,7 +680,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -775,7 +770,7 @@ jobs:
 
   promote:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -794,3 +789,32 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  deploy-platform-nightly:
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+        deliver-rpm
+      ]
+    if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Trigger platform deployment
+        uses: ./.github/actions/nightly-platform-deploy
+        with:
+          ref: main
+          bu: RD
+          poller_number: 1
+          system_name: Alma8
+          centreon_branch: develop
+          configured_resources: false
+          install_business_modules: false
+          instance_password: ${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}
+          cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}

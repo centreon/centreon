@@ -54,7 +54,7 @@ class AttributePathFetcher
      * @param Configuration $configuration
      * @param Endpoint $endpoint
      *
-     * @return array
+     * @return array<mixed>
      */
     public function fetch(string $accessToken, Configuration $configuration, Endpoint $endpoint): array
     {

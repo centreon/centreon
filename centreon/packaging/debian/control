@@ -74,14 +74,14 @@ Depends:
     centreon-engine (>= ${centreon:version}~),
     centreon-broker-cbmod (>= ${centreon:version}~),
     centreon-connector (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
+    centreon-gorgone-centreon-config (>= ${centreon:version}~),
     centreon-common (<< ${centreon:versionThreshold}~),
     centreon-poller-centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-trap (<< ${centreon:versionThreshold}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
     centreon-broker-cbmod (<< ${centreon:versionThreshold}~),
     centreon-connector (<< ${centreon:versionThreshold}~),
-    centreon-gorgone (<< ${centreon:versionThreshold}~),
+    centreon-gorgone-centreon-config (<< ${centreon:versionThreshold}~),
     libdbd-mysql-perl,
     libdbd-sqlite3-perl,
     centreon-plugin-applications-databases-mysql,
@@ -125,10 +125,10 @@ Depends:
     lsb-release,
     centreon-broker-cbd (>= ${centreon:version}~),
     centreon-web-common (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
+    centreon-gorgone-centreon-config (>= ${centreon:version}~),
     centreon-broker-cbd (<< ${centreon:versionThreshold}~),
     centreon-web-common (<< ${centreon:versionThreshold}~),
-    centreon-gorgone (<< ${centreon:versionThreshold}~),
+    centreon-gorgone-centreon-config (<< ${centreon:versionThreshold}~),
     php8.1-curl,
     php8.1-intl,
     php8.1-xml,
@@ -143,7 +143,8 @@ Depends:
     php8.1-readline,
     php8.1-sqlite3,
     php-pear,
-    rrdtool
+    rrdtool,
+    lua-curl
 Recommends: ntp | bsd-mailx
 Suggests: nagios-images
 Replaces: centreon-widget-engine-status
@@ -253,11 +254,11 @@ Architecture: all
 Depends:
     centreon-broker-cbmod (>= ${centreon:version}~),
     centreon-engine (>= ${centreon:version}~),
-    centreon-gorgone (>= ${centreon:version}~),
+    centreon-gorgone-centreon-config (>= ${centreon:version}~),
     centreon-trap (>= ${centreon:version}~),
     centreon-broker-cbmod (<< ${centreon:versionThreshold}~),
     centreon-engine (<< ${centreon:versionThreshold}~),
-    centreon-gorgone (<< ${centreon:versionThreshold}~),
+    centreon-gorgone-centreon-config (<< ${centreon:versionThreshold}~),
     centreon-trap (<< ${centreon:versionThreshold}~),
     centreon-plugin-applications-databases-mysql,
     centreon-plugin-applications-monitoring-centreon-central,

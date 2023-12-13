@@ -17037,8 +17037,161 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Resource Access Management"
 # msgstr ""
 
+# msgid "Refine your filter on a single metric by adding more resources."
+# msgstr ""
+
+# msgid "Unselect all"
+# msgstr ""
+
+# msgid "Display up to"
+# msgstr ""
+
+# msgid "tiles"
+# msgstr ""
+
+# msgid "You must fill in more resources."
+# msgstr ""
+
+# msgid "All services on this host are working fine."
+# msgstr ""
+
+# msgid "All metrics on this service are working fine."
+# msgstr ""
+
+# msgid "Metric name"
+# msgstr ""
+
+# msgid "Status grid"
+# msgstr ""
+
+# msgid "Displays a status overview for selected resources."
+# msgstr ""
+
+# msgid "Display with this resource type"
+# msgstr ""
+
+# msgid "Display resources with this status"
+# msgstr ""
+
+# msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
+# msgstr ""
+
+# msgid "For a service, the service status is displayed."
+# msgstr ""
+
+# msgid "Display resources with this state"
+# msgstr ""
+
+# msgid "Sort by"
+# msgstr ""
+
+# msgid "See more on the Resources Status page"
+# msgstr ""
+
+# msgid "You are not allowed to log in"
+# msgstr ""
+
 #  msgid "You are not allowed to edit a service"
 #  msgstr ""
 
 #  msgid "Error while updating a service"
 #  msgstr ""
+
+# msgid "Error while searching for media"
+# msgstr ""
+
+# msgid "You are not allowed to list media"
+# msgstr ""
+
+# msgid "Playlists"
+# msgstr ""
+
+# msgid "Welcome to the Playlist interface!"
+# msgstr ""
+
+# msgid "Create a playlist"
+# msgstr ""
+
+# msgid "Playlist name"
+# msgstr ""
+
+# msgid "Playlist properties"
+# msgstr ""
+
+# msgid "Rotation time"
+# msgstr ""
+
+# msgid "Select dashboards"
+# msgstr ""
+
+# msgid "Define the order of dashboards"
+# msgstr ""
+
+# msgid "Add a dashboard"
+# msgstr ""
+
+# msgid "Playlist created"
+# msgstr ""
+
+# msgid "Playlist updated"
+# msgstr ""
+
+# msgid "Add at least 1 contact"
+# msgstr ""
+
+# msgid "Rotation time must be at least 10 seconds."
+# msgstr ""
+
+# msgid "Rotation time cannot exceed 60 seconds."
+# msgstr ""
+
+# msgid "Shares"
+# msgstr ""
+
+# msgid "Role"
+# msgstr ""
+
+# msgid "Creator"
+# msgstr ""
+
+# msgid "Creation date"
+# msgstr ""
+
+# msgid "Update"
+# msgstr ""
+
+# msgid "Public link"
+# msgstr ""
+
+# msgid "Private/Public"
+# msgstr ""
+
+# msgid "Copy link"
+# msgstr ""
+
+# msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+# msgstr ""
+
+# msgid "Failed to copy the link."
+# msgstr ""
+
+# msgid "Link has been copied!"
+# msgstr ""
+
+# msgid "Stop sharing"
+# msgstr ""
+
+# msgid "Viewer"
+# msgstr ""
+
+# msgid "Editor"
+# msgstr ""
+
+# msgid "Create"
+# msgstr ""
+
+# msgid "Publish your playlist"
+# msgstr ""
+
+# msgid "Settings"
+# msgstr ""

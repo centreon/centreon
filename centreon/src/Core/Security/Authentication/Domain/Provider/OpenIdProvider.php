@@ -241,7 +241,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @throws ConfigurationException
      * @throws SSOAuthenticationException
      */
-    public function authenticateOrFail(?string $authorizationCode, string $clientIp): void
+    public function authenticateOrFail(?string $authorizationCode, string $clientIp): string
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
@@ -283,7 +283,7 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->getUserInformationFromIntrospectionEndpoint();
         }
 
-        $this->username = $this->getUsernameFromLoginClaim();
+        return $this->username = $this->getUsernameFromLoginClaim();
     }
 
     /**
@@ -292,12 +292,9 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUser(): ?ContactInterface
     {
         $this->info('Searching user : ' . $this->username);
-        $user = $this->contactService->findByName($this->username);
-        if ($user === null) {
-            $user = $this->contactService->findByEmail($this->username);
-        }
 
-        return $user;
+        return $this->contactService->findByName($this->username)
+            ?? $this->contactService->findByEmail($this->username);
     }
 
     /**
@@ -339,7 +336,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForRefreshTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Refresh Token Info:', $content);
             $this->logErrorFromExternalProvider($content);
@@ -475,7 +472,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForConnectionTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Connection Token Info: ', $content);
             $this->logErrorFromExternalProvider($content);
@@ -584,7 +581,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForIntrospectionTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Introspection Token Info: ', $content);
             $this->logErrorFromExternalProvider($content);
@@ -657,7 +654,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForUserInformationFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('User Information Info: ', $content);
             $this->logErrorFromExternalProvider($content);

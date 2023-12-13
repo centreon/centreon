@@ -170,26 +170,6 @@ const usersResponse = {
   ]
 };
 
-const contactGroupsResponse = {
-  meta: {
-    limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: 1
-  },
-  result: [
-    {
-      id: 1,
-      name: 'contact_group1'
-    },
-    {
-      id: 2,
-      name: 'contact_group2'
-    }
-  ]
-};
-
 const platformVersions = {
   isCloudPlatform: false,
   modules: {
@@ -210,7 +190,7 @@ const platformVersions = {
 };
 
 const formData = {
-  contactgroups: [1],
+  contactgroups: [],
   is_activated: true,
   messages: [
     {
@@ -252,7 +232,6 @@ const emailBodyText = [
 
 export {
   formData,
-  contactGroupsResponse,
   usersResponse,
   getNotificationResponse,
   hostGroupsResponse,

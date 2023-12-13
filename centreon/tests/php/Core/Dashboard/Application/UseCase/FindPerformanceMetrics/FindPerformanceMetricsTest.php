@@ -88,6 +88,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         new ResourceMetric(
             1,
             "Centreon-Server_Ping",
+            3,
             [
                 new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null),
                 new PerformanceMetric(2,'rta','ms', 20, 50, null, null, null, null, null),
@@ -98,6 +99,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         new ResourceMetric(
             2,
             "Centreon-Server_Traffic",
+            3,
             [
                 new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null),
                 new PerformanceMetric(6,'traffic_out','M', null, null, null, null, null, null, null),
@@ -206,6 +208,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         new ResourceMetric(
             1,
             "Centreon-Server_Ping",
+            3,
             [
                 new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null),
                 new PerformanceMetric(2,'rta','ms', 20, 50, null, null, null, null, null),
@@ -216,6 +219,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         new ResourceMetric(
             2,
             "Centreon-Server_Traffic",
+            3,
             [
                 new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null),
                 new PerformanceMetric(6,'traffic_out','M', null, null, null, null, null, null, null),
@@ -230,7 +234,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
 
     $this->readDashboardPerformanceMetric
         ->expects($this->once())
-        ->method('FindByRequestParametersAndAccessGroups')
+        ->method('findByRequestParametersAndAccessGroups')
         ->willReturn($response);
 
     $presenter = new FindPerformanceMetricsPresenterStub();

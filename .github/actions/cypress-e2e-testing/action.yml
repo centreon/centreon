@@ -36,7 +36,7 @@ runs:
 
     - uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 20
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -72,6 +72,7 @@ runs:
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
 
     - name: Rename JSON report
+      if: ${{ always() }}
       run: |
         feature_name=$(basename "${{ inputs.feature_file_path }}")
         report_path="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json"

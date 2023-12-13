@@ -33,6 +33,8 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 
 /**
  * Database repository for the access groups.
+ *
+ * @phpstan-import-type _AccessGroupRecord from DbAccessGroupFactory
  */
 final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements ReadAccessGroupRepositoryInterface
 {
@@ -98,6 +100,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         $accessGroups = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _AccessGroupRecord $result */
             $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
         }
 
@@ -133,6 +136,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
         $statement->bindValue(':contact_id', $contact->getId(), \PDO::PARAM_INT);
         if ($statement->execute()) {
             while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                /** @var _AccessGroupRecord $result */
                 $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
             }
 
@@ -196,6 +200,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         $accessGroups = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _AccessGroupRecord $result */
             $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
         }
 
@@ -229,6 +234,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
         $statement->execute();
 
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _AccessGroupRecord $result */
             $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
         }
         $this->debug('Access group found: ' . count($accessGroups));

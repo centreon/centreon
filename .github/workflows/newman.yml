@@ -159,6 +159,7 @@ jobs:
               break
             else
               echo "The issue with ID $issue_id exists."
+              testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data '{"query": "mutation { updateTestType(issueId: \"'$issue_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
               summaries+=("$summary")
             fi
           done
@@ -214,6 +215,16 @@ jobs:
 
                 # Update GraphQL query to add this test to the test plan
                 xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+
+                # Execute GraphQL mutation to update the testType
+                testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data '{"query": "mutation { updateTestType(issueId: \"'$test_case_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
+
+                # Check if the mutation was successful
+                if [ "$(echo "$testType_mutation_response" | jq -r '.data.updateTestType')" != "null" ]; then
+                  echo "Successfully updated testType to API for Test Case with ID: $issue_id"
+                else
+                  echo "Failed to update testType for Test Case with ID: $issue_id"
+                fi
 
                 # Execute GraphQL mutation to add tests to the test plan
                 response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token}}" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
@@ -306,7 +317,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -314,9 +325,9 @@ jobs:
         run: pnpm install --frozen-lockfile
         shell: bash
         env:
-          CYPRESS_INSTALL_BINARY: “0”
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: “1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: “true”
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to registry
         uses: docker/login-action@v2

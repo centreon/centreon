@@ -20,10 +20,14 @@ import {
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
+  labelDashboardLibrary,
   labelDelete,
   labelName,
+  labelPlaylists,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
+import { routerHooks } from './routerHooks';
+import { DashboardLayout } from './models';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -31,6 +35,7 @@ interface InitializeAndMountProps {
   canViewDashboard?: boolean;
   emptyList?: boolean;
   globalRole?: DashboardGlobalRole;
+  layout?: DashboardLayout;
   ownRole?: DashboardRole;
 }
 
@@ -39,7 +44,8 @@ const initializeAndMount = ({
   canCreateDashboard = true,
   canViewDashboard = true,
   canAdministrateDashboard = true,
-  emptyList
+  emptyList,
+  layout = DashboardLayout.Library
 }: InitializeAndMountProps): ReturnType<typeof createStore> => {
   const store = createStore();
 
@@ -118,6 +124,10 @@ const initializeAndMount = ({
     method: Method.DELETE,
     path: `${dashboardsEndpoint}/1`,
     statusCode: 204
+  });
+
+  cy.stub(routerHooks, 'useParams').returns({
+    layout
   });
 
   cy.mount({
@@ -258,7 +268,7 @@ describe('Dashboards', () => {
     cy.waitForRequest('@postDashboards');
     cy.url().should(
       'equal',
-      'http://localhost:9092/home/dashboards/1?edit=true'
+      'http://localhost:9092/home/dashboards/library/1?edit=true'
     );
   });
 
@@ -281,5 +291,43 @@ describe('Dashboards', () => {
 
     cy.contains(labelCancel).should('not.exist');
     cy.contains(labelDelete).should('not.exist');
+  });
+});
+
+describe('Dashboard layout routing', () => {
+  it('displays the dashboard library when the layout parameter is set to "library"', () => {
+    initializeAndMount({ layout: DashboardLayout.Library });
+
+    cy.contains(labelDashboardLibrary).should('be.visible');
+    cy.get('[href="/home/dashboards/library"]').should(
+      'have.attr',
+      'data-selected',
+      'true'
+    );
+    cy.get('[href="/home/dashboards/playlists"]').should(
+      'have.attr',
+      'data-selected',
+      'false'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the playlists when the layout parameter is set to "playlists"', () => {
+    initializeAndMount({ layout: DashboardLayout.Playlist });
+
+    cy.contains(labelPlaylists).should('be.visible');
+    cy.get('[href="/home/dashboards/library"]').should(
+      'have.attr',
+      'data-selected',
+      'false'
+    );
+    cy.get('[href="/home/dashboards/playlists"]').should(
+      'have.attr',
+      'data-selected',
+      'true'
+    );
+
+    cy.makeSnapshot();
   });
 });

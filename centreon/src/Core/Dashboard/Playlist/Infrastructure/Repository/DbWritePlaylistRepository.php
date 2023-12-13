@@ -50,7 +50,7 @@ class DbWritePlaylistRepository extends AbstractRepositoryRDB implements WritePl
         $statement->bindValue(':description', $playlist->getDescription(), \PDO::PARAM_STR);
         $statement->bindValue(':rotationTime', $playlist->getRotationTime(), \PDO::PARAM_INT);
         $statement->bindValue(':createdAt', $playlist->getCreatedAt()->getTimestamp(), \PDO::PARAM_INT);
-        $statement->bindValue(':createdBy', $playlist->getAuthor()?->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':createdBy', $playlist->getAuthorId(), \PDO::PARAM_INT);
         $statement->bindValue(':isPublic', $playlist->isPublic(), \PDO::PARAM_INT);
 
         $statement->execute();
@@ -74,5 +74,19 @@ class DbWritePlaylistRepository extends AbstractRepositoryRDB implements WritePl
             $statement->bindValue(':order', $dashboardOrder->getOrder(), \PDO::PARAM_INT);
             $statement->execute();
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $playlistId): void
+    {
+        $query = <<<'SQL'
+            DELETE FROM `:db`.dashboard_playlist WHERE id = :playlistId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':playlistId', $playlistId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 }

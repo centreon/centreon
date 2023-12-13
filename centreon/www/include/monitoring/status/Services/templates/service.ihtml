@@ -49,33 +49,33 @@
             <span class="consol_button">
                 <div id="JS_monitoring_refresh" style="cursor:pointer" onclick="javascript:monitoring_refresh('');">
                     <span title='Refresh'>
-                        {php}displaySvg("www/img/icons/refresh.svg", "var(--icons-fill-color)", 18, 18){/php}
+                        {displaysvg svgPath="www/img/icons/refresh.svg" color="var(--icons-fill-color)" height=18.0 width=18.0}
                     </span>
                 </div>
             </span>
             <span class="consol_button">
                 <div id="JS_monitoring_play" style="cursor:pointer" class="cachediv"  onclick="javascript:monitoring_play('');">
                     <span title="play">
-                        {php}displaySvg("www/img/icons/media_play.svg", "var(--icons-fill-color)", 20, 20){/php}
+                        {displaysvg svgPath="www/img/icons/media_play.svg" color="var(--icons-fill-color)" height=20.0 width=20.0}
                     </span>
                 </div>
             </span>
 
             <span class="consol_button">
                 <span id="JS_monitoring_play_gray" class="ico-20" title='Play'>
-                    {php}displaySvg("www/img/icons/media_play.svg", "var(--icons-disabled-fill-color)", 19, 19){/php}
+                    {displaysvg svgPath="www/img/icons/media_play.svg" color="var(--icons-disabled-fill-color)" height=19.0 width=19.0}
                 </span>
             </span>
             <span class="consol_button">
                 <div class="" id="JS_monitoring_pause" style="cursor:pointer" onclick="javascript:monitoring_pause('');">
                     <span title='Pause'>
-                        {php}displaySvg("www/img/icons/media_pause.svg", "var(--icons-fill-color)", 20, 20){/php}
+                        {displaysvg svgPath="www/img/icons/media_pause.svg" color="var(--icons-fill-color)" height=20.0 width=20.0}
                     </span>
                 </div>
             </span>
             <span class="consol_button">
                 <span id="JS_monitoring_pause_gray" class="cachediv" title='Pause'>
-                    {php}displaySvg("www/img/icons/media_pause.svg", "var(--icons-disabled-fill-color)", 19, 19){/php}
+                    {displaysvg svgPath="www/img/icons/media_pause.svg" color="var(--icons-disabled-fill-color)" height=19.0 width=19.0}
                 </span>
             </span>
         </div>
