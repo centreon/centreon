@@ -24,9 +24,8 @@ declare(strict_types = 1);
 namespace Core\Common\Infrastructure\Command;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Option\Interfaces\OptionRepositoryInterface;
 use Core\Common\Infrastructure\Command\Exception\MigrationCommandException;
-use Core\Proxy\Domain\Model\Proxy;
+use Core\Proxy\Application\Repository\ReadProxyRepositoryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -43,7 +42,7 @@ abstract class AbstractMigrationCommand extends Command
 
     private static bool $isProxyAlreadyLoaded = false;
 
-    public function __construct(readonly private OptionRepositoryInterface $optionRepository)
+    public function __construct(readonly private ReadProxyRepositoryInterface $readProxyRepository)
     {
         parent::__construct();
     }
@@ -110,26 +109,11 @@ abstract class AbstractMigrationCommand extends Command
     protected function getProxy(): ?string
     {
         if (! self::$isProxyAlreadyLoaded) {
-            $options = $this->optionRepository->findAllOptions();
-            $proxyInfo = [];
-            foreach ($options as $option) {
-                if (str_starts_with($option->getName(), 'proxy')) {
-                    $proxyInfo[$option->getName()] = $option->getValue();
-                }
-            }
-            if (isset($proxyInfo['proxy_url']) && $proxyInfo['proxy_url'] !== '') {
-                $port = isset($proxyInfo['proxy_port']) ? (int) $proxyInfo['proxy_port'] : null;
-                $proxy = new Proxy(
-                    $proxyInfo['proxy_url'],
-                    $port,
-                    $proxyInfo['proxy_user'],
-                    $proxyInfo['proxy_password'],
-                );
+            $proxy = $this->readProxyRepository->getProxy();
 
-                self::$proxy = (string) $proxy;
-            }
-            self::$isProxyAlreadyLoaded = true;
+            self::$proxy = $proxy ? (string) $proxy : null;
         }
+        self::$isProxyAlreadyLoaded = true;
 
         return self::$proxy;
     }
