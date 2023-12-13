@@ -20,3 +20,9 @@ services:
       - .env
     image: "mariadb:${MARIADB_VERSION}"
     restart: 'always'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 2
+      start_period: 0s
