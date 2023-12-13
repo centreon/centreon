@@ -52,8 +52,6 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
 
   const isGenericTextPanel = isGenericText(panelConfigurations?.path);
 
-  // console.log('panelOptionsAndData?.data : ', panelOptionsAndData?.data);
-
   return useMemoComponent({
     Component: (
       <>

@@ -62,28 +62,22 @@ const WidgetLineChart = ({
   }
 
   return (
-    <div
-      style={{
-        height: '100%'
+    <LineChart
+      data={graphData}
+      end={end}
+      height={null}
+      legend={{ display: true }}
+      loading={isGraphLoading}
+      start={start}
+      thresholdUnit={panelData.metrics[0]?.unit}
+      thresholds={formattedThresholds}
+      timeShiftZones={{
+        enable: false
       }}
-    >
-      <LineChart
-        data={graphData}
-        end={end}
-        height={null}
-        legend={{ display: true }}
-        loading={isGraphLoading}
-        start={start}
-        thresholdUnit={panelData.metrics[0]?.unit}
-        thresholds={formattedThresholds}
-        timeShiftZones={{
-          enable: false
-        }}
-        zoomPreview={{
-          enable: false
-        }}
-      />
-    </div>
+      zoomPreview={{
+        enable: false
+      }}
+    />
   );
 };
 

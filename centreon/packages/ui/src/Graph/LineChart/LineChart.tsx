@@ -198,15 +198,7 @@ const LineChart = ({
             width={width}
           />
           <svg height={graphHeight + margin.top} ref={graphSvgRef} width="100%">
-            <Group.Group
-              left={margin.left + extraMargin / 2}
-              top={margin.top}
-              onClick={(e) => {
-                e.stopPropagation();
-
-                console.log('clicked');
-              }}
-            >
+            <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
               <Grids
                 height={graphHeight - margin.top}
                 leftScale={leftScale}
