@@ -225,7 +225,7 @@ jobs:
           echo "$formatted_test_issue_ids_str"
 
           xray_graphql_addTestsToTestExecution='{
-            "query": "mutation AddTestsToTestExecution($issueId: String!, $testIssueIds: [String]) { addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { /* Specify the fields you want in the response */ } }",
+            "query": "mutation AddTestsToTestExecution($issueId: String!, $testIssueIds: [String]) { addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
               "issueId": "84044",
               "testIssueIds": '"$formatted_test_issue_ids_str"',
