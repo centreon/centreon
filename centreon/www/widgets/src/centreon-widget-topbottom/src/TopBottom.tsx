@@ -54,8 +54,6 @@ const TopBottom = ({
     );
   }
 
-  console.log('metricsTop : ', metricsTop);
-
   return (
     <div className={classes.container}>
       {(metricsTop?.resources || []).map((metricTop, index) => (

@@ -18,7 +18,11 @@ import {
 
 import { Theme } from '@mui/material';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import {
+  SeverityCode,
+  getStatusColors,
+  setUrlQueryParameters
+} from '@centreon/ui';
 
 import { Resource } from '../../models';
 
@@ -187,4 +191,28 @@ export const getResourcesUrl = ({
   return `/monitoring/resources?filter=${JSON.stringify(
     filterQueryParameter
   )}&fromTopCounter=true`;
+};
+
+export const openResourceStatusPanel = (data): void => {
+  const uuid = data?.uuid;
+  const hostId = uuid?.split('-')[0].slice(1);
+  const serviceId = uuid?.split('-')[1].slice(1);
+
+  const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+
+  const detailsPanel = [
+    {
+      name: 'details',
+      value: {
+        id: serviceId,
+        resourcesDetailsEndpoint,
+        selectedTimePeriodId: 'last_24_h',
+        tab: 'details',
+        tabParameters: {},
+        uuid
+      }
+    }
+  ];
+
+  setUrlQueryParameters(detailsPanel);
 };

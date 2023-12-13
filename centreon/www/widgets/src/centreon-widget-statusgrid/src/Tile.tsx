@@ -12,7 +12,7 @@ import { Resource } from '../../models';
 import { useTileStyles } from './StatusGrid.styles';
 import { ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
-import { getColor, getResourcesUrl } from './utils';
+import { getColor, getResourcesUrl, openResourceStatusPanel } from './utils';
 
 interface Props {
   data: ResourceData | null;
@@ -52,6 +52,11 @@ const Tile = ({
     );
   };
 
+  const goToResourceStatusAndOpenPanel = (): void => {
+    goToResourceStatus();
+    openResourceStatusPanel(data);
+  };
+
   if (isNil(data)) {
     return (
       <CardActionArea
@@ -86,7 +91,11 @@ const Tile = ({
   }
 
   return (
-    <Box className={classes.container} data-status={data.statusName}>
+    <Box
+      className={classes.container}
+      data-status={data.statusName}
+      onClick={goToResourceStatusAndOpenPanel}
+    >
       {displayStatusTile && (
         <Box
           className={classes.statusTile}

@@ -111,7 +111,8 @@ const StatusGrid = ({
               parentName: parent?.name,
               parentStatus: parent?.status?.severity_code,
               status: status?.severity_code,
-              statusName: status?.name.toLocaleLowerCase()
+              statusName: status?.name.toLocaleLowerCase(),
+              uuid
             },
             id: uuid
           };

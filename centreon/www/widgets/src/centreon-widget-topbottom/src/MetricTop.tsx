@@ -1,6 +1,6 @@
 import { inc } from 'ramda';
 
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { LineChartData, SingleBar } from '@centreon/ui';
 
@@ -9,6 +9,7 @@ import { FormThreshold } from '../../models';
 
 import { Resource } from './models';
 import { useTopBottomStyles } from './TopBottom.styles';
+import useGoToResourceStatus from './useGoToResourceStatus';
 
 interface MetricTopProps {
   displayAsRaw: boolean;
@@ -49,6 +50,7 @@ const MetricTop = ({
     ],
     times: []
   };
+  const { goToResourceStatus } = useGoToResourceStatus();
 
   const formattedThresholds = useThresholds({
     data: formattedData,
@@ -59,12 +61,15 @@ const MetricTop = ({
 
   return (
     <>
-      <Typography className={classes.resourceLabel}>
+      <Typography
+        className={classes.resourceLabel}
+        onClick={() => goToResourceStatus(metricTop)}
+      >
         <strong>
           #{inc(index)} {metricTop.name}
         </strong>
       </Typography>
-      <div style={{ height: 50 }}>
+      <Box style={{ height: 50 }} onClick={() => goToResourceStatus(metricTop)}>
         <SingleBar
           data={formattedData}
           displayAsRaw={displayAsRaw}
@@ -72,7 +77,7 @@ const MetricTop = ({
           size="small"
           thresholds={formattedThresholds}
         />
-      </div>
+      </Box>
     </>
   );
 };

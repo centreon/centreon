@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, includes } from 'ramda';
 
 import { CardHeader } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -15,7 +15,8 @@ import {
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
-import { labelMoreActions } from '../../translatedLabels';
+import { labelMoreActions, labelSeeMoreInRSPage } from '../../translatedLabels';
+import { resourceBasedWidgets } from '../../utils';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
@@ -25,13 +26,15 @@ interface PanelHeaderProps {
   id: string;
   linkToResourceStatus?;
   setRefreshCount?: (id) => void;
+  widgetName?: string;
 }
 
 const PanelHeader = ({
   id,
   setRefreshCount,
   linkToResourceStatus,
-  displayMoreActions
+  displayMoreActions,
+  widgetName
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -63,13 +66,15 @@ const PanelHeader = ({
       action={
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
-            <IconButton
-              ariaLabel="Link to resource status"
-              title="Link to resource status"
-              onClick={linkToResourceStatus}
-            >
-              <DvrIcon fontSize="small" />
-            </IconButton>
+            {includes(widgetName, resourceBasedWidgets) && (
+              <IconButton
+                ariaLabel={t(labelSeeMoreInRSPage)}
+                title={t(labelSeeMoreInRSPage)}
+                onClick={linkToResourceStatus}
+              >
+                <DvrIcon fontSize="small" />
+              </IconButton>
+            )}
             <IconButton
               ariaLabel={t(labelMoreActions) as string}
               title={t(labelMoreActions) as string}

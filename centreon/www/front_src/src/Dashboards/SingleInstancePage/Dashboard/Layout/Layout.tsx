@@ -12,9 +12,9 @@ interface Props {
   canEdit?: boolean;
   changeLayout?: (newLayout: Array<Layout>) => void;
   displayMoreActions?: boolean;
+  goToResourceStatus: (data, name, options) => void;
   isEditing?: boolean;
   isStatic: boolean;
-  linkToResourceStatus: (data, name) => void;
   panels: Array<Panel>;
   setRefreshCount?: (id) => void;
 }
@@ -27,7 +27,7 @@ const PanelsLayout = ({
   canEdit,
   setRefreshCount,
   displayMoreActions = true,
-  linkToResourceStatus
+  goToResourceStatus
 }: Props): JSX.Element => {
   return (
     <DashboardLayout.Layout
@@ -36,33 +36,37 @@ const PanelsLayout = ({
       isStatic={isStatic}
       layout={panels}
     >
-      {panels.map(({ i, panelConfiguration, refreshCount, data, name }) => (
-        <DashboardLayout.Item
-          canMove={
-            canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
-          }
-          disablePadding={panelConfiguration?.isAddWidgetPanel}
-          header={
-            !panelConfiguration?.isAddWidgetPanel ? (
-              <PanelHeader
-                displayMoreActions={displayMoreActions}
-                id={i}
-                linkToResourceStatus={() => linkToResourceStatus(data, name)}
-                setRefreshCount={setRefreshCount}
-              />
-            ) : undefined
-          }
-          id={i}
-          key={i}
-          onClick={() => linkToResourceStatus(data, name)}
-        >
-          {panelConfiguration?.isAddWidgetPanel ? (
-            <AddWidgetPanel />
-          ) : (
-            <DashboardPanel id={i} refreshCount={refreshCount} />
-          )}
-        </DashboardLayout.Item>
-      ))}
+      {panels.map(
+        ({ i, panelConfiguration, refreshCount, data, name, options }) => (
+          <DashboardLayout.Item
+            canMove={
+              canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
+            }
+            disablePadding={panelConfiguration?.isAddWidgetPanel}
+            header={
+              !panelConfiguration?.isAddWidgetPanel ? (
+                <PanelHeader
+                  displayMoreActions={displayMoreActions}
+                  id={i}
+                  linkToResourceStatus={() =>
+                    goToResourceStatus(data, name, options)
+                  }
+                  setRefreshCount={setRefreshCount}
+                  widgetName={name}
+                />
+              ) : undefined
+            }
+            id={i}
+            key={i}
+          >
+            {panelConfiguration?.isAddWidgetPanel ? (
+              <AddWidgetPanel />
+            ) : (
+              <DashboardPanel id={i} refreshCount={refreshCount} />
+            )}
+          </DashboardLayout.Item>
+        )
+      )}
     </DashboardLayout.Layout>
   );
 };

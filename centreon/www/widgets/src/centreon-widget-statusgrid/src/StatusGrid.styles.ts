@@ -2,6 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useTileStyles = makeStyles()((theme) => ({
   container: {
+    height: '100%',
     paddingTop: theme.spacing(1.5),
     position: 'relative',
     width: '100%'
