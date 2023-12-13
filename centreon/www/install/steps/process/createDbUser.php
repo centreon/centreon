@@ -90,11 +90,12 @@ $mandatoryPrivileges = [
     'CREATE TEMPORARY TABLES',
     'EVENT',
     'CREATE VIEW',
+    'DROP VIEW',
     'SHOW VIEW',
     'REFERENCES'
 ];
 $privilegesQuery = implode(', ', $mandatoryPrivileges);
-$query = "GRANT ALL PRIVILEGES ON `%s`.* TO " . $parameters['db_user'] . "@" . $host . " WITH GRANT OPTION";
+$query = "GRANT " . $privilegesQuery . " ON `%s`.* TO '" . $parameters['db_user'] . "'@'" . $host . "'";
 $flushQuery = "FLUSH PRIVILEGES";
 
 try {
