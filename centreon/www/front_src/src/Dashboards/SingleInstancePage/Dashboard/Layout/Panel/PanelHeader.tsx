@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
 import { CardHeader } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import DvrIcon from '@mui/icons-material/Dvr';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 
@@ -22,12 +23,14 @@ import MorePanelActions from './MorePanelActions';
 interface PanelHeaderProps {
   displayMoreActions: boolean;
   id: string;
+  linkToResourceStatus?;
   setRefreshCount?: (id) => void;
 }
 
 const PanelHeader = ({
   id,
   setRefreshCount,
+  linkToResourceStatus,
   displayMoreActions
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
@@ -61,10 +64,18 @@ const PanelHeader = ({
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
             <IconButton
+              ariaLabel="Link to resource status"
+              title="Link to resource status"
+              onClick={linkToResourceStatus}
+            >
+              <DvrIcon fontSize="small" />
+            </IconButton>
+            <IconButton
               ariaLabel={t(labelMoreActions) as string}
+              title={t(labelMoreActions) as string}
               onClick={openMoreActions}
             >
-              <MoreVertIcon fontSize="small" />
+              <MoreHorizIcon fontSize="small" />
             </IconButton>
             <MorePanelActions
               anchor={moreActionsOpen}

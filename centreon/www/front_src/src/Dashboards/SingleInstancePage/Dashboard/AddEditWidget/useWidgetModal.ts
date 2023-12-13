@@ -84,6 +84,8 @@ const useWidgetModal = (): useWidgetModalState => {
   const addWidget = (values: Widget): void => {
     const panelConfiguration = values.panelConfiguration as PanelConfiguration;
 
+    console.log('values : ', values);
+
     addPanel({
       data: values.data || undefined,
       moduleName: values.moduleName || '',

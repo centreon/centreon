@@ -28,6 +28,9 @@ const Widget = ({
   panelOptions,
   refreshCount
 }: Props): JSX.Element => {
+  console.log('Top botom panelData.metrics :', panelData.metrics);
+  console.log('Top botom panelData.resources :', panelData.resources);
+
   return (
     <Module maxSnackbars={1} seedName="topbottom" store={store}>
       <TopBottom

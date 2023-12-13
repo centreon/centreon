@@ -28,7 +28,8 @@ const serviceMetricDecoder = JsonDecoder.object<ServiceMetric>(
       ),
       'Metrics'
     ),
-    name: JsonDecoder.string
+    name: JsonDecoder.string,
+    uuid: JsonDecoder.string
   },
   'Service Metric'
 );

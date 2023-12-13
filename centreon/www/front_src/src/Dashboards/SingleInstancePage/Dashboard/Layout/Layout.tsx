@@ -14,6 +14,7 @@ interface Props {
   displayMoreActions?: boolean;
   isEditing?: boolean;
   isStatic: boolean;
+  linkToResourceStatus: (data, name) => void;
   panels: Array<Panel>;
   setRefreshCount?: (id) => void;
 }
@@ -25,7 +26,8 @@ const PanelsLayout = ({
   changeLayout,
   canEdit,
   setRefreshCount,
-  displayMoreActions = true
+  displayMoreActions = true,
+  linkToResourceStatus
 }: Props): JSX.Element => {
   return (
     <DashboardLayout.Layout
@@ -34,7 +36,7 @@ const PanelsLayout = ({
       isStatic={isStatic}
       layout={panels}
     >
-      {panels.map(({ i, panelConfiguration, refreshCount }) => (
+      {panels.map(({ i, panelConfiguration, refreshCount, data, name }) => (
         <DashboardLayout.Item
           canMove={
             canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
@@ -45,12 +47,14 @@ const PanelsLayout = ({
               <PanelHeader
                 displayMoreActions={displayMoreActions}
                 id={i}
+                linkToResourceStatus={() => linkToResourceStatus(data, name)}
                 setRefreshCount={setRefreshCount}
               />
             ) : undefined
           }
           id={i}
           key={i}
+          onClick={() => linkToResourceStatus(data, name)}
         >
           {panelConfiguration?.isAddWidgetPanel ? (
             <AddWidgetPanel />

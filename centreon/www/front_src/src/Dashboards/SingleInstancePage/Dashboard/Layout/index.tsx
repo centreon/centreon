@@ -1,8 +1,21 @@
 import { useMemo } from 'react';
 
 import { Layout } from 'react-grid-layout';
-import { useAtom, useAtomValue } from 'jotai';
-import { equals, isEmpty, map, propEq } from 'ramda';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import {
+  equals,
+  isEmpty,
+  map,
+  propEq,
+  T,
+  always,
+  cond,
+  flatten,
+  groupBy,
+  identity,
+  uniq
+} from 'ramda';
+import { useNavigate } from 'react-router';
 
 import { getColumnsFromScreenSize } from '@centreon/ui';
 
@@ -12,6 +25,13 @@ import { editProperties } from '../hooks/useCanEditDashboard';
 import { AddEditWidgetModal } from '../AddEditWidget';
 
 import PanelsLayout from './Layout';
+
+import {
+  openDetailsTabIdAtom,
+  selectedResourceUuidAtom,
+  selectedResourcesDetailsAtom
+} from 'www/front_src/src/Resources/Details/detailsAtoms';
+import { listingAtom } from 'www/front_src/src/Resources/Listing/listingAtoms';
 
 const addWidgetId = 'add_widget_panel';
 
@@ -32,9 +52,14 @@ const emptyLayout: Array<Panel> = [
 ];
 
 const DashboardPageLayout = (): JSX.Element => {
+  const navigate = useNavigate();
+
   const [dashboard, setDashboard] = useAtom(dashboardAtom);
   const [refreshCounts, setRefreshCounts] = useAtom(refreshCountsAtom);
   const isEditing = useAtomValue(isEditingAtom);
+  const setSelectedResourceDetails = useSetAtom(selectedResourcesDetailsAtom);
+  const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
+  const setSelectedResourceUuid = useSetAtom(selectedResourceUuidAtom);
 
   const { canEdit } = editProperties.useCanEditProperties();
 
@@ -86,6 +111,123 @@ const DashboardPageLayout = (): JSX.Element => {
         };
       });
 
+  // const getResourcesUrl = ({ resources }): string => {
+  //   const groupedResources = groupBy(
+  //     ({ resourceType }) => resourceType,
+  //     resources
+  //   );
+
+  //   const resourcesFilters = Object.entries(groupedResources).map(
+  //     ([resourceType, res]) => {
+  //       const name = cond<Array<string>, string>([
+  //         [equals('host'), always('parent_name')],
+  //         [equals('service'), always('name')],
+  //         [T, identity]
+  //       ])(resourceType);
+
+  //       return {
+  //         name: name.replace('-', '_'),
+  //         value: flatten(
+  //           (res || []).map(({ resources: subResources }) => {
+  //             return subResources.map(({ name: resourceName }) => ({
+  //               id:
+  //                 equals(name, 'name') || equals(name, 'parent_name')
+  //                   ? `\\b${resourceName}\\b`
+  //                   : resourceName,
+  //               name: resourceName
+  //             }));
+  //           })
+  //         )
+  //       };
+  //     }
+  //   );
+
+  //   const serviceCriteria = {
+  //     name: 'resource_types',
+  //     value: [{ id: 'service', name: 'Service' }]
+  //   };
+
+  //   const filterQueryParameter = {
+  //     criterias: [
+  //       serviceCriteria,
+  //       ...resourcesFilters,
+  //       { name: 'search', value: '' }
+  //     ]
+  //   };
+
+  //   return `/monitoring/resources?filter=${JSON.stringify(
+  //     filterQueryParameter
+  //   )}&fromTopCounter=true`;
+  // };
+
+  // const linkToResourceStatus = (panelData, name): void => {
+  //   if (!isEditing) {
+  //     navigate(
+  //       getResourcesUrl({
+  //         resources: panelData?.resources
+  //       })
+  //     );
+  //   }
+  // };
+
+  const getResourcesUrl = (panelData): string => {
+    const values = panelData?.services?.map(({ name }) => {
+      const index = name.indexOf('_');
+
+      return {
+        id: `\\b${name.slice(index + 1)}\\b`,
+        name: name.slice(index + 1)
+      };
+    });
+
+    const hostvalues = panelData?.services?.map(({ name }) => {
+      const index = name.indexOf('_');
+
+      return {
+        id: `\\b${name.slice(0, index)}\\b`,
+        name: name.slice(0, index)
+      };
+    });
+
+    const filters = [
+      { name: 'name', value: values },
+      { name: 'h.name', value: uniq(hostvalues) }
+    ];
+
+    const serviceCriteria = {
+      name: 'resource_types',
+      value: [{ id: 'service', name: 'Service' }]
+    };
+
+    const filterQueryParameter = {
+      criterias: [serviceCriteria, ...filters, { name: 'search', value: '' }]
+    };
+
+    return `/monitoring/resources?filter=${JSON.stringify(
+      filterQueryParameter
+    )}&fromTopCounter=true`;
+  };
+
+  const linkToResourceStatus = (panelData, name): void => {
+    navigate(getResourcesUrl(panelData));
+
+    if (equals(name, 'centreon-widget-singlemetric')) {
+      const uuid = panelData?.services[0].uuid;
+
+      const hostId = uuid.split('-')[0].slice(1);
+      const serviceId = uuid.split('-')[1].slice(1);
+
+      const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+
+      setOpenDetailsTabId(3);
+      setSelectedResourceUuid(uuid);
+      setSelectedResourceDetails({
+        resourceId: serviceId,
+        resourcesDetailsEndpoint
+      });
+    }
+  };
+
   return (
     <>
       <PanelsLayout
@@ -94,6 +236,7 @@ const DashboardPageLayout = (): JSX.Element => {
         changeLayout={changeLayout}
         isEditing={isEditing}
         isStatic={!isEditing || showDefaultLayout}
+        linkToResourceStatus={linkToResourceStatus}
         panels={panels}
         setRefreshCount={setRefreshCount}
       />

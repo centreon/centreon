@@ -11,6 +11,8 @@ import {
   isEmpty,
   isNil,
   length,
+  map,
+  pick,
   pipe,
   pluck,
   propEq,
@@ -132,9 +134,16 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     uniqBy(({ name }) => name)
   )(servicesMetrics?.result || []);
 
+  const services = map(
+    pick(['uuid', 'id', 'name']),
+    servicesMetrics?.result || []
+  );
+
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
     setFieldValue(`data.${propertyName}`, [newMetric]);
     setFieldTouched(`data.${propertyName}`, true, false);
+
+    setFieldValue(`data.services`, services);
   };
 
   const deleteMetricItem = (option): void => {
@@ -147,6 +156,8 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const changeMetrics = (_, newMetrics: Array<SelectEntry> | null): void => {
     setFieldValue(`data.${propertyName}`, newMetrics || []);
     setFieldTouched(`data.${propertyName}`, true, false);
+
+    setFieldValue(`data.services`, services);
   };
 
   const getMetricOptionDisabled = (metricOption): boolean => {

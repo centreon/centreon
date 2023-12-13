@@ -40,6 +40,16 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       widget_settings: {
         data: data || null,
         options
+        // services: [
+        //   {
+        //     name: 'Centreon-Server_Ping',
+        //     uuid: 'h12s53'
+        //   },
+        //   {
+        //     name: 'Centreon-Server_Ping',
+        //     uuid: 'h4s51'
+        //   }
+        // ]
       },
       widget_type: panelConfiguration.path
     })

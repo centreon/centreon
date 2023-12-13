@@ -127,7 +127,10 @@ const MainLegend = ({
                 toggable && classes.toggable
               )}
               key={metric_id}
-              onClick={(event): void => selectMetric({ event, metric_id })}
+              onClick={(event): void => {
+                event.stopPropagation();
+                selectMetric({ event, metric_id });
+              }}
               onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
             >

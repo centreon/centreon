@@ -21,6 +21,7 @@ interface DashboardItemProps {
   disablePadding?: boolean;
   header?: ReactElement;
   id: string;
+  onClick?: () => void;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
   onTouchEnd?: (e) => void;
@@ -39,7 +40,8 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       onTouchEnd,
       id,
       disablePadding = false,
-      canMove = false
+      canMove = false,
+      onClick
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
@@ -86,6 +88,10 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                 classes.widgetContent,
                 !disablePadding && classes.widgetPadding
               )}
+              style={{
+                cursor: 'pointer'
+              }}
+              onClick={onClick}
             >
               {children}
             </div>
