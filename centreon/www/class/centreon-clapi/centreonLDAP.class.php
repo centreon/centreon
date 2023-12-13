@@ -46,6 +46,7 @@ class CentreonLDAP extends CentreonObject
 
     protected string $action;
 
+    /** @var array<string,string> */
     protected array $baseParams = [
         'alias' => '',
         'bind_dn' => '',
@@ -77,6 +78,7 @@ class CentreonLDAP extends CentreonObject
         'ldap_sync_interval' => '',
     ];
 
+    /** @var string[] */
     protected array $serverParams = ['host_address', 'host_port', 'host_order', 'use_ssl', 'use_tls'];
 
     /**
@@ -102,7 +104,16 @@ class CentreonLDAP extends CentreonObject
      */
     public function getLdapId($name)
     {
-        $res = $this->db->query('SELECT ar_id FROM auth_ressource WHERE ar_name = ?', [$name]);
+        $res = $this->db->prepare(
+            <<<'SQL'
+                SELECT ar_id
+                FROM auth_ressource
+                WHERE ar_name = :name
+                SQL
+        );
+        $res->bindValue(':name', $name, \PDO::PARAM_STR);
+        $res->execute();
+
         $row = $res->fetch();
         if (! isset($row['ar_id'])) {
             return;
@@ -120,8 +131,15 @@ class CentreonLDAP extends CentreonObject
      */
     public function getLdapServers($id)
     {
-        $query = 'SELECT host_address, host_port FROM auth_ressource_host  WHERE auth_ressource_id = ?';
-        $res = $this->db->query($query, [$id]);
+        $res = $this->db->prepare(
+            <<<'SQL'
+                SELECT host_address, host_port
+                FROM auth_ressource_host
+                WHERE auth_ressource_id = :id
+                SQL
+        );
+        $res->bindValue(':id', $id, \PDO::PARAM_INT);
+        $res->execute();
 
         return $res->fetchAll();
     }
@@ -153,7 +171,7 @@ class CentreonLDAP extends CentreonObject
      */
     public function showserver($arName = null): void
     {
-        if (is_null($arName) || ! $arName) {
+        if (! $arName) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $arId = $this->getLdapId($arName);
@@ -247,17 +265,19 @@ class CentreonLDAP extends CentreonObject
             throw new CentreonClapiException(self::OBJECTALREADYEXISTS . ' ' . $address);
         }
 
-        $this->db->query(
-            'INSERT INTO auth_ressource_host (auth_ressource_id, host_address, host_port, use_ssl, use_tls)
-             VALUES (:arId, :address, :port, :ssl, :tls)',
-            [
-                ':arId' => $arId,
-                ':address' => $address,
-                ':port' => $port,
-                ':ssl' => $ssl,
-                ':tls' => $tls,
-            ]
+        $statement = $this->db->prepare(
+            <<<'SQL'
+                INSERT INTO auth_ressource_host (auth_ressource_id, host_address, host_port, use_ssl, use_tls)
+                VALUES (:arId, :address, :port, :ssl, :tls)
+                SQL
         );
+
+        $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+        $statement->bindValue(':address', $address, \PDO::PARAM_STR);
+        $statement->bindValue(':port', $port, \PDO::PARAM_INT);
+        $statement->bindValue(':ssl', $ssl, \PDO::PARAM_INT);
+        $statement->bindValue(':tls', $tls, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**
@@ -277,7 +297,15 @@ class CentreonLDAP extends CentreonObject
         if (is_null($arId)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' ' . $arName);
         }
-        $this->db->query('DELETE FROM auth_ressource WHERE ar_id = ?', [$arId]);
+
+        $statement = $this->db->prepare(
+            <<<'SQL'
+                DELETE FROM auth_ressource
+                WHERE ar_id = :arId
+                SQL
+        );
+        $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**
@@ -294,7 +322,14 @@ class CentreonLDAP extends CentreonObject
             throw new CentreonClapiException('Incorrect server id parameters');
         }
 
-        $this->db->query('DELETE FROM auth_ressource_host WHERE ldap_host_id = ?', [$serverId]);
+        $statement = $this->db->prepare(
+            <<<'SQL'
+                DELETE FROM auth_ressource_host
+                WHERE ldap_host_id = :serverId
+                SQL
+        );
+        $statement->bindValue(':serverId', $serverId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**
@@ -323,10 +358,16 @@ class CentreonLDAP extends CentreonObject
                     throw new CentreonClapiException(self::NAMEALREADYINUSE . ' (' . $params[2] . ')');
                 }
             }
-            $this->db->query(
-                'UPDATE auth_ressource SET ar_' . $params[1] . ' = ? WHERE ar_id = ?',
-                [$params[2], $arId]
+            $statement = $this->db->prepare(
+                <<<SQL
+                    UPDATE auth_ressource
+                    SET ar_{$params[1]} = :param
+                    WHERE ar_id = :arId
+                    SQL
             );
+            $statement->bindValue(':param', $params[2], \PDO::PARAM_STR);
+            $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $statement->execute();
         } elseif (isset($this->baseParams[mb_strtolower($params[1])])) {
             if (mb_strtolower($params[1]) === 'ldap_contact_tmpl') {
                 if (empty($params[2])) {
@@ -339,15 +380,27 @@ class CentreonLDAP extends CentreonObject
                 $contactGroupObj = new CentreonContactGroup($this->dependencyInjector);
                 $params[2] = $contactGroupObj->getContactGroupID($params[2]);
             }
-            $this->db->query(
-                'DELETE FROM auth_ressource_info WHERE ari_name = ? AND ar_id = ?',
-                [$params[1], $arId]
+            $statement = $this->db->prepare(
+                <<<'SQL'
+                    DELETE FROM auth_ressource_info
+                    WHERE ari_name = :name AND ar_id = :arId
+                    SQL
             );
-            $this->db->query(
-                'INSERT INTO auth_ressource_info (ari_value, ari_name, ar_id)
-                 VALUES (?, ?, ?)',
-                [$params[2], $params[1], $arId]
+            $statement->bindValue(':name', $params[1], \PDO::PARAM_STR);
+            $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            $statement = $this->db->prepare(
+                <<<'SQL'
+                    INSERT INTO auth_ressource_info (ari_value, ari_name, ar_id)
+                    VALUES (:value, :name, :arId)
+                    SQL
             );
+            $statement->bindValue(':value', $params[2], \PDO::PARAM_STR);
+            $statement->bindValue(':name', $params[1], \PDO::PARAM_STR);
+            $statement->bindValue(':arId', $arId, \PDO::PARAM_INT);
+            $statement->execute();
+
         } else {
             throw new CentreonClapiException(self::UNKNOWNPARAMETER);
         }
@@ -370,14 +423,19 @@ class CentreonLDAP extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         [$serverId, $key, $value] = $params;
-        if (! in_array(mb_strtolower($key), $this->serverParams, true)) {
+        $key = mb_strtolower($key);
+        if (! in_array($key, $this->serverParams, true)) {
             throw new CentreonClapiException(self::UNKNOWNPARAMETER);
         }
-        $this->db->query(
-            'UPDATE auth_ressource_host SET ' . mb_strtolower($key)
-            . ' = ? WHERE ldap_host_id = ?',
-            [$value, $serverId]
+        $statement = $this->db->prepare(
+            <<<SQL
+                UPDATE auth_ressource_host
+                SET {$key} = :value WHERE ldap_host_id = :id
+                SQL
         );
+        $statement->bindValue(':value', $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+        $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**
@@ -486,10 +544,17 @@ class CentreonLDAP extends CentreonObject
      */
     protected function isUnique($name = '', $arId = 0)
     {
-        $stmt = $this->db->query(
-            'SELECT ar_name FROM auth_ressource WHERE ar_name = ? AND ar_id != ?',
-            [$name, $arId]
+        $stmt = $this->db->prepare(
+            <<<'SQL'
+                SELECT ar_name
+                FROM auth_ressource
+                WHERE ar_name = :name AND ar_id != :id
+                SQL
         );
+        $stmt->bindValue(':name', $name, \PDO::PARAM_STR);
+        $stmt->bindValue(':id', $arId, \PDO::PARAM_INT);
+        $stmt->execute();
+
         $res = $stmt->fetchAll();
 
         return ! (count($res));
