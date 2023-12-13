@@ -212,7 +212,10 @@ jobs:
           done
 
           response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+          echo "$response"
+
           issue_list_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+          echo "$issue_list_ids"
 
           test_issue_ids=("${issue_list_ids[@]}")
           formatted_test_issue_ids_str="["
