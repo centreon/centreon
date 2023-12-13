@@ -17,7 +17,7 @@ import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
 import routeMap from '../../reactRoutes/routeMap';
 import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
-import { externalComponentsMapping } from '../../federatedModules/externalComponentsMapping';
+import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 
 import DeprecatedRoute from './DeprecatedRoute';
 
@@ -85,7 +85,7 @@ const getExternalPageRoutes = ({
         }
 
         const ChildrenComponent: ((props) => JSX.Element) | null | undefined =
-          children ? externalComponentsMapping[children] : undefined;
+          children ? childrenComponentsMapping[children] : undefined;
 
         return (
           <Route
