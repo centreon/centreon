@@ -93,11 +93,11 @@
             <td class="ListColHeaderCenter" style="width:170px;">{$status_trans}</td>
             <td class="ListColHeaderCenter">{$actions_trans}&nbsp;&nbsp;&nbsp;</td>
         </tr>
-        {assign var="line" value=0}
-        {php} $l = 0; {/php}
+        {assign "line" value=0}
+        {assign "l" value=0}
         {if $selection == 1}
-        {foreach key=elem from=$content item=stt}
-        <tr class="{php} global $line; print $line[$l%2]; {/php}">
+        {foreach $content as $stt}
+        <tr class="{math equation='x % 2' x = $line[l] to=$lineResult}">
             <td class="ListColCenter"><img class="ico-14" src="./img/icons/service.png"></td>
             <td class="ListColLeft">
                 <a
@@ -136,12 +136,12 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
+        {assign "l" vale=$l+1}
         {/foreach}
         {else}
-        {php} $l = 0; {/php}
-        {foreach key=elem from=$content item=stt}
-        <tr class="{php} global $line; print $line[$l%2]; {/php}">
+        {assign "l" value=0}
+        {foreach $content as $stt}
+        <tr class="{math equation='x % 2' x=$line[l] to=$lineResult}">
             <td class="ListColCenter">
             {if $selection == 1 || $selection == 3}
                 <img class="ico-14" src="./img/icons/service.png">
@@ -213,15 +213,13 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
+        {assign "l" value=$l+1}
         {/foreach}
         {/if}
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+            {pagination}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>
