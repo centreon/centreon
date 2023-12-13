@@ -1,7 +1,5 @@
 #!/bin/sh
 
-sleep 30
-
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon.sql
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon_storage.sql
 

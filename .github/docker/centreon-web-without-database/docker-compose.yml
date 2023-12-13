@@ -7,7 +7,8 @@ services:
     image: "docker.centreon.com/centreon/centreon-web-without-database:MON-23368-containers"
     restart: 'always'
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     ports:
       - '8080:80'
     links:
