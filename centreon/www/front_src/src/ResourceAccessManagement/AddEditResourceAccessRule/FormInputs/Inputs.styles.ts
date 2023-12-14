@@ -7,20 +7,22 @@ export const useInputStyles = makeStyles()((theme) => ({
   contactsAndContactGroups: {
     display: 'flex',
     flexDirection: 'column',
-    width: '50%'
+    width: '100%'
   },
   resourceSelection: {
     display: 'flex',
     flexDirection: 'column',
-    width: '50%'
+    justifyContent: 'flex-start',
+    width: '100%'
   },
   ruleProperties: {
     backgroundColor: theme.palette.grey[300],
     borderRadius: '4px',
     display: 'flex',
     flexDirection: 'column',
-    padding: theme.spacing(2),
-    width: '45%'
+    height: '100%',
+    justifyContent: 'flex-start',
+    padding: theme.spacing(2)
   },
   titleGroup: {
     color: theme.palette.primary.main,
