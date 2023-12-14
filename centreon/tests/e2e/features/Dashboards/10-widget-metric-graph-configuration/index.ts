@@ -5,7 +5,7 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
-import metricsGraphDoublecWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
+import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 
 before(() => {
   cy.startWebContainer();
@@ -174,11 +174,8 @@ Then('the information about the selected metric is displayed', () => {
 });
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -264,11 +261,8 @@ Then(
 );
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -303,11 +297,8 @@ Then('the second widget has the same properties as the first widget', () => {
 });
 
 Given('a dashboard featuring two Metrics Graph widgets', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphDoublecWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -346,11 +337,8 @@ Then(
 );
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards/library`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',

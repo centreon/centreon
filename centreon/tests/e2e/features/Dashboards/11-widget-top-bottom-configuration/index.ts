@@ -6,6 +6,9 @@ import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashb
 import dashbboardWithTwoTopBottomWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoTopBottomWidgets.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
+const hostName = 'Centreon-Server';
+const hostGroupName = 'Linux-Servers';
+
 before(() => {
   cy.startWebContainer();
   cy.enableDashboardFeature();
@@ -71,6 +74,7 @@ beforeEach(() => {
     loginViaApi: false
   });
   cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
 });
 
 afterEach(() => {
@@ -88,7 +92,8 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
+    cy.wait('@listAllDashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -127,7 +132,7 @@ When(
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.contains('Linux-Servers').realClick();
+    cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
     cy.contains('rta (ms) / Includes 1 resources').realClick();
     cy.wait('@dashboardMetricsTop');
@@ -155,8 +160,9 @@ Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard configured with a Top Bottom widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
     tag: 'button'
@@ -169,12 +175,16 @@ Given('a dashboard configured with a Top Bottom widget', () => {
   }).click();
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.get('li[aria-label="Edit widget"]').click();
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
 });
 
 When(
   'the dashboard administrator user removes a host from the dataset selection of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'CancelIcon' }).click();
+    cy.contains(hostName)
+      .parent()
+      .getByTestId({ testId: 'CancelIcon' })
+      .click();
   }
 );
 
@@ -196,7 +206,7 @@ When(
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.contains('Linux-Servers').realClick();
+    cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
     cy.contains('rta (ms) / Includes 1 resources').realClick();
   }
@@ -215,8 +225,9 @@ Then(
 );
 
 Given('a dashboard having a configured Top Bottom widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
     tag: 'button'
@@ -249,11 +260,12 @@ Then('a second Top Bottom widget is displayed on the dashboard', () => {
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
-  cy.insertDashboardWithSingleMetricWidget(
+  cy.insertDashboardWithWidget(
     dashboards.default,
     dashbboardWithTwoTopBottomWidgets
   );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
     tag: 'button'
@@ -282,8 +294,8 @@ Then('only the contents of the other widget are displayed', () => {
 });
 
 Given('a dashboard with a configured Top Bottom widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -319,8 +331,8 @@ Then(
 );
 
 Given('a dashboard containing a Top Bottom widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -363,8 +375,8 @@ Then(
 );
 
 Given('a dashboard featuring a configured Top Bottom widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(dashboards.default, topBottomWidget);
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
