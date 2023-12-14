@@ -14,6 +14,12 @@ manageUsersAndGroups() {
   fi
 }
 
+fixInstallDirectoryRights() {
+  # https://github.com/goreleaser/nfpm/issues/738
+  echo "Forcing rights of centreon install directory ..."
+  chown -R centreon:centreon /usr/share/centreon/www/install
+}
+
 updateConfigurationFiles() {
   export MIN=$(awk 'BEGIN{srand(); print int(rand()*60)}')
   export HOUR=$(awk 'BEGIN{srand(); print int(rand()*24)}')
@@ -112,6 +118,7 @@ fi
 case "$action" in
   "1" | "install")
     manageUsersAndGroups $package_type
+    fixInstallDirectoryRights
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
@@ -119,6 +126,7 @@ case "$action" in
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
+    fixInstallDirectoryRights
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
