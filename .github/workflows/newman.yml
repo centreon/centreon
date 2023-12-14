@@ -67,11 +67,11 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
 
     outputs:
-      test_execution_id: ${{ steps.xray-newman.outputs.test_execution_id }}
-      test_plan_id: ${{ steps.get-test-plan-id.outputs.test_plan_id }}
+      test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
+      test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
 
     defaults:
       run:
@@ -89,8 +89,8 @@ jobs:
           test_plan_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_id_'${{ inputs.os }})
           echo "The Test Execution ID : $test_execution_id"
           echo "The Test Plan ID : $test_plan_id"
-          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
-          echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
+          echo "test_plan_id=73850" >> $GITHUB_OUTPUT
+          echo "test_execution_id=84044" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Generate Xray Token
@@ -107,7 +107,7 @@ jobs:
           xray_graphql_getTestPlan='{
             "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
             "variables": {
-              "issueId": "73850"
+              "issueId": "${{ steps.get-test-ids.outputs.test_plan_id }}"
             }
           }'
 
@@ -147,7 +147,7 @@ jobs:
           xray_graphql_AddingTestsToTestPlan='{
             "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
-              "issueId": "73850",
+              "issueId":"${{ steps.get-test-ids.outputs.test_plan_id }}",
               "testIssueIds": []
             }
           }'
@@ -227,7 +227,7 @@ jobs:
           xray_graphql_addTestsToTestExecution='{
             "query": "mutation AddTestsToTestExecution($issueId: String!, $testIssueIds: [String]) { addTestsToTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
-              "issueId": "84044",
+              "issueId": "${{ steps.get-test-ids.outputs.test_execution_id }}",
               "testIssueIds": '$formatted_test_issue_ids_str'
             }
           }'
@@ -365,8 +365,8 @@ jobs:
         if: ${{ contains(fromJson('["canary", "stable"]'), inputs.stability) || failure() }}
         run: |
           for summary_file in ./postman_summaries/*.json; do
-              test_execution_id="84044"
-              test_plan_id="73850"
+          test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
+          test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
               filename=$(basename "$summary_file")
               collection_name="${filename%-summary.json}"
               collection_name="${collection_name//-/_}"
@@ -445,11 +445,10 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+        if: ${{ contains(fromJson('["canary", "stable"]'), inputs.stability) }}
         run: |
               test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
               transition_ids=("61" "81" "21" "31")
-              transition_ids_test_exec=("3" "5")
 
               xray_graphql_getTestPlan='{
                 "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
@@ -458,26 +457,12 @@ jobs:
                 }
               }'
 
-              test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
-              for transition_id_exec in "${transition_ids_test_exec[@]}"; do
-                echo "Performing Jira transition with transition ID: $transition_ids_test_exec"
-                curl --request POST \
-                  --url "https://centreon.atlassian.net/rest/api/2/issue/${test_execution_id}/transitions?expand=transitions.fields" \
-                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
-                  --header 'Accept: application/json' \
-                  --header 'Content-Type: application/json' \
-                  --data '{
-                    "transition": {
-                      "id": "'"$transition_id_exec"'"
-                    }
-                  }'
-              done
               response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "$xray_graphql_getTestPlan" "https://xray.cloud.getxray.app/api/v2/graphql")
 
               echo "Response from Get Test Plan:"
               echo "$response"
 
-              issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].issueId'))
+              issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
 
               for test_issue_id in "${issue_ids[@]}"; do
                 for transition_id in "${transition_ids[@]}"; do
