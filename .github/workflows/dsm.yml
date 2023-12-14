@@ -161,6 +161,26 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
 
+  collect-build-info:
+    needs: [get-version,package]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [common]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup JFROG CLI
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_URL: https://centreon.jfrog.io
+          JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+          JFROG_CLI_LOG_LEVEL: DEBUG
+
+      - name: Publish aggregated build info
+        run: |
+          jf rt build-append aggregating-build dsm-${{ github.run_number }}
+
   promote:
     needs: [get-version]
     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}

@@ -78,12 +78,13 @@ runs:
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/" --flat
               else
                 #jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
-                jf rt upload "$ARCH/*.rpm" "test-rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat --build-number "${{ github.run_number }}" --build-name "${{ inputs.module_name }}"
+                jf rt upload "$ARCH/*.rpm" "test-rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat --build-number "${{ github.run_number }}" --build-name "${{ inputs.module_name }}-${{ inputs.distrib }}"
               fi
             fi
           done
         done
 
         # Publish build information (keep this after cleaning PR)
-        jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
+        #jf rt bp ${{ inputs.module_name }}-${{ inputs.distrib}}-${{ github.run_number }}
+        jf rt build-append aggregating-build ${{ inputs.module_name }}-${{ github.run_number }} ${{ inputs.module_name }}-${{ inputs.distrib }}
       shell: bash
