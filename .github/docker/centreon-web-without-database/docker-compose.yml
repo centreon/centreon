@@ -4,7 +4,7 @@ services:
   web:
     env_file:
       - .env
-    image: "docker.centreon.com/centreon/centreon-web-without-database:MON-23368-containers"
+    image: "docker.centreon.com/centreon/centreon-web-fresh-alma9:MON-23368-containers"
     restart: 'always'
     depends_on:
       mariadb:

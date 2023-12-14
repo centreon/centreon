@@ -196,7 +196,7 @@ mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/cent
 
 service mysql stop
 
-dnf remove -y mariadb-server mariadb
+dnf remove -y mariadb-server
 rm -rf /var/lib/mysql
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
