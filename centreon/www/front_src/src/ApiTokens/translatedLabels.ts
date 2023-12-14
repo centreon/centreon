@@ -20,3 +20,6 @@ export const labelRequired = 'This field is required';
 export const labelToken = 'Token';
 export const labelOk = 'Ok';
 export const labelCancel = 'Cancel';
+export const labelTokenCreated = 'Token has been created';
+export const labelSecurityToken =
+  'For security reasons, the token can only be displayed once.Remember to store it well.';
