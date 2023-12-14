@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Application\Common\UseCase;
 
 /**
- * @template TResourceId
+ * @template TResourceId of int|string|null
  * @template TPayload
  */
 final class CreatedResponse implements ResponseStatusInterface
@@ -44,8 +44,9 @@ final class CreatedResponse implements ResponseStatusInterface
      */
     public function getResourceId(): mixed
     {
-        return match (gettype($this->resourceId)) {
-            'integer', 'string' => $this->resourceId,
+        return match (true) {
+            null === $this->resourceId,
+            is_int($this->resourceId) => $this->resourceId,
             default => (string) $this->resourceId,
         };
     }

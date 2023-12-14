@@ -50,8 +50,10 @@ final class LoginController extends AbstractController
         LoginPresenter $presenter,
         SessionInterface $session
     ): object {
+        /** @var string $content */
+        $content = $request->getContent();
         /** @var array{login?: string, password?: string} $payload */
-        $payload = json_decode($request->getContent(), true);
+        $payload = json_decode($content, true);
 
         if ($referer = $request->headers->get('referer')) {
             $referer = parse_url($referer, PHP_URL_QUERY);
