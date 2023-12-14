@@ -96,7 +96,7 @@ runs:
         done
 
         #jf rt bpr --copy --source-repo test-apt-${{ inputs.version }}-standard-testing test-apt-${{ inputs.version }}-standard-stable
-        jf rt bpr --copy --source-repo test-apt-23.10-standard-testing test-apt-23.10-standard-stable
+        jf rt bpr --copy --source-repo test-apt-23.10-standard-testing/pool/${{ inputs.module }}/ test-apt-23.10-standard-stable/pool/${{ inputs.module }}/
 
 
       shell: bash
