@@ -24,10 +24,10 @@ declare(strict_types = 1);
 namespace Core\Command\Infrastructure\Command\MigrateAllCommands;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Option\Interfaces\OptionRepositoryInterface;
 use Core\Command\Application\UseCase\MigrateAllCommands\MigrateAllCommands;
 use Core\Command\Infrastructure\Repository\ApiWriteCommandRepository;
 use Core\Common\Infrastructure\Command\AbstractMigrationCommand;
+use Core\Proxy\Application\Repository\ReadProxyRepositoryInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,11 +41,11 @@ class MigrateAllCommandsCommand extends AbstractMigrationCommand
     protected static $defaultDescription = 'Migrate all commands from the current platform to the defined target platform';
 
     public function __construct(
-        OptionRepositoryInterface $optionRepository,
+        ReadProxyRepositoryInterface $readProxyRepository,
         readonly private ApiWriteCommandRepository $apiWriteCommandRepository,
         readonly private MigrateAllCommands $useCase,
     ) {
-        parent::__construct($optionRepository);
+        parent::__construct($readProxyRepository);
     }
 
     protected function configure(): void

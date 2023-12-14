@@ -142,7 +142,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *  bindValues: array<mixed>
      * }
      */
-    private function buildSubRequestForHostFilter($hostIds): array
+    private function buildSubRequestForHostFilter(array $hostIds): array
     {
         foreach ($hostIds as $hostId) {
             $bindHostIds[':host_' . $hostId] = [$hostId => \PDO::PARAM_INT];
@@ -293,7 +293,16 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * Get request and bind values information for each search filter.
      *
      * @phpstan-param array{
-     *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
+     *     '$and': array<
+     *         array{
+     *                   'service.name'?: array{'$in': non-empty-array<string>},
+     *                        'host.id'?: array{'$in': non-empty-array<int>},
+     *                   'hostgroup.id'?: array{'$in': non-empty-array<int>},
+     *                'servicegroup.id'?: array{'$in': non-empty-array<int>},
+     *                'hostcategory.id'?: array{'$in': non-empty-array<int>},
+     *             'servicecategory.id'?: array{'$in': non-empty-array<int>},
+     *         }
+     *     >
      * } $search
      *
      * @param array<mixed> $search

@@ -1,0 +1,68 @@
+name: "centreon-central"
+arch: "all"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  The package contains base configuration for Centreon Engine and Centreon Broker.
+  It provides one default monitoring engine running with Centreon Engine and
+  two Centreon Broker instances to store real-time information in database and
+  performance data in RRD files.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - centreon-poller = ${VERSION}-${RELEASE}${DIST}
+      - centreon-web = ${VERSION}-${RELEASE}${DIST}
+      - centreon-broker-cbd >= ${MAJOR_VERSION}
+      - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
+      - centreon-license-manager >= ${MAJOR_VERSION}
+      - centreon-license-manager < ${NEXT_MAJOR_VERSION}
+      - centreon-pp-manager >= ${MAJOR_VERSION}
+      - centreon-pp-manager < ${NEXT_MAJOR_VERSION}
+      - centreon-auto-discovery-server >= ${MAJOR_VERSION}
+      - centreon-auto-discovery-server < ${NEXT_MAJOR_VERSION}
+    provides:
+      - centreon-base-config
+      - centreon-base-config-centreon-engine
+    replaces:
+      - centreon-base-config
+      - centreon-base-config-centreon-engine
+    conflicts:
+      - centreon-base-config-nagios
+  deb:
+    depends:
+      - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-web (= ${VERSION}-${RELEASE}${DIST})
+      - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
+      - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-license-manager (>= ${MAJOR_VERSION}~)"
+      - "centreon-license-manager (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-pp-manager (>= ${MAJOR_VERSION}~)"
+      - "centreon-pp-manager (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-auto-discovery-server(>= ${MAJOR_VERSION}~)"
+      - "centreon-auto-discovery-server (<< ${NEXT_MAJOR_VERSION}~)"
+    provides:
+      - centreon-base-config
+      - centreon-base-config-centreon-engine
+    replaces:
+      - centreon-base-config
+      - centreon-base-config-centreon-engine
+    conflicts:
+      - centreon-base-config
+      - centreon-base-config-centreon-engine
+
+rpm:
+  summary: Configuration for Centreon with Centreon Engine and Centreon Broker
+  compression: zstd
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

@@ -362,7 +362,14 @@ class CentreonCommand extends CentreonObject
         foreach ($elements as $element) {
             $addStr = $this->action . $this->delim . "ADD";
             foreach ($this->insertParams as $param) {
-                $addStr .= $this->delim . $element[$param];
+                $addStr .= $this->delim;
+                if ($param === 'command_line') {
+                    $decodedHtmlParam = CentreonUtils::convertSpecialPattern(html_entity_decode($element[$param]));
+                    $decodedHtmlParam = CentreonUtils::convertLineBreak($decodedHtmlParam);
+                    $addStr .= $decodedHtmlParam;
+                } else {
+                    $addStr .= $element[$param];
+                }
             }
             $addStr .= "\n";
             echo $addStr;
