@@ -14,16 +14,19 @@ const reloadWebServer = (): Cypress.Chainable => {
 
 const updateWebServerConfig = (): Cypress.Chainable => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    return cy.execInContainer({
-      command:
-        'bash -c "sed -i \'0,/centreon/s//monitor/\' /etc/httpd/conf.d/10-centreon.conf"',
+    cy.execInContainer({
+      command: `bash -c "sed -i '0,/centreon/s//monitor/' /etc/httpd/conf.d/10-centreon.conf"`,
+      name: Cypress.env('dockerName')
+    });
+  } else {
+    cy.execInContainer({
+      command: `bash -c "sed -i '0,/centreon/s//monitor/' /etc/apache2/sites-available/centreon.conf"`,
       name: Cypress.env('dockerName')
     });
   }
 
   return cy.execInContainer({
-    command:
-      'bash -c "sed -i \'0,/centreon/s//monitor/\' /etc/apache2/sites-available/centreon.conf"',
+    command: `bash -c "apachectl -t"`,
     name: Cypress.env('dockerName')
   });
 };

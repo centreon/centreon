@@ -57,6 +57,20 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
  *     blacklist_client_addresses: string[],
  *     endpoint: _EndpointArray|null
  * }
+ * @phpstan-type _groupsMapping array{
+ *     is_enabled: bool,
+ *     attribute_path: string,
+ *     endpoint: _EndpointArray|null,
+ *     relations: array<
+ *         array{
+ *             group_value: string,
+ *             contact_group: array{
+ *                 id: int,
+ *                 name: string
+ *             }
+ *         }
+ *     >
+ * }
  */
 final class FindOpenIdConfigurationResponse
 {
@@ -120,23 +134,7 @@ final class FindOpenIdConfigurationResponse
     /** @var _authenticationConditions|array{} */
     public array $authenticationConditions = [];
 
-    /**
-     * @var array{}|array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint": string|null
-     *  },
-     *  "relations": array<array{
-     *      "group_value": string,
-     *      "contact_group": array{
-     *          "id": int,
-     *          "name": string
-     *      }
-     *  }>
-     * }
-     */
+    /** @var array{}|_groupsMapping */
     public array $groupsMapping = [];
 
     public ?string $redirectUrl = null;
@@ -193,21 +191,7 @@ final class FindOpenIdConfigurationResponse
     /**
      * @param GroupsMapping $groupsMapping
      *
-     * @return array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint": string|null
-     *  },
-     *  "relations": array<array{
-     *      "group_value": string,
-     *      "contact_group": array{
-     *          "id": int,
-     *          "name": string
-     *      }
-     *  }>
-     * }
+     * @return _groupsMapping
      */
     public static function groupsMappingToArray(GroupsMapping $groupsMapping): array
     {
@@ -216,7 +200,7 @@ final class FindOpenIdConfigurationResponse
         return [
             'is_enabled' => $groupsMapping->isEnabled(),
             'attribute_path' => $groupsMapping->getAttributePath(),
-            'endpoint' => $groupsMapping->getEndpoint()->toArray(),
+            'endpoint' => $groupsMapping->getEndpoint()?->toArray(),
             'relations' => $relations,
         ];
     }

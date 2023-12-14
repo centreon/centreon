@@ -104,7 +104,7 @@ class ACLConditions
      *     is_enabled: bool,
      *     apply_only_first_role: bool,
      *     attribute_path: string,
-     *     endpoint: _EndpointArray,
+     *     endpoint: _EndpointArray|null,
      * }
      */
     public function toArray(): array
@@ -113,7 +113,7 @@ class ACLConditions
             'is_enabled' => $this->isEnabled,
             'apply_only_first_role' => $this->applyOnlyFirstRole,
             'attribute_path' => $this->attributePath,
-            'endpoint' => $this->endpoint->toArray(),
+            'endpoint' => $this->endpoint?->toArray(),
         ];
     }
 

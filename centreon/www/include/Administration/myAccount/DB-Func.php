@@ -268,8 +268,6 @@ function updateNonLocalContactInDB($contact_id = null): void
     $ret = $form->getSubmitValues();
     $ret['contact_pager'] = !empty($ret['contact_pager']) ?
         CentreonUtils::escapeSecure($ret['contact_pager'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
-    $ret['contact_autologin_key'] = !empty($ret['contact_autologin_key']) ?
-        CentreonUtils::escapeSecure($ret['contact_autologin_key'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
     $ret['contact_lang'] = !empty($ret['contact_lang']) ?
         CentreonUtils::escapeSecure($ret['contact_lang'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
 
@@ -279,7 +277,6 @@ function updateNonLocalContactInDB($contact_id = null): void
         'contact_pager = :contactPager, ' .
         'default_page = :defaultPage, ' .
         'show_deprecated_pages = :showDeprecatedPages, ' .
-        'contact_autologin_key = :contactAutologinKey, ' .
         'contact_theme = :contactTheme';
     $rq .= ' WHERE contact_id = :contactId';
 
@@ -288,11 +285,6 @@ function updateNonLocalContactInDB($contact_id = null): void
     $stmt->bindValue(
         ':contactPager',
         !empty($ret['contact_pager']) ? $ret['contact_pager'] : null,
-        \PDO::PARAM_STR
-    );
-    $stmt->bindValue(
-        ':contactAutologinKey',
-        !empty($ret['contact_autologin_key']) ? $ret['contact_autologin_key'] : null,
         \PDO::PARAM_STR
     );
     $stmt->bindValue(
@@ -320,6 +312,4 @@ function updateNonLocalContactInDB($contact_id = null): void
      * Update user object..
      */
     $centreon->user->lang = $ret['contact_lang'];
-    $centreon->user->setToken(isset($ret['contact_autologin_key']) ? $ret['contact_autologin_key'] : "''");
-    updateNotificationOptions($contact_id);
 }
