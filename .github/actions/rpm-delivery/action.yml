@@ -34,6 +34,7 @@ runs:
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+        JFROG_CLI_LOG_LEVEL: debug
 
     - name: Publish RPMs
       run: |
@@ -71,7 +72,6 @@ runs:
         fi
 
         # Publish build info (keep this after cleaning PR)
-        export JFROG_CLI_LOG_LEVEL=debug
         jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
 
         for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
