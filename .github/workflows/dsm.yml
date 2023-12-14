@@ -180,6 +180,7 @@ jobs:
       - name: Publish aggregated build info
         run: |
           jf rt build-append aggregating-build dsm-${{ github.run_number }}
+        shell: bash
 
   promote:
     needs: [get-version]
