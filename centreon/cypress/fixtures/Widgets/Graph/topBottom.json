@@ -9,6 +9,7 @@
       "id": 1,
       "max": 120,
       "min": 0,
+      "uuid": "h1s1",
       "name": "Centreon_server_1",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
@@ -20,6 +21,7 @@
       "id": 2,
       "max": 120,
       "min": 0,
+      "uuid": "h1s2",
       "name": "Centreon_server_2",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
@@ -31,6 +33,7 @@
       "id": 3,
       "max": 120,
       "min": 0,
+      "uuid": "h1s3",
       "name": "Centreon_server_3",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
@@ -42,6 +45,7 @@
       "id": 4,
       "max": 120,
       "min": 0,
+      "uuid": "h1s4",
       "name": "Centreon_server_4",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
