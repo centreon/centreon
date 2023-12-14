@@ -1,4 +1,5 @@
 import { Provider, createStore } from 'jotai';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method, QueryProvider } from '@centreon/ui';
 import {
@@ -24,7 +25,10 @@ import {
   labelRotationTimeShouldBeAtMost,
   labelSelectDashboards
 } from '../../../translatedLabels';
-import { labelRequired, labelSave } from '../../../Dashboard/translatedLabels';
+import {
+  labelRequired,
+  labelSave
+} from '../../../SingleInstancePage/Dashboard/translatedLabels';
 
 import PlaylistConfig from './PlaylistConfig';
 import { initialValue } from './utils';
@@ -70,11 +74,13 @@ const initializePlaylistConfigCreation = (): void => {
 
   cy.mount({
     Component: (
-      <QueryProvider>
-        <Provider store={store}>
-          <PlaylistConfig />
-        </Provider>
-      </QueryProvider>
+      <BrowserRouter>
+        <QueryProvider>
+          <Provider store={store}>
+            <PlaylistConfig />
+          </Provider>
+        </QueryProvider>
+      </BrowserRouter>
     )
   });
 };
@@ -120,11 +126,13 @@ const initializePlaylistConfigEdition = (): void => {
 
   cy.mount({
     Component: (
-      <QueryProvider>
-        <Provider store={store}>
-          <PlaylistConfig />
-        </Provider>
-      </QueryProvider>
+      <BrowserRouter>
+        <QueryProvider>
+          <Provider store={store}>
+            <PlaylistConfig />
+          </Provider>
+        </QueryProvider>
+      </BrowserRouter>
     )
   });
 };

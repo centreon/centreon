@@ -17,6 +17,7 @@ export const PageLayoutActions = ({
     <section
       className={classes.pageLayoutActions}
       data-row-reverse={rowReverse}
+      id="actions"
     >
       {children}
     </section>

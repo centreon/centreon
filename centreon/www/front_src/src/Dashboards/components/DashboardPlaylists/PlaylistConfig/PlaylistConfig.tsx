@@ -13,7 +13,11 @@ import { getValidationSchema } from './validationSchema';
 import FormActions from './FormActions';
 import { useSaveConfig } from './useSaveConfig';
 
-const PlaylistConfig = (): JSX.Element => {
+interface Props {
+  navigateToCreatedPlaylist?: boolean;
+}
+
+const PlaylistConfig = ({ navigateToCreatedPlaylist }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const playlistConfigInitialValues = useAtomValue(
@@ -22,7 +26,10 @@ const PlaylistConfig = (): JSX.Element => {
 
   const playlistId = playlistConfigInitialValues?.id;
 
-  const { saveDashboard } = useSaveConfig(playlistId);
+  const { saveDashboard } = useSaveConfig({
+    navigateToCreatedPlaylist,
+    playlistId
+  });
 
   const isOpen = !!playlistConfigInitialValues;
 

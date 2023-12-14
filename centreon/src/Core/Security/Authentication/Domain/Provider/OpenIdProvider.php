@@ -336,7 +336,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForRefreshTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Refresh Token Info:', $content);
             $this->logErrorFromExternalProvider($content);
@@ -472,7 +472,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForConnectionTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Connection Token Info: ', $content);
             $this->logErrorFromExternalProvider($content);
@@ -581,7 +581,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForIntrospectionTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Introspection Token Info: ', $content);
             $this->logErrorFromExternalProvider($content);
@@ -654,7 +654,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForUserInformationFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('User Information Info: ', $content);
             $this->logErrorFromExternalProvider($content);
