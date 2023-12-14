@@ -93,7 +93,7 @@ runs:
         done
 
         #jf rt bpr --copy --source-repo test-apt-${{ inputs.version }}-standard-testing test-apt-${{ inputs.version }}-standard-stable
-        jf rt bpr ${{ inputs.module }} 851 test-apt-23.10-standard-stable --copy --source-repo test-apt-23.10-standard-testing
+        jf rt bpr ${{ inputs.module }} 851 test-apt-23.10-standard-stable --copy --source-repo apt-standard-24.04-unstable
 
 
       shell: bash
