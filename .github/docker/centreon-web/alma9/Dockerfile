@@ -1,6 +1,6 @@
 ARG VERSION
 
-FROM almalinux:9 AS web_fresh
+FROM almalinux:9
 
 ARG VERSION
 
@@ -136,6 +136,8 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
+COPY ./.github/docker/centreon-web/sql /tmp/sql
+
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
@@ -182,6 +184,11 @@ rm -rf /usr/share/centreon/www/install
 
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+
+mysql centreon < /tmp/sql/standard.sql
+mysql centreon < /tmp/sql/media.sql
+mysql centreon < /tmp/sql/openldap.sql
+
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 
 mysqldump --add-drop-database --databases centreon > /usr/local/src/centreon.sql
@@ -201,18 +208,3 @@ EOF
 EXPOSE 80 3306
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
-
-FROM web_fresh AS web_standard
-
-COPY ./.github/docker/centreon-web/sql /tmp/sql
-
-RUN bash -e <<EOF
-
-service mysql start
-mysql centreon < /tmp/sql/standard.sql
-mysql centreon < /tmp/sql/media.sql
-mysql centreon < /tmp/sql/openldap.sql
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-service mysql stop
-
-EOF

@@ -532,11 +532,10 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      - name: Build and push fresh image
+      - name: Build and push web image
         uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_fresh
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
@@ -545,31 +544,31 @@ jobs:
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - name: Build standard image
-        uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_standard
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-          pull: true
-          load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      # - name: Build standard image
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+      #     target: web_standard
+      #     context: .
+      #     build-args: |
+      #       "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+      #       "VERSION=${{ needs.get-version.outputs.major_version }}"
+      #     pull: true
+      #     load: true
+      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - name: Push standard image
-        uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_standard
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-          pull: false
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      # - name: Push standard image
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+      #     target: web_standard
+      #     context: .
+      #     build-args: |
+      #       "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+      #       "VERSION=${{ needs.get-version.outputs.major_version }}"
+      #     pull: false
+      #     push: true
+      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
   #     - name: Setup docker slim
   #       run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.3
