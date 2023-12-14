@@ -7,15 +7,15 @@ services:
     image: "docker.centreon.com/centreon/centreon-web-fresh-alma9:MON-23368-containers"
     restart: 'always'
     depends_on:
-      mariadb:
+      db:
         condition: service_healthy
     ports:
       - '8080:80'
     links:
-      - mariadb
+      - db
     environment:
-      MYSQL_HOST: mariadb
-  mariadb:
+      MYSQL_HOST: db
+  db:
     env_file:
       - .env
     image: "mariadb:${MARIADB_VERSION}"

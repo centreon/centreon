@@ -169,7 +169,7 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
-dnf install -y mariadb-server
+dnf install -y mariadb-server mariadb-client
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
@@ -198,7 +198,7 @@ mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/cent
 
 service mysql stop
 
-dnf remove -y mariadb-server mariadb galera-4
+dnf remove -y mariadb-server galera-4
 rm -rf /var/lib/mysql
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
