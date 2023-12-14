@@ -94,7 +94,7 @@ $mandatoryPrivileges = [
     'REFERENCES'
 ];
 $privilegesQuery = implode(', ', $mandatoryPrivileges);
-$query = "GRANT " . $privilegesQuery . " ON `%s`.* TO '" . $parameters['db_user'] . "'@'" . $host . "'";
+$query = "GRANT ALL PRIVILEGES ON `%s`.* TO " . $parameters['db_user'] . "@" . $host . " WITH GRANT OPTION";
 $flushQuery = "FLUSH PRIVILEGES";
 
 try {
