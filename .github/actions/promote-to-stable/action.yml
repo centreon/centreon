@@ -82,6 +82,9 @@ runs:
           continue
         fi
 
+        # Publish build info
+        jf rt bp MON-32904-migrate-from-gha-promote-to-jfrog-pipeline-promote $(date +%s)
+
         echo "[DEBUG] - Build target path."
         TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
@@ -89,7 +92,11 @@ runs:
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Promoting $ARTIFACT to stable."
-          jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
+          #jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
         done
+
+        #jf rt bpr --copy --source-repo test-apt-${{ inputs.version }}-standard-testing test-apt-${{ inputs.version }}-standard-stable
+        jf rt bpr --copy --source-repo test-apt-23.10-standard-testing test-apt-23.10-standard-stable
+
 
       shell: bash
