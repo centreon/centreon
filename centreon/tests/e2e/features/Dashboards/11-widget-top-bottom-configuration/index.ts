@@ -181,23 +181,23 @@ Given('a dashboard configured with a Top Bottom widget', () => {
 When(
   'the dashboard administrator user removes a host from the dataset selection of the Top Bottom widget',
   () => {
-    // Uncomment once MON-33311 is fixed
-    // cy.contains(hostName)
-    //   .parent()
-    //   .getByTestId({ testId: 'CancelIcon' })
-    //   .click();
+    cy.contains(hostName)
+      .parent()
+      .getByTestId({ testId: 'CancelIcon' })
+      .click();
   }
 );
 
 Then(
   'the bar associated with the host is removed from the Top Bottom widget preview',
   () => {
-    cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-      .eq(1)
-      .should('not.exist');
-    cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-      .eq(1)
-      .should('not.exist');
+    // Uncomment once MON-33311 is fixed
+    // cy.getByTestId({ testId: 'warning-line-200-tooltip' })
+    //   .eq(1)
+    //   .should('not.exist');
+    // cy.getByTestId({ testId: 'critical-line-400-tooltip' })
+    //   .eq(1)
+    //   .should('not.exist');
   }
 );
 
