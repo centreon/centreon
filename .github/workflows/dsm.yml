@@ -163,11 +163,11 @@ jobs:
 
   promote:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability)}}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [el8, el9, bullseye]
 
     steps:
       - name: Checkout sources
