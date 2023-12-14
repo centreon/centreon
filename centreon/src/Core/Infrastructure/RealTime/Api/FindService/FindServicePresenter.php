@@ -81,7 +81,7 @@ class FindServicePresenter extends AbstractPresenter implements FindServicePrese
             'severity' => $data->severity,
         ];
 
-        if (!empty($data->severity['icon'])) {
+        if (! empty($data->severity['icon'])) {
             /**
              * normalize the URL to the severity icon.
              */
