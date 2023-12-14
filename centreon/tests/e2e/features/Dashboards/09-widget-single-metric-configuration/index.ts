@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import 'cypress-real-events/support';
 
+import { checkServicesAreMonitored } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
@@ -36,6 +37,13 @@ before(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -119,9 +127,9 @@ When(
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.get('[class^="MuiAutocomplete-listbox"]').click();
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.get('[class^="MuiAutocomplete-option"]').eq(0).click();
+    cy.contains('Linux-Servers').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.contains('rta (ms)').realClick();
   }
 );
 

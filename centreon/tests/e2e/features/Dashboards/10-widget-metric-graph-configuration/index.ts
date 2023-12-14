@@ -13,6 +13,7 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
+
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? 'apache'
     : 'www-data';
@@ -20,6 +21,7 @@ before(() => {
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
     name: Cypress.env('dockerName')
   });
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -36,6 +38,7 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+
   checkServicesAreMonitored([
     {
       name: 'Ping',
@@ -131,8 +134,8 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.contains('rta (ms)').realClick();
     cy.wait('@performanceData');
   }
 );
@@ -361,8 +364,8 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('pl (%) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.contains('pl (%)').realClick();
   }
 );
 
