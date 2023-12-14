@@ -1,18 +1,12 @@
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
-import { object, string, number } from 'yup';
+import { number, object, string } from 'yup';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
-import {
-  labelInvalidDateCreationToken,
-  labelRequired
-} from '../translatedLabels';
+import { labelRequired } from '../translatedLabels';
 
 import FormCreation from './Form';
 import useCreateToken from './useCreateToken';
-import { isInvalidDate } from './utils';
-import { ErrorForm, ErrorKeys } from './models';
 
 const TokenCreationDialog = (): JSX.Element => {
   const { t } = useTranslation();
@@ -21,13 +15,13 @@ const TokenCreationDialog = (): JSX.Element => {
 
   const validationForm = object({
     duration: object({
-      id: string().required(msgError),
-      name: string().required(msgError)
-    }),
-    tokenName: string().required(msgError),
-    user: object({
-      id: number().required(msgError),
-      name: string().required(msgError)
+      id: string().required(),
+      name: string().required()
+    }).required({ msgError }),
+    tokenName: string().required(),
+    user: object().shape({
+      id: number().required(),
+      name: string().required()
     })
   });
 

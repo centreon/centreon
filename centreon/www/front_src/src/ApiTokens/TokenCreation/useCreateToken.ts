@@ -11,6 +11,7 @@ import {
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { createTokenEndpoint } from '../api/endpoints';
 import useRefetch from '../useRefetch';
+import { createdTokenDecoder } from '../api/decoder';
 
 import { CreatedToken, dataDuration } from './models';
 
@@ -27,6 +28,7 @@ const useCreateToken = (): UseCreateToken => {
     CreatedToken,
     undefined
   >({
+    decoder: createdTokenDecoder,
     getEndpoint: () => createTokenEndpoint,
     method: Method.POST
   });
@@ -46,7 +48,7 @@ const useCreateToken = (): UseCreateToken => {
     customizeDate
   }: Required<CreateTokenFormValues>): void => {
     if (equals(duration?.id, 'customize')) {
-      const expirationDate = toIsoString(customizeDate);
+      const expirationDate = toIsoString(customizeDate as Date);
 
       mutateAsync({
         expiration_date: expirationDate,

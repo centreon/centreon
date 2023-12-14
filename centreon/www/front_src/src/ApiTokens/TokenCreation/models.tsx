@@ -50,10 +50,3 @@ export interface OpenPicker {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
-
-export interface ErrorForm {
-  invalidDate?: string;
-  msg: string;
-}
-
-export type ErrorKeys = 'duration' | 'user' | 'tokenName';

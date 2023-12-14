@@ -1,50 +1,18 @@
-import { SetStateAction, useState, Dispatch, useMemo } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
-import { ClickAwayListener, Box, Popper } from '@mui/material';
-
 import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../../TokenListing/models';
+import { labelInvalidDateCreationToken } from '../../translatedLabels';
 import { AnchorElDuration, OpenPicker } from '../models';
 import { isInvalidDate as validateDate } from '../utils';
-import { labelInvalidDateCreationToken } from '../../translatedLabels';
 
 import ActionList from './ActionsList';
-
-const ButtonField = (): JSX.Element => {
-  return <div style={{ opacity: 0 }}>Customize</div>;
-};
-
-const PopperTest = (props) => {
-  console.log('---->>>>props', props);
-
-  const handleClickAway = () => {
-    console.log('click awaaaaaay');
-    props.setIsClickedOutside(true);
-  };
-
-  return (
-    <ClickAwayListener onClickAway={handleClickAway}>
-      <Popper
-        anchorEl={props.anchorEl}
-        // className={props.className}
-        open={props?.open}
-        placement={props.placement}
-        sx={{ zIndex: 1300 }}
-        // role="option"
-      >
-        {props?.children?.({
-          TransitionProps: { in: true },
-          placement: 'bottom'
-        })}
-      </Popper>
-    </ClickAwayListener>
-  );
-};
+import InvisibleField from './InvisibleField';
 
 interface Props {
   anchorElDuration: AnchorElDuration;
@@ -58,11 +26,11 @@ const CustomTimePeriod = ({
   setIsDisplayingDateTimePicker
 }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const { setFieldValue, values, setFieldError } =
-    useFormikContext<CreateTokenFormValues>();
+
   const { format } = useLocaleDateTimeFormat();
 
-  const [isClickedOutside, setIsClickedOutside] = useState(false);
+  const { setFieldValue, values, setFieldError } =
+    useFormikContext<CreateTokenFormValues>();
 
   const { customizeDate } = values;
 
@@ -74,16 +42,10 @@ const CustomTimePeriod = ({
 
   const [endDate, setEndDate] = useState<Date>(customizeDate ?? minDate);
 
-  // const slots = { field: ButtonField };
-
   const changeDate = ({ date }): void => {
     const currentDate = dayjs(date).toDate();
     setEndDate(currentDate);
-    console.log('------>onchange', validateDate({ endTime: currentDate }));
 
-    // if (validateDate({ endTime: currentDate })) {
-    //   setFieldError('duration', t(labelInvalidDateCreationToken));
-    // }
     setFieldValue('duration', {
       id: 'customize',
       name: format({ date: currentDate, formatString: 'LLL' })
@@ -96,24 +58,21 @@ const CustomTimePeriod = ({
     setIsDisplayingDateTimePicker(false);
   };
 
-  const onClose = (): void => {
-    console.log('close');
-    initialize();
-  };
-  console.log('----->open', open);
-
-  const cancel = () => {
+  const cancelDate = (): void => {
     initialize();
   };
 
-  const accept = (): void => {
+  const acceptDate = (): void => {
     if (validateDate({ endTime: endDate })) {
-      setFieldError('duration', t(labelInvalidDateCreationToken));
+      setFieldError('duration', {
+        invalidDate: t(labelInvalidDateCreationToken)
+      });
       initialize();
 
       return;
     }
     setFieldValue('customizeDate', endDate);
+
     initialize();
   };
 
@@ -122,17 +81,14 @@ const CustomTimePeriod = ({
   }, [endDate]);
 
   const slotProps = {
-    actionBar: { accept, cancel, isInvalidDate },
-    popper: { anchorEl, open, setIsClickedOutside, setOpen }
+    actionBar: { acceptDate, cancelDate, isInvalidDate },
+    popper: { anchorEl }
   };
 
   const slots = {
     actionBar: ActionList,
-    field: ButtonField,
-    popper: PopperTest
+    field: InvisibleField
   };
-
-  console.log({ isClickedOutside });
 
   return (
     <DateTimePickerInput
@@ -146,7 +102,6 @@ const CustomTimePeriod = ({
       slotProps={slotProps}
       slots={slots}
       timeSteps={{ minutes: 1 }}
-      // onClose={isClickedOutside ? undefined : onClose}
     />
   );
 };

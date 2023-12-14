@@ -17,7 +17,7 @@ import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
 
 import { DefaultParameters } from './Actions/Search/Filter/models';
 import { Column } from './ComponentsColumn/models';
-import Listing from './Listing';
+import Listing from './TokenListing';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);

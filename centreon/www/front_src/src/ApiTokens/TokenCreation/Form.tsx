@@ -55,7 +55,6 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     resetForm,
     errors
   } = useFormikContext<CreateTokenFormValues>();
-  console.log({ errors, values });
 
   const { token, duration, tokenName, user } = useCreateTokenFormValues({
     data,
@@ -124,7 +123,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
       />
       <SingleAutocompleteField
         disabled={Boolean(token)}
-        error={errors?.duration}
+        error={errors?.duration?.invalidDate}
         getOptionItemLabel={(option) => option?.name}
         id="duration"
         label={t(labelDuration)}

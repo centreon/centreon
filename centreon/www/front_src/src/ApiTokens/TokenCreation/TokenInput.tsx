@@ -7,6 +7,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { IconButton, TextField, useCopyToClipboard } from '@centreon/ui';
 
 import {
+  labelToken,
   labelTokenCopiedToTheClipboard,
   labelTokenCouldNotBeCopied
 } from '../translatedLabels';
@@ -38,7 +39,7 @@ const TokenInput = ({ token }: Props): JSX.Element => {
         EndAdornment={endAdornment({ isVisible, onClick: handleVisibility })}
         dataTestId="tokenInput"
         id="token"
-        label="Token"
+        label={t(labelToken)}
         style={{ width: '100%' }}
         type={isVisible ? 'text' : 'password'}
         value={token}

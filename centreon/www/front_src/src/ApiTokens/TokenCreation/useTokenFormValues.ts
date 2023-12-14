@@ -26,10 +26,10 @@ const useTokenFormValues = ({
   values,
   data
 }: Props): UseCreateTokenFormValues => {
-  const formatLabelDuration = (label): string => {
+  const formatLabelDuration = (label: string): string => {
     return label
       .split(' ')
-      .map((item) => (item === 'a' ? 1 : item))
+      .map((item) => (equals(item, 'a') ? 1 : item))
       .join(' ');
   };
 

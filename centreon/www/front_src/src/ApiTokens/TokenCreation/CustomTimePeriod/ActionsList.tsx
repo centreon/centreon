@@ -1,27 +1,47 @@
+import { useTranslation } from 'react-i18next';
+
 import { PickersActionBarProps } from '@mui/x-date-pickers/PickersActionBar';
 
-const ActionList = (props: PickersActionBarProps): JSX.Element => {
-  const { onAccept, onCancel, className, onClear } = props;
+import { SaveButton as Button } from '@centreon/ui';
 
-  const accept = (): void => {
-    // validation()
-    props.accept();
-    // onAccept();
-  };
+import { labelCancel, labelOk } from '../../translatedLabels';
+import { useStyles } from '../tokenCreation.styles';
+
+interface ActionListProps {
+  acceptDate: () => void;
+  cancelDate: () => void;
+  isInvalidDate: boolean;
+}
+
+const ActionList = (
+  props: PickersActionBarProps & ActionListProps
+): JSX.Element => {
+  const { classes, cx } = useStyles();
+  const { t } = useTranslation();
+  const { onCancel, className, acceptDate, cancelDate, isInvalidDate } = props;
 
   const cancel = (): void => {
-    props.cancel();
-    // onCancel();
+    onCancel();
+    cancelDate();
   };
 
   return (
-    <div className={className}>
-      <button disabled={props.isInvalidDate} type="button" onClick={accept}>
-        Ok
-      </button>
-      <button type="button" onClick={cancel}>
-        Cancel
-      </button>
+    <div className={cx(className, classes.container)}>
+      <Button
+        className={classes.button}
+        labelSave={t(labelCancel)}
+        startIcon={false}
+        variant="text"
+        onClick={cancel}
+      />
+      <Button
+        className={classes.button}
+        disabled={isInvalidDate}
+        labelSave={t(labelOk)}
+        startIcon={false}
+        variant="text"
+        onClick={acceptDate}
+      />
     </div>
   );
 };
