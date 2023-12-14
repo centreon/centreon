@@ -153,7 +153,8 @@ mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
 mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
 chmod -R 755 /usr/share/centreon/container.*
 
-mv /tmp/autoinstall.php /usr/share/centreon/autoinstall.php
+# mv /tmp/autoinstall.php /usr/share/centreon/autoinstall.php
+# chmod 755 /usr/share/centreon/autoinstall.php
 
 mv /tmp/configuration /usr/share/centreon/www/install/tmp/
 
@@ -164,6 +165,8 @@ echo "ok"
 ls -l /usr/share/centreon/www/install/
 echo "ok"
 ls -l /usr/share/centreon/www/install/tmp/
+echo "ok"
+ls -l /usr/share/centreon/www/install/tmp/configuration
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
