@@ -290,10 +290,8 @@ try {
                  * Copy monitoring engine's configuration files
                  */
                 foreach (glob($nagiosCFGPath . $host['id'] . '/*.{json,cfg}', GLOB_BRACE) as $filename) {
-                    $succeded = @copy(
-                        $filename,
-                        rtrim($nagiosCfg["cfg_dir"], "/") . '/' . basename($filename)
-                    );
+                    $targetFilePath = rtrim($nagiosCfg["cfg_dir"], "/") . '/' . basename($filename);
+                    $succeded = @copy($filename,$targetFilePath);
                     if (!$succeded) {
                         throw new Exception(
                             sprintf(
@@ -305,8 +303,8 @@ try {
                                 $host['name']
                             )
                         );
-                    } else {
-                        @chmod(rtrim($nagiosCfg["cfg_dir"], "/") . '/' . basename($filename), 0664);
+                    } elseif (posix_getuid() === fileowner($targetFilePath)) {
+                        @chmod($targetFilePath, 0664);
                     }
                 }
                 /*
@@ -330,7 +328,8 @@ try {
                             }
                         }
                         foreach ($listBrokerFile as $fileCfg) {
-                            $succeded = @copy($fileCfg, rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg));
+                            $targetFilePath = rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg);
+                            $succeded = @copy($fileCfg, $targetFilePath);
                             if (!$succeded) {
                                 throw new Exception(
                                     sprintf(
@@ -342,8 +341,8 @@ try {
                                         $host['name']
                                     )
                                 );
-                            } else {
-                                @chmod(rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg), 0664);
+                            } elseif (posix_getuid() === fileowner($targetFilePath)) {
+                                @chmod($targetFilePath, 0664);
                             }
                         }
                     }

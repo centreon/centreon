@@ -1,3 +1,0 @@
-#!/usr/bin/dh-exec
-
-packaging/src/centreon-apache.conf => etc/apache2/sites-available/centreon.conf
