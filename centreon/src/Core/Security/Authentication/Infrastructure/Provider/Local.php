@@ -73,7 +73,7 @@ class Local implements ProviderAuthenticationInterface
             'password' => $request->password,
         ]);
 
-        $this->username = $request->username;
+        $this->username = $request->username ?? '';
     }
 
     /**
@@ -127,7 +127,9 @@ class Local implements ProviderAuthenticationInterface
      */
     public function updateUser(): void
     {
-        $this->contactService->updateUser($this->provider->getUser());
+        if ($user = $this->provider->getUser()) {
+            $this->contactService->updateUser($user);
+        }
     }
 
     /**
@@ -145,7 +147,7 @@ class Local implements ProviderAuthenticationInterface
      */
     public function getProviderToken(?string $token = null): NewProviderToken
     {
-        return $this->provider->getProviderToken($token);
+        return $this->provider->getProviderToken($token ?? '');
     }
 
     /**
