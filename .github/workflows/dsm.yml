@@ -179,7 +179,9 @@ jobs:
 
       - name: Publish aggregated build info
         run: |
-          jf rt build-append dsm-${{ github.run_number }}
+          jf rt build-append dsm ${{ github.run_number }} dsm-${{ github.run_number }} dsm-el8
+          jf rt build-append dsm ${{ github.run_number }} dsm-${{ github.run_number }} dsm-el9
+          jf rt build-append dsm ${{ github.run_number }} dsm-${{ github.run_number }} dsm-bullseye
           jf rt bp dsm-${{ github.run_number }}
         shell: bash
 
