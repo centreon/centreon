@@ -5,14 +5,14 @@ import { SaveButton as Button } from '@centreon/ui';
 
 import { labelCreateNewToken } from '../translatedLabels';
 
-import { isCreateTokenAtom } from './atoms';
+import { isCreatingTokenAtom } from './atoms';
 
 const TokenCreationButton = (): JSX.Element => {
   const { t } = useTranslation();
-  const setIsCreateToken = useSetAtom(isCreateTokenAtom);
+  const setIsCreatingToken = useSetAtom(isCreatingTokenAtom);
 
   const createToken = (): void => {
-    setIsCreateToken(true);
+    setIsCreatingToken(true);
   };
 
   return (

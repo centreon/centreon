@@ -23,7 +23,7 @@ import {
   labelUser
 } from '../translatedLabels';
 
-import CustomTimePeriod from './CustomTimePeriod';
+import CustomTimePeriod from './CustomTimePeriod/CustomTimePeriod';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
@@ -55,6 +55,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     resetForm,
     errors
   } = useFormikContext<CreateTokenFormValues>();
+  console.log({ errors, values });
 
   const { token, duration, tokenName, user } = useCreateTokenFormValues({
     data,

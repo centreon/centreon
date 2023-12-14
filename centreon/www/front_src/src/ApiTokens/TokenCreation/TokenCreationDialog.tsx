@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { object, string, number } from 'yup';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import {
@@ -16,41 +17,19 @@ import { ErrorForm, ErrorKeys } from './models';
 const TokenCreationDialog = (): JSX.Element => {
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
+  const msgError = t(labelRequired);
 
-  const validationForm = (values): Record<ErrorKeys, ErrorForm> => {
-    const { duration, tokenName, user, customizeDate } = values;
-    const keys = ['id', 'name'];
-    const msg = { msg: t(labelRequired) };
-    let errors: Record<ErrorKeys, ErrorForm> | Record<string, never> = {};
-
-    const isUserError = keys.some((key) => !(key in user));
-    const isDurationError = keys.some((key) => !(key in duration));
-
-    if (isUserError) {
-      errors = { ...errors, user: msg } as Record<ErrorKeys, ErrorForm>;
-    }
-    if (!tokenName) {
-      errors = { ...errors, tokenName: msg } as Record<ErrorKeys, ErrorForm>;
-    }
-    if (isDurationError) {
-      errors = { ...errors, duration: msg } as Record<ErrorKeys, ErrorForm>;
-    }
-
-    if (equals(duration?.id, 'customize')) {
-      if (!isInvalidDate({ endTime: customizeDate })) {
-        return errors;
-      }
-      errors = {
-        ...errors,
-        duration: {
-          ...errors?.duration,
-          invalidDate: t(labelInvalidDateCreationToken)
-        }
-      } as Record<ErrorKeys, ErrorForm>;
-    }
-
-    return errors;
-  };
+  const validationForm = object({
+    duration: object({
+      id: string().required(msgError),
+      name: string().required(msgError)
+    }),
+    tokenName: string().required(msgError),
+    user: object({
+      id: number().required(msgError),
+      name: string().required(msgError)
+    })
+  });
 
   const submit = (dataForm): void => {
     const { duration, tokenName, user, customizeDate } = dataForm;
@@ -66,7 +45,7 @@ const TokenCreationDialog = (): JSX.Element => {
         tokenName: '',
         user: null
       }}
-      validate={validationForm}
+      validationSchema={validationForm}
       onSubmit={submit}
     >
       <FormCreation data={data} isMutating={isMutating} />
