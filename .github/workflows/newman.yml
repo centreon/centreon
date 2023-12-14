@@ -180,6 +180,7 @@ jobs:
                   }
                 }' \
                 --max-time 20)
+
               sleep 2
               if [ -z "$response" ]; then
                 echo "Failed to create the test case within the specified time."
