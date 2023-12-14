@@ -58,8 +58,11 @@ runs:
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to stable."
-            jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
+            #jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
           done
+
+          jf rt bpr ${{ inputs.module }} 851 test-rpm-standard --copy
+
         done
 
       shell: bash

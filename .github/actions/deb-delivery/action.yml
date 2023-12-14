@@ -55,6 +55,9 @@ runs:
           exit 0
         fi
 
+        # Publish build information (keep this after cleaning PR)
+        jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
+
         for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 

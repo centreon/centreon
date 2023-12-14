@@ -71,7 +71,7 @@ runs:
           exit 0
         fi
 
-        # Publish build info (keep this after cleaning PR)
+        # Publish build information (keep this after cleaning PR)
         jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
 
         for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
