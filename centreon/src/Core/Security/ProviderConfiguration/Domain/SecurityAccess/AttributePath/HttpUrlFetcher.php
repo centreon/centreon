@@ -56,7 +56,7 @@ class HttpUrlFetcher implements AttributePathFetcherInterface
     public function fetch(string $accessToken, Configuration $configuration, Endpoint $endpoint): array
     {
         $scope = $configuration->getType();
-        $customEndpoint = $endpoint->getUrl();
+        $customEndpoint = $endpoint->getUrl() ?? '';
         $customConfiguration = $configuration->getCustomConfiguration();
         if (
             str_starts_with($customEndpoint, '/')

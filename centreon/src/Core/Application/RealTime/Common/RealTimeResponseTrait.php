@@ -30,6 +30,20 @@ use Core\Domain\RealTime\Model\Status;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
+/**
+ * @phpstan-type _iconArray array{
+ *     id: null|int,
+ *     name: null|string,
+ *     url: null|string,
+ * }
+ * @phpstan-type _severityArray array{
+ *     id: int,
+ *     name: string,
+ *     level: int,
+ *     type: string,
+ *     icon: array{}|_iconArray,
+ * }
+ */
 trait RealTimeResponseTrait
 {
     /**
@@ -37,11 +51,11 @@ trait RealTimeResponseTrait
      *
      * @param Icon|null $icon
      *
-     * @return array<string, int|string|null>
+     * @return ($icon is null ? array{} : _iconArray)
      */
     public function iconToArray(?Icon $icon): array
     {
-        return is_null($icon)
+        return null === $icon
             ? []
             : [
                 'id' => $icon->getId(),
@@ -60,7 +74,7 @@ trait RealTimeResponseTrait
     public function downtimesToArray(array $downtimes): array
     {
         return array_map(
-            fn (Downtime $downtime) => [
+            fn(Downtime $downtime) => [
                 'start_time' => $downtime->getStartTime(),
                 'end_time' => $downtime->getEndTime(),
                 'actual_start_time' => $downtime->getActualStartTime(),
@@ -124,7 +138,7 @@ trait RealTimeResponseTrait
     private function tagsToArray(array $tags): array
     {
         return array_map(
-            fn (Tag $tag) => [
+            fn(Tag $tag) => [
                 'id' => $tag->getId(),
                 'name' => $tag->getName(),
             ],
@@ -154,7 +168,7 @@ trait RealTimeResponseTrait
      *
      * @param Severity $severity
      *
-     * @return array<string, mixed>
+     * @return _severityArray
      */
     private function severityToArray(Severity $severity): array
     {
