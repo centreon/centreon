@@ -140,26 +140,28 @@ COPY ./.github/docker/centreon-web/sql /tmp/sql
 
 COPY *.rpm /tmp/rpms-centreon/
 
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /tmp/entrypoint
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.d /usr/share/centreon/container.d
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /tmp/autoinstall.php
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tmp/configuration
+
 RUN bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm /tmp/rpms-centreon/centreon-database-${VERSION}*.rpm
-dnf install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
+dnf install -y /tmp/rpms-centreon/centreon-*.rpm
+
+mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
+mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
+chmod -R 755 /usr/share/centreon/container.*
+
+mv /tmp/autoinstall.php /usr/share/centreon/autoinstall.php
+
+mv /tmp/configuration /usr/share/centreon/www/install/tmp/configuration
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
-
-dnf clean all --enablerepo=*
-
-EOF
-
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.d/* /usr/share/centreon/container.d/
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp/
-
-RUN bash -e <<EOF
 
 #################################
 # install and configure mariadb #
@@ -167,7 +169,7 @@ RUN bash -e <<EOF
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
-dnf install -y mariadb-server mariadb
+dnf install -y mariadb-server
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
@@ -196,7 +198,7 @@ mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/cent
 
 service mysql stop
 
-dnf remove -y mariadb-server
+dnf remove -y mariadb-server mariadb galera-4
 rm -rf /var/lib/mysql
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
