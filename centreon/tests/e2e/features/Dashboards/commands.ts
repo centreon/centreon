@@ -1,5 +1,19 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import singleMetricWidget from '../../fixtures/dashboards/creation/widgets/singleWidgetText.json';
+import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
+import singleMetricPayloadPl from '../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
+import singleMetricPayloadRta from '../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
+import singleMetricDoubleWidgets from '../../fixtures/dashboards/creation/widgets/dashboardWithTwoWidgets.json';
+import metricsGraphWidget from '../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
+import statusGridWidget from '../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
+import textWidget from '../../fixtures/dashboards/creation/widgets/textWidget.json';
+import topBottomWidget from '../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
+
+Cypress.Commands.add('enableDashboardFeature', () => {
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
+});
 
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
@@ -37,11 +51,11 @@ Cypress.Commands.add('verifyGraphContainer', () => {
 
           cy.get('[class*="MuiTypography-h5"]')
             .eq(0)
-            .should('contain', singleMetricWidget.rtaValues.warning);
+            .should('contain', metrics.rtaValues.warning);
 
           cy.get('[class*="MuiTypography-h5"]')
             .eq(1)
-            .should('contain', singleMetricWidget.rtaValues.critical);
+            .should('contain', metrics.rtaValues.critical);
         });
     });
 });
@@ -58,20 +72,81 @@ Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
 
           cy.get('[class*="MuiTypography-h5"]')
             .eq(0)
-            .should('contain', singleMetricWidget.plValues.warning);
+            .should('contain', metrics.plValues.warning);
 
           cy.get('[class*="MuiTypography-h5"]')
             .eq(1)
-            .should('contain', singleMetricWidget.plValues.critical);
+            .should('contain', metrics.plValues.critical);
         });
     });
 });
 
+Cypress.Commands.add(
+  'insertDashboardWithWidget',
+  (dashboardBody, patchBody) => {
+    cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        {
+          timeout: 10000
+        }
+      );
+      cy.request({
+        body: patchBody,
+        method: 'PATCH',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      });
+    });
+  }
+);
+
+interface Dashboard {
+  description?: string;
+  name: string;
+}
+
+type metricsGraphWidgetJSONData = typeof metricsGraphWidget;
+type statusGridWidgetJSONData = typeof statusGridWidget;
+type singleMetricPayloadPlJSONData = typeof singleMetricPayloadPl;
+type singleMetricPayloadRtaJSONData = typeof singleMetricPayloadRta;
+type singleMetricDoubleWidgetsJSONData = typeof singleMetricDoubleWidgets;
+type textWidgetJSONData = typeof textWidget;
+type topBottomWidgetJSONData = typeof topBottomWidget;
+type widgetJSONData =
+  | singleMetricPayloadPlJSONData
+  | singleMetricPayloadRtaJSONData
+  | singleMetricDoubleWidgetsJSONData
+  | metricsGraphWidgetJSONData
+  | statusGridWidgetJSONData
+  | textWidgetJSONData
+  | topBottomWidgetJSONData;
+
 declare global {
   namespace Cypress {
     interface Chainable {
-      verifyDuplicatesGraphContainer: (singleMetricWidget) => Cypress.Chainable;
-      verifyGraphContainer: (singleMetricWidget) => Cypress.Chainable;
+      enableDashboardFeature: () => Cypress.Chainable;
+      insertDashboardWithWidget: (
+        dashboard: Dashboard,
+        patch: widgetJSONData
+      ) => Cypress.Chainable;
+      verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
+      verifyGraphContainer: (metrics) => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number

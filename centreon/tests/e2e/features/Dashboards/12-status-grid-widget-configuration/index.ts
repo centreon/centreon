@@ -194,7 +194,7 @@ after(() => {
 });
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
-  cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
@@ -233,7 +233,7 @@ Then(
 );
 
 Given('a dashboard configuring Status Grid widget', () => {
-  cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
@@ -282,10 +282,7 @@ Then(
 );
 
 Given('a dashboard featuring two Status Grid widgets', () => {
-  cy.insertDashboardWithStatusGridWidget(
-    dashboards.default,
-    twoStatusGridWidgets
-  );
+  cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
@@ -392,7 +389,7 @@ Then("the Status Grid widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard with a configured Status Grid widget', () => {
-  cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
@@ -432,7 +429,7 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
 });
 
 Given('a dashboard having a configured Status Grid widget', () => {
-  cy.insertDashboardWithStatusGridWidget(dashboards.default, statusGridWidget);
+  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({

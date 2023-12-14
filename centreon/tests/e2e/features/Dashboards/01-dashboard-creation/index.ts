@@ -2,7 +2,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import patchBody from '../../../fixtures/dashboards/creation/widgets/patchBody.json';
+import textWidget from '../../../fixtures/dashboards/creation/widgets/textWidget.json';
 
 before(() => {
   cy.startWebContainer();
@@ -45,7 +45,7 @@ afterEach(() => {
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
   }
 );
 
@@ -121,7 +121,7 @@ Then('the newly created dashboard has the required only dashboard data', () => {
 Given(
   'a user with dashboard edition rights on the dashboard creation form',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
   }
 );
@@ -157,7 +157,7 @@ Then(
 Given(
   'a user with dashboard edition rights who is about to create a dashboard',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       `${dashboards.default.name} to be cancelled`
@@ -199,9 +199,9 @@ Given(
   () => {
     cy.insertDashboardWithWidget(
       dashboards.fromDashboardCreatorUser,
-      patchBody
+      textWidget
     );
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
   }
 );
 
