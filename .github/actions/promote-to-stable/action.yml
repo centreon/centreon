@@ -92,6 +92,7 @@ runs:
           #jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
         done
 
+        export JFROG_CLI_LOG_LEVEL=debug
         #jf rt bpr --copy --source-repo test-apt-${{ inputs.version }}-standard-testing test-apt-${{ inputs.version }}-standard-stable
         jf rt bpr ${{ inputs.module }} 851 test-apt-23.10-standard-stable --copy --source-repo apt-standard-24.04-unstable
 
