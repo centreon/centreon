@@ -2,12 +2,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { useStyles } from '../TokenListing/tokenListing.styles';
 import {
   labelCreateNewToken,
   labelSecurityToken,
   labelTokenCreated
 } from '../translatedLabels';
+
+import { useStyles } from './tokenCreation.styles';
 
 interface Props {
   token?: string;
@@ -20,7 +21,7 @@ const Title = ({ token }: Props): JSX.Element => {
   return (
     <div>
       {token ? (
-        <div style={{ maxWidth: 450 }}>
+        <div className={classes.containerTitle}>
           <Typography className={classes.title} variant="h6">
             {t(labelTokenCreated)}
           </Typography>

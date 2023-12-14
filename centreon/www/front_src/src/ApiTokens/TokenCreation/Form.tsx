@@ -29,6 +29,7 @@ import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
 import useCreateTokenFormValues from './useTokenFormValues';
 import { isCreatingTokenAtom } from './atoms';
+import { useStyles } from './tokenCreation.styles';
 
 interface Props {
   data?: ResponseError | CreatedToken;
@@ -36,6 +37,7 @@ interface Props {
 }
 
 const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
@@ -112,16 +114,17 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
       onConfirm={token ? closeDialog : handleSubmit}
     >
       <TextField
+        className={classes.input}
         dataTestId="tokenNameInput"
         disabled={Boolean(token)}
         id="tokenName"
         label={t(labelName)}
         required={!token}
-        style={{ marginBottom: 20, width: 450 }}
         value={tokenName}
         onChange={handleChange}
       />
       <SingleAutocompleteField
+        className={classes.input}
         disabled={Boolean(token) || isDisplayingDateTimePicker}
         error={errors?.duration?.invalidDate}
         getOptionItemLabel={(option) => option?.name}
@@ -130,7 +133,6 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
         options={options}
         ref={refSingleAutocompleteField}
         required={!token}
-        style={{ marginBottom: 20, width: 450 }}
         value={duration}
         onChange={changeDuration}
       />
@@ -143,13 +145,13 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
       )}
 
       <SingleConnectedAutocompleteField
+        className={classes.input}
         disabled={Boolean(token)}
         field="name"
         getEndpoint={getEndpointConfiguredUser}
         id="user"
         label={t(labelUser)}
         required={!token}
-        style={{ marginBottom: 20, width: 450 }}
         value={user}
         onChange={changeUser}
       />
