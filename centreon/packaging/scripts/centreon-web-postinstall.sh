@@ -18,6 +18,7 @@ fixInstallDirectoryRights() {
   # https://github.com/goreleaser/nfpm/issues/738
   echo "Forcing rights of centreon install directory ..."
   chown -R centreon:centreon /usr/share/centreon/www/install
+  chmod -R 0775 /usr/share/centreon/www/install
 }
 
 updateConfigurationFiles() {
