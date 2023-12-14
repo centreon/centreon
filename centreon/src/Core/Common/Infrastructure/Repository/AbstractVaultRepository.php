@@ -51,8 +51,13 @@ abstract class AbstractVaultRepository
      */
     public function getAuthenticationToken(): string
     {
-        $vaultConfiguration = $this->vaultConfiguration ?? throw new \LogicException();
-        $url = 'undefined-url';
+        try {
+            $vaultConfiguration = $this->vaultConfiguration ?? throw new \LogicException();
+        } catch (\LogicException $exception) {
+            $this->error('There is a technical problem in ' . static::class . ' about the vaultConfiguration');
+
+            throw $exception;
+        }
 
         try {
             $url = $vaultConfiguration->getAddress() . ':'
