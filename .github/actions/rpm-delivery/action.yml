@@ -71,9 +71,6 @@ runs:
           exit 0
         fi
 
-        # Publish build information (keep this after cleaning PR)
-        jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
-
         for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
@@ -81,9 +78,12 @@ runs:
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/" --flat
               else
                 #jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
-                jf rt upload "$ARCH/*.rpm" "test-rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
+                jf rt upload "$ARCH/*.rpm" "test-rpm-standard/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat --build-number "${{ github.run_number }}" --build-name "${{ inputs.module_name }}"
               fi
             fi
           done
         done
+
+        # Publish build information (keep this after cleaning PR)
+        jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
       shell: bash

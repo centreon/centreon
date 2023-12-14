@@ -27,7 +27,7 @@ runs:
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
-        JFROG_CLI_LOG_LEVEL: debug
+        JFROG_CLI_LOG_LEVEL: DEBUG
 
     - name: Promote RPM packages to stable
       if: ${{ startsWith(inputs.distrib, 'el') }}

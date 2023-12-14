@@ -55,9 +55,6 @@ runs:
           exit 0
         fi
 
-        # Publish build information (keep this after cleaning PR)
-        jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
-
         for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
@@ -67,6 +64,10 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH" --build-name "${{ inputs.module_name }}"
         done
+
+        # Publish build information (keep this after cleaning PR)
+        jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}
+
       shell: bash
