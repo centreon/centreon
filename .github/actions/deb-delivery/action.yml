@@ -69,6 +69,6 @@ runs:
 
         # Publish build information (keep this after cleaning PR)
         #jf rt bp ${{ inputs.module_name }}-${{ inputs.distrib }}-${{ github.run_number }}
-        jf rt bp aggregating-build ${{ inputs.module_name }}-${{ github.run_number }} ${{ inputs.module_name }}-${{ inputs.distrib }}
+        jf rt bp ${{ inputs.module_name }}-${{ github.run_number }} ${{ inputs.module_name }}-${{ inputs.distrib }}
 
       shell: bash
