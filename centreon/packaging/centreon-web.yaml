@@ -451,7 +451,6 @@ overrides:
       - cronie
       - initscripts
       - httpd
-      - mariadb
       - php-common >= 8.1
       - php-cli
       - php-pdo
