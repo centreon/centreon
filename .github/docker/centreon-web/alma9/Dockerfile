@@ -169,7 +169,7 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
-dnf install -y mariadb-server mariadb-client
+dnf install -y mariadb-server MariaDB-client
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
