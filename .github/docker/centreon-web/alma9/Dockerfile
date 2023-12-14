@@ -141,7 +141,6 @@ COPY ./.github/docker/centreon-web/sql /tmp/sql
 COPY *.rpm /tmp/rpms-centreon/
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /tmp/entrypoint
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.d /usr/share/centreon/container.d
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /tmp/autoinstall.php
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tmp/configuration
 
@@ -156,7 +155,15 @@ chmod -R 755 /usr/share/centreon/container.*
 
 mv /tmp/autoinstall.php /usr/share/centreon/autoinstall.php
 
-mv /tmp/configuration /usr/share/centreon/www/install/tmp/configuration
+mv /tmp/configuration /usr/share/centreon/www/install/tmp/
+
+ls -l /usr/share/centreon/
+echo "ok"
+ls -l /usr/share/centreon/www/
+echo "ok"
+ls -l /usr/share/centreon/www/install/
+echo "ok"
+ls -l /usr/share/centreon/www/install/tmp/
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
