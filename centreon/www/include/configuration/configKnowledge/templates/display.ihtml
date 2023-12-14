@@ -136,7 +136,7 @@
                 {/if}
             </td>
         </tr>
-        {assign "l" vale=$l+1}
+        {assign "l" value=$l+1}
         {/foreach}
         {else}
         {assign "l" value=0}
