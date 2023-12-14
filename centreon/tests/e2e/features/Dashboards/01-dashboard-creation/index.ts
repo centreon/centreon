@@ -44,7 +44,7 @@ afterEach(() => {
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
   }
 );
 
@@ -120,7 +120,7 @@ Then('the newly created dashboard has the required only dashboard data', () => {
 Given(
   'a user with dashboard edition rights on the dashboard creation form',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
   }
 );
@@ -156,7 +156,7 @@ Then(
 Given(
   'a user with dashboard edition rights who is about to create a dashboard',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       `${dashboards.default.name} to be cancelled`

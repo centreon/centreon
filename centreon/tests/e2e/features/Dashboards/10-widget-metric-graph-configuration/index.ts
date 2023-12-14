@@ -1,11 +1,11 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PatternType } from '../../../support/commands';
+import { checkServicesAreMonitored } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
-import metricsGraphDoublecWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
+import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 
 before(() => {
   cy.startWebContainer();
@@ -13,6 +13,7 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
+
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? 'apache'
     : 'www-data';
@@ -20,6 +21,7 @@ before(() => {
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
     name: Cypress.env('dockerName')
   });
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -36,6 +38,13 @@ before(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -126,8 +135,8 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.contains('rta (ms)').realClick();
     cy.wait('@performanceData');
   }
 );
@@ -169,11 +178,8 @@ Then('the information about the selected metric is displayed', () => {
 });
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -259,11 +265,8 @@ Then(
 );
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -298,11 +301,8 @@ Then('the second widget has the same properties as the first widget', () => {
 });
 
 Given('a dashboard featuring two Metrics Graph widgets', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphDoublecWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -341,11 +341,8 @@ Then(
 );
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
-  cy.insertDashboardWithMetricsGraphWidget(
-    dashboards.default,
-    metricsGraphWidget
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -368,8 +365,8 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('pl (%) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.contains('pl (%)').realClick();
   }
 );
 
