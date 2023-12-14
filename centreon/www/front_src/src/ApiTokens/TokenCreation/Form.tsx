@@ -122,7 +122,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
         onChange={handleChange}
       />
       <SingleAutocompleteField
-        disabled={Boolean(token)}
+        disabled={Boolean(token) || isDisplayingDateTimePicker}
         error={errors?.duration?.invalidDate}
         getOptionItemLabel={(option) => option?.name}
         id="duration"
