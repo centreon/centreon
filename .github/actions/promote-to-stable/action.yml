@@ -82,9 +82,6 @@ runs:
           continue
         fi
 
-        # Publish build info
-        jf rt bp MON-32904-migrate-from-gha-promote-to-jfrog-pipeline-promote ${{ inputs.module }}-
-
         echo "[DEBUG] - Build target path."
         TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
@@ -96,7 +93,7 @@ runs:
         done
 
         #jf rt bpr --copy --source-repo test-apt-${{ inputs.version }}-standard-testing test-apt-${{ inputs.version }}-standard-stable
-        jf rt bpr --copy --source-repo test-apt-23.10-standard-testing/pool/${{ inputs.module }}/ test-apt-23.10-standard-stable/pool/${{ inputs.module }}/
+        jf rt bpr ${{ inputs.module }} 851 test-apt-23.10-standard-stable/pool/${{ inputs.module }}/ --copy --source-repo test-apt-23.10-standard-testing/pool/${{ inputs.module }}/
 
 
       shell: bash
