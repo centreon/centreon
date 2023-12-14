@@ -2,7 +2,9 @@ import { useNavigate } from 'react-router-dom';
 
 import { setUrlQueryParameters } from '@centreon/ui';
 
-const useGoToResourceStatus = (): { goToResourceStatus: (data) => void } => {
+const useGoToResourceStatus = (): {
+  goToResourceStatusAndOpenPanel: (data) => void;
+} => {
   const navigate = useNavigate();
 
   const openResourceStatusPanel = (data): void => {
@@ -67,11 +69,15 @@ const useGoToResourceStatus = (): { goToResourceStatus: (data) => void } => {
     )}&fromTopCounter=true`;
 
     navigate(link);
+  };
+
+  const goToResourceStatusAndOpenPanel = (data): void => {
+    goToResourceStatus(data);
     openResourceStatusPanel(data);
   };
 
   return {
-    goToResourceStatus
+    goToResourceStatusAndOpenPanel
   };
 };
 

@@ -82,6 +82,7 @@ const StatusGrid = ({
     () =>
       (data?.result || []).map(
         ({
+          id,
           uuid,
           name,
           parent,
@@ -103,11 +104,13 @@ const StatusGrid = ({
             data: {
               acknowledgementEndpoint: links?.endpoints.acknowledgement,
               downtimeEndpoint: links?.endpoints.downtime,
+              id,
               information,
               is_acknowledged,
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
               name,
+              parentId: parent?.id,
               parentName: parent?.name,
               parentStatus: parent?.status?.severity_code,
               status: status?.severity_code,

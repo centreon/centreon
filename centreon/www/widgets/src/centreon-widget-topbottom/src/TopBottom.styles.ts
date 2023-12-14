@@ -12,6 +12,10 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
     gap: theme.spacing(2)
   },
   resourceLabel: {
+    cursor: 'pointer',
     transform: 'translateY(50%)'
+  },
+  singleBarContainer: {
+    cursor: 'pointer'
   }
 }));

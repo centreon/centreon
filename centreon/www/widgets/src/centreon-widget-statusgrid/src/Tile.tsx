@@ -54,7 +54,7 @@ const Tile = ({
 
   const goToResourceStatusAndOpenPanel = (): void => {
     goToResourceStatus();
-    openResourceStatusPanel(data);
+    openResourceStatusPanel({ resource: data, type });
   };
 
   if (isNil(data)) {

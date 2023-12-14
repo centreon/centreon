@@ -139,9 +139,7 @@ export const openGraphPanel = (data): void => {
     {
       name: 'details',
       value: {
-        id: serviceId,
-        // parentId: 14,
-        // parentType: 'host',
+        id: parseInt(serviceId, 10),
         resourcesDetailsEndpoint,
         selectedTimePeriodId: 'last_24_h',
         tab: 'graph',

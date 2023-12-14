@@ -50,7 +50,7 @@ const MetricTop = ({
     ],
     times: []
   };
-  const { goToResourceStatus } = useGoToResourceStatus();
+  const { goToResourceStatusAndOpenPanel } = useGoToResourceStatus();
 
   const formattedThresholds = useThresholds({
     data: formattedData,
@@ -63,13 +63,17 @@ const MetricTop = ({
     <>
       <Typography
         className={classes.resourceLabel}
-        onClick={() => goToResourceStatus(metricTop)}
+        onClick={() => goToResourceStatusAndOpenPanel(metricTop)}
       >
         <strong>
           #{inc(index)} {metricTop.name}
         </strong>
       </Typography>
-      <Box style={{ height: 50 }} onClick={() => goToResourceStatus(metricTop)}>
+      <Box
+        className={classes.singleBarContainer}
+        style={{ height: 50 }}
+        onClick={() => goToResourceStatusAndOpenPanel(metricTop)}
+      >
         <SingleBar
           data={formattedData}
           displayAsRaw={displayAsRaw}

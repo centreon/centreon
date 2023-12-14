@@ -193,18 +193,18 @@ export const getResourcesUrl = ({
   )}&fromTopCounter=true`;
 };
 
-export const openResourceStatusPanel = (data): void => {
-  const uuid = data?.uuid;
-  const hostId = uuid?.split('-')[0].slice(1);
-  const serviceId = uuid?.split('-')[1].slice(1);
+export const openResourceStatusPanel = ({ resource, type }): void => {
+  const { id, parentId, uuid } = resource;
 
-  const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+  const resourcesDetailsEndpoint = equals(type, 'host')
+    ? `/centreon/api/latest/monitoring/resources/hosts/${id}`
+    : `/centreon/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
 
   const detailsPanel = [
     {
       name: 'details',
       value: {
-        id: serviceId,
+        id,
         resourcesDetailsEndpoint,
         selectedTimePeriodId: 'last_24_h',
         tab: 'details',
