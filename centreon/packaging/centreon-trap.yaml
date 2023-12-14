@@ -1,0 +1,93 @@
+name: "centreon-trap"
+arch: "all"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  This package contains Centreon Trap engine
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+contents:
+  - src: "../bin/centreontrapd"
+    dst: "/usr/share/centreon/bin/centreontrapd"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreontrapdforward"
+    dst: "/usr/share/centreon/bin/centreontrapdforward"
+    file_info:
+      mode: 0755
+
+  - dst: "/var/spool/centreontrapd"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
+  - dst: "/etc/snmp/centreon_traps"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../tmpl/install/systemd/centreontrapd.rpm.systemd"
+    dst: "/usr/lib/systemd/system/centreontrapd.service"
+    file_info:
+      mode: 0400
+    packager: rpm
+  - src: "../tmpl/install/systemd/centreontrapd.deb.systemd"
+    dst: "/lib/systemd/system/centreontrapd.service"
+    file_info:
+      mode: 0400
+    packager: deb
+
+  - src: "../tmpl/install/systemd/centreontrapd.sysconfig"
+    dst: "/etc/sysconfig/centreontrapd"
+    file_info:
+      mode: 0400
+    packager: rpm
+  - src: "../tmpl/install/systemd/centreontrapd.sysconfig"
+    dst: "/etc/default/centreontrapd"
+    file_info:
+      mode: 0400
+    packager: deb
+
+  - src: "../logrotate/centreontrapd"
+    dst: "/etc/logrotate.d/centreontrapd"
+    type: config|noreplace
+    file_info:
+      mode: 0400
+
+scripts:
+  postinstall: ./scripts/centreon-trap-postinstall.sh
+  preremove: ./scripts/centreon-trap-preremove.sh
+
+overrides:
+  rpm:
+    depends:
+      - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
+      - net-snmp
+    replaces:
+      - centreon-trap-central
+      - centreon-trap-poller
+  deb:
+    depends:
+      - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
+      - snmptrapd
+      - snmpd
+
+rpm:
+  summary: Centreon Traps
+  compression: zstd
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}
