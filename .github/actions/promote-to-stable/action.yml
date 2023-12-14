@@ -83,7 +83,7 @@ runs:
         fi
 
         # Publish build info
-        jf rt bp MON-32904-migrate-from-gha-promote-to-jfrog-pipeline-promote $(date +%s)
+        jf rt bp MON-32904-migrate-from-gha-promote-to-jfrog-pipeline-promote ${{ inputs.module }}-
 
         echo "[DEBUG] - Build target path."
         TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/"
