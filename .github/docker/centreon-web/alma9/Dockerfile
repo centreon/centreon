@@ -200,9 +200,9 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 # dnf remove -y mariadb-server galera-4
 # rm -rf /var/lib/mysql
 
-sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
-sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+# sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
+# sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+# sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 EOF
 

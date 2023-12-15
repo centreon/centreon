@@ -45,3 +45,7 @@ mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPT
 mysql centreon < /tmp/sql/standard.sql
 mysql centreon < /tmp/sql/media.sql
 mysql centreon < /tmp/sql/openldap.sql
+
+sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
+sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
