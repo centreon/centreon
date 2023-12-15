@@ -200,8 +200,8 @@ mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/cent
 
 service mysql stop
 
-dnf remove -y mariadb-server galera-4
-rm -rf /var/lib/mysql
+# dnf remove -y mariadb-server galera-4
+# rm -rf /var/lib/mysql
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
