@@ -21,7 +21,8 @@ services:
     image: "${MYSQL_IMAGE}"
     restart: 'always'
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$$MYSQL_ROOT_PASSWORD", "--silent"]
+      #test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$$MYSQL_ROOT_PASSWORD", "--silent"]
+      test: mysqladmin ping -h127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent
       interval: 5s
       timeout: 3s
       retries: 2
