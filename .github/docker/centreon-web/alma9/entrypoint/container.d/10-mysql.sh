@@ -35,6 +35,8 @@ mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD}  <<< "SET autocommit=0; so
 
 sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/centreon.conf.php
 sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/conf.pm
+sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/config.d/10-database.yaml
+
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
 
 #mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
