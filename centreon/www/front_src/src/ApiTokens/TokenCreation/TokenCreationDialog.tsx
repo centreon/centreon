@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { number, object, string } from 'yup';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
-import { labelRequired } from '../translatedLabels';
+import { labelFieldRequired } from '../translatedLabels';
 
 import FormCreation from './Form';
 import useCreateToken from './useCreateToken';
@@ -11,7 +11,7 @@ import useCreateToken from './useCreateToken';
 const TokenCreationDialog = (): JSX.Element => {
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
-  const msgError = t(labelRequired);
+  const msgError = t(labelFieldRequired);
 
   const validationForm = object({
     duration: object({

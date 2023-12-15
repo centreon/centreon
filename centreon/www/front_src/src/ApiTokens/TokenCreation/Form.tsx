@@ -16,6 +16,7 @@ import {
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { buildListEndpoint, listConfiguredUser } from '../api/endpoints';
 import {
+  labelCancel,
   labelClose,
   labelDuration,
   labelGenerateNewToken,
@@ -106,6 +107,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
   return (
     <Dialog
       confirmDisabled={!dirty || !isValid}
+      labelCancel={t(labelCancel)}
       labelConfirm={labelConfirm}
       labelTitle={<Title token={token} />}
       open={isCreatingToken}
@@ -114,6 +116,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
       onConfirm={token ? closeDialog : handleSubmit}
     >
       <TextField
+        autoComplete="off"
         className={classes.input}
         dataTestId="tokenNameInput"
         disabled={Boolean(token)}
