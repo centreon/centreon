@@ -20,7 +20,7 @@
 
 # Wait for the database to be up and running.
 while true ; do
-  timeout 20 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e 'SELECT User from USER' mysql
+  timeout 20 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e 'SELECT User FROM user' mysql
   retval=$?
   if [ "$retval" = 0 ] ; then
     break ;

@@ -7,8 +7,9 @@ services:
     image: "docker.centreon.com/centreon/centreon-web-fresh-alma9:MON-23368-containers"
     restart: 'always'
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+      # db:
+      #   condition: service_healthy
     ports:
       - '8080:80'
     links:
@@ -23,12 +24,12 @@ services:
     image: "${MYSQL_IMAGE}"
     #command: --default-authentication-plugin=mysql_native_password
     restart: 'always'
-    healthcheck:
-      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
-      # test: mysqladmin ping -h127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent
-      interval: 5s
-      timeout: 3s
-      retries: 20
+    # healthcheck:
+    #   test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+    #   # test: mysqladmin ping -h127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent
+    #   interval: 5s
+    #   timeout: 3s
+    #   retries: 20
       #start_period: 0s
 #    volumes:
 #      - ../../../centreon/packaging/src/centreon-mysql.cnf:/etc/mysql/conf.d/centreon.cnf
