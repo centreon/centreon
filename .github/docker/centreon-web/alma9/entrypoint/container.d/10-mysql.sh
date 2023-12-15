@@ -18,8 +18,10 @@
 #   fi
 # done
 
-mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon.sql
-mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon_storage.sql
+# mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon.sql
+# mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} < /usr/local/src/centreon_storage.sql
+mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD}  <<< "SET autocommit=0; source /usr/local/src/centreon.sql; COMMIT;"
+mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD}  <<< "SET autocommit=0; source /usr/local/src/centreon_storage.sql; COMMIT;"
 
 sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/centreon.conf.php
 sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/conf.pm
@@ -27,3 +29,4 @@ mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} centreon -e "UPDATE cfg_ce
 
 #mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
+mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' IDENTIFIED WITH mysql_native_password WITH GRANT OPTION"

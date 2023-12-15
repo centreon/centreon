@@ -18,14 +18,17 @@ services:
   db:
     env_file:
       - .env
+    environment:
+      MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
     image: "${MYSQL_IMAGE}"
+    #command: --default-authentication-plugin=mysql_native_password
     restart: 'always'
     healthcheck:
-      #test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$$MYSQL_ROOT_PASSWORD", "--silent"]
-      test: mysqladmin ping -h127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent
-      interval: 5s
+      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+      # test: mysqladmin ping -h127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent
+      interval: 1s
       timeout: 3s
-      retries: 5
+      retries: 20
       start_period: 0s
 #    volumes:
 #      - ../../../centreon/packaging/src/centreon-mysql.cnf:/etc/mysql/conf.d/centreon.cnf
