@@ -29,9 +29,9 @@ on:
         required: true
         type: string
       xray_keys_and_ids:
-          description: "The test execution and the test plan keys and ids"
-          required: true
-          type: string
+        description: "The test execution and the test plan keys and ids"
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
