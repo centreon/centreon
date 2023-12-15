@@ -107,6 +107,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
   return (
     <Dialog
       confirmDisabled={!dirty || !isValid}
+      data-testid="modalTokenCreation"
       labelCancel={t(labelCancel)}
       labelConfirm={labelConfirm}
       labelTitle={<Title token={token} />}
@@ -118,9 +119,10 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
       <TextField
         autoComplete="off"
         className={classes.input}
-        dataTestId="tokenNameInput"
+        dataTestId="tokenName"
         disabled={Boolean(token)}
         id="tokenName"
+        inputProps={{ 'data-testid': 'tokenNameInput' }}
         label={t(labelName)}
         required={!token}
         value={tokenName}
@@ -128,6 +130,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
       />
       <SingleAutocompleteField
         className={classes.input}
+        dataTestId={labelDuration}
         disabled={Boolean(token) || isDisplayingDateTimePicker}
         error={errors?.duration?.invalidDate}
         getOptionItemLabel={(option) => option?.name}
@@ -149,6 +152,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
 
       <SingleConnectedAutocompleteField
         className={classes.input}
+        dataTestId={labelUser}
         disabled={Boolean(token)}
         field="name"
         getEndpoint={getEndpointConfiguredUser}

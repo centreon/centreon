@@ -88,7 +88,7 @@ const checkArrowSorting = (data): void => {
 };
 
 const interceptListTokens = ({
-  dataPath = 'apiTokens/list.json',
+  dataPath = 'apiTokens/listing/list.json',
   parameters = DefaultParameters,
   alias = 'getListTokens'
 }): void => {
@@ -135,7 +135,7 @@ describe('Api-token listing', () => {
   it('displays all tokens when the page loads', () => {
     cy.waitForRequest('@getListTokens');
 
-    cy.fixture('apiTokens/list.json').then((data) => {
+    cy.fixture('apiTokens/listing/list.json').then((data) => {
       cy.findByTestId('Listing Pagination').contains(data.meta.limit);
       cy.findByLabelText(`Previous page`).should('be.disabled');
       cy.findByLabelText(`Next page`).should('be.enabled');
@@ -158,7 +158,7 @@ describe('Api-token listing', () => {
       expect(calls[0].request.url.search.includes(defaultParameters));
     });
 
-    cy.fixture('apiTokens/list.json').then((data) => {
+    cy.fixture('apiTokens/listing/list.json').then((data) => {
       checkArrowSorting(data.meta);
       checkInformationRow(data.result[0]);
     });
@@ -169,7 +169,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokensPage2',
-      dataPath: 'apiTokens/listPage2.json',
+      dataPath: 'apiTokens/listing/listPage2.json',
       parameters: { ...DefaultParameters, page: 2 }
     });
 
@@ -183,7 +183,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokens',
-      dataPath: 'apiTokens/list.json',
+      dataPath: 'apiTokens/listing/list.json',
       parameters: DefaultParameters
     });
 
@@ -196,7 +196,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokensPage2',
-      dataPath: 'apiTokens/listPage2.json',
+      dataPath: 'apiTokens/listing/listPage2.json',
       parameters: { ...DefaultParameters, page: 2 }
     });
 
@@ -210,7 +210,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokens',
-      dataPath: 'apiTokens/list.json',
+      dataPath: 'apiTokens/listing/list.json',
       parameters: DefaultParameters
     });
 
