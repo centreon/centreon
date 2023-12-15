@@ -25,7 +25,7 @@ services:
       test: mysqladmin ping -h127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent
       interval: 5s
       timeout: 3s
-      retries: 2
+      retries: 5
       start_period: 0s
 #    volumes:
 #      - ../../../centreon/packaging/src/centreon-mysql.cnf:/etc/mysql/conf.d/centreon.cnf

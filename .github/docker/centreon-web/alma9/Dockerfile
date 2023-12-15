@@ -146,7 +146,16 @@ COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tm
 
 RUN bash -e <<EOF
 
-rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm /tmp/rpms-centreon/centreon-database-${VERSION}*.rpm
+#################################
+# install and configure mariadb #
+#################################
+
+curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+  | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
+dnf install -y mariadb-server MariaDB-client
+
+# rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm /tmp/rpms-centreon/centreon-database-${VERSION}*.rpm
+rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm
 
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
@@ -164,14 +173,6 @@ echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
-
-#################################
-# install and configure mariadb #
-#################################
-
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
-  | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
-dnf install -y mariadb-server MariaDB-client
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
