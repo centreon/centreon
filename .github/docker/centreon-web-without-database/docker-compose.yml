@@ -26,3 +26,5 @@ services:
       timeout: 3s
       retries: 2
       start_period: 0s
+    volumes:
+      - ../../../centreon/packaging/src/centreon-mysql.cnf:/etc/mysql/conf.d/centreon.cnf

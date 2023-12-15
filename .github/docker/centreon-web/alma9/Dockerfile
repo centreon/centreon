@@ -156,7 +156,9 @@ chmod -R 755 /usr/share/centreon/container.*
 # mv /tmp/autoinstall.php /usr/share/centreon/autoinstall.php
 # chmod 755 /usr/share/centreon/autoinstall.php
 
+mkdir /usr/share/centreon/www/install/tmp
 mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
+chown -R centreon:centreon /usr/share/centreon/www/install/tmp
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
