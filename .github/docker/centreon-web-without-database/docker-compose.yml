@@ -26,7 +26,7 @@ services:
     healthcheck:
       test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
       # test: mysqladmin ping -h127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent
-      interval: 1s
+      interval: 5s
       timeout: 3s
       retries: 20
       #start_period: 0s

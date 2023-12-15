@@ -144,7 +144,7 @@ COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /tmp/entrypoint
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /tmp/autoinstall.php
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /tmp/configuration
 
-RUN bash -e <<EOF
+RUN bash -ex <<EOF
 
 #################################
 # install and configure mariadb #
@@ -154,16 +154,12 @@ curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
 dnf install -y mariadb-server MariaDB-client
 
-# rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm /tmp/rpms-centreon/centreon-database-${VERSION}*.rpm
-rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
+rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm /tmp/rpms-centreon/centreon-database-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm
 
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
 mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
 chmod -R 755 /usr/share/centreon/container.*
-
-# mv /tmp/autoinstall.php /usr/share/centreon/autoinstall.php
-# chmod 755 /usr/share/centreon/autoinstall.php
 
 mkdir /usr/share/centreon/www/install/tmp
 mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
@@ -201,8 +197,8 @@ mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/cent
 
 service mysql stop
 
-# dnf remove -y mariadb-server galera-4
-# rm -rf /var/lib/mysql
+dnf remove -y mariadb-server galera-4
+rm -rf /var/lib/mysql
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
