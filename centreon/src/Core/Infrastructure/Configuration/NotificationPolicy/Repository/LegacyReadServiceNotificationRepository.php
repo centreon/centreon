@@ -87,26 +87,23 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
          * notification inheritance parameter.
          */
         $serviceInstance = \Service::getInstance($this->dependencyInjector);
-
-        $serviceInstance->generateServiceCache();
-        /**
-         * @var array{service_use_only_contacts_from_host: string}|null $service
-         */
-        $service = $serviceInstance->getServiceFromCache($serviceId);
         [
             'contact' => $notifiedContactIds,
             'cg' => $notifiedContactGroupIds,
         ] = $serviceInstance->getCgAndContacts($serviceId);
 
+        /**
+         * @var array{service_use_only_contacts_from_host: string}|null $service
+         */
+        $service = $serviceInstance->getServiceFromCache($serviceId);
         if ($service !== null && $service['service_use_only_contacts_from_host'] === '1') {
             $hostInstance = \Host::getInstance($this->dependencyInjector);
-            $host = [
-                'host_id' => $hostId,
-            ];
+            $host = ['host_id' => $hostId];
             $hostInstance->processingFromHost($host, false);
             $notifiedContactIds = $host['contacts_cache'] ?? [];
             $notifiedContactGroupIds = $host['contact_groups_cache'] ?? [];
         }
+
         $this->notifiedContacts[$serviceId] = $this->findContactsByIds($notifiedContactIds);
         $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIds($notifiedContactGroupIds);
     }

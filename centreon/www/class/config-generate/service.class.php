@@ -96,7 +96,7 @@ class Service extends AbstractService
         }
     }
 
-    public function generateServiceCache() : void
+    private function generateServiceCache() : void
     {
         $query = "SELECT $this->attributes_select FROM service " .
             "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .

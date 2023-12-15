@@ -157,7 +157,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
                 'proxy' => null,
                 'no_proxy' => '*',
                 'verify_peer' => false,
-                'headers' => ['X-AUTH-TOKEN' => $providerToken->getToken(), 'Cookie' => 'XDEBUG_SESSION=XDEBUG_KEY'],
+                'headers' => ['X-AUTH-TOKEN' => $providerToken->getToken()],
                 'body' => $payloadBody,
                 'timeout' => $this->timeout,
             ];
