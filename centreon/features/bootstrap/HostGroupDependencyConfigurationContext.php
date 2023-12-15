@@ -72,32 +72,9 @@ class HostGroupDependencyConfigurationContext extends CentreonContext
      */
     public function thePropertiesAreUpdated()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new HostGroupDependencyConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new HostGroupDependencyConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
+        $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }
 
     /**
@@ -118,32 +95,11 @@ class HostGroupDependencyConfigurationContext extends CentreonContext
      */
     public function theNewObjectHasTheSameProperties()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new HostGroupDependencyConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->initialProperties['name'] . '_1');
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->initialProperties as $key => $value) {
-                        if ($key != 'name' && $value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new HostGroupDependencyConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->initialProperties['name'] . '_1');
+        $newProperties = $this->initialProperties;
+        $newProperties['name'] = $this->initialProperties['name'] . '_1';
+        $this->comparePageProperties($this->currentPage, $newProperties);
     }
 
     /**

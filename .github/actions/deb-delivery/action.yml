@@ -19,6 +19,8 @@ inputs:
   artifactory_token:
     description: "Artifactory token"
     required: true
+  repository_name:
+    description: "The repository_name"
 
 runs:
   using: "composite"
