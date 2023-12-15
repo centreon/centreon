@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
@@ -76,12 +76,12 @@ const CustomTimePeriod = ({
     initialize();
   };
 
-  const isInvalidDate = useMemo(() => {
-    return validateDate({ endTime: endDate });
-  }, [endDate]);
-
   const slotProps = {
-    actionBar: { acceptDate, cancelDate, isInvalidDate },
+    actionBar: {
+      acceptDate,
+      cancelDate,
+      isInvalidDate: validateDate({ endTime: endDate })
+    },
     popper: { anchorEl }
   };
 
