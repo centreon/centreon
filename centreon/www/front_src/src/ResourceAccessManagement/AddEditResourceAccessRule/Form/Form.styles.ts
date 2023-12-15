@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-const useFormStyles = makeStyles()((theme) => ({
+export const useFormStyles = makeStyles()((theme) => ({
   form: {
     display: 'grid',
     gap: theme.spacing(2),
@@ -12,4 +12,10 @@ const useFormStyles = makeStyles()((theme) => ({
   }
 }));
 
-export default useFormStyles;
+export const useActionButtonsStyles = makeStyles()((theme) => ({
+  buttonContainer: {
+    display: 'flex',
+    gap: theme.spacing(2),
+    justifyContent: 'end'
+  }
+}));

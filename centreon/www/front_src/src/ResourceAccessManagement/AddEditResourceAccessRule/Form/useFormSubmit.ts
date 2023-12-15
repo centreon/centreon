@@ -21,6 +21,7 @@ import {
   labelResourceAccessRuleAddedSuccess,
   labelResourceAccessRuleEditedSuccess
 } from '../../translatedLabels';
+import { adaptResourceAccessRule } from '../api/adapters';
 
 interface UseFormState {
   submit: (values, { setSubmitting }) => Promise<void>;
@@ -48,7 +49,7 @@ const useFormSubmit = (): UseFormState => {
       ? t(labelResourceAccessRuleAddedSuccess)
       : t(labelResourceAccessRuleEditedSuccess);
 
-    const payload = values;
+    const payload = adaptResourceAccessRule({ ...values });
 
     return mutateAsync(payload)
       .then((response) => {

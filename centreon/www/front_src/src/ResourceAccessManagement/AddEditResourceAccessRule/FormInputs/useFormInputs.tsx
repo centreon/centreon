@@ -111,7 +111,7 @@ const useFormInputs = (): UseFormInputsState => {
                       {
                         custom: {
                           Component: () => (
-                            <ResourceDataset propertyName="service" />
+                            <ResourceDataset propertyName="dataset_filters" />
                           )
                         },
                         dataTestId: t(labelResourceSelection),
