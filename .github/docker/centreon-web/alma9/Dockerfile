@@ -204,6 +204,8 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 # sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 # sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
+dnf install -y mysql
+
 EOF
 
 EXPOSE 80 3306
