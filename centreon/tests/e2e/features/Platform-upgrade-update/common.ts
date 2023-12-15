@@ -179,6 +179,7 @@ EOF`,
   cy.get('input[name="email"]').type(
     '{selectall}{backspace}centreon@localhost'
   );
+  cy.get('#send_statistics').invoke('val', '0').should('have.attr', 'value', '0');
   cy.wait('@nextStep').get('#next').click();
 
   // Step 6
