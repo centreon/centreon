@@ -150,9 +150,9 @@ RUN bash -ex <<EOF
 # install and configure mariadb #
 #################################
 
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
-  | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
-dnf install -y mariadb-server MariaDB-client
+# curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+#   | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
+# dnf install -y mariadb-server MariaDB-client
 
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm /tmp/rpms-centreon/centreon-database-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm
@@ -170,35 +170,35 @@ echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
-service mysql start
-mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+# service mysql start
+# mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
-cd /usr/share/centreon/www/install/steps/process
-su apache -s /bin/bash -c "php configFileSetup.php"
-su apache -s /bin/bash -c "php installConfigurationDb.php"
-su apache -s /bin/bash -c "php installStorageDb.php"
-su apache -s /bin/bash -c "php createDbUser.php"
-su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
-su apache -s /bin/bash -c "php partitionTables.php"
-su apache -s /bin/bash -c "php generationCache.php"
-su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
+# cd /usr/share/centreon/www/install/steps/process
+# su apache -s /bin/bash -c "php configFileSetup.php"
+# su apache -s /bin/bash -c "php installConfigurationDb.php"
+# su apache -s /bin/bash -c "php installStorageDb.php"
+# su apache -s /bin/bash -c "php createDbUser.php"
+# su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
+# su apache -s /bin/bash -c "php partitionTables.php"
+# su apache -s /bin/bash -c "php generationCache.php"
+# su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 
-mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
-mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+# mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
+# mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
-mysql centreon < /tmp/sql/standard.sql
-mysql centreon < /tmp/sql/media.sql
-mysql centreon < /tmp/sql/openldap.sql
+# mysql centreon < /tmp/sql/standard.sql
+# mysql centreon < /tmp/sql/media.sql
+# mysql centreon < /tmp/sql/openldap.sql
 
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
+# centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 
-mysqldump --add-drop-database --databases centreon > /usr/local/src/centreon.sql
-mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/centreon_storage.sql
+# mysqldump --add-drop-database --databases centreon > /usr/local/src/centreon.sql
+# mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/centreon_storage.sql
 
-service mysql stop
+# service mysql stop
 
-dnf remove -y mariadb-server galera-4
-rm -rf /var/lib/mysql
+# dnf remove -y mariadb-server galera-4
+# rm -rf /var/lib/mysql
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
