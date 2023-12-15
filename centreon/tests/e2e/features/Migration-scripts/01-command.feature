@@ -24,13 +24,13 @@ Feature: Migration of commands from a source platform to a target platform
 
   Scenario: Successful execution of the migration script
     Given an admin user who has entered the correct command line
-    And a new command line displayed asking for the API token of the target platform
+    And the command line asking for the API token of the target platform is displayed
     When the user enters the correct API token
     Then the migration script is executed without errors
 
   Scenario: Wrong token entered
     Given an admin user who has entered the correct command line
-    And a new command line displayed asking for the API token of the target platform
+    And the command line asking for the API token of the target platform is displayed
     When the user enters a wrong API token
     Then the migration script is not executed
     And an error is displayed
@@ -42,7 +42,7 @@ Feature: Migration of commands from a source platform to a target platform
         php /usr/share/centreon/bin/migration command:all
     """
     Then the migration script is not executed
-    And a "missing URL" error is displayed 
+    And a "missing URL" error is displayed
 
   Scenario: Validating presence of migrated command on the target platform
     Given a non-admin user logged in on the target platform
@@ -72,8 +72,9 @@ Feature: Migration of commands from a source platform to a target platform
   Scenario: Validating monitoring graph on the target platform
     Given a non-admin user logged in on the target platform
     And a monitored service based on the command
-    When a graph is created with the service monitoring information
-    Then the graph is correctly displayed and its information is correct
+    When the service has run some checks
+    Then a graph is created with the service data
+    And its information is correct
 
   Scenario: Deleting the command on the target platform
     Given a non-admin user logged in on the target platform
