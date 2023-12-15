@@ -14,12 +14,12 @@ const artifactIllegalCharactersMatcher = /[,\s/|<>*?:"]/g;
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
   return (
     cy
-      // .exec(
-      //   `bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\' -f 4 | awk 'NR==2'"`
-      // )
       .exec(
-        `wsl bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\\\' -f 4 | awk 'NR==2'"`
+        `bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\' -f 4 | awk 'NR==2'"`
       )
+      // .exec(
+      //   `wsl bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\\\' -f 4 | awk 'NR==2'"`
+      // )
       .then(({ stdout }) => {
         const found = stdout.match(/(\d+\.\d+)\.(\d+)/);
         if (found) {
