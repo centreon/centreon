@@ -66,7 +66,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The new user has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(400);\r",
+									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
 								"type": "text/javascript"
