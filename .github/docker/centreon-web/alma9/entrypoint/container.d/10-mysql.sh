@@ -29,4 +29,3 @@ mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} centreon -e "UPDATE cfg_ce
 
 #mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
-mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' IDENTIFIED WITH mysql_native_password WITH GRANT OPTION"
