@@ -134,7 +134,7 @@ class TrapsSNMPConfigurationContext extends CentreonContext
             'description' => 'severityDescription',
             'severity' => 1,
             'level' => '3',
-            'icon' => '       centreon (png)'
+            'icon' => 'centreon (png)'
         ));
         $this->currentPage->save();
         $this->currentPage = new SnmpTrapsConfigurationPage($this);
@@ -228,7 +228,7 @@ class TrapsSNMPConfigurationContext extends CentreonContext
             'description' => 'severityDescription',
             'severity' => 1,
             'level' => '3',
-            'icon' => '       centreon (png)'
+            'icon' => 'centreon (png)'
         ));
         $this->currentPage->save();
         $this->currentPage = new SnmpTrapsConfigurationListingPage($this);
@@ -319,7 +319,7 @@ class TrapsSNMPConfigurationContext extends CentreonContext
             'description' => 'severityDescription',
             'severity' => 1,
             'level' => '3',
-            'icon' => '       centreon (png)'
+            'icon' => 'centreon (png)'
         ));
         $this->currentPage->save();
         $this->currentPage = new SnmpTrapsConfigurationPage($this);

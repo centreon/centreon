@@ -67,6 +67,7 @@ const LegacyRoute = (): JSX.Element => {
       <iframe
         frameBorder="0"
         id="main-content"
+        name="main-content"
         scrolling="yes"
         src={`./main.get.php${params}`}
         style={{ height: '100%', width: '100%' }}
