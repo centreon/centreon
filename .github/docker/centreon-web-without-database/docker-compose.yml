@@ -18,13 +18,13 @@ services:
   db:
     env_file:
       - .env
-    image: "mariadb:${MARIADB_VERSION}"
+    image: "${MYSQL_IMAGE}"
     restart: 'always'
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$$MYSQL_ROOT_PASSWORD", "--silent"]
       interval: 5s
       timeout: 3s
       retries: 2
       start_period: 0s
-    volumes:
-      - ../../../centreon/packaging/src/centreon-mysql.cnf:/etc/mysql/conf.d/centreon.cnf
+#    volumes:
+#      - ../../../centreon/packaging/src/centreon-mysql.cnf:/etc/mysql/conf.d/centreon.cnf
