@@ -12,18 +12,23 @@ const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 const artifactIllegalCharactersMatcher = /[,\s/|<>*?:"]/g;
 
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
-  return cy
-    .exec(
-      `bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\' -f 4 | awk 'NR==2'"`
-    )
-    .then(({ stdout }) => {
-      const found = stdout.match(/(\d+\.\d+)\.(\d+)/);
-      if (found) {
-        return cy.wrap({ major_version: found[1], minor_version: found[2] });
-      }
+  return (
+    cy
+      // .exec(
+      //   `bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\' -f 4 | awk 'NR==2'"`
+      // )
+      .exec(
+        `wsl bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\\\' -f 4 | awk 'NR==2'"`
+      )
+      .then(({ stdout }) => {
+        const found = stdout.match(/(\d+\.\d+)\.(\d+)/);
+        if (found) {
+          return cy.wrap({ major_version: found[1], minor_version: found[2] });
+        }
 
-      throw new Error('Current web version cannot be parsed.');
-    });
+        throw new Error('Current web version cannot be parsed.');
+      })
+  );
 });
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
