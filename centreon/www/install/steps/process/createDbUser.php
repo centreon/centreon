@@ -38,11 +38,11 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
 
-$return = array(
+$return = [
     'id' => 'createuser',
     'result' => 1,
     'msg' => ''
-);
+];
 
 $step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();
@@ -154,7 +154,7 @@ try {
         while ($result = $privilegesStatement->fetch(\PDO::FETCH_ASSOC)) {
             foreach ($result as $grant) {
                 // Format Grant result to get privileges list, and concerned database.
-                if (preg_match('/^GRANT\s(?!USAGE)(.+)\sON\s?(.+)\./', $grant, $matches)) {
+                if (preg_match('/^GRANT\s(?!USAGE)(.+)\sON\s?(.+)\.\*/', $grant, $matches)) {
                     // Check if privileges has been found for global (*) or centreon databases.
                     switch ($matches[2]) {
                         case '`' . $parameters['db_configuration'] . '`':
