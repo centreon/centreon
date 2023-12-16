@@ -211,7 +211,7 @@ class CentreonAuthLDAP
             $userEmail = $this->contactInfos['contact_email'];
             if (
                 isset($userInfos[$this->ldap->getAttrName('user', 'email')])
-                && trim($userInfos[$this->ldap->getAttrName('user', 'email')]) != ''
+                && ($userInfos[$this->ldap->getAttrName('user', 'email')]) != ''
             ) {
                 if (is_array($userInfos[$this->ldap->getAttrName('user', 'email')])) {
                     // Get the first if there are multiple entries
@@ -226,7 +226,7 @@ class CentreonAuthLDAP
             $userPager = $this->contactInfos['contact_pager'];
             if (
                 isset($userInfos[$this->ldap->getAttrName('user', 'pager')])
-                && trim($userInfos[$this->ldap->getAttrName('user', 'pager')]) != ''
+                && ($userInfos[$this->ldap->getAttrName('user', 'pager')]) != ''
             ) {
                 if (is_array($userInfos[$this->ldap->getAttrName('user', 'pager')])) {
                     // Get the first if there are multiple entries
