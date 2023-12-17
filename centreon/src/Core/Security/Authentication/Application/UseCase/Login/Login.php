@@ -283,7 +283,7 @@ final class Login
         $refererRedirectionPage = null;
         $queryParameters = [];
         parse_str($refererQueryParameters, $queryParameters);
-        if (array_key_exists('redirect', $queryParameters)) {
+        if (array_key_exists('redirect', $queryParameters) && is_string($queryParameters['redirect'])) {
             $redirectionPageParameters = [];
             parse_str($queryParameters['redirect'], $redirectionPageParameters);
             if (array_key_exists('p', $redirectionPageParameters)) {

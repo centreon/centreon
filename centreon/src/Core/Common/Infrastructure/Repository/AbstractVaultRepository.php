@@ -52,12 +52,20 @@ abstract class AbstractVaultRepository
     public function getAuthenticationToken(): string
     {
         try {
-            $url = $this->vaultConfiguration->getAddress() . ':'
-                . $this->vaultConfiguration->getPort() . '/v1/auth/approle/login';
+            $vaultConfiguration = $this->vaultConfiguration ?? throw new \LogicException();
+        } catch (\LogicException $exception) {
+            $this->error('There is a technical problem in ' . static::class . ' about the vaultConfiguration');
+
+            throw $exception;
+        }
+
+        try {
+            $url = $vaultConfiguration->getAddress() . ':'
+                . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
             $url = sprintf('%s://%s', self::DEFAULT_SCHEME, $url);
             $body = [
-                'role_id' => $this->vaultConfiguration->getRoleId(),
-                'secret_id' => $this->vaultConfiguration->getSecretId(),
+                'role_id' => $vaultConfiguration->getRoleId(),
+                'secret_id' => $vaultConfiguration->getSecretId(),
             ];
             $this->info('Authenticating to Vault: ' . $url);
             $loginResponse = $this->httpClient->request('POST', $url, ['json' => $body]);
