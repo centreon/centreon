@@ -46,7 +46,6 @@
 								}
 							}
 						},
-
 						"url": {
 							"raw": "{{baseUrl}}/login",
 							"host": [
