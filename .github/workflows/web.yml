@@ -17,10 +17,11 @@ on:
       - "centreon/**"
   push:
     branches:
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
+       -MON-33158
+      # - develop
+      # - dev-[2-9][0-9].[0-9][0-9].x
+      # - master
+      # - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
 
@@ -586,7 +587,7 @@ jobs:
 
   create-xray-test-plan-and-test-execution:
     needs: [get-version]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'canary' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
       matrix:
