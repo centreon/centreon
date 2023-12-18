@@ -61,7 +61,7 @@ runs:
             #jf rt copy $ARTIFACT $TARGET_PATH --flat=true --threads=1
           done
 
-          jf rt bpr ${{ inputs.module }} 860 test-rpm-standard --copy
+          #jf rt bpr ${{ inputs.module }} 860 test-rpm-standard --copy
 
         done
 
@@ -97,7 +97,7 @@ runs:
         done
 
         #jf rt bpr --copy --source-repo test-apt-${{ inputs.version }}-standard-testing test-apt-${{ inputs.version }}-standard-stable
-        jf rt bpr ${{ inputs.module }} 860 test-apt-23.10-standard-stable --copy --source-repo apt-standard-24.04-unstable
+        #jf rt bpr ${{ inputs.module }} 860 test-apt-23.10-standard-stable --copy --source-repo apt-standard-24.04-unstable
 
 
       shell: bash
