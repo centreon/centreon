@@ -1,21 +1,13 @@
 import { useMemo } from 'react';
 
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { equals } from 'ramda';
 
-import { ResponseError, SelectEntry } from '@centreon/ui';
+import { ResponseError } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 
-import {
-  CreatedToken,
-  UnitDate,
-  UseCreateTokenFormValues,
-  maxDays
-} from './models';
-
-dayjs.extend(relativeTime);
+import { CreatedToken, UseCreateTokenFormValues } from './models';
+import { getDuration } from './utils';
 
 interface Props {
   data?: ResponseError | CreatedToken;
@@ -26,42 +18,6 @@ const useTokenFormValues = ({
   values,
   data
 }: Props): UseCreateTokenFormValues => {
-  const formatLabelDuration = (label: string): string => {
-    return label
-      .split(' ')
-      .map((item) => (equals(item, 'a') ? 1 : item))
-      .join(' ');
-  };
-
-  const getDuration = ({
-    startTime,
-    endTime,
-    isCustomizeDate
-  }): SelectEntry => {
-    const endDate = dayjs(endTime);
-    const startDate = dayjs(startTime);
-
-    if (isCustomizeDate) {
-      const name = formatLabelDuration(endDate.to(startDate, true));
-
-      return { id: 'customize', name };
-    }
-
-    const numberOfDays = endDate.diff(startDate, UnitDate.Day);
-
-    if (numberOfDays <= maxDays) {
-      const durationName = `${numberOfDays} days`;
-
-      return {
-        id: durationName.trim(),
-        name: durationName
-      };
-    }
-    const name = formatLabelDuration(endDate.to(startDate, true));
-
-    return { id: name.trim(), name };
-  };
-
   const { token, duration, tokenName, user } = useMemo(() => {
     const currentData = data as CreatedToken;
     const invalidData = data as ResponseError;

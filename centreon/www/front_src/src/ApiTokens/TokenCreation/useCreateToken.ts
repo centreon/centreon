@@ -18,6 +18,7 @@ import { CreatedToken, dataDuration } from './models';
 interface UseCreateToken {
   createToken: (params: Required<CreateTokenFormValues>) => void;
   data?: ResponseError | CreatedToken;
+  getExpirationDate?: ({ value, unit }) => string;
   isMutating: boolean;
 }
 
@@ -75,6 +76,7 @@ const useCreateToken = (): UseCreateToken => {
   return {
     createToken,
     data,
+    getExpirationDate,
     isMutating
   };
 };

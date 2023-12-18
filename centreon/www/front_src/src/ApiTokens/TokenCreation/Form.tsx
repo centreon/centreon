@@ -107,7 +107,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
   return (
     <Dialog
       confirmDisabled={!dirty || !isValid}
-      data-testid="modalTokenCreation"
+      data-testid="tokenCreationDialog"
       labelCancel={t(labelCancel)}
       labelConfirm={labelConfirm}
       labelTitle={<Title token={token} />}

@@ -31,25 +31,25 @@ const TokenInput = ({ token }: Props): JSX.Element => {
     setIsVisible(!isVisible);
   };
 
+  const copyToken = (): void => {
+    copy(token);
+  };
+
   return (
     <div
       style={{ alignItems: 'center', display: 'flex', flexDirection: 'row' }}
     >
       <TextField
         EndAdornment={endAdornment({ isVisible, onClick: handleVisibility })}
-        dataTestId="tokenInput"
+        dataTestId="token"
         id="token"
+        inputProps={{ 'data-testid': 'tokenInput' }}
         label={t(labelToken)}
         style={{ width: '100%' }}
         type={isVisible ? 'text' : 'password'}
         value={token}
       />
-      <IconButton
-        ariaLabel="clipboard"
-        onClick={() => {
-          copy(token);
-        }}
-      >
+      <IconButton ariaLabel="clipboard" onClick={copyToken}>
         <FileCopyIcon fontSize="small" />
       </IconButton>
     </div>
