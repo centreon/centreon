@@ -219,7 +219,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {pagination}
+                {include file='./include/configuration/configKnowledge/pagination.php'}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>
