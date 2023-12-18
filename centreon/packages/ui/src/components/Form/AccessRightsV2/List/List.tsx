@@ -1,5 +1,8 @@
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { isEmpty } from 'ramda';
+
+import { Typography } from '@mui/material';
 
 import { valuesAtom } from '../atoms';
 import { List as UIList } from '../../../List';
@@ -23,18 +26,24 @@ const List = ({ labels, roles }: Props): JSX.Element => {
     <div>
       <Subtitle>{t(labels.title)}</Subtitle>
       <div className={classes.list}>
-        <UIList>
-          {values.map(({ id, ...rest }, index) => (
-            <Item
-              id={id}
-              key={id}
-              labels={labels}
-              {...rest}
-              index={index}
-              roles={roles}
-            />
-          ))}
-        </UIList>
+        {isEmpty(values) ? (
+          <Typography sx={{ py: 2 }} textAlign="center">
+            {t(labels.empty)}
+          </Typography>
+        ) : (
+          <UIList>
+            {values.map(({ id, ...rest }, index) => (
+              <Item
+                id={id}
+                key={id}
+                labels={labels}
+                {...rest}
+                index={index}
+                roles={roles}
+              />
+            ))}
+          </UIList>
+        )}
       </div>
     </div>
   );

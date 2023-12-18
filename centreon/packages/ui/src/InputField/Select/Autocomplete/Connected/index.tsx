@@ -33,6 +33,7 @@ import useFetchQuery from '../../../../api/useFetchQuery';
 export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;
   baseEndpoint?: string;
+  changeIdValue: (item: TData) => number | string;
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
@@ -42,7 +43,6 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   labelKey?: string;
   queryKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
-  changeIdValue: (item: TData) => number | string;
 }
 
 const ConnectedAutocompleteField = (
@@ -240,10 +240,12 @@ const ConnectedAutocompleteField = (
 
         const moreOptions = page > 1 ? options : [];
 
-        const formattedList = changeIdValue ? newOptions.result.map((item) => ({
-          ...item,
-          id: changeIdValue(item)
-        })) : newOptions.result;
+        const formattedList = changeIdValue
+          ? newOptions.result.map((item) => ({
+              ...item,
+              id: changeIdValue(item)
+            }))
+          : newOptions.result;
 
         if (!isEmpty(labelKey) && !isNil(labelKey)) {
           const list = formattedList.map((item) =>

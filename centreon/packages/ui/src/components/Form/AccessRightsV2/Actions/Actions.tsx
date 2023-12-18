@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+
 import LinkIcon from '@mui/icons-material/Link';
 
 import { Button } from '../../..';
@@ -23,17 +24,23 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
   return (
     <div className={classes.actions}>
       {link ? (
-        <Button variant="ghost" onClick={copyLink} icon={<LinkIcon />} iconVariant='start'>
+        <Button
+          icon={<LinkIcon />}
+          iconVariant="start"
+          variant="ghost"
+          onClick={copyLink}
+          aria-label={t(labels.copyLink)}
+        >
           {t(labels.copyLink)}
         </Button>
       ) : (
         <div />
       )}
       <div className={classes.cancelAndSave}>
-        <Button variant="secondary" onClick={cancel}>
+        <Button variant="secondary" onClick={cancel} aria-label={t(labels.cancel)}>
           {t(labels.cancel)}
         </Button>
-        <Button disabled={!dirty} variant="primary" onClick={save}>
+        <Button disabled={!dirty} variant="primary" onClick={save} aria-label={t(labels.save)}>
           {t(labels.save)}
         </Button>
       </div>

@@ -42,6 +42,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
         <SingleConnectedAutocompleteField
           clearable
           fullWidth
+          changeIdValue={changeIdValue}
           disableClearable={false}
           field="name"
           getEndpoint={getEndpoint}
@@ -54,16 +55,16 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
           renderOption={renderOption}
           value={selectedContact}
           onChange={selectContact}
-          changeIdValue={changeIdValue}
         />
         <RoleSelectField
           disabled={isNil(selectedContact)}
           roles={roles}
-          testId="add"
+          testId="add_role"
           value={selectedRole}
           onChange={setSelectedRole}
         />
         <IconButton
+          data-testid='add'
           disabled={isNil(selectedContact)}
           icon={<AddCircleIcon />}
           onClick={add}

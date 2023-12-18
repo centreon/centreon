@@ -43,7 +43,9 @@ export const useActions = ({
     successMessage: labels.copySuccess
   });
 
-  const formattedValues = values.map(formatValue);
+  const formattedValues = values
+    .filter(({ isRemoved }) => !isRemoved)
+    .map(formatValue);
 
   const dirty = !equals(initialValues, formattedValues);
 
@@ -55,7 +57,9 @@ export const useActions = ({
   };
 
   const save = (): void => {
-    submit(values.map(formatValueForSubmition));
+    submit(
+      values.filter(({ isRemoved }) => !isRemoved).map(formatValueForSubmition)
+    );
   };
 
   return {

@@ -29,6 +29,7 @@ export interface Labels {
   };
   list: {
     added: string;
+    empty: string;
     group: string;
     removed: string;
     title: string;

@@ -1,78 +1,17 @@
-import { faker } from '@faker-js/faker';
 import { Meta, StoryObj } from '@storybook/react';
-import { rest } from 'msw'
+import { rest } from 'msw';
 
-import { SelectEntry, SnackbarProvider } from '../../..';
-import { Listing } from '../../../api/models';
+import { SnackbarProvider } from '../../..';
 
-import { AccessRightInitialValues, Labels } from './models';
 import AccessRights from './AccessRights';
-
-faker.seed(42);
-
-const accessRights: Array<AccessRightInitialValues> = Array(10)
-  .fill(0)
-  .map((_, idx) => ({
-    email: faker.internet.email(),
-    id: idx,
-    isContactGroup: idx % 5 === 0,
-    name: faker.person.fullName(),
-    role: idx % 2 === 0 ? 'viewer' : 'editor'
-  }));
-
-const labels: Labels = {
-  actions: {
-    copyError: 'Failed to copy',
-    copySuccess: 'Copied',
-    cancel: 'Cancel',
-    copyLink: 'Copy link',
-    save: 'Save'
-  },
-  add: {
-    autocompleteContact: 'Add a contact',
-    autocompleteContactGroup: 'Add a contact group',
-    contact: 'Contact',
-    contactGroup: 'Contact group',
-    title: 'Share dashboard with'
-  },
-  list: {
-    added: 'Added',
-    group: 'Group',
-    removed: 'Removed',
-    title: 'User rights',
-    updated: 'Updated'
-  }
-};
-
-const roles = [
-  {
-    id: 'viewer',
-    name: 'Viewer'
-  },
-  {
-    id: 'editor',
-    name: 'Editor'
-  }
-];
-
-const buildEntities = (from, isGroup): Array<SelectEntry> => {
-  return Array(10)
-    .fill(0)
-    .map((_, index) => ({
-      id: 1000 + index,
-      name: `Entity ${isGroup ? 'Group' : ''} ${from + index}`,
-      email: isGroup ? undefined : faker.internet.email()
-    }));
-};
-
-const buildResult = (isGroup): Listing<SelectEntry> => ({
-  meta: {
-    limit: 10,
-    page: 1,
-    total: 10
-  },
-  result: buildEntities(10, isGroup)
-});
+import {
+  accessRightsWithStates,
+  buildResult,
+  defaultAccessRights,
+  emptyAccessRights,
+  labels,
+  roles
+} from './storiesData';
 
 const meta: Meta<typeof AccessRights> = {
   component: AccessRights,
@@ -80,19 +19,21 @@ const meta: Meta<typeof AccessRights> = {
     msw: {
       handlers: [
         rest.get('api/latest/contact?**', (req, res, ctx) => {
-          return res(
-            ctx.json(buildResult(false))
-          )
+          return res(ctx.json(buildResult(false)));
         }),
         rest.get('api/latest/contactGroup?**', (req, res, ctx) => {
-          return res(
-            ctx.json(buildResult(true))
-          )
-        }),
+          return res(ctx.json(buildResult(true)));
+        })
       ]
-    },
+    }
   }
 };
+
+const Template = (args): JSX.Element => (
+  <SnackbarProvider>
+    <AccessRights {...args} />
+  </SnackbarProvider>
+);
 
 export default meta;
 type Story = StoryObj<typeof AccessRights>;
@@ -104,15 +45,75 @@ export const Default: Story = {
       contact: '/contact',
       contactGroup: '/contactGroup'
     },
-    initialValues: accessRights,
+    initialValues: defaultAccessRights,
+    labels,
+    link: 'link',
+    roles,
+    submit: () => undefined,
+  },
+  render: Template
+};
+
+export const AccessRightsWithStates: Story = {
+  args: {
+    cancel: () => undefined,
+    endpoints: {
+      contact: '/contact',
+      contactGroup: '/contactGroup'
+    },
+    initialValues: accessRightsWithStates,
+    labels,
+    link: 'link',
+    roles,
+    submit: () => undefined,
+  },
+  render: Template
+};
+
+export const withEmptyState: Story = {
+  args: {
+    cancel: () => undefined,
+    endpoints: {
+      contact: '/contact',
+      contactGroup: '/contactGroup'
+    },
+    initialValues: emptyAccessRights,
+    labels,
+    link: 'link',
+    roles,
+    submit: () => undefined,
+  },
+  render: Template
+};
+
+export const withoutLink: Story = {
+  args: {
+    cancel: () => undefined,
+    endpoints: {
+      contact: '/contact',
+      contactGroup: '/contactGroup'
+    },
+    initialValues: defaultAccessRights,
     labels,
     roles,
-    link: 'link',
     submit: console.log
   },
-  render: (args) => (
-    <SnackbarProvider>
-      <AccessRights {...args} />
-    </SnackbarProvider>
-  )
+  render: Template
+};
+
+export const loading: Story = {
+  args: {
+    cancel: () => undefined,
+    endpoints: {
+      contact: '/contact',
+      contactGroup: '/contactGroup'
+    },
+    initialValues: emptyAccessRights,
+    labels,
+    link: 'link',
+    loading: true,
+    roles,
+    submit: () => undefined,
+  },
+  render: Template
 };

@@ -57,11 +57,11 @@ const Item = ({
           <RoleSelectField
             disabled={isRemoved}
             roles={roles}
-            testId={`role-${id}`}
+            testId={`role-${name}`}
             value={role}
             onChange={changeRole}
           />
-          <RemoveAccessRight index={index} isRemoved={isRemoved} />
+          <RemoveAccessRight index={index} isRemoved={isRemoved} name={name} />
         </>
       }
       className={classes.item}
@@ -75,7 +75,12 @@ const Item = ({
           secondaryText={email}
         />
         {groupLabel && (
-          <Chip data-type="group-chip" label={groupLabel} size="small" />
+          <Chip
+            data-groupChip={name}
+            data-type="group-chip"
+            label={groupLabel}
+            size="small"
+          />
         )}
       </div>
     </List.Item>

@@ -18,7 +18,7 @@ export const useListStyles = makeStyles()((theme) => ({
   list: {
     borderBottom: `1px solid ${theme.palette.divider}`,
     borderTop: `1px solid ${theme.palette.divider}`,
-    maxHeight: '25rem',
+    maxHeight: '35vw',
     overflowY: 'auto',
     width: '100%'
   },

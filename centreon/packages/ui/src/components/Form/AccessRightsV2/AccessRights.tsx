@@ -3,6 +3,7 @@ import { SelectEntry } from '../../..';
 import { useAccessRightsStyles } from './AccessRights.styles';
 import Actions from './Actions/Actions';
 import List from './List/List';
+import ListSkeleton from './List/ListSkeleton';
 import Provider from './Provider';
 import ShareInput from './ShareInput/ShareInput';
 import Stats from './Stats/Stats';
@@ -15,6 +16,7 @@ interface Props {
   initialValues: Array<AccessRightInitialValues>;
   labels: Labels;
   link?: string;
+  loading?: boolean;
   roles: Array<SelectEntry>;
   submit: (values: Array<AccessRightInitialValues>) => void;
 }
@@ -26,6 +28,7 @@ const AccessRights = ({
   submit,
   cancel,
   link,
+  loading,
   labels
 }: Props): JSX.Element => {
   const { classes } = useAccessRightsStyles();
@@ -34,7 +37,7 @@ const AccessRights = ({
   return (
     <div className={classes.container}>
       <ShareInput endpoints={endpoints} labels={labels.add} roles={roles} />
-      <List labels={labels.list} roles={roles} />
+      {loading ? <ListSkeleton /> : <List labels={labels.list} roles={roles} />}
       <Stats labels={labels.list} />
       <Actions
         cancel={cancel}
