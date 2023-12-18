@@ -1,0 +1,13 @@
+import { ReactNode } from 'react';
+
+import { Provider as JotaiProvider, createStore } from 'jotai';
+
+interface Props {
+  children: ReactNode;
+}
+
+const Provider = ({ children }: Props): JSX.Element => (
+  <JotaiProvider store={createStore()}>{children}</JotaiProvider>
+);
+
+export default Provider;
