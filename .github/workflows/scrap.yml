@@ -1,0 +1,217 @@
+name: "scrap test file"
+description: "testing stepsecu"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+
+    - name: Use cache files
+      uses: actions/cache@v3
+      with:
+        path: ./*.${{ env.extfile }}
+        key: ${{ inputs.cache_key }}
+
+    - uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+
+    - name: Cache packages
+      uses: actions/cache/save@v3
+      with:
+        path: ./*.${{ inputs.package_extension }}
+        key: ${{ inputs.cache_key }}
+
+    - uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install --frozen-lockfile
+
+      - name: Store build archived doc in cache
+        uses: actions/cache/save@v3
+        with:
+          path: "./build"
+          key: "${{ github.sha }}-${{ github.run_id }}-build-archived-doc"
+
+      - name: Restore built archived doc from cache
+        uses: actions/cache/restore@v3
+        with:
+          path: "./build"
+          key: "${{ github.sha }}-${{ github.run_id }}-build-archived-doc"
+          fail-on-cache-miss: true
+
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install --frozen-lockfile
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Get changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          token: ${{ github.token }}
+          list-files: 'json'
+
+      - name: Manage versions to build
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const available_versions = require('./versions.json');
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: yarn
+
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: "14.x"
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup Go environment
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.15"
+
+      - name: Test backend
+        uses: magefile/mage-action@v1
+        with:
+          version: latest
+          args: coverage
+
+      - name: Build backend
+        uses: magefile/mage-action@v1
+        with:
+          version: latest
+          args: buildAll
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: "14.x"
+
+      - name: Setup Go environment
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.15"
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+
+      - name: Add plugin to release
+        id: upload-plugin-asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.metadata.outputs.archive }}
+          asset_name: ${{ steps.metadata.outputs.archive }}
+          asset_content_type: application/zip
+
+      - name: Add checksum to release
+        id: upload-checksum-asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.metadata.outputs.archive-checksum }}
+          asset_name: ${{ steps.metadata.outputs.archive-checksum }}
+          asset_content_type: text/plain
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+        with:
+          version: "latest"
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: SCA scan
+        env:
+          SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
+          SRCCLR_REGION: "ER"
+
+        uses: sc979/veracode-sca@v1.10
+        # This action is based on the following command:
+        # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          create-issues: false
+          allow-dirty: true
+          recursive: true
+
+
+    - uses: docker/setup-buildx-action@v2
+      with:
+        endpoint: buildx-context
+
+    - uses: docker/build-push-action@v3
+      with:
+        file: .github/docker/Dockerfile.${{ inputs.image_name }}-${{ inputs.distrib }}
+
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        run_install: |
+          args: [--frozen-lockfile]
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
