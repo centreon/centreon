@@ -181,9 +181,9 @@ jobs:
         run: |
           # jf rt build-append "build-name" "build-number" "build-name-to-append" "build-number-to-append"
           # ${{ inputs.module_name }}-${{ github.run_number }}-${{ inputs.distrib }} ${{ inputs.module_name }}-${{ github.run_number }}
-          jf rt build-append aggregating-dsm dsm-${{ github.run_number }} dsm-${{ github.run_number }}-el8 ${{ github.run_number }}
-          jf rt build-append aggregating-dsm dsm-${{ github.run_number }} dsm-${{ github.run_number }}-el9 ${{ github.run_number }}
-          jf rt build-append aggregating-dsm dsm-${{ github.run_number }} dsm-${{ github.run_number }}-bullseye ${{ github.run_number }}
+          jf rt build-append aggregating-dsm ${{ github.run_number }} dsm-${{ github.run_number }}-el8 ${{ github.run_number }}
+          jf rt build-append aggregating-dsm ${{ github.run_number }} dsm-${{ github.run_number }}-el9 ${{ github.run_number }}
+          jf rt build-append aggregating-dsm ${{ github.run_number }} dsm-${{ github.run_number }}-bullseye ${{ github.run_number }}
           jf rt bp aggregating-dsm ${{ github.run_number }}
         shell: bash
 
