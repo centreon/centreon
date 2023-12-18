@@ -179,7 +179,7 @@ EOF`,
   cy.get('input[name="email"]').type(
     '{selectall}{backspace}centreon@localhost'
   );
-  cy.get('#send_statistics').invoke('val', '0').should('have.attr', 'value', '0');
+
   cy.wait('@nextStep').get('#next').click();
 
   // Step 6
@@ -327,6 +327,7 @@ When('administrator runs the update procedure', () => {
   cy.get('.btc.bt_info', { timeout: 15000 }).should('be.visible').click();
 
   cy.wait('@getStep5').get('.btc.bt_success').should('be.visible').click();
+  cy.get('#send_statistics').invoke('val', '0').should('have.attr', 'value', '0');
 });
 
 Then(
