@@ -22,7 +22,6 @@ import routeMap from '../../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 import { DashboardLayout } from '../../../models';
 import { DashboardListing } from '../DashboardListing';
-import { Actions } from '../DashboardListing/Actions';
 import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 
@@ -91,41 +90,33 @@ const DashboardsOverview = (): ReactElement => {
     );
   }
 
-  if (equals(viewMode, ViewMode.List)) {
-    return (
-      <div style={{ height: '75vh', width: '100%' }}>
-        <DashboardListing
-          data={data}
-          loading={isLoading}
-          openConfig={createDashboard}
-        />
-      </div>
-    );
-  }
-
   return (
-    <>
-      <div style={{ margin: '16px 0' }}>
-        <Actions openConfig={createDashboard} />
-      </div>
-
-      <DataTable isEmpty={isEmptyList} variant="grid">
-        {dashboards.map((dashboard) => (
-          <DataTable.Item
-            hasCardAction
-            description={dashboard.description ?? undefined}
-            hasActions={hasEditPermission(dashboard)}
-            key={dashboard.id}
-            labelsDelete={getLabelsDelete(dashboard)}
-            title={dashboard.name}
-            onClick={navigateToDashboard(dashboard)}
-            onDelete={deleteDashboard(dashboard)}
-            onEdit={editDashboard(dashboard)}
-            onEditAccessRights={editAccessRights(dashboard)}
-          />
-        ))}
-      </DataTable>
-    </>
+    <div style={{ height: '75vh', width: '100%' }}>
+      <DashboardListing
+        customListingComponent={
+          <DataTable isEmpty={isEmptyList} variant="grid">
+            {dashboards.map((dashboard) => (
+              <DataTable.Item
+                hasCardAction
+                description={dashboard.description ?? undefined}
+                hasActions={hasEditPermission(dashboard)}
+                key={dashboard.id}
+                labelsDelete={getLabelsDelete(dashboard)}
+                title={dashboard.name}
+                onClick={navigateToDashboard(dashboard)}
+                onDelete={deleteDashboard(dashboard)}
+                onEdit={editDashboard(dashboard)}
+                onEditAccessRights={editAccessRights(dashboard)}
+              />
+            ))}
+          </DataTable>
+        }
+        data={data}
+        displayCostumListing={equals(viewMode, ViewMode.Cards)}
+        loading={isLoading}
+        openConfig={createDashboard}
+      />
+    </div>
   );
 };
 

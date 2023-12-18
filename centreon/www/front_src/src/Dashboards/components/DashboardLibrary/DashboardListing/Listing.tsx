@@ -8,7 +8,9 @@ import { Actions } from './Actions';
 import useListing from './useListing';
 
 interface ListingProp {
+  customListingComponent?: JSX.Element;
   data?: List<Dashboard>;
+  displayCostumListing?: boolean;
   loading: boolean;
   openConfig: () => void;
 }
@@ -16,7 +18,9 @@ interface ListingProp {
 const Listing = ({
   data: listingData,
   loading,
-  openConfig = () => undefined
+  openConfig = () => undefined,
+  customListingComponent,
+  displayCostumListing
 }: ListingProp): JSX.Element => {
   const { columns, defaultColumnsIds } = useColumns();
 
@@ -44,6 +48,8 @@ const Listing = ({
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
+      customListingComponent={customListingComponent}
+      displayCostumListing={displayCostumListing}
       limit={listingData?.meta.limit}
       loading={loading}
       memoProps={[columns, page, sorto, sortf, selectedRows]}

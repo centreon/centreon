@@ -93,9 +93,11 @@ export interface Props<TRow> {
   columnConfiguration?: ColumnConfiguration;
   columns: Array<Column>;
   currentPage?: number;
+  customListingComponent?: JSX.Element;
   customPaginationClassName?: string;
   disableRowCheckCondition?: (row) => boolean;
   disableRowCondition?: (row) => boolean;
+  displayCostumListing?: boolean;
   getHighlightRowCondition?: (row: TRow) => boolean;
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
@@ -138,6 +140,8 @@ const defaultColumnConfiguration = {
 export const performanceRowsLimit = 60;
 
 const Listing = <TRow extends { id: RowId }>({
+  customListingComponent,
+  displayCostumListing,
   limit = 10,
   visualizationActions,
   columns,
@@ -494,150 +498,161 @@ const Listing = <TRow extends { id: RowId }>({
             onSelectColumns={onSelectColumns}
           />
         </div>
-        <ParentSize
-          parentSizeStyles={{
-            height: '100%',
-            overflowY: 'auto',
-            width: '100%'
-          }}
-        >
-          {({ height }) => (
-            <Box
-              className={classes.tableWrapper}
-              component="div"
-              style={{
-                height: innerScrollDisabled ? '100%' : `calc(${height}px - 4px)`
-              }}
-            >
-              <Table
-                stickyHeader
-                className={classes.table}
+        {displayCostumListing ? (
+          customListingComponent
+        ) : (
+          <ParentSize
+            parentSizeStyles={{
+              height: '100%',
+              overflowY: 'auto',
+              width: '100%'
+            }}
+          >
+            {({ height }) => (
+              <Box
+                className={classes.tableWrapper}
                 component="div"
-                role={undefined}
-                size="small"
+                style={{
+                  height: innerScrollDisabled
+                    ? '100%'
+                    : `calc(${height}px - 4px)`
+                }}
               >
-                <ListingHeader
-                  areColumnsEditable={areColumnsEditable}
-                  checkable={checkable}
-                  columnConfiguration={columnConfiguration}
-                  columns={columns}
-                  listingVariant={listingVariant}
-                  memoProps={headerMemoProps}
-                  predefinedRowsSelection={predefinedRowsSelection}
-                  rowCount={limit - emptyRows}
-                  selectedRowCount={selectedRows.length}
-                  sortField={sortField}
-                  sortOrder={sortOrder}
-                  onSelectAllClick={selectAllRows}
-                  onSelectColumns={onSelectColumns}
-                  onSelectRowsWithCondition={onSelectRowsWithCondition}
-                  onSort={onSort}
-                />
-
-                <TableBody
-                  className={classes.tableBody}
+                <Table
+                  stickyHeader
+                  className={classes.table}
                   component="div"
-                  onMouseLeave={clearHoveredRow}
+                  role={undefined}
+                  size="small"
                 >
-                  {rowsToDisplay.map((row, index) => {
-                    const isRowSelected = isSelected(row);
-                    const isRowHovered = equals(hoveredRowId, getId(row));
-                    const isSubItem = allSubItemIds.includes(row.id);
+                  <ListingHeader
+                    areColumnsEditable={areColumnsEditable}
+                    checkable={checkable}
+                    columnConfiguration={columnConfiguration}
+                    columns={columns}
+                    listingVariant={listingVariant}
+                    memoProps={headerMemoProps}
+                    predefinedRowsSelection={predefinedRowsSelection}
+                    rowCount={limit - emptyRows}
+                    selectedRowCount={selectedRows.length}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
+                    onSelectAllClick={selectAllRows}
+                    onSelectColumns={onSelectColumns}
+                    onSelectRowsWithCondition={onSelectRowsWithCondition}
+                    onSort={onSort}
+                  />
 
-                    return (
-                      <ListingRow
-                        checkable={
-                          checkable && (!isSubItem || subItems.canCheckSubItems)
-                        }
-                        columnConfiguration={columnConfiguration}
-                        columnIds={columns.map(prop('id'))}
-                        disableRowCondition={disableRowCondition}
-                        isHovered={isRowHovered}
-                        isSelected={isRowSelected}
-                        isShiftKeyDown={isShiftKeyDown}
-                        key={
-                          gte(limit, performanceRowsLimit)
-                            ? `row_${index}`
-                            : getId(row)
-                        }
-                        lastSelectionIndex={lastSelectionIndex}
-                        limit={limit}
-                        listingVariant={listingVariant}
-                        row={row}
-                        rowColorConditions={rowColorConditions}
-                        shiftKeyDownRowPivot={shiftKeyDownRowPivot}
-                        subItemsPivots={subItemsPivots}
-                        tabIndex={-1}
-                        visibleColumns={visibleColumns}
-                        onClick={(): void => {
-                          onRowClick(row);
-                        }}
-                        onFocus={(): void => hoverRow(row)}
-                        onMouseOver={(): void => hoverRow(row)}
-                      >
-                        {checkable &&
-                          (!isSubItem || subItems.canCheckSubItems ? (
-                            <Cell
-                              align="left"
-                              className={classes.checkbox}
-                              disableRowCondition={disableRowCondition}
-                              isRowHovered={isRowHovered}
-                              row={row}
-                              rowColorConditions={rowColorConditions}
-                              onClick={(event): void => selectRow(event, row)}
-                            >
-                              <Checkbox
-                                checked={isRowSelected}
-                                disabled={
-                                  disableRowCheckCondition(row) ||
-                                  disableRowCondition(row)
-                                }
-                                inputProps={{
-                                  'aria-label': `Select row ${getId(row)}`
-                                }}
+                  <TableBody
+                    className={classes.tableBody}
+                    component="div"
+                    onMouseLeave={clearHoveredRow}
+                  >
+                    {rowsToDisplay.map((row, index) => {
+                      const isRowSelected = isSelected(row);
+                      const isRowHovered = equals(hoveredRowId, getId(row));
+                      const isSubItem = allSubItemIds.includes(row.id);
+
+                      return (
+                        <ListingRow
+                          checkable={
+                            checkable &&
+                            (!isSubItem || subItems.canCheckSubItems)
+                          }
+                          columnConfiguration={columnConfiguration}
+                          columnIds={columns.map(prop('id'))}
+                          disableRowCondition={disableRowCondition}
+                          isHovered={isRowHovered}
+                          isSelected={isRowSelected}
+                          isShiftKeyDown={isShiftKeyDown}
+                          key={
+                            gte(limit, performanceRowsLimit)
+                              ? `row_${index}`
+                              : getId(row)
+                          }
+                          lastSelectionIndex={lastSelectionIndex}
+                          limit={limit}
+                          listingVariant={listingVariant}
+                          row={row}
+                          rowColorConditions={rowColorConditions}
+                          shiftKeyDownRowPivot={shiftKeyDownRowPivot}
+                          subItemsPivots={subItemsPivots}
+                          tabIndex={-1}
+                          visibleColumns={visibleColumns}
+                          onClick={(): void => {
+                            onRowClick(row);
+                          }}
+                          onFocus={(): void => hoverRow(row)}
+                          onMouseOver={(): void => hoverRow(row)}
+                        >
+                          {checkable &&
+                            (!isSubItem || subItems.canCheckSubItems ? (
+                              <Cell
+                                align="left"
+                                className={classes.checkbox}
+                                disableRowCondition={disableRowCondition}
+                                isRowHovered={isRowHovered}
+                                row={row}
+                                rowColorConditions={rowColorConditions}
+                                onClick={(event): void => selectRow(event, row)}
+                              >
+                                <Checkbox
+                                  checked={isRowSelected}
+                                  disabled={
+                                    disableRowCheckCondition(row) ||
+                                    disableRowCondition(row)
+                                  }
+                                  inputProps={{
+                                    'aria-label': `Select row ${getId(row)}`
+                                  }}
+                                />
+                              </Cell>
+                            ) : (
+                              <Cell
+                                align="left"
+                                disableRowCondition={disableRowCondition}
+                                isRowHovered={isRowHovered}
+                                row={row}
+                                rowColorConditions={rowColorConditions}
                               />
-                            </Cell>
-                          ) : (
-                            <Cell
-                              align="left"
+                            ))}
+
+                          {visibleColumns.map((column) => (
+                            <DataCell
+                              column={column}
                               disableRowCondition={disableRowCondition}
+                              getHighlightRowCondition={
+                                getHighlightRowCondition
+                              }
                               isRowHovered={isRowHovered}
+                              isRowSelected={isRowSelected}
+                              key={`${getId(row)}-${column.id}`}
+                              labelCollapse={subItems.labelCollapse}
+                              labelExpand={subItems.labelExpand}
+                              listingVariant={listingVariant}
                               row={row}
                               rowColorConditions={rowColorConditions}
+                              subItemsRowProperty={subItems?.getRowProperty(
+                                row
+                              )}
                             />
                           ))}
+                        </ListingRow>
+                      );
+                    })}
 
-                        {visibleColumns.map((column) => (
-                          <DataCell
-                            column={column}
-                            disableRowCondition={disableRowCondition}
-                            getHighlightRowCondition={getHighlightRowCondition}
-                            isRowHovered={isRowHovered}
-                            isRowSelected={isRowSelected}
-                            key={`${getId(row)}-${column.id}`}
-                            labelCollapse={subItems.labelCollapse}
-                            labelExpand={subItems.labelExpand}
-                            listingVariant={listingVariant}
-                            row={row}
-                            rowColorConditions={rowColorConditions}
-                            subItemsRowProperty={subItems?.getRowProperty(row)}
-                          />
-                        ))}
-                      </ListingRow>
-                    );
-                  })}
-
-                  {rows.length < 1 &&
-                    (loading ? (
-                      <SkeletonLoader rows={limit} />
-                    ) : (
-                      <EmptyResult label={t(labelNoResultFound)} />
-                    ))}
-                </TableBody>
-              </Table>
-            </Box>
-          )}
-        </ParentSize>
+                    {rows.length < 1 &&
+                      (loading ? (
+                        <SkeletonLoader rows={limit} />
+                      ) : (
+                        <EmptyResult label={t(labelNoResultFound)} />
+                      ))}
+                  </TableBody>
+                </Table>
+              </Box>
+            )}
+          </ParentSize>
+        )}
       </div>
     </div>
   );
