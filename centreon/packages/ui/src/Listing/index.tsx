@@ -97,7 +97,7 @@ export interface Props<TRow> {
   customPaginationClassName?: string;
   disableRowCheckCondition?: (row) => boolean;
   disableRowCondition?: (row) => boolean;
-  displayCostumListing?: boolean;
+  displayCustomListing?: boolean;
   getHighlightRowCondition?: (row: TRow) => boolean;
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
@@ -141,7 +141,7 @@ export const performanceRowsLimit = 60;
 
 const Listing = <TRow extends { id: RowId }>({
   customListingComponent,
-  displayCostumListing,
+  displayCustomListing,
   limit = 10,
   visualizationActions,
   columns,
@@ -498,7 +498,7 @@ const Listing = <TRow extends { id: RowId }>({
             onSelectColumns={onSelectColumns}
           />
         </div>
-        {displayCostumListing ? (
+        {displayCustomListing ? (
           customListingComponent
         ) : (
           <ParentSize

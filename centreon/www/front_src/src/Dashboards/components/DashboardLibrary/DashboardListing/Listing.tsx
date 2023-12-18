@@ -10,7 +10,7 @@ import useListing from './useListing';
 interface ListingProp {
   customListingComponent?: JSX.Element;
   data?: List<Dashboard>;
-  displayCostumListing?: boolean;
+  displayCustomListing: boolean;
   loading: boolean;
   openConfig: () => void;
 }
@@ -18,9 +18,9 @@ interface ListingProp {
 const Listing = ({
   data: listingData,
   loading,
-  openConfig = () => undefined,
+  openConfig,
   customListingComponent,
-  displayCostumListing
+  displayCustomListing
 }: ListingProp): JSX.Element => {
   const { columns, defaultColumnsIds } = useColumns();
 
@@ -43,13 +43,13 @@ const Listing = ({
     <MemoizedListing
       actions={<Actions openConfig={openConfig} />}
       columnConfiguration={{
-        selectedColumnIds,
+        selectedColumnIds: displayCustomListing ? undefined : selectedColumnIds,
         sortable: true
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
       customListingComponent={customListingComponent}
-      displayCostumListing={displayCostumListing}
+      displayCustomListing={displayCustomListing}
       limit={listingData?.meta.limit}
       loading={loading}
       memoProps={[columns, page, sorto, sortf, selectedRows]}

@@ -26,8 +26,10 @@ import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
+import { useStyles } from './DashboardsOverview.styles';
 
 const DashboardsOverview = (): ReactElement => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const viewMode = useAtomValue(viewModeAtom);
@@ -91,7 +93,7 @@ const DashboardsOverview = (): ReactElement => {
   }
 
   return (
-    <div style={{ height: '75vh', width: '100%' }}>
+    <div className={classes.container}>
       <DashboardListing
         customListingComponent={
           <DataTable isEmpty={isEmptyList} variant="grid">
@@ -112,7 +114,7 @@ const DashboardsOverview = (): ReactElement => {
           </DataTable>
         }
         data={data}
-        displayCostumListing={equals(viewMode, ViewMode.Cards)}
+        displayCustomListing={equals(viewMode, ViewMode.Cards)}
         loading={isLoading}
         openConfig={createDashboard}
       />
