@@ -5,10 +5,15 @@ import { Divider } from '@mui/material';
 import FormatButtons from './FormatButtons';
 import UndoRedoButtons from './UndoRedoButtons';
 import MacrosButton from './MacrosButton';
+import AlignPicker from './AlignPicker';
+import ListButton from './ListButton';
+import LinkButton from './LinkButton';
 import BlockButtons from './BlockButtons';
 
 interface Props {
-  disabled?: boolean;
+  className?: string;
+  disabled: boolean;
+  displayBlockButtons: boolean;
   displayMacrosButton?: boolean;
   editable: boolean;
 }
@@ -19,31 +24,31 @@ export const useStyles = makeStyles()((theme) => ({
     columnGap: theme.spacing(1),
     display: 'flex',
     marginBottom: theme.spacing(1)
-  },
-  macros: {
-    '& span': {
-      fontSize: theme.typography.caption.fontSize
-    }
-  },
-  macrosButton: {
-    marginBottom: theme.spacing(0.5)
   }
 }));
 
 const ToolbarPlugin = ({
   editable,
   displayMacrosButton,
-  disabled
+  disabled,
+  displayBlockButtons,
+  className
 }: Props): JSX.Element | null => {
-  const { classes } = useStyles();
+  const { cx, classes } = useStyles();
 
   return editable ? (
-    <div className={classes.container}>
+    <div className={cx(classes.container, className)}>
       <UndoRedoButtons disabled={disabled} />
-      <Divider flexItem orientation="vertical" />
-      <BlockButtons disabled={disabled} />
-      <Divider flexItem orientation="vertical" />
+      {displayBlockButtons && (
+        <>
+          <Divider flexItem orientation="vertical" />
+          <BlockButtons disabled={disabled} />
+        </>
+      )}
       <FormatButtons disabled={disabled} />
+      <AlignPicker disabled={disabled} />
+      <ListButton disabled={disabled} />
+      <LinkButton disabled={disabled} />
       {displayMacrosButton && (
         <>
           <Divider flexItem orientation="vertical" />

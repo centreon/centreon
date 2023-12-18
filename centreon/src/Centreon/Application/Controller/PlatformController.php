@@ -50,13 +50,13 @@ class PlatformController extends AbstractController
      *
      * @throws PlatformException
      *
-     * @return View
+     * @return Response
      */
     public function getVersions(): Response
     {
         $webVersion = $this->informationService->getWebVersion();
         $modulesVersion = $this->informationService->getModulesVersion();
-        $widgetsVersion = $this->informationService->getWidgetsVersion();
+        $widgetsVersion = $this->informationService->getWidgetsVersion($webVersion);
 
         return new JsonResponse(
             [

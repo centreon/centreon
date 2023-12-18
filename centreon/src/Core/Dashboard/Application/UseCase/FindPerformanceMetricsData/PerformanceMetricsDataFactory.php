@@ -35,48 +35,49 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
 
 /**
  * @phpstan-type _Metrics array{
- *      index_id: int,
- *      metric_id: int,
- *      metric: string,
- *      metric_legend: string,
- *      unit: string,
- *      hidden: int,
- *      legend: string,
- *      virtual: int,
- *      stack: int,
- *      ds_order: int,
- *      ds_data: array{
- *        ds_min: ?string,
- *        ds_max: ?string,
- *        ds_minmax_int: ?string,
- *        ds_last: ?string,
- *        ds_average: ?string,
- *        ds_total: ?string,
- *        ds_tickness: int,
- *        ds_color_line_mode: string,
- *        ds_color_line: string
- *      },
- *      warn: ?float,
- *      warn_low: ?float,
- *      crit: ?float,
- *      crit_low: ?float,
- *      ds_color_area_warn: string,
- *      ds_color_area_crit: string,
- *      data: array<float|null>,
- *      prints: array<array<string>>,
- *      min: ?float,
- *      max: ?float,
- *      last_value: ?float,
- *      minimum_value: ?float,
- *      maximum_value: ?float,
- *      average_value: ?float
+ *     index_id: int,
+ *     metric_id: int,
+ *     metric: string,
+ *     metric_legend: string,
+ *     unit: string,
+ *     hidden: int,
+ *     legend: string,
+ *     virtual: int,
+ *     stack: int,
+ *     ds_order: int,
+ *     ds_data: array{
+ *         ds_min: ?string,
+ *         ds_max: ?string,
+ *         ds_minmax_int: ?string,
+ *         ds_last: ?string,
+ *         ds_average: ?string,
+ *         ds_total: ?string,
+ *         ds_tickness: int,
+ *         ds_color_line_mode: string,
+ *         ds_color_line: string
+ *     },
+ *     warn: ?float,
+ *     warn_low: ?float,
+ *     crit: ?float,
+ *     crit_low: ?float,
+ *     ds_color_area_warn: string,
+ *     ds_color_area_crit: string,
+ *     data: array<float|null>,
+ *     prints: array<array<string>>,
+ *     min: ?float,
+ *     max: ?float,
+ *     last_value: ?float,
+ *     minimum_value: ?float,
+ *     maximum_value: ?float,
+ *     average_value: ?float
  *  }
  * @phpstan-type _MetricData array{
- *  global: array{
- *      base: int
- *  },
- *  metrics: array<_Metrics>,
- *  times: string[]
+ *     global: array{
+ *         base: int,
+ *         title: string
+ *     },
+ *     metrics: array<_Metrics>,
+ *     times: string[]
  * }
  */
 class PerformanceMetricsDataFactory
@@ -85,22 +86,24 @@ class PerformanceMetricsDataFactory
 
     /**
      * @param array<_MetricData> $metricsData
-     * @param int[] $metricIds
+     * @param string[] $metricNames
      *
      * @return PerformanceMetricsData
      */
-    public function createFromRecords(array $metricsData, array $metricIds): PerformanceMetricsData
+    public function createFromRecords(array $metricsData, array $metricNames): PerformanceMetricsData
     {
         $metricBases = [];
         $metrics = [];
         $times = [];
-        foreach ($metricsData as $metricData) {
+        foreach ($metricsData as $index => $metricData) {
             $metricBases[] = $metricData['global']['base'];
-            $metrics[] = $metricData['metrics'];
+            \preg_match('/^[[:ascii:]]+ graph on ([[:ascii:]]+)$/', $metricData['global']['title'], $matches);
+            $hostName = $matches[1];
+            $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
         $base = $this->getHighestBase($metricBases);
-        $metricsInfo = $this->createMetricInformations($metrics, $metricIds);
+        $metricsInfo = $this->createMetricInformations($metrics, $metricNames);
         $times = $this->getTimes($times);
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
@@ -121,17 +124,22 @@ class PerformanceMetricsDataFactory
     /**
      * Filter the metrics to keep only the needed metrics.
      *
-     * @param array<array<_Metrics>> $metricsData
-     * @param int[] $metricIds
+     * @param array<string,array<_Metrics>> $metricsData
+     * @param string[] $metricNames
      *
      * @return array<_Metrics>
      */
-    private function filterMetricsByMetricId(array $metricsData, array $metricIds): array
+    private function filterMetricsByMetricName(array $metricsData, array $metricNames): array
     {
         $metrics = [];
-        foreach ($metricsData as $metricData) {
+        foreach ($metricsData as $hostName => $metricData) {
+            \preg_match('/^index:\d+;host_name:([[:ascii:]]+)$/', $hostName, $matches);
+            $hostName = $matches[1];
             foreach ($metricData as $metric) {
-                if (in_array($metric['metric_id'], $metricIds, true)) {
+                if (in_array($metric['metric'], $metricNames, true)) {
+                    $metric['metric'] = $hostName . ': ' . $metric['metric'];
+                    $metric['metric_legend'] = $hostName . ': ' . $metric['metric_legend'];
+                    $metric['legend'] = $hostName . ': ' . $metric['legend'];
                     $metrics[] = $metric;
                 }
             }
@@ -155,16 +163,16 @@ class PerformanceMetricsDataFactory
     /**
      * Create Metric Information.
      *
-     * @param array<array<_Metrics>> $metricData
-     * @param int[] $metricIds
+     * @param array<string,array<_Metrics>> $metricData
+     * @param string[] $metricNames
      *
      * @throws MetricException
      *
      * @return MetricInformation[]
      */
-    private function createMetricInformations(array $metricData, array $metricIds): array
+    private function createMetricInformations(array $metricData, array $metricNames): array
     {
-        $metrics = $this->filterMetricsByMetricId($metricData, $metricIds);
+        $metrics = $this->filterMetricsByMetricName($metricData, $metricNames);
         $metricsInformation = [];
         foreach ($metrics as $metric) {
             try {

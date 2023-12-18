@@ -102,7 +102,9 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
             'host_name' => 'idd.host_name',
         ]);
 
-        $request = "SELECT msr.metric_id,
+        $request = "SELECT SQL_CALC_FOUND_ROWS
+                1 AS REALTIME,
+                msr.metric_id,
                 msr.host_id,
                 idd.host_name,
                 idd.service_id,
@@ -160,7 +162,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
         }
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
@@ -181,7 +183,9 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
             'host_name' => 'idd.host_name',
         ]);
 
-        $request = "SELECT m.metric_id,
+        $request = "SELECT SQL_CALC_FOUND_ROWS
+                1 AS REALTIME,
+                m.metric_id,
                 idd.host_id,
                 idd.host_name,
                 idd.service_id,
@@ -240,7 +244,7 @@ class MetaServiceMetricRepositoryRDB extends AbstractRepositoryDRB implements
         }
         $statement->execute();
 
-        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,15 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security\Infrastructure\Repository;
 
-use Centreon\Infrastructure\DatabaseConnection;
-use Security\Domain\Authentication\Model\Session;
 use Centreon\Domain\Repository\AbstractRepositoryDRB;
+use Centreon\Infrastructure\DatabaseConnection;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+use Security\Domain\Authentication\Model\Session;
 
 class SessionRepository extends AbstractRepositoryDRB implements SessionRepositoryInterface
 {
@@ -45,7 +46,7 @@ class SessionRepository extends AbstractRepositoryDRB implements SessionReposito
     {
         $deleteSessionStatement = $this->db->prepare(
             $this->translateDbName(
-                "DELETE FROM `:db`.session WHERE session_id = :token"
+                'DELETE FROM `:db`.session WHERE session_id = :token'
             )
         );
         $deleteSessionStatement->bindValue(':token', $token, \PDO::PARAM_STR);
@@ -83,8 +84,8 @@ class SessionRepository extends AbstractRepositoryDRB implements SessionReposito
     {
         $insertSessionStatement = $this->db->prepare(
             $this->translateDbName(
-                "INSERT INTO `:db`.session (`session_id` , `user_id` , `last_reload`, `ip_address`) " .
-                "VALUES (:sessionId, :userId, :lastReload, :ipAddress)"
+                'INSERT INTO `:db`.session (`session_id` , `user_id` , `last_reload`, `ip_address`) '
+                . 'VALUES (:sessionId, :userId, :lastReload, :ipAddress)'
             )
         );
         $insertSessionStatement->bindValue(':sessionId', $session->getToken(), \PDO::PARAM_STR);

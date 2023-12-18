@@ -48,8 +48,7 @@ const getInputBaseRootStyle = ({
 
   if (equals(size, 'compact')) {
     return {
-      padding: '8px 8px',
-      paddingRight: '0px'
+      padding: '0px 0px 0px 8px'
     };
   }
   if (equals(size, 'small')) {
@@ -75,7 +74,6 @@ const getInputBaseRootStyle = ({
 const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSInterpolation => {
   if (equals(size, 'compact')) {
     return {
-      fontSize: 'x-small',
       minHeight: '32px'
     };
   }
@@ -123,6 +121,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     MuiChip: {
       styleOverrides: {
         root: ({ ownerState, theme }) => ({
+          backgroundColor: !ownerState.color && theme.palette.divider,
           ...(equals(ownerState.size, 'medium') && {
             borderRadius: theme.spacing(1.25),
             fontSize: theme.typography.body2.fontSize,
@@ -148,6 +147,30 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => `
+        ::-webkit-scrollbar {
+          height: ${theme.spacing(1)};
+          width: ${theme.spacing(1)};
+          background-color: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: ${
+            equals(mode, 'dark')
+              ? theme.palette.divider
+              : theme.palette.text.disabled
+          };
+          border-radius: ${theme.spacing(0.5)};
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: ${theme.palette.primary.main};
+        }
+        * {
+          scrollbar-color: ${
+            equals(mode, 'dark')
+              ? theme.palette.divider
+              : theme.palette.text.disabled
+          } ${theme.palette.background.default};
+          scrollbar-width: thin;
+        }
         html {
           margin: 0;
           padding: 0;
@@ -189,7 +212,10 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiInputBase: {
       styleOverrides: {
-        root: ({ ownerState }) => getInputBaseInputStyle(ownerState)
+        root: ({ ownerState, theme }) => ({
+          ...getInputBaseInputStyle(ownerState),
+          backgroundColor: theme.palette.background.paper
+        })
       }
     },
     MuiList: {

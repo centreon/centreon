@@ -11,3 +11,5 @@ Centreon\Domain\Filter\FilterCriteria:
         objectType:
             type: string
             groups: [filter_main]
+        searchData:
+            groups: [filter_main]

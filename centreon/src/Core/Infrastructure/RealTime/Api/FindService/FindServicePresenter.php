@@ -81,7 +81,7 @@ class FindServicePresenter extends AbstractPresenter implements FindServicePrese
             'severity' => $data->severity,
         ];
 
-        if ($presenterResponse['severity'] !== null) {
+        if (! empty($data->severity['icon'])) {
             /**
              * normalize the URL to the severity icon.
              */
@@ -163,6 +163,7 @@ class FindServicePresenter extends AbstractPresenter implements FindServicePrese
             'status_graph' => $endpoints['status_graph'],
             'performance_graph' => $endpoints['performance_graph'],
             'details' => $endpoints['details'],
+            'metrics' => $endpoints['metrics'],
         ];
 
         $presenterResponse['links']['uris'] = $this->hypermediaCreator->createInternalUris($parameters);

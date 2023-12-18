@@ -645,7 +645,7 @@ class Service implements EntityDescriptorMetadataInterface
 
     /**
      * @param \DateTime|null $nextCheck
-     * @return Service|null
+     * @return Service
      */
     public function setNextCheck(?\DateTime $nextCheck): Service
     {
@@ -933,7 +933,7 @@ class Service implements EntityDescriptorMetadataInterface
 
     /**
      * @param \Centreon\Domain\Monitoring\ResourceStatus|null $status
-     * @return \Centreon\Domain\Monitoring\Resource
+     * @return self
      */
     public function setStatus(?ResourceStatus $status): self
     {

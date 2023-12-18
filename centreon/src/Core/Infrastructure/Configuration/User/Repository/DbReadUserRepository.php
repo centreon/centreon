@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Infrastructure\Configuration\User\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -31,6 +32,18 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
 use Core\Domain\Configuration\User\Model\User;
 
+/**
+ * @phpstan-type _UserRecord array{
+ *     contact_id: int|string,
+ *     contact_alias: string,
+ *     contact_name: string,
+ *     contact_email: string,
+ *     contact_admin: string,
+ *     contact_theme: string,
+ *     user_interface_density: string,
+ *     user_can_reach_frontend: string,
+ * }
+ */
 class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepositoryInterface
 {
     use LoggerTrait;
@@ -70,7 +83,8 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 contact_email,
                 contact_admin,
                 contact_theme,
-                user_interface_density
+                user_interface_density,
+                contact_oreon AS `user_can_reach_frontend`
             FROM `:db`.contact
             SQL;
 
@@ -109,9 +123,72 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
         $users = [];
 
         while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /**
-             * @var array<string, string> $result
-             */
+            /** @var _UserRecord $result */
+            $users[] = DbUserFactory::createFromRecord($result);
+        }
+
+        return $users;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByContactGroups(ContactInterface $contact): array
+    {
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                contact_id,
+                contact_alias,
+                contact_name,
+                contact_email,
+                contact_admin,
+                contact_theme,
+                user_interface_density,
+                contact_oreon AS `user_can_reach_frontend`
+            FROM `:db`.contact
+            INNER JOIN `:db`.contactgroup_contact_relation AS cg
+            ON cg.contact_contact_id = contact.contact_id
+            SQL;
+
+        // Search
+        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+        $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
+        $request .= 'cg.contactgroup_cg_id IN (SELECT contactgroup_cg_id FROM `:db`.contactgroup_contact_relation '
+            . 'WHERE contact_contact_id = :contactId) AND contact_register = 1';
+
+        // Sort
+        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+
+        // Pagination
+        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare(
+            $this->translateDbName($request)
+        );
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            if (is_array($data)) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
+        $statement->bindValue(':contactId', $contact->getId(), \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $users = [];
+
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _UserRecord $result */
             $users[] = DbUserFactory::createFromRecord($result);
         }
 
@@ -124,14 +201,26 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     public function findById(int $userId): ?User
     {
         $statement = $this->db->prepare(
-            $this->translateDbName('SELECT * FROM `:db`.contact WHERE contact_id = :contact_id')
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                        contact_id,
+                        contact_alias,
+                        contact_name,
+                        contact_email,
+                        contact_admin,
+                        contact_theme,
+                        user_interface_density,
+                        contact_oreon AS `user_can_reach_frontend`
+                    FROM `:db`.contact
+                    WHERE contact_id = :contact_id
+                    SQL
+            )
         );
         $statement->bindValue(':contact_id', $userId, \PDO::PARAM_INT);
         $statement->execute();
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /**
-             * @var array<string, string> $result
-             */
+            /** @var _UserRecord $result */
             return DbUserFactory::createFromRecord($result);
         }
 
@@ -156,11 +245,14 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
             $bindValues[':' . $key] = $userAlias;
         }
 
+        $bindFields = implode(',', array_keys($bindValues));
         $statement = $this->db->prepare(
             $this->translateDbName(
-                'SELECT contact_id
-                FROM `:db`.contact
-                WHERE contact_alias IN (' . implode(',', array_keys($bindValues)) . ')'
+                <<<SQL
+                    SELECT contact_id
+                    FROM `:db`.contact
+                    WHERE contact_alias IN ({$bindFields})
+                    SQL
             )
         );
 
@@ -186,8 +278,10 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     public function findAvailableThemes(): array
     {
         $statement = $this->db->query(
-            'SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_NAME = \'contact\' AND COLUMN_NAME = \'contact_theme\''
+            <<<'SQL'
+                SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = 'contact' AND COLUMN_NAME = 'contact_theme'
+                SQL
         );
         if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /**

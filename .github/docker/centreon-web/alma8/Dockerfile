@@ -10,7 +10,7 @@ COPY *.rpm /tmp/rpms-centreon/
 RUN bash -e <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
-dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
+dnf install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
@@ -39,7 +39,7 @@ su apache -s /bin/bash -c "php createDbUser.php"
 su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
 su apache -s /bin/bash -c "php partitionTables.php"
 su apache -s /bin/bash -c "php generationCache.php"
-rm -rf /usr/share/centreon/www/install
+su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"

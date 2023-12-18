@@ -82,7 +82,7 @@ interface ReadNotificationRepositoryInterface
      *
      * @throws \Throwable
      *
-     *  @return array<int, ConfigurationUser>
+     * @return array<int, ConfigurationUser>
      */
     public function findUsersByNotificationId(int $notificationId): array;
 

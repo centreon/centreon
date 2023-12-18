@@ -71,6 +71,7 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
     private function findMetaService(int $metaId, ?string $accessGroupRequest = null): ?MetaService
     {
         $request = 'SELECT
+            1 AS REALTIME,
             SUBSTRING(s.description, 6) AS `id`,
             s.host_id,
             s.service_id,

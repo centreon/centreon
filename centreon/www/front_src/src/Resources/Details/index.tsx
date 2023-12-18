@@ -1,18 +1,24 @@
 import { RefObject, useEffect, useRef } from 'react';
 
-import { isNil, propEq, findIndex } from 'ramda';
+import { isNil, propEq, findIndex, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { useTheme, alpha, Skeleton } from '@mui/material';
 
 import { MemoizedPanel as Panel, Tab } from '@centreon/ui';
+import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 
 import { rowColorConditions } from '../colors';
 
 import Header from './Header';
 import { ResourceDetails } from './models';
-import { TabById, detailsTabId, tabs } from './tabs';
+import {
+  TabById,
+  detailsTabId,
+  notificationsTabId,
+  tabs as initialTabs
+} from './tabs';
 import { Tab as TabModel, TabId } from './tabs/models';
 import {
   clearSelectedResourceDerivedAtom,
@@ -34,9 +40,14 @@ const Details = (): JSX.Element | null => {
 
   const [panelWidth, setPanelWidth] = useAtom(panelWidthStorageAtom);
   const [openDetailsTabId, setOpenDetailsTabId] = useAtom(openDetailsTabIdAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
   const details = useAtomValue(detailsAtom);
   const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
   const selectResource = useSetAtom(selectResourceDerivedAtom);
+
+  const tabs = featureFlags?.notification
+    ? initialTabs.filter((tab) => !equals(tab.id, notificationsTabId))
+    : initialTabs;
 
   useEffect(() => {
     if (isNil(details)) {
@@ -44,7 +55,7 @@ const Details = (): JSX.Element | null => {
     }
 
     const isOpenTabActive = tabs
-      .find(propEq('id', openDetailsTabId))
+      .find(propEq(openDetailsTabId, 'id'))
       ?.getIsActive(details);
 
     if (!isOpenTabActive) {
@@ -61,7 +72,7 @@ const Details = (): JSX.Element | null => {
   };
 
   const getTabIndex = (tabId: TabId): number => {
-    const index = findIndex(propEq('id', tabId), getVisibleTabs());
+    const index = findIndex(propEq(tabId, 'id'), getVisibleTabs());
 
     return index > 0 ? index : 0;
   };

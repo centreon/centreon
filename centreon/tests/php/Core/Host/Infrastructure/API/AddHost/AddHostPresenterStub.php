@@ -25,12 +25,13 @@ namespace Tests\Core\Host\Infrastructure\API\AddHost;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Host\Application\UseCase\AddHost\AddHostResponse;
 use Core\Host\Application\UseCase\AddHost\AddHostPresenterInterface;
+use Core\Host\Application\UseCase\AddHost\AddHostResponse;
 
 class AddHostPresenterStub extends AbstractPresenter implements AddHostPresenterInterface
 {
     public ResponseStatusInterface|AddHostResponse $response;
+
     public function presentResponse(ResponseStatusInterface|AddHostResponse $response): void
     {
         $this->response = $response;

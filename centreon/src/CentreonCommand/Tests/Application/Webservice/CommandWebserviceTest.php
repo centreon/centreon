@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,12 +21,12 @@
 
 namespace CentreonCommand\Tests\Application\Webservice;
 
-use PHPUnit\Framework\TestCase;
-use Pimple\Container;
 use Centreon\ServiceProvider;
-use CentreonCommand\Application\Webservice\CommandWebservice;
 use Centreon\Tests\Resources\Mock\CentreonPaginationServiceMock;
 use Centreon\Tests\Resources\Traits;
+use CentreonCommand\Application\Webservice\CommandWebservice;
+use PHPUnit\Framework\TestCase;
+use Pimple\Container;
 
 /**
  * @group CentreonCommand
@@ -36,17 +36,13 @@ class CommandWebserviceTest extends TestCase
 {
     use Traits\WebServiceAuthorizeRestApiTrait;
     use Traits\WebServiceExecuteTestTrait;
-
     protected const METHOD_GET_LIST = 'getList';
 
-    /**
-     *
-     * @var CommandWebservice|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var CommandWebservice|\PHPUnit\Framework\MockObject\MockObject */
     private $webservice;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -67,7 +63,7 @@ class CommandWebserviceTest extends TestCase
     }
 
     /**
-     * Test the method getList
+     * Test the method getList.
      */
     public function testGetList(): void
     {
@@ -77,7 +73,7 @@ class CommandWebserviceTest extends TestCase
     }
 
     /**
-     * Test the method getList with a different set of filters
+     * Test the method getList with a different set of filters.
      */
     public function testGetList2(): void
     {
@@ -93,7 +89,7 @@ class CommandWebserviceTest extends TestCase
     }
 
     /**
-     * Test the method getName
+     * Test the method getName.
      */
     public function testGetName(): void
     {

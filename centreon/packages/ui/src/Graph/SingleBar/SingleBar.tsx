@@ -1,4 +1,4 @@
-import { Responsive } from '@visx/visx';
+import { ParentSize } from '../..';
 
 import { SingleBarProps } from './models';
 import ResponsiveSingleBar from './ResponsiveSingleBar';
@@ -9,7 +9,7 @@ const SingleBar = ({ data, ...props }: SingleBarProps): JSX.Element | null => {
   }
 
   return (
-    <Responsive.ParentSizeModern>
+    <ParentSize>
       {({ width, height }) => (
         <ResponsiveSingleBar
           {...props}
@@ -18,7 +18,7 @@ const SingleBar = ({ data, ...props }: SingleBarProps): JSX.Element | null => {
           width={width}
         />
       )}
-    </Responsive.ParentSizeModern>
+    </ParentSize>
   );
 };
 

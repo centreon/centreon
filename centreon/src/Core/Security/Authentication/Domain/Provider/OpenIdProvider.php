@@ -26,10 +26,10 @@ namespace Core\Security\Authentication\Domain\Provider;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
-use Centreon\Domain\Entity\ContactGroup;
 use Centreon\Domain\Log\LoggerTrait;
 use CentreonUserLog;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Domain\Configuration\User\Model\NewUser;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
@@ -40,7 +40,6 @@ use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\Conditions;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\GroupsMapping as GroupsMappingSecurityAccess;
@@ -108,7 +107,6 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @param ContactServiceInterface $contactService
      * @param Container $dependencyInjector
      * @param WriteUserRepositoryInterface $userRepository
-     * @param ReadAttributePathRepositoryInterface $readIntrospectionRepository
      * @param Conditions $conditions
      * @param RolesMapping $rolesMapping
      * @param GroupsMappingSecurityAccess $groupsMapping
@@ -120,7 +118,6 @@ class OpenIdProvider implements OpenIdProviderInterface
         private ContactServiceInterface $contactService,
         private Container $dependencyInjector,
         private WriteUserRepositoryInterface $userRepository,
-        private readonly ReadAttributePathRepositoryInterface $readIntrospectionRepository,
         private readonly Conditions $conditions,
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
@@ -196,12 +193,8 @@ class OpenIdProvider implements OpenIdProviderInterface
         $this->userRepository->create($user);
         $this->info('Auto import complete', [
             'user_alias' => $this->username,
-            'user_fullname' => $this->userInformations[
-                $customConfiguration->getUserNameBindAttribute()
-            ],
-            'user_email' => $this->userInformations[
-                $customConfiguration->getEmailBindAttribute()
-            ],
+            'user_fullname' => $this->userInformations[$customConfiguration->getUserNameBindAttribute()],
+            'user_email' => $this->userInformations[$customConfiguration->getEmailBindAttribute()],
         ]);
     }
 
@@ -248,7 +241,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @throws ConfigurationException
      * @throws SSOAuthenticationException
      */
-    public function authenticateOrFail(?string $authorizationCode, string $clientIp): void
+    public function authenticateOrFail(?string $authorizationCode, string $clientIp): string
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
@@ -283,14 +276,14 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent['id_token']);
         }
         $this->verifyThatClientIsAllowedToConnectOrFail($clientIp);
-        if ($this->providerToken->isExpired() && $this->refreshToken->isExpired()) {
+        if ($this->providerToken->isExpired() && $this->refreshToken?->isExpired()) {
             throw SSOAuthenticationException::tokensExpired($this->configuration->getName());
         }
         if ($customConfiguration->getIntrospectionTokenEndpoint() !== null) {
             $this->getUserInformationFromIntrospectionEndpoint();
         }
 
-        $this->username = $this->getUsernameFromLoginClaim();
+        return $this->username = $this->getUsernameFromLoginClaim();
     }
 
     /**
@@ -299,12 +292,9 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUser(): ?ContactInterface
     {
         $this->info('Searching user : ' . $this->username);
-        $user = $this->contactService->findByName($this->username);
-        if ($user === null) {
-            $user = $this->contactService->findByEmail($this->username);
-        }
 
-        return $user;
+        return $this->contactService->findByName($this->username)
+            ?? $this->contactService->findByEmail($this->username);
     }
 
     /**
@@ -346,7 +336,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForRefreshTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Refresh Token Info:', $content);
             $this->logErrorFromExternalProvider($content);
@@ -482,7 +472,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForConnectionTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Connection Token Info: ', $content);
             $this->logErrorFromExternalProvider($content);
@@ -562,19 +552,21 @@ class OpenIdProvider implements OpenIdProviderInterface
             $response = $this->client->request(
                 'POST',
                 $customConfiguration->getBaseUrl() . '/'
-                . ltrim($customConfiguration->getIntrospectionTokenEndpoint(), '/'),
+                . ltrim($customConfiguration->getIntrospectionTokenEndpoint() ?? '', '/'),
                 [
                     'headers' => $headers,
                     'body' => $data,
                     'verify_peer' => $customConfiguration->verifyPeer(),
                 ]
             );
-        } catch (Exception $e) {
-            $this->logExceptionInLoginLogFile('Unable to get Introspection Information: %s, message: %s', $e);
-            $this->error(sprintf(
-                '[Error] Unable to get Introspection Token Information:, message: %s',
-                $e->getMessage()
-            ));
+        } catch (Exception $exception) {
+            $this->logExceptionInLoginLogFile('Unable to get Introspection Information: %s, message: %s', $exception);
+            $this->error(
+                sprintf(
+                    '[Error] Unable to get Introspection Token Information:, message: %s',
+                    $exception->getMessage()
+                )
+            );
 
             throw SSOAuthenticationException::requestForIntrospectionTokenFail();
         }
@@ -589,7 +581,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForIntrospectionTokenFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('Introspection Token Info: ', $content);
             $this->logErrorFromExternalProvider($content);
@@ -636,9 +628,9 @@ class OpenIdProvider implements OpenIdProviderInterface
         ];
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $url = str_starts_with($customConfiguration->getUserInformationEndpoint(), '/')
+        $url = str_starts_with($customConfiguration->getUserInformationEndpoint() ?? '', '/')
             ? $customConfiguration->getBaseUrl() . $customConfiguration->getUserInformationEndpoint()
-            : $customConfiguration->getUserInformationEndpoint();
+            : $customConfiguration->getUserInformationEndpoint() ?? '';
         try {
             $response = $this->client->request(
                 'GET',
@@ -648,7 +640,7 @@ class OpenIdProvider implements OpenIdProviderInterface
                     'verify_peer' => $customConfiguration->verifyPeer(),
                 ]
             );
-        } catch (Exception $ex) {
+        } catch (Exception) {
             throw SSOAuthenticationException::requestForUserInformationFail();
         }
 
@@ -662,7 +654,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForUserInformationFail();
         }
-        $content = json_decode($response->getContent(false), true);
+        $content = json_decode($response->getContent(false), true) ?: [];
         if (empty($content) || array_key_exists('error', $content)) {
             $this->logErrorInLoginLogFile('User Information Info: ', $content);
             $this->logErrorFromExternalProvider($content);
@@ -718,16 +710,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $authenticationConditions->isEnabled()
                 ? array_merge(
-                    $this->idTokenPayload,
-                    array_diff_key(
-                        $this->attributePathFetcher->fetch(
-                            $accessToken,
-                            $this->configuration,
-                            $authenticationConditions->getEndpoint()
-                        ),
-                        $this->idTokenPayload
-                    )
+                $this->idTokenPayload,
+                array_diff_key(
+                    $this->attributePathFetcher->fetch(
+                        $accessToken,
+                        $this->configuration,
+                        $authenticationConditions->getEndpoint() ?? throw new \LogicException()
+                    ),
+                    $this->idTokenPayload
                 )
+            )
                 : $this->idTokenPayload
         );
 
@@ -735,16 +727,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $rolesMapping->isEnabled()
                 ? array_merge(
-                    $this->idTokenPayload,
-                    array_diff_key(
-                        $this->attributePathFetcher->fetch(
-                            $accessToken,
-                            $this->configuration,
-                            $rolesMapping->getEndpoint()
-                        ),
-                        $this->idTokenPayload
-                    )
+                $this->idTokenPayload,
+                array_diff_key(
+                    $this->attributePathFetcher->fetch(
+                        $accessToken,
+                        $this->configuration,
+                        $rolesMapping->getEndpoint() ?? throw new \LogicException()
+                    ),
+                    $this->idTokenPayload
                 )
+            )
                 : $this->idTokenPayload
         );
         $this->aclConditionsMatches = $this->rolesMapping->getConditionMatches();
@@ -752,18 +744,18 @@ class OpenIdProvider implements OpenIdProviderInterface
         $this->groupsMapping->validate(
             $this->configuration,
             $groupsMapping->isEnabled()
-            ? array_merge(
+                ? array_merge(
                 $this->idTokenPayload,
                 array_diff_key(
                     $this->attributePathFetcher->fetch(
                         $accessToken,
                         $this->configuration,
-                        $groupsMapping->getEndpoint()
+                        $groupsMapping->getEndpoint() ?? throw new \LogicException()
                     ),
                     $this->idTokenPayload
                 )
             )
-            : $this->idTokenPayload
+                : $this->idTokenPayload
         );
     }
 
@@ -818,16 +810,16 @@ class OpenIdProvider implements OpenIdProviderInterface
         $customConfiguration = $this->configuration->getCustomConfiguration();
         if ($customConfiguration->getAuthenticationType() === CustomConfiguration::AUTHENTICATION_BASIC) {
             $headers['Authorization'] = 'Basic ' . base64_encode(
-                $customConfiguration->getClientId() . ':' . $customConfiguration->getClientSecret()
-            );
+                    $customConfiguration->getClientId() . ':' . $customConfiguration->getClientSecret()
+                );
         } else {
             $data['client_id'] = $customConfiguration->getClientId();
             $data['client_secret'] = $customConfiguration->getClientSecret();
         }
 
-        $url = str_starts_with($customConfiguration->getTokenEndpoint(), '/')
+        $url = str_starts_with($customConfiguration->getTokenEndpoint() ?? '', '/')
             ? $customConfiguration->getBaseUrl() . $customConfiguration->getTokenEndpoint()
-            : $customConfiguration->getTokenEndpoint();
+            : $customConfiguration->getTokenEndpoint() ?? '';
 
         // Send the request to IDP
         try {
@@ -840,20 +832,20 @@ class OpenIdProvider implements OpenIdProviderInterface
                     'verify_peer' => $customConfiguration->verifyPeer(),
                 ]
             );
-        } catch (Exception $e) {
-            $this->logExceptionInLoginLogFile('Unable to get Token Access Information: %s, message: %s', $e);
+        } catch (Exception $exception) {
+            $this->logExceptionInLoginLogFile('Unable to get Token Access Information: %s, message: %s', $exception);
             if (array_key_exists('refresh_token', $data)) {
                 $this->error(
-                    sprintf('[Error] Unable to get Token Refresh Information:, message: %s', $e->getMessage())
+                    sprintf('[Error] Unable to get Token Refresh Information:, message: %s', $exception->getMessage())
                 );
 
                 throw SSOAuthenticationException::requestForRefreshTokenFail();
-            }  
-                $this->error(
-                    sprintf('[Error] Unable to get Token Access Information:, message: %s', $e->getMessage())
-                );
+            }
+            $this->error(
+                sprintf('[Error] Unable to get Token Access Information:, message: %s', $exception->getMessage())
+            );
 
-                throw SSOAuthenticationException::requestForConnectionTokenFail();
+            throw SSOAuthenticationException::requestForConnectionTokenFail();
         }
     }
 
@@ -867,21 +859,21 @@ class OpenIdProvider implements OpenIdProviderInterface
         $missingAttributes = [];
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        if (! array_key_exists($customConfiguration->getEmailBindAttribute(), $this->userInformations)) {
+        if (! array_key_exists($customConfiguration->getEmailBindAttribute() ?? '', $this->userInformations)) {
             $missingAttributes[] = $customConfiguration->getEmailBindAttribute();
         }
-        if (! array_key_exists($customConfiguration->getUserNameBindAttribute(), $this->userInformations)) {
+        if (! array_key_exists($customConfiguration->getUserNameBindAttribute() ?? '', $this->userInformations)) {
             $missingAttributes[] = $customConfiguration->getUserNameBindAttribute();
         }
 
         if (! empty($missingAttributes)) {
-            $ex = SSOAuthenticationException::autoImportBindAttributeNotFound($missingAttributes);
+            $exception = SSOAuthenticationException::autoImportBindAttributeNotFound($missingAttributes);
             $this->logExceptionInLoginLogFile(
                 "Some bind attributes can't be found in user information: %s, message: %s",
-                $ex
+                $exception
             );
 
-            throw $ex;
+            throw $exception;
         }
     }
 
@@ -982,16 +974,16 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Log Exception in login.log file.
      *
      * @param string $message
-     * @param \Exception $e
+     * @param \Exception $exception
      */
-    private function logExceptionInLoginLogFile(string $message, Exception $e): void
+    private function logExceptionInLoginLogFile(string $message, Exception $exception): void
     {
         $this->centreonLog->insertLog(
             CentreonUserLog::TYPE_LOGIN,
             sprintf(
                 "[Openid] [Error] {$message}",
-                $e::class,
-                $e->getMessage()
+                $exception::class,
+                $exception->getMessage()
             )
         );
     }

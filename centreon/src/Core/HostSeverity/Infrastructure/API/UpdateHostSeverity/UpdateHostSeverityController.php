@@ -99,7 +99,7 @@ final class UpdateHostSeverityController extends AbstractController
         $hostSeverityRequest->name = $data['name'];
         $hostSeverityRequest->alias = $data['alias'];
         $hostSeverityRequest->level = $data['level'];
-        $hostSeverityRequest->iconId = $data['icon_id'];
+        $hostSeverityRequest->iconId = max(0, $data['icon_id']);
         $hostSeverityRequest->isActivated = $data['is_activated'] ?? true;
         $hostSeverityRequest->comment = $data['comment'] ?? null;
 

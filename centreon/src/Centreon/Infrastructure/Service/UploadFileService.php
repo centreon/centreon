@@ -41,10 +41,9 @@ use Centreon\Infrastructure\FileManager\File;
 
 class UploadFileService
 {
-    /**
-     * @var string $filesRequest
-     */
+    /** @var array|null $filesRequest */
     protected $filesRequest;
+    protected ContainerInterface $services;
 
     /**
      * Construct
@@ -54,6 +53,7 @@ class UploadFileService
      */
     public function __construct(ContainerInterface $services, array $filesRequest = null)
     {
+        $this->services = $services;
         $this->filesRequest = $filesRequest;
     }
 

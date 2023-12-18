@@ -16,12 +16,12 @@ runs:
   steps:
     - uses: pnpm/action-setup@v2
       with:
-        version: 7
+        version: 8
         run_install: false
 
     - uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 20
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -53,6 +53,7 @@ runs:
         working-directory: ${{ inputs.module }}
         spec: ${{ inputs.spec_file_path }}
         publish-summary: false
+        env: codeCoverageTasksRegistered=true
 
     - name: Archive test results
       uses: actions/upload-artifact@v3

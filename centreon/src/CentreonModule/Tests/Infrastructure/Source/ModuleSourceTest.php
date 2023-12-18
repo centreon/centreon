@@ -1,87 +1,51 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  *
  */
 
 namespace CentreonModule\Tests\Infrastructure\Source;
 
+use Centreon\Test\Mock;
+use Centreon\Test\Traits\TestCaseExtensionTrait;
+use CentreonLegacy\Core\Configuration\Configuration;
+use CentreonModule\Infrastructure\Entity\Module;
+use CentreonModule\Infrastructure\Source\ModuleException;
+use CentreonModule\Infrastructure\Source\ModuleSource;
+use CentreonModule\Tests\Resources\Traits\SourceDependencyTrait;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Pimple\Psr11\Container as ContainerWrap;
 use Symfony\Component\Finder\Finder;
 use VirtualFileSystem\FileSystem;
-use Centreon\Test\Mock;
-use Centreon\Test\Traits\TestCaseExtensionTrait;
-use CentreonModule\Infrastructure\Source\ModuleSource;
-use CentreonModule\Infrastructure\Source\ModuleException;
-use CentreonModule\Infrastructure\Entity\Module;
-use CentreonLegacy\Core\Configuration\Configuration;
-use CentreonModule\Tests\Resources\Traits\SourceDependencyTrait;
 
 class ModuleSourceTest extends TestCase
 {
     use TestCaseExtensionTrait;
     use SourceDependencyTrait;
 
-    /**
-     * @var ModuleSource|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $source;
-
-    /**
-     * @var ContainerWrap
-     */
-    private $containerWrap;
-
-    /**
-     * @var FileSystem
-     */
-    private $fs;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public static $moduleName = 'test-module';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public static $moduleNameMissing = 'missing-module';
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public static $moduleInfo = [
         'rname' => 'Curabitur congue porta neque',
         'name' => 'test-module',
@@ -95,22 +59,29 @@ class ModuleSourceTest extends TestCase
         'images' => 'images/image1.png',
     ];
 
-    /**
-     * @var string[][][]
-     */
+    /** @var string[][][] */
     public static $sqlQueryVsData = [
-        "SELECT `name` AS `id`, `mod_release` AS `version` FROM `modules_informations`" => [
+        'SELECT `name` AS `id`, `mod_release` AS `version` FROM `modules_informations`' => [
             [
                 'id' => 'test-module',
                 'version' => 'x.y.z',
             ],
         ],
-        "SELECT `id` FROM `modules_informations` WHERE `name` = :name LIMIT 0, 1" => [
+        'SELECT `id` FROM `modules_informations` WHERE `name` = :name LIMIT 0, 1' => [
             [
                 'id' => '1',
             ],
         ],
     ];
+
+    /** @var ModuleSource|\PHPUnit\Framework\MockObject\MockObject */
+    private $source;
+
+    /** @var ContainerWrap */
+    private $containerWrap;
+
+    /** @var FileSystem */
+    private $fs;
 
     protected function setUp(): void
     {
@@ -151,16 +122,14 @@ class ModuleSourceTest extends TestCase
             ->method('getPath')
             ->will($this->returnCallback(function () {
                 return $this->fs->path('/modules/');
-            }))
-        ;
+            }));
         $this->source
             ->method('getModuleConf')
             ->will($this->returnCallback(function () {
                 return [
                     ModuleSourceTest::$moduleName => ModuleSourceTest::$moduleInfo,
                 ];
-            }))
-        ;
+            }));
     }
 
     public function tearDown(): void
@@ -208,8 +177,8 @@ class ModuleSourceTest extends TestCase
     }
 
     /**
-    * @throws \Exception
-    */
+     * @throws \Exception
+     */
     public function testUpdate(): void
     {
         try {
@@ -249,14 +218,6 @@ class ModuleSourceTest extends TestCase
     /**
      * @return string
      */
-    private function getConfFilePath(): string
-    {
-        return $this->fs->path('/modules/' . static::$moduleName . '/' . ModuleSource::CONFIG_FILE);
-    }
-
-    /**
-     * @return string
-     */
     public static function buildConfContent(): string
     {
         $result = '<?php';
@@ -267,5 +228,13 @@ class ModuleSourceTest extends TestCase
         }
 
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    private function getConfFilePath(): string
+    {
+        return $this->fs->path('/modules/' . static::$moduleName . '/' . ModuleSource::CONFIG_FILE);
     }
 }

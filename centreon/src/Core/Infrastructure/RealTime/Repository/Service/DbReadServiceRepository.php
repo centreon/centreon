@@ -28,6 +28,9 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface;
 use Core\Domain\RealTime\Model\Service;
 
+/**
+ * @phpstan-import-type _dataService from DbServiceFactory
+ */
 class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServiceRepositoryInterface
 {
     /**
@@ -72,7 +75,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
         }
 
         $request = '
-            SELECT COUNT(s.service_id) AS total
+            SELECT COUNT(s.service_id) AS total, 1 AS REALTIME
             FROM `:dbstg`.`services` AS s
             INNER JOIN `:dbstg`.`centreon_acl` AS service_acl
             ON service_acl.service_id = s.service_id AND service_acl.host_id = s.host_id
@@ -100,6 +103,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
     private function findService(int $hostId, int $serviceId, ?string $accessGroupRequest = null): ?Service
     {
         $request = "SELECT
+                1 AS REALTIME,
                 s.service_id,
                 s.host_id,
                 s.description,
@@ -151,7 +155,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
         $statement->execute();
 
         if ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /** @var array<string,int|string|null> $row */
+            /** @var _dataService $row */
             return DbServiceFactory::createFromRecord($row);
         }
 

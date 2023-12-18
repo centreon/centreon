@@ -243,7 +243,7 @@ foreach (array('o1', 'o2') as $option) {
             null => _("More actions..."),
             "m" => _("Duplicate"),
             "d" => _("Delete"),
-            "mc" => _("Massive Change")
+            "mc" => _("Mass Change")
         ),
         $attrs1
     );

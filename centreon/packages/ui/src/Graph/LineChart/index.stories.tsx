@@ -39,8 +39,7 @@ import { Interval, ThresholdType, TooltipData } from './models';
 import WrapperLineChart from './index';
 
 const meta: Meta<typeof WrapperLineChart> = {
-  component: WrapperLineChart,
-  tags: ['autodocs']
+  component: WrapperLineChart
 };
 export default meta;
 
@@ -353,6 +352,9 @@ export const LineChartWithTimePeriod: Story = {
     end: defaultEnd,
     height: 500,
     start: defaultStart
+  },
+  parameters: {
+    chromatic: { diffThreshold: 0.1 }
   }
 };
 

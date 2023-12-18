@@ -29,6 +29,7 @@ use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Composite;
 use Symfony\Component\Validator\Constraints\GroupSequence;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Mapping\CascadingStrategy;
@@ -76,9 +77,7 @@ class EntityValidator
             if ($finder->hasResults()) {
                 $paths = [];
                 foreach ($finder as $yamlConfigurationFiles) {
-                    /**
-                     * @var $yamlConfigurationFiles \SplFileInfo
-                     */
+                    /** @var \SplFileInfo $yamlConfigurationFiles */
                     $paths[] = $yamlConfigurationFiles->getRealPath();
                 }
                 $validation->addLoader(
@@ -170,9 +169,7 @@ class EntityValidator
      */
     private function getConstraints(string $entityName, array $groups, bool $firstCall = false): Composite
     {
-        /**
-         * @var $metadata \Symfony\Component\Validator\Mapping\ClassMetadata
-         */
+        /** @var \Symfony\Component\Validator\Mapping\ClassMetadata $metadata */
         $metadata = $this->validator->getMetadataFor($entityName);
         $constraints = [];
         foreach ($metadata->getConstrainedProperties() as $id) {
@@ -232,16 +229,11 @@ class EntityValidator
     private function removeDuplicatedViolation(
         ConstraintViolationListInterface $violations
     ): ConstraintViolationListInterface {
-        /**
-         * @var $violation ConstraintViolationInterface
-         */
+        /** @var array<int, ConstraintViolationInterface> $violationCodes */
         $violationCodes = [];
         foreach ($violations as $index => $violation) {
             if (!array_key_exists($violation->getPropertyPath(), $violationCodes)
-                || (
-                    isset($violationCodes[$violation->getPropertyPath()])
-                    && !in_array($violation->getCode(), $violationCodes[$violation->getPropertyPath()])
-                    )
+                || !in_array($violation->getCode(), $violationCodes[$violation->getPropertyPath()])
             ) {
                 $violationCodes[$violation->getPropertyPath()][] = $violation->getCode();
             } else {
@@ -279,9 +271,7 @@ class EntityValidator
         bool $showPropertiesInSnakeCase = false
     ): string {
         $errorMessages = '';
-        /**
-         * @var $violation ConstraintViolationInterface
-         */
+        /** @var array<ConstraintViolationInterface> $violations */
         foreach ($violations as $violation) {
             if (!empty($errorMessages)) {
                 $errorMessages .= "\n";

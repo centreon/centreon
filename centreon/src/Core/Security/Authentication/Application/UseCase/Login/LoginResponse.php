@@ -33,8 +33,11 @@ final class LoginResponse implements ResponseStatusInterface
      * @param bool $redirectIsReact
      * @param Exception|null $exception
      */
-    public function __construct(private string $redirectUri, private bool $redirectIsReact, private ?Exception $exception = null)
-    {
+    public function __construct(
+        private readonly string $redirectUri,
+        private readonly bool $redirectIsReact,
+        private readonly ?Exception $exception = null
+    ) {
     }
 
     /**

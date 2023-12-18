@@ -18,6 +18,7 @@ const SelectFilter = ({
 }: Props): JSX.Element => (
   <SelectField
     aria-label={ariaLabel}
+    data-testid="selectedFilter"
     options={options}
     selectedOptionId={selectedOptionId}
     onChange={onChange}

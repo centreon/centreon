@@ -30,11 +30,10 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface as RepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB implements RepositoryInterface
 {
-    private const MAXIMUM_METRICS_COUNT = 100;
-
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
@@ -69,7 +68,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * @inheritDoc
      */
-    public function FindByRequestParametersAndAccessGroups(
+    public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array {
@@ -95,7 +94,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * @inheritDoc
      */
-    public function FindByRequestParametersAndAccessGroupsAndMetricName(
+    public function findByRequestParametersAndAccessGroupsAndMetricName(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
         string $metricName
@@ -143,7 +142,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *  bindValues: array<mixed>
      * }
      */
-    private function buildSubRequestForHostFilter($hostIds): array
+    private function buildSubRequestForHostFilter(array $hostIds): array
     {
         foreach ($hostIds as $hostId) {
             $bindHostIds[':host_' . $hostId] = [$hostId => \PDO::PARAM_INT];
@@ -293,10 +292,20 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * Get request and bind values information for each search filter.
      *
-     * @param array{
-     *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
+     * @phpstan-param array{
+     *     '$and': array<
+     *         array{
+     *                   'service.name'?: array{'$in': non-empty-array<string>},
+     *                        'host.id'?: array{'$in': non-empty-array<int>},
+     *                   'hostgroup.id'?: array{'$in': non-empty-array<int>},
+     *                'servicegroup.id'?: array{'$in': non-empty-array<int>},
+     *                'hostcategory.id'?: array{'$in': non-empty-array<int>},
+     *             'servicecategory.id'?: array{'$in': non-empty-array<int>},
+     *         }
+     *     >
      * } $search
-     * @param array $search
+     *
+     * @param array<mixed> $search
      *
      * @return array<
      *  string, array{
@@ -402,21 +411,21 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * Build the SQL Query.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param array $accessGroups
+     * @param AccessGroup[] $accessGroups
      * @param bool $hasMetricName
-     * 
+     *
      * @return string
      */
     private function buildQuery(
         RequestParametersInterface $requestParameters,
         array $accessGroups = [],
-        $hasMetricName = false): string
+        bool $hasMetricName = false): string
     {
         $request
         = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
-                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
+                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id, r.parent_id
                 FROM `:dbstg`.`metrics` AS m
                 INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
                 INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
@@ -483,8 +492,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             foreach ($this->subRequestsInformation as $subRequestInformation) {
                 $boundValues[] = $subRequestInformation['bindValues'];
             }
-            $boundValues = array_merge(...$boundValues);
         }
+        $boundValues = array_merge(...$boundValues);
         foreach ($boundValues as $bindToken => $bindValueInformation){
             foreach ($bindValueInformation as $bindValue => $paramType) {
                 $statement->bindValue($bindToken, $bindValue, $paramType);
@@ -501,7 +510,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param RequestParametersInterface $requestParameters
      * @param \PDOStatement $statement
      *
-     * @return ResourceMetrics[]
+     * @return ResourceMetric[]
      */
     private function buildResourceMetrics(
         RequestParametersInterface $requestParameters,
@@ -511,9 +520,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $resourceMetrics = [];
         if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
             $requestParameters->setTotal((int) $total);
-            if ($total > self::MAXIMUM_METRICS_COUNT) {
-                return $resourceMetrics;
-            }
         }
 
         if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {
@@ -523,6 +529,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                     $metricsInformation[$record['service_id']] = [
                         'service_id' => $record['service_id'],
                         'resource_name' => $record['resource_name'],
+                        'parent_id' => $record['parent_id'],
                         'metrics' => [],
                     ];
                 }
@@ -543,6 +550,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 $resourceMetrics[] = new ResourceMetric(
                     $information['service_id'],
                     $information['resource_name'],
+                    $information['parent_id'],
                     $information['metrics']
                 );
             }

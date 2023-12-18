@@ -55,6 +55,7 @@ declare module '@mui/material/styles' {
     panelGroups: string;
     paper: string;
     tooltip: string;
+    widget: string;
   }
 
   interface TypeLayout {
@@ -142,7 +143,7 @@ declare module '@mui/material/Badge' {
 export const lightPalette: PaletteOptions = {
   action: {
     acknowledged: '#67532C',
-    acknowledgedBackground: '#F5F1E9',
+    acknowledgedBackground: '#DFD2B9',
     activatedOpacity: 0.12,
     active: '#666666',
     disabled: '#999999',
@@ -152,7 +153,7 @@ export const lightPalette: PaletteOptions = {
     hover: 'rgba(0, 0, 0, 0.06)',
     hoverOpacity: 0.06,
     inDowntime: '#4B2352',
-    inDowntimeBackground: '#F0E9F8',
+    inDowntimeBackground: '#E5D8F3',
     selected: 'rgba(102, 102, 102, 0.3)',
     selectedOpacity: 0.3
   },
@@ -162,7 +163,8 @@ export const lightPalette: PaletteOptions = {
     panel: '#EDEDED',
     panelGroups: '#F5F5F5',
     paper: '#FFFFFF',
-    tooltip: '#434E5B'
+    tooltip: '#434E5B',
+    widget: '#F8F8F8'
   },
   chip: {
     color: {
@@ -281,7 +283,7 @@ export const lightPalette: PaletteOptions = {
 export const darkPalette: PaletteOptions = {
   action: {
     acknowledged: '#67532C',
-    acknowledgedBackground: '#67532C',
+    acknowledgedBackground: '#745F35',
     activatedOpacity: 0.3,
     active: '#B5B5B5',
     disabled: '#999999',
@@ -291,7 +293,7 @@ export const darkPalette: PaletteOptions = {
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,
     inDowntime: '#4B2352',
-    inDowntimeBackground: '#4B2352',
+    inDowntimeBackground: '#512980',
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5
   },
@@ -301,7 +303,8 @@ export const darkPalette: PaletteOptions = {
     panel: '#4a4a4a',
     panelGroups: '#252525',
     paper: '#212121',
-    tooltip: '#AAB4C0'
+    tooltip: '#AAB4C0',
+    widget: '#2E2E2E'
   },
   chip: {
     color: {

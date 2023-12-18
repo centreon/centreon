@@ -285,7 +285,7 @@ class CentreonDB extends \PDO
             $str = htmlspecialchars($str);
         }
 
-        return addslashes($str);
+        return addslashes($str ?? '');
     }
 
     /**
@@ -491,6 +491,58 @@ class CentreonDB extends \PDO
             $this->logSqlError($query, $e->getMessage());
             return -1;
         }
+    }
+
+    /**
+     * Indicates whether an index exists or not.
+     *
+     * @param string $table
+     * @param string $indexName
+     *
+     * @return bool
+     */
+    public function isIndexExists(string $table, string $indexName): bool
+    {
+        $statement = $this->prepare(<<<'SQL'
+            SELECT 1
+            FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = :table_name
+              AND INDEX_NAME = :index_name;
+            SQL
+        );
+        $statement->bindValue(':db_name', $this->dsn['database']);
+        $statement->bindValue(':table_name', $table);
+        $statement->bindValue(':index_name', $indexName);
+
+        $statement->execute();
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * Indicates whether a constraint on table exists or not.
+     *
+     * @param string $table
+     * @param string $constraintName
+     *
+     * @return bool
+     */
+    public function isConstraintExists(string $table, string $constraintName): bool
+    {
+        $statement = $this->prepare(<<<'SQL'
+            SELECT 1
+            FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = :db_name
+              AND TABLE_NAME = :table_name
+              AND CONSTRAINT_NAME = :constraint_name;
+            SQL
+        );
+        $statement->bindValue(':db_name', $this->dsn['database']);
+        $statement->bindValue(':table_name', $table);
+        $statement->bindValue(':constraint_name', $constraintName);
+
+        $statement->execute();
+        return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
     }
 
     /**

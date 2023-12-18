@@ -43,7 +43,7 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
     /**
      * @param CustomConfigurationInterface&CustomConfiguration $customConfiguration
      *
-     * @return array
+     * @return array<mixed>
      */
     public function format(CustomConfigurationInterface $customConfiguration): array
     {

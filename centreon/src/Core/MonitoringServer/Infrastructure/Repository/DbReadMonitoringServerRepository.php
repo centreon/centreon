@@ -29,10 +29,12 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Model\MonitoringServer;
+use Utility\SqlConcatenator;
 
 /**
  * @phpstan-type MSResultSet array{
  *     id: int,
+ *     name: string
  * }
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
@@ -72,7 +74,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     {
         $request = $this->translateDbName(
             <<<'SQL'
-                SELECT `id`
+                SELECT `id`, `name`
                 FROM `:db`.`nagios_server` ns
                 INNER JOIN `:db`.`ns_host_relation` ns_hrel
                     ON ns_hrel.nagios_server_id = ns.id
@@ -90,9 +92,43 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     }
 
     /**
-     * @param array $result
-     *
-     * @phpstan-param MSResultSet $result
+     * @inheritDoc
+     */
+    public function findByIds(array $ids): array
+    {
+        if ($ids === []) {
+
+            return $ids;
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT
+                    `id`,
+                    `name`
+                FROM `:db`.`nagios_server` ns
+                WHERE ns.id IN (:ids)
+                SQL
+        );
+        $concatenator->storeBindValueMultiple(':ids', $ids, \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $monitoringServers = [];
+        foreach ($statement as $row) {
+            /** @var MSResultSet $row */
+            $monitoringServers[] = $this->createMonitoringServerFromArray($row);
+        }
+
+        return $monitoringServers;
+    }
+
+    /**
+     * @param MSResultSet $result
      *
      * @throws AssertionFailedException
      *
@@ -101,7 +137,8 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     private function createMonitoringServerFromArray(array $result): MonitoringServer
     {
         return new MonitoringServer(
-            id: $result['id']
+            id: $result['id'],
+            name: $result['name']
         );
     }
 }

@@ -33,4 +33,12 @@ interface WriteTokenRepositoryInterface
      * @throws \Throwable
      */
     public function add(NewToken $newToken): void;
+
+    /**
+     * @param string $tokenName
+     * @param int $userId
+     *
+     * @throws \Throwable
+     */
+    public function deleteByNameAndUserId(string $tokenName, int $userId): void;
 }

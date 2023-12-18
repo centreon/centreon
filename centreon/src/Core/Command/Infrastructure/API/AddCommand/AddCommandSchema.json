@@ -1,0 +1,89 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add a command",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "type",
+        "command_line"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "type": {
+            "type": "integer"
+        },
+        "command_line": {
+            "type": "string"
+        },
+        "is_shell": {
+            "type": "boolean"
+        },
+        "argument_example": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "arguments": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "description"
+                ],
+                "properties":{
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
+            }
+        },
+        "macros": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "type",
+                    "description"
+                ],
+                "properties":{
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
+            }
+        },
+        "connector_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "graph_template_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        }
+    }
+}

@@ -10,7 +10,8 @@ import {
   pipe,
   not,
   has,
-  omit
+  omit,
+  uniqBy
 } from 'ramda';
 
 import { CircularProgress, useTheme } from '@mui/material';
@@ -30,6 +31,8 @@ import {
 import useFetchQuery from '../../../../api/useFetchQuery';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
+  allowUniqOption?: boolean;
+  baseEndpoint?: string;
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
@@ -57,6 +60,8 @@ const ConnectedAutocompleteField = (
     getRequestHeaders,
     displayOptionThumbnail,
     queryKey,
+    allowUniqOption,
+    baseEndpoint,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -84,6 +89,7 @@ const ConnectedAutocompleteField = (
     const { fetchQuery, isFetching, prefetchNextPage } = useFetchQuery<
       ListingModel<TData>
     >({
+      baseEndpoint,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
         return getEndpoint({
@@ -277,13 +283,16 @@ const ConnectedAutocompleteField = (
       }
     }, [optionsOpen]);
 
-    useEffect(() => {
-      setSearchParameter(
-        !isEmpty(searchConditions)
-          ? { conditions: searchConditions }
-          : undefined
-      );
-    }, useDeepCompare([searchConditions]));
+    useEffect(
+      () => {
+        setSearchParameter(
+          !isEmpty(searchConditions)
+            ? { conditions: searchConditions }
+            : undefined
+        );
+      },
+      useDeepCompare([searchConditions])
+    );
 
     useEffect(() => {
       if (!autocompleteChangedValue && !props?.value) {
@@ -305,7 +314,9 @@ const ConnectedAutocompleteField = (
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
         open={optionsOpen}
-        options={options}
+        options={
+          allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
+        }
         renderOption={renderOptions}
         onChange={(_, value) => setAutocompleteChangedValue(value)}
         onClose={(): void => setOptionsOpen(false)}

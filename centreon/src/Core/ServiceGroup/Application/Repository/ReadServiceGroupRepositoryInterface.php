@@ -26,6 +26,7 @@ namespace Core\ServiceGroup\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupNamesById;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 interface ReadServiceGroupRepositoryInterface
@@ -156,4 +157,13 @@ interface ReadServiceGroupRepositoryInterface
      * @return array<array{relation:ServiceGroupRelation,serviceGroup:ServiceGroup}>
      */
     public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array;
+
+    /**
+     * Find service group names by their IDs.
+     *
+     * @param int[] $serviceGroupIds
+     *
+     * @return ServiceGroupNamesById
+     */
+    public function findNames(array $serviceGroupIds): ServiceGroupNamesById;
 }

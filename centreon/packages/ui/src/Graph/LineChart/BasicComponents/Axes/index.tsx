@@ -38,7 +38,7 @@ const Axes = ({
 
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
 
-  const xTickCount = Math.ceil(width / 82);
+  const xTickCount = Math.min(Math.ceil(width / 82), 12);
 
   const tickFormat =
     data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat(graphInterval);

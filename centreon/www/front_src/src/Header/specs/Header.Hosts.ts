@@ -40,19 +40,26 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@serviceButton').within(() => {
           cy.findByText(labelHosts).should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DnsIcon').should('be.visible');
         });
       });
 
       it('hides top counters when the screen is is under 600px width', () => {
         initialize();
-        getElements();
-
         cy.viewport(599, 300);
-        cy.get('@downCounter').should('not.be.visible');
-        cy.get('@unreachableCounter').should('not.be.visible');
-        cy.get('@upCounter').should('not.be.visible');
+
+        cy.findByRole('button', { name: labelHosts, timeout: 5000 }).should(
+          'be.visible'
+        );
+
+        cy.findByRole('link', { name: labelDownStatusHosts }).should(
+          'not.exist'
+        );
+        cy.findByRole('link', { name: labelUnreachableStatusHosts }).should(
+          'not.exist'
+        );
+        cy.findByRole('link', { name: labelUpStatusHosts }).should('not.exist');
       });
     });
 
@@ -170,6 +177,19 @@ export default (): void =>
 
         cy.get('@serviceButton').click();
         submenuShouldBeClosed(labelHosts);
+      });
+
+      it('closes the submenu when clicking on an item', () => {
+        initialize();
+        openSubMenu(labelHosts);
+
+        cy.findAllByRole('menuitem').as('items');
+
+        cy.get('@items').each((item: string) => {
+          cy.get(item).click();
+          submenuShouldBeClosed(labelHosts);
+          openSubMenu(labelHosts);
+        });
       });
 
       it('links to the expected urls', () => {

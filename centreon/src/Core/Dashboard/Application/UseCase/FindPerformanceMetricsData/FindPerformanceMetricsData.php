@@ -26,9 +26,8 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse};
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
@@ -37,12 +36,16 @@ use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * @phpstan-import-type _MetricData from PerformanceMetricsDataFactory
+ */
 final class FindPerformanceMetricsData
 {
     use LoggerTrait;
 
     public function __construct(
         private readonly ContactInterface $user,
+        private readonly RequestParametersInterface $requestParameters,
         private readonly MetricRepositoryInterface $metricRepositoryLegacy,
         private readonly ReadMetricRepositoryInterface $metricRepository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
@@ -65,14 +68,14 @@ final class FindPerformanceMetricsData
             if ($this->user->IsAdmin()) {
                 $this->info('Retrieving metrics data for admin user', [
                     'user_id' => $this->user->getId(),
-                    'metric_ids' => implode(', ', $request->metricIds),
+                    'metric_names' => implode(', ', $request->metricNames),
                 ]);
 
                 $performanceMetricsData = $this->findPerformanceMetricsDataAsAdmin($request);
             } else {
                 $this->info('Retrieving metrics data for non admin user', [
                     'user_id' => $this->user->getId(),
-                    'metric_ids' => implode(', ', $request->metricIds),
+                    'metric_names' => implode(', ', $request->metricNames),
                 ]);
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
@@ -101,25 +104,27 @@ final class FindPerformanceMetricsData
     private function findPerformanceMetricsDataAsAdmin(
         FindPerformanceMetricsDataRequest $request
     ): PerformanceMetricsData {
-        $services = $this->metricRepository->findServicesByMetricIds($request->metricIds);
+        $services = $this->metricRepository->findServicesByMetricNamesAndRequestParameters(
+            $request->metricNames,
+            $this->requestParameters
+        );
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
-            /**
-             * array<int<0, max>, array>.
-             */
-            $metricsData[] = $this->metricRepositoryLegacy->findMetricsByService(
+            /** @var _MetricData $data */
+            $data = $this->metricRepositoryLegacy->findMetricsByService(
                 $service,
                 $request->startDate,
                 $request->endDate
             );
+            $metricsData[] = $data;
         }
         if (empty($metricsData)) {
             throw MetricException::metricsNotFound();
         }
-        $factory = new PerformanceMetricsDataFactory();
 
-        return $factory->createFromRecords($metricsData, $request->metricIds);
+        return (new PerformanceMetricsDataFactory())
+            ->createFromRecords($metricsData, $request->metricNames);
     }
 
     /**
@@ -137,25 +142,28 @@ final class FindPerformanceMetricsData
         FindPerformanceMetricsDataRequest $request,
         array $accessGroups
     ): PerformanceMetricsData {
-        $services = $this->metricRepository->findServicesByMetricIdsAndAccessGroups($request->metricIds, $accessGroups);
+        $services = $this->metricRepository->findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
+            $request->metricNames,
+            $accessGroups,
+            $this->requestParameters
+        );
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
-            /**
-             * array<int<0, max>, array>.
-             */
-            $metricsData[] = $this->metricRepositoryLegacy->findMetricsByService(
+            /** @var _MetricData $data */
+            $data = $this->metricRepositoryLegacy->findMetricsByService(
                 $service,
                 $request->startDate,
                 $request->endDate
             );
+            $metricsData[] = $data;
         }
         if ([] === $metricsData) {
             throw MetricException::metricsNotFound();
         }
-        $factory = new PerformanceMetricsDataFactory();
 
-        return $factory->createFromRecords($metricsData, $request->metricIds);
+        return (new PerformanceMetricsDataFactory())
+            ->createFromRecords($metricsData, $request->metricNames);
     }
 
     private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse

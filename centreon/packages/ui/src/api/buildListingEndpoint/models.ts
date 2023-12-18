@@ -18,7 +18,6 @@ export interface Parameters {
   search?: SearchParameter;
   sort?: SortQueryParameterValue;
 }
-
 export interface SearchParameter {
   conditions?: Array<ConditionsSearchParameter>;
   lists?: Array<ListsSearchParameter>;
@@ -53,7 +52,8 @@ export type Operator =
   | '$lk'
   | '$nk'
   | '$in'
-  | '$ni';
+  | '$ni'
+  | '$rg';
 
 export type ConditionValue = {
   [value in Operator]?: string | Array<string>;

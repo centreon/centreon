@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,51 +21,31 @@
 
 namespace CentreonLegacy\Core\Module;
 
-use Psr\Container\ContainerInterface;
-use CentreonLegacy\Core\Module\Information;
 use CentreonLegacy\Core\Utils\Utils;
 use CentreonLegacy\ServiceProvider;
+use Psr\Container\ContainerInterface;
 
 class Module
 {
-    /**
-     *
-     * @var \CentreonLegacy\Core\Module\Information
-     */
+    /** @var \CentreonLegacy\Core\Module\Information */
     protected $informationObj;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $moduleName;
 
-    /**
-     *
-     * @var int
-     */
+    /** @var int */
     protected $moduleId;
 
-    /**
-     *
-     * @var \CentreonLegacy\Core\Utils\Utils
-     */
+    /** @var \CentreonLegacy\Core\Utils\Utils */
     protected $utils;
 
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     protected $moduleConfiguration;
 
-    /**
-     *
-     * @var \Psr\Container\ContainerInterface
-     */
+    /** @var \Psr\Container\ContainerInterface */
     protected $services;
 
     /**
-     *
      * @param \Psr\Container\ContainerInterface $services
      * @param \CentreonLegacy\Core\Module\Information $informationObj
      * @param string $moduleName
@@ -74,9 +54,9 @@ class Module
      */
     public function __construct(
         ContainerInterface $services,
-        Information $informationObj = null,
-        $moduleName,
-        Utils $utils = null,
+        ?Information $informationObj = null,
+        $moduleName = '',
+        ?Utils $utils = null,
         $moduleId = null
     ) {
         $this->moduleId = $moduleId;
@@ -89,8 +69,8 @@ class Module
     }
 
     /**
-     *
      * @param string $moduleName
+     *
      * @return string
      */
     public function getModulePath($moduleName = '')

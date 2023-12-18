@@ -3,6 +3,7 @@ import { Metric } from '../common/timeSeries/models';
 
 export interface GaugeProps {
   adaptedMaxValue: number;
+  baseColor?: string;
   height: number;
   hideTooltip: () => void;
   metric: Metric;

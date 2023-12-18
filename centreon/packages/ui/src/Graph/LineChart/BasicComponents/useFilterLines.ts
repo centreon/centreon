@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 
-import { compose, equals, prop, propEq, reject, sortBy, toLower } from 'ramda';
+import { equals, propEq, reject } from 'ramda';
 
 import { Line } from '../../common/timeSeries/models';
 
@@ -28,7 +28,7 @@ const useFilterLines = ({
   linesGraph,
   setLinesGraph
 }: UseFilterLines): Result => {
-  const displayedLines = reject(propEq('display', false), linesGraph ?? lines);
+  const displayedLines = reject(propEq(false, 'display'), linesGraph ?? lines);
   const filterLines = (): Array<Line> => {
     const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
 
@@ -51,9 +51,7 @@ const useFilterLines = ({
       return;
     }
 
-    const sortedLines = sortBy(compose(toLower, prop('name')), filteredLines);
-
-    setLinesGraph(sortedLines);
+    setLinesGraph(filteredLines);
   }, [lines, displayThreshold]);
 
   return { displayedLines, newLines: linesGraph ?? lines };

@@ -25,7 +25,7 @@ namespace Core\Security\Authentication\Application\UseCase\Login;
 
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
-class LoginRequest
+final class LoginRequest
 {
     /**
      * @param string $providerName
@@ -45,7 +45,7 @@ class LoginRequest
         public ?string $code = null,
         public ?string $refererQueryParameters = null,
         public ?string $requestId = null,
-        public ?string $assertion = null
+        public ?string $assertion = null,
     ) {
     }
 

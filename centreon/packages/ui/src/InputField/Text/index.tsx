@@ -1,6 +1,6 @@
 import { forwardRef, useCallback } from 'react';
 
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -9,7 +9,8 @@ import {
   TextFieldProps,
   Theme,
   Tooltip,
-  Typography
+  Typography,
+  Box
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
@@ -18,8 +19,9 @@ import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles<{ displayAsBlock: boolean }>()(
   (theme: Theme, { displayAsBlock }) => ({
-    compact: {
-      fontSize: 'x-small'
+    autoSizeCompact: {
+      paddingRight: theme.spacing(1),
+      paddingTop: theme.spacing(0.6)
     },
     hiddenText: {
       display: 'table',
@@ -78,6 +80,7 @@ export type Props = {
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
   className?: string;
+  containerClassName?: string;
   dataTestId: string;
   debounced?: boolean;
   displayErrorInTooltip?: boolean;
@@ -110,6 +113,7 @@ const TextField = forwardRef(
       autoSizeCustomPadding,
       defaultValue,
       required = false,
+      containerClassName,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -140,7 +144,10 @@ const TextField = forwardRef(
     }, [innerValue, debounced, defaultValue]);
 
     return (
-      <>
+      <Box
+        className={containerClassName}
+        sx={{ width: autoSize ? 'auto' : '100%' }}
+      >
         <Tooltip placement="top" title={tooltipTitle}>
           <MuiTextField
             data-testid={dataTestId}
@@ -162,7 +169,8 @@ const TextField = forwardRef(
               className: cx(
                 classes.inputBase,
                 {
-                  [classes.transparent]: transparent
+                  [classes.transparent]: transparent,
+                  [classes.autoSizeCompact]: autoSize && equals(size, 'compact')
                 },
                 className
               ),
@@ -195,7 +203,7 @@ const TextField = forwardRef(
             {rest.value || externalValueForAutoSize || innerValue}
           </Typography>
         )}
-      </>
+      </Box>
     );
   }
 );

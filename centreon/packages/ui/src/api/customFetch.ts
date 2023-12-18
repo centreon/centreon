@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { equals, isNil, startsWith } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import { Method } from './useMutationQuery';
@@ -22,6 +22,7 @@ export interface CatchErrorProps {
 }
 
 interface CustomFetchProps<T> {
+  baseEndpoint?: string;
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
@@ -42,9 +43,17 @@ export const customFetch = <T>({
   defaultFailureMessage = 'Something went wrong',
   isMutation = false,
   payload,
-  method = 'GET'
+  method = 'GET',
+  baseEndpoint = './api/latest'
 }: CustomFetchProps<T>): Promise<T | ResponseError> => {
   const defaultOptions = { headers, method, signal };
+
+  const formattedEndpoint =
+    !isNil(baseEndpoint) &&
+    !startsWith(baseEndpoint, endpoint) &&
+    !startsWith('./api/internal.php', endpoint)
+      ? `${baseEndpoint}${endpoint}`
+      : endpoint;
 
   const options = isMutation
     ? {
@@ -53,7 +62,7 @@ export const customFetch = <T>({
       }
     : defaultOptions;
 
-  return fetch(endpoint, options)
+  return fetch(formattedEndpoint, options)
     .then((response) => {
       if (equals(response.status, 204)) {
         return {

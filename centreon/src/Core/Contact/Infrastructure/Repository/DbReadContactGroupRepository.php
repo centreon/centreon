@@ -255,4 +255,32 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         return $contactGroups;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function exist(array $contactGroupIds): array
+    {
+        $bind = [];
+        foreach ($contactGroupIds as $key => $contactGroupId) {
+            $bind[":cg_{$key}"] = $contactGroupId;
+        }
+        if ($bind === []) {
+            return [];
+        }
+        $contactGroupIdsAsString = implode(', ', array_keys($bind));
+        $request = $this->translateDbName(
+           <<<SQL
+               SELECT cg_id FROM `:db`.contactgroup
+               WHERE cg_id IN ({$contactGroupIdsAsString})
+               SQL
+        );
+        $statement = $this->db->prepare($request);
+        foreach ($bind as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
 }

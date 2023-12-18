@@ -1,10 +1,9 @@
 import { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
 import { useTransition, to, animated } from '@react-spring/web';
-import { equals, includes, pluck } from 'ramda';
+import { equals, includes, isNil, pluck } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { Metric } from '../common/timeSeries/models';
 import { Thresholds } from '../common/models';
 
 type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
@@ -25,11 +24,9 @@ const enterUpdateTransition = <T,>({
 
 type AnimatedPieProps<Datum> = ProvidedProps<Datum> & {
   animate?: boolean;
-  delay?: number;
   getColor: (d: PieArcDatum<Datum>) => string;
   getKey: (d: PieArcDatum<Datum>) => string;
   hideTooltip?: () => void;
-  metric?: Metric;
   showTooltip?: (args) => void;
   thresholds: Thresholds;
 };
@@ -43,14 +40,21 @@ const AnimatedPie = <Datum,>({
   showTooltip,
   hideTooltip,
   thresholds
-}: AnimatedPieProps<Datum>): JSX.Element => {
-  const transitions = useTransition<PieArcDatum<Datum>, AnimatedStyles>(arcs, {
-    enter: enterUpdateTransition,
-    from: animate ? fromLeaveTransition : enterUpdateTransition,
-    keys: getKey,
-    leave: animate ? fromLeaveTransition : enterUpdateTransition,
-    update: enterUpdateTransition
-  });
+}: AnimatedPieProps<Datum>): JSX.Element | null => {
+  const transitions = useTransition?.<PieArcDatum<Datum>, AnimatedStyles>(
+    arcs,
+    {
+      enter: enterUpdateTransition,
+      from: animate ? fromLeaveTransition : enterUpdateTransition,
+      keys: getKey,
+      leave: animate ? fromLeaveTransition : enterUpdateTransition,
+      update: enterUpdateTransition
+    }
+  );
+
+  if (isNil(useTransition)) {
+    return null;
+  }
 
   return transitions((props, arc, { key }) => (
     <g key={key}>

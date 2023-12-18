@@ -43,17 +43,18 @@ export interface Status {
 }
 
 export interface Resource extends NamedEntity {
-  acknowledged?: boolean;
-  active_checks?: boolean;
+  children?;
   duration?: string;
+  has_active_checks_enabled?: boolean;
+  has_passive_checks_enabled?: boolean;
   icon?: Icon;
-  in_downtime?: boolean;
   information?: string;
+  is_acknowledged?: boolean;
+  is_in_downtime?: boolean;
+  is_notification_enabled?: boolean;
   last_check?: string;
   links?: ResourceLinks;
-  notification_enabled?: boolean;
   parent?: Parent | null;
-  passive_checks?: boolean;
   service_id?: number;
   severity_level?: number;
   short_type: ResourceShortType;

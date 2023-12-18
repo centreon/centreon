@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 import type { SelectEntry } from '@centreon/ui';
 
 import { SortOrder } from '../../models';
@@ -31,7 +33,9 @@ import {
   labelHostSeverity,
   labelHostSeverityLevel,
   labelServiceSeverityLevel,
-  labelAnomalyDetection
+  labelAnomalyDetection,
+  labelName,
+  labelParentName
 } from '../../translatedLabels';
 import {
   buildHostGroupsEndpoint,
@@ -40,16 +44,27 @@ import {
   buildMonitoringServersEndpoint,
   buildServiceGroupsEndpoint,
   buildHostServeritiesEndpoint,
-  buildServiceSeveritiesEndpoint
+  buildServiceSeveritiesEndpoint,
+  buildServicesEndpoint,
+  buildHostsEndpoint
 } from '../api/endpoint';
+
+import { SearchableFields } from './searchQueryLanguage/models';
 
 export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];
 
 export interface Criteria {
   name: string;
   object_type: string | null;
+  search_data?: null;
   type: string;
   value?: CriteriaValue;
+}
+
+export enum SearchType {
+  conditions = 'conditions',
+  lists = 'lists',
+  regex = 'regex'
 }
 
 const criteriaValueNameById = {
@@ -189,6 +204,18 @@ export interface CriteriaDisplayProps {
   options?: Array<SelectEntry>;
 }
 
+export interface SearchedDataValue {
+  id: string;
+  value: string;
+  valueId: number;
+}
+
+export interface SearchData {
+  field: SearchableFields;
+  id: string | null;
+  type: SearchType;
+  values: Array<SearchedDataValue> | null;
+}
 export interface CriteriaById {
   [criteria: string]: CriteriaDisplayProps;
 }
@@ -199,6 +226,8 @@ export enum CriteriaNames {
   hostSeverities = 'host_severities',
   hostSeverityLevels = 'host_severity_levels',
   monitoringServers = 'monitoring_servers',
+  names = 'names',
+  parentNames = 'parent_names',
   resourceTypes = 'resource_types',
   serviceCategories = 'service_categories',
   serviceGroups = 'service_groups',
@@ -213,6 +242,14 @@ const selectableCriterias: CriteriaById = {
   [CriteriaNames.resourceTypes]: {
     label: labelType,
     options: selectableResourceTypes
+  },
+  [CriteriaNames.names]: {
+    buildAutocompleteEndpoint: buildServicesEndpoint,
+    label: labelName
+  },
+  [CriteriaNames.parentNames]: {
+    buildAutocompleteEndpoint: buildHostsEndpoint,
+    label: labelParentName
   },
   [CriteriaNames.states]: {
     label: labelState,
@@ -286,3 +323,18 @@ export {
   selectableStateTypes,
   hardStateType
 };
+
+export enum Action {
+  create = 'create',
+  update = 'update'
+}
+
+export interface PopoverData {
+  anchorEl: HTMLElement | undefined;
+  setAnchorEl: Dispatch<SetStateAction<HTMLElement | undefined>>;
+}
+
+export interface SearchDataPropsCriterias {
+  search: string;
+  setSearch;
+}

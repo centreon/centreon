@@ -1,6 +1,6 @@
 {
-  "title": "Graph",
-  "description": "Widget graph description (TBD)",
+  "title": "Metrics graph",
+  "description": "Displays metrics for a given time period.",
   "options": {
     "timeperiod": {
       "type": "time-period",

@@ -1,0 +1,1307 @@
+{
+	"info": {
+		"_postman_id": "07877664-11fa-4364-b7d2-d20dba314ce2",
+		"name": "10 - Authentication on an admin account - Centreon Web Refactored API Test Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22770334"
+	},
+	"item": [
+		{
+			"name": "1001 - Standard authentication with admin user",
+			"item": [
+				{
+					"name": "[1001] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1001] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1001] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1002 - Updating password on admin user and logging in using it",
+			"item": [
+				{
+					"name": "[1002] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1002-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1002] Update admin's password with correct password format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const nextRequestInCaseOfFailure = \"[1002-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The password for admin user was successfully updated to \" + pm.collectionVariables.get(\"passwordWithCorrectFormat\") + \".\", function () {\r",
+									"    const expectedResponseCode = 204\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.set(\"oldPassword\", pm.environment.get(\"api_password\"));\r",
+									"    pm.environment.unset(\"api_password\");\r",
+									"    pm.environment.set(\"api_password\", pm.collectionVariables.get(\"passwordWithCorrectFormat\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"passwordWithCorrectFormat\", \"Centreon!2022\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"old_password\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authentication/users/:alias/password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authentication",
+								"users",
+								":alias",
+								"password"
+							],
+							"variable": [
+								{
+									"key": "alias",
+									"value": "{{currentUserLogin}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1002] Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[1002] Attempt to log in on the admin user with the former password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1002-cleanup] Revert to old password using bridge passwords\"\r",
+									"\r",
+									"pm.test(\"The login with the former password was unsuccessful.\", function () {\r",
+									"    const expectedResponseCode = 401\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response features the expected error message (\\\"Authentication failed\\\").\", function() {\r",
+									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{oldPassword}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1002] Login with admin user using the new password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1002-cleanup] Revert to old password using bridge passwords\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1002-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1003 - Trying to update password on admin user with a list of non-compliant passwords",
+			"item": [
+				{
+					"name": "[1003] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1003-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1003] Update user's password with incorrect password format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1003-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The update request with password \" + pm.collectionVariables.get(\"currentPassword\") + \" was unsuccessful.\", function () {\r",
+									"    const expectedResponseCode = 400\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response features the expected error message.\", function() {\r",
+									"    pm.expect(responseJson.message).to.eql(\"Your password doesn't match the security policy\");\r",
+									"});\r",
+									"\r",
+									"const incorrectPasswords = pm.collectionVariables.get(\"incorrectPasswords\");\r",
+									"\r",
+									"if(incorrectPasswords && incorrectPasswords.length > 0) {\r",
+									"    postman.setNextRequest(\"[1003] Update user's password with incorrect password format\");\r",
+									"} else {\r",
+									"    postman.setNextRequest(\"[1003-cleanup] Logout from admin user and clear collection variables\");\r",
+									"    pm.collectionVariables.unset(\"currentPassword\");\r",
+									"    pm.collectionVariables.unset(\"incorrectPasswords\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let incorrectPasswords = pm.collectionVariables.get(\"incorrectPasswords\");\r",
+									"if (!incorrectPasswords || incorrectPasswords.length == 0){\r",
+									"    incorrectPasswords = [\"Centreon2021\", \"centreon!2021\", \"20210102030405\", \"\", \"CENTREON!2021\", \"CentreonTwoThousandTwentyOne\", \"centreon\", \"Cent!2\"];\r",
+									"}\r",
+									"\r",
+									"pm.collectionVariables.set(\"currentPassword\", incorrectPasswords.shift());\r",
+									"pm.collectionVariables.set(\"incorrectPasswords\", incorrectPasswords);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"old_password\": \"{{api_password}}\",\n \"new_password\": \"{{currentPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authentication/users/:alias/password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authentication",
+								"users",
+								":alias",
+								"password"
+							],
+							"variable": [
+								{
+									"key": "alias",
+									"value": "{{currentUserLogin}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1003-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1004 - Immediately trying to revert back to a recent old password",
+			"item": [
+				{
+					"name": "[1004] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1004-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1004] Update admin's password with correct password format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const nextRequestInCaseOfFailure = \"[1004-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Password for admin user was successfully updated to \" + pm.collectionVariables.get(\"passwordWithCorrectFormat\") + \".\", function () {\r",
+									"    const expectedResponseCode = 204\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.set(\"oldPassword\", pm.environment.get(\"api_password\"));\r",
+									"    pm.environment.unset(\"api_password\");\r",
+									"    pm.environment.set(\"api_password\", pm.collectionVariables.get(\"passwordWithCorrectFormat\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"passwordWithCorrectFormat\", \"Centreon!2023\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"old_password\": \"{{api_password}}\",\n  \"new_password\": \"{{passwordWithCorrectFormat}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authentication/users/:alias/password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authentication",
+								"users",
+								":alias",
+								"password"
+							],
+							"variable": [
+								{
+									"key": "alias",
+									"value": "{{currentUserLogin}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1004] Immediately try to revert back to old password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[1004-cleanup] Revert to old password using bridge passwords\"\r",
+									"\r",
+									"pm.test(\"The password for admin user could not be updated.\", function () {\r",
+									"    const expectedResponseCode = 400\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response features the expected error message. (\\\"Old password usage is disable\\\").\", function() {\r",
+									"    pm.expect(responseJson.message).to.eql(\"Old password usage is disable\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"old_password\": \"{{api_password}}\",\n  \"new_password\": \"{{oldPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authentication/users/:alias/password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authentication",
+								"users",
+								":alias",
+								"password"
+							],
+							"variable": [
+								{
+									"key": "alias",
+									"value": "{{currentUserLogin}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1004] Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[1004] Attempt to log in on the admin user with the former password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"The login with the former password was unsuccessful.\", function () {\r",
+									"    const expectedResponseCode = 401\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The response features the expected error message (\\\"Authentication failed\\\").\", function() {\r",
+									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{oldPassword}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1004] Login with admin user using the new password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[1004-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"Object.prototype.setNextRequestBasedOnStatusCode = (pm, postman, response, expectedResponseCode, nextRequestInCaseOfFailure) => {",
+					"    if(expectedResponseCode != response.code) {",
+					"        if (!pm.collectionVariables.get(\"requestTries\")) {",
+					"            pm.collectionVariables.set(\"requestTries\", 0);",
+					"        }",
+					"        pm.collectionVariables.set(\"requestTries\", pm.collectionVariables.get(\"requestTries\") + 1);",
+					"        if(pm.collectionVariables.get(\"requestTries\") < pm.environment.get(\"maxNumberOfRetries\")) {",
+					"            console.log(\"Response does not have the expected status code | Resending the request \\\"\" + pm.info.requestName + \"\\\"... | Number of tries: \" + pm.collectionVariables.get(\"requestTries\"));",
+					"            postman.setNextRequest(pm.info.requestName);",
+					"        } else {",
+					"            pm.collectionVariables.unset(\"requestTries\");",
+					"            pm.collectionVariables.unset(\"nextRequestInCaseOfFailure\");",
+					"            console.log(\"Response does not have the expected status code | Aborting the current scenario (too many tries)\");",
+					"            postman.setNextRequest(nextRequestInCaseOfFailure);",
+					"        }",
+					"    } else {",
+					"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
+					"    }",
+					"  }"
+				]
+			}
+		}
+	]
+}

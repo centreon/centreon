@@ -124,7 +124,7 @@ function updateContact($contactId = null)
         return;
     }
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
     // remove illegal chars in data sent by the user
     $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
@@ -257,4 +257,59 @@ function checkAutologinValue(array $fields)
     }
 
     return count($errors) > 0 ? $errors : true;
+}
+function updateNonLocalContactInDB($contact_id = null): void
+{
+    global $pearDB, $centreon, $form;
+
+    if (! $contact_id){
+        return ;
+    }
+    $ret = $form->getSubmitValues();
+    $ret['contact_pager'] = !empty($ret['contact_pager']) ?
+        CentreonUtils::escapeSecure($ret['contact_pager'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $ret['contact_lang'] = !empty($ret['contact_lang']) ?
+        CentreonUtils::escapeSecure($ret['contact_lang'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+
+    $rq = 'UPDATE contact SET ' .
+        'contact_location = :contactLocation, ' .
+        'contact_lang = :contactLang, ' .
+        'contact_pager = :contactPager, ' .
+        'default_page = :defaultPage, ' .
+        'show_deprecated_pages = :showDeprecatedPages, ' .
+        'contact_theme = :contactTheme';
+    $rq .= ' WHERE contact_id = :contactId';
+
+    $stmt = $pearDB->prepare($rq);
+    $stmt->bindValue(':contactLang', $ret['contact_lang'], \PDO::PARAM_STR);
+    $stmt->bindValue(
+        ':contactPager',
+        !empty($ret['contact_pager']) ? $ret['contact_pager'] : null,
+        \PDO::PARAM_STR
+    );
+    $stmt->bindValue(
+        ':contactLocation',
+        !empty($ret['contact_location']) ? $ret['contact_location'] : null,
+        \PDO::PARAM_INT
+    );
+    $stmt->bindValue(
+        ':contactTheme',
+        !empty($ret['contact_theme']['contact_theme']) ? $ret['contact_theme']['contact_theme'] : "light",
+        \PDO::PARAM_STR
+    );
+    $stmt->bindValue(':defaultPage', !empty($ret['default_page']) ? $ret['default_page'] : null, \PDO::PARAM_INT);
+    $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, \PDO::PARAM_STR);
+    $stmt->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+    $stmt->execute();
+    $stmt->closeCursor();
+    if (! empty($ret["contact_passwd"])) {
+        $hashedPassword = password_hash($ret["contact_passwd"], \CentreonAuth::PASSWORD_HASH_ALGORITHM);
+        $contact = new \CentreonContact($pearDB);
+        $contact->renewPasswordByContactId($contact_id, $hashedPassword);
+    }
+
+    /*
+     * Update user object..
+     */
+    $centreon->user->lang = $ret['contact_lang'];
 }

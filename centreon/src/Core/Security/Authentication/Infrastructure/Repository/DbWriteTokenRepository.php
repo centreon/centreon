@@ -82,12 +82,13 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
             if ($isAlreadyInTransaction === false) {
                 $this->db->commit();
             }
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             if ($isAlreadyInTransaction === false) {
                 $this->db->rollBack();
             }
+            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -115,7 +116,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $updateTokenStatement->bindValue(
             ':expirationDate',
-            $providerToken->getExpirationDate()->getTimestamp(),
+            $providerToken->getExpirationDate()?->getTimestamp(),
             \PDO::PARAM_INT
         );
         $updateTokenStatement->bindValue(':tokenId', $providerToken->getId(), \PDO::PARAM_INT);
@@ -130,7 +131,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $updateTokenStatement->bindValue(
             ':expirationDate',
-            $providerRefreshToken->getExpirationDate()->getTimestamp(),
+            $providerRefreshToken->getExpirationDate()?->getTimestamp(),
             \PDO::PARAM_INT
         );
         $updateTokenStatement->bindValue(':tokenId', $providerRefreshToken->getId(), \PDO::PARAM_INT);

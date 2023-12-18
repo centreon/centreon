@@ -22,18 +22,21 @@ inputs:
   dependencies_lock_file:
     description: "The frontend dependencies lock file path"
     required: true
+  test_execution_key:
+    required: true
+    type: string
 
 runs:
   using: "composite"
   steps:
     - uses: pnpm/action-setup@v2
       with:
-        version: 7
+        version: 8
         run_install: false
 
     - uses: actions/setup-node@v3
       with:
-        node-version: 18
+        node-version: 20
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -57,14 +60,28 @@ runs:
 
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v6
+      with:
+        command: pnpm run cypress:run --browser chromium --spec features/**/${{ inputs.feature_file_path }}
+        install: false
+        working-directory: ${{ inputs.module }}/tests/e2e
+        publish-summary: false
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
-      with:
-        browser: chrome
-        install: false
-        working-directory: ${{ inputs.module }}/tests/e2e
-        spec: cypress/e2e/**/${{ inputs.feature_file_path }}
-        publish-summary: false
+
+    - name: Rename JSON report
+      if: ${{ always() }}
+      run: |
+        feature_name=$(basename "${{ inputs.feature_file_path }}")
+        report_path="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json"
+        report_path_updated="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json"
+
+        jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
+
+        rm "$report_path"
+
+        # Show the content of the modified file
+        cat "$report_path_updated"
+      shell: bash

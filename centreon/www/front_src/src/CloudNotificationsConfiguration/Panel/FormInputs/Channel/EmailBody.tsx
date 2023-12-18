@@ -1,8 +1,8 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { path } from 'ramda';
-import { $generateHtmlFromNodes } from '@lexical/html';
 import { useSetAtom } from 'jotai';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
@@ -19,11 +19,7 @@ const EmailBody = (): JSX.Element => {
   const { setFieldValue, values, initialValues, errors, touched, handleBlur } =
     useFormikContext<FormikValues>();
 
-  const getEditorState = (state: unknown, editor): void => {
-    editor.update(() => {
-      const htmlString = $generateHtmlFromNodes(editor, null);
-      sethtmlEmailBody(htmlString);
-    });
+  const getEditorState = (state: unknown): void => {
     setFieldValue('messages.message', JSON.stringify(state));
   };
 
@@ -54,6 +50,8 @@ const EmailBody = (): JSX.Element => {
         minInputHeight={120}
         namespace="EmailBody"
         placeholder={t(labelTypeYourTextHere) as string}
+        setHtmlString={sethtmlEmailBody}
+        toolbarClassName={classes.editorToolbar}
         toolbarPositions="end"
         onBlur={handleBlur('messages.message')}
       />

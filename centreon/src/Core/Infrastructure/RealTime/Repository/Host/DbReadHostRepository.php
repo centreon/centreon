@@ -28,6 +28,9 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
 use Core\Domain\RealTime\Model\Host;
 
+/**
+ * @phpstan-import-type _dataHost from DbHostFactory
+ */
 class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepositoryInterface
 {
     /**
@@ -73,7 +76,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
         }
 
         $request = '
-            SELECT COUNT(h.host_id) AS total
+            SELECT COUNT(h.host_id) AS total, 1 AS REALTIME
             FROM `:dbstg`.`hosts` AS h
             INNER JOIN `:dbstg`.`centreon_acl` AS host_acl
                 ON host_acl.host_id = h.host_id
@@ -101,6 +104,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
     private function findHost(int $hostId, ?string $accessGroupRequest = null): ?Host
     {
         $request = "SELECT
+                1 AS REALTIME,
                 h.host_id,
                 h.name,
                 h.address,
@@ -148,7 +152,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
         $statement->execute();
 
         if (($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var array<string,int|string|null> $row */
+            /** @var _dataHost $row */
             return DbHostFactory::createFromRecord($row);
         }
 

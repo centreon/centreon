@@ -1,6 +1,6 @@
 import { MutableRefObject, useRef } from 'react';
 
-import { Curve, Responsive } from '@visx/visx';
+import { Curve } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
@@ -10,6 +10,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
+import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
 
 import LineChart from './LineChart';
@@ -77,7 +78,7 @@ const WrapperLineChart = ({
       ref={lineChartRef as MutableRefObject<HTMLDivElement>}
       style={{ height: '100%', width: '100%' }}
     >
-      <Responsive.ParentSize>
+      <ParentSize>
         {({
           height: responsiveHeight,
           width: responsiveWidth
@@ -106,7 +107,7 @@ const WrapperLineChart = ({
             />
           );
         }}
-      </Responsive.ParentSize>
+      </ParentSize>
     </div>
   );
 };

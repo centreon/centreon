@@ -16,7 +16,7 @@ const Thresholds = ({
   showTooltip,
   hideTooltip,
   metric
-}: Omit<GaugeProps, 'width' | 'height'>): JSX.Element => {
+}: Omit<GaugeProps, 'width' | 'height'>): JSX.Element | null => {
   const theme = useTheme();
 
   const criticalThresholdValues = pluck('value', thresholds.critical);
@@ -65,30 +65,7 @@ const Thresholds = ({
   });
 
   if (!thresholds.enabled) {
-    return (
-      <Pie
-        data={successThresholdArc}
-        endAngle={-Math.PI / 2}
-        innerRadius={radius - thresholdThickness}
-        outerRadius={radius}
-        pieSortValues={() => -1}
-        pieValue={(d) => d.value}
-        startAngle={Math.PI / 2}
-      >
-        {(pie) => (
-          <AnimatedPie<{ name: string; value: number }>
-            {...pie}
-            animate
-            getColor={(arc) => successThresholdScaleOrdinal(arc.data.name)}
-            getKey={(arc) => `${arc.data.name}_${arc.data.value}`}
-            hideTooltip={hideTooltip}
-            metric={metric}
-            showTooltip={showTooltip}
-            thresholds={thresholds}
-          />
-        )}
-      </Pie>
-    );
+    return null;
   }
 
   const arcs = [

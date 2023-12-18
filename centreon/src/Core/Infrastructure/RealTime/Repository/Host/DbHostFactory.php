@@ -27,12 +27,44 @@ use Core\Domain\RealTime\Model\Host;
 use Core\Infrastructure\Common\Repository\DbFactoryUtilitiesTrait;
 use Core\Infrastructure\RealTime\Repository\Icon\DbIconFactory;
 
+/**
+ * @phpstan-type _dataHost array{
+ *     host_id: int|string|null,
+ *     name: int|string|null,
+ *     address: int|string|null,
+ *     monitoring_server_name: int|string|null,
+ *     timezone: string|null,
+ *     performance_data: string|null,
+ *     output: string|null,
+ *     command_line: string|null,
+ *     flapping: int|string|null,
+ *     acknowledged: int|string|null,
+ *     in_downtime: int|string|null,
+ *     passive_checks: int|string|null,
+ *     active_checks: int|string|null,
+ *     latency: int|string|null,
+ *     execution_time: int|string|null,
+ *     status_change_percentage: int|string|null,
+ *     notify: int|string|null,
+ *     notification_number: int|string|null,
+ *     last_status_change: int|string|null,
+ *     last_notification: int|string|null,
+ *     last_check: int|string|null,
+ *     last_time_up: int|string|null,
+ *     max_check_attempts: int|string|null,
+ *     check_attempt: int|string|null,
+ *     alias: string|null,
+ *     next_check: int|string|null,
+ *     icon_name: string|null,
+ *     icon_url: string|null,
+ * }
+ */
 class DbHostFactory
 {
     use DbFactoryUtilitiesTrait;
 
     /**
-     * @param array<string,int|string|null> $data
+     * @param _dataHost $data
      *
      * @return Host
      */
@@ -46,22 +78,10 @@ class DbHostFactory
             DbHostStatusFactory::createFromRecord($data)
         );
 
-        /** @var string|null */
-        $timezone = $data['timezone'];
-
-        /** @var string|null */
-        $performanceData = $data['performance_data'];
-
-        /** @var string|null */
-        $output = $data['output'];
-
-        /** @var string|null */
-        $commandLine = $data['command_line'];
-
-        $host->setTimezone($timezone)
-            ->setPerformanceData($performanceData)
-            ->setOutput($output)
-            ->setCommandLine($commandLine)
+        $host->setTimezone($data['timezone'])
+            ->setPerformanceData($data['performance_data'])
+            ->setOutput($data['output'])
+            ->setCommandLine($data['command_line'])
             ->setIsFlapping((int) $data['flapping'] === 1)
             ->setIsAcknowledged((int) $data['acknowledged'] === 1)
             ->setIsInDowntime((int) $data['in_downtime'] === 1)

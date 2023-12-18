@@ -114,7 +114,7 @@ describe('Authentication', () => {
       '{selectall}{backspace}45'
     );
 
-    cy.findByText(labelSave).should('be.enabled').click();
+    cy.findByTestId(labelSave).should('be.enabled').click();
 
     cy.interceptAPIRequest({
       alias: 'getMinLengthPasswordSecurityPolicyFromAPI',
@@ -182,13 +182,13 @@ describe('Authentication', () => {
     cy.findByText(labelPasswordExpirationPolicy).should('be.visible');
     cy.findByText(labelPasswordBlockingPolicy).should('be.visible');
 
-    cy.findByText(labelSave).should('be.disabled');
+    cy.findByTestId(labelSave).should('be.disabled');
 
     cy.findByLabelText(labelNumberOfAttemptsBeforeUserIsBlocked).type(
       '{selectall}{backspace}2'
     );
 
-    cy.findByText(labelSave).should('be.enabled').click();
+    cy.findByTestId(labelSave).should('be.enabled').click();
 
     cy.interceptAPIRequest({
       alias: 'getUpdatedAttemptsPasswordSecurityPolicyFromAPI',

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,17 +21,16 @@
 
 namespace EventSubscriber;
 
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class UpdateEventSubscriber implements EventSubscriberInterface
 {
     use LoggerTrait;
-
     private const MINIMAL_INSTALLED_VERSION = '22.04.0';
 
     /**
@@ -59,9 +58,10 @@ class UpdateEventSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * validate centreon web installed version when update endpoint is called
+     * validate centreon web installed version when update endpoint is called.
      *
      * @param RequestEvent $event
+     *
      * @throws \Exception
      */
     public function validateCentreonWebVersionOrFail(RequestEvent $event): void
@@ -78,11 +78,12 @@ class UpdateEventSubscriber implements EventSubscriberInterface
             $currentVersion = $this->readVersionRepository->findCurrentVersion();
 
             if ($currentVersion === null) {
-                $errorMessage =
-                    _('Centreon database schema does not seem to be installed.')
+                $errorMessage
+                    = _('Centreon database schema does not seem to be installed.')
                     . ' '
                     . _('Please use Web UI to install Centreon.');
                 $this->error($errorMessage);
+
                 throw new \Exception(_($errorMessage));
             }
 
@@ -102,6 +103,7 @@ class UpdateEventSubscriber implements EventSubscriberInterface
                     self::MINIMAL_INSTALLED_VERSION,
                 );
                 $this->debug($errorMessage);
+
                 throw new \Exception(_($errorMessage));
             }
         }

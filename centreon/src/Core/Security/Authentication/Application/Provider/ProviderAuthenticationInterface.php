@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Application\Provider;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;

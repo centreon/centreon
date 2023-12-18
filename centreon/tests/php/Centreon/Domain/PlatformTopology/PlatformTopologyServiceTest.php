@@ -380,7 +380,7 @@ class PlatformTopologyServiceTest extends TestCase
             ->willReturn([$this->brokerConfiguration]);
 
         $this->platformTopologyRepository
-            ->expects($this->once(0))
+            ->expects($this->once())
             ->method('getPlatformTopology')
             ->willReturn([$this->registeredParent]);
 
@@ -485,10 +485,9 @@ class PlatformTopologyServiceTest extends TestCase
             $this->platformTopologyRegisterRepository,
             $this->remoteServerRepository
         );
-
-        $this->assertEquals(null, $platformTopologyService->deletePlatformAndReallocateChildren(
+        $platformTopologyService->deletePlatformAndReallocateChildren(
             $this->platform->getId()
-        ));
+        );
     }
 
     public function testDeletePlatformTopologyWithBadId(): void

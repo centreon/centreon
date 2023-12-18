@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,12 +22,13 @@
 namespace CentreonRemote\Domain\Resources\DefaultConfig;
 
 /**
- * Get broker configuration template
+ * Get broker configuration template.
  */
 class CfgResource
 {
     /**
-     * Get template configuration
+     * Get template configuration.
+     *
      * @todo move it as yml
      *
      * @return array<int, string[]> the configuration template
@@ -36,15 +37,15 @@ class CfgResource
     {
         return [
             [
-                'resource_name'     => '$USER1$',
-                'resource_line'     => '@plugin_dir@',
-                'resource_comment'  => 'Nagios Plugins Path',
+                'resource_name' => '$USER1$',
+                'resource_line' => '@plugin_dir@',
+                'resource_comment' => 'Nagios Plugins Path',
                 'resource_activate' => '1',
             ],
             [
-                'resource_name'     => '$CENTREONPLUGINS$',
-                'resource_line'     => '@centreonplugins@',
-                'resource_comment'  => 'Centreon Plugins Path',
+                'resource_name' => '$CENTREONPLUGINS$',
+                'resource_line' => '@centreonplugins@',
+                'resource_comment' => 'Centreon Plugins Path',
                 'resource_activate' => '1',
             ],
         ];

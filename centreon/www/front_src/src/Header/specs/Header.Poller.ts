@@ -48,18 +48,20 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@pollerButton').within(() => {
           cy.findByText('Pollers').should('not.be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DeviceHubIcon').should('be.visible');
         });
       });
 
       it('hides top counters at very small size', () => {
         initialize();
-        getElements();
-
         cy.viewport(599, 300);
-        cy.get('@databaseIndicator').should('not.be.visible');
-        cy.get('@latencyIndicator').should('not.be.visible');
+        cy.findByRole('button', { name: labelPollers, timeout: 5000 }).should(
+          'be.visible'
+        );
+
+        cy.findByRole('status', { name: 'database' }).should('not.exist');
+        cy.findByRole('status', { name: 'latency' }).should('not.exist');
       });
     });
 
@@ -398,6 +400,36 @@ export default (): void =>
             `main.php?p=${pollerConfigurationPageNumber}`
           );
           cy.makeSnapshot();
+        });
+
+        it('closes the submenu when clicking on the poller button', () => {
+          initialize({
+            navigationList: {
+              result: [
+                {
+                  children: [
+                    {
+                      groups: [],
+                      is_react: false,
+                      label: 'Resources Status',
+                      options: null,
+                      page: pollerConfigurationPageNumber,
+                      show: true,
+                      url: '/config/'
+                    }
+                  ]
+                }
+              ]
+            }
+          });
+
+          openSubMenu('Pollers');
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).click();
+
+          cy.get(`[data-testid="${labelConfigurePollers}"]`).should(
+            'not.be.visible'
+          );
         });
 
         it('displays the export configuration button if user is allowed', () => {

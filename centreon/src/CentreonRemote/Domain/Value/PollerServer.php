@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,21 +23,14 @@ namespace CentreonRemote\Domain\Value;
 
 class PollerServer
 {
-    /**
-     * @var int $id the poller id
-     */
+    /** @var int the poller id */
     private $id;
 
-    /**
-     * @var string $name the poller name
-     */
+    /** @var string the poller name */
     private $name;
 
-    /**
-     * @var string $ip the poller ip address
-     */
+    /** @var string the poller ip address */
     private $ip;
-
 
     /**
      * @return int
@@ -56,7 +49,7 @@ class PollerServer
     }
 
     /**
-     * Get poller name
+     * Get poller name.
      *
      * @return string the poller name
      */
@@ -66,7 +59,7 @@ class PollerServer
     }
 
     /**
-     * Set poller name
+     * Set poller name.
      *
      * @param string $name the poller name
      */

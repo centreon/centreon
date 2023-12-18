@@ -25,34 +25,30 @@ namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
 use Core\Security\Authentication\Infrastructure\Provider\ProviderAuthenticationFactory;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use OneLogin\Saml2\Error;
-use Security\Domain\Authentication\Exceptions\ProviderException;
 use Symfony\Component\HttpFoundation\Request;
 
-class LoginController extends AbstractController
+final class LoginController extends AbstractController
 {
     use HttpUrlTrait;
 
     /**
      * @param ProviderAuthenticationFactory $providerAuthenticationFactory
+     * @param ThirdPartyLoginForm $thirdPartyLoginForm
      */
-    public function __construct(private readonly ProviderAuthenticationFactory $providerAuthenticationFactory)
-    {
+    public function __construct(
+        private readonly ProviderAuthenticationFactory $providerAuthenticationFactory,
+        private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
+    ) {
     }
 
-    /**
-     * @param Request $request
-     *
-     * @throws Error
-     * @throws ProviderException
-     */
     public function __invoke(Request $request): void
     {
         /** @var SAML $provider */
         $provider = $this->providerAuthenticationFactory->create(Provider::SAML);
-        $provider->login();
-   }
+        $provider->login($this->thirdPartyLoginForm->getReturnUrlBeforeAuth($request));
+    }
 }

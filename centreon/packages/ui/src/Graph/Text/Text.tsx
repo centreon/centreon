@@ -4,7 +4,7 @@ import { Typography, useTheme } from '@mui/material';
 
 import { LineChartData, Thresholds } from '../common/models';
 import {
-  formatMetricValue,
+  formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
@@ -12,7 +12,9 @@ import { getColorFromDataAndTresholds } from '../common/utils';
 import { useTextStyles } from './Text.styles';
 
 interface Props {
+  baseColor?: string;
   data?: LineChartData;
+  displayAsRaw?: boolean;
   labels: {
     critical: string;
     warning: string;
@@ -23,7 +25,9 @@ interface Props {
 export const Text = ({
   thresholds,
   data,
-  labels
+  displayAsRaw,
+  labels,
+  baseColor
 }: Props): JSX.Element | null => {
   const theme = useTheme();
   const { classes } = useTextStyles();
@@ -37,20 +41,21 @@ export const Text = ({
   const metricUnit = metric?.unit ?? '';
 
   const color = getColorFromDataAndTresholds({
+    baseColor,
     data: metricValue,
     theme,
     thresholds
   });
 
   const warningThresholdLabels = thresholds.warning.map(({ value }) =>
-    formatMetricValue({
+    formatMetricValueWithUnit({
       unit: metricUnit,
       value
     })
   );
 
   const criticalThresholdLabels = thresholds.critical.map(({ value }) =>
-    formatMetricValue({
+    formatMetricValueWithUnit({
       unit: metricUnit,
       value
     })
@@ -58,24 +63,26 @@ export const Text = ({
 
   return (
     <div className={classes.graphText}>
-      <Typography sx={{ color }} variant="h3">
-        {formatMetricValue({
-          unit: metricUnit,
-          value: metricValue
-        })}{' '}
-        {metricUnit}
+      <Typography sx={{ color }} variant="h2">
+        <strong>
+          {formatMetricValueWithUnit({
+            isRaw: displayAsRaw,
+            unit: metricUnit,
+            value: metricValue
+          })}
+        </strong>
       </Typography>
       {thresholds.enabled && (
         <div className={classes.thresholds}>
           <Typography sx={{ color: 'warning.main' }} variant="h5">
             {labels.warning}
             {': '}
-            {warningThresholdLabels.join(' - ')} {metricUnit}
+            {warningThresholdLabels.join(' - ')}
           </Typography>
           <Typography sx={{ color: 'error.main' }} variant="h5">
             {labels.critical}
             {': '}
-            {criticalThresholdLabels.join(' - ')} {metricUnit}
+            {criticalThresholdLabels.join(' - ')}
           </Typography>
         </div>
       )}

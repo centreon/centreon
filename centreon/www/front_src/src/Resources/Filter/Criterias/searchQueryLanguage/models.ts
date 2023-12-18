@@ -40,14 +40,25 @@ export interface AutocompleteSuggestionProps {
   search: string;
 }
 
+export enum SearchableFields {
+  'alias' = 'alias',
+  'fqdn' = 'fqdn',
+  'h.address' = 'h.address',
+  'h.alias' = 'h.alias',
+  'h.name' = 'h.name',
+  'information' = 'information',
+  'name' = 'name',
+  'parent_alias' = 'parent_alias',
+  'parent_name' = 'parent_name',
+  's.description' = 's.description'
+}
+
 export const searchableFields = [
   'h.name',
   'h.alias',
   'h.address',
   's.description',
-  'name',
   'alias',
-  'parent_name',
   'parent_alias',
   'fqdn',
   'information'
@@ -81,7 +92,9 @@ export const dynamicCriteriaValuesByName = [
   CriteriaNames.hostSeverities,
   CriteriaNames.serviceSeverities,
   CriteriaNames.hostSeverityLevels,
-  CriteriaNames.serviceSeverityLevels
+  CriteriaNames.serviceSeverityLevels,
+  CriteriaNames.names,
+  CriteriaNames.parentNames
 ];
 
 export const getSelectableCriteriasByName = (

@@ -2,7 +2,7 @@
   "metrics": [
     {
       "index_id": "5",
-      "metric_id": "30",
+      "metric_id": 1,
       "metric": "cpu:avg",
       "metric_legend": "cpu:avg",
       "unit": "%",
@@ -37,7 +37,7 @@
     },
     {
       "index_id": "4",
-      "metric_id": "29",
+      "metric_id": 2,
       "metric": "cpu",
       "metric_legend": "cpu",
       "unit": "%",

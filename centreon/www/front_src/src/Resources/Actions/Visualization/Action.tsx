@@ -29,10 +29,10 @@ const Action = ({
 
   return (
     <IconButton
-      ariaLabel={t(title)}
+      ariaLabel={t(title) as string}
       className={classes.iconButton}
       data-testid={title}
-      title={t(title)}
+      title={t(title) as string}
       tooltipClassName={classes.tooltipClassName}
       onClick={selectVisualization}
     >

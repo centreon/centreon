@@ -85,7 +85,7 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
       {displayPollerButton && (
-        <ListItem className={classes.listItem}>
+        <ListItem className={classes.listItem} onClick={closeSubMenu}>
           <Button
             fullWidth
             data-testid={pollerConfig.testId}

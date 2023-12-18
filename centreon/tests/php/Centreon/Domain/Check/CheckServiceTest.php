@@ -185,7 +185,7 @@ class CheckServiceTest extends TestCase
         );
         $checkService->filterByContact($this->adminContact);
 
-        $this->assertNull($checkService->checkHost($this->hostCheck));
+        $checkService->checkHost($this->hostCheck);
     }
 
     /**
@@ -297,7 +297,7 @@ class CheckServiceTest extends TestCase
         );
         $checkService->filterByContact($this->adminContact);
 
-        $this->assertNull($checkService->checkService($this->serviceCheck));
+        $checkService->checkService($this->serviceCheck);
     }
 
     /**
@@ -320,7 +320,7 @@ class CheckServiceTest extends TestCase
         $this->expectException(EntityNotFoundException::class);
         $this->expectExceptionMessage('Host 1 not found');
 
-        $this->assertNull($checkService->checkResource($this->check, $this->hostResource));
+        $checkService->checkResource($this->check, $this->hostResource);
     }
 
     /**
@@ -347,7 +347,7 @@ class CheckServiceTest extends TestCase
         $this->expectException(EntityNotFoundException::class);
         $this->expectExceptionMessage('Service 1 (parent: 1) not found');
 
-        $this->assertNull($checkService->checkResource($this->check, $this->serviceResource));
+        $checkService->checkResource($this->check, $this->serviceResource);
     }
 
     /**
@@ -370,7 +370,7 @@ class CheckServiceTest extends TestCase
         );
         $checkService->filterByContact($this->adminContact);
 
-        $this->assertNull($checkService->checkResource($this->check, $this->hostResource));
+        $checkService->checkResource($this->check, $this->hostResource);
     }
 
     /**
@@ -397,6 +397,6 @@ class CheckServiceTest extends TestCase
         );
         $checkService->filterByContact($this->adminContact);
 
-        $this->assertNull($checkService->checkResource($this->check, $this->serviceResource));
+        $checkService->checkResource($this->check, $this->serviceResource);
     }
 }

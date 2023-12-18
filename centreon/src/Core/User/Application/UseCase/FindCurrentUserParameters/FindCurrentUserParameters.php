@@ -27,8 +27,8 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Configuration\User\Exception\UserException;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\User\Application\Exception\UserException;
 use Core\User\Application\Model\UserInterfaceDensityConverter;
 use Core\User\Application\Model\UserThemeConverter;
 

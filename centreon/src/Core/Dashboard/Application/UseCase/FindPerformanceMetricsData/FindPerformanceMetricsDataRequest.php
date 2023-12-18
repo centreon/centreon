@@ -25,8 +25,8 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 final class FindPerformanceMetricsDataRequest
 {
-    /** @var int[] */
-    public array $metricIds = [];
+    /** @var string[] */
+    public array $metricNames = [];
 
     public function __construct(
         public \DateTimeInterface $startDate,

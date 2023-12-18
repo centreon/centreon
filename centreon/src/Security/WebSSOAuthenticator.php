@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Security;
@@ -68,12 +69,9 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 {
     use HttpUrlTrait;
     use LoggerTrait;
+    private const MINIMUM_SUPPORTED_VERSION = '22.04';
 
-    private const MINIMUM_SUPPORTED_VERSION = "22.04";
-
-    /**
-     * @var ProviderAuthenticationInterface
-     */
+    /** @var ProviderAuthenticationInterface */
     private ProviderAuthenticationInterface $provider;
 
     /**
@@ -127,7 +125,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         $sessionId = $request->getSession()->getId();
         $isValidToken = $this->authenticationService->isValidToken($sessionId);
 
-        return !$isValidToken && $configuration->isActive();
+        return ! $isValidToken && $configuration->isActive();
     }
 
     /**
@@ -136,6 +134,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $this->info(sprintf("WebSSO authentication failed: %s\n", $exception->getMessage()));
+
         throw SSOAuthenticationException::withMessageAndCode($exception->getMessage(), $exception->getCode());
     }
 
@@ -148,12 +147,14 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param Request $request
-     * @return SelfValidatingPassport
+     *
      * @throws SSOAuthenticationException
      * @throws \Core\Security\Authentication\Domain\Exception\AuthenticationException
+     *
+     * @return SelfValidatingPassport
      */
     public function authenticate(Request $request): SelfValidatingPassport
     {
@@ -166,12 +167,11 @@ class WebSSOAuthenticator extends AbstractAuthenticator
             $user = $this->provider->findUserOrFail();
             $this->info('Authenticated successfully', ['user' => $user->getAlias()]);
 
-            $referer = $request->headers->get('referer') ?
-                parse_url(
+            $referer = $request->headers->get('referer')
+                ? parse_url(
                     $request->headers->get('referer'),
                     PHP_URL_QUERY
                 ) : null;
-
 
             View::createRedirect(
                 $this->getRedirectionUri(
@@ -183,7 +183,6 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         } catch (SSOAuthenticationException $exception) {
             throw new AuthenticationException($exception->getMessage(), $exception->getCode());
         }
-
 
         return new SelfValidatingPassport(
             new UserBadge(
@@ -200,10 +199,11 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      *
      * @param string $sessionId
      *
-     * @return UserInterface
      * @throws BadCredentialsException
      * @throws SessionUnavailableException
      * @throws ContactDisabledException
+     *
+     * @return UserInterface
      */
     private function getUser(string $sessionId): UserInterface
     {
@@ -218,7 +218,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         if ($contact === null) {
             throw new UserNotFoundException();
         }
-        if (!$contact->isActive()) {
+        if (! $contact->isActive()) {
             throw new ContactDisabledException();
         }
 
@@ -226,10 +226,11 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     }
 
     /**
-     * Create the session
+     * Create the session.
      *
      * @param Request $request
      * @param ProviderAuthenticationInterface $provider
+     *
      * @throws \Centreon\Domain\Authentication\Exception\AuthenticationException
      */
     private function createSession(Request $request, ProviderAuthenticationInterface $provider): void
@@ -244,17 +245,18 @@ class WebSSOAuthenticator extends AbstractAuthenticator
                 $provider->getAuthenticatedUser(),
                 $request->getClientIp()
             );
-            $request->headers->set('Set-Cookie', "PHPSESSID=" . $sessionId);
+            $request->headers->set('Set-Cookie', 'PHPSESSID=' . $sessionId);
         }
     }
 
     /**
-     * Create token if not exist
+     * Create token if not exist.
      *
      * @param string $sessionId
-     * @param integer $webSSOConfigurationId
+     * @param int $webSSOConfigurationId
      * @param ContactInterface $user
      * @param string $clientIp
+     *
      * @throws \Centreon\Domain\Authentication\Exception\AuthenticationException
      */
     private function createTokenIfNotExist(
@@ -270,7 +272,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         );
         if ($authenticationTokens === null) {
             $sessionExpireOption = $this->optionService->findSelectedOptions(['session_expire']);
-            $sessionExpirationDelay = (int)$sessionExpireOption[0]->getValue();
+            $sessionExpirationDelay = (int) $sessionExpireOption[0]->getValue();
             $token = new ProviderToken(
                 $webSSOConfigurationId,
                 $sessionId,
@@ -288,13 +290,14 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     }
 
     /**
-     * create Authentication tokens
+     * create Authentication tokens.
      *
      * @param string $sessionToken
      * @param ContactInterface $contact
      * @param ProviderToken $providerToken
      * @param ProviderToken|null $providerRefreshToken
      * @param string|null $clientIp
+     *
      * @throws CentreonAuthenticationException
      */
     private function createAuthenticationTokens(
@@ -307,7 +310,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     {
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->dataStorageEngine->startTransaction();
         }
         try {
@@ -320,16 +323,17 @@ class WebSSOAuthenticator extends AbstractAuthenticator
                 $providerToken,
                 $providerRefreshToken
             );
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->commitTransaction();
             }
         } catch (\Exception $ex) {
             $this->error('Unable to create authentication tokens', [
-                'trace' => $ex->getTraceAsString()
+                'trace' => $ex->getTraceAsString(),
             ]);
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->rollbackTransaction();
             }
+
             throw CentreonAuthenticationException::notAuthenticated();
         }
     }
@@ -339,6 +343,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      *
      * @param ContactInterface $authenticatedUser
      * @param string|null $refererQueryParameters
+     *
      * @return string
      */
     private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): string
@@ -359,6 +364,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      * build the redirection uri based on isReact page property.
      *
      * @param Page $defaultPage
+     *
      * @return string
      */
     private function buildDefaultRedirectionUri(Page $defaultPage): string
@@ -366,7 +372,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         if ($defaultPage->isReact() === true) {
             return $defaultPage->getUrl();
         }
-        $redirectUri = "/main.php?p=" . $defaultPage->getPageNumber();
+        $redirectUri = '/main.php?p=' . $defaultPage->getPageNumber();
         if ($defaultPage->getUrlOptions() !== null) {
             $redirectUri .= $defaultPage->getUrlOptions();
         }
@@ -378,6 +384,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      * Get a Page from referer page number.
      *
      * @param string|null $refererQueryParameters
+     *
      * @return Page|null
      */
     private function getRedirectionPageFromRefererQueryParameters(?string $refererQueryParameters): ?Page
@@ -394,7 +401,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
             parse_str($queryParameters['redirect'], $redirectionPageParameters);
             if (array_key_exists('p', $redirectionPageParameters)) {
                 $refererRedirectionPage = $this->menuService->findPageByTopologyPageNumber(
-                    (int)$redirectionPageParameters['p']
+                    (int) $redirectionPageParameters['p']
                 );
                 unset($redirectionPageParameters['p']);
                 if ($refererRedirectionPage !== null) {

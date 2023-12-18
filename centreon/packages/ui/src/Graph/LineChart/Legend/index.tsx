@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
-import { slice } from 'ramda';
+import { prop, slice, sortBy } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { Box, alpha, useTheme } from '@mui/material';
@@ -16,8 +16,7 @@ import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtom
 import InteractiveValue from './InteractiveValue';
 import { useStyles } from './Legend.styles';
 import LegendHeader from './LegendHeader';
-import LegendMarker from './Marker';
-import { GetMetricValueProps } from './models';
+import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useInteractiveValues from './useInteractiveValues';
 import useLegend from './useLegend';
 import LegendContent from './LegendContent';
@@ -29,6 +28,7 @@ interface Props {
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
   setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
+  shouldDisplayLegendInCompactMode: boolean;
   timeSeries: Array<TimeValue>;
   toggable?: boolean;
   xScale;
@@ -43,7 +43,8 @@ const MainLegend = ({
   renderExtraComponent,
   displayAnchor = true,
   setLinesGraph,
-  xScale
+  xScale,
+  shouldDisplayLegendInCompactMode
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
@@ -58,9 +59,11 @@ const MainLegend = ({
     xScale
   });
 
+  const sortedData = sortBy(prop('metric_id'), lines);
+
   const displayedLines = limitLegendRows
-    ? slice(0, maxLinesDisplayedLegend, lines)
-    : lines;
+    ? slice(0, maxLinesDisplayedLegend, sortedData)
+    : sortedData;
 
   const getMetricValue = ({ value, unit }: GetMetricValueProps): string =>
     formatMetricValue({
@@ -69,25 +72,29 @@ const MainLegend = ({
       value
     }) || 'N/A';
 
-  const selectMetric = ({ event, metric }): void => {
+  const selectMetric = ({ event, metric_id }): void => {
     if (!toggable) {
       return;
     }
 
     if (event.ctrlKey || event.metaKey) {
-      toggleMetricLine(metric);
+      toggleMetricLine(metric_id);
 
       return;
     }
 
-    selectMetricLine(metric);
+    selectMetricLine(metric_id);
   };
+
+  const mode = shouldDisplayLegendInCompactMode
+    ? LegendDisplayMode.Compact
+    : LegendDisplayMode.Normal;
 
   return (
     <div className={classes.legend}>
-      <div className={classes.items}>
+      <div className={classes.items} data-mode={mode}>
         {displayedLines.map((line) => {
-          const { color, name, display, metric, highlight } = line;
+          const { color, display, highlight, metric_id } = line;
 
           const markerColor = display
             ? color
@@ -119,27 +126,42 @@ const MainLegend = ({
                 highlight ? classes.highlight : classes.normal,
                 toggable && classes.toggable
               )}
-              key={name}
-              onClick={(event): void => selectMetric({ event, metric })}
-              onMouseEnter={(): void => highlightLine(metric)}
+              key={metric_id}
+              onClick={(event): void => selectMetric({ event, metric_id })}
+              onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
             >
-              <LegendMarker color={markerColor} disabled={!display} />
-              <div className={classes.legendData}>
-                <LegendHeader line={line} />
-                {displayAnchor && <InteractiveValue value={interactiveValue} />}
-                {!interactiveValue && (
-                  <div className={classes.minMaxAvgContainer}>
-                    {minMaxAvg.map(({ label, value }) => (
-                      <LegendContent
-                        data={getMetricValue({ unit: line.unit, value })}
-                        key={label}
-                        label={label}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+              <LegendHeader
+                color={markerColor}
+                disabled={!display}
+                line={line}
+                minMaxAvg={
+                  shouldDisplayLegendInCompactMode ? minMaxAvg : undefined
+                }
+                value={
+                  shouldDisplayLegendInCompactMode
+                    ? interactiveValue
+                    : undefined
+                }
+              />
+              {!shouldDisplayLegendInCompactMode && (
+                <div>
+                  {displayAnchor && (
+                    <InteractiveValue value={interactiveValue} />
+                  )}
+                  {!interactiveValue && (
+                    <div className={classes.minMaxAvgContainer}>
+                      {minMaxAvg.map(({ label, value }) => (
+                        <LegendContent
+                          data={getMetricValue({ unit: line.unit, value })}
+                          key={label}
+                          label={label}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </Box>
           );
         })}
@@ -150,8 +172,15 @@ const MainLegend = ({
 };
 
 const Legend = (props: Props): JSX.Element => {
-  const { toggable, limitLegendRows, timeSeries, lines, base, displayAnchor } =
-    props;
+  const {
+    toggable,
+    limitLegendRows,
+    timeSeries,
+    lines,
+    base,
+    displayAnchor,
+    shouldDisplayLegendInCompactMode
+  } = props;
   const timeValue = useAtomValue(timeValueAtom);
 
   return useMemoComponent({
@@ -163,7 +192,8 @@ const Legend = (props: Props): JSX.Element => {
       base,
       toggable,
       limitLegendRows,
-      displayAnchor
+      displayAnchor,
+      shouldDisplayLegendInCompactMode
     ]
   });
 };

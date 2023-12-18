@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { isEmpty, pick } from 'ramda';
 import { useSetAtom, useAtomValue } from 'jotai';
 
@@ -11,7 +10,8 @@ import {
   getData,
   postData,
   useRequest,
-  MultiAutocompleteField
+  MultiAutocompleteField,
+  centreonBaseURL
 } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
@@ -74,8 +74,6 @@ const RemoteServerWizardStepTwo = ({
     });
   };
 
-  const navigate = useNavigate();
-
   const changeValue = (_, Pollers): void => {
     setLinkedPollers(Pollers);
   };
@@ -101,7 +99,7 @@ const RemoteServerWizardStepTwo = ({
 
           goToNextStep();
         } else {
-          navigate(routeMap.pollerList);
+          window.location.href = `${centreonBaseURL}${routeMap.pollerList}`;
         }
       })
       .catch(() => undefined);

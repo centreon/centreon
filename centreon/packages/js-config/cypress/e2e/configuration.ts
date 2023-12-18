@@ -4,6 +4,8 @@
 import { execSync } from 'child_process';
 
 import { defineConfig } from 'cypress';
+import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
+import { config as configDotenv } from 'dotenv';
 
 import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
@@ -13,6 +15,7 @@ interface ConfigurationOptions {
   cypressFolder?: string;
   dockerName?: string;
   env?: Record<string, unknown>;
+  envFile?: string;
   isDevelopment?: boolean;
   specPattern: string;
 }
@@ -22,9 +25,14 @@ export default ({
   cypressFolder,
   isDevelopment,
   dockerName,
-  env
+  env,
+  envFile
 }: ConfigurationOptions): Cypress.ConfigOptions => {
-  const resultsFolder = `${cypressFolder || 'cypress'}/results`;
+  if (envFile) {
+    configDotenv({ path: envFile });
+  }
+
+  const resultsFolder = `${cypressFolder || '.'}/results`;
 
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')
@@ -35,35 +43,34 @@ export default ({
     defaultCommandTimeout: 6000,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
+      fixturesFolder: 'fixtures',
+      reporter: require.resolve('cypress-multi-reporters'),
+      reporterOptions: {
+        configFile: `${__dirname}/reporter-config.js`
+      },
       setupNodeEvents: async (on, config) => {
+        installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
 
         return plugins(on, config);
       },
-      specPattern
+      specPattern,
+      supportFile: 'support/e2e.{js,jsx,ts,tsx}'
     },
     env: {
       ...env,
-      OPENID_IMAGE_VERSION: '23.04',
+      OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion,
       dockerName: dockerName || 'centreon-dev'
     },
     execTimeout: 60000,
-    reporter: 'mochawesome',
-    reporterOptions: {
-      html: false,
-      json: true,
-      overwrite: true,
-      reportDir: `${resultsFolder}/reports`,
-      reportFilename: '[name]-report.json'
-    },
     requestTimeout: 10000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
-    videoCompression: isDevelopment ? 0 : 16,
+    videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`
   });
 };

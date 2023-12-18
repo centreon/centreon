@@ -6,7 +6,10 @@ import { selectableResourceTypes, selectableStatuses } from '../models';
 import { build, parse, getAutocompleteSuggestions } from './index';
 
 const search =
-  'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux h.name:centreon';
+  'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux h.name:centreon parent_name:Centreon name:Service';
+
+const builtSearch =
+  'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux parent_name:Centreon name:Service h.name:centreon';
 
 const parsedSearch = [
   {
@@ -94,6 +97,28 @@ const parsedSearch = [
     value: []
   },
   {
+    name: 'parent_names',
+    object_type: 'parent_names',
+    type: 'multi_select',
+    value: [
+      {
+        id: 0,
+        name: 'Centreon'
+      }
+    ]
+  },
+  {
+    name: 'names',
+    object_type: 'names',
+    type: 'multi_select',
+    value: [
+      {
+        id: 0,
+        name: 'Service'
+      }
+    ]
+  },
+  {
     name: 'search',
     object_type: null,
     type: 'text',
@@ -113,7 +138,7 @@ describe('build', () => {
   it('builds a search string from the given Search model', () => {
     const result = build(parsedSearch);
 
-    expect(result).to.be.equal(search);
+    expect(result).to.be.equal(builtSearch);
   });
 });
 

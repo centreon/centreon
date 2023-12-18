@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindMetaServiceNotificationPolicy;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyPresenterInterface;
 
-class FindMetaServiceNotificationPolicyController extends AbstractController
+final class FindMetaServiceNotificationPolicyController extends AbstractController
 {
     /**
      * @param int $metaId

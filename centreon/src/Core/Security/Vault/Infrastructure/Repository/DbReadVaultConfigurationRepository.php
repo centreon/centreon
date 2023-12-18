@@ -73,6 +73,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
+
         /**
          * @var array{
          *  id: int,
@@ -162,6 +163,7 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
+
         /**
          * @var array{
          *  id: int,
@@ -237,9 +239,9 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
                         LIMIT 1
                     SQL
             )
-        );
+        ) ?: null;
 
-        if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        if (! ($record = $statement?->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
 

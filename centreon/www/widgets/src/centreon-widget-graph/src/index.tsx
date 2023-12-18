@@ -4,15 +4,18 @@ import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
 
+import { GlobalRefreshInterval } from '../../models';
+
 import LineChart from './LineChart';
 import { Data, PanelOptions } from './models';
 
 extend(duration);
 
 interface Props {
-  globalRefreshInterval?: number;
+  globalRefreshInterval: GlobalRefreshInterval;
   panelData: Data;
   panelOptions: PanelOptions;
+  refreshCount: number;
   store: ReturnType<typeof createStore>;
 }
 
@@ -20,7 +23,8 @@ const Input = ({
   store,
   panelData,
   panelOptions,
-  globalRefreshInterval
+  globalRefreshInterval,
+  refreshCount
 }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="widget-graph" store={store}>
@@ -28,6 +32,7 @@ const Input = ({
         globalRefreshInterval={globalRefreshInterval}
         panelData={panelData}
         panelOptions={panelOptions}
+        refreshCount={refreshCount}
       />
     </Module>
   );

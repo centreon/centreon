@@ -4704,7 +4704,7 @@ msgid "Extended information"
 msgstr "Informação Extendida"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:173
-msgid "Meta service"
+msgid "Meta-Service"
 msgstr "Meta-Serviço"
 
 #: centreon-web/www/include/monitoring/status/Services/xml/makeXMLForOneService.php:195
@@ -6987,7 +6987,7 @@ msgstr "Alterado"
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:979
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:1036
 #: centreon-web/www/include/configuration/configObject/host/listHost.php:455
-msgid "Massive Change"
+msgid "Mass Change"
 msgstr "Alteração em massa"
 
 #: centreon-web/www/include/Administration/configChangelog/viewLogs.php:143
@@ -12142,8 +12142,8 @@ msgid "Custom Views"
 msgstr "Visões Personalizadas"
 
 #: centreon-web/www/install/menu_translation.php:72
-msgid "Dashboard"
-msgstr "Painel de Controle"
+# msgid "Dashboards"
+# msgstr ""
 
 #: centreon-web/www/install/menu_translation.php:74
 msgid "Databases"
@@ -16332,13 +16332,13 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #cloud notifications
 
-# msgid 'Notifications management'
+# msgid 'Notification rules'
 # msgstr ""
 
 # msgid 'Welcome to the notifications interface'
 # msgstr ""
 
-# msgid 'Create a notification'
+# msgid 'Create a notification rule'
 # msgstr ""
 
 # msgid 'Add'
@@ -16392,7 +16392,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid 'Select users'
 # msgstr ""
 
-# msgid 'Select time period / channels of notifications'
+# msgid 'Notification settings'
 # msgstr ""
 
 # msgid "Notification duplicated"
@@ -16404,10 +16404,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Please enter a name for the duplicated notification"
 # msgstr ""
 
-# msgid 'Delete notification?'
+# msgid 'Delete notification rule?'
 # msgstr ""
 
-# msgid 'This action cannot be undone'
+# msgid 'This action cannot be undone.'
 # msgstr ""
 
 # msgid 'Collapse information panel'
@@ -16435,15 +16435,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid 'The notification was successfully added'
-# msgstr ""
-
-# msgid 'Do you want to confirm the action ?'
-# msgstr ""
-
-# msgid 'Confirm notification creation'
-# msgstr ""
-
-# msgid 'Confirm notification update'
 # msgstr ""
 
 # msgid 'Choose at least 1 resource'
@@ -16752,7 +16743,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 # msgstr ""
 
-#  msgid "You are not allowed to add a service"
+#  msgid "You are not allowed to add a service."
 #  msgstr ""
 
 #  msgid "Error while adding the service"
@@ -16767,8 +16758,53 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "'%s' does not exist with ID(s) '%s'"
 #  msgstr ""
 
-#  msgid "'%s' service name already exists for host ID %d"
+#  msgid "'%s' service name already exists for host ID %d."
 #  msgstr ""
+
+# msgid "Widget type"
+# msgstr ""
+
+# msgid "Display type"
+# msgstr ""
+
+# msgid "Text"
+# msgstr ""
+
+# msgid "Gauge"
+# msgstr ""
+
+# msgid "Bar chart"
+# msgstr ""
+
+# msgid "The default value is the value defined for the first metric used."
+# msgstr ""
+
+# msgid "None"
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Raw value"
+# msgstr ""
+
+# msgid "Human readable"
+# msgstr ""
+
+# msgid "You can choose only one resource for each resource type."
+# msgstr ""
+
+# msgid "View properties"
+# msgstr ""
+
+# msgid "Your rights only allow you to view the properties of a widget."
+# msgstr ""
+
+# msgid "Please contact your administrator for more information."
+# msgstr ""
+
+# msgid "Base color"
+# msgstr ""
 
 #  msgid "Display view:"
 #  msgstr ""
@@ -16780,6 +16816,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 #  msgid "View by service"
+#  msgstr ""
+
+#  msgid "Advanced mode"
 #  msgstr ""
 
 #  msgid "Error while adding a token"
@@ -16799,3 +16838,369 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to add tokens linked to user ID %d"
 #  msgstr ""
+
+# msgid "Show value labels"
+# msgstr ""
+
+# msgid "Top"
+# msgstr ""
+
+# msgid "Bottom"
+# msgstr ""
+
+# msgid "Includes {{count}} resources"
+# msgstr ""
+
+#  msgid "Error while deleting a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete tokens linked to user ID %d"
+#  msgstr ""
+
+# msgid "hosts"
+# msgstr ""
+
+# msgid "none"
+# msgstr ""
+
+#  msgid "Error while searching for authentication tokens"
+#  msgstr ""
+
+#  msgid "You are not allowed to list authentication tokens"
+#  msgstr ""
+
+# msgid "View widget properties"
+# msgstr ""
+
+# msgid "Dashboard library"
+# msgstr ""
+
+# msgid "Welcome to the Dashboards interface!"
+# msgstr ""
+
+#  msgid "You are not allowed to access services"
+#  msgstr ""
+
+#  msgid "Error while searching for services"
+#  msgstr ""
+
+
+# msgid "Availability"
+# msgstr ""
+
+# msgid "Generic text"
+# msgstr ""
+
+# msgid "Allows you to add free text to your dashboards (section titles, information, etc.)."
+# msgstr ""
+
+# msgid "Single metric"
+# msgstr ""
+
+# msgid "Displays the value of a single metric as a text, a gauge or a bar chart."
+# msgstr ""
+
+# msgid "Metrics graph"
+# msgstr ""
+
+# msgid "Displays metrics for a given time period."
+# msgstr ""
+
+# msgid "Top/bottom"
+# msgstr ""
+
+# msgid "Displays the top or bottom x hosts, for a selected metric."
+# msgstr ""
+
+# msgid "Thresholds"
+# msgstr ""
+
+# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgstr ""
+
+# msgid "Value format"
+# msgstr ""
+
+# msgid "Time period"
+# msgstr ""
+
+# msgid "Last hour (default)"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Customize"
+# msgstr ""
+
+# msgid "to"
+# msgstr ""
+
+# msgid "Add widget"
+# msgstr ""
+
+# msgid "Dataset selection"
+# msgstr ""
+
+# msgid "Select resource"
+# msgstr ""
+
+# msgid "Select metric"
+# msgstr ""
+
+# msgid "You can select a maximum of 2 metric units."
+# msgstr ""
+
+#  msgid "You are not allowed to list hosts"
+#  msgstr ""
+
+#  msgid "Error while searching for host configurations"
+#  msgstr ""
+#  msgid "The '%s' command name already exists"
+#  msgstr ""
+
+#  msgid "'%d' is not a valid command type"
+#  msgstr ""
+
+#  msgid "The following arguments are not valid: %s"
+#  msgstr ""
+
+#  msgid "The following macros are not valid: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to add a command"
+#  msgstr ""
+
+#  msgid "Error while adding the command"
+#  msgstr ""
+
+#  msgid "Error while retrieving a command"
+#  msgstr ""
+
+# msgid "Save as"
+# msgstr ""
+
+#  msgid "You are not allowed to add media"
+#  msgstr ""
+
+#  msgid "Error while adding a media"
+#  msgstr ""
+
+#  msgid "File extension not authorized"
+#  msgstr ""
+
+#  msgid "Media already exists"
+#  msgstr ""
+
+#  msgid "You are not allowed to access graph templates"
+#  msgstr ""
+
+#  msgid "Error while searching for graph templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access connectors"
+#  msgstr ""
+
+#  msgid "Error while searching for connectors"
+#  msgstr ""
+
+#  msgid "Error while updating a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a host"
+#  msgstr ""
+
+#  msgid "The token cannot be empty"
+#  msgstr ""
+
+#  msgid "This operation requires an admin user"
+#  msgstr ""
+
+# msgid "Resource access rules"
+# msgstr ""
+
+# msgid "Resource Access Management"
+# msgstr ""
+
+# msgid "Refine your filter on a single metric by adding more resources."
+# msgstr ""
+
+# msgid "Unselect all"
+# msgstr ""
+
+# msgid "Display up to"
+# msgstr ""
+
+# msgid "tiles"
+# msgstr ""
+
+# msgid "You must fill in more resources."
+# msgstr ""
+
+# msgid "All services on this host are working fine."
+# msgstr ""
+
+# msgid "All metrics on this service are working fine."
+# msgstr ""
+
+# msgid "Metric name"
+# msgstr ""
+
+# msgid "Status grid"
+# msgstr ""
+
+# msgid "Displays a status overview for selected resources."
+# msgstr ""
+
+# msgid "Display with this resource type"
+# msgstr ""
+
+# msgid "Display resources with this status"
+# msgstr ""
+
+# msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
+# msgstr ""
+
+# msgid "For a service, the service status is displayed."
+# msgstr ""
+
+# msgid "Display resources with this state"
+# msgstr ""
+
+# msgid "Sort by"
+# msgstr ""
+
+# msgid "See more on the Resources Status page"
+# msgstr ""
+
+# msgid "You are not allowed to log in"
+# msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""
+
+# msgid "Error while searching for media"
+# msgstr ""
+
+# msgid "You are not allowed to list media"
+# msgstr ""
+
+# msgid "Playlists"
+# msgstr ""
+
+# msgid "Welcome to the Playlist interface!"
+# msgstr ""
+
+# msgid "Create a playlist"
+# msgstr ""
+
+# msgid "Playlist name"
+# msgstr ""
+
+# msgid "Playlist properties"
+# msgstr ""
+
+# msgid "Rotation time"
+# msgstr ""
+
+# msgid "Select dashboards"
+# msgstr ""
+
+# msgid "Define the order of dashboards"
+# msgstr ""
+
+# msgid "Add a dashboard"
+# msgstr ""
+
+# msgid "Playlist created"
+# msgstr ""
+
+# msgid "Playlist updated"
+# msgstr ""
+
+# msgid "Add at least 1 contact"
+# msgstr ""
+
+# msgid "Rotation time must be at least 10 seconds."
+# msgstr ""
+
+# msgid "Rotation time cannot exceed 60 seconds."
+# msgstr ""
+
+# msgid "Shares"
+# msgstr ""
+
+# msgid "Role"
+# msgstr ""
+
+# msgid "Creator"
+# msgstr ""
+
+# msgid "Creation date"
+# msgstr ""
+
+# msgid "Update"
+# msgstr ""
+
+# msgid "Public link"
+# msgstr ""
+
+# msgid "Private/Public"
+# msgstr ""
+
+# msgid "Copy link"
+# msgstr ""
+
+# msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+# msgstr ""
+
+# msgid "Failed to copy the link."
+# msgstr ""
+
+# msgid "Link has been copied!"
+# msgstr ""
+
+# msgid "Stop sharing"
+# msgstr ""
+
+# msgid "Viewer"
+# msgstr ""
+
+# msgid "Editor"
+# msgstr ""
+
+# msgid "Create"
+# msgstr ""
+
+# msgid "Publish your playlist"
+# msgstr ""
+
+# msgid "Settings"
+# msgstr ""
+
+# msgid "API token"
+# msgstr ""
+
+# msgid "Create new token"
+# msgstr ""
+
+# msgid "Revoked"
+# msgstr ""

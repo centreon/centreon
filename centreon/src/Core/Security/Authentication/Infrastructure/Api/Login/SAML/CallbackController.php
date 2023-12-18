@@ -26,19 +26,12 @@ namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\{ErrorAuthenticationConditionsResponse, ErrorResponse, UnauthorizedResponse};
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Security\Authentication\Application\UseCase\Login\{
-    ErrorAclConditionsResponse,
-    Login,
-    LoginRequest,
-    LoginResponse,
-    PasswordExpiredResponse
-};
-use Core\Security\Authentication\Domain\Exception\AuthenticationException;
+use Core\Security\Authentication\Application\UseCase\Login\{ErrorAclConditionsResponse, Login, LoginRequest, LoginResponse, PasswordExpiredResponse, ThirdPartyLoginForm};
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpFoundation\{Request, Response};
 
-class CallbackController extends AbstractController
+final class CallbackController extends AbstractController
 {
     use HttpUrlTrait;
 
@@ -47,56 +40,61 @@ class CallbackController extends AbstractController
      * @param Login $useCase
      * @param CallbackPresenter $presenter
      * @param SessionInterface $session
+     * @param ThirdPartyLoginForm $thirdPartyLoginForm
      *
-     * @throws AuthenticationException
-     *
-     * @return object
+     * @return View|null
      */
     public function __invoke(
         Request $request,
         Login $useCase,
         CallbackPresenter $presenter,
-        SessionInterface $session
-    ): object
-    {
-        $samlLoginRequest = LoginRequest::createForSAML($request->getClientIp());
+        SessionInterface $session,
+        ThirdPartyLoginForm $thirdPartyLoginForm,
+    ): null|View {
+        $samlLoginRequest = LoginRequest::createForSAML((string) $request->getClientIp());
 
         $useCase($samlLoginRequest, $presenter);
 
+        $response = $presenter->getResponseStatus() ?? $presenter->getPresentedData();
+
         switch (true) {
-            case is_a($presenter->getResponseStatus(), PasswordExpiredResponse::class)
-                || is_a($presenter->getResponseStatus(), UnauthorizedResponse::class)
-                || is_a($presenter->getResponseStatus(), ErrorResponse::class):
+            case $response instanceof PasswordExpiredResponse:
+            case $response instanceof UnauthorizedResponse:
+            case $response instanceof ErrorResponse:
                 return View::createRedirect(
-                    $this->getBaseUrl() . '/login?authenticationError=' . $presenter->getResponseStatus()->getMessage()
+                    $this->getBaseUrl() . '/login?' . http_build_query([
+                        'authenticationError' => $response->getMessage(),
+                    ]),
                 );
-            case is_a($presenter->getResponseStatus(), ErrorAclConditionsResponse::class):
-            case is_a($presenter->getResponseStatus(), ErrorAuthenticationConditionsResponse::class):
+
+            case $response instanceof ErrorAclConditionsResponse:
+            case $response instanceof ErrorAuthenticationConditionsResponse:
                 return View::createRedirect(
                     $this->getBaseUrl() . '/authentication-denied'
                 );
-            default:
-                /**
-                 * @var LoginResponse $response
-                 */
-                $response = $presenter->getPresentedData();
+
+            case $response instanceof LoginResponse:
+                if ($redirectToThirdPartyLoginForm = $thirdPartyLoginForm->getReturnUrlAfterAuth()) {
+                    return View::createRedirect($redirectToThirdPartyLoginForm);
+                }
 
                 if ($response->redirectIsReact()) {
                     return View::createRedirect(
                         $this->getBaseUrl() . $response->getRedirectUri(),
-                        Response::HTTP_FOUND,
-                        ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                        headers: ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
                     );
                 }
 
                 return View::createRedirect(
                     $this->getBaseUrl() . '/login',
-                    Response::HTTP_FOUND,
-                    [
-                        'Set-Cookie' => 'PHPSESSID=' . $session->getId(),
-                        'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri()
-                            . ';Max-Age=10',
-                    ]
+                    headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
+                );
+
+            default:
+                return View::createRedirect(
+                    $this->getBaseUrl() . '/login?' . http_build_query([
+                        'authenticationError' => 'Unknown error',
+                    ]),
                 );
         }
     }

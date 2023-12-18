@@ -1,4 +1,3 @@
-import { Responsive } from '@visx/visx';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Button, ButtonGroup, Paper, Tooltip, useTheme } from '@mui/material';
 
-import { useDebounce, useMemoComponent } from '@centreon/ui';
+import { useDebounce, useMemoComponent, ParentSize } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { timePeriods } from '../../../Details/tabs/Graph/models';
@@ -86,7 +85,7 @@ const TimePeriodButtonGroup = ({
 
   return useMemoComponent({
     Component: (
-      <Responsive.ParentSize>
+      <ParentSize>
         {({ width }): JSX.Element => {
           const isCompact = lt(width, theme.breakpoints.values.sm);
 
@@ -132,7 +131,7 @@ const TimePeriodButtonGroup = ({
             </Paper>
           );
         }}
-      </Responsive.ParentSize>
+      </ParentSize>
     ),
     memoProps: [
       customTimePeriod,

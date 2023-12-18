@@ -53,21 +53,21 @@ const useScaleThreshold = ({
   const [, secondUnit, thirdUnit] = getUnits(lines);
 
   const {
-    metric: metricY1,
+    metric_id: metricY1,
     unit: unitY1,
     invert: invertY1,
     lineColor: lineColorY1
   } = lineUpper;
 
   const {
-    metric: metricY0,
+    metric_id: metricY0,
     unit: unitY0,
     invert: invertY0,
     lineColor: lineColorY0
   } = lineLower;
 
   const {
-    metric: metricOrigin,
+    metric_id: metricOrigin,
     unit: unitYOrigin,
     invert: invertYOrigin
   } = lineOrigin;

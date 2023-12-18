@@ -36,7 +36,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
- * @phpstan-type _ServiceTemplate = array{
+ * @phpstan-type _Service = array{
  *     name: string,
  *     host_id: int,
  *     comment: string|null,
@@ -112,12 +112,12 @@ final class AddServiceController extends AbstractController
             : 'AddServiceOnPremSchema.json';
 
         try {
-            /** @var _ServiceTemplate $data */
+            /** @var _Service $data */
             $data = $this->validateAndRetrieveDataSent(
                 $request,
                 __DIR__ . DIRECTORY_SEPARATOR . $validationSchema
             );
-            $useCase($this->createDto($data, $isCloudPlatform), $presenter);
+            $useCase($this->createDto($data), $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
@@ -127,12 +127,11 @@ final class AddServiceController extends AbstractController
     }
 
     /**
-     * @param _ServiceTemplate $request
-     * @param bool $isCloudPlatform
+     * @param _Service $request
      *
      * @return AddServiceRequest
      */
-    private function createDto(array $request, bool $isCloudPlatform): AddServiceRequest
+    private function createDto(array $request): AddServiceRequest
     {
         $defaultOptionValue = YesNoDefaultConverter::toInt(YesNoDefault::Default);
         $dto = new AddServiceRequest();

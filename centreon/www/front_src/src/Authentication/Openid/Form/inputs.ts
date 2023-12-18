@@ -79,8 +79,8 @@ const hideCustomEndpoint =
   (rootObject: string) =>
   (values: FormikValues): boolean =>
     !pathEq(
-      [rootObject, 'endpoint', 'type'],
       EndpointType.CustomEndpoint,
+      [rootObject, 'endpoint', 'type'],
       values
     );
 

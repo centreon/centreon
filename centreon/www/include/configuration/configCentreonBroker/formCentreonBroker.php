@@ -190,7 +190,12 @@ $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("Yes
 $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("No"), 0);
 $form->addGroup($stats_activate, 'stats_activate', _("Statistics"), '&nbsp;');
 
-$bbdo_versions = [ '2.0.0' => 'v.2.0.0 (old protocol)', '3.0.0' => 'v.3.0.0 (with protobuf)'];
+$bbdo_versions = [
+    '2.0.0' => 'v.2.0.0 (old protocol)',
+    '3.0.0' => 'v.3.0.0 (with protobuf)',
+    '3.0.1' => 'v.3.0.1 (full protobuf)'
+];
+
 $form->addElement('select', 'bbdo_version', _("BBDO version"), $bbdo_versions);
 
 $tags = $cbObj->getTags();
@@ -221,7 +226,7 @@ if (isset($_GET["o"]) && $_GET["o"] == 'a') {
             "stats_activate" => '1',
             "activate" => '1',
             "activate_watchdog" => '1',
-            "bbdo_version" => '3.0.0',
+            "bbdo_version" => '3.0.1',
         ),
         $defaultLog
     );

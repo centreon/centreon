@@ -9,12 +9,12 @@ interface Condition {
 const rowColorConditions = (theme: Theme): Array<Condition> => [
   {
     color: theme.palette.action.inDowntimeBackground,
-    condition: ({ in_downtime }): boolean => in_downtime,
+    condition: ({ is_in_downtime }): boolean => is_in_downtime,
     name: 'inDowntime'
   },
   {
     color: theme.palette.action.acknowledgedBackground,
-    condition: ({ acknowledged }): boolean => acknowledged,
+    condition: ({ is_acknowledged }): boolean => is_acknowledged,
     name: 'acknowledged'
   }
 ];

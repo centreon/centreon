@@ -519,7 +519,6 @@ class Request
     public function getTabSvc(): array
     {
         $tab_id = preg_split("/\,/", $this->getOpenid());
-        /** @phpstan-ignore-next-line */
         foreach ($tab_id as $openid) {
             $openIdChunks = $this->splitOpenId($openid);
             $id = $openIdChunks['id'];
@@ -541,7 +540,6 @@ class Request
                     }
                 }
             } elseif ($type == 'SG' && (isset($this->lca["LcaSG"][$id]) || $this->is_admin)) {
-                /** @phpstan-ignore-next-line */
                 $services = getMyServiceGroupServices($id);
                 if (count($services) == 0) {
                     $this->tabSvc[] = "-1";
@@ -584,7 +582,7 @@ class Request
             'EndDate' => $this->sanitizeGetParameter('EndDate'),
             'StartTime' => $this->sanitizeGetParameter('StartTime'),
             'EndTime' => $this->sanitizeGetParameter('EndTime'),
-            'period' => filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT),
+            'period' => filter_input(INPUT_GET, 'period', FILTER_VALIDATE_INT),
             'engine' => $this->sanitizeGetParameter('engine'),
             'up' => $this->sanitizeGetParameter('up'),
             'down' => $this->sanitizeGetParameter('down'),
@@ -614,7 +612,7 @@ class Request
             'EndDate' => $this->sanitizePostParameter('EndDate'),
             'StartTime' => $this->sanitizePostParameter('StartTime'),
             'EndTime' => $this->sanitizePostParameter('EndTime'),
-            'period' => filter_input(INPUT_POST, 'num', FILTER_VALIDATE_INT),
+            'period' => filter_input(INPUT_POST, 'period', FILTER_VALIDATE_INT),
             'engine' => $this->sanitizePostParameter('engine'),
             'up' => $this->sanitizePostParameter('up'),
             'down' => $this->sanitizePostParameter('down'),

@@ -276,7 +276,7 @@ $form->addElement(
         null => _("More actions..."),
         "m" => _("Duplicate"),
         "d" => _("Delete"),
-        "mc" => _("Massive Change")
+        "mc" => _("Mass Change")
     ),
     $attrs1
 );
@@ -306,7 +306,7 @@ $form->addElement(
         null => _("More actions..."),
         "m" => _("Duplicate"),
         "d" => _("Delete"),
-        "mc" => _("Massive Change")
+        "mc" => _("Mass Change")
     ),
     $attrs2
 );

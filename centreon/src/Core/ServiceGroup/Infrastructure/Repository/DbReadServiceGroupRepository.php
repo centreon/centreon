@@ -29,12 +29,14 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupNamesById;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
 
@@ -219,6 +221,39 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findNames(array $serviceGroupIds): ServiceGroupNamesById
+    {
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT DISTINCT(sg.sg_id), sg.sg_name
+                FROM `:db`.servicegroup sg
+                WHERE sg.sg_id IN (:serviceGroupIds)
+                SQL
+        );
+        $concatenator->storeBindValueMultiple(':serviceGroupIds', $serviceGroupIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $groupNames = new ServiceGroupNamesById();
+
+        foreach ($statement as $result) {
+            /** @var array{sg_id:int,sg_name:string} $result */
+            $groupNames->addName(
+                $result['sg_id'],
+                new TrimmedString($result['sg_name'])
+            );
+        }
+
+        return $groupNames;
+    }
+
+    /**
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
@@ -275,9 +310,9 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
-     * @param list<AccessGroup> $accessGroups
+     * @param non-empty-list<AccessGroup> $accessGroups
      *
-     * @return list<int>
+     * @return non-empty-list<int>
      */
     private function accessGroupsToIds(array $accessGroups): array
     {

@@ -43,7 +43,7 @@ Feature:
         "icon_id": 1,
         "max_check_attempts": 5,
         "normal_check_interval": 5,
-        "retry_check_interval": 5,
+        "retry_check_interval": 3,
         "notification_interval": 5,
         "first_notification_delay": 5,
         "recovery_notification_delay": 5,
@@ -105,7 +105,7 @@ Feature:
         "icon_id": 1,
         "max_check_attempts": 5,
         "normal_check_interval": 5,
-        "retry_check_interval": 5,
+        "retry_check_interval": 3,
         "notification_options": 0,
         "notification_interval": 5,
         "first_notification_delay": 5,
@@ -163,6 +163,34 @@ Feature:
         "is_activated": false
       }
       """
+
+    When I send a GET request to '/api/latest/configuration/hosts'
+    Then the response code should be '200'
+    And the JSON node "result" should have "2" element
+    And the JSON nodes should be equal to:
+      | result[1].id                           | 15              |
+      | result[1].name                         | "host_name_A"   |
+      | result[1].alias                        | "host-alias"    |
+      | result[1].address                      | "127.0.0.1"     |
+      | result[1].monitoring_server.id         | 1               |
+      | result[1].monitoring_server.name       | "Central"       |
+      | result[1].templates[0].id              | 2               |
+      | result[1].templates[0].name            | "generic-host"  |
+      | result[1].normal_check_interval        | 5               |
+      | result[1].retry_check_interval         | 3               |
+      | result[1].notification_timeperiod.id   | 2               |
+      | result[1].notification_timeperiod.name | "none"          |
+      | result[1].check_timeperiod.id          | 1               |
+      | result[1].check_timeperiod.name        | "24x7"          |
+      | result[1].severity.id                  | 1               |
+      | result[1].severity.name                | "severity1"     |
+      | result[1].categories[0].id             | 2               |
+      | result[1].categories[0].name           | "host-cat1"     |
+      | result[1].groups[0].id                 | 53              |
+      | result[1].groups[0].name               | "Linux-Servers" |
+      | result[1].groups[1].id                 | 60              |
+      | result[1].groups[1].name               | "Firewall"      |
+      | result[1].is_activated                 | false           |
 
     When I send a POST request to '/api/latest/configuration/hosts' with body:
       """
@@ -461,16 +489,67 @@ Feature:
 
   Scenario: Delete a host
     Given I am logged in
-    And the following CLAPI import data:
-    """
-    HOST;ADD;test;Test host;127.0.0.1;generic-host;central;
-    HOST;APPLYTPL;test
-    CONTACT;ADD;test;test;test@localhost.com;Centreon@2023;0;1;en_US;local
-    CONTACT;setparam;test;reach_api;1
-    """
-    When I send a DELETE request to '/api/v23.10/configuration/hosts/14'
+
+    When I send a POST request to '/api/latest/configuration/hosts' with body:
+      """
+      {
+        "monitoring_server_id": 1,
+        "name": "hostA",
+        "address": "127.0.0.1"
+      }
+      """
+    Then I store response values in:
+      | name    | path |
+      | hostIdA | id   |
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/99'
+    Then the response code should be "404"
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/<hostIdA>'
     Then the response code should be "204"
 
-    Given I am logged in with "test"/"Centreon@2023"
-    When I send a DELETE request to '/api/v23.10/configuration/hosts/14'
-    Then the response code should be "403"
+    When I send a POST request to '/api/latest/configuration/hosts' with body:
+      """
+      {
+        "name": "hostA",
+        "address": "127.0.0.1",
+        "monitoring_server_id": 1
+      }
+      """
+    Then I store response values in:
+      | name      | path |
+      | hostIdA   | id   |
+
+    When I send a POST request to '/api/latest/configuration/hosts' with body:
+      """
+      {
+      "name": "hostB",
+      "address": "127.0.0.1",
+      "monitoring_server_id": 1
+      }
+      """
+    Then I store response values in:
+      | name    | path |
+      | hostIdB | id   |
+
+    Given the following CLAPI import data:
+      """
+      CONTACT;ADD;ala;ala;ala@centreon.test;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;ala;reach_api;1
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;
+      ACLMENU;grantrw;ACL Menu test;0;Configuration;Hosts;Hosts;
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;grant_host;ACL Resource test;hostA
+      ACLGROUP;add;ACL Group test;ACL Group test alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;setcontact;ACL Group test;ala;
+      ACL;reload
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/<hostIdA>'
+    Then the response code should be "204"
+    When I send a DELETE request to '/api/latest/configuration/hosts/<hostIdB>'
+    Then the response code should be "404"

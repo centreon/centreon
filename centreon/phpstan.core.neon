@@ -33,17 +33,79 @@ parameters:
     level: max
     paths:
         - src/Core
-        - tests/php/Core
     ignoreErrors:
-        -
-            message: '#^Undefined variable: \$this$#'
-            path: tests/php/Core
-        -
-            message: '#^Call to an undefined method Pest#'
-            path: tests/php/Core
 
         - # [CENTREON-RULE] Our try catch block logging rule cannot handle nested try catch.
+            reportUnmatched: false
             message: '#Exception thrown in UseCase should be in a try catch block, and must be caught.#'
             paths:
+                - src/Core/Host/Application/UseCase/AddHost/AddHost.php
+                - src/Core/HostTemplate/Application/UseCase/AddHostTemplate/AddHostTemplate.php
                 - src/Core/Notification/Application/UseCase/AddNotification/AddNotification.php
                 - src/Core/Notification/Application/UseCase/UpdateNotification/UpdateNotification.php
+                - src/Core/Service/Application/UseCase/DeleteService/DeleteService.php
+
+        - # [CENTREON-RULE]: The logging is already done in a parent try catch block.
+            reportUnmatched: false
+            message: '#Catch block must contain a Logger trait method call.#'
+            paths:
+                - src/Core/Application/Configuration/User/UseCase/PatchUser/PatchUser.php
+                - src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersions.php
+                - src/Core/Resources/Infrastructure/API/FindResources/FindResourcesRequestValidator.php
+                - src/Core/Security/Authentication/Application/UseCase/Login/Login.php
+                - src/Core/Security/Authentication/Domain/Provider/OpenIdProvider.php
+                - src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/UpdateOpenIdConfiguration/UpdateOpenIdConfiguration.php
+                - src/Core/Security/ProviderConfiguration/Application/SAML/UseCase/UpdateSAMLConfiguration/UpdateSAMLConfiguration.php
+                - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/AttributePath/HttpUrlFetcher.php
+                - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/AttributePath/UserInformationFetcher.php
+                - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
+                - src/Core/Security/User/Domain/Model/UserPasswordFactory.php
+                - src/Core/ServiceCategory/Infrastructure/Repository/DbWriteServiceCategoryRepository.php
+                - src/Core/Media/Infrastructure/Repository/DbWriteMediaRepository.php
+                - src/Core/Media/Application/UseCase/AddMedia/AddMedia.php
+                - src/Core/Common/Infrastructure/Repository/FileDataStoreEngine.php
+                - src/Core/Media/Infrastructure/Command/MigrateAllMedias/MigrateAllMediasCommand.php
+                - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
+                - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
+                - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
+
+        - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
+            reportUnmatched: false
+            message: '#Class [\\\w]+ must be final.#'
+            paths:
+                - src/Core/Application/Common/UseCase/AbstractResponse.php  # <- BUG which need to be fixed in custom Rules
+                - src/Core/Application/Common/UseCase/ErrorResponse.php
+                - src/Core/Application/Common/UseCase/ForbiddenResponse.php
+                - src/Core/Application/Common/UseCase/UnauthorizedResponse.php
+                - src/Core/Application/Configuration/User/UseCase/FindUsers/FindUsers.php
+                - src/Core/Contact/Application/UseCase/FindContactGroups/FindContactGroups.php
+                - src/Core/Contact/Application/UseCase/FindContactTemplates/FindContactTemplates.php
+                - src/Core/Security/AccessGroup/Application/UseCase/FindLocalUserAccessGroups/FindLocalUserAccessGroups.php
+                - src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
+                - src/Core/Security/ProviderConfiguration/Application/Local/UseCase/FindConfiguration/FindConfiguration.php
+                - src/Core/Security/ProviderConfiguration/Application/Local/UseCase/UpdateConfiguration/UpdateConfiguration.php
+                - src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/FindOpenIdConfiguration/FindOpenIdConfiguration.php
+                - src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/UpdateOpenIdConfiguration/UpdateOpenIdConfiguration.php
+                - src/Core/Security/ProviderConfiguration/Application/WebSSO/UseCase/FindWebSSOConfiguration/FindWebSSOConfiguration.php
+                - src/Core/Security/ProviderConfiguration/Application/WebSSO/UseCase/UpdateWebSSOConfiguration/UpdateWebSSOConfiguration.php
+                - src/Core/Security/User/Application/UseCase/RenewPassword/RenewPassword.php
+                - src/Core/Tag/RealTime/Application/UseCase/FindTag/FindTagResponse.php
+                - src/Core/Media/Application/UseCase/AddMedia/AddMedia.php
+                - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
+                - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
+
+          # 👇👇 Software architecture problem MUST be fixed !!! Only here as a baseline 👇👇
+        - # [CENTREON-RULE]: Domain must not call Application or Infrastructure namespaces.
+            reportUnmatched: false
+            message: '#Domain must not call Application or Infrastructure namespaces#'
+            paths:
+                - src/Core/Security/Authentication/Domain/Provider/OpenIdProvider.php
+                - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/SecurityAccessInterface.php
+                - src/Core/Security/User/Domain/Model/UserPasswordFactory.php
+
+          # 👇👇 Software architecture problem MUST be fixed !!! Only here as a baseline 👇👇
+        - # [CENTREON-RULE]: The interface is not in the right namespace.
+            reportUnmatched: false
+            message: '#Repositories must implement an Interface defined in Application layer.#'
+            paths:
+                - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php

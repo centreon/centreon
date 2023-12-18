@@ -34,7 +34,8 @@ type Story = StoryObj<typeof Listing>;
 
 const useStyles = makeStyles()((theme) => ({
   listing: {
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
+    height: '100vh'
   }
 }));
 
@@ -365,6 +366,16 @@ const columnsWithSubItems = [
   }
 ];
 
+const TemplateSubItems = (args): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <div className={classes.listing}>
+      <Listing {...args} />
+    </div>
+  );
+};
+
 export const ListingWithSubItems = {
   args: {
     checkable: true,
@@ -376,10 +387,11 @@ export const ListingWithSubItems = {
     subItems: {
       canCheckSubItems: false,
       enable: true,
+      getRowProperty: () => 'subItems',
       labelCollapse: 'Collapse',
-      labelExpand: 'Expand',
-      rowProperty: 'subItems'
+      labelExpand: 'Expand'
     },
     totalRows: 10
-  }
+  },
+  render: TemplateSubItems
 };

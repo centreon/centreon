@@ -31,7 +31,7 @@ use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdCon
 };
 use Symfony\Component\HttpFoundation\Response;
 
-class FindOpenIdConfigurationController extends AbstractController
+final class FindOpenIdConfigurationController extends AbstractController
 {
     /**
      * @param FindOpenIdConfiguration $useCase

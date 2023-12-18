@@ -1,76 +1,38 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
   $isRangeSelection,
   FORMAT_TEXT_COMMAND,
-  RangeSelection,
   SELECTION_CHANGE_COMMAND,
-  TextFormatType,
-  ElementNode,
-  TextNode
+  TextFormatType
 } from 'lexical';
-import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
-import { $isAtNodeEnd } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
-import { useAtom } from 'jotai';
 
+import FormatTextIcon from '@mui/icons-material/FormatColorText';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
 import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
-import LinkIcon from '@mui/icons-material/Link';
-import { alpha } from '@mui/material';
 
-import { IconButton } from '../../..';
-import { isInsertingLinkAtom } from '../../atoms';
+import { Menu } from '../../../components';
+
+import { useStyles } from './ToolbarPlugin.styles';
 
 const LowPriority = 1;
-
-const useStyles = makeStyles()((theme) => ({
-  buttonSelected: {
-    backgroundColor: alpha(
-      theme.palette.primary.main,
-      theme.palette.action.activatedOpacity
-    )
-  },
-  container: {
-    columnGap: theme.spacing(1),
-    display: 'flex',
-    marginBottom: theme.spacing(1)
-  }
-}));
-
-const getSelectedNode = (selection: RangeSelection): ElementNode | TextNode => {
-  const { anchor } = selection;
-  const { focus } = selection;
-  const anchorNode = selection.anchor.getNode();
-  const focusNode = selection.focus.getNode();
-  if (anchorNode === focusNode) {
-    return anchorNode;
-  }
-  const isBackward = selection.isBackward();
-  if (isBackward) {
-    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
-  }
-
-  return $isAtNodeEnd(anchor) ? focusNode : anchorNode;
-};
 
 interface Props {
   disabled: boolean;
 }
 
 const FormatButtons = ({ disabled }: Props): JSX.Element => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikeThrough, setIsStrikeThrough] = useState(false);
-  const [isLink, setIsLink] = useAtom(isInsertingLinkAtom);
 
   const [editor] = useLexicalComposerContext();
 
@@ -83,23 +45,7 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
     setIsItalic(selection.hasFormat('italic'));
     setIsUnderline(selection.hasFormat('underline'));
     setIsStrikeThrough(selection.hasFormat('strikethrough'));
-
-    const node = getSelectedNode(selection);
-    const parent = node.getParent();
-    if ($isLinkNode(parent) || $isLinkNode(node)) {
-      setIsLink(true);
-    } else {
-      setIsLink(false);
-    }
   }, [editor]);
-
-  const insertLink = useCallback(() => {
-    if (!isLink) {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
-    } else {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-    }
-  }, [editor, isLink]);
 
   useEffect(() => {
     return mergeRegister(
@@ -144,34 +90,34 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
         isSelected: isStrikeThrough,
         onClickFunction: toggleTextFormat('strikethrough'),
         type: 'strikethrough'
-      },
-      {
-        Icon: LinkIcon,
-        isSelected: isLink,
-        onClickFunction: insertLink,
-        type: 'link'
       }
     ],
-    [isBold, isItalic, isUnderline, isStrikeThrough, isLink]
+    [isBold, isItalic, isUnderline, isStrikeThrough]
   );
 
   return (
-    <>
-      {formatButtons.map(({ Icon, onClickFunction, isSelected, type }) => (
-        <IconButton
-          ariaLabel={type}
-          className={cx(isSelected && classes.buttonSelected)}
-          disabled={disabled}
-          key={type}
-          size="medium"
-          title={type}
-          tooltipPlacement="top"
-          onClick={onClickFunction}
-        >
-          <Icon />
-        </IconButton>
-      ))}
-    </>
+    <Menu>
+      <Menu.Button
+        ariaLabel="format"
+        className={classes.button}
+        disabled={disabled}
+      >
+        <FormatTextIcon />
+      </Menu.Button>
+      <Menu.Items className={classes.menuItems}>
+        <div className={classes.menu}>
+          {formatButtons.map(({ Icon, onClickFunction, isSelected, type }) => (
+            <Menu.Item
+              isActive={isSelected}
+              key={type}
+              onClick={onClickFunction}
+            >
+              <Icon aria-label={type} />
+            </Menu.Item>
+          ))}
+        </div>
+      </Menu.Items>
+    </Menu>
   );
 };
 

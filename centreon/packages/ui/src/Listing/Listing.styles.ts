@@ -9,13 +9,12 @@ const loadingIndicatorHeight = 3;
 interface StylesProps {
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
-  limit: number;
   listingVariant: ListingVariant;
   rows: Array<unknown>;
 }
 
 const useListingStyles = makeStyles<StylesProps>()(
-  (theme, { dataStyle, getGridTemplateColumn, rows, limit }) => ({
+  (theme, { dataStyle, getGridTemplateColumn, rows }) => ({
     actionBar: {
       alignItems: 'center',
       display: 'flex'
@@ -28,6 +27,11 @@ const useListingStyles = makeStyles<StylesProps>()(
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
+      width: '100%'
+    },
+    listingContainer: {
+      height: '100%',
+      overflow: 'hidden',
       width: '100%'
     },
     loadingIndicator: {
@@ -51,7 +55,7 @@ const useListingStyles = makeStyles<StylesProps>()(
       display: 'grid',
       gridTemplateColumns: getGridTemplateColumn,
       gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
-        rows?.length || limit
+        rows?.length || 1
       }, ${dataStyle.body.height}px)`,
       position: 'relative'
     },

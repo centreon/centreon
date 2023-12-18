@@ -24,13 +24,14 @@ const useStyles = makeStyles<{
     },
     '&[data-size="fullscreen"] .MuiDialog-paper': {
       bottom: props?.bottom ?? 0,
+      height: 'calc(100vh - 90px)',
       left: props?.left ?? 0,
       margin: 0,
-      maxHeight: 'unset',
       maxWidth: 'unset',
       position: 'absolute',
       right: props?.right ?? 0,
-      top: props?.top ?? 0
+      top: props?.top ?? 0,
+      transition: theme.transitions.create('left')
     },
     '&[data-size="large"] .MuiDialog-paper': {
       maxWidth: '640px',
@@ -48,10 +49,15 @@ const useStyles = makeStyles<{
     }
   },
   modalActions: {
+    '&[data-fixed="true"]': {
+      position: 'fixed'
+    },
+    bottom: theme.spacing(2),
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(2),
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    right: theme.spacing(2.5)
   },
   modalBody: {
     '& > p': {

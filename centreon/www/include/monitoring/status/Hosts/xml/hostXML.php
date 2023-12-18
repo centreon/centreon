@@ -110,7 +110,8 @@ $queryValues = [];
  * Get Host status
  */
 $rq1 = <<<SQL
-    SELECT SQL_CALC_FOUND_ROWS DISTINCT 
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+        1 AS REALTIME,
         h.state,
         h.acknowledged,
         h.passive_checks,
@@ -268,7 +269,7 @@ $dbResult->execute();
 
 $ct = 0;
 $flag = 0;
-$numRows = $obj->DBC->numberRows();
+$numRows = (int) $obj->DBC->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
 /**
  * Get criticality ids
