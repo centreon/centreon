@@ -49,7 +49,7 @@ export const Default: Story = {
     labels,
     link: 'link',
     roles,
-    submit: () => undefined,
+    submit: () => undefined
   },
   render: Template
 };
@@ -65,7 +65,7 @@ export const AccessRightsWithStates: Story = {
     labels,
     link: 'link',
     roles,
-    submit: () => undefined,
+    submit: () => undefined
   },
   render: Template
 };
@@ -81,7 +81,7 @@ export const withEmptyState: Story = {
     labels,
     link: 'link',
     roles,
-    submit: () => undefined,
+    submit: () => undefined
   },
   render: Template
 };
@@ -96,7 +96,7 @@ export const withoutLink: Story = {
     initialValues: defaultAccessRights,
     labels,
     roles,
-    submit: console.log
+    submit: () => undefined
   },
   render: Template
 };
@@ -113,7 +113,7 @@ export const loading: Story = {
     link: 'link',
     loading: true,
     roles,
-    submit: () => undefined,
+    submit: () => undefined
   },
   render: Template
 };

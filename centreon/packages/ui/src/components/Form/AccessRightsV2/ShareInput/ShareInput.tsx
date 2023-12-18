@@ -64,7 +64,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
           onChange={setSelectedRole}
         />
         <IconButton
-          data-testid='add'
+          data-testid="add"
           disabled={isNil(selectedContact)}
           icon={<AddCircleIcon />}
           onClick={add}

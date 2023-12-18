@@ -25,11 +25,11 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
     <div className={classes.actions}>
       {link ? (
         <Button
+          aria-label={t(labels.copyLink)}
           icon={<LinkIcon />}
           iconVariant="start"
           variant="ghost"
           onClick={copyLink}
-          aria-label={t(labels.copyLink)}
         >
           {t(labels.copyLink)}
         </Button>
@@ -37,10 +37,19 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
         <div />
       )}
       <div className={classes.cancelAndSave}>
-        <Button variant="secondary" onClick={cancel} aria-label={t(labels.cancel)}>
+        <Button
+          aria-label={t(labels.cancel)}
+          variant="secondary"
+          onClick={cancel}
+        >
           {t(labels.cancel)}
         </Button>
-        <Button disabled={!dirty} variant="primary" onClick={save} aria-label={t(labels.save)}>
+        <Button
+          aria-label={t(labels.save)}
+          disabled={!dirty}
+          variant="primary"
+          onClick={save}
+        >
           {t(labels.save)}
         </Button>
       </div>

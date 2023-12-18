@@ -1,7 +1,15 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '../../..';
 
 import AccessRights from './AccessRights';
-import { buildResult, emptyAccessRights, labels, removedAccessRights, roles, simpleAccessRights, updatedAccessRights } from './storiesData';
+import {
+  buildResult,
+  emptyAccessRights,
+  labels,
+  removedAccessRights,
+  roles,
+  simpleAccessRights,
+  updatedAccessRights
+} from './storiesData';
 
 const initialize = ({
   initialValues = simpleAccessRights,
@@ -66,7 +74,7 @@ describe('Access rights', () => {
     cy.findByLabelText('Cancel').should('be.visible');
     cy.findByLabelText('Save').should('be.visible');
 
-    cy.makeSnapshot()
+    cy.makeSnapshot();
   });
 
   it('displays the access rights without link', () => {
@@ -74,96 +82,124 @@ describe('Access rights', () => {
 
     cy.findByLabelText('Copy link').should('not.exist');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('displays the access rights with an empty list', () => {
     initialize({ initialValues: emptyAccessRights });
 
     cy.contains('The contact list is empty').should('be.visible');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('displays the access rights with an empty list', () => {
     initialize({});
 
-    simpleAccessRights.forEach(({ name, email, isContactGroup, role }, index) => {
-      cy.contains(name).should('be.visible');
-      cy.contains(email).should('be.visible');
-      cy.get(`[data-groupChip="${name}"]`).should(isContactGroup ? 'be.visible' : 'not.exist');
-      cy.findByTestId(`role-${name}`).should('have.value', role)
-      cy.findByTestId(`remove-${name}`).should('be.visible');
-    })
+    simpleAccessRights.forEach(
+      ({ name, email, isContactGroup, role }) => {
+        cy.contains(name).should('be.visible');
+        cy.contains(email).should('be.visible');
+        cy.get(`[data-groupChip="${name}"]`).should(
+          isContactGroup ? 'be.visible' : 'not.exist'
+        );
+        cy.findByTestId(`role-${name}`).should('have.value', role);
+        cy.findByTestId(`remove-${name}`).should('be.visible');
+      }
+    );
 
-    cy.makeSnapshot()
+    cy.makeSnapshot();
   });
 
   it('displays a removed chip when the corresponding icon is clicked', () => {
     initialize({});
 
-    cy.findByTestId(`remove-Leah McGlynn`).should('have.attr', 'data-removed', 'false')
+    cy.findByTestId(`remove-Leah McGlynn`).should(
+      'have.attr',
+      'data-removed',
+      'false'
+    );
 
-    cy.findByTestId(`remove-Leah McGlynn`).click()
+    cy.findByTestId(`remove-Leah McGlynn`).click();
 
-    cy.findByTestId(`remove-Leah McGlynn`).should('have.attr', 'data-removed', 'true')
+    cy.findByTestId(`remove-Leah McGlynn`).should(
+      'have.attr',
+      'data-removed',
+      'true'
+    );
     cy.contains(labels.list.removed).should('be.visible');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('restores the contact when the contact is removed and the corresponding icon is clicked', () => {
     initialize({});
 
-    cy.findByTestId(`remove-Leah McGlynn`).click()
+    cy.findByTestId(`remove-Leah McGlynn`).click();
 
-    cy.findByTestId(`remove-Leah McGlynn`).should('have.attr', 'data-removed', 'true')
+    cy.findByTestId(`remove-Leah McGlynn`).should(
+      'have.attr',
+      'data-removed',
+      'true'
+    );
     cy.contains(labels.list.removed).should('be.visible');
 
-    cy.findByTestId(`remove-Leah McGlynn`).click()
+    cy.findByTestId(`remove-Leah McGlynn`).click();
 
-    cy.findByTestId(`remove-Leah McGlynn`).should('have.attr', 'data-removed', 'false')
+    cy.findByTestId(`remove-Leah McGlynn`).should(
+      'have.attr',
+      'data-removed',
+      'false'
+    );
     cy.contains(labels.list.removed).should('not.exist');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('submits the new acces rights list without the removed contact', () => {
-    const {save} = initialize({});
+    const { save } = initialize({});
 
-    cy.findByTestId(`remove-Leah McGlynn`).click()
+    cy.findByTestId(`remove-Leah McGlynn`).click();
 
-    cy.findByTestId(`remove-Leah McGlynn`).should('have.attr', 'data-removed', 'true')
+    cy.findByTestId(`remove-Leah McGlynn`).should(
+      'have.attr',
+      'data-removed',
+      'true'
+    );
     cy.contains(labels.list.removed).should('be.visible');
     cy.contains('1 removed').should('be.visible');
 
-    cy.contains(labels.actions.save).click().then(() => {
-      expect(save).to.have.been.calledWith(removedAccessRights);
-    })
+    cy.contains(labels.actions.save)
+      .click()
+      .then(() => {
+        expect(save).to.have.been.calledWith(removedAccessRights);
+      });
 
-    cy.makeSnapshot()
+    cy.makeSnapshot();
   });
 
   it('submits the new acces rights list with the updated contact', () => {
-    const {save} = initialize({});
+    const { save } = initialize({});
 
-    cy.findByTestId(`role-Leah McGlynn`).parent().click()
+    cy.findByTestId(`role-Leah McGlynn`).parent().click();
 
     cy.get('li[data-value="editor"]').click();
     cy.contains(labels.list.updated).should('be.visible');
     cy.contains('1 updated').should('be.visible');
 
-    cy.contains(labels.actions.save).click().then(() => {
-      expect(save).to.have.been.calledWith(updatedAccessRights);
-    })
+    cy.contains(labels.actions.save)
+      .click()
+      .then(() => {
+        expect(save).to.have.been.calledWith(updatedAccessRights);
+      });
 
-    cy.makeSnapshot()
+    cy.makeSnapshot();
   });
 
   it('removes the updated chip when the contact role is updated and its initial role is assigned back', () => {
     initialize({});
 
-    cy.findByTestId(`role-Leah McGlynn`).parent().click()
+    cy.findByTestId(`role-Leah McGlynn`).parent().click();
 
     cy.get('li[data-value="editor"]').click();
     cy.contains(labels.list.updated).should('be.visible');
@@ -171,7 +207,7 @@ describe('Access rights', () => {
     cy.get('li[data-value="viewer"]').click();
     cy.contains(labels.list.updated).should('not.exist');
 
-    cy.makeSnapshot()
+    cy.makeSnapshot();
   });
 
   it('retrieves contacts when the contact radio is selected', () => {
@@ -182,8 +218,8 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContacts');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('retrieves contact groups when the contact group radio is selected', () => {
     initialize({});
@@ -193,8 +229,8 @@ describe('Access rights', () => {
 
     cy.waitForRequest('@getContactGroups');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('adds the contact as viewer when a contact is selected and the corresponding button is clicked', () => {
     initialize({});
@@ -213,7 +249,7 @@ describe('Access rights', () => {
     cy.findByTestId('role-Entity 10').should('have.value', 'viewer');
     cy.contains(labels.list.added).should('be.visible');
 
-    cy.makeSnapshot()
+    cy.makeSnapshot();
   });
 
   it('adds the contact group as editor when a contact group is selected and the corresponding button is clicked', () => {
@@ -235,8 +271,8 @@ describe('Access rights', () => {
     cy.contains(labels.list.added).should('be.visible');
     cy.contains('1 added').should('be.visible');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('displays statistics when a contact is added, a contact is updated and a contact is removed', () => {
     initialize({});
@@ -253,15 +289,15 @@ describe('Access rights', () => {
 
     cy.contains('Entity Group 10').should('be.visible');
 
-    cy.findByTestId(`role-Leah McGlynn`).parent().click()
+    cy.findByTestId(`role-Leah McGlynn`).parent().click();
     cy.get('li[data-value="editor"]').click();
 
     cy.findByTestId('remove-Jody Blanda').click();
 
-    cy.contains('1 added | 1 updated | 1 removed').should('be.visible')
+    cy.contains('1 added | 1 updated | 1 removed').should('be.visible');
 
-    cy.makeSnapshot()
-  })
+    cy.makeSnapshot();
+  });
 
   it('clears the autocomplete when a contact is selected and the contact type is changed', () => {
     initialize({});
@@ -272,11 +308,17 @@ describe('Access rights', () => {
     cy.waitForRequest('@getContacts');
 
     cy.contains('Entity 10').click();
-    cy.findByLabelText(labels.add.autocompleteContact).should('have.value', 'Entity  10')
-    
-    cy.contains(labels.add.contactGroup).click();
-    cy.findByLabelText(labels.add.autocompleteContactGroup).should('have.value', '')
+    cy.findByLabelText(labels.add.autocompleteContact).should(
+      'have.value',
+      'Entity  10'
+    );
 
-    cy.makeSnapshot()
-  })
-})
+    cy.contains(labels.add.contactGroup).click();
+    cy.findByLabelText(labels.add.autocompleteContactGroup).should(
+      'have.value',
+      ''
+    );
+
+    cy.makeSnapshot();
+  });
+});
