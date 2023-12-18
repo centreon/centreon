@@ -397,10 +397,10 @@ class CentreonConfigPoller
      */
     public function pollerGenerate($variables, $login, $password)
     {
+        $poller_id = $this->ensurePollerId($variables);
 
         $config_generate = new \Generate($this->dependencyInjector);
-
-        $poller_id = $this->ensurePollerId($variables);
+        $config_generate->configPollerFromId($poller_id, $login);
 
         /* Change files owner */
         $apacheUser = $this->getApacheUser();
