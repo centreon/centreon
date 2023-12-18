@@ -184,7 +184,7 @@ jobs:
           jf rt build-append aggregating-dsm dsm-${{ github.run_number }} dsm-${{ github.run_number }}-el8 dsm-${{ github.run_number }}
           jf rt build-append aggregating-dsm dsm-${{ github.run_number }} dsm-${{ github.run_number }}-el9 dsm-${{ github.run_number }}
           jf rt build-append aggregating-dsm dsm-${{ github.run_number }} dsm-${{ github.run_number }}-bullseye dsm-${{ github.run_number }}
-          jf rt bp dsm-${{ github.run_number }}
+          jf rt bp aggregating-dsm dsm-${{ github.run_number }}
         shell: bash
 
   promote:
