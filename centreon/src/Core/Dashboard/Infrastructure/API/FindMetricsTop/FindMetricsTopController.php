@@ -60,7 +60,7 @@ final class FindMetricsTopController extends AbstractController
             ?? throw new \InvalidArgumentException("missing mandatory parameter 'metric_name'");
         $findMetricsTopRequest = new FindMetricsTopRequest();
 
-        $findMetricsTopRequest->metricName = $metricName;
+        $findMetricsTopRequest->metricName = (string) $metricName;
 
         return $findMetricsTopRequest;
     }

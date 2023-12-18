@@ -45,6 +45,29 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration 
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SAMLCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\CustomConfiguration as WebSSOCustomConfiguration;
 
+/**
+ * @phpstan-import-type _EndpointArray from Endpoint
+ *
+ * @phpstan-type _authenticationConditionsRecord array{
+ *     is_enabled: bool,
+ *     attribute_path: string,
+ *     authorized_values: string[],
+ *     trusted_client_addresses: string[],
+ *     blacklist_client_addresses: string[],
+ *     endpoint: _EndpointArray
+ * }
+ * @phpstan-type _groupsMappingRecord array{
+ *     is_enabled: bool,
+ *     attribute_path: string,
+ *     endpoint: _EndpointArray
+ * }
+ * @phpstan-type _rolesMapping array{
+ *     is_enabled: bool,
+ *     apply_only_first_role: bool,
+ *     attribute_path: string,
+ *     endpoint?: _EndpointArray
+ * }
+ */
 final class DbReadConfigurationRepository extends AbstractRepositoryDRB implements ReadConfigurationRepositoryInterface
 {
     use LoggerTrait;
@@ -106,8 +129,8 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     {
         $configurations = [];
         $query = $this->translateDbName('SELECT name FROM `:db`.`provider_configuration`');
-        $statement = $this->db->query($query);
-        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        $statement = $this->db->query($query) ?: null;
+        while ($result = $statement?->fetch(\PDO::FETCH_ASSOC)) {
             $configurations[] = $this->getConfigurationByType($result['name']);
         }
 
@@ -181,6 +204,13 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 $jsonSchemaValidatorFile = __DIR__ . '/../OpenId/Repository/CustomConfigurationSchema.json';
                 $json = $configuration->getJsonCustomConfiguration();
                 $this->validateJsonRecord($json, $jsonSchemaValidatorFile);
+                /** @var array{
+                 *     contact_template_id: int|null,
+                 *     authentication_conditions: _authenticationConditionsRecord,
+                 *     groups_mapping: _groupsMappingRecord,
+                 *     roles_mapping: _rolesMapping
+                 * } $jsonDecoded
+                 */
                 $jsonDecoded = json_decode($json, true);
                 $jsonDecoded['contact_template'] = $jsonDecoded['contact_template_id'] !== null
                     ? $this->readOpenIdConfigurationRepository->getContactTemplate($jsonDecoded['contact_template_id'])
@@ -240,7 +270,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
 
     /**
      * @param int $configurationId
-     * @param array<string,bool|string|string[]> $rolesMapping
+     * @param _rolesMapping $rolesMapping
      *
      * @throws ACLConditionsException
      * @throws InvalidEndpointException
@@ -279,8 +309,8 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 WHERE `type` = '%s'", $providerName)
         );
 
-        $statement = $this->db->query($query);
-        if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        $statement = $this->db->query($query) ?: null;
+        if ($result = $statement?->fetch(\PDO::FETCH_ASSOC)) {
             return new Configuration(
                 (int) $result['id'],
                 $result['type'],
@@ -309,8 +339,8 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 WHERE `id` = %d', $id)
         );
 
-        $statement = $this->db->query($query);
-        if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        $statement = $this->db->query($query) ?: null;
+        if ($result = $statement?->fetch(\PDO::FETCH_ASSOC)) {
             return new Configuration(
                 (int) $result['id'],
                 $result['type'],
@@ -327,17 +357,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     /**
      * Create Authentication Conditions from record.
      *
-     * @param array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "authorized_values": string[],
-     *  "trusted_client_addresses": string[],
-     *  "blacklist_client_addresses": string[],
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  }
-     * } $authenticationConditionsRecord
+     * @param _authenticationConditionsRecord $authenticationConditionsRecord
      *
      * @return AuthenticationConditions
      */
@@ -378,14 +398,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
     /**
      * Create Groups Mapping From Record.
      *
-     * @param array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  }
-     * } $groupsMappingRecord
+     * @param _groupsMappingRecord $groupsMappingRecord
      * @param int $configurationId
      *
      * @return GroupsMapping
