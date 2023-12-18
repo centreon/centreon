@@ -163,7 +163,7 @@ final class UpdateServiceSeverity
      */
     private function validateIconOrFail(int $iconId): void
     {
-        if (0 === $iconId || ! $this->readViewImgRepository->existsOne($iconId)) {
+        if (! $this->readViewImgRepository->existsOne($iconId)) {
             $this->error(
                 'Service severity icon does not exist',
                 ['icon_id' => $iconId]
