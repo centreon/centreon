@@ -18447,6 +18447,12 @@ msgstr "Erreur lors de la recherche de médias"
 msgid "You are not allowed to list media"
 msgstr "Vous n'êtes pas autorisé à lister les médias"
 
+msgid "API token"
+msgstr "Jeton d'API"
+
+msgid "Create new token"
+msgstr "Créer un nouveau jeton"
+
 msgid "Error while updating playlist shares"
 msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
 
@@ -18575,3 +18581,6 @@ msgstr "Publier votre liste de diffusion"
 
 msgid "Settings"
 msgstr "Paramètres"
+
+msgid "Revoked"
+msgstr "Révoqué"

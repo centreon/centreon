@@ -1,5 +1,6 @@
 const routeMap = {
   about: '/administration/about',
+  apiTokens: '/administration/api-token',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
   cloudNotificationConfiguration: '/configuration/notifications',
