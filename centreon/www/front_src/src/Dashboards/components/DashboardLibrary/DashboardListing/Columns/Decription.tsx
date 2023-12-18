@@ -21,7 +21,11 @@ const Description = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Tooltip label={description}>
-      <DescriptionIcon className={classes.icon} color="primary" />
+      {description ? (
+        <DescriptionIcon className={classes.icon} color="primary" />
+      ) : (
+        <Box className={classes.line}>-</Box>
+      )}
     </Tooltip>
   );
 };

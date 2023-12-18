@@ -9,15 +9,11 @@ import {
   labelCreator,
   labelDescription,
   labelName,
-  labelRole,
-  labelShares,
   labelUpdate
 } from '../translatedLabels';
 import useIsViewerUser from '../useIsViewerUser';
 
 import Actions from './Actions/Actions';
-import Share from './Share';
-import Role from './Role';
 import Description from './Decription';
 import Name from './Name';
 
@@ -39,26 +35,6 @@ const useColumns = (): {
       sortable: true,
       type: ColumnType.component
     },
-    ...(isViewer
-      ? []
-      : [
-          {
-            Component: Share,
-            disablePadding: false,
-            displaySubItemsCaret: true,
-            id: 'shares',
-            label: t(labelShares),
-            type: ColumnType.component,
-            width: 'max-content'
-          },
-          {
-            Component: Role,
-            disablePadding: false,
-            id: 'role',
-            label: t(labelRole),
-            type: ColumnType.component
-          }
-        ]),
     ...(isViewer
       ? [
           {
@@ -84,8 +60,6 @@ const useColumns = (): {
       getFormattedString: ({ createdBy }): string => createdBy?.name,
       id: 'created_by',
       label: t(labelCreator),
-      sortField: 'created_by',
-      sortable: true,
       type: ColumnType.string
     },
     {
@@ -93,8 +67,6 @@ const useColumns = (): {
       getFormattedString: ({ createdAt }): string => createdAt?.slice(0, 10),
       id: 'created_at',
       label: t(labelCreationDate),
-      sortField: 'created_at',
-      sortable: true,
       type: ColumnType.string
     },
     {
@@ -102,8 +74,6 @@ const useColumns = (): {
       getFormattedString: ({ updatedAt }): string => updatedAt?.slice(0, 10),
       id: 'updated_at',
       label: t(labelUpdate),
-      sortField: 'updated_at',
-      sortable: true,
       type: ColumnType.string
     },
     ...(isViewer

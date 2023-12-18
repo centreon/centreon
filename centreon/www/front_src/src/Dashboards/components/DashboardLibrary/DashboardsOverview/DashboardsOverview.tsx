@@ -76,7 +76,7 @@ const DashboardsOverview = (): ReactElement => {
     };
   }, []);
 
-  if (isEmptyList && canCreateOrManageDashboards && !search) {
+  if (isEmptyList && !search) {
     return (
       <DataTable isEmpty={isEmptyList} variant="grid">
         <DataTable.EmptyState
