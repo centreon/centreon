@@ -21,7 +21,7 @@ interface Props {
   submit: (values: Array<AccessRightInitialValues>) => void;
 }
 
-const AccessRights = ({
+export const AccessRights = ({
   initialValues,
   roles,
   endpoints,

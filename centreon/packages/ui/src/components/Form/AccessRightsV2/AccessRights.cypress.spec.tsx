@@ -1,6 +1,7 @@
+import { Provider, createStore } from 'jotai';
 import { Method, SnackbarProvider, TestQueryProvider } from '../../..';
 
-import AccessRights from './AccessRights';
+import { AccessRights } from './AccessRights';
 import {
   buildResult,
   emptyAccessRights,
@@ -36,6 +37,7 @@ const initialize = ({
     Component: (
       <SnackbarProvider>
         <TestQueryProvider>
+          <Provider store={createStore()}>
           <AccessRights
             cancel={cancel}
             endpoints={{
@@ -49,6 +51,7 @@ const initialize = ({
             roles={roles}
             submit={save}
           />
+          </Provider>
         </TestQueryProvider>
       </SnackbarProvider>
     )
