@@ -1,6 +1,3 @@
-import * as React from 'react';
-
-import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FallbackPage } from '../../../FallbackPage/FallbackPage';
@@ -23,11 +20,20 @@ export interface LicenseCheckProps {
 
 interface ContentProps {
   children: React.ReactElement;
+  isFederatedComponent?: boolean;
   isValid: boolean;
 }
 
-const Content = ({ children, isValid }: ContentProps): JSX.Element => {
+const Content = ({
+  children,
+  isValid,
+  isFederatedComponent
+}: ContentProps): JSX.Element | null => {
   const { t } = useTranslation();
+
+  if (isFederatedComponent && !isValid) {
+    return null;
+  }
 
   return isValid ? (
     children
@@ -43,9 +49,10 @@ const Content = ({ children, isValid }: ContentProps): JSX.Element => {
 const LicenseCheck = ({
   isFederatedComponent,
   children,
-  moduleName
+  moduleName,
+  isFederatedComponent
 }: LicenseCheckProps): JSX.Element | null => {
-  const { isError, data } = useFetchQuery<License>({
+  const { isError, data, isLoading } = useFetchQuery<License>({
     decoder: licenseDecoder,
     getEndpoint: () => getModuleLicenseCheckEndpoint(moduleName),
     getQueryKey: () => ['license', moduleName]
@@ -59,10 +66,15 @@ const LicenseCheck = ({
 
   const skeleton = isFederatedComponent ? <MenuSkeleton /> : <PageSkeleton />;
 
-  return isNil(isValid) ? (
+  return isLoading ? (
     skeleton
   ) : (
-    <Content isValid={isValid as boolean}>{children}</Content>
+    <Content
+      isFederatedComponent={isFederatedComponent}
+      isValid={isValid as boolean}
+    >
+      {children}
+    </Content>
   );
 };
 

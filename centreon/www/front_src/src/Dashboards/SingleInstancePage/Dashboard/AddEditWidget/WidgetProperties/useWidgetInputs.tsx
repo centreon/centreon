@@ -4,6 +4,8 @@ import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
+import { useDeepCompare } from '@centreon/ui';
+
 import {
   ConditionalOptions,
   ShowInput,
@@ -17,6 +19,7 @@ import {
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 
 import {
   WidgetMetrics,
@@ -33,9 +36,6 @@ import {
   WidgetCheckboxes,
   WidgetTiles
 } from './Inputs';
-
-import { useDeepCompare } from 'packages/ui/src';
-import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;

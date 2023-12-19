@@ -8,6 +8,7 @@ const LicensedModule = ({
   isFederatedComponent,
   moduleName,
   children,
+  isFederatedComponent,
   ...props
 }: Props): JSX.Element => {
   return (

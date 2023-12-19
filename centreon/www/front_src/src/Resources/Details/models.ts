@@ -52,7 +52,7 @@ export interface ResourceDetails extends NamedEntity {
   monitoring_server_name?: string;
   next_check: string;
   notification_number: number;
-  parent: Parent;
+  parent?: Parent;
   passive_checks?: boolean;
   percent_state_change: number;
   performance_data?: string;

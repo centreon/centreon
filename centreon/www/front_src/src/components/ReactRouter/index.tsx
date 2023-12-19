@@ -17,6 +17,7 @@ import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
 import routeMap from '../../reactRoutes/routeMap';
 import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
+import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 
 import DeprecatedRoute from './DeprecatedRoute';
 
@@ -56,6 +57,11 @@ interface IsAllowedPageProps {
   path?: string;
 }
 
+interface GetExternalPageRoutesProps {
+  allowedPages?: Array<string | Array<string>>;
+  federatedModules: Array<FederatedModule>;
+}
+
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
   flatten(allowedPages || []).some(
     (allowedPage) => path?.includes(allowedPage)
@@ -64,7 +70,7 @@ const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
 const getExternalPageRoutes = ({
   allowedPages,
   federatedModules
-}): Array<JSX.Element> => {
+}: GetExternalPageRoutesProps): Array<Array<JSX.Element | null>> => {
   return federatedModules?.map(
     ({
       federatedPages,
@@ -73,24 +79,40 @@ const getExternalPageRoutes = ({
       moduleName,
       remoteUrl
     }) => {
-      return federatedPages?.map(({ component, route }) => {
+      return federatedPages?.map(({ component, route, children }) => {
         if (not(isAllowedPage({ allowedPages, path: route }))) {
           return null;
         }
+
+        const ChildrenComponent: ((props) => JSX.Element) | null | undefined =
+          children ? childrenComponentsMapping[children] : undefined;
 
         return (
           <Route
             element={
               <PageContainer>
                 <BreadcrumbTrail path={route} />
-                <Remote
-                  component={component}
-                  key={component}
-                  moduleFederationName={moduleFederationName}
-                  moduleName={moduleName}
-                  remoteEntry={remoteEntry}
-                  remoteUrl={remoteUrl}
-                />
+                {ChildrenComponent ? (
+                  <Remote
+                    component={component}
+                    key={component}
+                    moduleFederationName={moduleFederationName}
+                    moduleName={moduleName}
+                    remoteEntry={remoteEntry}
+                    remoteUrl={remoteUrl}
+                  >
+                    {(props): JSX.Element => <ChildrenComponent {...props} />}
+                  </Remote>
+                ) : (
+                  <Remote
+                    component={component}
+                    key={component}
+                    moduleFederationName={moduleFederationName}
+                    moduleName={moduleName}
+                    remoteEntry={remoteEntry}
+                    remoteUrl={remoteUrl}
+                  />
+                )}
               </PageContainer>
             }
             key={route}

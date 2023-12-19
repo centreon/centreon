@@ -4,16 +4,15 @@ import { find, propEq } from 'ramda';
 import { Box, ListItemText } from '@mui/material';
 
 import { SingleAutocompleteField } from '@centreon/ui';
+import { Avatar } from '@centreon/ui/components';
 
 import { labelWidgetType } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
 import { editProperties } from '../../hooks/useCanEditDashboard';
+import { FederatedWidgetProperties } from '../../../../../federatedModules/models';
 
 import useWidgetSelection from './useWidgetSelection';
 import { useWidgetSelectionStyles } from './widgetProperties.styles';
-
-import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
-import { Avatar } from 'packages/ui/src/components';
 
 const WidgetSelection = (): JSX.Element => {
   const { t } = useTranslation();
