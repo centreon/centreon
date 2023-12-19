@@ -22,8 +22,8 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
   const { dirty, copyLink, save } = useActions({ labels, link, submit });
 
   const onCancel = (): void => {
-    cancel(dirty)
-  }
+    cancel(dirty);
+  };
 
   return (
     <div className={classes.actions}>
