@@ -17,8 +17,8 @@ import {
 
 export interface LicenseCheckProps {
   children: React.ReactElement;
-  moduleName: string;
   isFederatedComponent?: boolean;
+  moduleName: string;
 }
 
 interface ContentProps {
@@ -57,9 +57,11 @@ const LicenseCheck = ({
 
   const isValid = data?.success;
 
-  const skeleton = isFederatedComponent ? <MenuSkeleton /> : <PageSkeleton />
+  const skeleton = isFederatedComponent ? <MenuSkeleton /> : <PageSkeleton />;
 
-  return isNil(isValid) ? skeleton : (
+  return isNil(isValid) ? (
+    skeleton
+  ) : (
     <Content isValid={isValid as boolean}>{children}</Content>
   );
 };
