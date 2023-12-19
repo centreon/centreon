@@ -50,10 +50,10 @@ class AddServiceGroupPresenter extends AbstractPresenter
     }
 
     /**
-     * @param CreatedResponse<mixed, AddServiceGroupResponse> $createdResponse
+     * @param CreatedResponse<int, AddServiceGroupResponse> $createdResponse
      * @param AddServiceGroupResponse $addServiceGroupResponse
      *
-     * @return CreatedResponse<mixed, array{
+     * @return CreatedResponse<int, array{
      *     id: int,
      *     name: string,
      *     alias: string|null,

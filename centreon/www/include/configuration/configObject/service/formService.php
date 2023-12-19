@@ -805,6 +805,7 @@ if ($form_service_type === 'BYHOST') {
             [],
             array_merge($attributes['hosts_cloud_specific'], ['defaultDataset' => $defaultDataset])
         );
+        $form->addRule('service_hPars', _("Host / Service Required"), 'required');
     } else {
         if (isset($service['service_hPars']) && count($service['service_hPars']) > 1) {
             $sgReadOnly = true;

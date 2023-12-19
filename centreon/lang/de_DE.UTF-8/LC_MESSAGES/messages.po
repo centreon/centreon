@@ -16412,3 +16412,12 @@ msgstr "Erweiterter Modus"
 
 # msgid "Settings"
 # msgstr ""
+
+# msgid "API token"
+# msgstr ""
+
+# msgid "Create new token"
+# msgstr ""
+
+# msgid "Revoked"
+# msgstr ""

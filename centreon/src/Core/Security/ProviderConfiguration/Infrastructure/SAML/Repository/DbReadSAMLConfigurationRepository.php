@@ -36,6 +36,9 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Throwable;
 
+/**
+ * @phpstan-import-type _AccessGroupRecord from DbAccessGroupFactory
+ */
 class DbReadSAMLConfigurationRepository extends AbstractRepositoryDRB implements ReadRepositoryInterface
 {
     /**
@@ -129,6 +132,7 @@ class DbReadSAMLConfigurationRepository extends AbstractRepositoryDRB implements
 
         $authorizationRules = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _AccessGroupRecord $result */
             $accessGroup = DbAccessGroupFactory::createFromRecord($result);
             $authorizationRules[] = new AuthorizationRule($result['claim_value'], $accessGroup, $result['priority']);
         }

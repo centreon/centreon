@@ -1,7 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import CheckIcon from '@mui/icons-material/Check';
 import SaveIcon from '@mui/icons-material/Save';
+import { Typography, TypographyProps } from '@mui/material';
 
 interface Props {
   labelLoading: string;
@@ -11,24 +10,42 @@ interface Props {
   succeeded: boolean;
 }
 
+interface WrapperLabelProps {
+  label: string;
+}
+
+const WrapperLabel = ({
+  label,
+  ...rest
+}: WrapperLabelProps & TypographyProps): JSX.Element => {
+  return <Typography {...rest}>{label}</Typography>;
+};
+
 const Content = ({
   succeeded,
   labelSucceeded,
   labelSave,
   loading,
-  labelLoading
-}: Props): JSX.Element | string | null => {
-  const { t } = useTranslation();
-
+  labelLoading,
+  ...rest
+}: Props & TypographyProps): JSX.Element | string | null => {
   if (loading) {
-    return t(labelLoading);
+    return <WrapperLabel label={labelLoading} {...rest} />;
   }
 
   if (succeeded) {
-    return labelSucceeded ? t(labelSucceeded) : <CheckIcon />;
+    return labelSucceeded ? (
+      <WrapperLabel label={labelSucceeded} {...rest} />
+    ) : (
+      <CheckIcon />
+    );
   }
 
-  return labelSave ? t(labelSave) : <SaveIcon />;
+  return labelSave ? (
+    <WrapperLabel label={labelSave} {...rest} />
+  ) : (
+    <SaveIcon />
+  );
 };
 
 export default Content;
