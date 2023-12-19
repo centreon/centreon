@@ -9,7 +9,7 @@ import { useActions } from './useActions';
 import { useActionsStyles } from './Actions.styles';
 
 interface Props {
-  cancel: () => void;
+  cancel: (dirty: boolean) => void;
   labels: Labels['actions'];
   link?: string;
   submit: (values: Array<AccessRightInitialValues>) => void;
@@ -20,6 +20,10 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
   const { classes } = useActionsStyles();
 
   const { dirty, copyLink, save } = useActions({ labels, link, submit });
+
+  const onCancel = (): void => {
+    cancel(dirty)
+  }
 
   return (
     <div className={classes.actions}>
@@ -40,7 +44,7 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
         <Button
           aria-label={t(labels.cancel)}
           variant="secondary"
-          onClick={cancel}
+          onClick={onCancel}
         >
           {t(labels.cancel)}
         </Button>
