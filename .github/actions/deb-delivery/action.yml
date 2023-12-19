@@ -70,6 +70,6 @@ runs:
         # Publish build information (keep this after cleaning PR)
         #jf rt bp ${{ inputs.module_name }}-${{ inputs.distrib }}-${{ github.run_number }}
         #jf rt bp ${{ inputs.module_name }}-${{ github.run_number }}-${{ inputs.distrib }} ${{ github.run_number }}
-        jf rt bp ${{ inputs.module_name }} ${{ github.run_number }}
+        #jf rt bp ${{ inputs.module_name }} ${{ github.run_number }}
 
       shell: bash

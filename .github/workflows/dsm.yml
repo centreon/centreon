@@ -162,7 +162,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   collect-build-info:
-    needs: [get-version,package]
+    needs: [get-version, package, delivery-rpm, delivery-deb]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [common]
 
@@ -181,10 +181,11 @@ jobs:
         run: |
           # jf rt build-append "build-name" "build-number" "build-name-to-append" "build-number-to-append"
           # ${{ inputs.module_name }}-${{ github.run_number }}-${{ inputs.distrib }} ${{ inputs.module_name }}-${{ github.run_number }}
-          jf rt build-append aggregating-dsm ${{ github.run_number }} dsm ${{ github.run_number }}
+          #jf rt build-append aggregating-dsm ${{ github.run_number }} dsm ${{ github.run_number }}
           # jf rt build-append aggregating-dsm ${{ github.run_number }} dsm-${{ github.run_number }}-el9 ${{ github.run_number }}
           # jf rt build-append aggregating-dsm ${{ github.run_number }} dsm-${{ github.run_number }}-bullseye ${{ github.run_number }}
           # jf rt bp aggregating-dsm ${{ github.run_number }}
+          jf rt bp ${{ inputs.module_name }} ${{ github.run_number }}
         shell: bash
 
   promote:
