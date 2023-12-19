@@ -1,14 +1,10 @@
-version: "3.2"
+version: "3"
 services:
   web:
     env_file:
       - .env
     image: "${WEB_IMAGE}"
     ports: ["80"]
-    depends_on:
-      - db
-    links:
-      - db
     environment:
       MYSQL_HOST: db
     profiles: ["web"]
