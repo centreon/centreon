@@ -295,10 +295,10 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 d.refresh_type,
                 d.refresh_interval
             FROM `:db`.`dashboard` d
-                     LEFT JOIN `:db`.dashboard_contact_relation dcr
-                               ON d.id = dcr.dashboard_id
-                     LEFT JOIN `:db`.dashboard_contactgroup_relation dcgr
-                               ON d.id = dcgr.dashboard_id
+            LEFT JOIN `:db`.dashboard_contact_relation dcr
+                   ON d.id = dcr.dashboard_id
+            LEFT JOIN `:db`.dashboard_contactgroup_relation dcgr
+                   ON d.id = dcgr.dashboard_id
             WHERE d.id IN ({$dashboardIdsAsString})
               AND (dcr.contact_id = :contactId
                 OR dcgr.contactgroup_id IN (SELECT contactgroup_cg_id FROM `:db`.contactgroup_contact_relation WHERE contact_contact_id = :contactId))
