@@ -205,4 +205,4 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./.github/docker/centreon-web/sql/data/* /usr/local/src/sql/data/
+COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
