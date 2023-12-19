@@ -96,17 +96,15 @@ describe('Access rights', () => {
   it('displays the access rights with an empty list', () => {
     initialize({});
 
-    simpleAccessRights.forEach(
-      ({ name, email, isContactGroup, role }) => {
-        cy.contains(name).should('be.visible');
-        cy.contains(email).should('be.visible');
-        cy.get(`[data-groupChip="${name}"]`).should(
-          isContactGroup ? 'be.visible' : 'not.exist'
-        );
-        cy.findByTestId(`role-${name}`).should('have.value', role);
-        cy.findByTestId(`remove-${name}`).should('be.visible');
-      }
-    );
+    simpleAccessRights.forEach(({ name, email, isContactGroup, role }) => {
+      cy.contains(name).should('be.visible');
+      cy.contains(email).should('be.visible');
+      cy.get(`[data-groupChip="${name}"]`).should(
+        isContactGroup ? 'be.visible' : 'not.exist'
+      );
+      cy.findByTestId(`role-${name}`).should('have.value', role);
+      cy.findByTestId(`remove-${name}`).should('be.visible');
+    });
 
     cy.makeSnapshot();
   });
