@@ -372,8 +372,8 @@ jobs:
         if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
         run: |
           for summary_file in ./postman_summaries/*.json; do
-          test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
-          test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
+              test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
+              test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
               filename=$(basename "$summary_file")
               collection_name="${filename%-summary.json}"
               collection_name="${collection_name//-/_}"
