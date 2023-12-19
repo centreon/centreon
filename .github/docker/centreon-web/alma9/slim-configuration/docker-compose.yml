@@ -24,6 +24,7 @@ services:
       MYSQL_PASSWORD: centreon
     #  MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
     image: "mysql:8"
+    pull_policy: always
     command: --default-authentication-plugin=mysql_native_password
     restart: 'always'
     # tmpfs:
