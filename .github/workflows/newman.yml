@@ -452,7 +452,7 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
         run: |
               test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
               transition_ids=("61" "81" "21" "31")
