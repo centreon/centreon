@@ -1,11 +1,47 @@
 name: "scrap test file"
 description: "testing stepsecu"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        required: true
+  pull_request:
+    paths:
+      - bbdo/**
+      - broker/**
+      - ccc/**
+      - clib/**
+      - connectors/**
+      - engine/**
+      - grpc/**
+      - packaging/**
+      - cmake.sh
+      - CMakeLists.txt
+      - conanfile.txt
+      - selinux/**
+      - "!.veracode-exclusions"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - bbdo/**
+      - broker/**
+      - ccc/**
+      - clib/**
+      - connectors/**
+      - engine/**
+      - grpc/**
+      - packaging/**
+      - cmake.sh
+      - CMakeLists.txt
+      - conanfile.txt
+      - selinux/**
+      - "!.veracode-exclusions"
 
 jobs:
   build:
