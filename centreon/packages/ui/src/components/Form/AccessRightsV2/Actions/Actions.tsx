@@ -9,7 +9,7 @@ import { useActions } from './useActions';
 import { useActionsStyles } from './Actions.styles';
 
 interface Props {
-  cancel: (dirty: boolean) => void;
+  cancel: ({ dirty, values }) => void;
   labels: Labels['actions'];
   link?: string;
   submit: (values: Array<AccessRightInitialValues>) => void;
@@ -19,10 +19,10 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useActionsStyles();
 
-  const { dirty, copyLink, save } = useActions({ labels, link, submit });
+  const { dirty, copyLink, save, formattedValues } = useActions({ labels, link, submit });
 
   const onCancel = (): void => {
-    cancel(dirty);
+    cancel({ dirty, values: formattedValues });
   };
 
   return (

@@ -11,7 +11,7 @@ import { AccessRightInitialValues, Endpoints, Labels } from './models';
 import { useAccessRightsInitValues } from './useAccessRightsInitValues';
 
 interface Props {
-  cancel: (dirty: boolean) => void;
+  cancel: ({ dirty, values }) => void;
   endpoints: Endpoints;
   initialValues: Array<AccessRightInitialValues>;
   labels: Labels;

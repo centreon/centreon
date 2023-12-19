@@ -27,6 +27,7 @@ interface Props {
 interface UseActionsState {
   copyLink: () => void;
   dirty: boolean;
+  formattedValues: Array<AccessRightInitialValues>;
   save: () => void;
 }
 
@@ -65,6 +66,7 @@ export const useActions = ({
   return {
     copyLink,
     dirty,
+    formattedValues,
     save
   };
 };
