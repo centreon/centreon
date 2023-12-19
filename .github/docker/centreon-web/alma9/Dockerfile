@@ -184,9 +184,9 @@ su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
-mkdir -p /usr/local/src/sql
-mysqldump --add-drop-database --databases centreon > /usr/local/src/sql/01-centreon.sql
-mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/sql/02-centreon_storage.sql
+mkdir -p /usr/local/src/sql/{databases,data}
+mysqldump --add-drop-database --databases centreon > /usr/local/src/sql/databases/01-centreon.sql
+mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/sql/databases/02-centreon_storage.sql
 
 service mysql stop
 
@@ -205,4 +205,4 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/
+COPY ./.github/docker/centreon-web/sql/data/* /usr/local/src/sql/data/

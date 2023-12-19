@@ -30,9 +30,14 @@ while true ; do
   fi
 done
 
-BASEDIR="/usr/local/src/sql"
+BASEDIR="/usr/local/src/sql/databases"
 for file in `ls $BASEDIR` ; do
-  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD}  <<< "SET autocommit=0; source $BASEDIR/$file; COMMIT;"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} <<< "SET autocommit=0; source $BASEDIR/$file; COMMIT;"
+done
+
+BASEDIR="/usr/local/src/sql/data"
+for file in `ls $BASEDIR` ; do
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} centreon < $BASEDIR/$file
 done
 
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
