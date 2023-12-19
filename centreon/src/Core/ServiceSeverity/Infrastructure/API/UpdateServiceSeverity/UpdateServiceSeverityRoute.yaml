@@ -1,0 +1,7 @@
+UpdateServiceSeverity:
+  methods: PUT
+  path: /configuration/services/severities/{serviceSeverityId}
+  requirements:
+    serviceSeverityId: '\d+'
+  controller: 'Core\ServiceSeverity\Infrastructure\API\UpdateServiceSeverity\UpdateServiceSeverityController'
+  condition: "request.attributes.get('version') >= 24.04"
