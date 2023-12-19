@@ -17204,3 +17204,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Revoked"
 # msgstr ""
+
+# msgid "List View"
+# msgstr ""
+
+# msgid "Cards View"
+# msgstr ""
+
+# msgstr "Edit properties"
+# msgid ""

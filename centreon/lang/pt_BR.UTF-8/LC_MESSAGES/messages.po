@@ -17215,3 +17215,12 @@ msgstr ""
 
 # msgid "Revoked"
 # msgstr ""
+
+# msgid "List View"
+# msgstr ""
+
+# msgid "Cards View"
+# msgstr ""
+
+# msgstr "Edit properties"
+# msgid ""

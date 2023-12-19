@@ -18584,3 +18584,12 @@ msgstr "Paramètres"
 
 msgid "Revoked"
 msgstr "Révoqué"
+
+msgid "List View"
+msgstr "Vue en cartes"
+
+msgid "Cards View"
+msgstr "Vue en liste"
+
+msgstr "Edit properties"
+msgid "Modifier les propriétés"
