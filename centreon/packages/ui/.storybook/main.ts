@@ -21,7 +21,7 @@ const config: StorybookConfig = {
     "@storybook/addon-styling",
     "@storybook/addon-a11y",
     "@storybook/addon-interactions",
-    "storybook-addon-fetch-mock",
+    "storybook-addon-mock",
     "storybook-dark-mode",
   ],
   features: {},
