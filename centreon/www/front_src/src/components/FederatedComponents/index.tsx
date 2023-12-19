@@ -143,7 +143,7 @@ const defaultStyleMenuSkeleton = {
 
 const LoadableComponentsContainer = ({
   path,
-  styleMenuSkeleton = defaultStyleMenuSkeleton,
+  styleMenuSkeleton,
   isFederatedWidget,
   ...props
 }: LoadableComponentsContainerProps): JSX.Element | null => {

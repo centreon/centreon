@@ -4,7 +4,7 @@ import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FallbackPage } from '../../../FallbackPage/FallbackPage';
-import { PageSkeleton, useFetchQuery } from '../../..';
+import { MenuSkeleton, PageSkeleton, useFetchQuery } from '../../..';
 import { getModuleLicenseCheckEndpoint } from '../api';
 
 import { licenseDecoder } from './decoder';
@@ -18,6 +18,7 @@ import {
 export interface LicenseCheckProps {
   children: React.ReactElement;
   moduleName: string;
+  isFederatedComponent?: boolean;
 }
 
 interface ContentProps {
@@ -40,6 +41,7 @@ const Content = ({ children, isValid }: ContentProps): JSX.Element => {
 };
 
 const LicenseCheck = ({
+  isFederatedComponent,
   children,
   moduleName
 }: LicenseCheckProps): JSX.Element | null => {
@@ -55,9 +57,9 @@ const LicenseCheck = ({
 
   const isValid = data?.success;
 
-  return isNil(isValid) ? (
-    <PageSkeleton />
-  ) : (
+  const skeleton = isFederatedComponent ? <MenuSkeleton /> : <PageSkeleton />
+
+  return isNil(isValid) ? skeleton : (
     <Content isValid={isValid as boolean}>{children}</Content>
   );
 };
