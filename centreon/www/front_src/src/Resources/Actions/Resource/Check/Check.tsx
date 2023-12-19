@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -11,7 +10,6 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { IconButton } from '@centreon/ui';
 
-import ResourceActionButton from '../ResourceActionButton';
 import useMediaQueryListing from '../useMediaQueryListing';
 
 import CheckOptionsList from './CheckOptionsList';
@@ -51,30 +49,23 @@ interface Disabled {
 }
 
 interface Props {
-  disabledButton: boolean;
+  disabledButton?: boolean;
   disabledList?: Disabled;
-  icon: JSX.Element;
-  isActionPermitted: boolean;
   isDefaultChecked?: boolean;
-  labelButton: string;
   onClickActionButton: () => void;
   onClickList?: ClickList;
-  testId: string;
+  renderResourceActionButton;
 }
 
 const Check = ({
   disabledButton,
   disabledList = defaultDisabledList,
-  labelButton,
-  isActionPermitted,
-  testId,
   onClickList,
   onClickActionButton,
-  icon,
-  isDefaultChecked = false
+  isDefaultChecked = false,
+  renderResourceActionButton
 }: Props): JSX.Element | null => {
   const { classes, cx } = useStyles();
-  const { t } = useTranslation();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const displayList = (event: React.MouseEvent<HTMLElement>): void => {
@@ -147,14 +138,7 @@ const Check = ({
         })}
         onClick={handleClick}
       >
-        <ResourceActionButton
-          disabled={disabledButton}
-          icon={icon}
-          label={t(labelButton)}
-          permitted={isActionPermitted}
-          testId={testId}
-          onClick={handleClickActionButton}
-        />
+        {renderResourceActionButton({ onClick: handleClickActionButton })}
         <IconButton
           ariaLabel="arrow"
           className={cx({ [classes.iconArrow]: !displayCondensed })}

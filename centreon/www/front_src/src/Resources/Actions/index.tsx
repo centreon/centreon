@@ -6,7 +6,7 @@ import { Props } from './Refresh';
 import GlobalActionsSkeleton from './GlobalActionsSkeleton';
 import ResourceActionsSkeleton from './ResourceActionsSkeleton';
 
-const ResourceActions = lazy(() => import('./Resource'));
+const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
 const GlobalActions = lazy(() => import('./Refresh'));
 
 const Actions = ({ onRefresh }: Props): JSX.Element => {
@@ -16,7 +16,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
     <Grid container>
       <Grid item>
         <Suspense fallback={<ResourceActionsSkeleton />}>
-          <ResourceActions />
+          <WrapperResourceActions />
         </Suspense>
       </Grid>
       <Grid item style={{ paddingLeft: theme.spacing(3) }}>

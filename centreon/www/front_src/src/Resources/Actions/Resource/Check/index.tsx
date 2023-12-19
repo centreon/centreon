@@ -1,5 +1,3 @@
-import { SetStateAction } from 'react';
-
 import { useAtom } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -18,21 +16,24 @@ import {
 } from '../../../translatedLabels';
 import { checkEndpoint } from '../../api/endpoint';
 import useAclQuery from '../aclQuery';
+import ResourceActionButton from '../ResourceActionButton';
 
 import Check from './Check';
 import { checkActionAtom } from './checkAtoms';
 import { adjustCheckedResources } from './helpers';
 
 interface Props {
-  selectedResources: Array<Resource>;
-  setSelectedResources: (update: SetStateAction<Array<Resource>>) => void;
+  displayCondensed?: boolean;
+  initialize: () => void;
+  resources: Array<Resource>;
   testId: string;
 }
 
 const CheckActionButton = ({
-  selectedResources,
-  setSelectedResources,
-  testId
+  resources,
+  initialize,
+  testId,
+  displayCondensed
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -45,24 +46,24 @@ const CheckActionButton = ({
   const { canForcedCheck, canCheck } = useAclQuery();
   const { showSuccessMessage } = useSnackbar();
 
-  const disableCheck = !canCheck(selectedResources);
-  const disableForcedCheck = !canForcedCheck(selectedResources);
-  const hasSelectedResources = selectedResources.length > 0;
+  const disableCheck = !canCheck(resources);
+  const disableForcedCheck = !canForcedCheck(resources);
+  const hasSelectedResources = resources.length > 0;
 
-  const isCheckPermitted = canCheck(selectedResources) || !hasSelectedResources;
+  const isCheckPermitted = canCheck(resources) || !hasSelectedResources;
 
   const isForcedCheckPermitted =
-    canForcedCheck(selectedResources) || !hasSelectedResources;
+    canForcedCheck(resources) || !hasSelectedResources;
 
   const handleCheckResource = (): void => {
     if (isNil(checkAction)) {
       checkResource({
-        check: { is_forced: canForcedCheck(selectedResources) },
-        resources: adjustCheckedResources({ resources: selectedResources })
+        check: { is_forced: canForcedCheck(resources) },
+        resources: adjustCheckedResources({ resources })
       }).then(() => {
-        setSelectedResources([]);
+        initialize();
         showSuccessMessage(
-          canForcedCheck(selectedResources)
+          canForcedCheck(resources)
             ? t(labelForcedCheckCommandSent)
             : t(labelCheckCommandSent)
         );
@@ -72,9 +73,9 @@ const CheckActionButton = ({
     }
     checkResource({
       check: { is_forced: checkAction.forcedChecked },
-      resources: adjustCheckedResources({ resources: selectedResources })
+      resources: adjustCheckedResources({ resources })
     }).then(() => {
-      setSelectedResources([]);
+      initialize();
       showSuccessMessage(
         checkAction?.checked
           ? t(labelCheckCommandSent)
@@ -84,16 +85,23 @@ const CheckActionButton = ({
   };
 
   if (isNil(checkAction)) {
-    if (canForcedCheck(selectedResources)) {
+    if (canForcedCheck(resources)) {
       return (
         <Check
           disabledButton={disableForcedCheck}
           disabledList={{ disableCheck, disableForcedCheck }}
-          icon={<IconForcedCheck />}
-          isActionPermitted={isForcedCheckPermitted}
           isDefaultChecked={false}
-          labelButton={labelForcedCheck}
-          testId={testId}
+          renderResourceActionButton={({ onClick }) => (
+            <ResourceActionButton
+              disabled={disableForcedCheck}
+              displayCondensed={displayCondensed}
+              icon={<IconForcedCheck />}
+              label={t(labelForcedCheck)}
+              permitted={isForcedCheckPermitted}
+              testId={testId}
+              onClick={onClick}
+            />
+          )}
           onClickActionButton={handleCheckResource}
           onClickList={{
             onClickCheck: (): void =>
@@ -105,16 +113,23 @@ const CheckActionButton = ({
       );
     }
 
-    if (canCheck(selectedResources)) {
+    if (canCheck(resources)) {
       return (
         <Check
           isDefaultChecked
           disabledButton={disableCheck}
           disabledList={{ disableCheck, disableForcedCheck }}
-          icon={<IconCheck />}
-          isActionPermitted={isCheckPermitted}
-          labelButton={labelCheck}
-          testId={testId}
+          renderResourceActionButton={({ onClick }) => (
+            <ResourceActionButton
+              disabled={disableCheck}
+              displayCondensed={displayCondensed}
+              icon={<IconCheck />}
+              label={t(labelCheck)}
+              permitted={isCheckPermitted}
+              testId={testId}
+              onClick={onClick}
+            />
+          )}
           onClickActionButton={handleCheckResource}
           onClickList={{
             onClickCheck: (): void =>
@@ -129,25 +144,39 @@ const CheckActionButton = ({
     return (
       <Check
         disabledButton
-        icon={<IconForcedCheck />}
-        isActionPermitted={isForcedCheckPermitted}
-        labelButton={t(labelForcedCheck)}
-        testId={testId}
+        renderResourceActionButton={({ onClick }) => (
+          <ResourceActionButton
+            disabled
+            displayCondensed={displayCondensed}
+            icon={<IconForcedCheck />}
+            label={t(labelForcedCheck)}
+            permitted={isForcedCheckPermitted}
+            testId={testId}
+            onClick={onClick}
+          />
+        )}
         onClickActionButton={(): void => undefined}
       />
     );
   }
 
-  if (canForcedCheck(selectedResources) && checkAction.forcedChecked) {
+  if (canForcedCheck(resources) && checkAction.forcedChecked) {
     return (
       <Check
         disabledButton={disableForcedCheck}
         disabledList={{ disableCheck, disableForcedCheck }}
-        icon={<IconForcedCheck />}
-        isActionPermitted={isCheckPermitted}
         isDefaultChecked={false}
-        labelButton={labelForcedCheck}
-        testId={testId}
+        renderResourceActionButton={({ onClick }) => (
+          <ResourceActionButton
+            disabled={disableForcedCheck}
+            displayCondensed={displayCondensed}
+            icon={<IconForcedCheck />}
+            label={t(labelForcedCheck)}
+            permitted={isCheckPermitted}
+            testId={testId}
+            onClick={onClick}
+          />
+        )}
         onClickActionButton={handleCheckResource}
         onClickList={{
           onClickCheck: (): void =>
@@ -159,16 +188,23 @@ const CheckActionButton = ({
     );
   }
 
-  if (canCheck(selectedResources) && checkAction.checked) {
+  if (canCheck(resources) && checkAction.checked) {
     return (
       <Check
         isDefaultChecked
         disabledButton={disableCheck}
         disabledList={{ disableCheck, disableForcedCheck }}
-        icon={<IconCheck />}
-        isActionPermitted={isCheckPermitted}
-        labelButton={labelCheck}
-        testId={testId}
+        renderResourceActionButton={({ onClick }) => (
+          <ResourceActionButton
+            disabled={disableCheck}
+            displayCondensed={displayCondensed}
+            icon={<IconCheck />}
+            label={t(labelCheck)}
+            permitted={isCheckPermitted}
+            testId={testId}
+            onClick={onClick}
+          />
+        )}
         onClickActionButton={handleCheckResource}
         onClickList={{
           onClickCheck: (): void =>
@@ -183,14 +219,25 @@ const CheckActionButton = ({
   return (
     <Check
       disabledButton
-      icon={checkAction?.forcedChecked ? <IconForcedCheck /> : <IconCheck />}
-      isActionPermitted={
-        checkAction?.forcedChecked ? isForcedCheckPermitted : isCheckPermitted
-      }
-      labelButton={
-        checkAction?.forcedChecked ? t(labelForcedCheck) : t(labelCheck)
-      }
-      testId={testId}
+      renderResourceActionButton={({ onClick }) => (
+        <ResourceActionButton
+          disabled
+          displayCondensed={displayCondensed}
+          icon={
+            checkAction?.forcedChecked ? <IconForcedCheck /> : <IconCheck />
+          }
+          label={
+            checkAction?.forcedChecked ? t(labelForcedCheck) : t(labelCheck)
+          }
+          permitted={
+            checkAction?.forcedChecked
+              ? isForcedCheckPermitted
+              : isCheckPermitted
+          }
+          testId={testId}
+          onClick={onClick}
+        />
+      )}
       onClickActionButton={(): void => undefined}
     />
   );
