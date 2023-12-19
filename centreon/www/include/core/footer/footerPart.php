@@ -38,7 +38,7 @@ if (!isset($centreon)) {
 }
 
 require_once("./class/centreonData.class.php");
-
+$topicUser = "users/{$centreon->user->user_id}/{type}/{message}";
 if (!$min) {
     ?>
     <!-- Footer -->
@@ -47,6 +47,41 @@ if (!$min) {
 ?>
 
 <script type="text/javascript">
+
+    const url = new URL('http://localhost:8081/.well-known/mercure');
+    url.searchParams.append('topic', '<?= $topicUser ?>');
+    url.searchParams.append('topic', 'system');
+    const eventSource = new EventSource(url, {withCredentials: true});
+    eventSource.onmessage = function (e) {
+      let data = JSON.parse(e.data);
+      if (typeof data !== 'object') {
+        data = JSON.parse(data);
+      }
+      console.log(data)
+      let status = '';
+      switch(data.event?.state) {
+        case 0:
+          status = 'success'
+          break;
+        case 1:
+          status = 'warning'
+          break;
+        case 2:
+          status = 'error'
+          break;
+        default:
+          status = 'info'
+          break;
+      }
+      SnackBar({
+        message: data.message,
+        status: status,
+        position: 'tr',
+        icon: 'exclamation',
+        dismissible: true,
+      });
+    }
+
     // Centreon ToolTips
     var centreonTooltip = new CentreonToolTip();
     centreonTooltip.setTitle('<?php echo _("Help"); ?>');

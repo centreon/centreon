@@ -34,6 +34,11 @@
  *
  */
 
+use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\KeyManagement\JWKFactory;
+use Jose\Component\Signature\Algorithm\HS256;
+use Jose\Component\Signature\Serializer\CompactSerializer;
+
 if (!defined('SMARTY_DIR')) {
     define('SMARTY_DIR', realpath('../vendor/smarty/smarty/libs/') . '/');
 }
@@ -43,7 +48,7 @@ if (!defined('SMARTY_DIR')) {
  */
 function microtime_float(): bool
 {
-    list($usec, $sec) = explode(" ", microtime());
+    [$usec, $sec] = explode(" ", microtime());
     return ((float)$usec + (float)$sec);
 }
 
@@ -73,6 +78,33 @@ $pearDBO = new CentreonDB("centstorage");
 
 $centreonSession = new CentreonSession();
 
+function createJwtForUser(int $userId): string
+{
+    $jwk = JWKFactory::createFromSecret(
+        '!ChangeThisMercureHubJWTSecretKey!',       // The shared secret
+        [                      // Optional additional members
+            'alg' => 'HS256',
+            'use' => 'sig'
+        ]
+    );
+
+    $payload = json_encode([
+        'mercure' => [
+            "subscribe" => ["users/$userId/{type}/{message}"]
+        ]
+    ]);
+    $jwsBuilder = new \Jose\Component\Signature\JWSBuilder(new AlgorithmManager([new HS256()]));
+    $jws = $jwsBuilder
+        ->create()                               // We want to create a new JWS
+        ->withPayload($payload)                  // We set the payload
+        ->addSignature($jwk, ['alg' => 'HS256']) // We add a signature with a simple protected header
+        ->build();
+    $serializer = new CompactSerializer(); // The serializer
+
+    return $serializer->serialize($jws, 0);
+}
+
+//var_dump($jws);
 CentreonSession::start();
 
 // Check session and drop all expired sessions
@@ -105,6 +137,19 @@ if (isset($_SESSION["centreon"])) {
 if (!isset($centreon) || !is_object($centreon)) {
     exit();
 }
+
+$cookieStatus = setcookie(
+    "mercureAuthorization",
+    createJwtForUser($centreon->user->user_id),
+    [
+        'expires' => 0,
+        'path' => '/.well-known/mercure',
+        'domain' => '',
+        'secure' => false,
+        'httponly' => false,
+        'samesite' => 'lax',
+    ]
+);
 
 /*
  * Init different elements we need in a lot of pages
@@ -189,3 +234,4 @@ $centreon->user->access->getActions();
  * Initialize features flipping
  */
 $centreonFeature = new CentreonFeature($pearDB);
+
