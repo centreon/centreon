@@ -79,7 +79,7 @@ const getExternalPageRoutes = ({
       moduleName,
       remoteUrl
     }) => {
-      return federatedPages?.map(({ component, route, featureFlag }) => {
+      return federatedPages?.map(({ component, route, children, featureFlag }) => {
         if (not(isAllowedPage({ allowedPages, path: route })) || featureFlag) {
           return null;
         }
