@@ -319,4 +319,28 @@ describe('Access rights', () => {
 
     cy.makeSnapshot();
   });
+
+  it('removes the contact from the list when the contact has been to the list and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labels.add.contact).click();
+    cy.findByLabelText(labels.add.autocompleteContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains('Entity 10').click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains('Entity 10').should('be.visible');
+
+    cy.contains(labels.list.added).should('be.visible');
+
+    cy.findByTestId('remove-Entity 10').click();
+
+    cy.contains('Entity 10').should('not.exist');
+    cy.contains(labels.list.added).should('not.exist');
+
+    cy.makeSnapshot();
+  });
 });
