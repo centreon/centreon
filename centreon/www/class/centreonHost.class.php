@@ -624,7 +624,7 @@ class CentreonHost
 
     /**
      * @param $hostName
-     * @param null $pollerId
+     * @param null|int $pollerId
      * @return mixed
      * @throws Exception
      */
