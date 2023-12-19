@@ -72,7 +72,7 @@ interface ReadDashboardRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return array
+     * @return Dashboard[]
      *
      */
     public function findByIdsAndContactId(array $ids, int $contactId): array;

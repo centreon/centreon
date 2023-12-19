@@ -268,6 +268,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return $dashboards;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findByIdsAndContactId(array $dashboardIds, int $contactId): array
     {
         $bind = [];
