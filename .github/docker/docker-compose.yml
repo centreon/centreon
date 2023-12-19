@@ -5,8 +5,17 @@ services:
       - .env
     image: "${WEB_IMAGE}"
     ports: ["80"]
+    depends_on:
+      - db
+    links:
+      - db
     environment:
       MYSQL_HOST: db
+    healthcheck:
+      test: curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      start_interval: 1s
+      retries: 30
+      timeout: 5s
     profiles: ["web"]
 
   web-fresh:
