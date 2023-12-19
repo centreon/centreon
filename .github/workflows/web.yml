@@ -577,6 +577,7 @@ jobs:
 
       - name: Build standard slim image
         run: |
+          docker pull mysql:8
           slim build \
             --compose-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/docker-compose.yml \
             --target-compose-svc web \
