@@ -174,7 +174,7 @@ jobs:
         uses: jfrog/setup-jfrog-cli@v3
         env:
           JF_URL: https://centreon.jfrog.io
-          JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           JFROG_CLI_LOG_LEVEL: DEBUG
 
       - name: Publish aggregated build info
