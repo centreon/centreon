@@ -163,7 +163,7 @@ class SSOAuthenticationException extends \Exception
     /**
      * Exception thrown when bind attributes for auto import are not found in user informations from external provider.
      *
-     * @param array<string> $missingAttributes
+     * @param array<string|null> $missingAttributes
      *
      * @return self
      */

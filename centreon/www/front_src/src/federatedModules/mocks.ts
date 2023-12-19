@@ -1,10 +1,12 @@
 import { FederatedModule } from './models';
 
 export const retrievedFederatedModule: FederatedModule = {
-  federatedComponentsConfiguration: {
-    federatedComponents: ['./monitoring/hooks/topCounter'],
-    path: '/header/topCounter'
-  },
+  federatedComponentsConfiguration: [
+    {
+      federatedComponents: ['./monitoring/hooks/topCounter'],
+      path: '/header/topCounter'
+    }
+  ],
   federatedPages: [
     {
       component: './configuration/pages/bas',

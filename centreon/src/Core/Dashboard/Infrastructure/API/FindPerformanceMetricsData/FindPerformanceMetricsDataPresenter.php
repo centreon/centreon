@@ -19,7 +19,7 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\FindPerformanceMetricsData;
 
@@ -32,6 +32,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use function array_map;
 
 class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements FindPerformanceMetricsDataPresenterInterface
 {
@@ -53,50 +54,68 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
         } else {
             $this->present([
                 'base' => $response->base,
-                'metrics' => $this->formatMetricsInformation($response->metricsInformation),
-                'times' => array_map(fn ($date) => $this->formatDateToIso8601($date), $response->times),
+                'metrics' => array_map($this->formatMetricInformation(...), $response->metricsInformation),
+                'times' => array_map(fn($date) => $this->formatDateToIso8601($date), $response->times),
             ]);
         }
     }
 
     /**
-     * format Metrics information to array.
+     * Format Metric information to array.
      *
-     * @param MetricInformation[] $metricsInformation
+     * @param MetricInformation $metricInformation
      *
-     * @return array<string,int|string|null|array<string|null>>
+     * @return array{
+     *     metric_id: int,
+     *     metric: string,
+     *     metric_legend: string,
+     *     unit: string,
+     *     min: float|null,
+     *     max: float|null,
+     *     ds_data: array{ ds_color_line: string },
+     *     legend: string,
+     *     stack: int<0,1>,
+     *     warning_high_threshold: float|null,
+     *     critical_high_threshold: float|null,
+     *     warning_low_threshold: float|null,
+     *     critical_low_threshold: float|null,
+     *     ds_order: int,
+     *     data: array<float|null>,
+     *     last_value: float|null,
+     *     minimum_value: float|null,
+     *     maximum_value: float|null,
+     *     average_value: float|null,
+     * }
      */
-    private function formatMetricsInformation(array $metricsInformation): array
+    private function formatMetricInformation(MetricInformation $metricInformation): array
     {
-        return array_map( function (MetricInformation $metricInformation) {
-            $generalInformation = $metricInformation->getGeneralInformation();
-            $dataSource = $metricInformation->getDataSource();
-            $thresholdInformation = $metricInformation->getThresholdInformation();
-            $realTimeDataInformation = $metricInformation->getRealTimeDataInformation();
+        $generalInformation = $metricInformation->getGeneralInformation();
+        $dataSource = $metricInformation->getDataSource();
+        $thresholdInformation = $metricInformation->getThresholdInformation();
+        $realTimeDataInformation = $metricInformation->getRealTimeDataInformation();
 
-            return [
-                'metric_id' => $generalInformation->getId(),
-                'metric' => $generalInformation->getName(),
-                'metric_legend' => $generalInformation->getAlias(),
-                'unit' => $generalInformation->getUnit(),
-                'min' => $realTimeDataInformation->getMinimumValueLimit(),
-                'max' => $realTimeDataInformation->getMaximumValueLimit(),
-                'ds_data' => [
-                    'ds_color_line' => $dataSource->getLineColor(),
-                ],
-                'legend' => $generalInformation->getLegend(),
-                'stack' => (int) $generalInformation->isStacked(),
-                'warning_high_threshold' => $thresholdInformation->getWarningThreshold(),
-                'critical_high_threshold' => $thresholdInformation->getCriticalThreshold(),
-                'warning_low_threshold' => $thresholdInformation->getWarningLowThreshold(),
-                'critical_low_threshold' => $thresholdInformation->getCriticalLowThreshold(),
-                'ds_order' => $generalInformation->getStackingOrder(),
-                'data' => $realTimeDataInformation->getValues(),
-                'last_value' => $realTimeDataInformation->getLastValue(),
-                'minimum_value' => $realTimeDataInformation->getMinimumValue(),
-                'maximum_value' => $realTimeDataInformation->getMaximumValue(),
-                'average_value' => $realTimeDataInformation->getAverageValue(),
-            ];
-        }, $metricsInformation);
+        return [
+            'metric_id' => $generalInformation->getId(),
+            'metric' => $generalInformation->getName(),
+            'metric_legend' => $generalInformation->getAlias(),
+            'unit' => $generalInformation->getUnit(),
+            'min' => $realTimeDataInformation->getMinimumValueLimit(),
+            'max' => $realTimeDataInformation->getMaximumValueLimit(),
+            'ds_data' => [
+                'ds_color_line' => $dataSource->getLineColor(),
+            ],
+            'legend' => $generalInformation->getLegend(),
+            'stack' => (int) $generalInformation->isStacked(),
+            'warning_high_threshold' => $thresholdInformation->getWarningThreshold(),
+            'critical_high_threshold' => $thresholdInformation->getCriticalThreshold(),
+            'warning_low_threshold' => $thresholdInformation->getWarningLowThreshold(),
+            'critical_low_threshold' => $thresholdInformation->getCriticalLowThreshold(),
+            'ds_order' => $generalInformation->getStackingOrder(),
+            'data' => $realTimeDataInformation->getValues(),
+            'last_value' => $realTimeDataInformation->getLastValue(),
+            'minimum_value' => $realTimeDataInformation->getMinimumValue(),
+            'maximum_value' => $realTimeDataInformation->getMaximumValue(),
+            'average_value' => $realTimeDataInformation->getAverageValue(),
+        ];
     }
 }

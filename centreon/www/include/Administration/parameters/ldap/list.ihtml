@@ -19,9 +19,7 @@
 				{$form.o1.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
 			</td>
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 	<table class="ListTable">
@@ -62,9 +60,7 @@
 				{$form.o2.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
 			</td>
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 <input type='hidden' name='a' id='a' value='42'>

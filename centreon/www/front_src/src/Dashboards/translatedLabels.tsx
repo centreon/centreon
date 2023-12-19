@@ -37,7 +37,3 @@ export const labelAccessRightStateUpdated = 'updated';
 export const labelAccessRightsStatsAdded = 'added';
 export const labelAccessRightsStatsRemoved = 'removed';
 export const labelAccessRightsStatsUpdated = 'updated';
-export const labelPlaylists = 'Playlists';
-export const labelWelcomeToThePlaylistInterface =
-  'Welcome to the Playlist interface!';
-export const labelCreateAPlaylist = 'Create a playlist';

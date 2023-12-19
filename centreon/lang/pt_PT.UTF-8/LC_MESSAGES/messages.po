@@ -17112,5 +17112,95 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Create a playlist"
 # msgstr ""
 
+# msgid "Playlist name"
+# msgstr ""
+
+# msgid "Playlist properties"
+# msgstr ""
+
+# msgid "Rotation time"
+# msgstr ""
+
+# msgid "Select dashboards"
+# msgstr ""
+
+# msgid "Define the order of dashboards"
+# msgstr ""
+
+# msgid "Add a dashboard"
+# msgstr ""
+
+# msgid "Playlist created"
+# msgstr ""
+
+# msgid "Playlist updated"
+# msgstr ""
+
 # msgid "Add at least 1 contact"
+# msgstr ""
+
+# msgid "Rotation time must be at least 10 seconds."
+# msgstr ""
+
+# msgid "Rotation time cannot exceed 60 seconds."
+# msgstr ""
+
+# msgid "Shares"
+# msgstr ""
+
+# msgid "Role"
+# msgstr ""
+
+# msgid "Creator"
+# msgstr ""
+
+# msgid "Creation date"
+# msgstr ""
+
+# msgid "Update"
+# msgstr ""
+
+# msgid "Public link"
+# msgstr ""
+
+# msgid "Private/Public"
+# msgstr ""
+
+# msgid "Copy link"
+# msgstr ""
+
+# msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+# msgstr ""
+
+# msgid "Failed to copy the link."
+# msgstr ""
+
+# msgid "Link has been copied!"
+# msgstr ""
+
+# msgid "Stop sharing"
+# msgstr ""
+
+# msgid "Viewer"
+# msgstr ""
+
+# msgid "Editor"
+# msgstr ""
+
+# msgid "Create"
+# msgstr ""
+
+# msgid "Publish your playlist"
+# msgstr ""
+
+# msgid "Settings"
+# msgstr ""
+
+# msgid "API token"
+# msgstr ""
+
+# msgid "Create new token"
+# msgstr ""
+
+# msgid "Revoked"
 # msgstr ""
