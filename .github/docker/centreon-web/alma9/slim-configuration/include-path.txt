@@ -32,7 +32,5 @@
 /var/lib/centreon-engine
 /var/lib/centreon-broker
 /var/lib/centreon-gorgone
-/var/lib/mysql/centreon
-/var/lib/mysql/centreon_storage
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins

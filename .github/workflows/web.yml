@@ -536,6 +536,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          target: web_fresh
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
@@ -544,74 +545,77 @@ jobs:
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      # - name: Build standard image
-      #   uses: docker/build-push-action@v3
-      #   with:
-      #     file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-      #     target: web_standard
-      #     context: .
-      #     build-args: |
-      #       "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-      #       "VERSION=${{ needs.get-version.outputs.major_version }}"
-      #     pull: true
-      #     load: true
-      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      - name: Build standard image
+        uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          target: web_standard
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+          pull: true
+          load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      # - name: Push standard image
-      #   uses: docker/build-push-action@v3
-      #   with:
-      #     file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-      #     target: web_standard
-      #     context: .
-      #     build-args: |
-      #       "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-      #       "VERSION=${{ needs.get-version.outputs.major_version }}"
-      #     pull: false
-      #     push: true
-      #     tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      - name: Push standard image
+        uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          target: web_standard
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+          pull: false
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-  #     - name: Setup docker slim
-  #       run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.3
-  #       shell: bash
+      - name: Setup docker slim
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.7
+        shell: bash
 
-  #     - name: Build standard slim image
-  #       run: |
-  #         slim build --show-clogs --show-blogs \
-  #           --include-shell \
-  #           --http-probe-off \
-  #           --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
-  #           --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
-  #           --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
-  #           --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
-  #           --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
-  #           ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-  #         docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-  #       shell: bash
+      - name: Build standard slim image
+        run: |
+          slim build \
+            --compose-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/docker-compose.yml \
+            --target-compose-svc web \
+            --show-clogs --show-blogs \
+            --include-shell \
+            --http-probe-off \
+            --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
+            --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
+            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            # ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
 
-  #     - name: Push standard slim image
-  #       run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-  #       shell: bash
+      - name: Push standard slim image
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
 
-  #     - name: Store standard slim image in local archive
-  #       run: |
-  #         mkdir -p /tmp/cache/docker-image
-  #         docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-  #       shell: bash
+      - name: Store standard slim image in local archive
+        run: |
+          mkdir -p /tmp/cache/docker-image
+          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
 
-  #     - name: Clear previous docker image from cache
-  #       run: |
-  #         curl \
-  #           -X DELETE \
-  #           -H "Accept: application/vnd.github.v3+json" \
-  #           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-  #           https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
-  #       shell: bash
+      - name: Clear previous docker image from cache
+        run: |
+          curl \
+            -X DELETE \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+        shell: bash
 
-  #     - name: Store standard slim image in cache
-  #       uses: actions/cache/save@v3
-  #       with:
-  #         path: /tmp/cache/docker-image
-  #         key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+      - name: Store standard slim image in cache
+        uses: actions/cache/save@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   # newman-test:
   #   needs: [get-version, changes, dockerize]
@@ -635,26 +639,26 @@ jobs:
   #     jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #     jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # api-integration-test:
-  #   needs: [get-version, changes, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+  api-integration-test:
+    needs: [get-version, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: api
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     os: ${{ matrix.os }}
-  #     features_path: tests/api/features
-  #     config_file: tests/api/behat.yml
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      os: ${{ matrix.os }}
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   # legacy-e2e-test:
   #   needs: [get-version, changes, dockerize]

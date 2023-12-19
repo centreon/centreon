@@ -2,8 +2,11 @@ version: "3"
 
 services:
   web:
-    env_file:
-      - .env
+    environment:
+      MYSQL_HOST: db
+      MYSQL_ROOT_PASSWORD: centreon
+      MYSQL_USER: centreon
+      MYSQL_PASSWORD: centreon
     image: "docker.centreon.com/centreon/centreon-web-fresh-alma9:MON-23368-containers"
     restart: 'always'
     depends_on:
@@ -14,14 +17,13 @@ services:
       - '8080:80'
     links:
       - db
-    environment:
-      MYSQL_HOST: db
   db:
-    env_file:
-      - .env
-    #environment:
+    environment:
+      MYSQL_ROOT_PASSWORD: centreon
+      MYSQL_USER: centreon
+      MYSQL_PASSWORD: centreon
     #  MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
-    image: "${MYSQL_IMAGE}"
+    image: "mysql:8"
     command: --default-authentication-plugin=mysql_native_password
     restart: 'always'
     # tmpfs:

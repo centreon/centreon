@@ -30,14 +30,16 @@ while true ; do
   fi
 done
 
-mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD}  <<< "SET autocommit=0; source /usr/local/src/centreon.sql; COMMIT;"
-mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD}  <<< "SET autocommit=0; source /usr/local/src/centreon_storage.sql; COMMIT;"
-
-sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/centreon.conf.php
-sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/conf.pm
-sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/config.d/10-database.yaml
+BASEDIR="/usr/local/src/sql"
+for file in `ls $BASEDIR` ; do
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD}  <<< "SET autocommit=0; source $BASEDIR/$file; COMMIT;"
+done
 
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
 
 #mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
+
+sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/centreon.conf.php
+sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/conf.pm
+sed -i "s/localhost/${MYSQL_HOST}/g" /etc/centreon/config.d/10-database.yaml
