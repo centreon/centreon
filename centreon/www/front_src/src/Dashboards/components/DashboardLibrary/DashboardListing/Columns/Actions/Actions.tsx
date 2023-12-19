@@ -1,16 +1,16 @@
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import ShareIcon from '@mui/icons-material/Share';
-import SettingsIcon from '@mui/icons-material/SettingsOutlined';
-import UnShareIcon from '@mui/icons-material/PersonRemove';
+import {
+  Share as ShareIcon,
+  SettingsOutlined as SettingsIcon,
+  PersonRemove as UnShareIcon
+} from '@mui/icons-material';
 import { Box } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import {
-  labelDelete,
   labelEditProperties,
   labelShare,
   labelUnshare
@@ -19,11 +19,12 @@ import { DashboardRole } from '../../../../../api/models';
 import { useColumnStyles } from '../useColumnStyles';
 
 import useActions from './useActions';
+import DeleteDashboard from './DeleteDashboard';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
-
+  const { name: dashboardName, ownRole } = row;
   const { editDashboard, isNestedRow, deleteDashboard, editAccessRights } =
     useActions(row);
 
@@ -37,11 +38,6 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       Icon: SettingsIcon,
       label: labelEditProperties,
       onClick: editDashboard
-    },
-    {
-      Icon: DeleteIcon,
-      label: t(labelDelete),
-      onClick: deleteDashboard
     }
   ];
 
@@ -53,7 +49,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     );
   }
 
-  if (equals(row?.ownRole, DashboardRole.viewer)) {
+  if (equals(ownRole, DashboardRole.viewer)) {
     return <Box className={classes.line}>-</Box>;
   }
 
@@ -71,6 +67,11 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
           </IconButton>
         );
       })}
+
+      <DeleteDashboard
+        dashboardName={dashboardName}
+        deleteDashboard={deleteDashboard}
+      />
     </Box>
   );
 };
