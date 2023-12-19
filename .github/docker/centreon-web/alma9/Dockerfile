@@ -203,6 +203,9 @@ EXPOSE 80 3306
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
+HEALTHCHECK --start-interval=1s --retries=30 --timeout=5s \
+  CMD curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+
 FROM web_fresh AS web_standard
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/

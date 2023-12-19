@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5260b3cfbc4e064d8d7500bde4787a7d",
+    "content-hash": "fec9146b00c27da9b8bc86463ebce8ac",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -7184,16 +7184,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "dev-docker-compose-syntax",
             "source": {
                 "type": "git",
-                "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "70fdda80771ef2d1cb3aec4b8c7808a901c1310d"
+                "url": "git@github.com:centreon/centreon-test-lib.git",
+                "reference": "14d17ad504a822b19402137f0fc2a35a3bd2cffb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/70fdda80771ef2d1cb3aec4b8c7808a901c1310d",
-                "reference": "70fdda80771ef2d1cb3aec4b8c7808a901c1310d",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/14d17ad504a822b19402137f0fc2a35a3bd2cffb",
+                "reference": "14d17ad504a822b19402137f0fc2a35a3bd2cffb",
                 "shasum": ""
             },
             "require": {
@@ -7218,7 +7218,6 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -7241,11 +7240,7 @@
                 "phpunit",
                 "testing"
             ],
-            "support": {
-                "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
-            },
-            "time": "2023-10-23T15:55:05+00:00"
+            "time": "2023-12-19T16:37:37+00:00"
         },
         {
             "name": "composer/pcre",
@@ -12266,5 +12261,5 @@
     "platform-overrides": {
         "php": "8.1"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
