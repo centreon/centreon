@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: centreon
       MYSQL_USER: centreon
       MYSQL_PASSWORD: centreon
-    image: "docker.centreon.com/centreon/centreon-web-fresh-alma9:MON-23368-containers"
+    image: "docker.centreon.com/centreon/centreon-web-alma9:MON-23368-containers"
     restart: 'always'
     depends_on:
       - db
