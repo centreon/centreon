@@ -3,7 +3,7 @@ import { rest } from 'msw';
 
 import { SnackbarProvider } from '../../..';
 
-import AccessRights from './AccessRights';
+import AccessRightsForm from './AccessRights';
 import {
   accessRightsWithStates,
   buildResult,
@@ -13,8 +13,8 @@ import {
   roles
 } from './storiesData';
 
-const meta: Meta<typeof AccessRights> = {
-  component: AccessRights,
+const meta: Meta<typeof AccessRightsForm> = {
+  component: AccessRightsForm,
   parameters: {
     msw: {
       handlers: [
@@ -31,12 +31,12 @@ const meta: Meta<typeof AccessRights> = {
 
 const Template = (args): JSX.Element => (
   <SnackbarProvider>
-    <AccessRights {...args} />
+    <AccessRightsForm {...args} />
   </SnackbarProvider>
 );
 
 export default meta;
-type Story = StoryObj<typeof AccessRights>;
+type Story = StoryObj<typeof AccessRightsForm>;
 
 export const Default: Story = {
   args: {

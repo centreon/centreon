@@ -1,4 +1,5 @@
 import { Provider, createStore } from 'jotai';
+
 import { Method, SnackbarProvider, TestQueryProvider } from '../../..';
 
 import { AccessRights } from './AccessRights';
@@ -38,19 +39,19 @@ const initialize = ({
       <SnackbarProvider>
         <TestQueryProvider>
           <Provider store={createStore()}>
-          <AccessRights
-            cancel={cancel}
-            endpoints={{
-              contact: '/contacts',
-              contactGroup: '/contact-groups'
-            }}
-            initialValues={initialValues}
-            labels={labels}
-            link={link}
-            loading={loading}
-            roles={roles}
-            submit={save}
-          />
+            <AccessRights
+              cancel={cancel}
+              endpoints={{
+                contact: '/contacts',
+                contactGroup: '/contact-groups'
+              }}
+              initialValues={initialValues}
+              labels={labels}
+              link={link}
+              loading={loading}
+              roles={roles}
+              submit={save}
+            />
           </Provider>
         </TestQueryProvider>
       </SnackbarProvider>
