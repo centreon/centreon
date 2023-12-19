@@ -67,6 +67,17 @@ interface ReadDashboardRepositoryInterface
     public function findByIds(array $ids): array;
 
     /**
+     * @param int[] $ids
+     * @param int $contactId
+     *
+     * @throws \Throwable
+     *
+     * @return array
+     *
+     */
+    public function findByIdsAndContactId(array $ids, int $contactId): array;
+
+    /**
      * Find one dashboard without acl.
      *
      * @param int $dashboardId
