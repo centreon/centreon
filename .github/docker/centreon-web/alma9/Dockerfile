@@ -184,6 +184,7 @@ su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
+mkdir -p /usr/local/src/sql
 mysqldump --add-drop-database --databases centreon > /usr/local/src/sql/01-centreon.sql
 mysqldump --add-drop-database --databases centreon_storage > /usr/local/src/sql/02-centreon_storage.sql
 
