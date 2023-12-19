@@ -50,7 +50,6 @@ const LicenseCheck = ({
   isFederatedComponent,
   children,
   moduleName,
-  isFederatedComponent
 }: LicenseCheckProps): JSX.Element | null => {
   const { isError, data, isLoading } = useFetchQuery<License>({
     decoder: licenseDecoder,
