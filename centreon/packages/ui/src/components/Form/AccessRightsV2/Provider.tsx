@@ -6,8 +6,10 @@ interface Props {
   children: ReactNode;
 }
 
+const store = createStore();
+
 const Provider = ({ children }: Props): JSX.Element => (
-  <JotaiProvider store={createStore()}>{children}</JotaiProvider>
+  <JotaiProvider store={store}>{children}</JotaiProvider>
 );
 
 export default Provider;
