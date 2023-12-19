@@ -24,9 +24,19 @@ declare(strict_types=1);
 namespace Core\ServiceSeverity\Domain\Model;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
 
-class ServiceSeverity extends NewServiceSeverity
+class ServiceSeverity
 {
+    public const MAX_NAME_LENGTH = 200,
+        MAX_ALIAS_LENGTH = 200,
+        MIN_LEVEL_VALUE = -128,
+        MAX_LEVEL_VALUE = 127;
+
+    private string $shortName = '';
+
+    private bool $isActivated = true;
+
     /**
      * @param int $id
      * @param string $name
@@ -38,12 +48,17 @@ class ServiceSeverity extends NewServiceSeverity
      */
     public function __construct(
         private readonly int $id,
-        string $name,
-        string $alias,
-        int $level,
-        int $iconId
+        private string $name,
+        private string $alias,
+        private int $level,
+        private int $iconId
     ) {
-        parent::__construct($name, $alias, $level, $iconId);
+        $this->shortName = (new \ReflectionClass($this))->getShortName();
+
+        $this->setName($name);
+        $this->setAlias($alias);
+        $this->setIconId($iconId);
+        $this->setLevel($level);
     }
 
     /**
@@ -52,5 +67,90 @@ class ServiceSeverity extends NewServiceSeverity
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @throws \Throwable
+     */
+    public function setName(string $name): void
+    {
+        $name = trim($name);
+
+        Assertion::notEmptyString($name, $this->shortName . '::name');
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, $this->shortName . '::name');
+
+        $this->name = $name;
+    }
+
+    public function getAlias(): string
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @param string $alias
+     *
+     * @throws \Throwable
+     */
+    public function setAlias(string $alias): void
+    {
+        $alias = trim($alias);
+
+        Assertion::notEmptyString($alias, $this->shortName . '::alias');
+        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $this->shortName . '::alias');
+
+        $this->alias = $alias;
+    }
+
+    public function getLevel(): int
+    {
+        return $this->level;
+    }
+
+    /**
+     * @param int $level
+     *
+     * @throws \Throwable
+     */
+    public function setLevel(int $level): void
+    {
+        Assertion::min($level, self::MIN_LEVEL_VALUE, $this->shortName . '::level');
+        Assertion::max($level, self::MAX_LEVEL_VALUE, $this->shortName . '::level');
+
+        $this->level = $level;
+    }
+
+    public function getIconId(): int
+    {
+        return $this->iconId;
+    }
+
+    /**
+     * @param int $iconId
+     *
+     * @throws \Throwable
+     */
+    public function setIconId(int $iconId): void
+    {
+        Assertion::positiveInt($iconId, $this->shortName . '::iconId');
+
+        $this->iconId = $iconId;
+    }
+
+    public function isActivated(): bool
+    {
+        return $this->isActivated;
+    }
+
+    public function setActivated(bool $isActivated): void
+    {
+        $this->isActivated = $isActivated;
     }
 }
