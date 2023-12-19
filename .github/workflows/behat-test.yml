@@ -113,13 +113,14 @@ jobs:
         env:
           PANTHER_CHROME_BINARY: /usr/bin/google-chrome
         run: |
-          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+          export WEB_FRESH_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ env.IMAGE_TAG }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
-          sed \
-            -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ env.IMAGE_TAG }}#g" \
-            ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
+          # sed \
+          #   -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
+          #   -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ env.IMAGE_TAG }}#g" \
+          #   ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
