@@ -135,12 +135,6 @@ const getLoadableComponents = ({
     : components;
 };
 
-const defaultStyleMenuSkeleton = {
-  className: undefined,
-  height: undefined,
-  width: undefined
-};
-
 const LoadableComponentsContainer = ({
   path,
   styleMenuSkeleton,
