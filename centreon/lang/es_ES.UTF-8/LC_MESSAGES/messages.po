@@ -16738,9 +16738,6 @@ msgstr "Modo avanzado"
 # msgid "Create"
 # msgstr ""
 
-# msgid "Publish your playlist"
-# msgstr ""
-
 # msgid "Settings"
 # msgstr ""
 
