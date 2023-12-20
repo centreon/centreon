@@ -18550,10 +18550,10 @@ msgid "Revoked"
 msgstr "Révoqué"
 
 msgid "List View"
-msgstr "Vue en cartes"
+msgstr "Vue en liste"
 
 msgid "Cards View"
-msgstr "Vue en liste"
+msgstr "Vue en cartes"
 
 msgid "Edit properties"
 msgstr "Modifier les propriétés"
