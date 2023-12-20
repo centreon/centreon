@@ -25,12 +25,22 @@ namespace Core\ServiceSeverity\Application\Exception;
 
 class ServiceSeverityException extends \Exception
 {
+    public const CODE_CONFLICT = 1;
+
     /**
      * @return self
      */
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access service severities'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function editNotAllowed(): self
+    {
+        return new self(_('You are not allowed to edit service severities'));
     }
 
     /**
@@ -66,6 +76,16 @@ class ServiceSeverityException extends \Exception
      *
      * @return self
      */
+    public static function editServiceSeverity(\Throwable $ex): self
+    {
+        return new self(_('Error while editing service severity'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
     public static function addServiceSeverity(\Throwable $ex): self
     {
         return new self(_('Error while creating service severity'), 0, $ex);
@@ -92,7 +112,7 @@ class ServiceSeverityException extends \Exception
      */
     public static function serviceNameAlreadyExists(): self
     {
-        return new self(_('Service severity name already exists'));
+        return new self(_('Service severity name already exists'), self::CODE_CONFLICT);
     }
 
     /**
@@ -102,6 +122,9 @@ class ServiceSeverityException extends \Exception
      */
     public static function iconDoesNotExist(int $iconId): self
     {
-        return new self(sprintf(_("The service severity icon with id '%d' does not exist"), $iconId));
+        return new self(
+            sprintf(_("The service severity icon with id '%d' does not exist"), $iconId),
+            self::CODE_CONFLICT
+        );
     }
 }
