@@ -20,6 +20,7 @@ import { adjustCheckedResources } from './helpers';
 
 interface Props {
   displayCondensed?: boolean;
+  onSuccess?: () => void;
   resources: Array<Resource>;
   testId: string;
 }
@@ -28,6 +29,7 @@ const CheckActionButton = ({
   resources,
   testId,
   displayCondensed,
+  onSuccess,
   ...rest
 }: Props & Data): JSX.Element => {
   const { t } = useTranslation();
@@ -61,6 +63,7 @@ const CheckActionButton = ({
             ? t(rest.success.msgForcedCheckCommandSent)
             : t(rest.success.msgLabelCheckCommandSent)
         );
+        onSuccess?.();
       });
 
       return;
@@ -74,6 +77,7 @@ const CheckActionButton = ({
           ? t(rest.success.msgLabelCheckCommandSent)
           : t(rest.success.msgForcedCheckCommandSent)
       );
+      onSuccess?.();
     });
   };
 

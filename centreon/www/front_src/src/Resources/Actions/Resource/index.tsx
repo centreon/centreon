@@ -300,6 +300,7 @@ const ResourceActions = ({
               displayCondensed={displayCondensed}
               resources={resources}
               testId="Multiple Check"
+              onSuccess={success}
               {...extraCheckData}
             />
           </div>

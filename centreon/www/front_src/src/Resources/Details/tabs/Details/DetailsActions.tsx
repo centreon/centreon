@@ -1,19 +1,28 @@
 import { useState } from 'react';
 
-import { useAtomValue } from 'jotai';
-import { lt } from 'ramda';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { always, ifElse, lt, pathEq, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+
+import { getData, useRequest } from '@centreon/ui';
 
 import ResourceActions from '../../../Actions/Resource';
 import { Action, MainActions } from '../../../Actions/model';
 import {
+  labelNoResourceFound,
   labelResourceDetailsCheckCommandSent,
   labelResourceDetailsCheckDescription,
   labelResourceDetailsForcedCheckCommandSent,
-  labelResourceDetailsForcedCheckDescription
+  labelResourceDetailsForcedCheckDescription,
+  labelSomethingWentWrong
 } from '../../../translatedLabels';
-import { panelWidthStorageAtom } from '../../detailsAtoms';
+import {
+  detailsAtom,
+  panelWidthStorageAtom,
+  selectedResourceDetailsEndpointDerivedAtom
+} from '../../detailsAtoms';
+import { ResourceDetails } from '../../models';
 
 const useStyles = makeStyles()((theme) => ({
   condensed: {
@@ -42,11 +51,32 @@ const DetailsActions = ({ details }): JSX.Element => {
     }
   ]);
 
+  const { sendRequest: sendLoadDetailsRequest } = useRequest<ResourceDetails>({
+    getErrorMessage: ifElse(
+      pathEq(404, ['response', 'status']),
+      always(t(labelNoResourceFound)),
+      pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
+    ),
+    request: getData
+  });
+
   const panelWidth = useAtomValue(panelWidthStorageAtom);
 
+  const selectedResourceDetailsEndpoint = useAtomValue(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
+  const setDetails = useSetAtom(detailsAtom);
   const displayCondensed = lt(panelWidth, 615);
 
-  const success = (): void => {};
+  const success = (): void => {
+    setTimeout(() => {
+      sendLoadDetailsRequest({
+        endpoint: selectedResourceDetailsEndpoint
+      }).then((data) => {
+        setDetails(data);
+      });
+    }, 10000);
+  };
 
   const mainActions = [
     {
