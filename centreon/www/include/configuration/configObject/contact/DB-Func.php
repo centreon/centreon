@@ -132,7 +132,7 @@ function keepOneContactAtLeast($ct_id = null)
             WHERE contact_activate = '1'
             AND contact_oreon = '1'
             AND contact_id <> :contact_id");
-    $statement->bindValue(':contact_id', $pearDB->escape($contact_id));
+    $statement->bindValue(':contact_id', $contact_id, \PDO::PARAM_INT);
     $statement->execute();
     $contacts = $statement->fetch(\PDO::FETCH_ASSOC);
 
