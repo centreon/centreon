@@ -61,5 +61,5 @@ jobs:
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
           JIRA_TOKEN_TEST: ${{ secrets.JIRA_TOKEN_TEST }}
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
