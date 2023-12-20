@@ -42,6 +42,7 @@ const ViewMode = (): JSX.Element => {
           <IconButton
             ariaLabel={t(label)}
             color={equals(mode, viewMode) ? 'primary' : 'default'}
+            data-selected={equals(mode, viewMode)}
             key={label}
             title={t(label)}
             onClick={onClick}
