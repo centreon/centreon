@@ -31,7 +31,7 @@ jobs:
     if: github.event.pull_request.merged == true
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/clean-up-npm-tag
         with:
@@ -43,7 +43,7 @@ jobs:
     if: ${{ github.event.pull_request.merged == true }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/npm-publish-package-stable
         with:
@@ -59,7 +59,7 @@ jobs:
     needs: [get-version]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/publish-storybook
         with:
