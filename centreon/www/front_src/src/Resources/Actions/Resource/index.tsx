@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { all, head, pathEq } from 'ramda';
+import { all, head, pathEq, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -85,19 +85,12 @@ const ResourceActions = ({
     arrayActions: mainActions,
     key: Action.Acknowledge
   });
+
   const { displayCheck } = extractActionsInformation({
     arrayActions: mainActions,
     key: Action.Check
   });
 
-  console.log({
-    extraPermittedAcknowledge,
-    mainActions,
-    res: extractActionsInformation({
-      arrayActions: mainActions,
-      key: Action.Acknowledge
-    })
-  });
   const {
     displayDisacknowledge,
     extraDisabledDisacknowledge,
@@ -200,21 +193,17 @@ const ResourceActions = ({
   const defaultDisableAcknowledge =
     !canAcknowledge(resources) || areSelectedResourcesOk;
 
-  const disableAcknowledge = extraDisabledAcknowledge
-    ? extraDisabledAcknowledge && defaultDisableAcknowledge
-    : defaultDisableAcknowledge;
+  const disableAcknowledge =
+    extraDisabledAcknowledge || defaultDisableAcknowledge;
 
   const defaultDisableDowntime = !canDowntime(resources);
 
-  const disableDowntime = extraDisabledDownTime
-    ? defaultDisableDowntime && extraDisabledDownTime
-    : defaultDisableDowntime;
+  const disableDowntime = extraDisabledDownTime || defaultDisableDowntime;
 
   const defaultDisableDisacknowledge = !canDisacknowledge(resources);
 
-  const disableDisacknowledge = extraDisabledDisacknowledge
-    ? defaultDisableDisacknowledge && extraDisabledDisacknowledge
-    : defaultDisableDisacknowledge;
+  const disableDisacknowledge =
+    extraDisabledDisacknowledge || defaultDisableDisacknowledge;
 
   const hasSelectedResources = resources.length > 0;
   const hasOneResourceSelected = resources.length === 1;
@@ -229,21 +218,22 @@ const ResourceActions = ({
   const defaultIsAcknowledgePermitted =
     canAcknowledge(resources) || !hasSelectedResources;
 
-  const isAcknowledgePermitted = extraPermittedAcknowledge
-    ? extraPermittedAcknowledge && defaultIsAcknowledgePermitted
-    : defaultIsAcknowledgePermitted;
+  const isAcknowledgePermitted = !defaultIsAcknowledgePermitted
+    ? defaultIsAcknowledgePermitted
+    : extraPermittedAcknowledge;
+
   const defaultIsDowntimePermitted =
     canDowntime(resources) || !hasSelectedResources;
-  const isDowntimePermitted = extraPermittedDownTime
-    ? extraPermittedDownTime && defaultIsDowntimePermitted
-    : defaultIsDowntimePermitted;
+  const isDowntimePermitted = !defaultIsDowntimePermitted
+    ? defaultIsDowntimePermitted
+    : extraPermittedDownTime;
 
   const defaultIsDisacknowledgePermitted =
     canDisacknowledge(resources) || !hasSelectedResources;
 
-  const isDisacknowledgePermitted = extraPermittedDisacknowledge
-    ? extraPermittedDisacknowledge && defaultIsDisacknowledgePermitted
-    : defaultIsDisacknowledgePermitted;
+  const isDisacknowledgePermitted = !defaultIsDisacknowledgePermitted
+    ? defaultIsDisacknowledgePermitted
+    : extraPermittedDisacknowledge;
 
   const isSubmitStatusPermitted =
     canSubmitStatus(resources) || !hasSelectedResources;
@@ -348,9 +338,9 @@ const ResourceActions = ({
           {({ close }): JSX.Element => (
             <>
               <ActionMenuItem
-                disabled={disableDisacknowledge}
+                disabled={defaultDisableDisacknowledge}
                 label={labelDisacknowledge}
-                permitted={isDisacknowledgePermitted}
+                permitted={Boolean(isDisacknowledgePermitted)}
                 testId="Multiple Disacknowledge"
                 onClick={(): void => {
                   close();

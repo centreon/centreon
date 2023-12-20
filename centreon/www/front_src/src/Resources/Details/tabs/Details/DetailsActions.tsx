@@ -15,7 +15,6 @@ const useStyles = makeStyles()({
 
 const DetailsActions = ({ details }): JSX.Element => {
   const { classes } = useStyles();
-  console.log(details);
   // update details temporary /use decoder after
   const [resource, setResource] = useState([
     {
