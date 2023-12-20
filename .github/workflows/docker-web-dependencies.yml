@@ -39,7 +39,7 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      - uses: docker/build-push-action@v3
+      - uses: docker/build-push-action@v5
         with:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           context: .
