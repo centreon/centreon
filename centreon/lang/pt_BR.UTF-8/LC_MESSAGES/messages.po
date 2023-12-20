@@ -17222,5 +17222,5 @@ msgstr ""
 # msgid "Cards View"
 # msgstr ""
 
-# msgstr "Edit properties"
-# msgid ""
+# msgid "Edit properties"
+# msgstr ""

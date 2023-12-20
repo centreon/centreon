@@ -17211,5 +17211,5 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Cards View"
 # msgstr ""
 
-# msgstr "Edit properties"
-# msgid ""
+# msgid "Edit properties"
+# msgstr ""

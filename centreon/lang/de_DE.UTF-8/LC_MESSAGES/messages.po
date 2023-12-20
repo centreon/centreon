@@ -16428,5 +16428,5 @@ msgstr "Erweiterter Modus"
 # msgid "Cards View"
 # msgstr ""
 
-# msgstr "Edit properties"
-# msgid ""
+# msgid "Edit properties"
+# msgstr ""

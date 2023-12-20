@@ -18591,5 +18591,5 @@ msgstr "Vue en cartes"
 msgid "Cards View"
 msgstr "Vue en liste"
 
-msgstr "Edit properties"
-msgid "Modifier les propriétés"
+msgid "Edit properties"
+msgstr "Modifier les propriétés"
