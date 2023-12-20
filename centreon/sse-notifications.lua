@@ -40,7 +40,7 @@ local data = {
   last_refresh = 0,        -- internal.
   current_uid = "unknown", -- internal
   host = {},               -- internal: the configuration raised by the API.
-  mercure_auth = "Authorization:Bearer eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdLCJzdWJzY3JpYmUiOlsiaHR0cHM6Ly9leGFtcGxlLmNvbS9teS1wcml2YXRlLXRvcGljIiwie3NjaGVtZX06Ly97K2hvc3R9L2RlbW8vYm9va3Mve2lkfS5qc29ubGQiLCIvLndlbGwta25vd24vbWVyY3VyZS9zdWJzY3JpcHRpb25zey90b3BpY317L3N1YnNjcmliZXJ9Il0sInBheWxvYWQiOnsidXNlciI6Imh0dHBzOi8vZXhhbXBsZS5jb20vdXNlcnMvZHVuZ2xhcyIsInJlbW90ZUFkZHIiOiIxMjcuMC4wLjEifX19.KKPIikwUzRuB3DTpVw6ajzwSChwFw5omBMmMcWKiDcM"
+  mercure_auth = "Authorization:Bearer eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsidXNlcnMve3VzZXJfaWR9L3t0eXBlfS97bWVzc2FnZX0iXX19.DF8ZQiT_fz8X-k37T5YCr4w9wptdJB9lcEEIu_EbJLU"
 }
 
 --- Get the user token from data.user/data.password. The token is stored into
@@ -316,7 +316,9 @@ local function send_notification(user_ids, notif, event, conf, hostname)
     c = cURL.easy{
       url        = "mercure/.well-known/mercure",
       post       = true,
-      httpheader = {data.mercure_auth},
+      httpheader = {
+        data.mercure_auth,
+      },
       postfields = fields,
       writefunction = function (resp)
         broker_log:info(0, "mercure token" .. resp)

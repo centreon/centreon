@@ -47,18 +47,39 @@ if (!$min) {
 ?>
 
 <script type="text/javascript">
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
 
     const url = new URL('http://localhost:8081/.well-known/mercure');
     url.searchParams.append('topic', '<?= $topicUser ?>');
     url.searchParams.append('topic', 'system');
+    let lastEventId = getCookie('sse_last-event-id');
+    if (lastEventId !== undefined) {
+      console.log('lastEventId: ' + lastEventId);
+      url.searchParams.append('lastEventID', lastEventId);
+    }
     const eventSource = new EventSource(url, {withCredentials: true});
-    eventSource.onmessage = function (e) {
-      let data = JSON.parse(e.data);
+    eventSource.onmessage = function (event) {
+      let data = JSON.parse(event.data);
       if (typeof data !== 'object') {
         data = JSON.parse(data);
       }
-      console.log(data)
+      console.log(event)
       let status = '';
+      document.cookie = 'sse_last-event-id=' + event.lastEventId;
       switch(data.event?.state) {
         case 0:
           status = 'success'

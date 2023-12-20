@@ -90,7 +90,7 @@ function createJwtForUser(int $userId): string
 
     $payload = json_encode([
         'mercure' => [
-            "subscribe" => ["users/$userId/{type}/{message}"]
+            "subscribe" => ["users/$userId/{type}/{message}", "system"]
         ]
     ]);
     $jwsBuilder = new \Jose\Component\Signature\JWSBuilder(new AlgorithmManager([new HS256()]));
@@ -144,9 +144,9 @@ $cookieStatus = setcookie(
     [
         'expires' => 0,
         'path' => '/.well-known/mercure',
-        'domain' => '',
+        'domain' => 'localhost',
         'secure' => false,
-        'httponly' => false,
+        'httponly' => true,
         'samesite' => 'lax',
     ]
 );
