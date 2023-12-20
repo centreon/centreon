@@ -272,7 +272,14 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     AND host.host_register = '1'
                 WHERE service.service_id = :id
                     AND service.service_register = '1'
-                GROUP BY service.service_id
+                GROUP BY
+                    service.service_id,
+                    esi.esi_action_url,
+                    esi.esi_icon_image,
+                    esi.esi_icon_image_alt,
+                    esi.esi_notes,
+                    esi.esi_notes_url,
+                    esi.graph_id
             SQL;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':id', $serviceId, \PDO::PARAM_INT);
