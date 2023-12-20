@@ -27,6 +27,14 @@ jobs:
     with:
       version_file: centreon-gorgone/.version
 
+  check-version:
+    uses: ./.github/actions/check-version
+    with:
+      module_name: dsm
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+
   veracode-analysis:
     needs: [get-version]
     uses: ./.github/workflows/veracode-analysis.yml
