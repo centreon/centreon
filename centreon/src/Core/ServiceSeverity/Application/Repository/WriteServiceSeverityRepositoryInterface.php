@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ServiceSeverity\Application\Repository;
 
 use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
+use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
 
 interface WriteServiceSeverityRepositoryInterface
 {
@@ -45,4 +46,13 @@ interface WriteServiceSeverityRepositoryInterface
      * @return int
      */
     public function add(NewServiceSeverity $serviceSeverity): int;
+
+    /**
+     * Update a service severity.
+     *
+     * @param ServiceSeverity $severity
+     *
+     * @throws \Throwable
+     */
+    public function update(ServiceSeverity $severity): void;
 }

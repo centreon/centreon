@@ -107,7 +107,21 @@ const DataCell = ({
       const isCellHidden = getHiddenCondition?.(isRowSelected);
 
       if (isCellHidden) {
-        return null;
+        return (
+          <Cell
+            className={classes.cell}
+            isRowHighlighted={isRowHighlighted}
+            listingVariant={listingVariant}
+            onClick={(e): void => {
+              if (!clickable) {
+                return;
+              }
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            {...commonCellProps}
+          />
+        );
       }
 
       return (

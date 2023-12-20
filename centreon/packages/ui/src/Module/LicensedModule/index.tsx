@@ -7,11 +7,17 @@ type Props = ModuleProps & LicenseCheckProps;
 const LicensedModule = ({
   moduleName,
   children,
+  isFederatedComponent,
   ...props
 }: Props): JSX.Element => {
   return (
     <Module {...props}>
-      <LicenseCheck moduleName={moduleName}>{children}</LicenseCheck>
+      <LicenseCheck
+        isFederatedComponent={isFederatedComponent}
+        moduleName={moduleName}
+      >
+        {children}
+      </LicenseCheck>
     </Module>
   );
 };
