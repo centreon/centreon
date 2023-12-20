@@ -1,5 +1,3 @@
-import { DashboardLayout } from '../Dashboards/models';
-
 import routeMap from './routeMap';
 
 export interface DeprecatedRoute {
@@ -8,7 +6,7 @@ export interface DeprecatedRoute {
   };
   ignoreWhen?: (props) => boolean;
   newRoute: {
-    parameters: Array<{
+    parameters?: Array<{
       defaultValue?: unknown;
       property: string;
     }>;
@@ -22,12 +20,6 @@ export const deprecatedRoutes: Array<DeprecatedRoute> = [
       path: '/home/dashboards'
     },
     newRoute: {
-      parameters: [
-        {
-          defaultValue: DashboardLayout.Library,
-          property: 'layout'
-        }
-      ],
       path: routeMap.dashboards
     }
   },
@@ -41,10 +33,6 @@ export const deprecatedRoutes: Array<DeprecatedRoute> = [
       ),
     newRoute: {
       parameters: [
-        {
-          defaultValue: DashboardLayout.Library,
-          property: 'layout'
-        },
         {
           property: 'dashboardId'
         }
