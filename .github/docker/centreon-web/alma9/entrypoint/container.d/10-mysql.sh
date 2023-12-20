@@ -33,7 +33,7 @@ done
 DATABASES_DUMP_DIR="/usr/local/src/sql/databases"
 for file in `ls $DATABASES_DUMP_DIR` ; do
   # mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} <<< "SET autocommit=0; source $DATABASES_DUMP_DIR/$file; COMMIT;"
-  myloader -h ${MYSQL_HOST} -u root -p ${MYSQL_ROOT_PASSWORD} -P 3306 -s $file -o -v 3 -d $DATABASES_DUMP_DIR/$file
+  myloader -h ${MYSQL_HOST} -u root -p ${MYSQL_ROOT_PASSWORD} -P 3306 -s $file -o -d $DATABASES_DUMP_DIR/$file
 done
 
 DATA_DUMP_DIR="/usr/local/src/sql/data"
