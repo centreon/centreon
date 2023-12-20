@@ -19,7 +19,7 @@ interface Props {
   link?: string;
   loading?: boolean;
   roles: Array<SelectEntry>;
-  submit: (values: Array<AccessRightInitialValues>) => void;
+  submit: (values: Array<AccessRightInitialValues>) => Promise<void>;
 }
 
 export const AccessRights = ({
@@ -34,7 +34,7 @@ export const AccessRights = ({
   isSubmitting
 }: Props): JSX.Element => {
   const { classes } = useAccessRightsStyles();
-  useAccessRightsInitValues({ initialValues });
+  const clear = useAccessRightsInitValues({ initialValues });
 
   return (
     <div className={classes.container}>
@@ -43,6 +43,7 @@ export const AccessRights = ({
       <Stats labels={labels.list} />
       <Actions
         cancel={cancel}
+        clear={clear}
         isSubmitting={isSubmitting}
         labels={labels.actions}
         link={link}

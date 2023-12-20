@@ -10,7 +10,9 @@ interface Props {
   initialValues: Array<AccessRightInitialValues>;
 }
 
-export const useAccessRightsInitValues = ({ initialValues }: Props): void => {
+export const useAccessRightsInitValues = ({
+  initialValues
+}: Props): (() => void) => {
   const [currentInitialValues, setInitialValues] = useAtom(initialValuesAtom);
   const setValues = useSetAtom(valuesAtom);
 
@@ -39,4 +41,11 @@ export const useAccessRightsInitValues = ({ initialValues }: Props): void => {
       }))
     );
   }
+
+  const clearValues = (): void => {
+    setInitialValues([]);
+    setValues([]);
+  };
+
+  return clearValues;
 };

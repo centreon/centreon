@@ -11,10 +11,11 @@ import { useActionsStyles } from './Actions.styles';
 
 interface Props {
   cancel: ({ dirty, values }) => void;
+  clear: () => void;
   isSubmitting?: boolean;
   labels: Labels['actions'];
   link?: string;
-  submit: (values: Array<AccessRightInitialValues>) => void;
+  submit: (values: Array<AccessRightInitialValues>) => Promise<void>;
 }
 
 const Actions = ({
@@ -22,12 +23,14 @@ const Actions = ({
   cancel,
   submit,
   link,
-  isSubmitting
+  isSubmitting,
+  clear
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useActionsStyles();
 
   const { dirty, copyLink, save, formattedValues } = useActions({
+    clear,
     labels,
     link,
     submit
