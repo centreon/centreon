@@ -894,8 +894,7 @@ function updateContactServiceCommands($contact_id = null, $ret = array())
     }
 
     for ($i = 0; $i < $resultsCount; $i++) {
-        $rq = "INSERT INTO contact_servicecommands_relation contact_contact_id, command_command_id)
-                VALUES (:contact_contact_id, :command_command_id)";
+        $rq = "INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_contact_id, :command_command_id)";
         $statement = $pearDB->prepare($rq);
         $statement->bindValue(':contact_contact_id', (int) $contact_id);
         $statement->bindValue(':command_command_id', $ret[$i]);
