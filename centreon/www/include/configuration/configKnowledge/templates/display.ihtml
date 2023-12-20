@@ -71,7 +71,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {pagination}
+            {paginationknowledge}
         </tr>
     </table>
     <table class="ListTable">
