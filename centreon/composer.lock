@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8373c43b46d69a38788e738d6d144395",
+    "content-hash": "9ca5201c11268615ce83362b0d8b3327",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -5090,16 +5090,16 @@
         },
         {
             "name": "symfony/security-bundle",
-            "version": "v5.4.21",
+            "version": "v5.4.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-bundle.git",
-                "reference": "a85747ee4508d236e171a3cc8c2ce58c5f24f990"
+                "reference": "8f432fae02bd908c1decea70a359d85a9be37f2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-bundle/zipball/a85747ee4508d236e171a3cc8c2ce58c5f24f990",
-                "reference": "a85747ee4508d236e171a3cc8c2ce58c5f24f990",
+                "url": "https://api.github.com/repos/symfony/security-bundle/zipball/8f432fae02bd908c1decea70a359d85a9be37f2c",
+                "reference": "8f432fae02bd908c1decea70a359d85a9be37f2c",
                 "shasum": ""
             },
             "require": {
@@ -5172,7 +5172,7 @@
             "description": "Provides a tight integration of the Security component into the Symfony full-stack framework",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-bundle/tree/v5.4.21"
+                "source": "https://github.com/symfony/security-bundle/tree/v5.4.29"
             },
             "funding": [
                 {
@@ -5188,7 +5188,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-26T12:08:44+00:00"
+            "time": "2023-09-19T07:33:45+00:00"
         },
         {
             "name": "symfony/security-core",
@@ -6875,16 +6875,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-master",
+            "version": "23.04.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "33073d5de73e55d67910f2dee13b7b28222eff34"
+                "url": "git@github.com:centreon/centreon-test-lib.git",
+                "reference": "0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/33073d5de73e55d67910f2dee13b7b28222eff34",
-                "reference": "33073d5de73e55d67910f2dee13b7b28222eff34",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a",
+                "reference": "0b72ad99bb6faaa4232e785e5e5d8b8f1b95cb1a",
                 "shasum": ""
             },
             "require": {
@@ -6894,8 +6894,9 @@
                 "justinrainbow/json-schema": "^5.2",
                 "league/openapi-psr7-validator": "^0.17",
                 "nyholm/psr7": "^1.3",
-                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan": "~1.10.0",
                 "psr/http-client": "^1.0",
+                "symfony/console": "^5.4",
                 "symfony/http-client": "^5.4.0",
                 "symfony/property-access": "^5.4.0",
                 "webmozart/assert": "^1.9"
@@ -6908,10 +6909,10 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
+                    "Centreon\\Command\\": "src/Command",
                     "Centreon\\PHPStan\\": "src/PHPStan",
                     "Centreon\\Test\\Mock\\": "src/mock",
                     "Centreon\\PhpCsFixer\\": "src/PhpCsFixer",
@@ -6930,11 +6931,7 @@
                 "phpunit",
                 "testing"
             ],
-            "support": {
-                "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
-            },
-            "time": "2023-04-05T16:13:33+00:00"
+            "time": "2023-12-08T11:20:10+00:00"
         },
         {
             "name": "composer/pcre",
