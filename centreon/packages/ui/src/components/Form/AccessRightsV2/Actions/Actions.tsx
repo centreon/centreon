@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import LinkIcon from '@mui/icons-material/Link';
+import { CircularProgress } from '@mui/material';
 
 import { Button } from '../../..';
 import { AccessRightInitialValues, Labels } from '../models';
@@ -10,12 +11,19 @@ import { useActionsStyles } from './Actions.styles';
 
 interface Props {
   cancel: ({ dirty, values }) => void;
+  isSubmitting?: boolean;
   labels: Labels['actions'];
   link?: string;
   submit: (values: Array<AccessRightInitialValues>) => void;
 }
 
-const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
+const Actions = ({
+  labels,
+  cancel,
+  submit,
+  link,
+  isSubmitting
+}: Props): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useActionsStyles();
 
@@ -54,7 +62,9 @@ const Actions = ({ labels, cancel, submit, link }: Props): JSX.Element => {
         </Button>
         <Button
           aria-label={t(labels.save)}
-          disabled={!dirty}
+          disabled={isSubmitting || !dirty}
+          icon={isSubmitting ? <CircularProgress size={24} /> : null}
+          iconVariant={isSubmitting ? 'start' : 'none'}
           variant="primary"
           onClick={save}
         >

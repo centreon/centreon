@@ -14,6 +14,7 @@ interface Props {
   cancel: ({ dirty, values }) => void;
   endpoints: Endpoints;
   initialValues: Array<AccessRightInitialValues>;
+  isSubmitting?: boolean;
   labels: Labels;
   link?: string;
   loading?: boolean;
@@ -29,7 +30,8 @@ export const AccessRights = ({
   cancel,
   link,
   loading,
-  labels
+  labels,
+  isSubmitting
 }: Props): JSX.Element => {
   const { classes } = useAccessRightsStyles();
   useAccessRightsInitValues({ initialValues });
@@ -41,6 +43,7 @@ export const AccessRights = ({
       <Stats labels={labels.list} />
       <Actions
         cancel={cancel}
+        isSubmitting={isSubmitting}
         labels={labels.actions}
         link={link}
         submit={submit}
