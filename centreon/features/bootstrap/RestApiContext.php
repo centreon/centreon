@@ -17,7 +17,7 @@ class RestApiContext extends CentreonContext
     public function aCentreonServerWithRestApiTestingData()
     {
         // Launch container.
-        $this->launchCentreonWebContainer('docker_compose_web', ['web-fresh', 'webdriver']);
+        $this->launchCentreonWebContainer('docker_compose_web', ['web'], ['CENTREON_DATASET' => '1']);
 
         // Copy images.
         $basedir = 'tests/rest_api/images';
