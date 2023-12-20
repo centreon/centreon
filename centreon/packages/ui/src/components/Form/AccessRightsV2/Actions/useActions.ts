@@ -19,13 +19,13 @@ const formatValueForSubmition = (
 };
 
 interface Props {
+  clear: () => void;
   labels: Labels['actions'];
   link?: string;
   submit: (values: Array<AccessRightInitialValues>) => Promise<void>;
 }
 
 interface UseActionsState {
-  clear: () => void;
   copyLink: () => void;
   dirty: boolean;
   formattedValues: Array<AccessRightInitialValues>;
@@ -62,7 +62,7 @@ export const useActions = ({
   const save = (): void => {
     submit(
       values.filter(({ isRemoved }) => !isRemoved).map(formatValueForSubmition)
-    ).then(clear);
+    )?.then(clear);
   };
 
   return {
