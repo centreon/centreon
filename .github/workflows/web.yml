@@ -91,6 +91,7 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   check-version:
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) }}
     uses: ./.github/actions/check-version
     with:
       module_name: dsm
@@ -99,7 +100,7 @@ jobs:
       stability: ${{ needs.get-version.outputs.stability }}
 
   veracode-analysis:
-    needs: [get-version]
+    needs: [get-version, check-version]
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon
@@ -113,7 +114,7 @@ jobs:
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
   frontend-web-build:
-    needs: [get-version]
+    needs: [get-version, check-version]
     runs-on: ubuntu-22.04
 
     steps:
@@ -130,7 +131,7 @@ jobs:
           build_command: pnpm centreon:build
 
   frontend-widgets-build:
-    needs: [get-version]
+    needs: [get-version, check-version]
     runs-on: ubuntu-22.04
 
     steps:
@@ -144,7 +145,7 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
   backend-dependencies:
-    needs: [get-version]
+    needs: [get-version, check-version]
     runs-on: ubuntu-22.04
 
     steps:
@@ -156,7 +157,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   translation-build:
-    needs: [get-version]
+    needs: [get-version, check-version]
 
     runs-on: ubuntu-22.04
     container:
@@ -189,7 +190,7 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
+    needs: [changes, get-version, check-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -203,7 +204,7 @@ jobs:
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
+    needs: [changes, get-version, check-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -217,7 +218,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
+    needs: [changes, get-version, check-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -252,7 +253,7 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes, get-version]
+    needs: [changes, get-version, check-version]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
@@ -263,7 +264,7 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
+    needs: [changes, get-version, check-version]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -295,7 +296,7 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-22.04
-    needs: [changes, get-version]
+    needs: [changes, get-version, check-version]
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -349,6 +350,7 @@ jobs:
         frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
+        check-version
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
@@ -489,7 +491,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [get-version, package]
+    needs: [get-version, package, check-version]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     env:
@@ -623,7 +625,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-    needs: [get-version, changes, dockerize]
+    needs: [get-version, changes, dockerize, check-version]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     uses: ./.github/workflows/newman.yml
     with:
@@ -645,7 +647,7 @@ jobs:
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   api-integration-test:
-    needs: [get-version, changes, dockerize]
+    needs: [get-version, changes, dockerize, check-version]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     strategy:
       fail-fast: false
@@ -666,7 +668,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [get-version, changes, dockerize]
+    needs: [get-version, changes, dockerize, check-version]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -686,7 +688,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-version, dockerize]
+    needs: [get-version, dockerize, check-version]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
     strategy:
       fail-fast: false
@@ -705,7 +707,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution, check-version]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -734,7 +736,7 @@ jobs:
 
   performances-test:
     runs-on: ubuntu-22.04
-    needs: [get-version, dockerize]
+    needs: [get-version, dockerize, check-version]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
@@ -782,6 +784,7 @@ jobs:
         e2e-test,
         performances-test,
         legacy-e2e-test,
+        check-version
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
@@ -816,6 +819,7 @@ jobs:
         e2e-test,
         performances-test,
         legacy-e2e-test,
+        check-version
       ]
     if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
@@ -848,6 +852,7 @@ jobs:
         e2e-test,
         performances-test,
         legacy-e2e-test,
+        check-version
       ]
     if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
@@ -872,7 +877,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   promote:
-    needs: [get-version]
+    needs: [get-version, check-version]
     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
@@ -901,7 +906,8 @@ jobs:
         e2e-test,
         performances-test,
         legacy-e2e-test,
-        deliver-rpm
+        deliver-rpm,
+        check-version
       ]
     if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]

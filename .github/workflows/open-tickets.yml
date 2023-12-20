@@ -28,6 +28,7 @@ jobs:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
   check-version:
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) }}
     uses: ./.github/actions/check-version
     with:
       module_name: dsm
@@ -36,7 +37,7 @@ jobs:
       stability: ${{ needs.get-version.outputs.stability }}
 
   veracode-analysis:
-    needs: [get-version]
+    needs: [get-version, check-version]
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-open-tickets
@@ -50,7 +51,7 @@ jobs:
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
   package:
-    needs: [get-version]
+    needs: [get-version, check-version]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
@@ -100,7 +101,7 @@ jobs:
 
   deliver-sources:
     runs-on: [self-hosted, common]
-    needs: [get-version, package]
+    needs: [get-version, package, check-version]
     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 
     steps:
@@ -118,7 +119,7 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   delivery-rpm:
-    needs: [get-version, package]
+    needs: [get-version, package, check-version]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
@@ -142,7 +143,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   delivery-deb:
-    needs: [get-version, package]
+    needs: [get-version, package, check-version]
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
@@ -165,7 +166,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   promote:
-    needs: [get-version]
+    needs: [get-version, check-version]
     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
