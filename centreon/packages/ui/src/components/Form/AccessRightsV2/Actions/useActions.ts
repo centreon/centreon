@@ -62,7 +62,12 @@ export const useActions = ({
   const save = (): void => {
     submit(
       values.filter(({ isRemoved }) => !isRemoved).map(formatValueForSubmition)
-    )?.then(clear);
+    )?.then((isError) => {
+      if (isError) {
+        return;
+      }
+      clear();
+    });
   };
 
   return {
