@@ -10,7 +10,6 @@ services:
     links:
       - db
     environment:
-      CENTREON_DATASET: true
       MYSQL_HOST: db
     healthcheck:
       test: curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
