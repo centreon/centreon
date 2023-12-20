@@ -18,22 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
-
-/**
- * This plugin exists to avoid using the deprecated {php} tag
- * when we use it only for the pagination.
- *
- * Before <pre>
- *     {php}
- *     include('./include/common/pagination.php');
- *     {/php}
- * </pre>
- *
- * After <pre>
- *     {pagination}
- * </pre>
- */
-class Smarty_Compiler_PaginationKnowledge extends Smarty_Internal_CompileBase
+class Smarty_Compiler_Paginationknowledge extends Smarty_Internal_CompileBase
 {
     /**
      * @param array<mixed> $args
