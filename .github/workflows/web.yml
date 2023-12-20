@@ -541,8 +541,19 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
-          push: true
           load: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+
+      - name: Build standard image
+        uses: docker/build-push-action@v3
+        with:
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
+          pull: false
+          push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
