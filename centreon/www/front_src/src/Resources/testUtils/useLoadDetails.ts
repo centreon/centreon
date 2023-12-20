@@ -66,6 +66,7 @@ const useLoadDetails = (): DetailsState => {
       return;
     }
 
+    // tests decoder
     sendRequest({
       endpoint: selectedResourceDetailsEndpoint
     })

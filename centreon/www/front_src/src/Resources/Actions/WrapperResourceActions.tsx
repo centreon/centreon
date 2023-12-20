@@ -22,16 +22,15 @@ const WrapperResourceActions = (): JSX.Element => {
   };
 
   const mainActions = [
-    Action.Acknowledge,
-    Action.Disacknowledge,
-    Action.Check,
-    Action.Downtime
+    { action: Action.Acknowledge, extraRules: null },
+    { action: Action.Check, extraRules: null },
+    { action: Action.Downtime, extraRules: null }
   ];
 
   const secondaryActions = [
-    Action.Comment,
-    Action.SubmitStatus,
-    Action.Disacknowledge
+    { action: Action.Comment, extraRules: null },
+    { action: Action.SubmitStatus, extraRules: null },
+    { action: Action.Disacknowledge, extraRules: null }
   ];
 
   return (

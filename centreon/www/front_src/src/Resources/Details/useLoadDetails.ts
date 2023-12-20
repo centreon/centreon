@@ -60,6 +60,7 @@ const useLoadDetails = (): DetailsState => {
     sending
   });
 
+  // decoder?
   const loadDetails = (): void => {
     if (isNil(selectedResource?.resourceId)) {
       return;

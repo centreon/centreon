@@ -48,6 +48,7 @@ const useLoadDetails = (): LoadDetails => {
       return;
     }
 
+    // decoder?
     sendLoadDetailsRequest({
       endpoint: selectedResourceDetailsEndpoint
     })
