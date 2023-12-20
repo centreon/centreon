@@ -52,7 +52,7 @@ jobs:
 
       - name: Upload components tests Results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-test-reports
           path: centreon/cypress/results/*.json
@@ -63,7 +63,7 @@ jobs:
         shell: bash
 
       - name: Archive test coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-coverage
           path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
@@ -105,7 +105,7 @@ jobs:
         shell: bash
 
       - name: Archive HTML code coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
           path: coverage

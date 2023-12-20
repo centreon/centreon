@@ -144,7 +144,7 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results
           path: ${{ inputs.module_name }}/tests/e2e/results/
@@ -152,7 +152,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
@@ -160,7 +160,7 @@ jobs:
 
       - name: Upload xray reports
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json

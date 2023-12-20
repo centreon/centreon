@@ -759,7 +759,7 @@ jobs:
           secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html

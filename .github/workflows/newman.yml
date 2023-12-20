@@ -388,7 +388,7 @@ jobs:
 
       - name: Upload HTML Reports
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: postman-html-reports
           path: centreon/tests/rest_api/newman/
