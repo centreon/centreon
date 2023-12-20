@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { all, head, pathEq, isNil } from 'ramda';
+import { all, head, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import IconDisacknowledge from '@mui/icons-material/ConfirmationNumber';
 import IconMore from '@mui/icons-material/MoreHoriz';
 import IconAcknowledge from '@mui/icons-material/Person';
-import IconDisacknowledge from '@mui/icons-material/ConfirmationNumber';
 
 import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
@@ -27,7 +27,13 @@ import {
   resourcesToDisacknowledgeAtom,
   resourcesToSetDowntimeAtom
 } from '../actionsAtoms';
-import { Action, ExtraActionsInformation, ResourceActions } from '../model';
+import {
+  Action,
+  CheckActionModel,
+  Data,
+  ExtraActionsInformation,
+  ResourceActions
+} from '../model';
 
 import AcknowledgeForm from './Acknowledge';
 import useAclQuery from './aclQuery';
@@ -50,7 +56,7 @@ const useStyles = makeStyles()((theme) => ({
 
 const ResourceActions = ({
   resources,
-  initialize,
+  success,
   mainActions,
   secondaryActions,
   displayCondensed = false,
@@ -91,6 +97,12 @@ const ResourceActions = ({
     key: Action.Check
   });
 
+  const extraCheckData = (
+    mainActions.find(
+      ({ action }) => action === Action.Check
+    ) as CheckActionModel
+  )?.data;
+
   const {
     displayDisacknowledge,
     extraDisabledDisacknowledge,
@@ -100,7 +112,7 @@ const ResourceActions = ({
     key: Action.Disacknowledge
   });
 
-  const { displayDowntime, extraDisabledDownTime, extraPermittedDownTime } =
+  const { displayDowntime, extraDisabledDowntime, extraPermittedDowntime } =
     extractActionsInformation({
       arrayActions: mainActions,
       key: Action.Downtime
@@ -131,12 +143,12 @@ const ResourceActions = ({
   } = useAclQuery();
 
   const confirmAction = (): void => {
-    initialize();
     setResourcesToAcknowledge([]);
     setResourcesToSetDowntime([]);
     setResourceToSubmitStatus(null);
     setResourcesToDisacknowledge([]);
     setResourceToComment(null);
+    success?.();
   };
 
   useEffect(() => (): void => cancel(), []);
@@ -198,7 +210,7 @@ const ResourceActions = ({
 
   const defaultDisableDowntime = !canDowntime(resources);
 
-  const disableDowntime = extraDisabledDownTime || defaultDisableDowntime;
+  const disableDowntime = extraDisabledDowntime || defaultDisableDowntime;
 
   const defaultDisableDisacknowledge = !canDisacknowledge(resources);
 
@@ -226,7 +238,7 @@ const ResourceActions = ({
     canDowntime(resources) || !hasSelectedResources;
   const isDowntimePermitted = !defaultIsDowntimePermitted
     ? defaultIsDowntimePermitted
-    : extraPermittedDownTime;
+    : extraPermittedDowntime;
 
   const defaultIsDisacknowledgePermitted =
     canDisacknowledge(resources) || !hasSelectedResources;
@@ -286,9 +298,9 @@ const ResourceActions = ({
           <div className={classes.action}>
             <CheckActionButton
               displayCondensed={displayCondensed}
-              initialize={initialize}
               resources={resources}
               testId="Multiple Check"
+              {...extraCheckData}
             />
           </div>
         )}
@@ -340,7 +352,7 @@ const ResourceActions = ({
               <ActionMenuItem
                 disabled={defaultDisableDisacknowledge}
                 label={labelDisacknowledge}
-                permitted={Boolean(isDisacknowledgePermitted)}
+                permitted={defaultIsDisacknowledgePermitted}
                 testId="Multiple Disacknowledge"
                 onClick={(): void => {
                   close();

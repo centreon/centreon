@@ -3,18 +3,14 @@ import { makeStyles } from 'tss-react/mui';
 import IconCheck from '@mui/icons-material/CheckOutlined';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Popper from '@mui/material/Popper';
-import ListItem from '@mui/material/ListItem';
 
-import {
-  labelCheck,
-  labelCheckDescription,
-  labelForcedCheck,
-  labelForcedCheckDescription
-} from '../../../translatedLabels';
+import { labelCheck, labelForcedCheck } from '../../../translatedLabels';
+import { Data } from '../../model';
 
 import Text from './Text';
 
@@ -80,8 +76,9 @@ const CheckOptionsList = ({
   isDefaultChecked,
   onClickForcedCheck,
   onClickCheck,
-  disabled
-}: Props): JSX.Element => {
+  disabled,
+  ...rest
+}: Props & Data['listOptions']): JSX.Element => {
   const { classes } = useStyles();
   const { disableForcedCheck, disableCheck } = disabled;
 
@@ -104,7 +101,7 @@ const CheckOptionsList = ({
             <ListItemText
               className={classes.itemText}
               primary={
-                <Text description={labelCheckDescription} title={labelCheck} />
+                <Text description={rest.descriptionCheck} title={labelCheck} />
               }
             />
           </ListItemButton>
@@ -123,7 +120,7 @@ const CheckOptionsList = ({
               className={classes.itemText}
               primary={
                 <Text
-                  description={labelForcedCheckDescription}
+                  description={rest.descriptionForcedCheck}
                   title={labelForcedCheck}
                 />
               }

@@ -16,7 +16,27 @@ export interface ExtraRules {
 }
 
 export interface MainActionModel {
-  action: Exclude<Action, Action.Comment | Action.SubmitStatus>;
+  action: Exclude<Action, Action.Comment | Action.SubmitStatus | Action.Check>;
+  extraRules: ExtraRules | null;
+}
+
+export interface Success {
+  msgForcedCheckCommandSent: string;
+  msgLabelCheckCommandSent: string;
+}
+
+export interface ListOptions {
+  descriptionCheck: string;
+  descriptionForcedCheck: string;
+}
+export interface Data {
+  listOptions: ListOptions;
+  success: Success;
+}
+
+export interface CheckActionModel {
+  action: Action.Check;
+  data: Data;
   extraRules: ExtraRules | null;
 }
 
@@ -25,16 +45,16 @@ export interface SecondaryActionModel {
   extraRules: ExtraRules | null;
 }
 
-export type MainActions = Array<MainActionModel>;
+export type MainActions = Array<MainActionModel | CheckActionModel>;
 export type SecondaryActions = Array<SecondaryActionModel>;
 
 export interface ResourceActions {
   displayCondensed?: boolean;
-  initialize: () => void;
   mainActions: MainActions;
   mainActionsStyle?: string;
   resources: Array<Resource>;
   secondaryActions: SecondaryActions;
+  success: () => void;
 }
 
 export interface ExtraActionsInformation {

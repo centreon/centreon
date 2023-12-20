@@ -5,12 +5,12 @@ import { makeStyles } from 'tss-react/mui';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import IconArrowDown from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { ClickAwayListener, useMediaQuery, useTheme } from '@mui/material';
+import { ClickAwayListener } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { IconButton } from '@centreon/ui';
 
-import useMediaQueryListing from '../useMediaQueryListing';
+import { Data } from '../../model';
 
 import CheckOptionsList from './CheckOptionsList';
 import IconArrow from './IconArrow';
@@ -51,6 +51,7 @@ interface Disabled {
 interface Props {
   disabledButton?: boolean;
   disabledList?: Disabled;
+  displayCondensed?: boolean;
   isDefaultChecked?: boolean;
   onClickActionButton: () => void;
   onClickList?: ClickList;
@@ -63,10 +64,11 @@ const Check = ({
   onClickList,
   onClickActionButton,
   isDefaultChecked = false,
-  renderResourceActionButton
-}: Props): JSX.Element | null => {
+  renderResourceActionButton,
+  displayCondensed = false,
+  ...rest
+}: Props & Data): JSX.Element | null => {
   const { classes, cx } = useStyles();
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const displayList = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
@@ -74,11 +76,6 @@ const Check = ({
 
   const arrowIconId = 'arrowIcon';
   const isOpen = Boolean(anchorEl);
-
-  const { applyBreakPoint } = useMediaQueryListing();
-
-  const displayCondensed =
-    Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   const iconProps = displayCondensed
     ? {
@@ -155,6 +152,7 @@ const Check = ({
           open={isOpen}
           onClickCheck={onClickList?.onClickCheck}
           onClickForcedCheck={onClickList?.onClickForcedCheck}
+          {...rest.listOptions}
         />
       </ButtonGroup>
     </ClickAwayListener>

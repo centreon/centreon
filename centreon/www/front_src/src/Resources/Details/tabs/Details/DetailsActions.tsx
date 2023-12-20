@@ -1,20 +1,36 @@
 import { useState } from 'react';
 
+import { useAtomValue } from 'jotai';
+import { lt } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import ResourceActions from '../../../Actions/Resource';
 import { Action, MainActions } from '../../../Actions/model';
+import {
+  labelResourceDetailsCheckCommandSent,
+  labelResourceDetailsCheckDescription,
+  labelResourceDetailsForcedCheckCommandSent,
+  labelResourceDetailsForcedCheckDescription
+} from '../../../translatedLabels';
+import { panelWidthStorageAtom } from '../../detailsAtoms';
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
+  condensed: {
+    justifyContent: 'space-evenly'
+  },
   container: {
     display: 'flex',
     justifyContent: 'space-between',
+    marginBottom: theme.spacing(2),
     width: '100%'
   }
-});
+}));
 
 const DetailsActions = ({ details }): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
+  const { t } = useTranslation();
+
   // update details temporary /use decoder after
   const [resource, setResource] = useState([
     {
@@ -26,9 +42,11 @@ const DetailsActions = ({ details }): JSX.Element => {
     }
   ]);
 
-  const initialize = (): void => {
-    setResource([]);
-  };
+  const panelWidth = useAtomValue(panelWidthStorageAtom);
+
+  const displayCondensed = lt(panelWidth, 615);
+
+  const success = (): void => {};
 
   const mainActions = [
     {
@@ -45,7 +63,20 @@ const DetailsActions = ({ details }): JSX.Element => {
         permitted: !details?.in_downtime
       }
     },
-    { action: Action.Check, extraRule: null },
+    {
+      action: Action.Check,
+      data: {
+        listOptions: {
+          descriptionCheck: labelResourceDetailsCheckDescription,
+          descriptionForcedCheck: labelResourceDetailsForcedCheckDescription
+        },
+        success: {
+          msgForcedCheckCommandSent: labelResourceDetailsForcedCheckCommandSent,
+          msgLabelCheckCommandSent: labelResourceDetailsCheckCommandSent
+        }
+      },
+      extraRule: null
+    },
     {
       action: Action.Disacknowledge,
       extraRules: {
@@ -57,12 +88,14 @@ const DetailsActions = ({ details }): JSX.Element => {
 
   return (
     <ResourceActions
-      displayCondensed={false}
-      initialize={initialize}
+      displayCondensed={displayCondensed}
       mainActions={mainActions as MainActions}
-      mainActionsStyle={classes.container}
+      mainActionsStyle={cx(classes.container, {
+        [classes.condensed]: displayCondensed
+      })}
       resources={resource}
       secondaryActions={[]}
+      success={success}
     />
   );
 };

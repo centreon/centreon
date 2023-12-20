@@ -2,6 +2,13 @@ import { useAtom } from 'jotai';
 
 import { useMediaQuery, useTheme } from '@mui/material';
 
+import {
+  labelCheckCommandSent,
+  labelCheckDescription,
+  labelForcedCheckCommandSent,
+  labelForcedCheckDescription
+} from '../translatedLabels';
+
 import ResourceActions from './Resource';
 import useMediaQueryListing from './Resource/useMediaQueryListing';
 import { selectedResourcesAtom } from './actionsAtoms';
@@ -23,7 +30,20 @@ const WrapperResourceActions = (): JSX.Element => {
 
   const mainActions = [
     { action: Action.Acknowledge, extraRules: null },
-    { action: Action.Check, extraRules: null },
+    {
+      action: Action.Check,
+      data: {
+        listOptions: {
+          descriptionCheck: labelCheckDescription,
+          descriptionForcedCheck: labelForcedCheckDescription
+        },
+        success: {
+          msgForcedCheckCommandSent: labelForcedCheckCommandSent,
+          msgLabelCheckCommandSent: labelCheckCommandSent
+        }
+      },
+      extraRules: null
+    },
     { action: Action.Downtime, extraRules: null }
   ];
 
@@ -36,10 +56,10 @@ const WrapperResourceActions = (): JSX.Element => {
   return (
     <ResourceActions
       displayCondensed={displayCondensed}
-      initialize={initialize}
       mainActions={mainActions as MainActions}
       resources={selectedResources}
       secondaryActions={secondaryActions as SecondaryActions}
+      success={initialize}
     />
   );
 };

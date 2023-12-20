@@ -8,15 +8,11 @@ import IconCheck from '@mui/icons-material/Sync';
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { Resource } from '../../../models';
-import {
-  labelCheck,
-  labelCheckCommandSent,
-  labelForcedCheck,
-  labelForcedCheckCommandSent
-} from '../../../translatedLabels';
+import { labelCheck, labelForcedCheck } from '../../../translatedLabels';
 import { checkEndpoint } from '../../api/endpoint';
-import useAclQuery from '../aclQuery';
+import { Data } from '../../model';
 import ResourceActionButton from '../ResourceActionButton';
+import useAclQuery from '../aclQuery';
 
 import Check from './Check';
 import { checkActionAtom } from './checkAtoms';
@@ -24,17 +20,16 @@ import { adjustCheckedResources } from './helpers';
 
 interface Props {
   displayCondensed?: boolean;
-  initialize: () => void;
   resources: Array<Resource>;
   testId: string;
 }
 
 const CheckActionButton = ({
   resources,
-  initialize,
   testId,
-  displayCondensed
-}: Props): JSX.Element => {
+  displayCondensed,
+  ...rest
+}: Props & Data): JSX.Element => {
   const { t } = useTranslation();
 
   const [checkAction, setCheckAction] = useAtom(checkActionAtom);
@@ -61,11 +56,10 @@ const CheckActionButton = ({
         check: { is_forced: canForcedCheck(resources) },
         resources: adjustCheckedResources({ resources })
       }).then(() => {
-        initialize();
         showSuccessMessage(
           canForcedCheck(resources)
-            ? t(labelForcedCheckCommandSent)
-            : t(labelCheckCommandSent)
+            ? t(rest.success.msgForcedCheckCommandSent)
+            : t(rest.success.msgLabelCheckCommandSent)
         );
       });
 
@@ -75,11 +69,10 @@ const CheckActionButton = ({
       check: { is_forced: checkAction.forcedChecked },
       resources: adjustCheckedResources({ resources })
     }).then(() => {
-      initialize();
       showSuccessMessage(
         checkAction?.checked
-          ? t(labelCheckCommandSent)
-          : t(labelForcedCheckCommandSent)
+          ? t(rest.success.msgLabelCheckCommandSent)
+          : t(rest.success.msgForcedCheckCommandSent)
       );
     });
   };
@@ -90,6 +83,7 @@ const CheckActionButton = ({
         <Check
           disabledButton={disableForcedCheck}
           disabledList={{ disableCheck, disableForcedCheck }}
+          displayCondensed={displayCondensed}
           isDefaultChecked={false}
           renderResourceActionButton={({ onClick }) => (
             <ResourceActionButton
@@ -109,6 +103,7 @@ const CheckActionButton = ({
             onClickForcedCheck: (): void =>
               setCheckAction({ checked: false, forcedChecked: true })
           }}
+          {...rest}
         />
       );
     }
@@ -119,6 +114,7 @@ const CheckActionButton = ({
           isDefaultChecked
           disabledButton={disableCheck}
           disabledList={{ disableCheck, disableForcedCheck }}
+          displayCondensed={displayCondensed}
           renderResourceActionButton={({ onClick }) => (
             <ResourceActionButton
               disabled={disableCheck}
@@ -137,6 +133,7 @@ const CheckActionButton = ({
             onClickForcedCheck: (): void =>
               setCheckAction({ checked: false, forcedChecked: true })
           }}
+          {...rest}
         />
       );
     }
@@ -144,6 +141,7 @@ const CheckActionButton = ({
     return (
       <Check
         disabledButton
+        displayCondensed={displayCondensed}
         renderResourceActionButton={({ onClick }) => (
           <ResourceActionButton
             disabled
@@ -156,6 +154,7 @@ const CheckActionButton = ({
           />
         )}
         onClickActionButton={(): void => undefined}
+        {...rest}
       />
     );
   }
@@ -165,6 +164,7 @@ const CheckActionButton = ({
       <Check
         disabledButton={disableForcedCheck}
         disabledList={{ disableCheck, disableForcedCheck }}
+        displayCondensed={displayCondensed}
         isDefaultChecked={false}
         renderResourceActionButton={({ onClick }) => (
           <ResourceActionButton
@@ -184,6 +184,7 @@ const CheckActionButton = ({
           onClickForcedCheck: (): void =>
             setCheckAction({ checked: false, forcedChecked: true })
         }}
+        {...rest}
       />
     );
   }
@@ -194,6 +195,7 @@ const CheckActionButton = ({
         isDefaultChecked
         disabledButton={disableCheck}
         disabledList={{ disableCheck, disableForcedCheck }}
+        displayCondensed={displayCondensed}
         renderResourceActionButton={({ onClick }) => (
           <ResourceActionButton
             disabled={disableCheck}
@@ -212,6 +214,7 @@ const CheckActionButton = ({
           onClickForcedCheck: (): void =>
             setCheckAction({ checked: false, forcedChecked: true })
         }}
+        {...rest}
       />
     );
   }
@@ -219,6 +222,7 @@ const CheckActionButton = ({
   return (
     <Check
       disabledButton
+      displayCondensed={displayCondensed}
       renderResourceActionButton={({ onClick }) => (
         <ResourceActionButton
           disabled
@@ -239,6 +243,7 @@ const CheckActionButton = ({
         />
       )}
       onClickActionButton={(): void => undefined}
+      {...rest}
     />
   );
 };
