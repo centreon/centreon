@@ -1079,8 +1079,8 @@ function insertLdapContactInDB($tmpContacts = array())
             }
 
             // Insert the relation between contact and contactgroups
-            $query = "INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id) " .
-                "VALUES (:contactgroup_cg_id, :contact_contact_id)";
+            $query = "INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id) 
+                      VALUES (:contactgroup_cg_id, :contact_contact_id)";
             $statement = $pearDB->prepare($query);
             while ($row = $res->fetch()) {
                 $statement->bindValue(':contactgroup_cg_id', (int) $row['cg_id'], \PDO::PARAM_INT);
