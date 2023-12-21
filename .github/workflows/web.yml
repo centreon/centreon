@@ -90,15 +90,14 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  # Commented as it is shall not run on develop/master related branches
-  # check-version:
-  #   if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) }}
-  #   uses: ./.github/actions/check-version
-  #   with:
-  #     module_name: dsm
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #     stability: ${{ needs.get-version.outputs.stability }}
+  check-version:
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == "master" }}
+    uses: ./.github/actions/check-version
+    with:
+      module_name: dsm
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
 
   veracode-analysis:
     needs: [get-version, check-version]
