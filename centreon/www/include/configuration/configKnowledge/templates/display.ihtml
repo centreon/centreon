@@ -71,9 +71,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+           {include_php file='./include/configuration/configKnowledge/pagination.php'}
         </tr>
     </table>
     <table class="ListTable">
@@ -221,9 +219,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+         {include_php file='./include/configuration/configKnowledge/pagination.php'}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>
