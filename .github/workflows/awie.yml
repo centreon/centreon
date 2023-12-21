@@ -28,7 +28,7 @@ jobs:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
   check-version:
-    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == "master" }}
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == 'master' }}
     uses: ./.github/actions/check-version
     with:
       module_name: dsm
