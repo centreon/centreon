@@ -96,7 +96,7 @@
             <td class="ListColHeaderCenter">{$actions_trans}&nbsp;&nbsp;&nbsp;</td>
         </tr>
         {assign var="line" value=0}
-        {assign var="l" value=0}
+        {$l = 0}
         {if $selection == 1}
         {foreach key=elem from=$content item=stt}
         <tr class="{php} global $line; print $line[$l%2]; {/php}">
@@ -138,10 +138,10 @@
                 {/if}
             </td>
         </tr>
-        {assign var="l" value=$l+1}
+        {$l = $l + 1}
         {/foreach}
         {else}
-        {assign var="l" value=0}
+        {$l = 0}
         {foreach key=elem from=$content item=stt}
         <tr class="{php} global $line; print $line[$l%2]; {/php}">
             <td class="ListColCenter">
@@ -215,15 +215,15 @@
                 {/if}
             </td>
         </tr>
-        {assign var="l" value=$l+1}
+        {$l = $l + 1}
         {/foreach}
         {/if}
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-         {php}
+            {php}
             include('./include/configuration/configKnowledge/pagination.php');
-         {/php}
+            {/php}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>
