@@ -1,28 +1,18 @@
 import { useState } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { always, ifElse, lt, pathEq, pathOr } from 'ramda';
-import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
+import { lt } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { getData, useRequest } from '@centreon/ui';
 
 import ResourceActions from '../../../Actions/Resource';
 import { Action, MainActions } from '../../../Actions/model';
 import {
-  labelNoResourceFound,
   labelResourceDetailsCheckCommandSent,
   labelResourceDetailsCheckDescription,
   labelResourceDetailsForcedCheckCommandSent,
-  labelResourceDetailsForcedCheckDescription,
-  labelSomethingWentWrong
+  labelResourceDetailsForcedCheckDescription
 } from '../../../translatedLabels';
-import {
-  detailsAtom,
-  panelWidthStorageAtom,
-  selectedResourceDetailsEndpointDerivedAtom
-} from '../../detailsAtoms';
-import { ResourceDetails } from '../../models';
+import { panelWidthStorageAtom } from '../../detailsAtoms';
 
 const useStyles = makeStyles()((theme) => ({
   condensed: {
@@ -38,7 +28,6 @@ const useStyles = makeStyles()((theme) => ({
 
 const DetailsActions = ({ details }): JSX.Element => {
   const { classes, cx } = useStyles();
-  const { t } = useTranslation();
 
   // update details temporary /use decoder after
   const [resource, setResource] = useState([
@@ -51,32 +40,9 @@ const DetailsActions = ({ details }): JSX.Element => {
     }
   ]);
 
-  const { sendRequest: sendLoadDetailsRequest } = useRequest<ResourceDetails>({
-    getErrorMessage: ifElse(
-      pathEq(404, ['response', 'status']),
-      always(t(labelNoResourceFound)),
-      pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
-    ),
-    request: getData
-  });
-
   const panelWidth = useAtomValue(panelWidthStorageAtom);
 
-  const selectedResourceDetailsEndpoint = useAtomValue(
-    selectedResourceDetailsEndpointDerivedAtom
-  );
-  const setDetails = useSetAtom(detailsAtom);
   const displayCondensed = lt(panelWidth, 615);
-
-  const success = (): void => {
-    setTimeout(() => {
-      sendLoadDetailsRequest({
-        endpoint: selectedResourceDetailsEndpoint
-      }).then((data) => {
-        setDetails(data);
-      });
-    }, 10000);
-  };
 
   const mainActions = [
     {
@@ -125,7 +91,6 @@ const DetailsActions = ({ details }): JSX.Element => {
       })}
       resources={resource}
       secondaryActions={[]}
-      success={success}
     />
   );
 };

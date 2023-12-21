@@ -54,7 +54,7 @@ export interface ResourceActions {
   mainActionsStyle?: string;
   resources: Array<Resource>;
   secondaryActions: SecondaryActions;
-  success: () => void;
+  success?: () => void;
 }
 
 export interface ExtraActionsInformation {
