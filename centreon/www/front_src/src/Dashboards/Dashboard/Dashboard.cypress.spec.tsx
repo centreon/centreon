@@ -363,6 +363,8 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelTitle).type('Generic input', { force: true });
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
+      cy.url().should('include', 'edit=true');
+
       cy.findAllByLabelText(labelSave).eq(1).click();
 
       cy.contains(labelEditWidget).should('not.exist');
@@ -454,8 +456,6 @@ describe('Dashboard', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
-
-      cy.findByLabelText(labelEditDashboard).click();
 
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.findByLabelText(labelDuplicate).click();

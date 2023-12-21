@@ -18299,3 +18299,77 @@ msgstr "Erreur lors de la récupération des groupes de contacts"
 
 msgid "If you leave without saving your dashboard, changes will be permanently lost."
 msgstr "Si vous quittez sans enregistrer votre tableau de bord, les modifications seront définitivement perdues."
+
+msgid "The order in which dashboards are displayed must be unique."
+msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
+
+msgid "The following dashboard does not exist: [%s]."
+msgstr "Le tableau de bord suivant n'existe pas : [%s]."
+
+msgid "The following playlist already exists: %s."
+msgstr "La liste de diffusion suivante existe déjà : %s."
+
+msgid "Error while retrieving a playlist."
+msgstr "Erreur lors de la récupération d'une liste de diffusion."
+
+msgid "Error while creating a playlist."
+msgstr "Erreur lors de la création d'une liste de diffusion."
+
+msgid "You cannot add the same dashboard to a playlist several times."
+msgstr "Vous ne pouvez pas ajouter le même tableau de bord plusieurs fois dans une liste de diffusion."
+
+msgid "Access not allowed"
+msgstr " Accès non autorisé"
+
+msgid "The following dashboard is not shared with you: [%d]."
+msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
+msgid "Refine filter"
+msgstr "Affiner le filtre"
+
+msgid "Huge"
+msgstr "Très grande"
+
+msgid "Large"
+msgstr "Grande"
+
+msgid "Normal"
+msgstr "Normale"
+
+msgid "Small"
+msgstr "Petite"
+
+msgid "Error while updating playlist shares"
+msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
+
+msgid "You cannot share the same playlist to a contact several times"
+msgstr "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un contact"
+
+msgid "You cannot share the same playlist to a contact group several times"
+msgstr "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un groupe de contacts"
+
+msgid "The following playlist does not exist: [%d]"
+msgstr "La liste de diffusion suivante n'existe  : [%d]"
+
+msgid "You do not have editing rights on the following playlist: [%d]"
+msgstr "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante : [%d]"
+
+msgid "The following contact does not exist: [%s]"
+msgstr "Le contact suivant n'existe pas : [%s]"
+
+msgid "The following contact group does not exist: [%s]"
+msgstr "Le groupe de contact suivant n'existe pas : [%s]"
+
+msgid "The following contact is not in your contact groups: [%s]"
+msgstr "Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
+
+msgid "You are not in the following contact group: [%s]"
+msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
+
+msgid "Error while deleting a playlist"
+msgstr "Erreur lors de la suppression d'une liste de diffusion"
+
+msgid "You are not allowed to log in"
+msgstr "Vous n'êtes pas autorisé à vous connecter"
+
+msgid "Add at least 1 contact"
+msgstr "Ajoutez au moins 1 contact"

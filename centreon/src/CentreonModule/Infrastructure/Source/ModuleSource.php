@@ -372,7 +372,9 @@ class ModuleSource extends SourceAbstract
             $dependencies[] = $dependency;
 
             $dependencyDetails = $this->getDetail($dependency);
-
+            if (! $dependencyDetails){
+                throw ModuleException::moduleIsMissing($dependency);
+            }
             $dependencies = array_unique([
                 ...$this->getSortedDependencies($dependencyDetails->getId(), $alreadyProcessed),
                 ...$dependencies,

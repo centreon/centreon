@@ -2630,7 +2630,6 @@ CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
 CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `version` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

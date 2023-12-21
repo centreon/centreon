@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { equals, filter, find, isNil, map, propEq } from 'ramda';
+import { equals, filter, find, has, isNil, map, propEq } from 'ramda';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 
@@ -17,8 +17,8 @@ import {
 } from '../../../../federatedModules/atoms';
 import {
   customBaseColorAtom,
-  singleMetricSelectionAtom,
-  singleResourceTypeSelectionAtom
+  singleHostPerMetricAtom,
+  singleMetricSelectionAtom
 } from '../atoms';
 import { isGenericText } from '../../utils';
 
@@ -38,9 +38,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleResourceTypeSelection = useSetAtom(
-    singleResourceTypeSelectionAtom
-  );
+  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { setValues, values } = useFormikContext<Widget>();
@@ -92,10 +90,25 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     ) as FederatedWidgetProperties;
 
     const options = Object.entries(selectedWidgetProperties.options).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: value.defaultValue
-      }),
+      (acc, [key, value]) => {
+        if (!has('when', value.defaultValue)) {
+          return {
+            ...acc,
+            [key]: value.defaultValue
+          };
+        }
+
+        return {
+          ...acc,
+          [key]: equals(
+            selectedWidgetProperties.options[value.defaultValue.when]
+              .defaultValue,
+            value.defaultValue.is
+          )
+            ? value.defaultValue.then
+            : value.defaultValue.otherwise
+        };
+      },
       {}
     );
 
@@ -111,9 +124,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       !isGenericText(selectedWidget.federatedComponentsConfiguration.path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
-    setSingleResourceTypeSelection(
-      selectedWidgetProperties.singleResourceTypeSelection
-    );
+    setSingleHostPerMetric(selectedWidgetProperties.singleHostPerMetric);
     setCustomBaseColor(selectedWidgetProperties.customBaseColor);
 
     setValues((currentValues) => ({

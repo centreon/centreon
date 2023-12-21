@@ -10,21 +10,11 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
-    minHeight: '400px'
+    minHeight: theme.spacing(45)
   },
   widgetAvatar: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white
-  },
-  widgetDataset: {
-    height: '27vh',
-    [theme.breakpoints.down('xl')]: {
-      height: '23vh'
-    },
-    [theme.breakpoints.down('lg')]: {
-      height: '20vh'
-    },
-    overflow: 'auto'
   },
   widgetProperties: {
     display: 'flex',
@@ -34,8 +24,16 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   widgetPropertiesContent: {
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
+    bottom: 0,
     height: '68vh',
+    left: 0,
     overflow: 'auto',
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+    position: 'absolute',
+    right: 0,
+    top: 0
+  },
+  widgetPropertiesContentContainer: {
+    position: 'relative'
   }
 }));

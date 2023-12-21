@@ -185,20 +185,101 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
-export enum patternInfo {
+Cypress.Commands.add(
+  'insertDashboardWithMetricsGraphWidget',
+  (dashboardBody, patchBody) => {
+    cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        {
+          timeout: 10000
+        }
+      );
+      cy.request({
+        body: patchBody,
+        method: 'PATCH',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      });
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'insertDashboardWithSingleMetricWidget',
+  (dashboardBody, patchBody) => {
+    cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        {
+          timeout: 10000
+        }
+      );
+      cy.request({
+        body: patchBody,
+        method: 'PATCH',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      });
+    });
+  }
+);
+
+Cypress.Commands.add('enableDashboardFeature', () => {
+  cy.execInContainer({
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
+});
+
+export enum PatternType {
   contains = '*',
   endsWith = '$',
   startsWith = '^'
 }
+interface Dashboard {
+  description?: string;
+  name: string;
+}
 
 interface GetByLabelProps {
   label: string;
-  patternInfo?: patternInfo;
+  patternInfo?: PatternType;
   tag?: string;
 }
 
 interface GetByTestIdProps {
-  patternInfo?: patternInfo;
+  patternInfo?: PatternType;
   tag?: string;
   testId: string;
 }
@@ -223,6 +304,14 @@ declare global {
         tag,
         testId
       }: GetByTestIdProps) => Cypress.Chainable;
+      insertDashboardWithMetricsGraphWidget: (
+        dashboard: Dashboard,
+        patch: string
+      ) => Cypress.Chainable;
+      insertDashboardWithSingleMetricWidget: (
+        dashboard: Dashboard,
+        patch: string
+      ) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => void;
@@ -237,6 +326,7 @@ declare global {
       setUserTokenApiV1: (fixtureFile?: string) => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
+      enableDashboardFeature: () => Cypress.Chainable;
     }
   }
 }

@@ -74,7 +74,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
               canEdit={canEditField}
               globalRefreshInterval={refreshInterval}
               id={id}
-              isEditing={isEditing}
+              isEditingDashboard={isEditing}
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}

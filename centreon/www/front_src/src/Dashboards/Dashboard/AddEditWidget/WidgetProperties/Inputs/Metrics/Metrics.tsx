@@ -1,69 +1,56 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { equals, head, isEmpty, isNil } from 'ramda';
+import { equals, head } from 'ramda';
 import { useAtomValue } from 'jotai';
 
-import { CircularProgress, FormHelperText, Typography } from '@mui/material';
+import { CircularProgress, Typography } from '@mui/material';
 
-import { Avatar, ItemComposition } from '@centreon/ui/components';
-import {
-  MultiAutocompleteField,
-  SelectField,
-  SingleAutocompleteField
-} from '@centreon/ui';
+import { Avatar } from '@centreon/ui/components';
+import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
 
 import {
-  labelAddMetric,
   labelAvailable,
-  labelDelete,
+  labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
-  labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { singleMetricSelectionAtom } from '../../../atoms';
 import { isAtLeastOneResourceFullfilled } from '../utils';
 import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { singleMetricSelectionAtom } from '../../../atoms';
 
 import useMetrics from './useMetrics';
 
-const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
-  const { classes, cx } = useResourceStyles();
+const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+  const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
-  const singleMetricSection = useAtomValue(singleMetricSelectionAtom);
-
   const {
-    hasNoResources,
-    addMetric,
-    hasTooManyMetrics,
-    deleteMetric,
-    value,
-    serviceOptions,
-    changeService,
-    getMetricsFromService,
-    changeMetrics,
+    metrics,
     changeMetric,
-    metricCount,
+    hasTooManyMetrics,
     isLoadingMetrics,
-    error,
-    getMetricOptionDisabled,
-    getOptionLabel,
-    hasReachedTheLimitOfUnits,
-    addButtonHidden,
+    metricCount,
     resources,
-    hasOnlyOneService
+    selectedMetrics,
+    getOptionLabel,
+    changeMetrics,
+    getMetricOptionDisabled,
+    getMultipleOptionLabel,
+    deleteMetricItem,
+    error,
+    isTouched,
+    hasReachedTheLimitOfUnits,
+    metricWithSeveralResources
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
-
-  const addButtonDisabled =
-    hasNoResources() || hasTooManyMetrics || !metricCount;
+  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
 
   const canDisplayMetricsSelection =
     isAtLeastOneResourceFullfilled(resources) && !hasTooManyMetrics;
@@ -78,17 +65,25 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       <Avatar compact className={avatarClasses.widgetAvatar}>
         3
       </Avatar>
-      <Typography>{title}</Typography>
-      {hasReachedTheLimitOfUnits && (
-        <Typography
-          component="span"
-          sx={{ color: 'warning.main' }}
-          variant="body2"
-        >
-          {' '}
-          {t(labelYouCanSelectUpToTwoMetricUnits)}
-        </Typography>
-      )}
+      <div>
+        <Typography className={classes.resourceTitle}>{title}</Typography>
+        {error && isTouched && (
+          <Typography className={classes.warningText} variant="body2">
+            {error}
+          </Typography>
+        )}
+        {hasReachedTheLimitOfUnits && (
+          <Typography className={classes.warningText} variant="body2">
+            {t(labelYouCanSelectUpToTwoMetricUnits)}
+          </Typography>
+        )}
+        {singleMetricSelection && metricWithSeveralResources && (
+          <Typography className={classes.warningText} variant="body2">
+            <strong>{metricWithSeveralResources}</strong>{' '}
+            {t(labelIsTheSelectedResource)}
+          </Typography>
+        )}
+      </div>
       {isLoadingMetrics && <CircularProgress size={16} />}
     </div>
   );
@@ -96,90 +91,48 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       {header}
-      {canDisplayMetricsSelection && (
-        <ItemComposition
-          addButtonHidden={!canEditField || addButtonHidden}
-          addbuttonDisabled={addButtonDisabled}
-          labelAdd={t(labelAddMetric)}
-          onAddItem={addMetric}
-        >
-          {value.map((service, index) => (
-            <ItemComposition.Item
-              className={cx({
-                [classes.resourceCompositionItem]: !hasOnlyOneService
-              })}
-              deleteButtonHidden={!canEditField || addButtonHidden}
-              key={`${index}`}
-              labelDelete={t(labelDelete)}
-              onDeleteItem={deleteMetric(index)}
-            >
-              {!hasOnlyOneService && (
-                <SelectField
-                  ariaLabel={t(labelServiceName) as string}
-                  className={classes.resourceType}
-                  dataTestId={labelServiceName}
-                  disabled={!canEditField || isLoadingMetrics}
-                  label={t(labelServiceName) as string}
-                  options={serviceOptions}
-                  selectedOptionId={service.id}
-                  onChange={changeService(index)}
-                />
-              )}
-              {singleMetricSection ? (
-                <SingleAutocompleteField
-                  fullWidth
-                  className={classes.resources}
-                  disabled={
-                    !canEditField ||
-                    isNil(service.id) ||
-                    isEmpty(service.id) ||
-                    isLoadingMetrics
-                  }
-                  getOptionItemLabel={getOptionLabel}
-                  getOptionLabel={getOptionLabel}
-                  isOptionEqualToValue={(option, selectedValue) =>
-                    equals(option?.id, selectedValue?.id)
-                  }
-                  label={t(labelSelectMetric)}
-                  options={getMetricsFromService(service.id)}
-                  value={head(service.metrics) || undefined}
-                  onChange={changeMetric(index)}
-                />
-              ) : (
-                <MultiAutocompleteField
-                  fullWidth
-                  chipProps={{
-                    color: 'primary'
-                  }}
-                  className={classes.resources}
-                  disabled={
-                    !canEditField ||
-                    isNil(service.id) ||
-                    isEmpty(service.id) ||
-                    isLoadingMetrics
-                  }
-                  getOptionDisabled={getMetricOptionDisabled}
-                  getOptionLabel={getOptionLabel}
-                  getTagLabel={getOptionLabel}
-                  label={t(labelSelectMetric)}
-                  limitTags={1}
-                  options={getMetricsFromService(service.id)}
-                  value={service.metrics || []}
-                  onChange={changeMetrics(index)}
-                />
-              )}
-            </ItemComposition.Item>
-          ))}
-        </ItemComposition>
-      )}
-      {hasTooManyMetrics && (
-        <Typography sx={{ color: 'text.disabled' }}>
-          {t(labelYouHaveTooManyMetrics)}
-        </Typography>
-      )}
-      {error && <FormHelperText error>{t(error)}</FormHelperText>}
+      <div>
+        {canDisplayMetricsSelection && singleMetricSelection && (
+          <SingleAutocompleteField
+            className={classes.resources}
+            disabled={!canEditField || isLoadingMetrics}
+            getOptionItemLabel={getOptionLabel}
+            getOptionLabel={getOptionLabel}
+            isOptionEqualToValue={(option, selectedValue) =>
+              equals(option?.id, selectedValue?.id)
+            }
+            label={t(labelSelectMetric)}
+            options={metrics}
+            value={head(selectedMetrics || []) || undefined}
+            onChange={changeMetric}
+          />
+        )}
+        {canDisplayMetricsSelection && !singleMetricSelection && (
+          <MultiAutocompleteField
+            chipProps={{
+              color: 'primary',
+              onDelete: (_, option): void => deleteMetricItem(option)
+            }}
+            className={classes.resources}
+            disabled={!canEditField || isLoadingMetrics}
+            getOptionDisabled={getMetricOptionDisabled}
+            getOptionLabel={getOptionLabel}
+            getOptionTooltipLabel={getOptionLabel}
+            getTagLabel={getMultipleOptionLabel}
+            label={t(labelSelectMetric)}
+            options={metrics}
+            value={selectedMetrics || []}
+            onChange={changeMetrics}
+          />
+        )}
+        {hasTooManyMetrics && (
+          <Typography sx={{ color: 'text.disabled' }}>
+            {t(labelYouHaveTooManyMetrics)}
+          </Typography>
+        )}
+      </div>
     </div>
   );
 };
 
-export default Metrics;
+export default Metric;

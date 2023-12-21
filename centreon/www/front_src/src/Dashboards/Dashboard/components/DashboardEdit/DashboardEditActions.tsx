@@ -12,13 +12,6 @@ import { Button } from '@centreon/ui/components';
 
 import { Dashboard, DashboardPanel } from '../../../api/models';
 import {
-  formatPanel,
-  getPanels,
-  routerParams
-} from '../../hooks/useDashboardDetails';
-import useDashboardDirty from '../../hooks/useDashboardDirty';
-import useSaveDashboard from '../../hooks/useSaveDashboard';
-import {
   dashboardAtom,
   isEditingAtom,
   switchPanelsEditionModeDerivedAtom
@@ -29,6 +22,13 @@ import {
   labelSave
 } from '../../translatedLabels';
 import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
+import {
+  formatPanel,
+  getPanels,
+  routerParams
+} from '../../hooks/useDashboardDetails';
+import useDashboardDirty from '../../hooks/useDashboardDirty';
+import useSaveDashboard from '../../hooks/useSaveDashboard';
 
 import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
 
@@ -77,10 +77,8 @@ const DashboardEditActions = ({
 
   const stopEditing = useCallback(() => {
     switchPanelsEditionMode(false);
-    if (searchParams.get('edit') !== null) {
-      searchParams.delete('edit');
-      setSearchParams(searchParams);
-    }
+    searchParams.delete('edit');
+    setSearchParams(searchParams);
   }, [searchParams, setSearchParams]);
 
   const cancel = useCallback(() => {
