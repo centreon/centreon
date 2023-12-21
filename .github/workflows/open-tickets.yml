@@ -30,12 +30,15 @@ jobs:
   check-version:
     needs: [get-version]
     if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == 'master' }}
-    uses: ./.github/actions/check-version
-    with:
-      module_name: open-tickets
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
+
+    steps:
+      - name: Check version
+        uses: ./.github/actions/check-version
+        with:
+          module_name: open-tickets
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   veracode-analysis:
     needs: [get-version, check-version]
