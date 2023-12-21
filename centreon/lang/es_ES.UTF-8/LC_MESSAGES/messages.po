@@ -16738,8 +16738,14 @@ msgstr "Modo avanzado"
 # msgid "Create"
 # msgstr ""
 
-# msgid "Publish your playlist"
+# msgid "Settings"
 # msgstr ""
 
-# msgid "Settings"
+# msgid "API token"
+# msgstr ""
+
+# msgid "Create new token"
+# msgstr ""
+
+# msgid "Revoked"
 # msgstr ""

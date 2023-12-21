@@ -17,7 +17,7 @@ const useStyles = makeStyles()((theme) => ({
   logo: {
     alignSelf: 'flex-end',
     height: theme.spacing(11),
-    width: '22rem'
+    width: '239px'
   },
   message: {
     color: theme.palette.text.primary
@@ -66,9 +66,9 @@ export const FallbackPage: FC<FallbackPageProps> = typedMemo(
 
     return (
       <div className={classes.notAuthorizedContainer}>
-        <section className={classes.logo}>
+        <div className={classes.logo}>
           <CentreonLogo />
-        </section>
+        </div>
         <section className={classes.messageBlock}>
           <header>
             <Typography color="primary" fontWeight="bold" variant="h3">
