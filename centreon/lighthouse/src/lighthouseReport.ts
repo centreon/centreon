@@ -37,7 +37,7 @@ const captureReport = async (): Promise<void> => {
     name: 'Centreon Web pages',
   });
 
-  execSync(`docker compose -f ../../docker/docker-compose.yml cp ./features.json web:/usr/share/centreon/config/features.json`);
+  execSync(`docker compose -f ${__dirname}/../../.github/docker/docker-compose.yml cp ./features.json web:/usr/share/centreon/config/features.json`);
 
   const navigate = async ({ url, name }: NavigateProps): Promise<void> => {
     await flow.navigate(url, { formFactor: 'desktop', name, ...baseConfig });
