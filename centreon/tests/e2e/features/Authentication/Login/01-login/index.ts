@@ -4,7 +4,7 @@ import { loginAsAdminViaApiV2 } from '../../../../commons';
 import { initializeConfigACLAndGetLoginPage } from '../common';
 
 before(() => {
-  cy.startWebContainer()
+  cy.startContainers()
     .then(() => {
       return initializeConfigACLAndGetLoginPage();
     })
@@ -45,5 +45,5 @@ Then('I am logged out and redirected to the login page', () => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

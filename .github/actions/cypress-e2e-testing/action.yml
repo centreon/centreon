@@ -4,6 +4,9 @@ inputs:
   name:
     description: "test name"
     required: true
+  database_image:
+    description: "docker database image"
+    required: true
   web_image_os:
     description: "Web image operating system"
     required: true
@@ -23,8 +26,8 @@ inputs:
     description: "The frontend dependencies lock file path"
     required: true
   test_execution_key:
+    description: "xray test execution key"
     required: true
-    type: string
 
 runs:
   using: "composite"
@@ -67,6 +70,7 @@ runs:
         publish-summary: false
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
+        CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}

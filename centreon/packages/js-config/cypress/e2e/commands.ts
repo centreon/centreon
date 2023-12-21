@@ -250,6 +250,55 @@ Cypress.Commands.add(
   }
 );
 
+interface StartContainersProps {
+  databaseImage?: string;
+  useSlim?: boolean;
+  webOs?: string;
+  webVersion?: string;
+}
+
+Cypress.Commands.add(
+  'startContainers',
+  ({
+    databaseImage = Cypress.env('DATABASE_IMAGE'),
+    useSlim = true,
+    webOs = Cypress.env('WEB_IMAGE_OS'),
+    webVersion = Cypress.env('WEB_IMAGE_VERSION')
+  }: StartContainersProps = {}): Cypress.Chainable => {
+    cy.log('Starting containers ...');
+
+    const slimSuffix = useSlim ? '-slim' : '';
+
+    const webImage = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${webOs}:${webVersion}`;
+
+    return cy
+      .task(
+        'startContainers',
+        { databaseImage, webImage },
+        { timeout: 600000 } // 10 minutes because docker pull can be very slow
+      )
+      .then(() => {
+        const baseUrl = 'http://127.0.0.1:4000';
+
+        Cypress.config('baseUrl', baseUrl);
+
+        return cy.wrap(null);
+      })
+      .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
+      .setUserTokenApiV1();
+  }
+);
+
+Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
+  cy.log('Stopping containers ...');
+
+  return cy.task(
+    'stopContainers',
+    {},
+    { timeout: 600000 } // 10 minutes because docker pull can be very slow
+  );
+});
+
 Cypress.Commands.add(
   'createDirectory',
   (directoryPath: string): Cypress.Chainable => {
@@ -586,7 +635,6 @@ declare global {
         dashboard: Dashboard,
         patch: PatchDashboardBody
       ) => Cypress.Chainable;
-
       loginByTypeOfUser: ({
         jsonName,
         loginViaApi
@@ -606,6 +654,12 @@ declare global {
         name,
         image
       }: StartContainerProps) => Cypress.Chainable;
+      startContainers: ({
+        databaseImage,
+        useSlim,
+        webOs,
+        webVersion
+      }?: StartContainersProps) => Cypress.Chainable;
       startWebContainer: ({
         name,
         os,
@@ -613,6 +667,7 @@ declare global {
         version
       }?: StartWebContainerProps) => Cypress.Chainable;
       stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
+      stopContainers: () => Cypress.Chainable;
       stopWebContainer: ({ name }?: StopWebContainerProps) => Cypress.Chainable;
       visitEmptyPage: () => Cypress.Chainable;
       waitForContainerAndSetToken: () => Cypress.Chainable;

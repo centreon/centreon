@@ -2,9 +2,11 @@ import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 
 import Docker from 'dockerode';
+import { DockerComposeEnvironment, Wait } from 'testcontainers';
 
 export default (on: Cypress.PluginEvents): void => {
   const docker = new Docker();
+  let dockerEnvironment;
 
   interface PortBinding {
     destination: number;
@@ -89,10 +91,33 @@ export default (on: Cypress.PluginEvents): void => {
 
       return container;
     },
+    startContainers: async ({ databaseImage, webImage }) => {
+      const composeFilePath = `${__dirname}/../../../../../.github/docker/`;
+      const composeFile = 'docker-compose.yml';
+
+      dockerEnvironment = await new DockerComposeEnvironment(
+        composeFilePath,
+        composeFile
+      )
+        .withEnvironment({
+          MYSQL_IMAGE: databaseImage,
+          WEB_IMAGE: webImage
+        })
+        .withProfiles('web')
+        .withWaitStrategy('web', Wait.forHealthCheck())
+        .up();
+
+      return null;
+    },
     stopContainer: async ({ name }: StopContainerProps) => {
       const container = await docker.getContainer(name);
       await container.kill();
       await container.remove();
+
+      return null;
+    },
+    stopContainers: async () => {
+      await dockerEnvironment.down();
 
       return null;
     },

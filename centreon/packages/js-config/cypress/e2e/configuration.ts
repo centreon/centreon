@@ -60,6 +60,7 @@ export default ({
     },
     env: {
       ...env,
+      DATABASE_IMAGE: 'bitnami/mariadb:10.5',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion,
