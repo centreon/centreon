@@ -29,6 +29,7 @@ jobs:
 
   check-version:
     needs: [get-version]
+    runs-on: ubuntu-22.04
     if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == 'master' }}
 
     steps:
