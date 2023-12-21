@@ -19,6 +19,9 @@ on:
       centreon_image:
         required: true
         type: string
+      database_image:
+        require: true
+        type: string
       dependencies_lock_file:
         required: true
         type: string
@@ -354,11 +357,13 @@ jobs:
             docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
-      - name: Start Centreon Web Container
-        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
+      - name: Start Centreon Web and database containers
+        run: docker compose --profile web -f ../docker/docker-compose.yml up -d --wait
+        shell: bash
+        # run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
 
-      - name: Wait for Centreon Web Container to Start
-        run: pnpx wait-on http://localhost:4000/ --timeout 100000
+      # - name: Wait for Centreon Web Container to Start
+      #   run: pnpx wait-on http://localhost:4000/ --timeout 100000
 
       - name: Generate Xray Token
         id: generate-xray-token

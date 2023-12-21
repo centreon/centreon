@@ -7,8 +7,6 @@ services:
     ports: ["80"]
     depends_on:
       - db
-    links:
-      - db
     environment:
       MYSQL_HOST: db
     healthcheck:
@@ -23,7 +21,6 @@ services:
       - .env
     image: "${MYSQL_IMAGE}"
     ports: ["3306"]
-    #command: --default-authentication-plugin=mysql_native_password
     profiles: ["web"]
 
   openldap:
