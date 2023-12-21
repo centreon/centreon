@@ -71,7 +71,9 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-           {include_php file='./include/configuration/configKnowledge/pagination.php'}
+            {php}
+            include('./include/configuration/configKnowledge/pagination.php');
+            {/php}
         </tr>
     </table>
     <table class="ListTable">
@@ -94,7 +96,7 @@
             <td class="ListColHeaderCenter">{$actions_trans}&nbsp;&nbsp;&nbsp;</td>
         </tr>
         {assign var="line" value=0}
-        {php} $l = 0; {/php}
+        {assign var="l" value=0}
         {if $selection == 1}
         {foreach key=elem from=$content item=stt}
         <tr class="{php} global $line; print $line[$l%2]; {/php}">
@@ -136,10 +138,10 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
+        {assign var="l" value=$l+1}
         {/foreach}
         {else}
-        {php} $l = 0; {/php}
+        {assign var="l" value=0}
         {foreach key=elem from=$content item=stt}
         <tr class="{php} global $line; print $line[$l%2]; {/php}">
             <td class="ListColCenter">
@@ -213,13 +215,15 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
+        {assign var="l" value=$l+1}
         {/foreach}
         {/if}
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-         {include_php file='./include/configuration/configKnowledge/pagination.php'}
+         {php}
+            include('./include/configuration/configKnowledge/pagination.php');
+         {/php}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>
