@@ -27,6 +27,7 @@ Feature: Migration of commands from a source platform to a target platform
     And the command line asking for the API token of the target platform is displayed
     When the user enters the correct API token
     Then the migration script is executed without errors
+    And the same command as in the source platform is created and displayed in the command listing
 
   Scenario: Wrong token entered
     Given an admin user who has entered the correct command line
@@ -43,12 +44,6 @@ Feature: Migration of commands from a source platform to a target platform
     """
     Then the migration script is not executed
     And a "missing URL" error is displayed
-
-  Scenario: Validating presence of migrated command on the target platform
-    Given a non-admin user logged in on the target platform
-    And the migration script runs successfully
-    When the user checks the command listing
-    Then the same command as in the source platform is created and displayed
 
   Scenario: Comparing command details between platforms
     Given a non-admin user logged in on the source and target platforms
