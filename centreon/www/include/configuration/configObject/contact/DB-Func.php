@@ -877,7 +877,7 @@ function updateContactServiceCommands($contact_id = null, $ret = array())
                 SQL;
         $statement = $pearDB->prepare($rq);
         $statement->bindValue(':contact_contact_id', (int) $contact_id, \PDO::PARAM_INT);
-        $statement->bindValue(':command_command_id', $ret[$i], \PDO::PARAM_INT);
+        $statement->bindValue(':command_command_id', (int) $ret[$i], \PDO::PARAM_INT);
         $dbResult = $statement->execute();
     }
 }
