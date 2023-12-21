@@ -35,9 +35,10 @@ runs:
       echo "Current stable version is: $CURRENT_STABLE_VERSION"
       echo "Branch version is: "$BRANCH_VERSION"
 
-      # Compare current stable version with ref version
-      # CURRENT_STABLE_VERSION = REF_VERSION => FAILURE
-      # CURRENT_STABLE_VERSION >= REF_VERSION+2 => FAILURE
+      # Compare current stable version with ref version (examples below)
+      # CURRENT_STABLE_VERSION = BRANCH_VERSION => FAILURE
+      # CURRENT_STABLE_VERSION >= BRANCH_VERSION+2 => FAILURE
+      # CURRENT_STABLE_VERSION > BRANCH_VERSION
 
       if [[ "$CURRENT_STABLE_VERSION" == "$BRANCH_VERSION" ]];then
         echo "Current stable version $CURRENT_STABLE_VERSION is the same as version of release branch $BRANCH_VERSION, action required, aborting."
