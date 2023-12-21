@@ -20,7 +20,7 @@ on:
         required: true
         type: string
       database_image:
-        require: true
+        required: true
         type: string
       dependencies_lock_file:
         required: true
