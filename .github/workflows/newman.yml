@@ -362,7 +362,7 @@ jobs:
         env:
           WEB_IMAGE: $CENTREON_IMAGE
           MYSQL_IMAGE: $DATABASE_IMAGE
-        run: docker compose --profile web -f ../docker/docker-compose.yml up -d --wait
+        run: docker compose --profile web -f ../../../docker/docker-compose.yml up -d --wait
         shell: bash
 
       - name: Generate Xray Token
@@ -389,7 +389,7 @@ jobs:
 
       - name: Display container logs
         if: failure()
-        run: docker compose -f ../docker/docker-compose.yml logs
+        run: docker compose -f ../../../docker/docker-compose.yml logs
 
       - name: Upload HTML Reports
         if: failure()
