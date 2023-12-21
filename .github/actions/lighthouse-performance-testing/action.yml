@@ -61,6 +61,9 @@ runs:
         ref: b942bbc0e93032b11bcaaed3e4cefc4bdd00c418
 
     - name: Setup and run centreon-injector
+      env:
+        WEB_IMAGE: ${{ inputs.image }}:${{ inputs.image_version }}
+        MYSQL_IMAGE: ${{ inputs.database_image }}
       run: |
         cd centreon-injector
         composer install
