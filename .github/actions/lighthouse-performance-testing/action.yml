@@ -48,10 +48,10 @@ runs:
         tools: composer:v2
 
     - name: Start Centreon Web and database containers
-      run: |
-        docker compose --profile web -f ../../docker/docker-compose.yml up -d --wait \
-          -e WEB_IMAGE=${{ inputs.image }}:${{ inputs.image_version }} \
-          -e DATABASE_IMAGE=${{ inputs.database_image }}
+      env:
+        WEB_IMAGE: ${{ inputs.image }}:${{ inputs.image_version }}
+        MYSQL_IMAGE: ${{ inputs.database_image }}
+      run: docker compose --profile web -f ../../docker/docker-compose.yml up -d --wait
       shell: bash
 
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1

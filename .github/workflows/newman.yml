@@ -359,10 +359,10 @@ jobs:
         shell: bash
 
       - name: Start Centreon Web and database containers
-        run: |
-          docker compose --profile web -f ../docker/docker-compose.yml up -d --wait \
-            -e WEB_IMAGE=$CENTREON_IMAGE \
-            -e MYSQL_IMAGE=$DATABASE_IMAGE
+        env:
+          WEB_IMAGE: $CENTREON_IMAGE
+          MYSQL_IMAGE: $DATABASE_IMAGE
+        run: docker compose --profile web -f ../docker/docker-compose.yml up -d --wait
         shell: bash
 
       - name: Generate Xray Token
