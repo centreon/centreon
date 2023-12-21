@@ -108,7 +108,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package, check-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch'}}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch'}}
 
     steps:
       - name: Checkout sources

@@ -95,7 +95,7 @@ jobs:
     if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == 'master' }}
     uses: ./.github/actions/check-version
     with:
-      module_name: dsm
+      module_name: web
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
