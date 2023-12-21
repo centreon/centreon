@@ -734,6 +734,7 @@ jobs:
           path: "centreon/lighthouse"
           image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
+          database_image: bitnami/mariadb:10.5
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
           dependencies_lock_file: centreon/pnpm-lock.yaml

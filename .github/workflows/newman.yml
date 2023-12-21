@@ -309,6 +309,7 @@ jobs:
       CONTAINER_NAME: ${{ inputs.container_name }}
       CENTREON_URL: ${{ inputs.centreon_url }}
       CENTREON_IMAGE: ${{ inputs.centreon_image }}
+      DATABASE_IMAGE: ${{ inputs.database_image }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -358,12 +359,11 @@ jobs:
         shell: bash
 
       - name: Start Centreon Web and database containers
-        run: docker compose --profile web -f ../docker/docker-compose.yml up -d --wait
+        run: |
+          docker compose --profile web -f ../docker/docker-compose.yml up -d --wait \
+            -e WEB_IMAGE=$CENTREON_IMAGE \
+            -e MYSQL_IMAGE=$DATABASE_IMAGE
         shell: bash
-        # run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
-
-      # - name: Wait for Centreon Web Container to Start
-      #   run: pnpx wait-on http://localhost:4000/ --timeout 100000
 
       - name: Generate Xray Token
         id: generate-xray-token
@@ -389,7 +389,7 @@ jobs:
 
       - name: Display container logs
         if: failure()
-        run: docker logs $CONTAINER_NAME
+        run: docker compose -f ../docker/docker-compose.yml logs
 
       - name: Upload HTML Reports
         if: failure()
