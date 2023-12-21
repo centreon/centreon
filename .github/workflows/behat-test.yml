@@ -7,6 +7,9 @@ on:
       module_name:
         required: true
         type: string
+      database_image:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -113,6 +116,7 @@ jobs:
         env:
           PANTHER_CHROME_BINARY: /usr/bin/google-chrome
           WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          MYSQL_IMAGE: ${{ inputs.database_image }}
         run: |
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
