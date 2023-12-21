@@ -71,7 +71,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {paginationknowledge}
+            {include_php file='./include/configuration/configKnowledge/pagination.php'}
         </tr>
     </table>
     <table class="ListTable">
@@ -97,7 +97,7 @@
         {assign var="l" value=0}
         {if $selection == 1}
         {foreach key=elem from=$content item=stt}
-        <tr class="{math equation='x % 2' x = $line[l] to=$lineResult}">
+        <tr class="{$line[$l%2]}">
             <td class="ListColCenter"><img class="ico-14" src="./img/icons/service.png"></td>
             <td class="ListColLeft">
                 <a
@@ -141,7 +141,7 @@
         {else}
         {assign var="l" value=0}
         {foreach key=elem from=$content item=stt}
-        <tr class="{math equation='x % 2' x = $line[l] to=$lineResult}">
+        <tr class="{$line[$l%2]}">
             <td class="ListColCenter">
             {if $selection == 1 || $selection == 3}
                 <img class="ico-14" src="./img/icons/service.png">
@@ -213,13 +213,13 @@
                 {/if}
             </td>
         </tr>
-        {assign var="l" value=$l+1}
+        {assign var='l' value=$l+1}
         {/foreach}
         {/if}
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {paginationknowledge}
+            {include_php file='./include/configuration/configKnowledge/pagination.php'}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>
