@@ -659,6 +659,7 @@ jobs:
     with:
       name: legacy-e2e
       module_name: centreon
+      database_image: bitnami/mysql:8.2
       image_name: centreon-web
       os: ${{ matrix.os }}
       features_path: features
