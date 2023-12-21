@@ -126,4 +126,3 @@ jobs:
           fi
           echo "dockerize_matrix=$DOCKERIZE_MATRIX" >> $GITHUB_OUTPUT
         shell: bash
-
