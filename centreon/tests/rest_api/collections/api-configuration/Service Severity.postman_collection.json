@@ -2388,6 +2388,10 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+<<<<<<< HEAD
+=======
+									"console.log(responseJson);\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
@@ -2570,7 +2574,11 @@
 						],
 						"body": {
 							"mode": "raw",
+<<<<<<< HEAD
 							"raw": "{\n    \"name\":\"{{ServiceSeverity2Name}}\",\n    \"alias\":\"{{ServiceSeverity2Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 2\n}"
+=======
+							"raw": "{\n\"name\":\"{{ServiceSeverity2Name}}\",\n\"alias\":\"{{ServiceSeverity2Alias}}\",\n\"level\": 1,\n\"icon_id\": 2\n}"
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2668,7 +2676,11 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Creation of a new service severity without name, level or icon_id (error)",
+=======
+					"name": "Creation of a new service severity without name, leval or icon_id (error)",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"event": [
 						{
 							"listen": "test",
@@ -2704,7 +2716,11 @@
 						],
 						"body": {
 							"mode": "raw",
+<<<<<<< HEAD
 							"raw": "{\n    \"alias\":\"Oh I'm your third severity!\"\n}"
+=======
+							"raw": "{\n\"alias\":\"Oh I'm your third severity!\"\n}"
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2757,7 +2773,11 @@
 						],
 						"body": {
 							"mode": "raw",
+<<<<<<< HEAD
 							"raw": "{\n    \"name\":\"\",\n    \"alias\":\"Hello, I'm your fourth severity!\",\n    \"level\":0,\n    \"icon_id\":1,\n    \"is_activated\": true\n}"
+=======
+							"raw": "{\n\"name\":\"\",\n\"alias\":\"Hello, I'm your fourth severity!\",\n\"level\":0,\n\"icon_id\":1,\n\"is_activated\": true\n}"
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2810,7 +2830,11 @@
 						],
 						"body": {
 							"mode": "raw",
+<<<<<<< HEAD
 							"raw": "{\n    \"name\":\"Test_S_Severity_2.5\",\n    \"level\": 4,\n    \"icon_id\": 5\n}"
+=======
+							"raw": "{\n\"name\":\"Test_S_Severity_2.5\",\n\"level\": 4,\n\"icon_id\": 5\n}"
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2863,7 +2887,11 @@
 						],
 						"body": {
 							"mode": "raw",
+<<<<<<< HEAD
 							"raw": "{\n    \"name\":true,\n    \"alias\":null,\n    \"level\": \"un\",\n    \"icon_id\": null,\n    \"is_activated\":\"true\"\n}"
+=======
+							"raw": "{\n\"name\":true,\n\"alias\":null,\n\"level\": \"un\",\n\"icon_id\": null,\n\"is_activated\":\"true\"\n}"
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2929,7 +2957,11 @@
 						],
 						"body": {
 							"mode": "raw",
+<<<<<<< HEAD
 							"raw": "    {\n    \"name\":\"{{ServiceSeverity3Name}}\",\n    \"alias\":\"{{ServiceSeverity3Alias}}\",\n    \"level\": 3,\n    \"icon_id\": 1\n}"
+=======
+							"raw": "{\n\"name\":\"{{ServiceSeverity3Name}}\",\n\"alias\":\"{{ServiceSeverity3Alias}}\",\n\"level\": 3,\n\"icon_id\": 1\n}"
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -3037,6 +3069,7 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Update a service severity (successful)",
 					"event": [
 						{
@@ -3090,6 +3123,8 @@
 					"response": []
 				},
 				{
+=======
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (successful)",
 					"event": [
 						{
@@ -3170,9 +3205,15 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
+<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
+=======
+									"        \"level\": 10,\r",
+									"        \"icon_id\": 1,\r",
+									"        \"is_activated\": false\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
@@ -3357,7 +3398,11 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Creation of a new service severity by user Read/Write (successful)",
+=======
+					"name": "Creation of a new service severity bu user Read/Write (successful)",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"event": [
 						{
 							"listen": "test",
@@ -3451,9 +3496,15 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
+<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
+=======
+									"        \"level\": 10,\r",
+									"        \"icon_id\": 1,\r",
+									"        \"is_activated\": false\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
@@ -3570,6 +3621,7 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Update a service severity (successful)",
 					"event": [
 						{
@@ -3623,6 +3675,8 @@
 					"response": []
 				},
 				{
+=======
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Show available service severities (2)",
 					"event": [
 						{
@@ -3649,18 +3703,30 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
+<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
+=======
+									"        \"level\": 10,\r",
+									"        \"icon_id\": 1,\r",
+									"        \"is_activated\": false\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
+<<<<<<< HEAD
 									"        \"level\": 1,\r",
 									"        \"icon_id\": 1,\r",
 									"        \"is_activated\": true\r",
+=======
+									"        \"level\": 5,\r",
+									"        \"icon_id\": 3,\r",
+									"        \"is_activated\": false\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"})"
@@ -4179,9 +4245,15 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
+<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
+=======
+									"        \"level\": 10,\r",
+									"        \"icon_id\": 1,\r",
+									"        \"is_activated\": false\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"    \r",
 									"})"
@@ -4226,6 +4298,7 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Update a service severity (error)",
 					"event": [
 						{
@@ -4279,6 +4352,8 @@
 					"response": []
 				},
 				{
+=======
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (error)",
 					"event": [
 						{
@@ -4516,6 +4591,7 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Update a service severity (error)",
 					"event": [
 						{
@@ -4570,6 +4646,8 @@
 					"response": []
 				},
 				{
+=======
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (error)",
 					"event": [
 						{
@@ -4649,18 +4727,30 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
+<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
+=======
+									"        \"level\": 10,\r",
+									"        \"icon_id\": 1,\r",
+									"        \"is_activated\": false\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
+<<<<<<< HEAD
 									"        \"level\": 1,\r",
 									"        \"icon_id\": 1,\r",
 									"        \"is_activated\": true\r",
+=======
+									"        \"level\": 5,\r",
+									"        \"icon_id\": 3,\r",
+									"        \"is_activated\": false\r",
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.eql({\r",
@@ -5220,6 +5310,7 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Update a service severity (error)",
 					"event": [
 						{
@@ -5274,6 +5365,8 @@
 					"response": []
 				},
 				{
+=======
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (error)",
 					"event": [
 						{
@@ -5513,6 +5606,7 @@
 					"response": []
 				},
 				{
+<<<<<<< HEAD
 					"name": "Creation of a new service severity (error)",
 					"event": [
 						{
@@ -5673,6 +5767,8 @@
 					"response": []
 				},
 				{
+=======
+>>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Logout from user with no access",
 					"event": [
 						{
