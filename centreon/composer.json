@@ -100,6 +100,7 @@
         },
         "classmap": ["www/class/", "lib/Centreon"],
         "files" : [
+            "GPL_LIB/smarty-plugins/compiler.paginationknowledge.php",
             "GPL_LIB/smarty-plugins/compiler.displaysvg.php",
             "GPL_LIB/smarty-plugins/compiler.pagination.php",
             "GPL_LIB/smarty-plugins/compiler.php.php",
