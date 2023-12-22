@@ -63,6 +63,7 @@ local function login()
   if not ok then
     broker_log:error(0, "Unable to get a token for the '" .. data.user .. "' user")
   end
+  c:close()
 end
 
 --- Function called when a response is get from the configuration api. As a
@@ -150,6 +151,7 @@ local function get_configuration()
     else
       loop = false
     end
+    c:close()
   end
 
   if resp_code == 304 then
@@ -195,6 +197,7 @@ local function get_notification(id)
     else
       loop = false
     end
+    c:close()
   end
   return content
 end
