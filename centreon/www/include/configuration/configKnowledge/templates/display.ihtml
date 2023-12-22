@@ -71,9 +71,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+            {assign var="includedFileOutput" value={include_php file='./include/configuration/configKnowledge/pagination.php'}}
         </tr>
     </table>
     <table class="ListTable">
@@ -95,11 +93,13 @@
             <td class="ListColHeaderCenter" style="width:170px;">{$status_trans}</td>
             <td class="ListColHeaderCenter">{$actions_trans}&nbsp;&nbsp;&nbsp;</td>
         </tr>
-        {assign var="line" value=0}
-        {$l = 0}
+        {set $line = 0}
+        {set $l = 0}
         {if $selection == 1}
         {foreach key=elem from=$content item=stt}
-        <tr class="{php} global $line; print $line[$l%2]; {/php}">
+        {math equation="x % y" x=$l y=2 assign=lineIndex}
+        {$lineValue = $line[lineIndex]}
+         <tr class="{$lineValue}">
             <td class="ListColCenter"><img class="ico-14" src="./img/icons/service.png"></td>
             <td class="ListColLeft">
                 <a
@@ -143,7 +143,9 @@
         {else}
         {$l = 0}
         {foreach key=elem from=$content item=stt}
-        <tr class="{php} global $line; print $line[$l%2]; {/php}">
+            {math equation="x % y" x=$l y=2 assign=lineIndex}
+            {$lineValue = $line[lineIndex]}
+            <tr class="{$lineValue}">
             <td class="ListColCenter">
             {if $selection == 1 || $selection == 3}
                 <img class="ico-14" src="./img/icons/service.png">
@@ -221,9 +223,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+           {assign var="includedFileOutput" value={include_php file='./include/configuration/configKnowledge/pagination.php'}}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>
