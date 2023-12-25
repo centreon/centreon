@@ -311,13 +311,13 @@ When(
       .clear({ force: true });
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
-      .type('Link to Centreon website{selectall}', { force: true });
+      .type('Link to google website{selectall}', { force: true });
     cy.getByTestId({ testId: 'LinkIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'EditIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'InputLinkField' })
       .eq(1)
-      .type('www.centreon.com{enter}', { force: true });
-    cy.contains('www.centreon.com').should('be.visible');
+      .type('www.google.com{enter}', { force: true });
+    cy.contains('www.google.com').should('be.visible');
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();
   }
@@ -326,14 +326,14 @@ When(
 Then(
   'the link is clickable on the dashboard view page and redirects to the proper website',
   () => {
-    cy.contains('Link to Centreon website')
+    cy.contains('Link to google website')
       .should('have.attr', 'href')
-      .and('equal', 'https://www.centreon.com');
-    cy.contains('Link to Centreon website')
+      .and('equal', 'https://www.google.com');
+    cy.contains('Link to google website')
       .should('have.attr', 'target')
       .and('equal', '_blank');
-    cy.contains('Link to Centreon website').invoke('attr', 'target', '_self');
-    cy.contains('Link to Centreon website').click({ force: true });
-    cy.url().should('equal', 'https://www.centreon.com/');
+    cy.contains('Link to google website').invoke('attr', 'target', '_self');
+    cy.contains('Link to google website').click({ force: true });
+    cy.url().should('equal', 'https://www.google.com/');
   }
 );
