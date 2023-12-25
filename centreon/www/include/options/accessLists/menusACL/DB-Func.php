@@ -586,11 +586,15 @@ function updateGroups($aclId = null)
         if (isset($submitedValues)) {
             foreach ($submitedValues as $key => $value) {
                 if (isset($value)) {
-                    $pearDB->query(
-                        "INSERT INTO acl_group_topology_relations "
-                        . "(acl_topology_id, acl_group_id) "
-                        . "VALUES ($aclId, $value)"
-                    );
+                    $query = <<<SQL
+                            INSERT INTO acl_group_topology_relations
+                            (acl_topology_id, acl_group_id)
+                            VALUES (:aclId, :value)
+                            SQL;
+                    $statement = $pearDB->prepare($query);
+                    $statement->bindValue(':aclId', $aclId);
+                    $statement->bindValue(':value', $value);
+                    $statement->execute();
                 }
             }
         }
