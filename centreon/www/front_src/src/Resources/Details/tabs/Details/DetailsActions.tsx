@@ -35,16 +35,7 @@ const DetailsActions = ({ details }): JSX.Element => {
 
   const { showSuccessMessage } = useSnackbar();
 
-  // update details temporary /use decoder after
-  const resource = [
-    {
-      ...details,
-      has_active_checks_enabled: details?.active_checks,
-      has_passive_checks_enabled: details?.passive_checks,
-      is_acknowledged: details?.acknowledged,
-      is_in_downtime: details?.in_downtime
-    }
-  ];
+  console.log('------>details', details);
 
   const panelWidth = useAtomValue(panelWidthStorageAtom);
 
@@ -106,7 +97,7 @@ const DetailsActions = ({ details }): JSX.Element => {
       mainActionsStyle={cx(classes.container, {
         [classes.condensed]: displayCondensed
       })}
-      resources={resource}
+      resources={[details]}
       secondaryActions={[]}
     />
   );

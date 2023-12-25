@@ -15,6 +15,7 @@ import {
   labelNoResourceFound,
   labelSomethingWentWrong
 } from '../../translatedLabels';
+import { resourceDetailsDecoder } from '../../decoders';
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
@@ -28,6 +29,7 @@ const useLoadDetails = (): LoadDetails => {
   const { t } = useTranslation();
 
   const { sendRequest: sendLoadDetailsRequest } = useRequest<ResourceDetails>({
+    decoder: resourceDetailsDecoder,
     getErrorMessage: ifElse(
       pathEq(404, ['response', 'status']),
       always(t(labelNoResourceFound)),
@@ -48,11 +50,13 @@ const useLoadDetails = (): LoadDetails => {
       return;
     }
 
-    // decoder?
     sendLoadDetailsRequest({
       endpoint: selectedResourceDetailsEndpoint
     })
-      .then(setDetails)
+      .then((data) => {
+        console.log({ data });
+        setDetails(data);
+      })
       .catch(() => {
         clearSelectedResource();
       });

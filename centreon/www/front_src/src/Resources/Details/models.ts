@@ -12,11 +12,11 @@ import {
 
 import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
 
-export interface Group extends NamedEntity {
+export interface Group extends Partial<NamedEntity> {
   configuration_uri: string | null;
 }
 
-export interface Category extends NamedEntity {
+export interface Category extends Partial<NamedEntity> {
   configuration_uri: string | null;
 }
 
@@ -28,9 +28,7 @@ export interface Sensitivity {
 }
 
 export interface ResourceDetails extends NamedEntity {
-  acknowledged: boolean;
   acknowledgement?: Acknowledgement;
-  active_checks: boolean;
   alias?: string;
   calculation_type?: string;
   categories?: Array<Category>;
@@ -41,24 +39,26 @@ export interface ResourceDetails extends NamedEntity {
   flapping: boolean;
   fqdn?: string;
   groups?: Array<Group>;
-  in_downtime: boolean;
+  has_active_checks_enabled: boolean;
+  has_passive_checks_enabled?: boolean;
   information: string;
+  is_acknowledged: boolean;
+  is_in_downtime: boolean;
   last_check: string;
-  last_notification: string;
+  last_notification: string | null;
   last_status_change: string;
-  last_time_with_no_issue: string;
+  last_time_with_no_issue: string | null;
   latency: number;
   links: ResourceLinks;
   monitoring_server_name?: string;
   next_check: string;
   notification_number: number;
   parent?: Parent;
-  passive_checks?: boolean;
   percent_state_change: number;
   performance_data?: string;
   sensitivity?: Sensitivity;
-  severity: Severity;
-  severity_level: number;
+  severity: Severity | null;
+  severity_level?: number;
   status: Status;
   timezone?: string;
   tries: string;

@@ -58,6 +58,7 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
+import { resourceDetailsDecoder } from '../../decoders';
 
 import { Search } from './models';
 
@@ -82,6 +83,7 @@ const useLoadResources = (): LoadResources => {
 
   const { sendRequest: sendLoadDetailsRequest, sending: sendingDetails } =
     useRequest<ResourceDetails>({
+      decoder: resourceDetailsDecoder,
       getErrorMessage: ifElse(
         pathEq(404, ['response', 'status']),
         always(t(labelNoResourceFound)),
@@ -140,9 +142,13 @@ const useLoadResources = (): LoadResources => {
     }
 
     sendLoadDetailsRequest({
+      decoder: resourceDetailsDecoder,
       endpoint: selectedResourceDetailsEndpoint
     })
-      .then(setDetails)
+      .then((data) => {
+        console.log('here?', data);
+        setDetails(data);
+      })
       .catch(() => {
         clearSelectedResource();
       });

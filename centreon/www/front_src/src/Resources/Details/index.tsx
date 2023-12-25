@@ -82,13 +82,13 @@ const Details = (): JSX.Element | null => {
   };
 
   const getHeaderBackgroundColor = (): string | undefined => {
-    const { in_downtime, acknowledged } = details || {};
+    const { is_in_downtime, is_acknowledged } = details || {};
 
     const foundColorCondition = rowColorConditions(theme).find(
       ({ condition }) =>
         condition({
-          acknowledged,
-          in_downtime
+          acknowledged: is_acknowledged,
+          in_downtime: is_in_downtime
         })
     );
 

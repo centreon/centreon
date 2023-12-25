@@ -25,20 +25,21 @@ import useFilter from './useFilter';
 import Filter from '.';
 
 const resourcesByHostType = {
-  acknowledged: false,
-  active_checks: true,
   alias: 'SensorProbe-Datacenter-04',
   chart_url: null,
   duration: '5m 23s',
   fqdn: 'SensorProbe-Datacenter-04',
+  has_active_checks_enabled: true,
+  has_passive_checks_enabled: false,
   host_id: 143,
   icon: {
     name: 'climate_64',
     url: '/centreon/img/media/Hardware/climate_64.png'
   },
   id: 143,
-  in_downtime: false,
   information: 'OK - SensorProbe-Datacenter-04: rta 0.873ms, lost 0%',
+  is_acknowledged: false,
+  is_in_downtime: false,
   last_check: '2m 26s',
   last_status_change: '2023-10-11T17:05:57+02:00',
   links: {
@@ -70,7 +71,6 @@ const resourcesByHostType = {
   name: 'SensorProbe-Datacenter-04',
   notification_enabled: false,
   parent: null,
-  passive_checks: false,
   performance_data: null,
   service_id: null,
   severity: null,

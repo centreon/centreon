@@ -17,6 +17,7 @@ import {
   resourceDetailsUpdatedAtom,
   selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
+import { resourceDetailsDecoder } from '../decoders';
 
 import { ResourceDetails } from './models';
 import {
@@ -60,16 +61,19 @@ const useLoadDetails = (): DetailsState => {
     sending
   });
 
-  // decoder?
   const loadDetails = (): void => {
     if (isNil(selectedResource?.resourceId)) {
       return;
     }
 
     sendRequest({
+      decoder: resourceDetailsDecoder,
       endpoint: selectedResourceDetailsEndpoint
     })
-      .then(setDetails)
+      .then((data) => {
+        console.log(data);
+        setDetails(data);
+      })
       .catch(() => {
         clearSelectedResource();
       });

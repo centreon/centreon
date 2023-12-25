@@ -43,7 +43,6 @@ export interface Status {
 }
 
 export interface Resource extends NamedEntity {
-  children?;
   duration?: string;
   has_active_checks_enabled?: boolean;
   has_passive_checks_enabled?: boolean;
@@ -57,7 +56,7 @@ export interface Resource extends NamedEntity {
   parent?: Parent | null;
   service_id?: number;
   severity_level?: number;
-  short_type: ResourceShortType;
+  short_type?: ResourceShortType;
   status?: Status;
   tries?: string;
   type: ResourceType;
@@ -113,7 +112,7 @@ export interface ResourceExternals {
 
 export interface ResourceLinks {
   endpoints: ResourceEndpoints;
-  externals: ResourceExternals;
+  externals?: ResourceExternals;
   uris: ResourceUris;
 }
 
