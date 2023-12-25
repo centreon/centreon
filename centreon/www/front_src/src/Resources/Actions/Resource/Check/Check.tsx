@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -10,9 +10,6 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { IconButton } from '@centreon/ui';
 
-import { Data } from '../../model';
-
-import CheckOptionsList from './CheckOptionsList';
 import IconArrow from './IconArrow';
 
 const useStyles = makeStyles()((theme) => ({
@@ -37,37 +34,27 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const defaultDisabledList = { disableCheck: false, disableForcedCheck: false };
-
 interface ClickList {
   onClickCheck: () => void;
   onClickForcedCheck: () => void;
 }
-interface Disabled {
-  disableCheck: boolean;
-  disableForcedCheck: boolean;
-}
 
 interface Props {
   disabledButton?: boolean;
-  disabledList?: Disabled;
   displayCondensed?: boolean;
-  isDefaultChecked?: boolean;
   onClickActionButton: () => void;
   onClickList?: ClickList;
-  renderResourceActionButton;
+  renderCheckOptionList?: (args) => ReactNode;
+  renderResourceActionButton: (args) => ReactNode;
 }
 
 const Check = ({
   disabledButton,
-  disabledList = defaultDisabledList,
-  onClickList,
   onClickActionButton,
-  isDefaultChecked = false,
   renderResourceActionButton,
   displayCondensed = false,
-  ...rest
-}: Props & Data): JSX.Element | null => {
+  renderCheckOptionList
+}: Props): JSX.Element | null => {
   const { classes, cx } = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const displayList = (event: React.MouseEvent<HTMLElement>): void => {
@@ -145,15 +132,10 @@ const Check = ({
         >
           <IconArrow {...iconProps} open={isOpen} />
         </IconButton>
-        <CheckOptionsList
-          anchorEl={anchorEl}
-          disabled={disabledList}
-          isDefaultChecked={isDefaultChecked}
-          open={isOpen}
-          onClickCheck={onClickList?.onClickCheck}
-          onClickForcedCheck={onClickList?.onClickForcedCheck}
-          {...rest.listOptions}
-        />
+        {renderCheckOptionList?.({
+          anchorEl,
+          isOpen
+        })}
       </ButtonGroup>
     </ClickAwayListener>
   );

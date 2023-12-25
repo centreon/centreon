@@ -1,6 +1,9 @@
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { useMediaQuery, useTheme } from '@mui/material';
+
+import { useSnackbar } from '@centreon/ui';
 
 import {
   labelCheckCommandSent,
@@ -12,11 +15,18 @@ import {
 import ResourceActions from './Resource';
 import useMediaQueryListing from './Resource/useMediaQueryListing';
 import { selectedResourcesAtom } from './actionsAtoms';
-import { Action, MainActions, SecondaryActions } from './model';
+import {
+  Action,
+  CheckActionModel,
+  MainActions,
+  SecondaryActions
+} from './model';
 
 const WrapperResourceActions = (): JSX.Element => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { applyBreakPoint } = useMediaQueryListing();
+  const { showSuccessMessage } = useSnackbar();
 
   const displayCondensed =
     Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
@@ -28,22 +38,33 @@ const WrapperResourceActions = (): JSX.Element => {
     setSelectedResources([]);
   };
 
+  const onSuccessCheckAction = (): void => {
+    showSuccessMessage(t(labelCheckCommandSent));
+  };
+
+  const onSuccessForcedCheckAction = (): void => {
+    showSuccessMessage(t(labelForcedCheckCommandSent));
+  };
+
+  const checkAction: CheckActionModel = {
+    action: Action.Check,
+    data: {
+      listOptions: {
+        descriptionCheck: labelCheckDescription,
+        descriptionForcedCheck: labelForcedCheckDescription
+      },
+
+      successCallback: {
+        onSuccessCheckAction,
+        onSuccessForcedCheckAction
+      }
+    },
+    extraRules: null
+  };
+
   const mainActions = [
     { action: Action.Acknowledge, extraRules: null },
-    {
-      action: Action.Check,
-      data: {
-        listOptions: {
-          descriptionCheck: labelCheckDescription,
-          descriptionForcedCheck: labelForcedCheckDescription
-        },
-        success: {
-          msgForcedCheckCommandSent: labelForcedCheckCommandSent,
-          msgLabelCheckCommandSent: labelCheckCommandSent
-        }
-      },
-      extraRules: null
-    },
+    checkAction,
     { action: Action.Downtime, extraRules: null }
   ];
 

@@ -1,4 +1,8 @@
+import { PrimitiveAtom } from 'jotai';
+
 import { Resource } from '../models';
+
+import { CheckActionAtom } from './Resource/Check/checkAtoms';
 
 export enum Action {
   Acknowledge = 'Acknowledge',
@@ -29,9 +33,15 @@ export interface ListOptions {
   descriptionCheck: string;
   descriptionForcedCheck: string;
 }
+
+export interface SuccessCallback {
+  onSuccessCheckAction?: () => void;
+  onSuccessForcedCheckAction: () => void;
+}
 export interface Data {
+  checkActionStateAtom?: PrimitiveAtom<CheckActionAtom | null>;
   listOptions: ListOptions;
-  success: Success;
+  successCallback?: SuccessCallback;
 }
 
 export interface CheckActionModel {

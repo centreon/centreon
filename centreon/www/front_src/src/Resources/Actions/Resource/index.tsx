@@ -30,7 +30,6 @@ import {
 import {
   Action,
   CheckActionModel,
-  Data,
   ExtraActionsInformation,
   ResourceActions
 } from '../model';
@@ -300,7 +299,6 @@ const ResourceActions = ({
               displayCondensed={displayCondensed}
               resources={resources}
               testId="Multiple Check"
-              onSuccess={success}
               {...extraCheckData}
             />
           </div>
