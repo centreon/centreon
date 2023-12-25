@@ -118,6 +118,7 @@ jobs:
 
           # Parsing and processing test IDs
           issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
+          echo "$issue_ids"
 
           summaries=()
 
