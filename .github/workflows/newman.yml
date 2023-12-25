@@ -118,6 +118,12 @@ jobs:
 
             response=$(curl -sS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
 
+            # Check if the response is null or contains errors
+            if [ -z "$response" ] || [ "$(echo "$response" | jq -r '.errors')" != "null" ]; then
+              echo "Error fetching test cases. Exiting."
+              exit 1
+            fi
+
             echo "$response"
           }
 
@@ -128,19 +134,23 @@ jobs:
           # Get test cases with pagination
           while true; do
             result=$(get_test_cases "$offset")
+
+            # Extract current issue IDs
             current_issue_ids=($(echo "$result" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
 
             # Break if no more results
             [ ${#current_issue_ids[@]} -eq 0 ] && break
 
+            # Append current issue IDs to the array
             all_issue_ids+=("${current_issue_ids[@]}")
+
+            # Increment offset for the next page
             offset=$((offset + 100))
           done
 
           # Output all test case IDs
           echo "All Test Case IDs:"
           echo "${all_issue_ids[@]}"
-
 
 
           # xray_graphql_getTestPlan='{
