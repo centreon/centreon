@@ -105,7 +105,7 @@ jobs:
         id: xray-newman
         run: |
           xray_graphql_getTestPlan='{
-            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100) { results { issueId testType { name } } } } }",
+            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 1000) { results { issueId testType { name } } } } }",
             "variables": {
               "issueId": "${{ steps.get-test-ids.outputs.test_plan_id }}"
             }
