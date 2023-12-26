@@ -556,7 +556,7 @@ function updateLCARelation($aclId = null)
                 );
                 $prepare->bindValue(':aclId', $aclId, \PDO::PARAM_INT);
                 $prepare->bindValue(':key', $key, \PDO::PARAM_INT);
-                $prepare->bindValue(':value', $value, \PDO::PARAM_STR);
+                $prepare->bindValue(':value', $value, \PDO::PARAM_INT);
 
                 $prepare->execute();
             }
