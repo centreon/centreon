@@ -109,7 +109,7 @@ jobs:
 
           while true; do
             xray_graphql_getTestPlan='{
-              "query": "query GetTestPlan($issueId: String, $limit: Int, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: $limit, start: $start) { results { issueId testType { name } } } } }",
+              "query": "query GetTestPlan($issueId: String, $limit:100, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: $limit, start: $start) { results { issueId testType { name } } } } }",
               "variables": {
                 "issueId": "${{ steps.get-test-ids.outputs.test_plan_id }}"
               }
