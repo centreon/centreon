@@ -107,7 +107,7 @@ jobs:
           get_test_plan_issue_ids() {
 
             start=0
-            issue_ids=()
+            issue=()
 
             while true; do
               xray_graphql_getTestPlan='{
