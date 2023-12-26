@@ -134,21 +134,21 @@ jobs:
               fi
 
               # Concatenate the current batch of results to the overall issue_ids array
-              issue_ids=("${issue_ids[@]}" "${current_issue_ids[@]}")
+              issue=("${issue[@]}" "${current_issue_ids[@]}")
 
               # Increment the start value for the next iteration
               start=$((start + 100))
             done
           }
           get_test_plan_issue_ids
-          result_issue_ids=("${issue_ids[@]}")
+          issue_ids=("${issue[@]}")
 
           # Afficher le résultat
-          echo "Result Issue IDs: ${result_issue_ids[@]}"
+          echo "Result Issue IDs: ${issue_ids[@]}"
 
           summaries=()
 
-          # for issue_id in "${issue_ids[@]}"; do
+          # for issue_id in "${result_issue_ids[@]}"; do
           #   echo "Processing issue ID: $issue_id"
           #   jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
