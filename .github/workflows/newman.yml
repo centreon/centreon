@@ -236,7 +236,8 @@ jobs:
           done
 
           get_test_plan_issue_ids
-          issue_list_ids=("${issue[@]}") >> $GITHUB_OUTPUT
+          issue_list_ids=("${issue[@]}")
+          echo "issue_list_ids=("${issue[@]}")" >> $GITHUB_OUTPUT
 
           test_issue_ids=("${issue_list_ids[@]}")
           formatted_test_issue_ids_str="["
