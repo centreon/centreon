@@ -404,7 +404,7 @@ jobs:
                 xray_graphql_getTestPlan='{
                   "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } } } } }",
                   "variables": {
-                    "issueId": "test_plan_id",
+                    "issueId": "'${test_plan_id}'",
                     "start": '$start'
                   }
                 }'
