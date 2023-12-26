@@ -105,7 +105,7 @@ jobs:
         id: xray-newman
         run: |
           xray_graphql_getTestPlan='{
-            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: 50) { results { issueId testType { name } } } } }",
+            "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: 70) { results { issueId testType { name } } } } }",
             "variables": {
               "issueId": "${{ steps.get-test-ids.outputs.test_plan_id }}"
             }
@@ -384,7 +384,7 @@ jobs:
               failed_assertions=$(jq -r '.Run.Stats.Assertions.failed' "$summary_file")
               failures=$(jq -r '.Run.Failures' "$summary_file")
               xray_graphql_getTestPlan='{
-                "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100,start:50) { results { issueId testType { name } } } } }",
+                "query": "query GetTestPlan($issueId: String) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100,start:70) { results { issueId testType { name } } } } }",
                 "variables": {
                   "issueId": "'"$test_plan_id"'"
                 }
