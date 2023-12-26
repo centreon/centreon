@@ -429,6 +429,7 @@ jobs:
 
                 # Increment the start value for the next iteration
                 start=$((start + 100))
+                sleep 2
               done
 
               # Display the final set of issue IDs
@@ -525,6 +526,7 @@ jobs:
 
                 # Increment the start value for the next iteration
                 start=$((start + 100))
+                sleep 2
               done
 
               # Display the final set of issue IDs
