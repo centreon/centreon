@@ -147,28 +147,28 @@ jobs:
     runs-on: ubuntu-22.04
     if: always()
     steps:
-    - name: Upload test results
-      if: ${{ contains(needs.*.result, 'failure') }}
-      uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
-      with:
-        name: ${{ inputs.name }}-${{ inputs.os }}-test-results
-        path: ${{ inputs.module_name }}/tests/e2e/results/
-        retention-days: 1
+      - name: Upload test results
+        if: ${{ contains(needs.*.result, 'failure') }}
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-results
+          path: ${{ inputs.module_name }}/tests/e2e/results/
+          retention-days: 1
 
-    - name: Upload test reports
-      if: ${{ contains(needs.*.result, 'failure') }}
-      uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
-      with:
-        name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
-        path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
-        retention-days: 1
+      - name: Upload test reports
+        if: ${{ contains(needs.*.result, 'failure') }}
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
+          retention-days: 1
 
-    - name: Upload xray reports
-      uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
-      with:
-        name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
-        path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
-        retention-days: 1
+      - name: Upload xray reports
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
+          retention-days: 1
 
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
