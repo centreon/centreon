@@ -67,7 +67,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
 
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
@@ -89,7 +89,7 @@ jobs:
           test_plan_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_id_'${{ inputs.os }})
           echo "The Test Execution ID : $test_execution_id"
           echo "The Test Plan ID : $test_plan_id"
-          echo "test_plan_id=75288" >> $GITHUB_OUTPUT
+          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
           echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -270,7 +270,7 @@ jobs:
 
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
-    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-22.04
     continue-on-error: true
     strategy:
@@ -393,7 +393,7 @@ jobs:
           done
 
       - name: Change test execution status
-        # if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+        if: ${{ !cancelled() && contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
         run: |
           for summary_file in ./postman_summaries/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
@@ -465,7 +465,7 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
         run: |
               issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
               transition_ids=("61" "81" "21" "31")
