@@ -37,3 +37,5 @@
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins
 /usr/lib/rpm
+/usr/lib/python3.9
+/usr/lib64/python3.9
