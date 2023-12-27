@@ -108,7 +108,7 @@ jobs:
             start=0
             issue=()
 
-            while true; do
+            while [ ! "${#current_issue_ids[@]}" -eq 0 ]; do
               xray_graphql_getTestPlan='{
                 "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } } } } }",
                 "variables": {
