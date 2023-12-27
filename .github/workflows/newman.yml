@@ -170,6 +170,14 @@ jobs:
           collections=($(find ./collections -type f -name "*.postman_collection.json"))
           test_case_ids=()
 
+          xray_graphql_AddingTestsToTestPlan='{
+            "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
+            "variables": {
+              "issueId":"${{ steps.get-test-ids.outputs.test_plan_id }}",
+              "testIssueIds": []
+            }
+          }'
+
           existing_test_case_ids=("${issue_ids[@]}")
 
           for collection_file in "${collections[@]}"; do
