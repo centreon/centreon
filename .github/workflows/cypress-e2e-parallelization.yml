@@ -146,7 +146,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-results
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ matrix.feature }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
@@ -154,7 +154,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ matrix.feature }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
@@ -162,7 +162,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ matrix.feature }}
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
@@ -181,8 +181,9 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
           path: ${{ inputs.name }}-json-xray-reports
+          merge-multiple: true
 
       - name: Generate Xray Token
         id: generate-xray-token
@@ -221,8 +222,9 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
           path: ${{ inputs.name }}-json-reports
+          merge-multiple: true
 
       - name: Merge reports
         run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
