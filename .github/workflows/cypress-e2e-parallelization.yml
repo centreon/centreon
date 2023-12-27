@@ -142,31 +142,35 @@ jobs:
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
 
-  upload-reports:
-    needs: [cypress-e2e-test-run]
-    runs-on: ubuntu-22.04
-    if: always()
-    steps:
+      - name: Replace / with - in the feature path
+        id: feature-path
+        run: |
+          feature_name="${{ matrix.feature }}"
+          feature_name_with_dash="${feature_name//\//-}"
+          echo "Modified Feature Name: $feature_name_with_dash"
+          echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
+
       - name: Upload test results
-        if: ${{ contains(needs.*.result, 'failure') }}
+        if: failure()
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-results
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
       - name: Upload test reports
-        if: ${{ contains(needs.*.result, 'failure') }}
+        if: failure()
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
       - name: Upload xray reports
+        if: always()
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
