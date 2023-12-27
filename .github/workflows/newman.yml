@@ -105,7 +105,6 @@ jobs:
         id: xray-newman
         run: |
           get_test_plan_issue_ids() {
-
             start=0
             issue=()
 
