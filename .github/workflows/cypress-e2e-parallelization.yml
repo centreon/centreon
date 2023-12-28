@@ -144,6 +144,7 @@ jobs:
 
       - name: Replace / with - in the feature path
         id: feature-path
+        if: always()
         run: |
           feature_name="${{ matrix.feature }}"
           feature_name_with_dash="${feature_name//\//-}"
