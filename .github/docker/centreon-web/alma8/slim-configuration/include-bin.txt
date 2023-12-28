@@ -6,3 +6,11 @@
 /usr/lib64/liblua-5.3.so
 /usr/lib64/libldap-2.4.so.2
 /usr/lib64/librpm.so.8
+/usr/bin/dnf
+/usr/lib64/libstdc++.so.6
+/usr/lib64/libdnf.so.2
+/usr/lib64/librpmbuild.so.8
+/usr/lib64/librpmsign.so.8
+/usr/lib64/libcomps.so.0
+/usr/lib64/libncursesw.so.6
+/usr/libexec/platform-python
