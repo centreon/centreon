@@ -168,7 +168,6 @@ function insertGraphTemplate()
         VALUES (
         NULL,
         SQL;
-    $statement = $pearDB->prepare($rq);
     isset($ret["name"]) && $ret["name"] != null
         ? $rq .= "'" . htmlentities($ret["name"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
@@ -205,6 +204,7 @@ function insertGraphTemplate()
         ? $rq .= "'" . htmlentities($ret["comment"], ENT_QUOTES, "UTF-8") . "'"
         : $rq .= "NULL";
     $rq .= ")";
+    $statement = $pearDB->prepare($rq);
     $dbResult = $statement->execute();
     defaultOreonGraph();
     $res = $pearDB->query("SELECT MAX(graph_id) FROM giv_graphs_template");
