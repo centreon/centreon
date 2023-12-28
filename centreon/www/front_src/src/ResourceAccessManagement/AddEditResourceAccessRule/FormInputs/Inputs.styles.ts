@@ -49,7 +49,9 @@ export const useResourceDatasetStyles = makeStyles()((theme) => ({
     gridTemplateColumns: `${theme.spacing(20)} 1fr`
   },
   resourceTitle: {
-    lineHeight: 1,
+    color: theme.palette.primary.main,
+    fontSize: theme.typography.h6.fontSize,
+    fontWeight: theme.typography.fontWeightMedium,
     paddingBottom: theme.spacing(0.5)
   },
   resourceType: {

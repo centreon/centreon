@@ -1,4 +1,4 @@
-import { Column } from '@centreon/ui';
+import { Column, SelectEntry } from '@centreon/ui';
 
 export enum ModalMode {
   Create = 'create',
@@ -63,8 +63,13 @@ export type ResourceAccessRuleType = {
 };
 
 export type Dataset = {
-  resourceType: 'host-group' | 'host-category' | 'host' | 'service';
+  resourceType: ResourceTypeEnum;
   resources: Array<NamedEntity>;
+};
+
+export type DatasetResource = {
+  resourceType: ResourceTypeEnum;
+  resources: Array<SelectEntry>;
 };
 
 export type NamedEntity = {

@@ -49,6 +49,7 @@ const useFormSubmit = (): UseFormState => {
       ? t(labelResourceAccessRuleAddedSuccess)
       : t(labelResourceAccessRuleEditedSuccess);
 
+    console.log(values);
     const payload = adaptResourceAccessRule({ ...values });
 
     return mutateAsync(payload)

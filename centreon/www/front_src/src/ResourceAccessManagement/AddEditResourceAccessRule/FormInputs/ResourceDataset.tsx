@@ -2,6 +2,7 @@
 import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { isEmpty } from 'ramda';
 
 import { FormHelperText, Typography } from '@mui/material';
 import FilterIcon from '@mui/icons-material/Tune';
@@ -17,6 +18,7 @@ import {
   labelSelectResource,
   labelSelectResourceType
 } from '../../translatedLabels';
+import { DatasetResource } from '../../models';
 
 import { useResourceDatasetStyles } from './Inputs.styles';
 import useResourceDataset from './useResourceDataset';
@@ -42,15 +44,26 @@ const ResourceDataset = ({ propertyName }: Props): ReactElement => {
     value
   } = useResourceDataset(propertyName);
 
+  const areResourcesFilled = (datasets: Array<DatasetResource>): boolean =>
+    datasets?.every(
+      ({ resourceType, resources }) =>
+        !isEmpty(resourceType) && !isEmpty(resources)
+    );
+
   const deleteButtonHidden = value.length <= 1;
 
   return (
     <div className={classes.resourcesContainer}>
+      <div>
+        <Typography className={classes.resourceTitle}>
+          {t(labelResourceSelection)}
+        </Typography>
+      </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
           IconAdd={<FilterIcon />}
           // addButtonHidden={}
-          // addbuttonDisabled={}
+          addbuttonDisabled={!areResourcesFilled(value)}
           labelAdd={t(labelRefineFilter)}
           onAddItem={addResource}
         >
