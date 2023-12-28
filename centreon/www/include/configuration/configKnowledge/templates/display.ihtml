@@ -94,7 +94,7 @@
             <td class="ListColHeaderCenter">{$actions_trans}&nbsp;&nbsp;&nbsp;</td>
         </tr>
         {assign var="line" value=0}
-        {php} $l = 0; {/php}
+        {assign var="l" value=0}
         {if $selection == 1}
         {foreach key=elem from=$content item=stt}
         <tr class="{php} global $line; print $line[$l%2]; {/php}">
@@ -136,10 +136,10 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
+        {inc var="l"}
         {/foreach}
         {else}
-        {php} $l = 0; {/php}
+        {assign var="l" value=0}
         {foreach key=elem from=$content item=stt}
         <tr class="{php} global $line; print $line[$l%2]; {/php}">
             <td class="ListColCenter">
@@ -213,7 +213,7 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
+        {inc var="l"}
         {/foreach}
         {/if}
     </table>
