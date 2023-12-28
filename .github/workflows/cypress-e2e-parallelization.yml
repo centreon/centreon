@@ -175,6 +175,31 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
+  regroup-artifacts:
+    needs: [cypress-e2e-test-run]
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download Xray Reports Artifacts
+        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+        with:
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
+          path: ${{ inputs.name }}-xray-reports
+          merge-multiple: true
+
+      - name: Upload the regrouped Artifact
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          path: ${{ inputs.name }}-xray-reports/**/*.json
+          retention-days: 1
+
+      - name: Delete Xray Reports Artifacts
+        uses: geekyeggo/delete-artifact@v4
+        with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
+
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
