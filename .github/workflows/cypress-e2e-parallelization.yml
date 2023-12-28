@@ -197,8 +197,8 @@ jobs:
       - name: Delete Xray Reports Artifacts
         uses: geekyeggo/delete-artifact@v4
         with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
 
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
