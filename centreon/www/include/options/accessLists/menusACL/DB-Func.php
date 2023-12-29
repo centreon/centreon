@@ -592,8 +592,8 @@ function updateGroups($aclId = null)
                             VALUES (:aclId, :value)
                             SQL;
                     $statement = $pearDB->prepare($query);
-                    $statement->bindValue(':aclId', $aclId, \PDO::PARAM_INT);
-                    $statement->bindValue(':value', $value, \PDO::PARAM_INT);
+                    $statement->bindValue(":aclId", $aclId, \PDO::PARAM_INT);
+                    $statement->bindValue(":value", $value, \PDO::PARAM_INT);
                     $statement->execute();
                 }
             }
