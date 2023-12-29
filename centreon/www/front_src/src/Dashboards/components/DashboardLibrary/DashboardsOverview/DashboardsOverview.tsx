@@ -78,6 +78,25 @@ const DashboardsOverview = (): ReactElement => {
     };
   }, []);
 
+  const GridTable = (
+    <DataTable isEmpty={isEmptyList} variant="grid">
+      {dashboards.map((dashboard) => (
+        <DataTable.Item
+          hasCardAction
+          description={dashboard.description ?? undefined}
+          hasActions={hasEditPermission(dashboard)}
+          key={dashboard.id}
+          labelsDelete={getLabelsDelete(dashboard)}
+          title={dashboard.name}
+          onClick={navigateToDashboard(dashboard)}
+          onDelete={deleteDashboard(dashboard)}
+          onEdit={editDashboard(dashboard)}
+          onEditAccessRights={editAccessRights(dashboard)}
+        />
+      ))}
+    </DataTable>
+  );
+
   if (isEmptyList && !search) {
     return (
       <DataTable isEmpty={isEmptyList} variant="grid">
@@ -95,24 +114,7 @@ const DashboardsOverview = (): ReactElement => {
   return (
     <div className={classes.container}>
       <DashboardListing
-        customListingComponent={
-          <DataTable isEmpty={isEmptyList} variant="grid">
-            {dashboards.map((dashboard) => (
-              <DataTable.Item
-                hasCardAction
-                description={dashboard.description ?? undefined}
-                hasActions={hasEditPermission(dashboard)}
-                key={dashboard.id}
-                labelsDelete={getLabelsDelete(dashboard)}
-                title={dashboard.name}
-                onClick={navigateToDashboard(dashboard)}
-                onDelete={deleteDashboard(dashboard)}
-                onEdit={editDashboard(dashboard)}
-                onEditAccessRights={editAccessRights(dashboard)}
-              />
-            ))}
-          </DataTable>
-        }
+        customListingComponent={GridTable}
         data={data}
         displayCustomListing={equals(viewMode, ViewMode.Cards)}
         loading={isLoading}
