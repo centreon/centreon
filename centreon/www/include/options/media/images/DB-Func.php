@@ -379,9 +379,10 @@ function updateDirectory($dir_id, $dir_alias, $dir_comment = "")
 
     global $pearDB;
     $mediadir = "./img/media/";
-    $rq = "SELECT dir_alias FROM view_img_dir WHERE dir_id = '".$dir_id."'";
-    $dbResult = $pearDB->query($rq);
-    $old_dir = $dbResult->fetch();
+    $prepare = $pearDB->prepare("SELECT dir_alias FROM view_img_dir WHERE dir_id = :dir_id ");
+    $prepare->bindValue(':dir_id', $dir_id, \PDO::PARAM_INT);
+    $prepare->execute();
+    $old_dir = $prepare->fetch(PDO::FETCH_ASSOC);
     $dir_alias = sanitizePath($dir_alias);
     if (!is_dir($mediadir . $old_dir["dir_alias"])) {
         mkdir($mediadir . $dir_alias);
