@@ -18549,10 +18549,10 @@ msgstr "Paramètres"
 msgid "Revoked"
 msgstr "Révoqué"
 
-msgid "List View"
+msgid "List view"
 msgstr "Vue en liste"
 
-msgid "Cards View"
+msgid "Cards view"
 msgstr "Vue en cartes"
 
 msgid "Edit properties"

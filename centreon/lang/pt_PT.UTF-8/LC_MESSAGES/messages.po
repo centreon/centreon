@@ -17205,10 +17205,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Revoked"
 # msgstr ""
 
-# msgid "List View"
+# msgid "List view"
 # msgstr ""
 
-# msgid "Cards View"
+# msgid "Cards view"
 # msgstr ""
 
 # msgid "Edit properties"

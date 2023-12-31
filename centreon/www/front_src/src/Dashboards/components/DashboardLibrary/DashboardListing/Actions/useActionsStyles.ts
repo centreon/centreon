@@ -8,7 +8,7 @@ export const useActionsStyles = makeStyles()((theme) => ({
   filter: {
     width: theme.spacing(50)
   },
-  viweMode: {
+  viewMode: {
     alignItems: 'center',
     display: 'flex',
     gap: theme.spacing(1)

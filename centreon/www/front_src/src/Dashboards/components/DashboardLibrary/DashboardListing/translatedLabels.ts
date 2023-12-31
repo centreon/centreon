@@ -13,5 +13,5 @@ export const labelCreate = 'Create';
 export const labelShare = 'Share';
 export const labelEditProperties = 'Edit properties';
 export const labelActions = 'Actions';
-export const labelListView = 'List View';
-export const labelCardsView = 'Cards View';
+export const labelListView = 'List view';
+export const labelCardsView = 'Cards view';

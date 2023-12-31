@@ -36,7 +36,7 @@ const ViewMode = (): JSX.Element => {
   ];
 
   return (
-    <Box className={classes.viweMode}>
+    <Box className={classes.viewMode}>
       {actions.map(({ label, Icon, onClick, mode }) => {
         return (
           <IconButton

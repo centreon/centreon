@@ -17216,10 +17216,10 @@ msgstr ""
 # msgid "Revoked"
 # msgstr ""
 
-# msgid "List View"
+# msgid "List view"
 # msgstr ""
 
-# msgid "Cards View"
+# msgid "Cards view"
 # msgstr ""
 
 # msgid "Edit properties"
