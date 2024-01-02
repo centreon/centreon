@@ -79,6 +79,7 @@ const retrievedDetails = {
     is_persistent: true,
     is_sticky: true
   },
+  active_checks: false,
   alias: 'Central-Centreon',
   categories,
   checked: true,
@@ -104,14 +105,12 @@ const retrievedDetails = {
   flapping: true,
   fqdn: 'central.centreon.com',
   groups,
-  has_active_checks_enabled: false,
   id: resourceServiceId,
   information:
     'OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%',
   is_acknowledged: false,
   is_in_downtime: true,
   last_check: '2020-05-18T16:00Z',
-  has_passive_checks_enabled: false,
   last_notification: '2020-07-18T17:30:00Z',
   last_status_change: '2020-04-18T15:00Z',
   last_time_with_no_issue: '2021-09-23T15:49:50+02:00',
@@ -135,6 +134,7 @@ const retrievedDetails = {
       reporting: undefined
     }
   },
+  passive_checks: false,
   monitoring_server_name: 'Poller',
   name: 'Central',
   next_check: '2020-06-18T17:15:00Z',

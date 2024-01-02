@@ -7,7 +7,8 @@ import {
   ResourceLinks,
   NamedEntity,
   ResourceType,
-  Severity
+  Severity,
+  ResourceShortType
 } from '../models';
 
 import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
@@ -59,6 +60,7 @@ export interface ResourceDetails extends NamedEntity {
   sensitivity?: Sensitivity;
   severity: Severity | null;
   severity_level?: number;
+  short_type: ResourceShortType;
   status: Status;
   timezone?: string;
   tries: string;

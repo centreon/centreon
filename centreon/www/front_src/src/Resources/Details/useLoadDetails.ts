@@ -38,6 +38,7 @@ const useLoadDetails = (): DetailsState => {
   const { t } = useTranslation();
 
   const { sendRequest, sending } = useRequest<ResourceDetails>({
+    decoder: resourceDetailsDecoder,
     getErrorMessage: ifElse(
       pathEq(404, ['response', 'status']),
       always(t(labelNoResourceFound)),
@@ -67,11 +68,9 @@ const useLoadDetails = (): DetailsState => {
     }
 
     sendRequest({
-      decoder: resourceDetailsDecoder,
       endpoint: selectedResourceDetailsEndpoint
     })
       .then((data) => {
-        console.log(data);
         setDetails(data);
       })
       .catch(() => {

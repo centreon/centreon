@@ -111,6 +111,16 @@ const resourceIconDecoder = JsonDecoder.object<Icon>(
   'ResourceIcon'
 );
 
+const shortTypeDecoder = JsonDecoder.oneOf<ResourceShortType>(
+  [
+    JsonDecoder.isExactly('h'),
+    JsonDecoder.isExactly('m'),
+    JsonDecoder.isExactly('s'),
+    JsonDecoder.isExactly('a')
+  ],
+  'ResourceShortType'
+);
+
 const commonDecoders = {
   duration: JsonDecoder.optional(JsonDecoder.string),
   has_active_checks_enabled: JsonDecoder.optional(JsonDecoder.boolean),
@@ -127,17 +137,7 @@ const commonDecoders = {
   service_id: JsonDecoder.optional(JsonDecoder.number),
   severity: JsonDecoder.optional(severityDecoder),
   severity_level: JsonDecoder.optional(JsonDecoder.number),
-  short_type: JsonDecoder.optional(
-    JsonDecoder.oneOf<ResourceShortType>(
-      [
-        JsonDecoder.isExactly('h'),
-        JsonDecoder.isExactly('m'),
-        JsonDecoder.isExactly('s'),
-        JsonDecoder.isExactly('a')
-      ],
-      'ResourceShortType'
-    )
-  ),
+  short_type: shortTypeDecoder,
   status: JsonDecoder.optional(statusDecoder),
   tries: JsonDecoder.optional(JsonDecoder.string),
   type: JsonDecoder.enumeration<ResourceType>(ResourceType, 'ResourceType'),
@@ -255,6 +255,7 @@ const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
     sensitivity: JsonDecoder.optional(sensitivityDecoder),
     severity: JsonDecoder.nullable(severityDecoder),
     severity_level: JsonDecoder.optional(JsonDecoder.number),
+    short_type: shortTypeDecoder,
     status: statusDecoder,
     timezone: JsonDecoder.optional(JsonDecoder.string),
     tries: JsonDecoder.string,

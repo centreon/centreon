@@ -142,7 +142,6 @@ const useLoadResources = (): LoadResources => {
     }
 
     sendLoadDetailsRequest({
-      decoder: resourceDetailsDecoder,
       endpoint: selectedResourceDetailsEndpoint
     })
       .then((data) => {
