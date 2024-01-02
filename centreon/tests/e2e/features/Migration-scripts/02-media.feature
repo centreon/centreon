@@ -4,7 +4,7 @@
 Feature: Migration of medias from a source platform to a target platform
 
   Background:
-    Given an admin user who wants to migrate medias from a source platform to a target platform 
+    Given an admin user who wants to migrate medias from a source platform to a target platform
     And the user has access to both the source and target platforms
     And another non-admin user has the necessary rights to manage medias
     And the non-admin user has access to both the source and target platforms
