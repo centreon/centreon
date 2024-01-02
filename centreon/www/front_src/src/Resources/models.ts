@@ -36,7 +36,7 @@ export interface Severity {
   type: string;
 }
 
-export type Parent = Omit<Resource, 'parent'>;
+export type Parent = Omit<Resource, 'parent' | 'uuid'>;
 export interface Status {
   name: string;
   severity_code: number;
@@ -56,7 +56,7 @@ export interface Resource extends NamedEntity {
   parent?: Parent | null;
   service_id?: number;
   severity_level?: number;
-  short_type: ResourceShortType;
+  short_type?: ResourceShortType;
   status?: Status;
   tries?: string;
   type: ResourceType;

@@ -144,10 +144,7 @@ const useLoadResources = (): LoadResources => {
     sendLoadDetailsRequest({
       endpoint: selectedResourceDetailsEndpoint
     })
-      .then((data) => {
-        console.log('here?', data);
-        setDetails(data);
-      })
+      .then(setDetails)
       .catch(() => {
         clearSelectedResource();
       });

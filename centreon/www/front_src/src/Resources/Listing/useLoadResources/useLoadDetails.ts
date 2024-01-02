@@ -53,10 +53,7 @@ const useLoadDetails = (): LoadDetails => {
     sendLoadDetailsRequest({
       endpoint: selectedResourceDetailsEndpoint
     })
-      .then((data) => {
-        console.log({ data });
-        setDetails(data);
-      })
+      .then(setDetails)
       .catch(() => {
         clearSelectedResource();
       });
