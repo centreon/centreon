@@ -6,7 +6,11 @@ import { makeStyles } from 'tss-react/mui';
 import { useSnackbar } from '@centreon/ui';
 
 import ResourceActions from '../../../Actions/Resource';
-import { Action, CheckActionModel, MainActions } from '../../../Actions/model';
+import {
+  Action,
+  CheckActionModel,
+  MainActionModel
+} from '../../../Actions/model';
 import {
   labelResourceDetailsCheckCommandSent,
   labelResourceDetailsCheckDescription,
@@ -14,6 +18,7 @@ import {
   labelResourceDetailsForcedCheckDescription
 } from '../../../translatedLabels';
 import { panelWidthStorageAtom } from '../../detailsAtoms';
+import { ResourceDetails } from '../../models';
 
 import { checkActionDetailsAtom } from './atoms';
 
@@ -29,13 +34,15 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const DetailsActions = ({ details }): JSX.Element => {
+interface Props {
+  details: ResourceDetails;
+}
+
+const DetailsActions = ({ details }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const { showSuccessMessage } = useSnackbar();
-
-  console.log('------>details', details);
 
   const panelWidth = useAtomValue(panelWidthStorageAtom);
 
@@ -52,11 +59,11 @@ const DetailsActions = ({ details }): JSX.Element => {
   const checkAction: CheckActionModel = {
     action: Action.Check,
     data: {
-      checkActionStateAtom: checkActionDetailsAtom,
       listOptions: {
         descriptionCheck: labelResourceDetailsCheckDescription,
         descriptionForcedCheck: labelResourceDetailsForcedCheckDescription
       },
+      stateCheckActionAtom: checkActionDetailsAtom,
       successCallback: {
         onSuccessCheckAction,
         onSuccessForcedCheckAction
@@ -65,26 +72,26 @@ const DetailsActions = ({ details }): JSX.Element => {
     extraRules: null
   };
 
-  const mainActions = [
+  const mainActions: Array<MainActionModel | CheckActionModel> = [
     {
       action: Action.Acknowledge,
       extraRules: {
-        disabled: details?.acknowledged,
-        permitted: !details?.acknowledged
+        disabled: details?.is_acknowledged,
+        permitted: !details?.is_acknowledged
       }
     },
     {
       action: Action.Downtime,
       extraRules: {
-        disabled: details?.in_downtime,
-        permitted: !details?.in_downtime
+        disabled: details?.is_in_downtime,
+        permitted: !details?.is_in_downtime
       }
     },
     {
       action: Action.Disacknowledge,
       extraRules: {
-        disabled: !details.acknowledged,
-        permitted: details.acknowledged
+        disabled: !details.is_acknowledged,
+        permitted: details.is_acknowledged
       }
     },
     checkAction
@@ -93,10 +100,12 @@ const DetailsActions = ({ details }): JSX.Element => {
   return (
     <ResourceActions
       displayCondensed={displayCondensed}
-      mainActions={mainActions as MainActions}
-      mainActionsStyle={cx(classes.container, {
-        [classes.condensed]: displayCondensed
-      })}
+      mainActions={{
+        actions: mainActions,
+        style: cx(classes.container, {
+          [classes.condensed]: displayCondensed
+        })
+      }}
       resources={[details]}
       secondaryActions={[]}
     />

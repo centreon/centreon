@@ -18,7 +18,7 @@ import { selectedResourcesAtom } from './actionsAtoms';
 import {
   Action,
   CheckActionModel,
-  MainActions,
+  MainActionModel,
   SecondaryActions
 } from './model';
 
@@ -62,7 +62,7 @@ const WrapperResourceActions = (): JSX.Element => {
     extraRules: null
   };
 
-  const mainActions = [
+  const mainActions: Array<MainActionModel | CheckActionModel> = [
     { action: Action.Acknowledge, extraRules: null },
     checkAction,
     { action: Action.Downtime, extraRules: null }
@@ -77,7 +77,7 @@ const WrapperResourceActions = (): JSX.Element => {
   return (
     <ResourceActions
       displayCondensed={displayCondensed}
-      mainActions={mainActions as MainActions}
+      mainActions={{ actions: mainActions }}
       resources={selectedResources}
       secondaryActions={secondaryActions as SecondaryActions}
       success={initialize}

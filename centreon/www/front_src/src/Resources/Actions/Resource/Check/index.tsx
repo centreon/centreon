@@ -1,6 +1,4 @@
-import { useEffect } from 'react';
-
-import { PrimitiveAtom, useAtom } from 'jotai';
+import { PrimitiveAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
@@ -19,11 +17,12 @@ import Check from './Check';
 import CheckOptionsList from './CheckOptionsList';
 import { CheckActionAtom, checkActionAtom } from './checkAtoms';
 import { adjustCheckedResources } from './helpers';
+import useStateCheckAction from './useStateCheckAction';
 
 interface Props {
-  checkActionStateAtom?: PrimitiveAtom<CheckActionAtom | null>;
   displayCondensed?: boolean;
   resources: Array<Resource>;
+  stateCheckActionAtom?: PrimitiveAtom<CheckActionAtom | null>;
   testId: string;
 }
 
@@ -31,15 +30,19 @@ const CheckActionButton = ({
   resources,
   testId,
   displayCondensed,
-  checkActionStateAtom = checkActionAtom,
+  stateCheckActionAtom = checkActionAtom,
   ...rest
 }: Props & Data): JSX.Element => {
   const { t } = useTranslation();
 
+  const { checkAction, setCheckAction } = useStateCheckAction({
+    resources,
+    stateCheckActionAtom
+  });
+
   const { onSuccessCheckAction, onSuccessForcedCheckAction } =
     rest.successCallback || {};
 
-  const [checkAction, setCheckAction] = useAtom(checkActionStateAtom);
   const { mutateAsync: checkResource } = useMutationQuery({
     getEndpoint: () => checkEndpoint,
     method: Method.POST
@@ -55,8 +58,6 @@ const CheckActionButton = ({
 
   const isForcedCheckPermitted =
     canForcedCheck(resources) || !hasSelectedResources;
-  const canForceCheckResource = canForcedCheck(resources);
-  const canCheckResource = canCheck(resources);
 
   const handleCheckResource = (): void => {
     checkResource({
@@ -83,23 +84,6 @@ const CheckActionButton = ({
   const onClickForcedCheck = (): void => {
     setCheckAction({ checked: false, forcedChecked: true });
   };
-
-  useEffect(() => {
-    if (checkAction?.checked || checkAction?.forcedChecked) {
-      return;
-    }
-    if (canForceCheckResource) {
-      setCheckAction({ checked: false, forcedChecked: true });
-
-      return;
-    }
-    if (canCheckResource) {
-      setCheckAction({ checked: true, forcedChecked: false });
-
-      return;
-    }
-    setCheckAction({ checked: false, forcedChecked: false });
-  }, [resources.length]);
 
   if (checkAction?.forcedChecked) {
     return (

@@ -141,7 +141,7 @@ const commonDecoders = {
   status: JsonDecoder.optional(statusDecoder),
   tries: JsonDecoder.optional(JsonDecoder.string),
   type: JsonDecoder.enumeration<ResourceType>(ResourceType, 'ResourceType'),
-  uuid: JsonDecoder.optional(JsonDecoder.string)
+  uuid: JsonDecoder.string
 };
 
 const resourceDecoder = JsonDecoder.object<Resource>(
@@ -149,7 +149,8 @@ const resourceDecoder = JsonDecoder.object<Resource>(
     ...commonDecoders,
     parent: JsonDecoder.optional(
       JsonDecoder.object<Parent>(commonDecoders, 'ResourceParent')
-    )
+    ),
+    uuid: JsonDecoder.string
   },
   'Resource'
 );

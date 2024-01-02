@@ -36,12 +36,12 @@ export interface ListOptions {
 
 export interface SuccessCallback {
   onSuccessCheckAction?: () => void;
-  onSuccessForcedCheckAction: () => void;
+  onSuccessForcedCheckAction?: () => void;
 }
 export interface Data {
-  checkActionStateAtom?: PrimitiveAtom<CheckActionAtom | null>;
   listOptions: ListOptions;
-  successCallback?: SuccessCallback;
+  stateCheckActionAtom?: PrimitiveAtom<CheckActionAtom | null>;
+  successCallback: SuccessCallback;
 }
 
 export interface CheckActionModel {
@@ -55,19 +55,21 @@ export interface SecondaryActionModel {
   extraRules: ExtraRules | null;
 }
 
-export type MainActions = Array<MainActionModel | CheckActionModel>;
+export interface MainActions {
+  actions: Array<MainActionModel | CheckActionModel>;
+  style?: string;
+}
 export type SecondaryActions = Array<SecondaryActionModel>;
 
 export interface ResourceActions {
   displayCondensed?: boolean;
   mainActions: MainActions;
-  mainActionsStyle?: string;
   resources: Array<Resource>;
   secondaryActions: SecondaryActions;
   success?: () => void;
 }
 
 export interface ExtraActionsInformation {
-  arrayActions: MainActions | SecondaryActions;
+  arrayActions: MainActions['actions'] | SecondaryActions;
   key: Action;
 }

@@ -1,7 +1,6 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 
 import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import IconArrowDown from '@mui/icons-material/KeyboardArrowDownOutlined';
@@ -11,41 +10,16 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import { IconButton } from '@centreon/ui';
 
 import IconArrow from './IconArrow';
-
-const useStyles = makeStyles()((theme) => ({
-  buttonGroup: {
-    alignItems: 'center'
-  },
-  condensed: {
-    marginRight: theme.spacing(2)
-  },
-  container: {
-    '& .MuiButton-root': {
-      backgroundColor: 'transparent',
-      boxShadow: theme.spacing(0, 0)
-    },
-    backgroundColor: theme.palette.primary.main
-  },
-  disabled: {
-    backgroundColor: theme.palette.action.disabledBackground
-  },
-  iconArrow: {
-    color: theme.palette.background.paper
-  }
-}));
-
-interface ClickList {
-  onClickCheck: () => void;
-  onClickForcedCheck: () => void;
-}
+import { useStyles } from './check.styles';
+import { Arguments, ClickList, Params } from './models';
 
 interface Props {
   disabledButton?: boolean;
   displayCondensed?: boolean;
   onClickActionButton: () => void;
   onClickList?: ClickList;
-  renderCheckOptionList?: (args) => ReactNode;
-  renderResourceActionButton: (args) => ReactNode;
+  renderCheckOptionList?: (args: Arguments) => ReactNode;
+  renderResourceActionButton: (params: Params) => ReactNode;
 }
 
 const Check = ({

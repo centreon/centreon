@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { all, head, pathEq } from 'ramda';
+import { all, equals, head, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -58,8 +58,7 @@ const ResourceActions = ({
   success,
   mainActions,
   secondaryActions,
-  displayCondensed = false,
-  mainActionsStyle
+  displayCondensed = false
 }: ResourceActions): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
@@ -87,18 +86,18 @@ const ResourceActions = ({
     extraDisabledAcknowledge,
     extraPermittedAcknowledge
   } = extractActionsInformation({
-    arrayActions: mainActions,
+    arrayActions: mainActions.actions,
     key: Action.Acknowledge
   });
 
   const { displayCheck } = extractActionsInformation({
-    arrayActions: mainActions,
+    arrayActions: mainActions.actions,
     key: Action.Check
   });
 
   const extraCheckData = (
-    mainActions.find(
-      ({ action }) => action === Action.Check
+    mainActions.actions.find(({ action }) =>
+      equals(action, Action.Check)
     ) as CheckActionModel
   )?.data;
 
@@ -107,13 +106,13 @@ const ResourceActions = ({
     extraDisabledDisacknowledge,
     extraPermittedDisacknowledge
   } = extractActionsInformation({
-    arrayActions: mainActions,
+    arrayActions: mainActions.actions,
     key: Action.Disacknowledge
   });
 
   const { displayDowntime, extraDisabledDowntime, extraPermittedDowntime } =
     extractActionsInformation({
-      arrayActions: mainActions,
+      arrayActions: mainActions.actions,
       key: Action.Downtime
     });
 
@@ -252,7 +251,7 @@ const ResourceActions = ({
 
   return (
     <div className={classes.flex}>
-      <div className={cx(classes.flex, mainActionsStyle)}>
+      <div className={cx(classes.flex, mainActions?.style)}>
         {displayAcknowledge && (
           <div className={classes.action}>
             <ResourceActionButton
