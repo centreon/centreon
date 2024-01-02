@@ -4,7 +4,7 @@
 Feature: Migration of medias from a source platform to a target platform
 
   Background:
-    Given an admin user who wants to migrate medias from a platform source to a platform target
+    Given an admin user who wants to migrate medias from a source platform to a target platform 
     And the user has access to both the source and target platforms
     And another non-admin user has the necessary rights to manage medias
     And the non-admin user has access to both the source and target platforms
@@ -29,16 +29,16 @@ Feature: Migration of medias from a source platform to a target platform
     Then the migration script is executed without errors
     And the same media as in the source platform is added and displayed in the media listing
 
-  Scenario: Wrong token entered
+  Scenario: Incorrect token entered
     Given an admin user who has entered the correct command line
     And the command line asking for the API token of the target platform is displayed
-    When the user enters a wrong API token
+    When the user enters an incorrect API token
     Then the migration script is not executed
     And an error is displayed
 
   Scenario: Execution of the migration script without the target platform IP
-    Given an admin user logged in the terminal of the source platform
-    When the user runs the following command in the terminal :
+    Given an admin user logged in on the terminal of the source platform
+    When the user runs the following command in the terminal:
     """
         php /usr/share/centreon/bin/migration media:all
     """
