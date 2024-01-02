@@ -1,14 +1,14 @@
 import { GraphOptionId } from '../Graph/Performance/models';
 import {
-  Status,
-  Acknowledgement,
+  AcknowledgementDetails,
   Downtime,
+  NamedEntity,
   Parent,
   ResourceLinks,
-  NamedEntity,
+  ResourceShortType,
   ResourceType,
   Severity,
-  ResourceShortType
+  Status
 } from '../models';
 
 import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
@@ -29,7 +29,7 @@ export interface Sensitivity {
 }
 
 export interface ResourceDetails extends NamedEntity {
-  acknowledgement?: Acknowledgement;
+  acknowledgement?: AcknowledgementDetails;
   alias?: string;
   calculation_type?: string;
   categories?: Array<Category>;

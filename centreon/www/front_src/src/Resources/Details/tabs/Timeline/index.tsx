@@ -1,34 +1,32 @@
 import { useState } from 'react';
 
-import { useAtomValue } from 'jotai';
-import { isEmpty, isNil, path, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { prop, isEmpty, path, isNil } from 'ramda';
+import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Stack } from '@mui/material';
 
+import { useRequest, MultiAutocompleteField } from '@centreon/ui';
 import type { ListingModel, SearchParameter } from '@centreon/ui';
-import { MultiAutocompleteField, useRequest } from '@centreon/ui';
 
+import { labelEvent } from '../../../translatedLabels';
 import { TabProps } from '..';
+import InfiniteScroll from '../../InfiniteScroll';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import {
   customTimePeriodAtom,
   getDatesDerivedAtom,
   selectedTimePeriodAtom
 } from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
-import { labelEvent } from '../../../translatedLabels';
-import InfiniteScroll from '../../InfiniteScroll';
 
-import AddCommentArea from './Addcomment/AddCommentArea';
-import AddCommentButton from './Addcomment/AddCommentButton';
 import { types } from './Event';
-import Events from './Events';
-import ExportToCsv from './ExportToCsv';
-import LoadingSkeleton from './LoadingSkeleton';
-import { listTimelineEvents } from './api';
-import { listTimelineEventsDecoder } from './api/decoders';
 import { TimelineEvent, Type } from './models';
+import { listTimelineEventsDecoder } from './api/decoders';
+import { listTimelineEvents } from './api';
+import Events from './Events';
+import LoadingSkeleton from './LoadingSkeleton';
+import ExportToCsv from './ExportToCsv';
 
 type TimelineListing = ListingModel<TimelineEvent>;
 
@@ -51,8 +49,6 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
 
   const [selectedTypes, setSelectedTypes] =
     useState<Array<Type>>(translatedTypes);
-
-  const [displayCommentArea, setDisplayCommentArea] = useState(false);
 
   const { sendRequest, sending } = useRequest<TimelineListing>({
     decoder: listTimelineEventsDecoder,
@@ -116,16 +112,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
     setSelectedTypes(typeIds);
   };
 
-  const prepareToAddComment = (): void => {
-    setDisplayCommentArea(true);
-  };
-
-  const closeCommentArea = (): void => {
-    setDisplayCommentArea(false);
-  };
-
   const displayCsvExport = !isNil(timelineDownloadEndpoint);
-  const enableCommentArea = !isNil(details) && displayCommentArea;
 
   return (
     <InfiniteScroll
@@ -142,32 +129,10 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
               onChange={changeSelectedTypes}
             />
           </Paper>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 8,
-              marginBottom: 1,
-              marginTop: 8
-            }}
-          >
-            {details && (
-              <AddCommentButton
-                resources={[details]}
-                onClick={prepareToAddComment}
-              />
-            )}
-            {displayCsvExport && (
-              <ExportToCsv
-                getSearch={getSearch}
-                timelineDownloadEndpoint={timelineDownloadEndpoint as string}
-              />
-            )}
-          </div>
-          {enableCommentArea && (
-            <AddCommentArea
-              closeCommentArea={closeCommentArea}
-              resources={[details]}
+          {displayCsvExport && (
+            <ExportToCsv
+              getSearch={getSearch}
+              timelineDownloadEndpoint={timelineDownloadEndpoint as string}
             />
           )}
         </Stack>

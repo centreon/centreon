@@ -60,8 +60,7 @@ const useStyles = makeStyles()((theme) => ({
     paddingBottom: theme.spacing(1)
   },
   timeline: {
-    margin: 0,
-    padding: theme.spacing(0, 2, 0.5, 2)
+    margin: 0
   },
   timelineDot: {
     '> div, svg': {

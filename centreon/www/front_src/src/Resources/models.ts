@@ -128,3 +128,19 @@ export enum Visualization {
   Host = 'By host',
   Service = 'By service'
 }
+
+export interface AcknowledgementDetails {
+  author_id: number;
+  author_name: string;
+  comment: string;
+  deletion_time: string;
+  entry_time: string;
+  host_id: number;
+  id: number;
+  is_notify_contacts: boolean;
+  is_persistent_comment: boolean;
+  is_sticky: boolean;
+  poller_id: number;
+  service_id: number;
+  state: number;
+}

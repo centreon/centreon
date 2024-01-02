@@ -1,6 +1,14 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import {
+  Category,
+  Group,
+  ResourceDetails,
+  Sensitivity
+} from './Details/models';
+import {
+  AcknowledgementDetails,
+  Downtime,
   Icon,
   Notes,
   Parent,
@@ -11,17 +19,9 @@ import {
   ResourceShortType,
   ResourceType,
   ResourceUris,
-  Status,
   Severity,
-  Acknowledgement,
-  Downtime
+  Status
 } from './models';
-import {
-  Category,
-  Group,
-  ResourceDetails,
-  Sensitivity
-} from './Details/models';
 
 const statusDecoder = JsonDecoder.object<Status>(
   {
@@ -154,13 +154,21 @@ const resourceDecoder = JsonDecoder.object<Resource>(
   'Resource'
 );
 
-const acknowledgementDecoder = JsonDecoder.object<Acknowledgement>(
+const acknowledgementDecoder = JsonDecoder.object<AcknowledgementDetails>(
   {
+    author_id: JsonDecoder.number,
     author_name: JsonDecoder.string,
     comment: JsonDecoder.string,
+    deletion_time: JsonDecoder.string,
     entry_time: JsonDecoder.string,
-    is_persistent: JsonDecoder.boolean,
-    is_sticky: JsonDecoder.boolean
+    host_id: JsonDecoder.number,
+    id: JsonDecoder.number,
+    is_notify_contacts: JsonDecoder.boolean,
+    is_persistent_comment: JsonDecoder.boolean,
+    is_sticky: JsonDecoder.boolean,
+    poller_id: JsonDecoder.number,
+    service_id: JsonDecoder.number,
+    state: JsonDecoder.number
   },
   'Acknowledgement'
 );
@@ -236,7 +244,7 @@ const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
     information: JsonDecoder.optional(JsonDecoder.string),
     is_acknowledged: JsonDecoder.boolean,
     is_in_downtime: JsonDecoder.boolean,
-    last_check: JsonDecoder.string,
+    last_check: JsonDecoder.optional(JsonDecoder.string),
     last_notification: JsonDecoder.optional(JsonDecoder.string),
     last_status_change: JsonDecoder.optional(JsonDecoder.string),
     last_time_with_no_issue: JsonDecoder.optional(JsonDecoder.string),
@@ -270,4 +278,4 @@ const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
   }
 );
 
-export { statusDecoder, resourceDecoder, resourceDetailsDecoder };
+export { resourceDecoder, resourceDetailsDecoder, statusDecoder };
