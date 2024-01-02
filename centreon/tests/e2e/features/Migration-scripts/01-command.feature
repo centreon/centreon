@@ -1,5 +1,5 @@
 @ignore
-@REQ_MON-24871
+@REQ_MON-21761
 
 Feature: Migration of commands from a source platform to a target platform
 
