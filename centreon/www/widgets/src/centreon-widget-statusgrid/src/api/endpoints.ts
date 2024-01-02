@@ -76,7 +76,7 @@ export const buildResourcesEndpoint = ({
         conditions: flatten(searchConditions)
       },
       sort: {
-        [sortBy]: 'ASC'
+        [sortBy]: 'DESC'
       }
     }
   });
