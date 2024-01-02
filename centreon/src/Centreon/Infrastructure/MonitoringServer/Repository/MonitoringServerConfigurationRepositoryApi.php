@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,54 +18,45 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\MonitoringServer\Repository;
 
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\Log\LoggerTrait;
-use DateTime;
-use Symfony\Component\HttpClient\Exception\TransportException;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Security\Domain\Authentication\Interfaces\AuthenticationTokenServiceInterface;
+use Centreon\Domain\Exception\TimeoutException;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\Repository\RepositoryException;
-use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Infrastructure\MonitoringServer\Repository\Exception\MonitoringServerConfigurationRepositoryException;
+use DateTime;
+use Security\Domain\Authentication\Interfaces\AuthenticationTokenServiceInterface;
+use Symfony\Component\HttpClient\Exception\TransportException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * This class is designed to represent the API repository to manage the generation/move/reload of the monitoring
  * server configuration.
- *
- * @package Centreon\Infrastructure\MonitoringServer\Repository
  */
 class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConfigurationRepositoryInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
-    /**
-     * @var AuthenticationTokenServiceInterface
-     */
+
+    /** @var AuthenticationTokenServiceInterface */
     private $authenticationTokenService;
-    /**
-     * @var \Symfony\Contracts\HttpClient\HttpClientInterface
-     */
+
+    /** @var \Symfony\Contracts\HttpClient\HttpClientInterface */
     private $httpClient;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $serverUri;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $timeout = 60;
 
     /**
@@ -87,27 +78,14 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
      * To be used by the dependency injector to increase the timeout limit.
      *
      * @param int $timeout
+     *
      * @return MonitoringServerConfigurationRepositoryApi
      */
-    public function setTimeout(int $timeout): MonitoringServerConfigurationRepositoryApi
+    public function setTimeout(int $timeout): self
     {
         $this->timeout = $timeout;
-        return $this;
-    }
 
-    /**
-     * @throws \Assert\AssertionFailedException
-     */
-    private function initUri(): void
-    {
-        if ($this->serverUri === null) {
-            $serverScheme = $_SERVER['REQUEST_SCHEME'] ?: 'http';
-            Assertion::notEmpty($_SERVER['SERVER_NAME']);
-            Assertion::notEmpty($_SERVER['REQUEST_URI']);
-            $prefixUri = explode('/', $_SERVER['REQUEST_URI'])[1];
-            // ex: http://localhost:80/centreon
-            $this->serverUri = $serverScheme . '://' . $_SERVER['SERVER_NAME'] . '/' . $prefixUri;
-        }
+        return $this;
     }
 
     /**
@@ -126,7 +104,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
         $this->callHttp('moveFiles.php', 'poller=' . $monitoringServerId);
     }
 
-     /**
+    /**
      * @inheritDoc
      */
     public function reloadConfiguration(int $monitoringServerId): void
@@ -135,8 +113,24 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     }
 
     /**
+     * @throws \Assert\AssertionFailedException
+     */
+    private function initUri(): void
+    {
+        if ($this->serverUri === null) {
+            $serverScheme = $_SERVER['REQUEST_SCHEME'] ?: 'http';
+            Assertion::notEmpty($_SERVER['SERVER_NAME']);
+            Assertion::notEmpty($_SERVER['REQUEST_URI']);
+            $prefixUri = explode('/', $_SERVER['REQUEST_URI'])[1];
+            // ex: http://localhost:80/centreon
+            $this->serverUri = $serverScheme . '://' . $_SERVER['SERVER_NAME'] . '/' . $prefixUri;
+        }
+    }
+
+    /**
      * @param string $filePath
      * @param string $payloadBody
+     *
      * @throws RepositoryException
      * @throws TimeoutException
      * @throws AuthenticationException
@@ -165,7 +159,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
                 'verify_peer' => false,
                 'headers' => ['X-AUTH-TOKEN' => $providerToken->getToken()],
                 'body' => $payloadBody,
-                'timeout' => $this->timeout
+                'timeout' => $this->timeout,
             ];
 
             $optionPayload['verify_host'] = $optionPayload['verify_peer'];
@@ -176,7 +170,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             }
 
             $xml = $response->getContent();
-            if (!empty($xml)) {
+            if (! empty($xml)) {
                 if (($element = simplexml_load_string($xml)) !== false) {
                     if ((string) $element->statuscode !== '0') {
                         throw new RepositoryException((string) $element->error);
@@ -185,14 +179,15 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             } else {
                 throw MonitoringServerConfigurationRepositoryException::responseEmpty();
             }
-        } catch (RepositoryException | AuthenticationException $ex) {
+        } catch (RepositoryException|AuthenticationException $ex) {
             throw $ex;
         } catch (\Assert\AssertionFailedException $ex) {
             throw MonitoringServerConfigurationRepositoryException::errorWhenInitializingApiUri();
         } catch (\Throwable $ex) {
-            if ($ex instanceof TransportException && strpos($ex->getMessage(), 'timeout') > 0) {
+            if ($ex instanceof TransportException && mb_strpos($ex->getMessage(), 'timeout') > 0) {
                 throw MonitoringServerConfigurationRepositoryException::timeout($ex);
             }
+
             throw MonitoringServerConfigurationRepositoryException::unexpectedError($ex);
         }
     }
