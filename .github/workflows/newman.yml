@@ -399,7 +399,7 @@ jobs:
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
               test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
               issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
-              echo "Contenu de issue_ids : $issue_ids"
+              echo "issue_ids content: $issue_ids"
 
               filename=$(basename "$summary_file")
               collection_name="${filename%-summary.json}"
