@@ -804,11 +804,16 @@ function updateContactHostCommands($contact_id = null, $ret = array())
     }
 
     for ($i = 0; $i < $resultsCount; $i++) {
-        $rq = "INSERT INTO contact_hostcommands_relation ";
-        $rq .= "(contact_contact_id, command_command_id) ";
-        $rq .= "VALUES ";
-        $rq .= "(" . (int)$contact_id . ", " . $ret[$i] . ")";
-        $dbResult = $pearDB->query($rq);
+        $rq = <<<SQL
+                INSERT INTO contact_hostcommands_relation 
+                (contact_contact_id, command_command_id)
+                VALUES
+                (:contact_id, :command_id)
+                SQL;
+        $statement = $pearDB->prepare($rq);
+        $statement->bindValue(':contact_id', (int)$contact_id, \PDO::PARAM_INT);
+        $statement->bindValue(':command_id', (int)$ret[$i], \PDO::PARAM_INT);
+        $dbResult = $statement->execute();
     }
 }
 
@@ -872,11 +877,13 @@ function updateContactServiceCommands($contact_id = null, $ret = array())
     }
 
     for ($i = 0; $i < $resultsCount; $i++) {
-        $rq = "INSERT INTO contact_servicecommands_relation ";
-        $rq .= "(contact_contact_id, command_command_id) ";
-        $rq .= "VALUES ";
-        $rq .= "(" . (int)$contact_id . ", " . $ret[$i] . ")";
-        $dbResult = $pearDB->query($rq);
+        $rq = <<<SQL
+                INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_contact_id, :command_command_id)
+                SQL;
+        $statement = $pearDB->prepare($rq);
+        $statement->bindValue(':contact_contact_id', (int) $contact_id, \PDO::PARAM_INT);
+        $statement->bindValue(':command_command_id', (int) $ret[$i], \PDO::PARAM_INT);
+        $dbResult = $statement->execute();
     }
 }
 
@@ -1076,8 +1083,9 @@ function insertLdapContactInDB($tmpContacts = array())
             }
 
             // Insert the relation between contact and contactgroups
-            $query = "INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id) " .
-                     "VALUES (:contactgroup_cg_id, :contact_contact_id)";
+            $query = <<<SQL
+                        INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id) VALUES (:contactgroup_cg_id, :contact_contact_id)
+                      SQL;
             $statement = $pearDB->prepare($query);
             while ($row = $res->fetch()) {
                 $statement->bindValue(':contactgroup_cg_id', (int) $row['cg_id'], \PDO::PARAM_INT);
