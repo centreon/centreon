@@ -294,6 +294,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         return $shares;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findDashboardsContactGroupShares(Dashboard ...$dashboards): array
     {
         if ([] === $dashboards) {
