@@ -183,6 +183,11 @@ try {
 
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
 
+    $addCloudSpecificToAclGroups($pearDB);
+    $addCloudDescriptionToAclGroups($pearDB);
+    $addCloudSpecificToAclResources($pearDB);
+    $createDatasetFiltersTable($pearDB);
+
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
@@ -192,10 +197,6 @@ try {
     $setCoreWidgetsToInternal($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
-    $addCloudSpecificToAclGroups($pearDB);
-    $addCloudDescriptionToAclGroups($pearDB);
-    $addCloudSpecificToAclResources($pearDB);
-    $createDatasetFiltersTable($pearDB);
 
     $updateTopologyForApiTokens($pearDB);
 
