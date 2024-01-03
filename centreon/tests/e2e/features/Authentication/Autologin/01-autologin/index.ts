@@ -16,6 +16,7 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
