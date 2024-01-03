@@ -41,3 +41,4 @@
 /usr/lib/python3.6
 /usr/lib64/python3.6
 /etc/yum.repos.d
+/usr/lib64/libdnf
