@@ -1,8 +1,9 @@
-import { Provider, createStore } from 'jotai';
+import { Provider, createStore, useAtom, useAtomValue } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
+import { renderHook } from '@testing-library/react';
 
 import { Method, setUrlQueryParameters, TestQueryProvider } from '@centreon/ui';
-import { userAtom, refreshIntervalAtom } from '@centreon/ui-context';
+import { userAtom, refreshIntervalAtom, aclAtom } from '@centreon/ui-context';
 
 import { ResourceType } from '../models';
 import {
@@ -37,6 +38,7 @@ import {
 import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
 import {
+  panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from './detailsAtoms';
@@ -73,7 +75,7 @@ const selectedResource = {
 };
 
 const retrievedDetails = {
-  acknowledged: false,
+  acknowledged: true,
   acknowledgement: {
     author_id: 1,
     author_name: 'Admin',
@@ -200,6 +202,28 @@ const serviceDetailsUrlParameters = {
   type: 'service',
   uuid: 'h1-s1'
 };
+const mockAcl = {
+  actions: {
+    host: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    },
+    service: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    }
+  }
+};
 
 const mockRefreshInterval = 60;
 
@@ -221,6 +245,7 @@ const initialize = (): void => {
 
   const store = createStore();
   store.set(userAtom, retrievedUser);
+  store.set(aclAtom, mockAcl);
   store.set(refreshIntervalAtom, mockRefreshInterval);
   store.set(selectedResourcesDetailsAtom, selectedResource);
 
@@ -253,7 +278,19 @@ const initialize = (): void => {
   });
 };
 
+const checkActionsButton = (): void => {
+  cy.findByTestId('mainAcknowledge').should('be.visible').should('be.disabled');
+  cy.findByTestId('mainDisacknowledge')
+    .should('be.visible')
+    .should('be.enabled');
+  cy.findByTestId('mainSetDowntime').should('be.visible').should('be.disabled');
+  cy.findByTestId('mainCheck').should('be.visible').should('be.enabled');
+};
+
 describe('Details', () => {
+  // beforeEach(() => {
+  //   initialize();
+  // });
   it('displays resource details information', () => {
     initialize();
 
@@ -334,5 +371,25 @@ describe('Details', () => {
 
     cy.contains(labelCommand).should('exist');
     cy.contains('base_host_alive').should('exist');
+    // cy.makeSnapshot()
+  });
+  it.only('displays resource details actions like icons when panel width is less than or equal 615 px ', () => {
+    initialize();
+    cy.waitForRequest('@getDetails');
+    cy.contains('Critical').should('be.visible');
+
+    checkActionsButton();
+    // cy.makeSnapshot()
+  });
+  it.only('displays resource details actions like buttons when panel width is greater than  615 px ', () => {
+    const { result } = renderHook(() => useAtomValue(panelWidthStorageAtom));
+    result.current = 800;
+    initialize();
+
+    cy.waitForRequest('@getDetails');
+    cy.contains('Critical').should('be.visible');
+
+    checkActionsButton();
+    // cy.makeSnapshot()
   });
 });

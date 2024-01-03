@@ -260,7 +260,7 @@ const ResourceActions = ({
               icon={<IconAcknowledge />}
               label={t(labelAcknowledge)}
               permitted={isAcknowledgePermitted}
-              testId="Multiple Acknowledge"
+              testId="mainAcknowledge"
               onClick={prepareToAcknowledge}
             />
           </div>
@@ -273,7 +273,7 @@ const ResourceActions = ({
               icon={<IconDisacknowledge />}
               label={t(labelDisacknowledge)}
               permitted={isDisacknowledgePermitted}
-              testId="main disacknowledge"
+              testId="mainDisacknowledge"
               onClick={prepareToDisacknowledge}
             />
           </div>
@@ -287,7 +287,7 @@ const ResourceActions = ({
               icon={<IconDowntime />}
               label={t(labelSetDowntime)}
               permitted={isDowntimePermitted}
-              testId="Multiple Set Downtime"
+              testId="mainSetDowntime"
               onClick={prepareToSetDowntime}
             />
           </div>
@@ -297,7 +297,7 @@ const ResourceActions = ({
             <CheckActionButton
               displayCondensed={displayCondensed}
               resources={resources}
-              testId="Multiple Check"
+              testId="mainCheck"
               {...extraCheckData}
             />
           </div>
