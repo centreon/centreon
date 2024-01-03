@@ -20,18 +20,18 @@ Feature: Migration of medias from a source platform to a target platform
     """
         php /usr/share/centreon/bin/migration media:all {target_url}
     """
-    Then a command line is displayed asking for the API token of the target platform
+    Then the user is asked for the API token of the target platform
 
   Scenario: Successful execution of the migration script
     Given an admin user who has entered the correct command line
-    And the command line asking for the API token of the target platform is displayed
+    And the user is asked for the API token of the target platform
     When the user enters the correct API token
     Then the migration script is executed without errors
     And the same media as in the source platform is added and displayed in the media listing
 
   Scenario: Incorrect token entered
     Given an admin user who has entered the correct command line
-    And the command line asking for the API token of the target platform is displayed
+    And the user is asked for the API token of the target platform
     When the user enters an incorrect API token
     Then the migration script is not executed
     And an error is displayed
@@ -66,4 +66,4 @@ Feature: Migration of medias from a source platform to a target platform
     Given an admin user who successfully executed the migration script once
     When the user executes the migration script a second time
     Then the migration script succeeds
-    And errors are displayed when trying to migrate medias with already existing names in the target platform
+    And errors are displayed if medias with the same name already exists in the target platform
