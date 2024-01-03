@@ -1,7 +1,7 @@
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Method, setUrlQueryParameters } from '@centreon/ui';
+import { Method, setUrlQueryParameters, TestQueryProvider } from '@centreon/ui';
 import { userAtom, refreshIntervalAtom } from '@centreon/ui-context';
 
 import { ResourceType } from '../models';
@@ -65,10 +65,11 @@ const categories = [
 ];
 
 const selectedResource = {
-  parentResourceId: resourceHostId,
-  parentResourceType: resourceHostType,
+  parentResourceId: undefined,
+  parentResourceType: undefined,
   resourceId: resourceServiceId,
-  resourcesDetailsEndpoint: '/centreon/api/latest/monitoring/resources/hosts/1'
+  resourcesDetailsEndpoint:
+    '/centreon/api/latest/monitoring/resources/hosts/1/services/1'
 };
 
 const retrievedDetails = {
@@ -207,9 +208,11 @@ const DetailsTest = (): JSX.Element => {
   useLoadDetails();
 
   return (
-    <div style={{ height: '100vh' }}>
-      <Details />
-    </div>
+    <TestQueryProvider>
+      <div style={{ height: '100vh' }}>
+        <Details />
+      </div>
+    </TestQueryProvider>
   );
 };
 
