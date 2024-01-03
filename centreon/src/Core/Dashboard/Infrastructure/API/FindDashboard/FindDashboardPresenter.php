@@ -52,6 +52,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'panels' => array_map($this->panelToArray(...), $data->panels),
                 'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
                 'refresh' => $this->globalRefreshToArray($data->refresh),
+                'shares' => $this->formatShares($data->shares)
             ]);
         } else {
             $this->setResponseStatus($data);
@@ -109,5 +110,21 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
             'type' => RefreshTypeConverter::toString($refresh->refreshType),
             'interval' => $refresh->refreshInterval,
         ];
+    }
+
+    /**
+     * @param array $shares
+     * @return array
+     */
+    private function formatShares(array $shares): array
+    {
+        foreach (array_keys($shares['contacts']) as $index) {
+            $shares['contacts'][$index]['role'] = DashboardSharingRoleConverter::toString($shares['contacts'][$index]['role']);
+        }
+        foreach (array_keys($shares['contact_groups']) as $index) {
+            $shares['contact_groups'][$index]['role'] = DashboardSharingRoleConverter::toString($shares['contact_groups'][$index]['role']);
+        }
+
+        return $shares;
     }
 }

@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
+use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, UserResponseDto};
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardPanel;
@@ -36,6 +38,8 @@ final class FindDashboardFactory
      * @param array<int, array{id: int, name: string}> $contactNames
      * @param array<DashboardPanel> $panels
      * @param DashboardSharingRoles $sharingRoles
+     * @param array<int, array<DashboardContactShare>> $contactShares
+     * @param array<int, array<DashboardContactGroupShare>> $contactGroupShares
      * @param DashboardSharingRole $defaultRole
      *
      * @return FindDashboardResponse
@@ -45,6 +49,8 @@ final class FindDashboardFactory
         array $contactNames,
         array $panels,
         DashboardSharingRoles $sharingRoles,
+        array $contactShares,
+        array $contactGroupShares,
         DashboardSharingRole $defaultRole
     ): FindDashboardResponse {
         $ownRole = $defaultRole->getTheMostPermissiveOfBoth($sharingRoles->getTheMostPermissiveRole());
@@ -67,6 +73,28 @@ final class FindDashboardFactory
             $response->updatedBy = new UserResponseDto();
             $response->updatedBy->id = $contactId;
             $response->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
+        }
+
+        if($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactShares)) {
+            $response->shares['contacts'] = array_map(static fn (DashboardContactShare $contactShare): array =>
+            [
+                'id' => $contactShare->getContactId(),
+                'name' => $contactShare->getContactName(),
+                'email' => $contactShare->getContactEmail(),
+                'role' => $contactShare->getRole()
+            ]
+                , $contactShares[$dashboard->getId()]);
+        }
+
+        if($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
+            $response->shares['contact_groups'] = array_map(
+                static fn (DashboardContactGroupShare $contactGroupShare): array =>
+                [
+                    'id' => $contactGroupShare->getContactGroupId(),
+                    'name' => $contactGroupShare->getContactGroupId(),
+                    'role' => $contactGroupShare->getRole()
+                ]
+                , $contactGroupShares[$dashboard->getId()]);
         }
 
         $response->panels = array_map(self::dashboardPanelToDto(...), $panels);

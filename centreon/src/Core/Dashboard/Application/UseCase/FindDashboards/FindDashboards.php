@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
@@ -86,6 +87,8 @@ final class FindDashboards
             $dashboards,
             $this->readContactRepository->findNamesByIds(...$contactIds),
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactGroupShares(...$dashboards),
             DashboardSharingRole::Editor
         );
     }
@@ -102,11 +105,12 @@ final class FindDashboards
             $this->contact,
         );
         $contactIds = $this->extractAllContactIdsFromDashboards($dashboards);
-
         return FindDashboardsFactory::createResponse(
             $dashboards,
             $this->readContactRepository->findNamesByIds(...$contactIds),
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
             DashboardSharingRole::Viewer
         );
     }
