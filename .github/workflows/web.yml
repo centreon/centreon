@@ -100,9 +100,6 @@ jobs:
 
       - run: |
           gh workflow run web.yml -r "dev-23.10.x" -f is_nightly=true
-          gh workflow run web.yml -r "dev-23.04.x" -f is_nightly=true
-          gh workflow run web.yml -r "dev-22.10.x" -f is_nightly=true
-          gh workflow run web.yml -r "dev-22.04.x" -f is_nightly=true
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
