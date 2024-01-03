@@ -42,7 +42,7 @@ Feature: Migration of medias from a source platform to a target platform
     """
         php /usr/share/centreon/bin/migration media:all
     """
-    Then the migration script is not executed
+    Then the migration script does not succeed
     And a "missing URL" error is displayed
 
   Scenario: Comparing media details between platforms
@@ -51,13 +51,13 @@ Feature: Migration of medias from a source platform to a target platform
     When the user compares the medias parameters
     Then the parameters are identical on both platforms
 
-  Scenario: Editing the media on the target platform
+  Scenario: Editing the media on the target platform after migration
     Given a non-admin user logged in on the target platform
     And the migrated media is displayed
     When the user updates the media
     Then the media is successfully updated
 
-  Scenario: Deleting the media on the target platform
+  Scenario: Deleting the media on the target platform after migration
     Given a non-admin user logged in on the target platform
     When the user deletes the media
     Then the media is deleted and no longer displayed
@@ -65,5 +65,5 @@ Feature: Migration of medias from a source platform to a target platform
   Scenario: Re-execution of the migration script
     Given an admin user who successfully executed the migration script once
     When the user executes the migration script a second time
-    Then the migration script is executed
+    Then the migration script succeeds
     And errors are displayed when trying to migrate medias with already existing names in the target platform
