@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
-use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
-use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\{PanelResponseDto, RefreshResponseDto, UserResponseDto};
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
 final class FindDashboardFactory
@@ -75,26 +75,24 @@ final class FindDashboardFactory
             $response->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
         }
 
-        if($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactShares)) {
-            $response->shares['contacts'] = array_map(static fn (DashboardContactShare $contactShare): array =>
-            [
+        if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactShares)) {
+            $response->shares['contacts'] = array_map(static fn (DashboardContactShare $contactShare): array => [
                 'id' => $contactShare->getContactId(),
                 'name' => $contactShare->getContactName(),
                 'email' => $contactShare->getContactEmail(),
-                'role' => $contactShare->getRole()
-            ]
-                , $contactShares[$dashboard->getId()]);
+                'role' => $contactShare->getRole(),
+            ],
+            $contactShares[$dashboard->getId()]);
         }
 
-        if($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
+        if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
             $response->shares['contact_groups'] = array_map(
-                static fn (DashboardContactGroupShare $contactGroupShare): array =>
-                [
+                static fn (DashboardContactGroupShare $contactGroupShare): array => [
                     'id' => $contactGroupShare->getContactGroupId(),
                     'name' => $contactGroupShare->getContactGroupName(),
-                    'role' => $contactGroupShare->getRole()
-                ]
-                , $contactGroupShares[$dashboard->getId()]);
+                    'role' => $contactGroupShare->getRole(),
+                ],
+                $contactGroupShares[$dashboard->getId()]);
         }
 
         $response->panels = array_map(self::dashboardPanelToDto(...), $panels);

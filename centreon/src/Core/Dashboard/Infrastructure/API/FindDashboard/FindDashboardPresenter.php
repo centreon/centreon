@@ -53,7 +53,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'panels' => array_map($this->panelToArray(...), $data->panels),
                 'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
                 'refresh' => $this->globalRefreshToArray($data->refresh),
-                'shares' => $this->formatShares($data->shares)
+                'shares' => $this->formatShares($data->shares),
             ]);
         } else {
             $this->setResponseStatus($data);
@@ -146,18 +146,18 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
     {
         $formattedShares = ['contacts' => [], 'contact_groups' => []];
         foreach ($shares['contacts'] as $contact) {
-            $formattedShares['contacts'][] =  [
+            $formattedShares['contacts'][] = [
                 'id' => $contact['id'],
                 'name' => $contact['name'],
                 'email' => $contact['email'],
-                'role' => DashboardSharingRoleConverter::toString($contact['role'])
+                'role' => DashboardSharingRoleConverter::toString($contact['role']),
             ];
         }
         foreach ($shares['contact_groups'] as $contactGroup) {
             $formattedShares['contact_groups'][] = [
                 'id' => $contactGroup['id'],
                 'name' => $contactGroup['name'],
-                'role' => DashboardSharingRoleConverter::toString($contactGroup['role'])
+                'role' => DashboardSharingRoleConverter::toString($contactGroup['role']),
             ];
         }
 

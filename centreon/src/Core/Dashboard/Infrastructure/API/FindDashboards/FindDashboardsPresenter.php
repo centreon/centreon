@@ -118,18 +118,18 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
     {
         $formattedShares = ['contacts' => [], 'contact_groups' => []];
         foreach ($shares['contacts'] as $contact) {
-            $formattedShares['contacts'][] =  [
+            $formattedShares['contacts'][] = [
                 'id' => $contact['id'],
                 'name' => $contact['name'],
                 'email' => $contact['email'],
-                'role' => DashboardSharingRoleConverter::toString($contact['role'])
+                'role' => DashboardSharingRoleConverter::toString($contact['role']),
             ];
         }
         foreach ($shares['contact_groups'] as $contactGroup) {
             $formattedShares['contact_groups'][] = [
                 'id' => $contactGroup['id'],
                 'name' => $contactGroup['name'],
-                'role' => DashboardSharingRoleConverter::toString($contactGroup['role'])
+                'role' => DashboardSharingRoleConverter::toString($contactGroup['role']),
             ];
         }
 

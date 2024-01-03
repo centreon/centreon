@@ -76,26 +76,24 @@ final class FindDashboardsFactory
                 $dto->updatedBy->id = $contactId;
                 $dto->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
             }
-            if($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactShares)) {
-                $dto->shares['contacts'] = array_map(static fn (DashboardContactShare $contactShare): array =>
-                    [
-                        'id' => $contactShare->getContactId(),
-                        'name' => $contactShare->getContactName(),
-                        'email' => $contactShare->getContactEmail(),
-                        'role' => $contactShare->getRole()
-                    ]
+            if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactShares)) {
+                $dto->shares['contacts'] = array_map(static fn (DashboardContactShare $contactShare): array => [
+                    'id' => $contactShare->getContactId(),
+                    'name' => $contactShare->getContactName(),
+                    'email' => $contactShare->getContactEmail(),
+                    'role' => $contactShare->getRole(),
+                ]
                 , $contactShares[$dashboard->getId()]);
             }
 
-            if($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
+            if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
                 $dto->shares['contact_groups'] = array_map(
-                    static fn (DashboardContactGroupShare $contactGroupShare): array =>
-                        [
-                            'id' => $contactGroupShare->getContactGroupId(),
-                            'name' => $contactGroupShare->getContactGroupName(),
-                            'role' => $contactGroupShare->getRole()
-                        ]
-                    , $contactGroupShares[$dashboard->getId()]);
+                    static fn (DashboardContactGroupShare $contactGroupShare): array => [
+                        'id' => $contactGroupShare->getContactGroupId(),
+                        'name' => $contactGroupShare->getContactGroupName(),
+                        'role' => $contactGroupShare->getRole(),
+                    ],
+                    $contactGroupShares[$dashboard->getId()]);
             }
 
             $response->dashboards[] = $dto;
