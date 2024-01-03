@@ -208,7 +208,7 @@ jobs:
         run: |
           artifact_pattern="${{ inputs.name }}-${{ matrix.type_of_report }}-"
           TOKEN=${{ secrets.GITHUB_TOKEN }}
-          
+
           # Get the list of artifacts
           artifacts=$(curl -L \
                         -H "Accept: application/vnd.github+json" \
