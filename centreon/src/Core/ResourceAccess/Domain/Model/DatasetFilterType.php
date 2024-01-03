@@ -19,12 +19,17 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\ResourceAccess\Application\UseCase\FindRules;
+namespace Core\ResourceAccess\Domain\Model;
 
-final class FindRulesResponse
+enum DatasetFilterType
 {
-    /** @var TinyRuleDto[] */
-    public array $rulesDto = [];
+    case Host;
+    case Hostgroup;
+    case HostCategory;
+    case Service;
+    case Servicegroup;
+    case ServiceCategory;
+    case MetaService;
 }
