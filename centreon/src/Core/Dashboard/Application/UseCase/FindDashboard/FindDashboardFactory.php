@@ -91,7 +91,7 @@ final class FindDashboardFactory
                 static fn (DashboardContactGroupShare $contactGroupShare): array =>
                 [
                     'id' => $contactGroupShare->getContactGroupId(),
-                    'name' => $contactGroupShare->getContactGroupId(),
+                    'name' => $contactGroupShare->getContactGroupName(),
                     'role' => $contactGroupShare->getRole()
                 ]
                 , $contactGroupShares[$dashboard->getId()]);

@@ -51,17 +51,17 @@ final class FindDashboardResponse
 
     /**
      * @var array{
-     *     contacts: array{
+     *     contacts: array<array{
      *      id: int,
      *      name: string,
      *      email: string,
      *      role: DashboardSharingRole
-     *     },
-     *     contact_groups: array{
+     *     }>,
+     *     contact_groups: array<array{
      *      id: int,
      *      name: string,
      *      role: DashboardSharingRole
-     *     }
+     *     }>
      * }
      */
     public array $shares = ['contacts' => [], 'contact_groups' => []];

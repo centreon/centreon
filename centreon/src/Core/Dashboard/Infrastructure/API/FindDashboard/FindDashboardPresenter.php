@@ -29,6 +29,7 @@ use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\RefreshResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
@@ -113,18 +114,53 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
     }
 
     /**
-     * @param array $shares
-     * @return array
+     * @param array{
+     *      contacts: array<int, array{
+     *       id: int,
+     *       name: string,
+     *       email: string,
+     *       role: DashboardSharingRole
+     *      }>,
+     *      contact_groups: array<int, array{
+     *       id: int,
+     *       name: string,
+     *       role: DashboardSharingRole
+     *      }>
+     *  } $shares
+     *
+     * @return array{
+     *       contacts: array<int, array{
+     *        id: int,
+     *        name: string,
+     *        email: string,
+     *        role: string
+     *       }>,
+     *       contact_groups: array<int, array{
+     *        id: int,
+     *        name: string,
+     *        role: string
+     *       }>
+     *   }
      */
     private function formatShares(array $shares): array
     {
-        foreach (array_keys($shares['contacts']) as $index) {
-            $shares['contacts'][$index]['role'] = DashboardSharingRoleConverter::toString($shares['contacts'][$index]['role']);
+        $formattedShares = ['contacts' => [], 'contact_groups' => []];
+        foreach ($shares['contacts'] as $contact) {
+            $formattedShares['contacts'][] =  [
+                'id' => $contact['id'],
+                'name' => $contact['name'],
+                'email' => $contact['email'],
+                'role' => DashboardSharingRoleConverter::toString($contact['role'])
+            ];
         }
-        foreach (array_keys($shares['contact_groups']) as $index) {
-            $shares['contact_groups'][$index]['role'] = DashboardSharingRoleConverter::toString($shares['contact_groups'][$index]['role']);
+        foreach ($shares['contact_groups'] as $contactGroup) {
+            $formattedShares['contact_groups'][] = [
+                'id' => $contactGroup['id'],
+                'name' => $contactGroup['name'],
+                'role' => DashboardSharingRoleConverter::toString($contactGroup['role'])
+            ];
         }
 
-        return $shares;
+        return $formattedShares;
     }
 }

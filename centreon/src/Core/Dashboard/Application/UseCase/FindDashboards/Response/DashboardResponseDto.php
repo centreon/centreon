@@ -38,16 +38,17 @@ final class DashboardResponseDto
      * @param DateTimeImmutable $updatedAt
      * @param DashboardSharingRole $ownRole
      * @param array{
-     *     contacts: array{
+     *     contacts: array<array{
      *      id: int,
      *      name: string,
      *      email: string,
-     *      role: DashboardSharingRole},
-     *     contact_groups: array{
+     *      role: DashboardSharingRole
+     *     }>,
+     *     contact_groups: array<array{
      *      id: int,
      *      name: string,
      *      role: DashboardSharingRole
-     *     }
+     *     }>
      * } $shares
      */
     public function __construct(
