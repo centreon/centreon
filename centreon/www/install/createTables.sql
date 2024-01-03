@@ -111,7 +111,22 @@ CREATE TABLE `acl_resources` (
   `acl_res_status` enum('0','1') DEFAULT NULL,
   `changed` int(11) DEFAULT NULL,
   `locked` tinyint(1) NOT NULL DEFAULT 0,
+  `cloud_specific` boolean NOT NULL DEFAULT 0,
   PRIMARY KEY (`acl_res_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dataset_filters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) DEFAULT NULL,
+  `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
+  `acl_resource_id` int(11) DEFAULT NULL,
+  `acl_group_id` int(11) DEFAULT NULL,
+  `resource_ids` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
+  CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

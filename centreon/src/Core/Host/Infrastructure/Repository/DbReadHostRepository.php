@@ -169,6 +169,47 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     /**
      * @inheritDoc
      */
+    public function exist(array $hostIds): array
+    {
+        $this->info('Check existence of hosts', ['host_ids' => $hostIds]);
+
+        if ([] === $hostIds) {
+            return [];
+        }
+
+        $bindValues = [];
+
+        foreach ($hostIds as $index => $hostId) {
+            $bindValues[":host_{$index}"] = $hostId;
+        }
+
+        $hostIdsList = implode(', ', array_keys($bindValues));
+
+        $request = $this->translateDbName(
+            <<<SQL
+                    SELECT
+                        host_id
+                    FROM `:db`.host
+                    WHERE host_id IN ({$hostIdsList})
+                      AND host_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($bindValues as $bindKey => $bindValue) {
+            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByAccessGroups(int $hostId, array $accessGroups): bool
     {
         if (empty($accessGroups)) {

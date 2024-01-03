@@ -19,12 +19,31 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\ResourceAccess\Application\UseCase\FindRules;
+namespace Core\ResourceAccess\Application\UseCase\AddRule;
 
-final class FindRulesResponse
+final class AddRuleRequest
 {
-    /** @var TinyRuleDto[] */
-    public array $rulesDto = [];
+    public string $name = '';
+
+    public string $description = '';
+
+    public bool $isEnabled = true;
+
+    /** @var int[] */
+    public array $contactIds = [];
+
+    /** @var int[] */
+    public array $contactGroupIds = [];
+
+    /** @var array{
+     *      array{
+     *          type:string,
+     *          resources: non-empty-list<int>,
+     *          ...
+     *      }
+     *  }|array{} $datasetFilters
+     */
+    public array $datasetFilters = [];
 }

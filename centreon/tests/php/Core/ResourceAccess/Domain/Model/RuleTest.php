@@ -25,39 +25,75 @@ namespace Tests\Core\ResourceAccess\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\ResourceAccess\Domain\Model\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\Rule;
 
 beforeEach(function (): void {
-    $this->createRule = static fn (): Rule => (new Rule(1, 'FULL', true))->setDescription('Full access');
+    $this->contacts = [1, 2];
+    $this->contactGroups = [3, 4];
+    $this->resources = [10, 11];
+    $this->datasets = [new DatasetFilter('host', $this->resources)];
 });
 
 it('should return properly set Rule instance (all properties)', function (): void {
-    $rule = ($this->createRule)();
+    $rule = new Rule(
+        id: 1,
+        name: 'FULL',
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: $this->contactGroups,
+        datasets: $this->datasets,
+        isEnabled: true
+    );
+
+    $dataset = ($rule->getDatasetFilters())[0];
 
     expect($rule->getId())->toBe(1)
         ->and($rule->getName())->toBe('FULL')
         ->and($rule->getDescription())->toBe('Full access')
+        ->and($rule->getLinkedContactIds())->toBe([1, 2])
+        ->and($rule->getLinkedContactGroupIds())->toBe([3, 4])
         ->and($rule->isEnabled())->toBe(true);
+
+    expect($dataset->getType())->toBe('host')
+        ->and($dataset->getResourceIds())->toBe([10, 11])
+        ->and($dataset->getDatasetFilter())->toBeNull();
 });
 
-it('should return properly set Rule instance (mandatory properties only)', function (): void {
+it('should return properly the name of the rule correctly formatted', function (): void {
     $rule = new Rule(
         id: 1,
-        name: 'FULL',
-        isEnabled: false
+        name: 'FULL access',
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: $this->contactGroups,
+        datasets: $this->datasets,
+        isEnabled: true
     );
 
+    $dataset = ($rule->getDatasetFilters())[0];
+
     expect($rule->getId())->toBe(1)
-        ->and($rule->getName())->toBe('FULL')
-        ->and($rule->getDescription())->toBe(null)
-        ->and($rule->isEnabled())->toBe(false);
+        ->and($rule->getName())->toBe('FULL_access')
+        ->and($rule->getDescription())->toBe('Full access')
+        ->and($rule->getLinkedContactIds())->toBe([1, 2])
+        ->and($rule->getLinkedContactGroupIds())->toBe([3, 4])
+        ->and($rule->isEnabled())->toBe(true);
+
+    expect($dataset->getType())->toBe('host')
+        ->and($dataset->getResourceIds())->toBe([10, 11])
+        ->and($dataset->getDatasetFilter())->toBeNull();
 });
 
 it('should throw an exception when rules id is not a positive int', function (): void {
     new Rule(
         id: 0,
-        name: '',
-        isEnabled: false
+        name: 'FULL',
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: $this->contactGroups,
+        datasets: $this->datasets,
+        isEnabled: true
     );
 })->throws(
     InvalidArgumentException::class,
@@ -68,7 +104,11 @@ it('should throw an exception when rules name is an empty string', function (): 
     new Rule(
         id: 1,
         name: '',
-        isEnabled: false
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: $this->contactGroups,
+        datasets: $this->datasets,
+        isEnabled: true
     );
 })->throws(
     InvalidArgumentException::class,
@@ -79,7 +119,11 @@ it('should throw an exception when rules name is an string exceeding max size', 
     new Rule(
         id: 1,
         name: str_repeat('a', Rule::MAX_NAME_LENGTH + 1),
-        isEnabled: false
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: $this->contactGroups,
+        datasets: $this->datasets,
+        isEnabled: true
     );
 })->throws(
     InvalidArgumentException::class,
@@ -91,3 +135,77 @@ it('should throw an exception when rules name is an string exceeding max size', 
     )->getMessage(),
 );
 
+it('should throw an exception when linked contacts is an empty array', function (): void {
+    new Rule(
+        id: 1,
+        name: 'FULL',
+        description: 'Full access',
+        linkedContacts: [],
+        linkedContactGroups: $this->contactGroups,
+        datasets: $this->datasets,
+        isEnabled: true
+    );
+})->throws(
+    InvalidArgumentException::class,
+    AssertionException::notEmpty('Rule::linkedContactIds')->getMessage()
+);
+
+it('should throw an exception when linked contact groups is an empty array', function (): void {
+    new Rule(
+        id: 1,
+        name: 'FULL',
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: [],
+        datasets: $this->datasets,
+        isEnabled: true
+    );
+})->throws(
+    InvalidArgumentException::class,
+    AssertionException::notEmpty('Rule::linkedContactGroupIds')->getMessage()
+);
+
+it('should throw an exception when linked contacts is not an array of int', function (): void {
+    new Rule(
+        id: 1,
+        name: 'FULL',
+        description: 'Full access',
+        linkedContacts: ['one', 'two'],
+        linkedContactGroups: $this->contactGroups,
+        datasets: $this->datasets,
+        isEnabled: true
+    );
+})->throws(
+    InvalidArgumentException::class,
+    AssertionException::invalidTypeInArray('int', 'Rule::linkedContactIds')->getMessage()
+);
+
+it('should throw an exception when linked contact groups is not an array of int', function (): void {
+    new Rule(
+        id: 1,
+        name: 'FULL',
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: ['one', 'two'],
+        datasets: $this->datasets,
+        isEnabled: true
+    );
+})->throws(
+    InvalidArgumentException::class,
+    AssertionException::invalidTypeInArray('int', 'Rule::linkedContactGroupIds')->getMessage()
+);
+
+it('should throw an exception when linked dataset filters is an empty array', function (): void {
+    new Rule(
+        id: 1,
+        name: 'FULL',
+        description: 'Full access',
+        linkedContacts: $this->contacts,
+        linkedContactGroups: $this->contactGroups,
+        datasets: [],
+        isEnabled: true
+    );
+})->throws(
+    InvalidArgumentException::class,
+    AssertionException::notEmpty('Rule::datasetFilters')->getMessage()
+);

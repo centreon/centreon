@@ -25,13 +25,30 @@ namespace Core\ResourceAccess\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\ResourceAccess\Domain\Model\Rule;
+use Core\ResourceAccess\Domain\Model\TinyRule;
 
 interface ReadRuleRepositoryInterface
 {
-    /** 
+    /**
      * @param RequestParametersInterface $requestParameters
      *
-     * @return Rule[]
+     * @return TinyRule[]
      */
     public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Checks if the rule name provided as been already used for a rule.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function existsByName(string $name): bool;
+
+    /**
+     * @param int $ruleId
+     *
+     * @return null|Rule
+     */
+    public function findById(int $ruleId): ?Rule;
 }
