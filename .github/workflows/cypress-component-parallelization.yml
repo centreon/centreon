@@ -154,7 +154,7 @@ jobs:
           urlFilePrefix: centreon
 
   regroup-artifacts:
-      needs: [cypress-component-coverage-report, cypress-component-test-report]
+      needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
       if: always()
       runs-on: ubuntu-22.04
       strategy:
@@ -163,7 +163,7 @@ jobs:
           type_of_report: [test-reports, test-coverage]
       steps:
         - name: Download ${{ matrix.type_of_report }} Artifacts
-          if: ${{ ( contains(needs.*.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
+          if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
           uses: Wandalen/wretry.action@master
           with:
             action: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
@@ -174,7 +174,7 @@ jobs:
             attempt_limit: 3
 
         - name: Upload the regrouped Artifact
-          if: ${{ ( contains(needs.*.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
+          if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
           uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
           with:
             name: ${{ inputs.name }}-${{ matrix.type_of_report }}
@@ -182,7 +182,7 @@ jobs:
             retention-days: 1
 
         - name: Delete ${{ matrix.type_of_report }} Artifacts
-          if: ${{ ( contains(needs.*.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
+          if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
           uses: geekyeggo/delete-artifact@9d15d164b1dcd538ff1b1a2984bc2c0240986c3b # v4.0.0
           with:
             token: ${{ secrets.GITHUB_TOKEN }}
