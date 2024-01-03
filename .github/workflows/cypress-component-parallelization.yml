@@ -199,7 +199,7 @@ jobs:
               artifact_name=$(echo $artifact | jq -r '.name')
               artifact_id=$(echo $artifact | jq -r '.id')
 
-              if contains($artifact_name, $artifact_pattern) ; then
+              if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
                 echo "Deleting : $artifact_name"
                 curl -L \
                   -X DELETE \
