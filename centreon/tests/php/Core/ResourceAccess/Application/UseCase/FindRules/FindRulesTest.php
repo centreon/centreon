@@ -34,7 +34,9 @@ use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
 use Core\ResourceAccess\Application\UseCase\FindRules\FindRules;
 use Core\ResourceAccess\Application\UseCase\FindRules\FindRulesResponse;
+use Core\ResourceAccess\Domain\Model\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\Rule;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\ResourceAccess\Infrastructure\API\FindRules\FindRulesPresenterStub;
 
 beforeEach(closure: function (): void {
@@ -42,8 +44,9 @@ beforeEach(closure: function (): void {
     $this->user = $this->createMock(ContactInterface::class);
     $this->repository = $this->createMock(ReadRuleRepositoryInterface::class);
     $this->presenter = new FindRulesPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 
-    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters);
+    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->accessGroupRepository);
 });
 
 it('should present a Forbidden response when user does not have sufficient rights', function (): void {
@@ -107,7 +110,15 @@ it('should present a FindRulesResponse when no error occurs', function (): void 
         ->with(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
         ->willReturn(true);
 
-    $rule = (new Rule(1, 'name', true))->setDescription('description');
+    $rule = new Rule(
+        id: 1,
+        name: 'name',
+        description: 'description',
+        linkedContacts: [1],
+        linkedContactGroups: [2],
+        datasets: [new DatasetFilter('host', [3, 4])],
+        isEnabled: true
+    );
 
     $rulesFound = [$rule];
     $this->repository

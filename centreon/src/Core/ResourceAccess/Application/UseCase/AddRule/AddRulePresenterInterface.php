@@ -19,12 +19,14 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\ResourceAccess\Application\UseCase\FindRules;
+namespace Core\ResourceAccess\Application\UseCase\AddRule;
 
-final class FindRulesResponse
+use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface AddRulePresenterInterface extends PresenterInterface
 {
-    /** @var TinyRuleDto[] */
-    public array $rulesDto = [];
+    public function presentResponse(AddRuleResponse|ResponseStatusInterface $response): void;
 }
