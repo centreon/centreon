@@ -75,6 +75,7 @@ final class FindDashboardFactory
             $response->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
         }
 
+        // Add shares only if the user if editor, as the viewers should not be able to see shares.
         if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactShares)) {
             $response->shares['contacts'] = array_map(static fn (DashboardContactShare $contactShare): array => [
                 'id' => $contactShare->getContactId(),
