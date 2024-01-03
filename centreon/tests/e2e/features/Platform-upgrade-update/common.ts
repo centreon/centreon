@@ -341,6 +341,7 @@ When('administrator runs the update procedure', () => {
       $el.prop('checked', false);
     }
   });
+
   cy.get('.btc.bt_success').should('be.visible').click();
 });
 
