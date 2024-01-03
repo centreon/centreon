@@ -29,7 +29,12 @@ const ServiceList = ({
               name={name}
               status={status as Status}
               subInformation={duration}
-              onSelect={(): void => onSelectService(service)}
+              onSelect={(): void =>
+                onSelectService({
+                  ...service,
+                  parent: undefined
+                })
+              }
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}
           </div>
