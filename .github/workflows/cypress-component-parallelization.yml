@@ -84,7 +84,7 @@ jobs:
       - name: Download coverage reports
         uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
-          pattern: ${{ inputs.name }}-coverage-*
+          pattern: ${{ inputs.name }}-test-coverage-*
           path: .nyc_output/
           merge-multiple: true
 
