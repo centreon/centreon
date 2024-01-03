@@ -205,10 +205,24 @@ jobs:
 
       - name: Delete ${{ matrix.type_of_report }} Artifacts
         if: ${{ ( contains(needs.*.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
-        uses: geekyeggo/delete-artifact@9d15d164b1dcd538ff1b1a2984bc2c0240986c3b # v4.0.0
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: artifacts } = await github.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            for (const artifact of artifacts.artifacts) {
+              if (artifact.name.startsWith(`${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-`)) {
+                await github.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }
 
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
