@@ -1,4 +1,5 @@
 import { useDarkMode } from "storybook-dark-mode";
+import { initialize, mswLoader } from 'msw-storybook-addon';
 
 import { ThemeMode } from "@centreon/ui-context";
 
@@ -6,6 +7,8 @@ import StoryBookThemeProvider from "../src/StoryBookThemeProvider";
 import QueryProvider from "../src/api/QueryProvider";
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+initialize();
 
 const withThemeProvider: Decorator = (story, context): JSX.Element => (
   <StoryBookThemeProvider
@@ -23,6 +26,7 @@ const withQueryProvider: Decorator = (story, context): JSX.Element => (
 );
 
 const preview: Preview = {
+  loaders: [mswLoader],
   decorators: [
     withThemeProvider,
     withQueryProvider,
