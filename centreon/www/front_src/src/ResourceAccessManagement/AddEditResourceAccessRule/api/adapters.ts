@@ -10,7 +10,7 @@ export const adaptResourceAccessRule = ({
 }): object => ({
   contact_groups: map(prop('id'), contactGroups),
   contacts: map(prop('id'), contacts),
-  data,
+  dataset_filters: data,
   description,
   is_enabled: isActivated,
   name

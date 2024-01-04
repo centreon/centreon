@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 
+import { Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { InputProps, Group, InputType } from '@centreon/ui';
 
 import {
-  labelAddNewDataset,
   labelContactGroups,
   labelContacts,
   labelContactsAndContactGroups,
@@ -22,7 +22,6 @@ import {
 
 import { useInputStyles } from './Inputs.styles';
 import ResourceDataset from './ResourceDataset';
-import AddDatasetButton from './AddDatasetButton';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -68,6 +67,18 @@ const useFormInputs = (): UseFormInputsState => {
               alignItems: 'left',
               className: classes.ruleProperties,
               columns: [
+                {
+                  custom: {
+                    Component: () => (
+                      <Typography className={classes.titleGroup}>
+                        {t(labelRuleProperies)}
+                      </Typography>
+                    )
+                  },
+                  fieldName: 'rulePropertiesTitle',
+                  label: 'rulePropertiesTitle',
+                  type: InputType.Custom
+                },
                 {
                   dataTestId: t(labelName),
                   fieldName: 'name',
@@ -118,15 +129,6 @@ const useFormInputs = (): UseFormInputsState => {
                         fieldName: 'datasetFilters',
                         label: t(labelResourceSelection),
                         type: InputType.Custom
-                      },
-                      {
-                        custom: {
-                          Component: () => <AddDatasetButton />
-                        },
-                        dataTestId: t(labelAddNewDataset),
-                        fieldName: 'addNewDataset',
-                        label: t(labelAddNewDataset),
-                        type: InputType.Custom
                       }
                     ]
                   },
@@ -140,6 +142,18 @@ const useFormInputs = (): UseFormInputsState => {
                     alignItems: 'left',
                     className: classes.contactsAndContactGroups,
                     columns: [
+                      {
+                        custom: {
+                          Component: () => (
+                            <Typography className={classes.titleGroup}>
+                              {t(labelContactsAndContactGroups)}
+                            </Typography>
+                          )
+                        },
+                        fieldName: 'contactsAndContactGroupsTitle',
+                        label: 'contactsAndContactGroupsTitle',
+                        type: InputType.Custom
+                      },
                       {
                         connectedAutocomplete: {
                           additionalConditionParameters: [],

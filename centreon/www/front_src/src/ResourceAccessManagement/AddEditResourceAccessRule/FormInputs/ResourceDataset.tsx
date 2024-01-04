@@ -22,6 +22,7 @@ import { DatasetResource } from '../../models';
 
 import { useResourceDatasetStyles } from './Inputs.styles';
 import useResourceDataset from './useResourceDataset';
+import AddDatasetButton from './AddDatasetButton';
 
 interface Props {
   propertyName: string;
@@ -108,6 +109,7 @@ const ResourceDataset = ({ propertyName }: Props): ReactElement => {
           ))}
         </ItemComposition>
         {error && <FormHelperText error>{t(error)}</FormHelperText>}
+        <AddDatasetButton />
       </div>
     </div>
   );
