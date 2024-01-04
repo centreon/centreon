@@ -219,8 +219,8 @@ jobs:
             echo "Those are the artifacts : $artifacts"
 
             for artifact in $artifacts; do
-              artifact_name=$(echo $artifact | jq -r '.name')
-              artifact_id=$(echo $artifact | jq -r '.id')
+              artifact_name=$(echo $artifact | jq -c '.name')
+              artifact_id=$(echo $artifact | jq -c '.id')
 
               echo "This is the Name: $artifact_name"
               echo "This is the ID: $artifact_id"
