@@ -469,17 +469,10 @@ jobs:
               # Spécifiez le chemin du répertoire des collections
               collection_path="collections/"
               collection_file="collections/${{ matrix.feature }}"
-              echo 'collection file $collection_file'
-              # Utilisez la commande find pour obtenir la liste des fichiers dans l'arborescence spécifiée
-              file_list=$(find "$collection_path" -name "*.postman_collection.json")
+              collection_name=$(basename "$collection_file" .postman_collection.json)
+              echo "Nom du fichier : $collection_name"
 
-              # Itérez sur chaque fichier dans la liste
-              for collection_file in $file_list; do
-                  # Exécutez vos actions sur chaque fichier, par exemple, affichez le nom du fichier
-                  echo "Nom du fichier : $collection_file"
 
-                  # Ajoutez le reste de votre logique ici...
-              done
             # for summary_file in ./postman_summaries/*.json; do
             #     test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
             #     test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
