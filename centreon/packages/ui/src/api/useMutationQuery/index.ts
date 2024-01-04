@@ -81,7 +81,14 @@ const useMutationQuery = <T extends object, TMeta>({
     {
       onError,
       onMutate,
-      onSuccess
+      onSuccess: (data, variables, context) => {
+        if (data?.isError) {
+          onError?.(data, variables, context);
+
+          return;
+        }
+        onSuccess?.(data, variables, context);
+      }
     }
   );
 
@@ -100,9 +107,12 @@ const useMutationQuery = <T extends object, TMeta>({
     }
   };
 
-  useEffect(() => {
-    manageError();
-  }, useDeepCompare([queryData.data]));
+  useEffect(
+    () => {
+      manageError();
+    },
+    useDeepCompare([queryData.data])
+  );
 
   return {
     ...queryData,

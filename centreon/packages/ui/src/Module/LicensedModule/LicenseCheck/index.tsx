@@ -40,6 +40,7 @@ const Content = ({ children, isValid }: ContentProps): JSX.Element => {
 };
 
 const LicenseCheck = ({
+  isFederatedComponent,
   children,
   moduleName
 }: LicenseCheckProps): JSX.Element | null => {
