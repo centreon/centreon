@@ -91,15 +91,9 @@ const getLoadableComponents = ({
   return components;
 };
 
-const defaultStyleMenuSkeleton = {
-  className: undefined,
-  height: undefined,
-  width: undefined
-};
-
 const LoadableComponentsContainer = ({
   path,
-  styleMenuSkeleton = defaultStyleMenuSkeleton,
+  styleMenuSkeleton,
   isFederatedWidget,
   ...props
 }: LoadableComponentsContainerProps): JSX.Element | null => {
