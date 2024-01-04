@@ -28,6 +28,12 @@ on:
         required: true
       veracode_srcclr_token:
         required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   build:
@@ -148,6 +154,15 @@ jobs:
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
           issue_details: '${{ needs.build.outputs.display_summary }}'
+
+      - name: Create jira ticket
+        # In case of QG failure, a ticket is created
+        if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
+        uses: ./.github/workflows/veracode_create_jira_ticket.yml
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
 
       - name: Backup analysis reports
         # debug step used to investigate support case
