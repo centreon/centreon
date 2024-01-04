@@ -44,8 +44,6 @@ class CentreonACL
     const ACL_ACCESS_READ_WRITE = 1;
     const ACL_ACCESS_READ_ONLY = 2;
 
-    const CUSTOMER_ADMIN_ACL = 'customer_admin_acl';
-
     private $userID; /* ID of the user */
     private $parentTemplates = null;
     public $admin; /* Flag that tells us if the user is admin or not */
@@ -2553,7 +2551,7 @@ class CentreonACL
     public function getContactAclConf($options = array())
     {
         $request = $this->constructRequest($options, true);
-        if ($this->admin || (isCloudPlatform() && \in_array(self::CUSTOMER_ADMIN_ACL, $this->accessGroups))) {
+        if ($this->admin) {
             $sql = $request['select'] . $request['fields'] . " "
                 . "FROM contact "
                 . $request['join']
@@ -2608,7 +2606,7 @@ class CentreonACL
         }
 
 
-        if ($this->admin || (isCloudPlatform() && \in_array(self::CUSTOMER_ADMIN_ACL, $this->accessGroups))) {
+        if ($this->admin) {
             $sql = $request['select'] . $request['fields'] . " "
                 . "FROM contactgroup cg " . $sJointure
                 . "WHERE (cg.cg_type = 'local' " . $ldapCondition . ") "
