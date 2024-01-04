@@ -4,11 +4,6 @@
 /usr/lib/x86_64-linux-gnu/libbrotlienc.so.1.0.9
 /usr/lib/x86_64-linux-gnu/liblua5.3.so.0
 /usr/lib/x86_64-linux-gnu/libldap-2.4.so.2
-/usr/lib/x86_64-linux-gnu/libapt-private.so.0.0
-/lib/x86_64-linux-gnu/libselinux.so.1
-/usr/lib/x86_64-linux-gnu/libseccomp.so.2
-/usr/lib/x86_64-linux-gnu/libgnutls.so.30
-/usr/lib/x86_64-linux-gnu/libacl.so.1
-/usr/lib/x86_64-linux-gnu/libattr.so.1
-/lib/x86_64-linux-gnu/libcrypt.so.1
-/lib/x86_64-linux-gnu/libaudit.so.1
+/usr/bin/apt
+/usr/bin/apt-get
+/usr/bin/dpkg
