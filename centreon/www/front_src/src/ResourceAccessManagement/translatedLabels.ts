@@ -43,3 +43,5 @@ export const labelResourceType = 'Resource type';
 export const labelSelectResourceType = 'Select resource type';
 export const labelSelectResource = 'Select resource';
 export const labelActiveOrInactive = 'Active / Inactive';
+export const labelEnabled = 'Enabled';
+export const labelDisabled = 'Disabled';

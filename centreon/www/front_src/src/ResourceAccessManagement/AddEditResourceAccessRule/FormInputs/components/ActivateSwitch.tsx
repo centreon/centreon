@@ -4,7 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { styled } from '@mui/material/styles';
 import { FormControlLabel, Switch as MUISwitch, Tooltip } from '@mui/material';
 
-import { labelActiveOrInactive, labelStatus } from '../../../translatedLabels';
+import {
+  labelActiveOrInactive,
+  labelDisabled,
+  labelEnabled
+} from '../../../translatedLabels';
 
 const Switch = styled(MUISwitch)(({ theme }) => ({
   '& .MuiSwitch-switchBase': {
@@ -45,7 +49,7 @@ const ActivateSwitch = (): JSX.Element => {
           />
         </Tooltip>
       }
-      label={t(labelStatus)}
+      label={values?.isActivated ? t(labelEnabled) : t(labelDisabled)}
     />
   );
 };
