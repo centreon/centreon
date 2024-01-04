@@ -67,7 +67,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
 
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
@@ -89,7 +89,7 @@ jobs:
           test_plan_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_id_'${{ inputs.os }})
           echo "The Test Execution ID : $test_execution_id"
           echo "The Test Plan ID : $test_plan_id"
-          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
+          echo "test_plan_id=74325" >> $GITHUB_OUTPUT
           echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -463,6 +463,51 @@ jobs:
                 fi
               done
             done
+
+      - name: Adding test cases tags
+        run: |
+              # Spécifiez le chemin du répertoire des collections
+              collection_path="collections/"
+
+              # Utilisez la commande find pour obtenir la liste des fichiers dans l'arborescence spécifiée
+              file_list=$(find "$collection_path" -name "*.postman_collection.json")
+
+              # Itérez sur chaque fichier dans la liste
+              for collection_file in $file_list; do
+                  # Exécutez vos actions sur chaque fichier, par exemple, affichez le nom du fichier
+                  echo "Nom du fichier : $collection_file"
+
+                  # Ajoutez le reste de votre logique ici...
+              done
+            # for summary_file in ./postman_summaries/*.json; do
+            #     test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
+            #     test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
+            #     issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
+            #     echo "issue_ids content: $issue_ids"
+
+            #     filename=$(basename "$summary_file")
+            #     collection_name="${filename%-summary.json}"
+            #     collection_name="${collection_name//-/_}"
+            #     echo "Contenu de collection_name : $collection_name"
+            #   for issue_id in "${issue_ids[@]}"; do
+            #     echo "Processing issue ID: $issue_id"
+            #     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+
+            #     response=$(curl --request GET --url "$jira_issue_url" --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" --header 'Accept: application/json')
+
+            #     if [ "$response_code" -eq 404 ]; then
+            #     echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+            #     else
+            #       echo "The issue with ID $issue_id exists."
+            #       summary=$(echo "$response" | jq -r '.fields.summary')
+            #       echo "Summary: $summary"
+            #       echo "Collection Name: $collection_name"
+            #       if [ "$summary" == "$collection_name" ]; then
+
+            #       fi
+            #     fi
+            #   done
+            # done
 
       - name: Perform Jira Transitions
         if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
