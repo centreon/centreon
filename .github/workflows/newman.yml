@@ -67,7 +67,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
 
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
@@ -464,11 +464,11 @@ jobs:
               done
             done
 
-      - name: Adding test cases tags
+      - name: Adding test cases key
         run: |
               collection_file="collections/${{ matrix.feature }}"
               collection_name=$(basename "$collection_file" .postman_collection.json)
-              issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
+              issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
               for issue_id in "${issue_ids[@]}"; do
                   echo "Processing issue ID: $issue_id"
                   jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
@@ -480,7 +480,10 @@ jobs:
                   else
                     echo "The issue with ID $issue_id exists."
                     summary=$(echo "$response" | jq -r '.fields.summary')
+                    key=$(echo "$response" | jq -r '.fields.key')
+
                     echo "Summary: $summary"
+                    echo "Key: $key"
                     echo "Collection Name: $collection_name"
                     if [ "$summary" == "$collection_name" ]; then
                        echo "test"
