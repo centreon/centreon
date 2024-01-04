@@ -480,7 +480,7 @@ jobs:
                   else
                     echo "The issue with ID $issue_id exists."
                     summary=$(echo "$response" | jq -r '.fields.summary')
-                    key=$(echo "$response" | jq -r '.fields.key')
+                    key=$(echo "$response" | jq -r '.key')
 
                     echo "Summary: $summary"
                     echo "Key: $key"
