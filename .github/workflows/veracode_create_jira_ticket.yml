@@ -25,9 +25,9 @@ jobs:
       - name: Login to Jira
         uses: atlassian/gajira-login@ca13f8850ea309cf44a6e4e0c49d9aa48ac3ca4c # v3.0.1
         env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.jira_base_url }}
+          JIRA_USER_EMAIL: ${{ secrets.jira_user_email }}
+          JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
 
       - name: Create Jira Issue
         id: create
@@ -58,4 +58,3 @@ jobs:
 
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
-
