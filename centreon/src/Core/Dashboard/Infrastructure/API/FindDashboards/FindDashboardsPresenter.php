@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -58,6 +59,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
                     'created_at' => $this->formatDateToIso8601($dashboard->createdAt),
                     'updated_at' => $this->formatDateToIso8601($dashboard->updatedAt),
                     'own_role' => DashboardSharingRoleConverter::toString($dashboard->ownRole),
+                    'shares' => $this->formatShares($dashboard->shares),
                 ];
             }
 
@@ -81,5 +83,56 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
             'id' => $dto->id,
             'name' => $dto->name,
         ] : null;
+    }
+
+    /**
+     * @param array{
+     *      contacts: array<int, array{
+     *       id: int,
+     *       name: string,
+     *       email: string,
+     *       role: DashboardSharingRole
+     *      }>,
+     *      contact_groups: array<int, array{
+     *       id: int,
+     *       name: string,
+     *       role: DashboardSharingRole
+     *      }>
+     *  } $shares
+     *
+     * @return array{
+     *       contacts: array<int, array{
+     *        id: int,
+     *        name: string,
+     *        email: string,
+     *        role: string
+     *       }>,
+     *       contact_groups: array<int, array{
+     *        id: int,
+     *        name: string,
+     *        role: string
+     *       }>
+     *   }
+     */
+    private function formatShares(array $shares): array
+    {
+        $formattedShares = ['contacts' => [], 'contact_groups' => []];
+        foreach ($shares['contacts'] as $contact) {
+            $formattedShares['contacts'][] = [
+                'id' => $contact['id'],
+                'name' => $contact['name'],
+                'email' => $contact['email'],
+                'role' => DashboardSharingRoleConverter::toString($contact['role']),
+            ];
+        }
+        foreach ($shares['contact_groups'] as $contactGroup) {
+            $formattedShares['contact_groups'][] = [
+                'id' => $contactGroup['id'],
+                'name' => $contactGroup['name'],
+                'role' => DashboardSharingRoleConverter::toString($contactGroup['role']),
+            ];
+        }
+
+        return $formattedShares;
     }
 }
