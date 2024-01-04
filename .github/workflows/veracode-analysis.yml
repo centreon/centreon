@@ -151,7 +151,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: ( success() || failure() ) && vars.VERACODE_BACKUP_DEBUG == 'true'
+        if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
