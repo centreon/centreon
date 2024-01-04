@@ -197,7 +197,7 @@ jobs:
           echo "Those are the artifacts: $artifacts"
 
           artifacts_r=$(echo $artifacts | jq -r '.artifacts[]')
-          artifacts-c=$(echo $artifacts | jq -c '.artifacts[]')
+          artifacts_c=$(echo $artifacts | jq -c '.artifacts[]')
 
           echo "R : $artifacts_r"
           echo "C : $artifacts_c"
