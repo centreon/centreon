@@ -226,4 +226,6 @@ jobs:
               fi
             done
           done
+
+          echo "End of Deleting"
         shell: bash
