@@ -1,9 +1,13 @@
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import Divider from '@mui/material/Divider';
 
-import { MemoizedListing as TokenListing } from '@centreon/ui';
+import { MemoizedListing as Listing } from '@centreon/ui';
 
+import TokenCreationButton from '../TokenCreation';
+import CreateTokenDialog from '../TokenCreation/TokenCreationDialog';
+import { isCreatingTokenAtom } from '../TokenCreation/atoms';
 import { labelApiToken } from '../translatedLabels';
 
 import Actions from './Actions';
@@ -13,9 +17,11 @@ import Title from './Title';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
 
-const Listing = (): JSX.Element | null => {
+const TokenListing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+  const isCreatingToken = useAtomValue(isCreatingTokenAtom);
+
   const {
     dataListing,
     changePage,
@@ -33,11 +39,11 @@ const Listing = (): JSX.Element | null => {
     <div className={classes.container}>
       <Title msg={t(labelApiToken)} />
       <Divider className={classes.divider} />
-
-      <TokenListing
+      <Listing
         innerScrollDisabled
         actions={
           <Actions
+            buttonCreateToken={<TokenCreationButton />}
             refresh={
               <Refresh isLoading={dataListing?.isLoading} onRefresh={refetch} />
             }
@@ -60,7 +66,8 @@ const Listing = (): JSX.Element | null => {
         onSelectColumns={onSelectColumns}
         onSort={onSort}
       />
+      {isCreatingToken && <CreateTokenDialog />}
     </div>
   );
 };
-export default Listing;
+export default TokenListing;

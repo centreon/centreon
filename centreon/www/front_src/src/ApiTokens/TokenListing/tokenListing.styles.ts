@@ -6,5 +6,8 @@ export const useStyles = makeStyles()((theme) => ({
   },
   divider: {
     marginTop: theme.spacing(2)
+  },
+  title: {
+    color: theme.palette.primary.main
   }
 }));
