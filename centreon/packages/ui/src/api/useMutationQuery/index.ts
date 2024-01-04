@@ -107,12 +107,9 @@ const useMutationQuery = <T extends object, TMeta>({
     }
   };
 
-  useEffect(
-    () => {
-      manageError();
-    },
-    useDeepCompare([queryData.data])
-  );
+  useEffect(() => {
+    manageError();
+  }, useDeepCompare([queryData.data]));
 
   return {
     ...queryData,
