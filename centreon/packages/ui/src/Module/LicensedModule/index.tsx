@@ -12,7 +12,12 @@ const LicensedModule = ({
 }: Props): JSX.Element => {
   return (
     <Module {...props}>
-      <LicenseCheck moduleName={moduleName}>{children}</LicenseCheck>
+      <LicenseCheck
+        isFederatedComponent={isFederatedComponent}
+        moduleName={moduleName}
+      >
+        {children}
+      </LicenseCheck>
     </Module>
   );
 };
