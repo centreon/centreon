@@ -335,11 +335,12 @@ When('administrator runs the update procedure', () => {
   cy.contains('Congratulations');
 
   // disable statistics if checkbox is available (only on upgrade to new major version)
-  cy.get('#send_statistics').then(($el) => {
-    if ($el.length) {
-      $el.prop('checked', false);
-    }
-  });
+  cy.get('body')
+    .then(($body) => {
+      if ($body.find('#send_statistics').length) {
+        cy.get('#send_statistics').uncheck({ force: true });
+      }
+    });
 
   cy.get('.btc.bt_success').should('be.visible').click();
 });
