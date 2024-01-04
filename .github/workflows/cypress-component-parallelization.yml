@@ -82,11 +82,14 @@ jobs:
           version: 8
 
       - name: Download coverage reports
-        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+        uses: Wandalen/wretry.action@master
         with:
-          pattern: ${{ inputs.name }}-test-coverage-*
-          path: .nyc_output/
-          merge-multiple: true
+          action: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+          with: |
+            pattern: ${{ inputs.name }}-test-coverage-*
+            path: .nyc_output/
+            merge-multiple: true
+          attempt_limit: 3
 
       - name: Merge coverage reports
         run: |
@@ -134,11 +137,14 @@ jobs:
           version: 8
 
       - name: Download Artifacts
-        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+        uses: Wandalen/wretry.action@master
         with:
-          pattern: ${{ inputs.name }}-test-reports-*
-          path: ${{ inputs.name }}-json-reports
-          merge-multiple: true
+          action: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+          with: |
+            pattern: ${{ inputs.name }}-test-reports-*
+            path: ${{ inputs.name }}-json-reports
+            merge-multiple: true
+          attempt_limit: 3
 
       - name: Merge reports
         run: |
@@ -191,13 +197,17 @@ jobs:
 
           while [ "$artifact_exist" = true ] ;do
             artifact_exist=false
-            artifacts=$(curl -L \
+            artifacts_response=$(curl -L \
                           -H "Accept: application/vnd.github+json" \
                           -H "Authorization: Bearer $TOKEN" \
                           -H "X-GitHub-Api-Version: 2022-11-28" \
                           "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
 
-            for artifact in $(echo $artifacts | jq -c '.artifacts[]'); do
+            artifacts=$(echo $artifacts | jq -c '.artifacts[]')
+
+            echo "Those are the artifacts : $artifacts"
+
+            for artifact in $artifacts; do
               artifact_name=$(echo $artifact | jq -r '.name')
               artifact_id=$(echo $artifact | jq -r '.id')
 
@@ -213,5 +223,4 @@ jobs:
               fi
             done
           done
-          exit 0
         shell: bash
