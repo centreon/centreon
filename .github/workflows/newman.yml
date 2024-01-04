@@ -468,7 +468,8 @@ jobs:
         run: |
               # Spécifiez le chemin du répertoire des collections
               collection_path="collections/"
-
+              collection_file="collections/${{ matrix.feature }}"
+              echo 'collection file $collection_file'
               # Utilisez la commande find pour obtenir la liste des fichiers dans l'arborescence spécifiée
               file_list=$(find "$collection_path" -name "*.postman_collection.json")
 
