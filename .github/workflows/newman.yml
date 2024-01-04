@@ -350,7 +350,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
-          name: postman-html-reports
+          name: postman-html-reports-${{ matrix.feature }}
           path: centreon/tests/rest_api/newman/
 
       - name: Extract and Store Summaries
@@ -523,3 +523,66 @@ jobs:
           if [ -n "$summaries" ]; then
               echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
           fi
+
+  regroup-artifacts:
+    needs: [newman-test-run]
+    if: always()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download HTML Reports Artifacts
+        if: ${{ contains(needs.newman-test-run.result, 'failure') }}
+        uses: Wandalen/wretry.action@master
+        with:
+          action: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+          with: |
+            pattern: postman-html-reports-*
+            path: postman-html-reports
+            merge-multiple: true
+          attempt_limit: 3
+
+      - name: Upload the Regrouped Artifact
+        if: ${{ contains(needs.newman-test-run.result, 'failure') }}
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        with:
+          name: postman-html-reports
+          path: postman-html-reports/**/*.html
+          retention-days: 1
+
+      - name: Delete HTML Reports Artifacts
+        if: ${{ contains(needs.newman-test-run.result, 'failure') }}
+        run: |
+          artifact_pattern="postman-html-reports-"
+          TOKEN=${{ secrets.GITHUB_TOKEN }}
+
+          artifact_exist=true
+
+          while [ "$artifact_exist" = true ] ;do
+            artifact_exist=false
+            artifacts=$(curl -L \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "Authorization: Bearer $TOKEN" \
+                          -H "X-GitHub-Api-Version: 2022-11-28" \
+                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
+
+            artifacts=$(echo $artifacts_response | jq -c '.artifacts[]')
+
+            echo "Those are the artifacts : $artifacts"
+
+            for artifact in $artifacts; do
+              artifact_name=$(echo $artifact | jq -r '.name')
+              artifact_id=$(echo $artifact | jq -r '.id')
+
+              if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
+                artifact_exist=true
+                echo "Deleting : $artifact_name"
+                curl -L \
+                  -X DELETE \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "Authorization: Bearer $TOKEN" \
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
+              fi
+            done
+          done
+        shell: bash
