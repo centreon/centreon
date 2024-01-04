@@ -56,6 +56,7 @@ class Request
     private string $warning = 'true';
     private string $critical = 'true';
     private string $unknown = 'true';
+    private string $notification = 'false';
     private string $acknowledgement = 'true';
     private string $alert = 'true';
     private string $oh = 'false';
