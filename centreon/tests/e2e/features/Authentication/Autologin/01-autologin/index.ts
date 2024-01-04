@@ -8,20 +8,9 @@ before(() => {
 });
 
 beforeEach(() => {
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
-  }).as('getLastestUserFilters');
+
 });
- 
+
 Given('an administrator is logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')

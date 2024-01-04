@@ -291,20 +291,24 @@ jobs:
                           -H "X-GitHub-Api-Version: 2022-11-28" \
                           "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
 
-            for artifact in $(echo $artifacts | jq -c '.artifacts[]'); do
-                artifact_name=$(echo $artifact | jq -r '.name')
-                artifact_id=$(echo $artifact | jq -r '.id')
+            artifacts=$(echo $artifacts_response | jq -c '.artifacts[]')
 
-                if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
-                  artifact_exist=true
-                  echo "Deleting : $artifact_name"
-                  curl -L \
-                    -X DELETE \
-                    -H "Accept: application/vnd.github+json" \
-                    -H "Authorization: Bearer $TOKEN" \
-                    -H "X-GitHub-Api-Version: 2022-11-28" \
-                    "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
-                fi
+            echo "Those are the artifacts : $artifacts"
+
+            for artifact in $artifacts; do
+              artifact_name=$(echo $artifact | jq -r '.name')
+              artifact_id=$(echo $artifact | jq -r '.id')
+
+              if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
+                artifact_exist=true
+                echo "Deleting : $artifact_name"
+                curl -L \
+                  -X DELETE \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "Authorization: Bearer $TOKEN" \
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
+              fi
             done
           done
         shell: bash
