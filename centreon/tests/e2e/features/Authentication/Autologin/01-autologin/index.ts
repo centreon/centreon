@@ -21,7 +21,7 @@ beforeEach(() => {
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getLastestUserFilters');
 });
-
+ 
 Given('an administrator is logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
