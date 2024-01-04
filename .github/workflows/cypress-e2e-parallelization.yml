@@ -175,68 +175,6 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
           retention-days: 1
 
-  regroup-artifacts:
-    needs: [cypress-e2e-test-run]
-    if: always()
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        type_of_report: [test-results, test-reports, xray-reports]
-    steps:
-      - name: Download ${{ matrix.type_of_report }} Artifacts
-        if: ${{ ( contains(needs.*.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
-        uses: Wandalen/wretry.action@master
-        with:
-          action: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
-          with: |
-            pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-            path: ${{ inputs.name }}-${{ matrix.type_of_report }}
-            merge-multiple: true
-          attempt_limit: 3
-
-      - name: Upload the regrouped Artifact
-        if: ${{ ( contains(needs.*.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
-        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          path: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
-          retention-days: 1
-
-      - name: Delete ${{ matrix.type_of_report }} Artifacts
-        if: ${{ ( contains(needs.*.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
-        run: |
-          artifact_pattern="${{ inputs.name }}-${{ matrix.type_of_report }}-"
-          TOKEN=${{ secrets.GITHUB_TOKEN }}
-
-          artifact_exist=true
-
-          while [ "$artifact_exist" = true ] ;do
-            artifact_exist=false
-            artifacts=$(curl -L \
-                          -H "Accept: application/vnd.github+json" \
-                          -H "Authorization: Bearer $TOKEN" \
-                          -H "X-GitHub-Api-Version: 2022-11-28" \
-                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
-
-            for artifact in $(echo $artifacts | jq -c '.artifacts[]'); do
-                artifact_name=$(echo $artifact | jq -r '.name')
-                artifact_id=$(echo $artifact | jq -r '.id')
-
-                if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
-                  artifact_exist=true
-                  echo "Deleting : $artifact_name"
-                  curl -L \
-                    -X DELETE \
-                    -H "Accept: application/vnd.github+json" \
-                    -H "Authorization: Bearer $TOKEN" \
-                    -H "X-GitHub-Api-Version: 2022-11-28" \
-                    "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
-                fi
-            done
-          done
-        shell: bash
-
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
@@ -308,3 +246,65 @@ jobs:
           path: mochawesome.json
           format: cypress
           urlFilePrefix: centreon
+
+  regroup-artifacts:
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
+    if: always()
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type_of_report: [test-results, test-reports, xray-reports]
+    steps:
+      - name: Download ${{ matrix.type_of_report }} Artifacts
+        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
+        uses: Wandalen/wretry.action@master
+        with:
+          action: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+          with: |
+            pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+            path: ${{ inputs.name }}-${{ matrix.type_of_report }}
+            merge-multiple: true
+          attempt_limit: 3
+
+      - name: Upload the Regrouped Artifact
+        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          path: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
+          retention-days: 1
+
+      - name: Delete ${{ matrix.type_of_report }} Artifacts
+        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
+        run: |
+          artifact_pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-"
+          TOKEN=${{ secrets.GITHUB_TOKEN }}
+
+          artifact_exist=true
+
+          while [ "$artifact_exist" = true ] ;do
+            artifact_exist=false
+            artifacts=$(curl -L \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "Authorization: Bearer $TOKEN" \
+                          -H "X-GitHub-Api-Version: 2022-11-28" \
+                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
+
+            for artifact in $(echo $artifacts | jq -c '.artifacts[]'); do
+                artifact_name=$(echo $artifact | jq -r '.name')
+                artifact_id=$(echo $artifact | jq -r '.id')
+
+                if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
+                  artifact_exist=true
+                  echo "Deleting : $artifact_name"
+                  curl -L \
+                    -X DELETE \
+                    -H "Accept: application/vnd.github+json" \
+                    -H "Authorization: Bearer $TOKEN" \
+                    -H "X-GitHub-Api-Version: 2022-11-28" \
+                    "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
+                fi
+            done
+          done
+        shell: bash

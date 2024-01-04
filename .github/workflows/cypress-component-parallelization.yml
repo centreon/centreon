@@ -173,7 +173,7 @@ jobs:
             merge-multiple: true
           attempt_limit: 3
 
-      - name: Upload the regrouped Artifact
+      - name: Upload the Regrouped Artifact
         if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
