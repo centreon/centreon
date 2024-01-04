@@ -108,6 +108,47 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     /**
      * @inheritDoc
      */
+    public function exist(array $serviceIds): array
+    {
+        $this->debug('Check existence of services', ['service_ids' => $serviceIds]);
+
+        if ([] === $serviceIds) {
+            return [];
+        }
+
+        $bindValues = [];
+
+        foreach ($serviceIds as $index => $serviceId) {
+            $bindValues[":service_{$index}"] = $serviceId;
+        }
+
+        $serviceIdsList = implode(', ', array_keys($bindValues));
+
+        $request = $this->translateDbName(
+            <<<SQL
+                    SELECT
+                        service_id
+                    FROM `:db`.service
+                    WHERE service_id IN ({$serviceIdsList})
+                        AND service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($bindValues as $bindKey => $bindValue) {
+            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function exists(int $serviceId): bool
     {
         $concatenator = $this->getServiceRequestConcatenator();

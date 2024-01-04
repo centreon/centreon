@@ -41,6 +41,44 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
     /**
      * @inheritDoc
      */
+    public function exist(array $metaIds): array
+    {
+        if ($metaIds === []) {
+            return [];
+        }
+
+        $bindValues = [];
+
+        foreach ($metaIds as $index => $metaId) {
+            $bindValues[":meta_{$index}"] = $metaId;
+        }
+
+        $metaIdsList = implode(', ', array_keys($bindValues));
+
+        $request = $this->translateDbName(
+            <<<SQL
+                    SELECT
+                        meta_id
+                    FROM `:db`.meta_service
+                    WHERE meta_id IN ({$metaIdsList})
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($bindValues as $bindKey => $bindValue) {
+            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findMetaServiceByIdAndAccessGroupIds(int $metaId, array $accessGroupIds): ?MetaService
     {
         if (empty($accessGroupIds)) {
