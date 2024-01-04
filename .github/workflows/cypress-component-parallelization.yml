@@ -196,7 +196,13 @@ jobs:
 
           echo "Those are the artifacts: $artifacts"
 
-          for artifact in $(echo $artifacts | jq -r '.artifacts[]'); do
+          artifacts_r=$(echo $artifacts | jq -r '.artifacts[]')
+          artifacts-c=$(echo $artifacts | jq -c '.artifacts[]')
+
+          echo "R : $artifacts_r"
+          echo "C : $artifacts_c"
+
+          for artifact in $(echo $artifacts | jq -c '.artifacts[]'); do
               artifact_name=$(echo $artifact | jq -r '.name')
               artifact_id=$(echo $artifact | jq -r '.id')
 
