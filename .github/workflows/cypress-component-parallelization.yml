@@ -211,6 +211,9 @@ jobs:
               artifact_name=$(echo $artifact | jq -r '.name')
               artifact_id=$(echo $artifact | jq -r '.id')
 
+              echo "This is the Name: $artifact_name"
+              echo "This is the ID: $artifact_id"
+
               if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
                 artifact_exist=true
                 echo "Deleting : $artifact_name"
