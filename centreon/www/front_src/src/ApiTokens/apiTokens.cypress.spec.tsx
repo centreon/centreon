@@ -13,11 +13,25 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
-
-import { DefaultParameters } from './Actions/Search/Filter/models';
-import { Column } from './ComponentsColumn/models';
-import Listing from './TokenListing';
+import { DefaultParameters } from './TokenListing/Actions/Search/Filter/models';
+import { Column } from './TokenListing/ComponentsColumn/models';
+import TokenListing from './TokenListing/TokenListing';
+import {
+  buildListEndpoint,
+  createTokenEndpoint,
+  listConfiguredUser,
+  listTokensEndpoint
+} from './api/endpoints';
+import {
+  labelCancel,
+  labelCreateNewToken,
+  labelDuration,
+  labelGenerateNewToken,
+  labelName,
+  labelSecurityToken,
+  labelTokenCreated,
+  labelUser
+} from './translatedLabels';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -87,10 +101,74 @@ const checkArrowSorting = (data): void => {
     .should('be.visible');
 };
 
+const fillInputs = (): void => {
+  cy.fixture('apiTokens/creation/configuredUsers.json').then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'getListConfiguredUsers',
+      method: Method.GET,
+      path: `./api/latest${listConfiguredUser}**`,
+      response: data
+    });
+  });
+  cy.findByTestId('tokenNameInput').type(tokenName);
+  cy.findByTestId(labelUser).click();
+  cy.waitForRequest('@getListConfiguredUsers');
+
+  cy.fixture('apiTokens/creation/configuredUsers.json').then(({ result }) => {
+    cy.findByRole('option', { name: result[1].name }).click();
+  });
+};
+const openDialog = (): void => {
+  interceptListTokens({
+    alias: 'getListTokens',
+    dataPath: 'apiTokens/listing/emptyList.json'
+  });
+  cy.findByTestId(labelCreateNewToken).click();
+
+  cy.waitForRequest('@getListTokens');
+  cy.findByTestId('tokenCreationDialog').contains(labelCreateNewToken);
+};
+
+const checkDataInputs = ({ durationValue, userValue, token, name }): void => {
+  cy.findByTestId('tokenNameInput').should('have.value', name);
+  cy.findByTestId(labelDuration).should('have.value', durationValue);
+  cy.findByTestId(labelUser).should('have.value', userValue);
+  cy.findByTestId('tokenInput').should('have.value', token);
+};
+const checkModalInformationWithGeneratedToken = ({
+  data,
+  durationValue
+}): void => {
+  const { name, token } = data;
+
+  checkDataInputs({
+    durationValue,
+    name,
+    token,
+    userValue: data.user.name
+  });
+};
+
+const checkTokenInput = (token: string): void => {
+  cy.findByTestId('tokenInput').should('have.value', token);
+  cy.findByTestId('token')
+    .findByTestId('VisibilityOffIcon')
+    .should('be.visible');
+  cy.makeSnapshot('token input with encrypted password');
+
+  cy.findByTestId('VisibilityOffIcon').parent().click();
+  cy.findByTestId('token').findByTestId('VisibilityIcon').should('be.visible');
+  cy.makeSnapshot('token input with displayed password');
+};
+
+const tokenName = 'slack';
+const duration = { id: '1year', name: '1 year' };
+
 const interceptListTokens = ({
   dataPath = 'apiTokens/listing/list.json',
   parameters = DefaultParameters,
-  alias = 'getListTokens'
+  alias = 'getListTokens',
+  method = Method.GET
 }): void => {
   cy.fixture(dataPath).then((data) => {
     const endpoint = buildListEndpoint({
@@ -99,7 +177,7 @@ const interceptListTokens = ({
     });
     cy.interceptAPIRequest({
       alias,
-      method: Method.GET,
+      method,
       path: `./api/latest${endpoint}`,
       response: data
     });
@@ -112,7 +190,7 @@ const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
-describe('Api-token listing', () => {
+describe('Api-token', () => {
   beforeEach(() => {
     const userData = renderHook(() => useAtomValue(userAtom));
 
@@ -125,7 +203,7 @@ describe('Api-token listing', () => {
       Component: (
         <Router>
           <TestQueryProvider>
-            <Listing />
+            <TokenListing />
           </TestQueryProvider>
         </Router>
       )
@@ -258,5 +336,122 @@ describe('Api-token listing', () => {
     cy.findByLabelText(`Column ${columns[0].label}`).should('exist');
     cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
     cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
+  });
+  it('displays the token creation button', () => {
+    cy.findByTestId(labelCreateNewToken).contains(labelCreateNewToken);
+
+    cy.makeSnapshot();
+  });
+  it('displays the modal when clicking on token creation button', () => {
+    openDialog();
+
+    cy.findByTestId('tokenName').contains(labelName);
+
+    cy.findByTestId('tokenNameInput').should('have.attr', 'required');
+
+    cy.findByTestId(labelDuration)
+      .should('be.visible')
+      .should('have.attr', 'required');
+
+    cy.findByTestId(labelUser)
+      .should('be.visible')
+      .should('have.attr', 'required');
+
+    cy.findByTestId(labelCancel).should('be.visible');
+    cy.findByTestId('Confirm')
+      .contains(labelGenerateNewToken)
+      .should('be.visible')
+      .should('be.disabled');
+
+    cy.makeSnapshot();
+    cy.findByTestId(labelCancel).click();
+  });
+
+  it('displays an updated create token button that becomes enabled when the required inputs are filled', () => {
+    cy.fixture('apiTokens/creation/configuredUsers.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getListConfiguredUsers',
+        method: Method.GET,
+        path: `./api/latest${listConfiguredUser}**`,
+        response: data
+      });
+    });
+    openDialog();
+
+    cy.findByTestId('tokenNameInput').type(tokenName);
+    cy.findByTestId('tokenNameInput').should('have.value', tokenName);
+
+    cy.findByTestId(labelDuration).click();
+    cy.findByRole('option', { name: duration.name })
+      .should('be.visible')
+      .click();
+    cy.findByTestId(labelDuration).should('have.value', duration.name);
+
+    cy.findByTestId(labelUser).click();
+    cy.waitForRequest('@getListConfiguredUsers');
+
+    cy.fixture('apiTokens/creation/configuredUsers.json').then(({ result }) => {
+      cy.findByRole('option', { name: result[0].name })
+        .should('be.visible')
+        .click();
+      cy.findByTestId(labelUser).should('have.value', result[0].name);
+    });
+
+    cy.findByTestId(labelCancel).should('be.visible');
+
+    cy.findByTestId('Confirm')
+      .contains(labelGenerateNewToken)
+      .should('be.enabled');
+
+    cy.makeSnapshot();
+    cy.findByTestId(labelCancel).click();
+  });
+
+  it('displays an updated modal when generating a token ', () => {
+    openDialog();
+
+    cy.fixture(
+      'apiTokens/creation/generatedTokenWithDefaultDuration.json'
+    ).then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'createToken',
+        method: Method.POST,
+        path: `./api/latest${createTokenEndpoint}**`,
+        response: data
+      });
+    });
+
+    interceptListTokens({
+      alias: 'generatedTokenList',
+      dataPath: 'apiTokens/listing/generatedToken.json'
+    });
+
+    fillInputs();
+
+    cy.findByTestId(labelDuration).click();
+    cy.findByRole('option', { name: duration.name }).click();
+
+    cy.findByTestId('Confirm')
+      .contains(labelGenerateNewToken)
+      .should('be.enabled')
+      .click();
+
+    cy.waitForRequest('@createToken');
+    cy.waitForRequest('@generatedTokenList');
+
+    cy.contains(labelTokenCreated);
+    cy.contains(labelSecurityToken);
+
+    cy.fixture(
+      'apiTokens/creation/generatedTokenWithDefaultDuration.json'
+    ).then((data) => {
+      checkModalInformationWithGeneratedToken({
+        data,
+        durationValue: duration.name
+      });
+      checkTokenInput(data.token);
+    });
+
+    cy.makeSnapshot();
   });
 });
