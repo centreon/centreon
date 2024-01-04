@@ -23,6 +23,10 @@ chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
 
 apt-get clean
 
+systemctl stop centreon
+systemctl stop apache2
+systemctl stop php8.1-fpm
+
 EOF
 
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
