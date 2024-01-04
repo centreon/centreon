@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { useAtomValue } from 'jotai';
 
@@ -23,7 +23,7 @@ type UseListDashboards = {
 };
 
 const useListDashboards = (): UseListDashboards => {
-  const [isMounting, setIsMounting] = useState(true);
+  const [isMounted, setIsMounted] = useState(true);
 
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
@@ -60,13 +60,13 @@ const useListDashboards = (): UseListDashboards => {
       search
     ],
     queryOptions: {
-      suspense: isMounting
+      suspense: isMounted
     }
   });
 
-  useEffect(() => {
-    setIsMounting(false);
-  }, []);
+  if (isMounted) {
+    setIsMounted(false);
+  }
 
   return {
     data,

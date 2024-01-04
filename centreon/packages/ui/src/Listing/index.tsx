@@ -498,26 +498,25 @@ const Listing = <TRow extends { id: RowId }>({
             onSelectColumns={onSelectColumns}
           />
         </div>
-        {displayCustomListing ? (
-          customListingComponent
-        ) : (
-          <ParentSize
-            parentSizeStyles={{
-              height: '100%',
-              overflowY: 'auto',
-              width: '100%'
-            }}
-          >
-            {({ height }) => (
-              <Box
-                className={classes.tableWrapper}
-                component="div"
-                style={{
-                  height: innerScrollDisabled
-                    ? '100%'
-                    : `calc(${height}px - 4px)`
-                }}
-              >
+
+        <ParentSize
+          parentSizeStyles={{
+            height: '100%',
+            overflowY: 'auto',
+            width: '100%'
+          }}
+        >
+          {({ height }) => (
+            <Box
+              className={classes.tableWrapper}
+              component="div"
+              style={{
+                height: innerScrollDisabled ? '100%' : `calc(${height}px - 4px)`
+              }}
+            >
+              {displayCustomListing ? (
+                customListingComponent
+              ) : (
                 <Table
                   stickyHeader
                   className={classes.table}
@@ -649,10 +648,10 @@ const Listing = <TRow extends { id: RowId }>({
                       ))}
                   </TableBody>
                 </Table>
-              </Box>
-            )}
-          </ParentSize>
-        )}
+              )}
+            </Box>
+          )}
+        </ParentSize>
       </div>
     </div>
   );

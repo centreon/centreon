@@ -194,6 +194,7 @@ describe('Dashboards', () => {
 
       cy.makeSnapshot();
     });
+
     it('displays the dashboards in "List view" when the corresponding button is clicked', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
@@ -211,6 +212,7 @@ describe('Dashboards', () => {
 
       cy.makeSnapshot();
     });
+
     it('displays pagination in both view modes', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
@@ -225,6 +227,7 @@ describe('Dashboards', () => {
 
       cy.makeSnapshot();
     });
+
     it('displays column configuration button only in "List view"', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');

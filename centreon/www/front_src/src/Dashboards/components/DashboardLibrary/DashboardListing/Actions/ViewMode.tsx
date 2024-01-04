@@ -23,21 +23,21 @@ const ViewMode = (): JSX.Element => {
   const actions = [
     {
       Icon: CardsIcon,
+      changeMode: () => setViewMode(ViewModeType.Cards),
       label: labelCardsView,
-      mode: ViewModeType.Cards,
-      onClick: () => setViewMode(ViewModeType.Cards)
+      mode: ViewModeType.Cards
     },
     {
       Icon: ListIcon,
+      changeMode: () => setViewMode(ViewModeType.List),
       label: labelListView,
-      mode: ViewModeType.List,
-      onClick: () => setViewMode(ViewModeType.List)
+      mode: ViewModeType.List
     }
   ];
 
   return (
     <Box className={classes.viewMode}>
-      {actions.map(({ label, Icon, onClick, mode }) => {
+      {actions.map(({ label, Icon, changeMode, mode }) => {
         return (
           <IconButton
             ariaLabel={t(label)}
@@ -45,7 +45,7 @@ const ViewMode = (): JSX.Element => {
             data-selected={equals(mode, viewMode)}
             key={label}
             title={t(label)}
-            onClick={onClick}
+            onClick={changeMode}
           >
             <Icon />
           </IconButton>
