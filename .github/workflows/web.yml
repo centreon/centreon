@@ -1,4 +1,6 @@
-name: web
+name: web-nightly
+run-name: nightly web ${{ github.head_ref || github.ref_name }}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
