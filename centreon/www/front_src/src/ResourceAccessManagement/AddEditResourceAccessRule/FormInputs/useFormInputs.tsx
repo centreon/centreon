@@ -22,6 +22,7 @@ import {
 
 import { useInputStyles } from './Inputs.styles';
 import ResourceDataset from './ResourceDataset';
+import ActivateSwitch from './components/ActivateSwitch';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -96,10 +97,13 @@ const useFormInputs = (): UseFormInputsState => {
                   type: InputType.Text
                 },
                 {
+                  custom: {
+                    Component: () => <ActivateSwitch />
+                  },
                   dataTestId: t(labelStatus),
                   fieldName: 'isActivated',
                   label: t(labelStatus),
-                  type: InputType.Switch
+                  type: InputType.Custom
                 }
               ]
             },
