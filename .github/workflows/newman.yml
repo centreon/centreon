@@ -67,7 +67,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
 
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
