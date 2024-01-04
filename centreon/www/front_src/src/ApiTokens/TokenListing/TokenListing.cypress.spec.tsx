@@ -13,11 +13,11 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { buildListTokensEndpoint } from '../api/endpoints';
+import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
 
 import { DefaultParameters } from './Actions/Search/Filter/models';
 import { Column } from './ComponentsColumn/models';
-import Listing from './Listing';
+import Listing from './TokenListing';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -88,12 +88,13 @@ const checkArrowSorting = (data): void => {
 };
 
 const interceptListTokens = ({
-  dataPath = 'apiTokens/list.json',
+  dataPath = 'apiTokens/listing/list.json',
   parameters = DefaultParameters,
   alias = 'getListTokens'
 }): void => {
   cy.fixture(dataPath).then((data) => {
-    const endpoint = buildListTokensEndpoint({
+    const endpoint = buildListEndpoint({
+      endpoint: listTokensEndpoint,
       parameters: { ...parameters }
     });
     cy.interceptAPIRequest({
@@ -134,7 +135,7 @@ describe('Api-token listing', () => {
   it('displays all tokens when the page loads', () => {
     cy.waitForRequest('@getListTokens');
 
-    cy.fixture('apiTokens/list.json').then((data) => {
+    cy.fixture('apiTokens/listing/list.json').then((data) => {
       cy.findByTestId('Listing Pagination').contains(data.meta.limit);
       cy.findByLabelText(`Previous page`).should('be.disabled');
       cy.findByLabelText(`Next page`).should('be.enabled');
@@ -157,7 +158,7 @@ describe('Api-token listing', () => {
       expect(calls[0].request.url.search.includes(defaultParameters));
     });
 
-    cy.fixture('apiTokens/list.json').then((data) => {
+    cy.fixture('apiTokens/listing/list.json').then((data) => {
       checkArrowSorting(data.meta);
       checkInformationRow(data.result[0]);
     });
@@ -168,7 +169,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokensPage2',
-      dataPath: 'apiTokens/listPage2.json',
+      dataPath: 'apiTokens/listing/listPage2.json',
       parameters: { ...DefaultParameters, page: 2 }
     });
 
@@ -182,7 +183,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokens',
-      dataPath: 'apiTokens/list.json',
+      dataPath: 'apiTokens/listing/list.json',
       parameters: DefaultParameters
     });
 
@@ -195,7 +196,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokensPage2',
-      dataPath: 'apiTokens/listPage2.json',
+      dataPath: 'apiTokens/listing/listPage2.json',
       parameters: { ...DefaultParameters, page: 2 }
     });
 
@@ -209,7 +210,7 @@ describe('Api-token listing', () => {
 
     interceptListTokens({
       alias: 'getListTokens',
-      dataPath: 'apiTokens/list.json',
+      dataPath: 'apiTokens/listing/list.json',
       parameters: DefaultParameters
     });
 

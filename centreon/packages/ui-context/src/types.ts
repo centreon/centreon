@@ -22,6 +22,7 @@ export interface User {
   alias: string;
   dashboard?: DashboardRolesAndPermissions | null;
   default_page?: string | null;
+  id?: number;
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
