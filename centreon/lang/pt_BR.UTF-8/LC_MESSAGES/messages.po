@@ -17216,7 +17216,7 @@ msgstr ""
 # msgid "Revoked"
 # msgstr ""
 
-# msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+# msgid "For security reasons, the token can only be displayed once. Store it carefully."
 # msgstr ""
 
 # msgid "Generate new token"
