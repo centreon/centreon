@@ -20,7 +20,8 @@
  */
 
 namespace Centreon\Test\Api\Context;
- 
+
+use Centreon\Test\Behat\Api\Context\ApiContext; 
 
 class CheckContext extends ApiContext
 {
