@@ -207,7 +207,6 @@ jobs:
 
             echo "Those are the artifacts : $artifacts"
 
-            # Extract the key of the existent test plan
             while read row; do
               artifact_name=$(echo "$row" | jq -r '.name')
               if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
@@ -222,25 +221,6 @@ jobs:
                   "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
               fi
             done <<< "$artifacts"
-
-            # for artifact in $artifacts; do
-            #   artifact_name=$(echo $artifact | jq -c '.name')
-            #   artifact_id=$(echo $artifact | jq -c '.id')
-
-            #   echo "This is the Name: $artifact_name"
-            #   echo "This is the ID: $artifact_id"
-
-            #   if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
-            #     artifact_exist=true
-            #     echo "Deleting : $artifact_name"
-            #     curl -L \
-            #       -X DELETE \
-            #       -H "Accept: application/vnd.github+json" \
-            #       -H "Authorization: Bearer $TOKEN" \
-            #       -H "X-GitHub-Api-Version: 2022-11-28" \
-            #       "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
-            #   fi
-            # done
           done
 
           echo "End of Deleting"
