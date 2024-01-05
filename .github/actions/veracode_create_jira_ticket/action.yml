@@ -1,13 +1,16 @@
-name: Create Jira ticket on dependaBot PR
+name: QG incident tracking
 description: Create Jira ticket on Veracode QG failure
 
-secrets:
+inputs:
   jira_base_url:
     required: true
+    type: string
   jira_user_email:
     required: true
+    type: string
   jira_api_token:
     required: true
+    type: string
 
 runs:
   using: "composite"
@@ -15,15 +18,38 @@ runs:
     - name: Get current date
       id: date
       run: echo "CURRENT_DATE=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      shell: bash
 
     - name: Login to Jira
       uses: atlassian/gajira-login@ca13f8850ea309cf44a6e4e0c49d9aa48ac3ca4c # v3.0.1
       env:
-        JIRA_BASE_URL: ${{ secrets.jira_base_url }}
-        JIRA_USER_EMAIL: ${{ secrets.jira_user_email }}
-        JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
+        JIRA_BASE_URL: ${{ inputs.jira_base_url }}
+        JIRA_USER_EMAIL: ${{ inputs.jira_user_email }}
+        JIRA_API_TOKEN: ${{ inputs.jira_api_token }}
+
+    - name: Check if ticket exists already
+      id: check-ticket
+      uses: |
+        curl --request POST \
+          --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
+          --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: application/json' \
+          --data '{
+          "fields": [
+            "summary"
+          ],
+          "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-2967 on centreon/centreon\."",
+          "maxResults": 1
+        }' | jq .issues
+      shell: bash
+
+    - name: debug
+      run: cat $GITHUB_OUTPUT
+      shell: bash
 
     - name: Create Jira Issue
+      if: ${{ steps.check-ticket.outputs.issue }} == 'skipMe'
       id: create
       uses: atlassian/gajira-create@1ff0b6bd115a780592b47bfbb63fc4629132e6ec # v3.0.1
       with:
@@ -51,4 +77,5 @@ runs:
           }'
 
     - name: Log created issue
-      run: echo "Issue ${{ steps.create.outputs.issue }} was created"
+      run: echo "[DEBUG] - Issue ${{ steps.create.outputs.issue }} was created"
+      shell: bash
