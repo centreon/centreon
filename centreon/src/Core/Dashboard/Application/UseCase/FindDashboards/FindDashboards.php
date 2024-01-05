@@ -86,6 +86,8 @@ final class FindDashboards
             $dashboards,
             $this->readContactRepository->findNamesByIds(...$contactIds),
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactGroupShares(...$dashboards),
             DashboardSharingRole::Editor
         );
     }
@@ -107,6 +109,8 @@ final class FindDashboards
             $dashboards,
             $this->readContactRepository->findNamesByIds(...$contactIds),
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
             DashboardSharingRole::Viewer
         );
     }

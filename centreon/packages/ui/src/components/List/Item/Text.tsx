@@ -5,19 +5,21 @@ import { ListItemText as MuiListItemText } from '@mui/material';
 import { useStyles } from './ListItem.styles';
 
 type TextProps = {
+  className?: string;
   primaryText: ReactNode;
   secondaryText?: ReactNode;
 };
 
 export const Text = ({
   primaryText,
-  secondaryText
+  secondaryText,
+  className
 }: TextProps): ReactElement => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
     <MuiListItemText
-      className={classes.text}
+      className={cx(classes.text, className)}
       primary={primaryText}
       secondary={secondaryText}
     />

@@ -54,9 +54,9 @@ setTimezone() {
 
 updateGorgoneConfiguration() {
   # make sure that gorgone configuration file has the central id set
-  if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml && ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
+  if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml && ! "$(cat /etc/centreon-gorgone/config.d/40-gorgoned.yaml | tr -d '\n')" =~ gorgonecore.*id:.*modules: ]]; then
     echo "Forcing central id to gorgone configuration ..."
-    sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+    sed -Ei 's/(gorgonecore:)/\1\n    id: 1/g' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
   fi
 }
 

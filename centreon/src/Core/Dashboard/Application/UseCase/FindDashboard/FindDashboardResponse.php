@@ -49,6 +49,23 @@ final class FindDashboardResponse
 
     public RefreshResponseDto $refresh;
 
+    /**
+     * @var array{
+     *     contacts: array<array{
+     *      id: int,
+     *      name: string,
+     *      email: string,
+     *      role: DashboardSharingRole
+     *     }>,
+     *     contact_groups: array<array{
+     *      id: int,
+     *      name: string,
+     *      role: DashboardSharingRole
+     *     }>
+     * }
+     */
+    public array $shares = ['contacts' => [], 'contact_groups' => []];
+
     public function __construct() {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
