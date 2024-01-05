@@ -91,14 +91,13 @@ jobs:
               git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
 
               # Revenir à la branche MON-33861
-              git fetch origin MON-33861
               git checkout MON-33861
 
               # Récupérer les dernières modifications depuis le dépôt distant
-              git pull origin MON-33861
+              git pull  MON-33861
 
               # Pousser les modifications
-              git push origin MON-33861
+              git push  MON-33861
 
               echo "Ligne ajoutée avec succès dans le fichier."
           else
