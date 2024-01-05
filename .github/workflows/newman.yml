@@ -49,6 +49,10 @@ on:
 jobs:
   newman-test-list:
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/rest_api
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
