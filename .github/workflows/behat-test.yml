@@ -195,7 +195,7 @@ jobs:
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          path: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.json
+          path: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.xml
           retention-days: 1
 
       - name: Delete ${{ matrix.type_of_report }} Artifacts
