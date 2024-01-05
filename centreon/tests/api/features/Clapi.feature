@@ -44,8 +44,8 @@ Feature:
     STPL;ADD;ServiceTemplate1;ServiceTemplate1;
     STPL;ADD;ServiceTemplate2;ServiceTemplate2;
     STPL;addhosttemplate;ServiceTemplate1;HostTemplate1
-    STPL;addhosttemplate;ServiceTemplate1;HostTemplate2
     STPL;addhosttemplate;ServiceTemplate2;HostTemplate1
+    STPL;addhosttemplate;ServiceTemplate1;HostTemplate2
     STPL;addhosttemplate;ServiceTemplate2;HostTemplate2
     """
 
