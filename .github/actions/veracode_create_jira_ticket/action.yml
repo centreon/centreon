@@ -18,16 +18,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Get current date
-      id: date
-      #run: echo "CURRENT_DATE=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
-      run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-      shell: bash
-
     - name: Check if ticket exists already
       id: check-ticket
       run: |
-        check_ticket_id=$( curl --request POST \
+        check_if_ticket_exists=$( curl --request POST \
           --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
           --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
           --header 'Accept: application/json' \
@@ -36,10 +30,13 @@ runs:
           "fields": [
             "summary"
           ],
-          "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }} pipeline\"",
+          "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}\"",
           "maxResults": 1
         }' | jq .issues )
-        echo "::error::ticket found ? $check_ticket_id"
+        if [[ -n "$check_if_ticket_exists" ]]; then
+          echo "::error::ticket found. Aborting ticket creation
+        fi
+        echo "[DEBUG] - ticket is $check_if_ticket_exists"
       shell: bash
 
     - name: debug
@@ -51,33 +48,16 @@ runs:
     - name: Create Jira Issue
       id: create
       run: |
+        title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
+        description="This ticket relates to ${{ github.event.pull_request.title }}\n\nMore details are available in the PR-${{ github.event.pull_request.number }} logs\n\nGithub link:\n${{ github.event.pull_request.html_url }}"
         DATA=$( cat <<-EOF
         {
           "fields": {
-              "summary": "${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }} pipeline",
-              "project": {"key": "MON"},
-              "issuetype": {"id": "10209"},
-              "parent": {"id": "83818", "key": "AT-268"},
-              "labels": ["Veracode", "Pipeline"],
-              "components":[{"name": "${{ inputs.module_name }}"}],
-              "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-              "description": {
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "This ticket relates to ${{ github.event.pull_request.title }} \n\n More details are available in the following PR logs ** ${{ github.event.pull_request.number }} ** \n Github link is:\n ${{ github.event.pull_request.html_url }}",
-                      "type": "text"
-                    }
-                  ],
-                  "type": "paragraph"
-                }
-              ],
-              "type": "doc",
-              "version": 1
-            }
-          }
-        }
+            "summary": "${title}", "project": {"key": "MON"}, "issuetype": {"id": "10209"},
+            "parent": {"id": "83818", "key": "AT-268"}, "labels": ["Veracode", "Pipeline"],
+            "components":[{"name": "${{ inputs.module_name }}"}],
+            "customfield_10902": {"id": "10524", "value": "DevSecOps"},
+            "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
         EOF
         )
 
@@ -86,6 +66,6 @@ runs:
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
-          --data "$DATA" ) | jq .key
+          --data "$DATA" | jq .key )
         echo "::warning::Incident ticket created as $created_ticket_id"
       shell: bash
