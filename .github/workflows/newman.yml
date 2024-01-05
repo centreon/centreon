@@ -472,8 +472,8 @@ jobs:
               if [ -n "$full_path" ]; then
                   echo "Fichier trouvé : $full_path"
 
-                  # Ajoutez votre ligne au fichier en utilisant tee pour éviter les problèmes de droits
-                  echo "Nouvelle ligne à ajouter" | tee -a "$full_path"
+                  # Ajoutez "AAA" à la fin du fichier
+                  echo "AAA" >> "$full_path"
 
                   if [ $? -eq 0 ]; then
                       echo "Ligne ajoutée avec succès."
