@@ -34,7 +34,7 @@ runs:
           "maxResults": 1
         }' | jq .issues )
         if [[ -n "$check_if_ticket_exists" ]]; then
-          echo "::error::ticket found. Aborting ticket creation
+          echo "::error::ticket found. Aborting ticket creation"
         fi
         echo "[DEBUG] - ticket is $check_if_ticket_exists"
       shell: bash
@@ -51,13 +51,12 @@ runs:
         title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
         description="This ticket relates to ${{ github.event.pull_request.title }}\n\nMore details are available in the PR-${{ github.event.pull_request.number }} logs\n\nGithub link:\n${{ github.event.pull_request.html_url }}"
         DATA=$( cat <<-EOF
-        {
-          "fields": {
-            "summary": "${title}", "project": {"key": "MON"}, "issuetype": {"id": "10209"},
-            "parent": {"id": "83818", "key": "AT-268"}, "labels": ["Veracode", "Pipeline"],
-            "components":[{"name": "${{ inputs.module_name }}"}],
-            "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-            "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
+        {"fields": {
+          "summary": "${title}", "project": {"key": "MON"}, "issuetype": {"id": "10209"},
+          "parent": {"id": "83818", "key": "AT-268"}, "labels": ["Veracode", "Pipeline"],
+          "components":[{"name": "${{ inputs.module_name }}"}],
+          "customfield_10902": {"id": "10524", "value": "DevSecOps"},
+          "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
         EOF
         )
 
