@@ -35,7 +35,7 @@ runs:
         }' | jq .issues )
         if [[ -n "$check_if_ticket_exists" ]]; then
           ticket_id=$( echo "$check_if_ticket_exists" | grep "key" | cut -d ":" -f2 )
-          echo "abort_ticket_creation=true" >> GITHUB_OUTPUT
+          echo "abort_ticket_creation=true" >> $GITHUB_OUTPUT
           echo "::error::ticket found as $ticket_id aborting ticket creation"
         fi
       shell: bash
