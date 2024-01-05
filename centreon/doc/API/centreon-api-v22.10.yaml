@@ -846,7 +846,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
-    $ref: './v23.04/Configuration/Users/Users.yaml'
+    $ref: './v22.10/Configuration/Users/Users.yaml'
   /configuration/users/current/parameters:
     get:
       tags:
@@ -913,9 +913,9 @@ paths:
       summary: Update a user
       description: |
         Update a user
-        
+
         The available parameters to be updated are :
-        
+
         * theme
       requestBody:
         required: true
@@ -6316,7 +6316,7 @@ components:
             name:
               type: string
               description: "Name of the severity"
-              example: "Priority 1" 
+              example: "Priority 1"
             icon:
               type: object
               properties:
