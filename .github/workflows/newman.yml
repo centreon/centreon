@@ -466,21 +466,23 @@ jobs:
 
       - name: Adding test cases key
         run: |
-             file_to_search="01-Tokens.postman_collection.json"
-
-              # Recherchez le chemin complet du fichier
+              file_to_search="01-Tokens.postman_collection.json"
               full_path=$(find . -name "$file_to_search" -type f)
 
-              # Vérifiez si le fichier a été trouvé
               if [ -n "$full_path" ]; then
                   echo "Fichier trouvé : $full_path"
 
-                  # Ajoutez votre ligne au fichier
-                  echo "Nouvelle ligne à ajouter" >> "$full_path"
+                  # Ajoutez votre ligne au fichier en utilisant tee pour éviter les problèmes de droits
+                  echo "Nouvelle ligne à ajouter" | tee -a "$full_path"
+
+                  if [ $? -eq 0 ]; then
+                      echo "Ligne ajoutée avec succès."
+                  else
+                      echo "Erreur lors de l'ajout de la ligne au fichier."
+                  fi
               else
                   echo "Fichier non trouvé : $file_to_search"
               fi
-
               # collection_file="collections/${{ matrix.feature }}"
               # collection_name=$(basename "$collection_file" .postman_collection.json)
               # issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
