@@ -2,7 +2,13 @@ import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 
 import Docker from 'dockerode';
-import { DockerComposeEnvironment, Wait } from 'testcontainers';
+import tar from 'tar-fs';
+import {
+  DockerComposeEnvironment,
+  GenericContainer,
+  StartedTestContainer,
+  Wait
+} from 'testcontainers';
 
 export default (on: Cypress.PluginEvents): void => {
   const docker = new Docker();
@@ -24,6 +30,19 @@ export default (on: Cypress.PluginEvents): void => {
   }
 
   on('task', {
+    copyFromContainer: async ({ destination, serviceName, source }) => {
+      const container = dockerEnvironment.getContainer(`${serviceName}-1`);
+
+      await container.copyArchiveFromContainer(source).then((archiveStream) => {
+        return new Promise<void>((resolve) => {
+          const dest = tar.extract(destination);
+          archiveStream.pipe(dest);
+          dest.on('finish', resolve);
+        });
+      });
+
+      return null;
+    },
     createDirectory: async (directoryPath: string) => {
       if (!existsSync(directoryPath)) {
         mkdirSync(directoryPath, { recursive: true });
@@ -91,8 +110,13 @@ export default (on: Cypress.PluginEvents): void => {
 
       return container;
     },
-    startContainers: async ({ databaseImage, webImage }) => {
-      const composeFilePath = `${__dirname}/../../../../../.github/docker/`;
+    startContainers: async ({
+      composeFilePath = `${__dirname}/../../../../../.github/docker/`,
+      databaseImage,
+      openidImage,
+      profiles,
+      webImage
+    }) => {
       const composeFile = 'docker-compose.yml';
 
       dockerEnvironment = await new DockerComposeEnvironment(
@@ -101,9 +125,10 @@ export default (on: Cypress.PluginEvents): void => {
       )
         .withEnvironment({
           MYSQL_IMAGE: databaseImage,
+          OPENID_IMAGE: openidImage,
           WEB_IMAGE: webImage
         })
-        .withProfiles('web')
+        .withProfiles(...profiles)
         .withWaitStrategy('web', Wait.forHealthCheck())
         .up();
 

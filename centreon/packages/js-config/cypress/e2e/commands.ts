@@ -108,15 +108,42 @@ interface CopyFromContainerProps {
 
 Cypress.Commands.add(
   'copyFromContainer',
-  (
-    {
-      name = Cypress.env('dockerName'),
-      source,
-      destination
-    }: CopyFromContainerProps,
-    options?: Partial<Cypress.ExecOptions>
-  ) => {
-    return cy.exec(`docker cp ${name}:${source} "${destination}"`, options);
+  ({
+    name = Cypress.env('dockerName'),
+    source,
+    destination
+  }: CopyFromContainerProps) => {
+    return cy.task('copyFromContainer', {
+      destination,
+      serviceName: name,
+      source
+    });
+    /*
+    const container = cy.task<StartedTestContainer>('getContainer', name);
+
+    return container.copyArchiveFromContainer(source).then((archiveStream) => {
+      return new Promise<void>((resolve) => {
+        const dest = tar.extract(destination);
+        archiveStream.pipe(dest);
+        dest.on('finish', resolve);
+      });
+    });
+    */
+    /*
+    return cy
+      .task<StartedTestContainer>('getContainer', name)
+      .then((container) => {
+        return container
+          .copyArchiveFromContainer(source)
+          .then((archiveStream) => {
+            return new Promise<void>((resolve) => {
+              const dest = tar.extract(destination);
+              archiveStream.pipe(dest);
+              dest.on('finish', resolve);
+            });
+          });
+      });
+      */
   }
 );
 
@@ -252,6 +279,8 @@ Cypress.Commands.add(
 
 interface StartContainersProps {
   databaseImage?: string;
+  openidImage?: string;
+  profiles?: Array<string>;
   useSlim?: boolean;
   webOs?: string;
   webVersion?: string;
@@ -261,6 +290,10 @@ Cypress.Commands.add(
   'startContainers',
   ({
     databaseImage = Cypress.env('DATABASE_IMAGE'),
+    openidImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
+      'OPENID_IMAGE_VERSION'
+    )}`,
+    profiles = [],
     useSlim = true,
     webOs = Cypress.env('WEB_IMAGE_OS'),
     webVersion = Cypress.env('WEB_IMAGE_VERSION')
@@ -274,7 +307,7 @@ Cypress.Commands.add(
     return cy
       .task(
         'startContainers',
-        { databaseImage, webImage },
+        { databaseImage, openidImage, profiles, webImage },
         { timeout: 600000 } // 10 minutes because docker pull can be very slow
       )
       .then(() => {
@@ -292,11 +325,81 @@ Cypress.Commands.add(
 Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
   cy.log('Stopping containers ...');
 
-  return cy.task(
-    'stopContainers',
-    {},
-    { timeout: 600000 } // 10 minutes because docker pull can be very slow
-  );
+  const logDirectory = `results/logs/${Cypress.spec.name.replace(
+    artifactIllegalCharactersMatcher,
+    '_'
+  )}/${Cypress.currentTest.title.replace(
+    artifactIllegalCharactersMatcher,
+    '_'
+  )}`;
+
+  const name = 'web';
+
+  return cy
+    .visitEmptyPage()
+    .createDirectory(logDirectory)
+    .copyFromContainer({
+      destination: `${logDirectory}/broker`,
+      name,
+      source: '/var/log/centreon-broker'
+    })
+    .copyFromContainer({
+      destination: `${logDirectory}/engine`,
+      name,
+      source: '/var/log/centreon-engine'
+    })
+    .copyFromContainer({
+      destination: `${logDirectory}/centreon`,
+      name,
+      source: '/var/log/centreon'
+    })
+    .copyFromContainer({
+      destination: `${logDirectory}/centreon-gorgone`,
+      name,
+      source: '/var/log/centreon-gorgone'
+    })
+    .then(() => {
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        return cy.copyFromContainer({
+          destination: `${logDirectory}/php`,
+          name,
+          source: '/var/log/php-fpm'
+        });
+      }
+
+      return cy.copyFromContainer(
+        {
+          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
+          name,
+          source: '/var/log/php8.1-fpm-centreon-error.log'
+        },
+        { failOnNonZeroExit: false }
+      );
+    })
+    .then(() => {
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        return cy.copyFromContainer({
+          destination: `${logDirectory}/httpd`,
+          name,
+          source: '/var/log/httpd'
+        });
+      }
+
+      return cy.copyFromContainer(
+        {
+          destination: `${logDirectory}/apache2`,
+          name,
+          source: '/var/log/apache2'
+        },
+        { failOnNonZeroExit: false }
+      );
+    })
+    .exec(`chmod -R 755 "${logDirectory}"`)
+    .task(
+      'stopContainers',
+      {},
+      { timeout: 600000 } // 10 minutes because docker pull can be very slow
+    );
 });
 
 Cypress.Commands.add(
@@ -656,6 +759,8 @@ declare global {
       }: StartContainerProps) => Cypress.Chainable;
       startContainers: ({
         databaseImage,
+        openidImage,
+        profiles,
         useSlim,
         webOs,
         webVersion

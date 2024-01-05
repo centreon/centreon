@@ -564,6 +564,9 @@ importers:
       prettier:
         specifier: ^3.0.0
         version: 3.1.0
+      tar-fs:
+        specifier: ^3.0.4
+        version: 3.0.4
       testcontainers:
         specifier: ^10.4.0
         version: 10.4.0
