@@ -362,7 +362,7 @@ describe('Api-token', () => {
     cy.findByTestId(labelCancel).click();
   });
 
-  it('displays an updated create token button that becomes enabled when the required inputs are filled', () => {
+  it('displays an updated Create token button that becomes enabled when the required inputs are filled in', () => {
     cy.fixture('apiTokens/creation/configuredUsers.json').then((data) => {
       cy.interceptAPIRequest({
         alias: 'getListConfiguredUsers',
