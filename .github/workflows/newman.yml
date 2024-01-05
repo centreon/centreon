@@ -248,7 +248,6 @@ jobs:
     needs: [newman-test-list, associate-test-cases]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-22.04
-    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
