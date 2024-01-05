@@ -22,8 +22,8 @@ Feature:
         "result": [
             {
                 "id": 20,
-                "alias": "kev",
                 "name": "kev",
+                "alias": "kev",
                 "email": "kev@localhost",
                 "is_admin": true
             }
@@ -41,4 +41,3 @@ Feature:
         }
     }
     """
-
