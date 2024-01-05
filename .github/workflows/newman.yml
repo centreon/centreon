@@ -472,15 +472,20 @@ jobs:
               if [ -n "$full_path" ]; then
                   echo "Fichier trouvé : $full_path"
 
-                  # Faites une copie du fichier
-                  cp "$full_path" "$full_path.backup"
 
                   # Ajoutez "AAA" à la fin de la copie
-                  echo "AAA" >> "$full_path.backup"
+                  echo "AAA" >> "$full_path"
+                  # Ajouter le fichier à l'index
+                  git add collections/authentication/01-Tokens.postman_collection.json
 
+                  # Effectuer un commit
+                  git commit -m "Ajout de 01-Tokens.postman_collection.json.backup"
+
+                  git checkout MON-33861
+
+                  # Pousser le commit vers la branche actuelle
+                  git push origin HEAD
                   if [ $? -eq 0 ]; then
-                      git branch
-                      git status
                       echo "Ligne ajoutée avec succès dans la copie."
                   else
                       echo "Erreur lors de l'ajout de la ligne à la copie du fichier."
