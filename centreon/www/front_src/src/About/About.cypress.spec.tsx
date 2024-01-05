@@ -77,7 +77,7 @@ describe('About page', () => {
       cy.findByLabelText(label).should('have.attr', 'target', '_blank');
     });
 
-    cy.contains('Copyright © 2005 - 2021').should('be.disable');
+    cy.contains('Copyright © 2005 - 2021').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -92,7 +92,7 @@ describe('About page', () => {
       cy.findByText(contributor).should('be.visible');
     });
 
-    cy.contains('Copyright © 2005 - 2021').should('not.exist');
+    cy.contains('Copyright © 2005 - 2021').should('exist');
 
     cy.makeSnapshot();
   });
