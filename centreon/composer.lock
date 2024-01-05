@@ -7188,12 +7188,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:centreon/centreon-test-lib.git",
-                "reference": "216381b2791026b358a7984d0310be30677819c2"
+                "reference": "5f067542f04d6aa58a3fb5e69af76854113975c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/216381b2791026b358a7984d0310be30677819c2",
-                "reference": "216381b2791026b358a7984d0310be30677819c2",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/5f067542f04d6aa58a3fb5e69af76854113975c1",
+                "reference": "5f067542f04d6aa58a3fb5e69af76854113975c1",
                 "shasum": ""
             },
             "require": {
@@ -7240,7 +7240,7 @@
                 "phpunit",
                 "testing"
             ],
-            "time": "2024-01-05T04:57:57+00:00"
+            "time": "2024-01-05T06:33:02+00:00"
         },
         {
             "name": "composer/pcre",
