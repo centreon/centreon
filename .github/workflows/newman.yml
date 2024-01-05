@@ -474,6 +474,7 @@ jobs:
 
                   # Ajoutez "AAA" à la fin du fichier
                   echo "AAA" >> "$full_path"
+                  echo "Code de sortie : $?"
 
                   if [ $? -eq 0 ]; then
                       echo "Ligne ajoutée avec succès."
