@@ -44,10 +44,10 @@ runs:
           echo "::error::Current stable version $CURRENT_STABLE_VERSION is the same as release branch version $BRANCH_VERSION, action required, aborting."
           exit 1
         elif [[ "$BRANCH_MINOR_VERSION" -lt "$CURRENT_STABLE_MINOR_VERSION" ]];then
-          echo "Current branch minor version $BRANCH_MINOR_VERSION is smaller than stable version $CURRENT_STABLE_MINOR_VERSION, action required, aborting."
+          echo "::error::Current branch minor version $BRANCH_MINOR_VERSION is smaller than stable version $CURRENT_STABLE_MINOR_VERSION, action required, aborting."
           exit 1
         elif [[ "$BRANCH_MINOR_VERSION" -gt $(($CURRENT_STABLE_MINOR_VERSION+1)) ]];then
-          echo "Release branch version $BRANCH_MINOR_VERSION is larger than stable version + 1 ($(($CURRENT_STABLE_MINOR_VERSION+1))), action required, aborting."
+          echo "::error::Release branch version $BRANCH_MINOR_VERSION is bigger than stable version + 1 ($(($CURRENT_STABLE_MINOR_VERSION+1))), action required, aborting."
         else
           echo "Release branch version is ok."
         fi
