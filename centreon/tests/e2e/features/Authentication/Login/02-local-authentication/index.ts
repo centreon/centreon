@@ -40,7 +40,17 @@ beforeEach(() => {
         cy.requestOnDatabase({
           database: 'centreon',
           query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}'`
-        }).as('user1CreationPasswordDate');
+        })
+          .then(([rows]) => {
+            if (rows.length === 0) {
+              throw new Error(
+                `Password creation date not found for contact id ${userid}`
+              );
+            }
+
+            return rows[0].creation_date;
+          })
+          .as('user1CreationPasswordDate');
       });
     });
 
@@ -51,7 +61,17 @@ beforeEach(() => {
         cy.requestOnDatabase({
           database: 'centreon',
           query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}'`
-        }).as('user2CreationPasswordDate');
+        })
+          .then(([rows]) => {
+            if (rows.length === 0) {
+              throw new Error(
+                `Password creation date not found for contact id ${userid}`
+              );
+            }
+
+            return rows[0].creation_date;
+          })
+          .as('user2CreationPasswordDate');
       });
     });
 });
@@ -204,7 +224,7 @@ When(
           Number(userPasswordCreationDate) - millisecondsValueForSixMonth;
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `UPDATE contact_password SET creation_date = '${newDateOfCreationDate}' WHERE contact_id = '${idUser}';`
+          query: `UPDATE contact_password SET creation_date = '${newDateOfCreationDate}' WHERE contact_id = '${idUser}'`
         });
       });
     });
