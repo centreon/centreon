@@ -20,6 +20,14 @@ services:
       - .env
     image: "${MYSQL_IMAGE}"
     ports: ["3306"]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 200M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
 
   openid:
     env_file:
