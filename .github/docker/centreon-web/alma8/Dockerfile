@@ -19,6 +19,10 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 
 dnf clean all --enablerepo=*
 
+systemctl stop centreon
+systemctl stop httpd
+systemctl stop php-fpm
+
 EOF
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.sh /usr/share/centreon/container.sh
