@@ -83,7 +83,7 @@ jobs:
               # Configuration de l'identité de l'utilisateur pour les commits
               git config user.email "github-actions@github.com"
               git config user.name "GitHub Actions"
-
+              git  checkout MON-33861
               # Ajouter le fichier à l'index
               git add collections/authentication/01-Tokens.postman_collection.json
 
