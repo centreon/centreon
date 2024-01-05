@@ -98,7 +98,7 @@ it(
             ->willReturn([]);
 
         $this->user
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(2))
             ->method('hasTopologyRole')
             ->willReturn(false);
 
@@ -174,14 +174,9 @@ it(
             ->willReturn([]);
 
         $this->user
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_ADMIN, false],
-                    [Contact::ROLE_CONFIGURATION_CONTACTS_READ, true],
-                ]
-            );
+            ->willReturn(true);
 
         $this->readUserRepository
             ->expects($this->once())

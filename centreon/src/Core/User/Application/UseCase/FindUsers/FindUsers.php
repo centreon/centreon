@@ -123,8 +123,6 @@ final class FindUsers
         $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $accessGroupNames = array_map(fn(AccessGroup $accessGroup): string => $accessGroup->getName(), $this->accessGroups);
 
-        return
-            $this->user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_ADMIN)
-            || ($this->isCloudPlatform && in_array('customer_admin_acl', $accessGroupNames, true));
+        return ($this->isCloudPlatform && in_array('customer_admin_acl', $accessGroupNames, true));
     }
 }
