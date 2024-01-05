@@ -480,10 +480,10 @@ jobs:
                   git config user.name "GitHub Actions"
 
                   # Ajouter le fichier à l'index
-                  git add collections/authentication/01-Tokens.postman_collection.json.backup
+                  git add collections/authentication/01-Tokens.postman_collection.json
 
                   # Effectuer un commit
-                  git commit -m "Ajout de 01-Tokens.postman_collection.json.backup"
+                  git commit -m "Ajout de 01-Tokens.postman_collection.json"
 
                   # Revenir à une branche (si nécessaire)
                   # Remplacez "nom_de_votre_branche" par le nom de votre branche
