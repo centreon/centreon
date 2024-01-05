@@ -29,7 +29,7 @@ runs:
 
     - name: Check if ticket exists already
       id: check-ticket
-      uses: |
+      run: |
         curl --request POST \
           --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
           --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
@@ -73,7 +73,8 @@ runs:
             "customfield_10866": "${{ env.CURRENT_DATE }}",
             "labels": ["Veracode", "Pipeline"],
             "components":[{"name": "centreon"}],
-            "customfield_10902": "DevSecOps"
+            "customfield_10902": "DevSecOps",
+            "parentEpic": "AT-268"
           }'
 
     - name: Log created issue
