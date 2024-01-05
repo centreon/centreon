@@ -90,8 +90,11 @@ jobs:
               # Effectuer un commit
               git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
 
+              # Revenir à la branche MON-33861
+              git checkout MON-33861
+
               # Récupérer les dernières modifications depuis le dépôt distant
-              git pull  MON-33861
+              git pull origin MON-33861
 
               # Pousser les modifications
               git push origin MON-33861
