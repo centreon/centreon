@@ -466,7 +466,7 @@ jobs:
 
       - name: Adding test cases key
         run: |
-              file_to_search="collections/${{ matrix.feature }}"
+             file_to_search="01-Tokens.postman_collection.json"
 
               # Recherchez le chemin complet du fichier
               full_path=$(find . -name "$file_to_search" -type f)
