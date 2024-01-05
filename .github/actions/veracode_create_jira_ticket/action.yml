@@ -17,7 +17,8 @@ runs:
   steps:
     - name: Get current date
       id: date
-      run: echo "CURRENT_DATE=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      #run: echo "CURRENT_DATE=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       shell: bash
 
     - name: Login to Jira
@@ -49,7 +50,6 @@ runs:
       shell: bash
 
     - name: Create Jira Issue
-      if: ${{ steps.check-ticket.outputs.issue }} == 'skipMe'
       id: create
       uses: atlassian/gajira-create@1ff0b6bd115a780592b47bfbb63fc4629132e6ec # v3.0.1
       with:
@@ -68,13 +68,41 @@ runs:
 
         fields:
           '{
-            "customfield_10880": "Internal",
-            "customfield_10881": "Veracode",
+            "customfield_10880": {
+              "version": 1,
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Internal"
+                    }
+                  ]
+                }
+              ]
+            },
+            "customfield_10881": {
+              "version": 1,
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Veracode"
+                    }
+                  ]
+                }
+              ]
+            },
             "customfield_10866": "${{ env.CURRENT_DATE }}",
             "labels": ["Veracode", "Pipeline"],
             "components":[{"name": "centreon"}],
             "customfield_10902": "DevSecOps",
-            "parentEpic": "AT-268"
+            "parent": "AT-268"
           }'
 
     - name: Log created issue
