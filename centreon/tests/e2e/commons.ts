@@ -58,7 +58,8 @@ interface MonitoredHost {
 const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
   cy.log('Checking hosts in database');
 
-  let query = 'SELECT COUNT(h.host_id) from hosts as h WHERE h.enabled=1 AND (';
+  let query =
+    'SELECT COUNT(h.host_id) AS count_hosts from hosts as h WHERE h.enabled=1 AND (';
   const conditions: Array<string> = [];
   hosts.forEach(({ name, output = '', status = '' }) => {
     let condition = `(h.name = '${name}'`;
@@ -75,15 +76,13 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
   query += ')';
   cy.log(query);
 
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
-
-  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
+  cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query
+  }).then(([rows]) => {
     hostsFoundStepCount += 1;
 
-    const output = stdout || '0';
-    const foundHostCount = parseInt(output.split('\n')[1], 10);
+    const foundHostCount = rows.length ? rows[0].count_hosts : 0;
 
     cy.log('Host count in database', foundHostCount);
     cy.log('Host database check step count', hostsFoundStepCount);
@@ -118,7 +117,7 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   cy.log('Checking services in database');
 
   let query =
-    'SELECT COUNT(s.service_id) from services as s WHERE s.enabled=1 AND (';
+    'SELECT COUNT(s.service_id) AS count_services from services as s WHERE s.enabled=1 AND (';
   const conditions: Array<string> = [];
   services.forEach(
     ({
@@ -151,15 +150,13 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   query += ')';
   cy.log(query);
 
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
-
-  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
+  cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query
+  }).then(([rows]) => {
     servicesFoundStepCount += 1;
 
-    const output = stdout || '0';
-    const foundServiceCount = parseInt(output.split('\n')[1], 10);
+    const foundServiceCount = rows.length ? rows[0].count_services : 0;
 
     cy.log('Service count in database', foundServiceCount);
     cy.log('Service database check step count', servicesFoundStepCount);

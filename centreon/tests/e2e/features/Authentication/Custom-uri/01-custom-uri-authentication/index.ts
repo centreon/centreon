@@ -10,7 +10,7 @@ const service = 'Ping';
 const host = 'Centreon-Server';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 });
 
 beforeEach(() => {
@@ -158,5 +158,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

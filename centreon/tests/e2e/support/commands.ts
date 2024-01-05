@@ -78,30 +78,6 @@ Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
   return cy.get('#kc-login').click();
 });
 
-/*
-Cypress.Commands.add(
-  'requestOnDatabase',
-  ({ database, query }: requestOnDatabaseProps): void => {
-    const command = `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} mysql -ucentreon -pcentreon ${database} -e "${query}"`;
-
-    cy.exec(command, { failOnNonZeroExit: true, log: true }).then(
-      ({ code, stdout, stderr }) => {
-        if (!stderr && code === 0) {
-          cy.log('Request on database done');
-
-          return cy.wrap(parseInt(stdout.split('\n')[1], 10) || true);
-        }
-        cy.log("Can't execute command on database : ", stderr);
-
-        return cy.wrap(false);
-      }
-    );
-  }
-);
-*/
-
 Cypress.Commands.add(
   'isInProfileMenu',
   (targetedMenu: string): Cypress.Chainable => {
@@ -187,14 +163,6 @@ Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
   return cy.stopContainer({ name: 'e2e-tests-openid-centreon' });
 });
 
-Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
-  return cy.exec(
-    `docker exec ${Cypress.env(
-      'dockerName'
-    )} /bin/sh -c "mysql centreon -e \\"${request}\\""`
-  );
-});
-
 export enum PatternType {
   contains = '*',
   endsWith = '$',
@@ -214,16 +182,10 @@ interface GetByTestIdProps {
   testId: string;
 }
 
-interface requestOnDatabaseProps {
-  database: string;
-  query: string;
-}
-
 declare global {
   namespace Cypress {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
-      executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({
         patternType,
         tag,
@@ -241,10 +203,6 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
-      requestOnDatabase: ({
-        database,
-        query
-      }: requestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: (fixtureFile?: string) => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;

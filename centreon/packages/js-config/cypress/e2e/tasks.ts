@@ -5,7 +5,7 @@ import Docker from 'dockerode';
 import tar from 'tar-fs';
 import {
   DockerComposeEnvironment,
-  GenericContainer,
+  getContainerRuntimeClient,
   StartedTestContainer,
   Wait
 } from 'testcontainers';
@@ -50,6 +50,40 @@ export default (on: Cypress.PluginEvents): void => {
       }
 
       return null;
+    },
+    execInContainer: async ({ command, name }) => {
+      const container = dockerEnvironment.getContainer(`${name}-1`);
+
+      const { exitCode, output } = await container.exec([
+        'bash',
+        '-c',
+        command
+      ]);
+
+      return { exitCode, output };
+    },
+    getContainersLogs: async (containerNames: Array<string>) => {
+      // const containerRuntimeClient = await getContainerRuntimeClient();
+
+      const containersLogs = await containerNames.reduce(
+        async (acc, containerName) => {
+          const container: StartedTestContainer =
+            dockerEnvironment.getContainer(`${containerName}-1`);
+
+          acc[containerName] = execSync(
+            `docker logs -t ${container.getId()}`
+          ).toString('utf8');
+
+          return acc;
+        },
+        {}
+      );
+
+      console.log('START');
+      console.log(Object.keys(containersLogs));
+      console.log('END');
+
+      return containersLogs;
     },
     requestOnDatabase: async ({ database, query }) => {
       const container = dockerEnvironment.getContainer('db-1');
