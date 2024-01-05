@@ -119,12 +119,7 @@ const fillInputs = (): void => {
   });
 };
 const openDialog = (): void => {
-  interceptListTokens({
-    alias: 'getListTokens',
-    dataPath: 'apiTokens/listing/emptyList.json'
-  });
   cy.findByTestId(labelCreateNewToken).click();
-
   cy.waitForRequest('@getListTokens');
   cy.findByTestId('tokenCreationDialog').contains(labelCreateNewToken);
 };
@@ -421,11 +416,6 @@ describe('Api-token', () => {
       });
     });
 
-    interceptListTokens({
-      alias: 'generatedTokenList',
-      dataPath: 'apiTokens/listing/generatedToken.json'
-    });
-
     fillInputs();
 
     cy.findByTestId(labelDuration).click();
@@ -437,7 +427,6 @@ describe('Api-token', () => {
       .click();
 
     cy.waitForRequest('@createToken');
-    cy.waitForRequest('@generatedTokenList');
 
     cy.contains(labelTokenCreated);
     cy.contains(labelSecurityToken);
