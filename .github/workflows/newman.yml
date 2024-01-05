@@ -83,7 +83,7 @@ jobs:
               # Configuration de l'identité de l'utilisateur pour les commits
               git config user.email "github-actions@github.com"
               git config user.name "GitHub Actions"
-              git  checkout MON-33861
+              git  checkout origin/MON-33861
               # Ajouter le fichier à l'index
               git add collections/authentication/01-Tokens.postman_collection.json
 
@@ -91,7 +91,7 @@ jobs:
               git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
 
               # Pousser les modifications
-              git push  MON-33861
+              git push  origin/MON-33861
 
               echo "Ligne ajoutée avec succès dans le fichier."
           else
