@@ -91,6 +91,7 @@ jobs:
               git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
 
               # Pousser les modifications
+              git fetch origin MON-33861
               git push  origin/MON-33861
 
               echo "Ligne ajoutée avec succès dans le fichier."
