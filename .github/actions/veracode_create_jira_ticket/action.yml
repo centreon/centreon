@@ -19,6 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Check if ticket exists already
+      id: check_ticket
       run: |
         check_if_ticket_exists=$( curl --request POST \
           --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
@@ -33,22 +34,14 @@ runs:
           "maxResults": 1
         }' | jq .issues )
         if [[ -n "$check_if_ticket_exists" ]]; then
-          echo "abort_ticket_creation=true" >> GITHUB_ENV
-          echo "::error::ticket found. Aborting ticket creation"
+          ticket_id=$( echo "$check_if_ticket_exists" | grep "key" | cut -d ":" -f2 )
+          echo "abort_ticket_creation=true" >> GITHUB_OUTPUT
+          echo "::error::ticket found as $ticket_id aborting ticket creation"
         fi
-        echo "[DEBUG] - ticket is $check_if_ticket_exists"
-      shell: bash
-
-    - name: debug
-      run: |
-        echo "OUTPUT ="
-        cat $GITHUB_OUTPUT
-        echo "ENV ="
-        cat $GITHUB_ENV
       shell: bash
 
     - name: Create Jira Issue
-      if: ${{ env.abort_ticket_creation }} != 'true'
+      if: ${{ step.check_ticket.output.abort_ticket_creation }} != 'true'
       run: |
         title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
         description="This ticket relates to ${{ github.event.pull_request.title }}\n\nMore details are available in the PR-${{ github.event.pull_request.number }} logs\n\nGithub link:\n${{ github.event.pull_request.html_url }}"
