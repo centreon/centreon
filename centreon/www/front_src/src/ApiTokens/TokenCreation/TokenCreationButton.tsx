@@ -18,8 +18,8 @@ const TokenCreationButton = (): JSX.Element => {
   return (
     <Button
       data-testid={labelCreateNewToken}
-      labelProps={{ variant: 'body2' }}
       labelSave={t(labelCreateNewToken)}
+      size="small"
       startIcon={false}
       onClick={createToken}
     />
