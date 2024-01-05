@@ -91,7 +91,7 @@ jobs:
               git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
 
               # Pousser la branche actuelle (état détaché) vers l'origine
-              git push origin HEAD
+              git push origin HEAD:MON-33861
 
               echo "Ligne ajoutée avec succès dans le fichier."
           else
