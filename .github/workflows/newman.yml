@@ -472,11 +472,8 @@ jobs:
               if [ -n "$full_path" ]; then
                   echo "Fichier trouvé : $full_path"
 
-                  # Faites une copie du fichier
-                  cp "$full_path" "$full_path.backup"
 
-                  # Ajoutez "AAA" à la fin de la copie
-                  echo "AAA" >> "$full_path.backup"
+                  echo "AAA" >> "$full_path"
 
                   # Configuration de l'identité de l'utilisateur pour les commits
                   git config user.email "github-actions@github.com"
@@ -490,10 +487,10 @@ jobs:
 
                   # Revenir à une branche (si nécessaire)
                   # Remplacez "nom_de_votre_branche" par le nom de votre branche
-                  git checkout nom_de_votre_branche
-
-                  # Pousser le commit vers la branche actuelle
-                  git push origin HEAD
+                  git checkout MON-33861
+                  git status
+                  # # Pousser le commit vers la branche actuelle
+                  # git push origin HEAD
 
                   echo "Ligne ajoutée avec succès dans la copie."
               else
