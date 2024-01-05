@@ -485,11 +485,10 @@ jobs:
                   # Effectuer un commit
                   git commit -m "Ajout de 01-Tokens.postman_collection.json"
 
-                  # Revenir à une branche (si nécessaire)
+                  #Revenir à une branche (si nécessaire)
                   # Remplacez "nom_de_votre_branche" par le nom de votre branche
-                  git status
-                  # # Pousser le commit vers la branche actuelle
-                  # git push origin HEAD
+                  # # # Pousser le commit vers la branche actuelle
+                   git push origin HEAD
 
                   echo "Ligne ajoutée avec succès dans la copie."
               else
