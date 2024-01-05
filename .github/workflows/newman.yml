@@ -59,6 +59,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: MON-33861
 
       # - name: List Postman Collections and Environments
       #   id: set_collections
@@ -91,15 +93,18 @@ jobs:
               # Effectuer un commit
               git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
 
-              # Pousser les modifications
-              git push  origin/MON-33861
+
 
               echo "Ligne ajoutée avec succès dans le fichier."
           else
               echo "Fichier non trouvé : $file_to_search"
           fi
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: MON-33861
+
 
   associate-test-cases:
     runs-on: ubuntu-22.04
