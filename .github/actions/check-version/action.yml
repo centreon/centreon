@@ -41,7 +41,7 @@ runs:
         # CURRENT_STABLE_VERSION > BRANCH_VERSION
 
         if [[ "$CURRENT_STABLE_VERSION" == "$BRANCH_VERSION" ]];then
-          echo "Current stable version $CURRENT_STABLE_VERSION is the same as version of release branch $BRANCH_VERSION, action required, aborting."
+          echo "::error::Current stable version $CURRENT_STABLE_VERSION is the same as release branch version $BRANCH_VERSION, action required, aborting."
           exit 1
         elif [[ "$BRANCH_MINOR_VERSION" -lt "$CURRENT_STABLE_MINOR_VERSION" ]];then
           echo "Current branch minor version $BRANCH_MINOR_VERSION is smaller than stable version $CURRENT_STABLE_MINOR_VERSION, action required, aborting."
