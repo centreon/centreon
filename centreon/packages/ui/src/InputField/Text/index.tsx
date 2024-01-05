@@ -32,7 +32,7 @@ const useStyles = makeStyles<{ displayAsBlock: boolean }>()(
       fontSize: theme.typography.body1.fontSize
     },
     inputBase: {
-      display: displayAsBlock ? 'block' : 'inline-flex',
+      display: 'inline-flex',
       justifyItems: 'start',
       paddingRight: theme.spacing(1)
     },
@@ -72,7 +72,7 @@ const OptionalLabelInputAdornment = ({
 
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
-export type Props = {
+export type TextProps = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
   ariaLabel?: string;
@@ -114,8 +114,9 @@ const TextField = forwardRef(
       defaultValue,
       required = false,
       containerClassName,
+      type,
       ...rest
-    }: Props,
+    }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
     const { classes, cx } = useStyles({
@@ -124,7 +125,9 @@ const TextField = forwardRef(
 
     const { inputRef, width, changeInputValue, innerValue } = useAutoSize({
       autoSize,
-      autoSizeCustomPadding,
+      autoSizeCustomPadding: equals(type, 'number')
+        ? Math.max(6, autoSizeCustomPadding || 0)
+        : autoSizeCustomPadding,
       autoSizeDefaultWidth,
       value: externalValueForAutoSize || rest.value
     });
@@ -196,6 +199,7 @@ const TextField = forwardRef(
               width: autoSize ? width : undefined,
               ...rest?.sx
             }}
+            type={type}
           />
         </Tooltip>
         {autoSize && (
