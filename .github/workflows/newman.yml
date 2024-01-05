@@ -479,6 +479,7 @@ jobs:
                   echo "AAA" >> "$full_path.backup"
 
                   if [ $? -eq 0 ]; then
+                      git branch
                       git status
                       echo "Ligne ajoutée avec succès dans la copie."
                   else
