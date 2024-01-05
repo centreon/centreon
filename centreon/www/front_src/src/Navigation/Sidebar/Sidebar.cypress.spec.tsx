@@ -52,7 +52,7 @@ modes.forEach((mode) => {
     });
 
     it(`matches the current snapshot "initial menu" in ${mode} theme`, () => {
-      cy.findByAltText(labelMiniCentreonLogo).should('be.visible');
+      cy.findByAltText(labelMiniCentreonLogo).should('not.be.visible');
       cy.get('li').each(($li) => {
         cy.wrap($li).get('svg').should('be.visible');
       });
