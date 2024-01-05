@@ -9,6 +9,7 @@ import {
   StartedTestContainer,
   Wait
 } from 'testcontainers';
+import { createConnection } from 'mysql2/promise';
 
 export default (on: Cypress.PluginEvents): void => {
   const docker = new Docker();
@@ -49,6 +50,23 @@ export default (on: Cypress.PluginEvents): void => {
       }
 
       return null;
+    },
+    requestOnDatabase: async ({ database, query }) => {
+      const container = dockerEnvironment.getContainer('db-1');
+
+      const client = await createConnection({
+        database,
+        host: container.getHost(),
+        password: 'centreon',
+        port: container.getMappedPort(3306),
+        user: 'centreon'
+      });
+
+      const [rows, fields] = await client.execute(query);
+
+      await client.end();
+
+      return [rows, fields];
     },
     startContainer: async ({
       image,

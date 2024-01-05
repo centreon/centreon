@@ -10,8 +10,9 @@ import {
 import { getUserContactId } from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer();
-  initializeConfigACLAndGetLoginPage();
+  cy.startContainers().then(() => {
+    return initializeConfigACLAndGetLoginPage();
+  });
 });
 
 beforeEach(() => {
@@ -38,7 +39,7 @@ beforeEach(() => {
       cy.get('@user1Id').then((userid) => {
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`
+          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}'`
         }).as('user1CreationPasswordDate');
       });
     });
@@ -49,7 +50,7 @@ beforeEach(() => {
       cy.get('@user2Id').then((userid) => {
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`
+          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}'`
         }).as('user2CreationPasswordDate');
       });
     });
@@ -506,5 +507,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

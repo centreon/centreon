@@ -318,40 +318,38 @@ const checkIfConfigurationIsExported = ({
 };
 
 const getUserContactId = (userName: string): Cypress.Chainable => {
-  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}'`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
-
   return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const idUser = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(idUser || '0');
+    .requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT contact_id FROM contact WHERE contact_alias = '${userName}'`
+    })
+    .then(([rows]) => {
+      if (rows.length === 0) {
+        throw new Error(`Contact id not found for contact alias ${userName}`);
       }
 
-      return cy.log(`Can't execute command on database.`);
+      cy.log(`Contact id found: ${rows[0].contact_id}`);
+
+      return cy.wrap(rows[0].contact_id);
     });
 };
 
 const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
-  const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}'`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
-
   return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const accessGroupid = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(accessGroupid || '0');
+    .requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}'`
+    })
+    .then(([rows]) => {
+      if (rows.length === 0) {
+        throw new Error(
+          `Acl group id not found for acl group name ${accessGroupName}`
+        );
       }
 
-      return cy.log(`Cannot execute command on database.`);
+      cy.log(`Acl group id found: ${rows[0].acl_group_id}`);
+
+      return cy.wrap(rows[0].acl_group_id);
     });
 };
 

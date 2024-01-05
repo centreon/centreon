@@ -253,6 +253,18 @@ Cypress.Commands.add(
   }
 );
 
+interface requestOnDatabaseProps {
+  database: string;
+  query: string;
+}
+
+Cypress.Commands.add(
+  'requestOnDatabase',
+  ({ database, query }: requestOnDatabaseProps): Cypress.Chainable => {
+    return cy.task('requestOnDatabase', { database, query });
+  }
+);
+
 interface PortBinding {
   destination: number;
   source: number;

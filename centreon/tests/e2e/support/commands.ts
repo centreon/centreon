@@ -78,6 +78,7 @@ Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
   return cy.get('#kc-login').click();
 });
 
+/*
 Cypress.Commands.add(
   'requestOnDatabase',
   ({ database, query }: requestOnDatabaseProps): void => {
@@ -99,6 +100,7 @@ Cypress.Commands.add(
     );
   }
 );
+*/
 
 Cypress.Commands.add(
   'isInProfileMenu',
