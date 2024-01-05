@@ -90,14 +90,16 @@ jobs:
               # Effectuer un commit
               git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
 
-              # Pousser la branche actuelle (état détaché) vers l'origine
+              # Récupérer les dernières modifications depuis le dépôt distant
+              git pull origin MON-33861
+
+              # Pousser les modifications
               git push origin HEAD:MON-33861
 
               echo "Ligne ajoutée avec succès dans le fichier."
           else
               echo "Fichier non trouvé : $file_to_search"
           fi
-
 
   associate-test-cases:
     runs-on: ubuntu-22.04
