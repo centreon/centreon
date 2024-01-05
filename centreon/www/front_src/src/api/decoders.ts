@@ -48,6 +48,7 @@ export const userDecoder = JsonDecoder.object<User>(
     default_page: JsonDecoder.optional(
       JsonDecoder.nullable(JsonDecoder.string)
     ),
+    id: JsonDecoder.number,
     isExportButtonEnabled: JsonDecoder.boolean,
     locale: JsonDecoder.string,
     name: JsonDecoder.string,
