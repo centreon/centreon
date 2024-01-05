@@ -472,14 +472,16 @@ jobs:
               if [ -n "$full_path" ]; then
                   echo "Fichier trouvé : $full_path"
 
-                  # Ajoutez "AAA" à la fin du fichier
-                  echo "AAA" >> "$full_path"
-                  echo "Code de sortie : $?"
+                  # Faites une copie du fichier
+                  cp "$full_path" "$full_path.backup"
+
+                  # Ajoutez "AAA" à la fin de la copie
+                  echo "AAA" >> "$full_path.backup"
 
                   if [ $? -eq 0 ]; then
-                      echo "Ligne ajoutée avec succès."
+                      echo "Ligne ajoutée avec succès dans la copie."
                   else
-                      echo "Erreur lors de l'ajout de la ligne au fichier."
+                      echo "Erreur lors de l'ajout de la ligne à la copie du fichier."
                   fi
               else
                   echo "Fichier non trouvé : $file_to_search"
