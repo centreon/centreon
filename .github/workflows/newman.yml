@@ -487,7 +487,6 @@ jobs:
 
                   # Revenir à une branche (si nécessaire)
                   # Remplacez "nom_de_votre_branche" par le nom de votre branche
-                  git checkout MON-33861
                   git status
                   # # Pousser le commit vers la branche actuelle
                   # git push origin HEAD
