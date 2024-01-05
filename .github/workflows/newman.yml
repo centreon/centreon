@@ -60,14 +60,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - name: List Postman Collections and Environments
-        id: set_collections
-        run: |
-          collection_path="${{ inputs.collection_path }}"
-          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-          echo "collections=$collections" >> $GITHUB_OUTPUT
-          echo "GITHUB_OUTPUT contents:"
-          cat $GITHUB_OUTPUT
+      # - name: List Postman Collections and Environments
+      #   id: set_collections
+      #   run: |
+      #     collection_path="${{ inputs.collection_path }}"
+      #     collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+      #     echo "collections=$collections" >> $GITHUB_OUTPUT
+      #     echo "GITHUB_OUTPUT contents:"
+      #     cat $GITHUB_OUTPUT
 
       - name: Adding test cases key
         run: |
