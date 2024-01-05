@@ -84,3 +84,4 @@ jobs:
           jira_base_url: ${{ secrets.jira_base_url }}
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: ${{ inputs.module_name }}
