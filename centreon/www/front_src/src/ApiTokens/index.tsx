@@ -1,3 +1,3 @@
-import Listing from './TokenListing/Listing';
+import TokenListing from './TokenListing/TokenListing';
 
-export default Listing;
+export default TokenListing;
