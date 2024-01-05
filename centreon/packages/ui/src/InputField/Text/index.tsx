@@ -17,38 +17,36 @@ import { getNormalizedId } from '../../utils';
 
 import useAutoSize from './useAutoSize';
 
-const useStyles = makeStyles<{ displayAsBlock: boolean }>()(
-  (theme: Theme, { displayAsBlock }) => ({
-    autoSizeCompact: {
-      paddingRight: theme.spacing(1),
-      paddingTop: theme.spacing(0.6)
-    },
-    hiddenText: {
-      display: 'table',
-      lineHeight: 0,
-      transform: 'scaleY(0)'
-    },
-    input: {
-      fontSize: theme.typography.body1.fontSize
-    },
-    inputBase: {
-      display: 'inline-flex',
-      justifyItems: 'start',
-      paddingRight: theme.spacing(1)
-    },
-    noLabelInput: {
-      padding: theme.spacing(1)
-    },
-    textField: {
-      transition: theme.transitions.create(['width'], {
-        duration: theme.transitions.duration.shortest
-      })
-    },
-    transparent: {
-      backgroundColor: 'transparent'
-    }
-  })
-);
+const useStyles = makeStyles()((theme: Theme) => ({
+  autoSizeCompact: {
+    paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(0.6)
+  },
+  hiddenText: {
+    display: 'table',
+    lineHeight: 0,
+    transform: 'scaleY(0)'
+  },
+  input: {
+    fontSize: theme.typography.body1.fontSize
+  },
+  inputBase: {
+    display: 'inline-flex',
+    justifyItems: 'start',
+    paddingRight: theme.spacing(1)
+  },
+  noLabelInput: {
+    padding: theme.spacing(1)
+  },
+  textField: {
+    transition: theme.transitions.create(['width'], {
+      duration: theme.transitions.duration.shortest
+    })
+  },
+  transparent: {
+    backgroundColor: 'transparent'
+  }
+}));
 
 interface OptionalLabelInputAdornmentProps {
   children: React.ReactNode;
@@ -119,9 +117,7 @@ const TextField = forwardRef(
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
-    const { classes, cx } = useStyles({
-      displayAsBlock: autoSize && isNil(StartAdornment) && isNil(EndAdornment)
-    });
+    const { classes, cx } = useStyles();
 
     const { inputRef, width, changeInputValue, innerValue } = useAutoSize({
       autoSize,
