@@ -63,4 +63,23 @@ describe('Number field', () => {
 
     cy.makeSnapshot();
   });
+
+  it('sets the value to the minimum value configured when a value less than the minimum value is typed in the field', () => {
+    initialize({
+      dataTestId: 'test',
+      defaultValue: 25,
+      inputProps: {
+        min: 2
+      },
+      onChange: cy.stub()
+    });
+
+    cy.get('input').should('have.value', '25');
+
+    cy.get('input').clear().type('-1');
+
+    cy.get('input').should('have.value', '2');
+
+    cy.makeSnapshot();
+  });
 });

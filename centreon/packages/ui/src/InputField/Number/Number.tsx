@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { isEmpty } from 'ramda';
+import { T, always, cond, isEmpty, isNil } from 'ramda';
 
 import TextField, { TextProps } from '../Text';
 
@@ -31,11 +31,29 @@ const NumberField = ({
     defaultValue ? `${defaultValue}` : ''
   );
 
+  const { inputProps } = props;
+
   const changeValue = (event: ChangeEvent<HTMLInputElement>): void => {
     const inputValue = event.target.value;
-    onChange(isEmpty(inputValue) ? fallbackValue : Number(inputValue));
+
+    const number = Number(inputValue);
+    const campledNumber = cond([
+      [() => isEmpty(inputValue), always(fallbackValue)],
+      [() => Number.isNaN(number), always(number)],
+      [
+        T,
+        always(
+          Math.max(
+            !isNil(inputProps?.min) ? inputProps?.min : -Infinity,
+            number
+          )
+        )
+      ]
+    ])();
+
+    onChange(campledNumber);
     setPlaceholder(isEmpty(inputValue) ? `${fallbackValue}` : undefined);
-    setActualValue(inputValue);
+    setActualValue(isEmpty(inputValue) ? inputValue : `${campledNumber}`);
   };
 
   return (
@@ -45,6 +63,7 @@ const NumberField = ({
       value={actualValue}
       onChange={changeValue}
       {...props}
+      inputProps={inputProps}
       placeholder={
         placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
       }
