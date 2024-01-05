@@ -98,6 +98,8 @@ jobs:
           else
               echo "Fichier non trouvé : $file_to_search"
           fi
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   associate-test-cases:
     runs-on: ubuntu-22.04
