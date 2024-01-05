@@ -18550,7 +18550,7 @@ msgid "Revoked"
 msgstr "Révoqué"
 
 msgid "For security reasons, the token can only be displayed once. Store it carefully."
-msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. N'oubliez pas de le stocker soigneusement."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Stockez-le soigneusement."
 
 msgid "Generate new token"
 msgstr "Générer un nouveau jeton"
