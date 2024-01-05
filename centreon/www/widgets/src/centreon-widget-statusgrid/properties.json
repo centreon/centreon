@@ -77,6 +77,10 @@
       "label": "Display resources with this state",
       "options": [
         {
+          "id": "unhandled_problems",
+          "name": "Unhandled"
+        },
+        {
           "id": "acknowledged",
           "name": "Acknowledged"
         },
