@@ -27,6 +27,8 @@ const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
 const getCentreonStableMinorVersions = (
   majorVersion: string
 ): Cypress.Chainable => {
+  cy.log(`Getting Centreon stable versions of ${majorVersion}...`);
+
   let commandResult;
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     commandResult = cy
@@ -59,7 +61,6 @@ EOF`,
   }
 
   return commandResult.then(({ stdout }): Cypress.Chainable<Array<number>> => {
-    cy.log(stdout);
     const stableVersions: Array<number> = [];
 
     const versionsRegex = /\d+\.\d+\.(\d+)/g;
@@ -138,6 +139,8 @@ EOF`,
     });
   }
 
+  cy.log(`Version ${version} installed on filesystem`);
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/install/steps/step.php?action=nextStep'
@@ -203,7 +206,11 @@ EOF`,
 
   // Step 9
   cy.get('th.step-wrapper span').contains(9);
-  cy.wait('@nextStep').get('#finish').click();
+  cy.wait('@nextStep');
+  cy.get('#send_statistics').uncheck({ force: true });
+  cy.get('#finish').click();
+
+  cy.log(`Version ${version} installed using web wizard`);
 
   return cy
     .setUserTokenApiV1()
@@ -325,7 +332,17 @@ When('administrator runs the update procedure', () => {
     });
   cy.get('.btc.bt_info', { timeout: 15000 }).should('be.visible').click();
 
-  cy.wait('@getStep5').get('.btc.bt_success').should('be.visible').click();
+  cy.wait('@getStep5');
+  cy.contains('Congratulations');
+
+  // disable statistics if checkbox is available (only on upgrade to new major version)
+  cy.get('body').then(($body) => {
+    if ($body.find('#send_statistics').length) {
+      cy.get('#send_statistics').uncheck({ force: true });
+    }
+  });
+
+  cy.get('.btc.bt_success').should('be.visible').click();
 });
 
 Then(

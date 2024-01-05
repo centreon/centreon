@@ -23,7 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\ResourceAccess\Application\UseCase\FindRules;
 
-final class RuleDto
+final class TinyRuleDto
 {
     public ?string $description = null;
 

@@ -45,4 +45,11 @@ interface ReadMetaServiceRepositoryInterface
      * @return MetaService|null
      */
     public function findMetaServiceByIdAndAccessGroupIds(int $metaId, array $accessGroupIds): ?MetaService;
+
+    /**
+     * @param int[] $metaIds
+     *
+     * @return int[]
+     */
+    public function exist(array $metaIds): array;
 }

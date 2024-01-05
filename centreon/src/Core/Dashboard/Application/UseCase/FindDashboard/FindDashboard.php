@@ -137,6 +137,8 @@ final class FindDashboard
             $this->readContactRepository->findNamesByIds(...$contactIds),
             $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboard->getId()),
             $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard),
+            $this->readDashboardShareRepository->findDashboardsContactShares($dashboard),
+            $this->readDashboardShareRepository->findDashboardsContactGroupShares($dashboard),
             $defaultRole
         );
     }
