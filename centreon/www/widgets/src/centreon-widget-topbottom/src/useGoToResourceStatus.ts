@@ -32,15 +32,13 @@ const useGoToResourceStatus = (): {
   };
 
   const goToResourceStatus = (data): void => {
-    const index = data?.name.indexOf('_');
-
     const filters = [
       {
         name: 'name',
         value: [
           {
-            id: `\\b${data?.name.slice(index + 1)}\\b`,
-            name: data?.name.slice(index + 1)
+            id: `\\b${data?.name}\\b`,
+            name: data?.name
           }
         ]
       },
@@ -48,8 +46,8 @@ const useGoToResourceStatus = (): {
         name: 'h.name',
         value: [
           {
-            id: `\\b${data?.name.slice(0, index)}\\b`,
-            name: data?.name.slice(0, index)
+            id: `\\b${data?.parentName}\\b`,
+            name: data?.parentName
           }
         ]
       }
@@ -72,6 +70,7 @@ const useGoToResourceStatus = (): {
   };
 
   const goToResourceStatusAndOpenPanel = (data): void => {
+    console.log('data : ', data);
     goToResourceStatus(data);
     openResourceStatusPanel(data);
   };

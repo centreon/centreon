@@ -20,25 +20,21 @@ export const isRichTextEditorEmpty = (editorState: string): boolean => {
 
 export const getResourcesUrlForMetricsWidgets = (data): string => {
   const values = data?.services?.map(({ name }) => {
-    const index = name.indexOf('_');
-
     return {
-      id: `\\b${name.slice(index + 1)}\\b`,
-      name: name.slice(index + 1)
+      id: `\\b${name}\\b`,
+      name
     };
   });
 
-  const hostvalues = data?.services?.map(({ name }) => {
-    const index = name.indexOf('_');
-
+  const hostvalues = data?.services?.map(({ parentName }) => {
     return {
-      id: `\\b${name.slice(0, index)}\\b`,
-      name: name.slice(0, index)
+      id: `\\b${parentName}\\b`,
+      name: parentName
     };
   });
 
   const filters = [
-    { name: 'name', value: values },
+    { name: 'name', value: uniq(values) },
     { name: 'h.name', value: uniq(hostvalues) }
   ];
 
@@ -66,6 +62,7 @@ export const getResourcesUrlForStatusGrid = ({
     name: 'resource_types',
     value: [{ id: 'host', name: 'Host' }]
   };
+
   const serviceCriteria = {
     name: 'resource_types',
     value: [{ id: 'service', name: 'Service' }]

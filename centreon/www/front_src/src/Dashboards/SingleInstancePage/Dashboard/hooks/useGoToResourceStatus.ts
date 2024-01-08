@@ -8,9 +8,11 @@ import {
   resourceBasedWidgets
 } from '../utils';
 
-const useGoToResourceStatus = (): {
+interface UseGoToResourceStatus {
   goToResourceStatus: (data, name, options) => void;
-} => {
+}
+
+const useGoToResourceStatus = (): UseGoToResourceStatus => {
   const navigate = useNavigate();
 
   const goToResourceStatus = (data, name, options): void => {
