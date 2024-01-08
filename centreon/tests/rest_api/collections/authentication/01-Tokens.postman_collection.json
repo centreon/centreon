@@ -6,6 +6,7 @@
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-a14087e9-4fe4-4fb5-b449-5c6853c10f44?action=share&source=collection_link&creator=16182525"
 	},
+
 	"item": [
 		{
 			"name": "0101 - Log in as Admin",
