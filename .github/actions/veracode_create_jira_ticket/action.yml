@@ -38,7 +38,7 @@ runs:
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
           echo "::error::ticket found as $ticket_id aborting ticket creation"
         fi
-      shell: bash
+      shell: bash{0}
 
     - name: Debug
       run: echo "[DEBUG] - env value is ${{ env.abort_ticket_creation }}"
