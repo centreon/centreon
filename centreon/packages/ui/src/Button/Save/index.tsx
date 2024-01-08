@@ -1,13 +1,13 @@
 import { any, isEmpty, isNil, not, or, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme, Tooltip, TypographyProps } from '@mui/material';
 import { LoadingButton, LoadingButtonProps } from '@mui/lab';
+import { Theme, Tooltip } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
 
-import StartIcon from './StartIcon';
 import Content from './Content';
+import StartIcon from './StartIcon';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   loadingButton: {
@@ -18,7 +18,6 @@ const useStyles = makeStyles()((theme: Theme) => ({
 interface Props {
   className?: string;
   labelLoading?: string;
-  labelProps?: TypographyProps;
   labelSave?: string;
   labelSucceeded?: string;
   loading?: boolean;
@@ -48,7 +47,6 @@ const SaveButton = ({
   size = 'small',
   className,
   startIcon = true,
-  labelProps,
   ...rest
 }: Props & LoadingButtonProps): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -88,8 +86,7 @@ const SaveButton = ({
             labelSave,
             labelSucceeded,
             loading,
-            succeeded,
-            ...labelProps
+            succeeded
           })}
         </LoadingButton>
       </div>
