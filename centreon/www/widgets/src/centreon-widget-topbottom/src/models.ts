@@ -1,6 +1,7 @@
 import { SelectEntry } from '@centreon/ui';
 
 import { Metric } from '../../models';
+import {JsonDecoder} from "ts.data.json";
 
 export interface Resource {
   criticalHighThreshold: number | null;
@@ -10,6 +11,7 @@ export interface Resource {
   max: number | null;
   min: number | null;
   name: string;
+  parentName: string;
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;
 }
