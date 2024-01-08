@@ -540,42 +540,43 @@ jobs:
 
       - name: Adding test cases key key
         run: |
-              for summary_file in ./postman_summaries/*.json; do
-                issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
-                echo "issue_ids content: $issue_ids"
+          collection_path="${{ inputs.collection_path }}"
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1')
 
-                filename=$(basename "$summary_file")
-                collection_name="${filename%%-summary.json}"
-                collection_name="${collection_name//-/_}"
-                echo "Contenu de collection_name : $collection_name"
+          for collection_file in $collections; do
+              issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
+              echo "issue_ids content: $issue_ids"
 
-                for issue_id in "${issue_ids[@]}"; do
-                    echo "Processing issue ID: $issue_id"
-                    jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+              collection_name="${collection_file%%-summary.json}"
+              collection_name="${collection_name//-/_}"
+              echo "Contenu de collection_name : $collection_name"
 
-                    response=$(curl --request GET \
-                    --url "$jira_issue_url" \
-                    --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
-                    --header 'Accept: application/json')
+              for issue_id in "${issue_ids[@]}"; do
+                  echo "Processing issue ID: $issue_id"
+                  jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                    if [ "$response_code" -eq 404 ]; then
-                        echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
-                    else
-                        echo "The issue with ID $issue_id exists."
-                        summary=$(echo "$response" | jq -r '.fields.summary')
-                        echo "Summary: $summary"
-                        echo "Collection Name: $collection_name"
-                        if [ "$summary" == "$collection_name" ]; then
-                            # Action spécifique lorsque la correspondance est trouvée
-                            echo "Match found! Updating JSON file."
+                  response=$(curl --request GET \
+                  --url "$jira_issue_url" \
+                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                  --header 'Accept: application/json')
 
-                            # Accéder au fichier JSON et mettre à jour le champ "description"
-                            jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$summary_file" > "$summary_file.tmp" && mv "$summary_file.tmp" "$summary_file"
-                        fi
-                    fi
-                done
+                  if [ "$response_code" -eq 404 ]; then
+                      echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                  else
+                      echo "The issue with ID $issue_id exists."
+                      summary=$(echo "$response" | jq -r '.fields.summary')
+                      echo "Summary: $summary"
+                      echo "Collection Name: $collection_name"
+                      if [ "$summary" == "$collection_name" ]; then
+                          # Action spécifique lorsque la correspondance est trouvée
+                          echo "Match found! Updating JSON file."
+
+                          # Accéder au fichier JSON et mettre à jour le champ "description"
+                          jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$collection_file" > "$collection_file.tmp" && mv "$collection_file.tmp" "$collection_file"
+                      fi
+                  fi
               done
-
+          done
       # - name: Adding test cases key
       #   run: |
       #       file_to_search="01-Tokens.postman_collection.json"
