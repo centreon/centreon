@@ -1,14 +1,13 @@
-import TokenCreationButton from '../../TokenCreation';
-
 import { useStyles } from './actions.styles';
 import Search from './Search';
 import TokenFilter from './Search/Filter';
 
 interface Props {
+  buttonCreateToken: React.ReactNode;
   refresh: React.ReactNode;
 }
 
-const Actions = ({ refresh }: Props): JSX.Element => {
+const Actions = ({ refresh, buttonCreateToken }: Props): JSX.Element => {
   const { classes } = useStyles();
 
   return (
@@ -18,7 +17,7 @@ const Actions = ({ refresh }: Props): JSX.Element => {
         <TokenFilter />
       </div>
       <div className={classes.subContainer}>
-        <TokenCreationButton />
+        {buttonCreateToken}
         {refresh}
       </div>
     </div>

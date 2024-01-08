@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { useFetchQuery } from '@centreon/ui';
 
 import { listTokensDecoder } from '../api/decoder';
-import { buildListTokensEndpoint } from '../api/endpoints';
+import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
 
 import { currentFilterAtom } from './Actions/Search/Filter/atoms';
 import { Fields, SortOrder } from './Actions/Search/Filter/models';
@@ -17,7 +17,10 @@ export const useTokenListing = (): UseTokenListing => {
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
 
   const getEndpoint = (): string => {
-    return buildListTokensEndpoint({ parameters: currentFilter });
+    return buildListEndpoint({
+      endpoint: listTokensEndpoint,
+      parameters: currentFilter
+    });
   };
 
   const { data, isLoading, isError, refetch } = useFetchQuery({

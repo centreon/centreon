@@ -1,6 +1,7 @@
 import { ListingParameters, QueryParameter } from '@centreon/ui';
 
-export interface BuildListTokensEndpoint {
+export interface BuildListEndpoint {
   customQueryParameters?: Array<QueryParameter>;
+  endpoint: string;
   parameters: ListingParameters;
 }
