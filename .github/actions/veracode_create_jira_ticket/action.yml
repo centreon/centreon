@@ -77,4 +77,4 @@ runs:
           --header 'Content-Type: application/json' \
           --data "$DATA" | jq )
         echo "::warning::Incident ticket created as $create_ticket_ang_get_id"
-      shell: bash
+      shell: bash {0}
