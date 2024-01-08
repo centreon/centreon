@@ -23,7 +23,7 @@ const AddDashboard = ({
       variant="primary"
       onClick={openConfig}
     >
-      {t(labelCreate)}
+      {t(labelAdd)}
     </Button>
   );
 };
