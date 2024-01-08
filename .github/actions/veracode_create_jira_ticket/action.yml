@@ -33,7 +33,10 @@ runs:
           ],
           "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}\"",
           "maxResults": 1
-        }' | jq .issues
+        }' | jq .issues || RESULT=$( echo $? )
+
+
+        echo [DEBUG] - result = RESULTS
 
         check_if_ticket_exists="toto"
         if [[ -n "$check_if_ticket_exists" ]]; then
