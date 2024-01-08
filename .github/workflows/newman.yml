@@ -540,7 +540,8 @@ jobs:
       - name: Adding test cases key key
         run: |
           collection_path="${{ inputs.collection_path }}"
-          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort)
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "colllections: $collections"
 
           for collection_file in $collections; do
               issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
