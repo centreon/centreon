@@ -542,7 +542,7 @@ jobs:
           collection_path="${{ inputs.collection_path }}"
 
           # Liste des fichiers de collections
-          collections=($(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -c .))
+          collections=($(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1] | map("\"" + . + "\"") | join(" ")'))
           echo "Collections: $collections"
 
           # Liste des identifiants d'issues à vérifier
@@ -550,8 +550,8 @@ jobs:
           echo "Issue IDs content: ${issue_ids[@]}"
 
           # Parcours de chaque fichier de collection
-          for collection_file in "${collections[@]}"; do
-           # Extraction du nom de la collection
+          for collection_file in $collections; do
+              # Extraction du nom de la collection
               collection_name=$(echo "$collection_file" | jq -r 'sub(".*/"; "") | sub(".postman_collection.json$"; "")')
               echo "Collection Name: $collection_name"
 
