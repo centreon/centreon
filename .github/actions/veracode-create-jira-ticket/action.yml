@@ -42,7 +42,7 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-        description="This ticket relates to:\n${{ github.event.pull_request.title }}\n\nMore details are available in the PR-${{ github.event.pull_request.number }} logs\n\nGithub link:\n${{ github.event.pull_request.html_url }}\n"
+        description="This ticket relates to:\n${{ github.event.pull_request.title }}\n\nThe PR-${{ github.event.pull_request.number }} targets:\n${{ github.base_ref || github.ref_name }}\n\nGithub link:\n${{ github.event.pull_request.html_url }}\n"
         DATA=$( cat <<-EOF
         {"fields": {
           "summary": "${title}", "project": {"key": "MON"}, "issuetype": {"id": "10209"},
@@ -61,4 +61,4 @@ runs:
           --header 'Content-Type: application/json' \
           --data "$DATA" | jq .key )
         echo "::warning::Incident ticket created as $create_ticket_ang_get_id"
-      shell: bash {0}
+      shell: bash
