@@ -2,8 +2,9 @@ import { createStore } from 'jotai';
 
 import { Method } from '@centreon/ui';
 
+import { labelPreviewRemainsEmpty } from '../../translatedLabels';
+
 import { Data, FormThreshold, ValueFormat } from './models';
-import { labelNoDataFound } from './translatedLabels';
 import { graphEndpoint } from './api/endpoints';
 
 import Widget from '.';
@@ -181,7 +182,7 @@ describe('Single metric Widget', () => {
         threshold: disabledThreshold
       }
     });
-    cy.contains(labelNoDataFound).should('be.visible');
+    cy.contains(labelPreviewRemainsEmpty).should('be.visible');
 
     cy.makeSnapshot();
   });

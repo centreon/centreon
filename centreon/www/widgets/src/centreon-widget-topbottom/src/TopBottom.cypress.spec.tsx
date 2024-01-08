@@ -3,6 +3,7 @@ import { createStore } from 'jotai';
 import { Method } from '@centreon/ui';
 
 import { FormThreshold } from '../../models';
+import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 
 import { metricsTopEndpoint } from './api/endpoint';
 import { Data, TopBottomSettings } from './models';
@@ -77,7 +78,10 @@ const initializeComponent = ({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
         <Widget
-          globalRefreshInterval={30}
+          globalRefreshInterval={{
+            interval: 30,
+            type: 'global'
+          }}
           panelData={data}
           panelOptions={{
             refreshInterval: 'custom',
@@ -86,6 +90,36 @@ const initializeComponent = ({
             topBottomSettings,
             valueFormat: 'human'
           }}
+          refreshCount={0}
+          store={store}
+        />
+      </div>
+    )
+  });
+};
+
+const initializeEmptyComponent = (): void => {
+  const store = createStore();
+
+  cy.viewport('macbook-13');
+
+  cy.mount({
+    Component: (
+      <div style={{ height: '400px', width: '100%' }}>
+        <Widget
+          globalRefreshInterval={{
+            interval: 30,
+            type: 'global'
+          }}
+          panelData={{}}
+          panelOptions={{
+            refreshInterval: 'custom',
+            refreshIntervalCustom: 30,
+            threshold: defaultThreshold,
+            topBottomSettings: defaultSettings,
+            valueFormat: 'human'
+          }}
+          refreshCount={0}
           store={store}
         />
       </div>
@@ -94,6 +128,13 @@ const initializeComponent = ({
 };
 
 describe('TopBottom', () => {
+  it('displays a message when the dataset is empty', () => {
+    initializeEmptyComponent();
+    cy.contains(labelPreviewRemainsEmpty).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   it('displays the widget', () => {
     initializeComponent({});
 

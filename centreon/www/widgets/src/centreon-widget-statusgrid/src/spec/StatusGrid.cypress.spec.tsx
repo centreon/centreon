@@ -9,11 +9,11 @@ import StatusGrid from '..';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
-  labelNoResources,
   labelSeeMore,
   labelServiceName,
   labelValue
 } from '../translatedLabels';
+import { labelPreviewRemainsEmpty } from '../../../translatedLabels';
 import { resourcesEndpoint } from '../api/endpoints';
 import { router } from '../Tile';
 
@@ -210,7 +210,7 @@ describe('View by host', () => {
     );
 
     it('displays a no resources message', () => {
-      cy.contains(labelNoResources).should('be.visible');
+      cy.contains(labelPreviewRemainsEmpty).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -365,7 +365,7 @@ describe('View by service', () => {
     );
 
     it('displays a no resources message', () => {
-      cy.contains(labelNoResources).should('be.visible');
+      cy.contains(labelPreviewRemainsEmpty).should('be.visible');
 
       cy.makeSnapshot();
     });

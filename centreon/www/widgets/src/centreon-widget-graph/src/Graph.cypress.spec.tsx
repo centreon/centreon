@@ -2,8 +2,9 @@ import { createStore } from 'jotai';
 
 import { Method } from '@centreon/ui';
 
+import { labelPreviewRemainsEmpty } from '../../translatedLabels';
+
 import { Data, FormThreshold, FormTimePeriod } from './models';
-import { labelNoDataFound } from './translatedLabels';
 import { graphEndpoint } from './api/endpoints';
 
 import Widget from '.';
@@ -131,7 +132,7 @@ const initializeComponent = ({
 describe('Graph Widget', () => {
   it('displays a message when the widget has no metric', () => {
     initializeComponent({ data: emptyServiceMetrics });
-    cy.contains(labelNoDataFound).should('be.visible');
+    cy.contains(labelPreviewRemainsEmpty).should('be.visible');
 
     cy.makeSnapshot();
   });

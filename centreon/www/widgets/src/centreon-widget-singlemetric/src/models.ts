@@ -15,3 +15,5 @@ export interface FormThreshold {
 }
 
 export type ValueFormat = 'human' | 'raw';
+
+export type SingleMetricGraphyType = 'text' | 'gauge' | 'bar';

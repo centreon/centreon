@@ -1,5 +1,3 @@
-export const labelNoResources = 'You must fill in more resources.';
-
 export const labelServiceName = 'Service name';
 export const labelAllServicesAreWorkingFine =
   'All services on this host are working fine.';
