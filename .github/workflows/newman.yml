@@ -542,7 +542,7 @@ jobs:
           collection_path="${{ inputs.collection_path }}"
 
           # Liste des fichiers de collections
-          collections=($(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R .))
+          collections=($(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -c .))
           echo "Collections: $collections"
 
           # Liste des identifiants d'issues à vérifier
