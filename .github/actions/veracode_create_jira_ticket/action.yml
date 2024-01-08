@@ -41,7 +41,7 @@ runs:
       shell: bash
 
     - name: Create Jira Issue
-      if: ${{ steps.check_ticket.outputs.abort_ticket_creation != 'true' }}
+      #if: ${{ steps.check_ticket.outputs.abort_ticket_creation != 'true' }}
       run: |
         title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
         description="This ticket relates to ${{ github.event.pull_request.title }}\n\nMore details are available in the PR-${{ github.event.pull_request.number }} logs\n\nGithub link:\n${{ github.event.pull_request.html_url }}"
