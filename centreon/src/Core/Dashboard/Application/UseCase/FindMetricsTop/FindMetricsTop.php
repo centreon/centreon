@@ -119,7 +119,7 @@ final class FindMetricsTop
             $metricInformation = new MetricInformationDto();
             $metric = $resourceMetric->getMetrics()[0];
             $metricInformation->serviceId = $resourceMetric->getServiceId();
-            $metricInformation->name = $resourceMetric->getResourceName();
+            $metricInformation->resourceName = $resourceMetric->getResourceName();
             $metricInformation->parentName = $resourceMetric->getParentName();
             $metricInformation->parentId = $resourceMetric->getParentId();
             $metricInformation->currentValue = $metric->getCurrentValue();
