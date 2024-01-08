@@ -547,9 +547,8 @@ jobs:
               issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
               echo "issue_ids content: $issue_ids"
 
-              collection_name="${collection_file%%.postman_collection.json}"
+              collection_names=$(echo "$collections" | jq -r '.[] | sub(".*/"; "") | sub(".postman_collection.json$"; "")')
 
-              collection_name="${collection_name//-/_}"
 
               echo "Contenu de collection_name : $collection_name"
 
