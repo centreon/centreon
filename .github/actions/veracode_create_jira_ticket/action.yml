@@ -27,8 +27,7 @@ runs:
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data '{
-          "fields": ["summary"],"jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}\"","maxResults": 1}' \
-        || RESULT=$( echo $? )
+          "fields": ["summary"],"jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}\"","maxResults": 1}' | jq )
 
 
         echo [DEBUG] - result = $RESULT
