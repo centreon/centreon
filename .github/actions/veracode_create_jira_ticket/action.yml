@@ -66,7 +66,6 @@ runs:
           "parent": {"id": "83818", "key": "AT-268"}, "labels": ["Veracode", "Pipeline"],
           "components":[{"name": "${{ inputs.module_name }}"}],
           "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-          "customfield_11022": [{"value" : "${{ github.event.pull_request.title }}" }],
           "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
         EOF
         )
