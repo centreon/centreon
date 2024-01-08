@@ -33,7 +33,7 @@ use Core\User\Application\UseCase\FindUsers\FindUsersResponse;
 class FindUsersPresenter extends AbstractPresenter implements FindUsersPresenterInterface
 {
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
+        private RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);

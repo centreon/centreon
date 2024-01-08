@@ -27,75 +27,158 @@ use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\User\Domain\Model\User;
 
-beforeEach(function (): void {
-        $this->createUser = static function (array $fields = []): User {
-        return new User(
-            ...[
-                'id' => 1,
-                'name' => 'user-name',
-                'alias' => 'user-alias',
-                'email' => 'user@email.com',
-                'isAdmin' => false,
-                'theme' => User::THEME_LIGHT,
-                'userInterfaceDensity' => User::USER_INTERFACE_DENSITY_EXTENDED,
-                'canReachFrontend' => true,
-                ...$fields,
-            ]
-        );
-    };
-});
-
 // too short fields
-foreach (
-    [
-        'name' => User::MIN_NAME_LENGTH,
-        'alias' => User::MIN_ALIAS_LENGTH,
-        'email' => User::MIN_EMAIL_LENGTH,
-        'theme' => User::MIN_THEME_LENGTH,
-    ] as $field => $length
-) {
-    $tooShort = '';
-    it(
-        "should throw an exception when user {$field} is too short",
-        fn() => ($this->createUser)([$field => $tooShort])
-    )->throws(
-        InvalidArgumentException::class,
-        AssertionException::minLength($tooShort, 0, $length, "User::{$field}")->getMessage()
-    );
-}
+it(
+    "should throw an exception when user name is too short",
+    fn() => new User(
+        1,
+        'user-alias',
+        '',
+        'user@email.com',
+        false,
+        User::THEME_LIGHT,
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::minLength('', 0, USER::MIN_NAME_LENGTH, "User::name")->getMessage()
+);
+
+it(
+    "should throw an exception when user alias is too short",
+    fn() => new User(
+        1,
+        '',
+        'user-name',
+        'user@email.com',
+        false,
+        User::THEME_LIGHT,
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::minLength('', 0, USER::MIN_ALIAS_LENGTH, "User::alias")->getMessage()
+);
+
+it(
+    "should throw an exception when user email is too short",
+    fn() => new User(
+        1,
+        'user-alias',
+        'user-name',
+        '',
+        false,
+        User::THEME_LIGHT,
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::minLength('', 0, USER::MIN_EMAIL_LENGTH, "User::email")->getMessage()
+);
+
+it(
+    "should throw an exception when user theme is too short",
+    fn() => new User(
+        1,
+        'user-alias',
+        'user-name',
+        'user@email.com',
+        false,
+        '',
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::minLength('', 0, USER::MIN_THEME_LENGTH, "User::theme")->getMessage()
+);
 
 // too long fields
-foreach (
-    [
-        'name' => User::MAX_NAME_LENGTH,
-        'alias' => User::MAX_ALIAS_LENGTH,
-        'email' => User::MAX_EMAIL_LENGTH,
-        'theme' => User::MAX_THEME_LENGTH,
-    ] as $field => $length
-) {
-    $tooLong = str_repeat('a', $length + 1);
-    it(
-        "should throw an exception when user {$field} is too long",
-        fn() => ($this->createUser)([$field => $tooLong])
-    )->throws(
-        InvalidArgumentException::class,
-        AssertionException::maxLength($tooLong, $length + 1, $length, "User::{$field}")->getMessage()
-    );
-}
+$length = User::MAX_NAME_LENGTH;
+$tooLong = str_repeat('a', $length + 1);
+it(
+    "should throw an exception when user name is too long",
+    fn() => new User(
+        1,
+        'user-alias',
+        $tooLong,
+        'user@email.com',
+        false,
+        User::THEME_LIGHT,
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::maxLength($tooLong, $length + 1, $length, "User::name")->getMessage()
+);
+
+$length = User::MAX_ALIAS_LENGTH;
+$tooLong = str_repeat('a', $length + 1);
+it(
+    "should throw an exception when user alias is too long",
+    fn() => new User(
+        1,
+        $tooLong,
+        'user-name',
+        'user@email.com',
+        false,
+        User::THEME_LIGHT,
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::maxLength($tooLong, $length + 1, $length, "User::alias")->getMessage()
+);
+
+$length = User::MAX_EMAIL_LENGTH;
+$tooLong = str_repeat('a', $length + 1);
+it(
+    "should throw an exception when user email is too long",
+    fn() => new User(
+        1,
+        'user-alias',
+        'user-name',
+        $tooLong,
+        false,
+        User::THEME_LIGHT,
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::maxLength($tooLong, $length + 1, $length, "User::email")->getMessage()
+);
+
+$length = User::MAX_THEME_LENGTH;
+$tooLong = str_repeat('a', $length + 1);
+it(
+    "should throw an exception when user theme is too long",
+    fn() => new User(
+        1,
+        'user-alias',
+        'user-name',
+        'user@email.com',
+        false,
+        $tooLong,
+        true,
+    )
+)->throws(
+    InvalidArgumentException::class,
+    AssertionException::maxLength($tooLong, $length + 1, $length, "User::theme")->getMessage()
+);
+
+
 
 // invalid fields
 it(
     'should throw an exception when user ID is invalid',
-    fn() => ($this->createUser)(['id' => 0])
+    fn() => new User(
+        0,
+        'user-alias',
+        'user-name',
+        'user@email.com',
+        false,
+        User::THEME_LIGHT,
+        true,)
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::positiveInt(0, 'User::id')->getMessage()
-);
-
-it(
-    'should throw an exception when user interface density is invalid',
-    fn() => ($this->createUser)(['userInterfaceDensity' => 'hello world'])
-)->throws(
-    \InvalidArgumentException::class,
-    'User interface view mode provided not handled'
+    AssertionException::min(0, 1, 'User::id')->getMessage()
 );

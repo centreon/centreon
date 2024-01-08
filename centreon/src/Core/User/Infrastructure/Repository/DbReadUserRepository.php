@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace Core\User\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\AbstractRepositoryDRB;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\User\Domain\Model\User;
@@ -41,11 +41,10 @@ use Utility\SqlConcatenator;
  *     contact_email: string,
  *     contact_admin: string,
  *     contact_theme: string,
- *     user_interface_density: string,
  *     user_can_reach_frontend: string,
  * }
  */
-class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepositoryInterface
+class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepositoryInterface
 {
     use LoggerTrait;
 
@@ -59,26 +58,17 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
      */
     public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array
     {
-        $concatenator = new SqlConcatenator();
-        $concatenator->defineSelect(
-            <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
-                    contact_id,
-                    contact_alias,
-                    contact_name,
-                    contact_email,
-                    contact_admin,
-                    contact_theme,
-                    user_interface_density,
-                    contact_oreon AS `user_can_reach_frontend`
-                FROM `:db`.contact
-                SQL
-        );
-        $concatenator->defineWhere(
-            <<<'SQL'
-                WHERE contact.contact_register = '1'
-                SQL
-        );
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                contact_id,
+                contact_alias,
+                contact_name,
+                contact_email,
+                contact_admin,
+                contact_theme,
+                contact_oreon AS `user_can_reach_frontend`
+            FROM `:db`.contact
+            SQL;
 
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -89,17 +79,37 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             'email' => 'contact_email',
             'provider_name' => 'contact_auth_type',
         ]);
-        $sqlTranslator->translateForConcatenator($concatenator);
 
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $sqlTranslator->bindSearchValues($statement);
-        $concatenator->bindValuesToStatement($statement);
+        // Search
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
+        $request .= "contact_register = '1'";
+
+        // Sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            if (is_array($data)) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // Calculate the number of rows for the pagination.
-        $sqlTranslator->calculateNumberOfRows($this->db);
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
 
         $users = [];
         foreach ($statement as $result) {
@@ -121,41 +131,39 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             return [];
         }
 
-        $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
-            $accessGroups
-        );
+        $accessGroupIds = [];
+        $accessGroupKey = [];
+        foreach ($accessGroups as $key => $value) {
+            $accessGroupIds[] = $value;
+            $accessGroupKeys[] = ":accessGroup_{$key}";
+        }
+        $accessGroupBind = implode(', ', $accessGroupKeys);
 
-        $concatenator = new SqlConcatenator();
-        $concatenator->defineSelect(
-            <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
-                    contact_id,
-                    contact_alias,
-                    contact_name,
-                    contact_email,
-                    contact_admin,
-                    contact_theme,
-                    user_interface_density,
-                    contact_oreon AS `user_can_reach_frontend`
-                FROM (
-                    SELECT `contact`.* FROM `:db`.`contact`
-                    JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
-                        ON acl_c_rel.contact_contact_id = contact.contact_id
-                        AND acl_c_rel.acl_group_id IN (:accessGroupIds)
-                    WHERE contact.contact_register = '1'
-                    UNION ALL
-                    SELECT `contact`.* FROM `:db`.`contact`
-                    JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
-                        ON c_cg_rel.contact_contact_id = contact.contact_id
-                    JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
-                        ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
-                        AND acl_cg_rel.acl_group_id IN (:accessGroupIds)
-                    WHERE contact.contact_register = '1'
-                ) as contact
-                SQL
-        );
-        $concatenator->storeBindValueMultiple(':accessGroupIds', $accessGroupIds, \PDO::PARAM_INT);
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS
+                contact_id,
+                contact_alias,
+                contact_name,
+                contact_email,
+                contact_admin,
+                contact_theme,
+                contact_oreon AS `user_can_reach_frontend`
+            FROM (
+                SELECT `contact`.* FROM `:db`.`contact`
+                JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
+                    ON acl_c_rel.contact_contact_id = contact.contact_id
+                    AND acl_c_rel.acl_group_id IN ({$accessGroupBind})
+                WHERE contact.contact_register = '1'
+                UNION ALL
+                SELECT `contact`.* FROM `:db`.`contact`
+                JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
+                    ON c_cg_rel.contact_contact_id = contact.contact_id
+                JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
+                    ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
+                    AND acl_cg_rel.acl_group_id IN ($accessGroupBind)
+                WHERE contact.contact_register = '1'
+            ) as contact
+            SQL;
 
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -166,17 +174,40 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             'email' => 'contact_email',
             'provider_name' => 'contact_auth_type',
         ]);
-        $sqlTranslator->translateForConcatenator($concatenator);
 
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $sqlTranslator->bindSearchValues($statement);
-        $concatenator->bindValuesToStatement($statement);
+        // Search
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $request .= $searchRequest !== null ? $searchRequest : '';
+
+        // Sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+
+        // Pagination
+        $request .= $sqlTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach($accessGroupKeys as $key => $bindKey) {
+            $statement->bindValue($bindKey, $accessGroupIds[$key], \PDO::PARAM_INT);
+        }
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            if (is_array($data)) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // Calculate the number of rows for the pagination.
-        $sqlTranslator->calculateNumberOfRows($this->db);
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
 
         $users = [];
         foreach ($statement as $result) {
@@ -203,7 +234,6 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             $user['contact_email'],
             $user['contact_admin'] === '1',
             $user['contact_theme'],
-            $user['user_interface_density'],
             $user['user_can_reach_frontend'] === '1'
         );
     }
