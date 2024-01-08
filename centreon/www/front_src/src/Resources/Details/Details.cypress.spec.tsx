@@ -240,14 +240,18 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const initialize = (): void => {
-  cy.viewport('macbook-13');
-
+const getStore = () => {
   const store = createStore();
   store.set(userAtom, retrievedUser);
   store.set(aclAtom, mockAcl);
   store.set(refreshIntervalAtom, mockRefreshInterval);
   store.set(selectedResourcesDetailsAtom, selectedResource);
+
+  return store;
+};
+
+const initialize = (store): void => {
+  cy.viewport('macbook-13');
 
   setUrlQueryParameters([
     {
@@ -288,11 +292,9 @@ const checkActionsButton = (): void => {
 };
 
 describe('Details', () => {
-  // beforeEach(() => {
-  //   initialize();
-  // });
   it('displays resource details information', () => {
-    initialize();
+    const store = getStore();
+    initialize(store);
 
     cy.waitForRequest('@getDetails');
 
@@ -374,7 +376,8 @@ describe('Details', () => {
     // cy.makeSnapshot()
   });
   it.only('displays resource details actions like icons when panel width is less than or equal 615 px ', () => {
-    initialize();
+    const store = getStore();
+    initialize(store);
     cy.waitForRequest('@getDetails');
     cy.contains('Critical').should('be.visible');
 
@@ -382,9 +385,9 @@ describe('Details', () => {
     // cy.makeSnapshot()
   });
   it.only('displays resource details actions like buttons when panel width is greater than  615 px ', () => {
-    const { result } = renderHook(() => useAtomValue(panelWidthStorageAtom));
-    result.current = 800;
-    initialize();
+    const store = getStore();
+    store.set(panelWidthStorageAtom, 800);
+    initialize(store);
 
     cy.waitForRequest('@getDetails');
     cy.contains('Critical').should('be.visible');
@@ -392,4 +395,9 @@ describe('Details', () => {
     checkActionsButton();
     // cy.makeSnapshot()
   });
+  // sends an action of acknowledge when button ack is clicked
+  // sends an action of disacknowledge when button disack is clicked
+  // sends an action downtime  when button dt is clicked
+  // sends an action of check when check action is chose and  clicked
+  // sends an action of force check when button force check is chose and  clicked
 });
