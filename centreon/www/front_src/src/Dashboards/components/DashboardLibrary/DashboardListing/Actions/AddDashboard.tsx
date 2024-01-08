@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { Button } from '@centreon/ui/components';
 
-import { labelCreate } from '../translatedLabels';
+import { labelAdd } from '../translatedLabels';
 
 const AddDashboard = ({
   openConfig
@@ -15,7 +15,7 @@ const AddDashboard = ({
 
   return (
     <Button
-      aria-label={t(labelCreate)}
+      aria-label={t(labelAdd)}
       data-testid="create-dashboard"
       icon={<AddIcon />}
       iconVariant="start"
