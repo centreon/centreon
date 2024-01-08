@@ -532,7 +532,6 @@ jobs:
       defaults:
         run:
           shell: bash
-          working-directory: centreon/tests/rest_api
       steps:
 
       - name: Checkout Repository
