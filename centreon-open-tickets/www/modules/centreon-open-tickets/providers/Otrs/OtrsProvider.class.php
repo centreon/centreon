@@ -67,7 +67,7 @@ class OtrsProvider extends AbstractProvider
         self::ARG_RESPONSIBLE => 'Responsible',
     );
 
-    function __destruct()
+    public function __destruct()
     {
     }
 

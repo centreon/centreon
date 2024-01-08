@@ -44,7 +44,7 @@ class SerenaProvider extends AbstractProvider
     /** @var mixed */
     protected $otrs_call_response;
 
-    function __destruct()
+    public function __destruct()
     {
     }
 

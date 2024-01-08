@@ -468,7 +468,7 @@ class ItopProvider extends AbstractProvider
         }
         $result = array();
 
-        foreach ($listOrganizations['objects'] as $organization) {
+        foreach ($listOrganizations['objects'] ?? [] as $organization) {
             // foreach organization found, if we don't have any filter configured,
             // we just put the id and the name of the organization inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -947,7 +947,7 @@ class ItopProvider extends AbstractProvider
             $ticketId = $ticket['fields']['id'];
         }
 
-        return $ticketId;
+        return $ticketId ?? null;
     }
 
     /*

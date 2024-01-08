@@ -57,7 +57,7 @@ class GlpiProvider extends AbstractProvider
         self::ARG_TITLE => 'title',
     );
 
-    function __destruct()
+    public function __destruct()
     {
         $this->logoutGlpi();
     }

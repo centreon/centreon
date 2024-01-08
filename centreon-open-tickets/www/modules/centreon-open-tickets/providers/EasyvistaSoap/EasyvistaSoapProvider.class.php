@@ -101,7 +101,7 @@ class EasyvistaSoapProvider extends AbstractProvider
     /** @var string */
     protected $_ticket_number;
 
-    function __destruct()
+    public function __destruct()
     {
     }
 
@@ -462,7 +462,7 @@ class EasyvistaSoapProvider extends AbstractProvider
         *   </SOAP-ENV:Body></SOAP-ENV:Envelope>
         */
         if (!preg_match('/<return.*?>(.*?)<\/return>/msi', $this->soap_result, $matches)) {
-            $this->setWsError($result);
+            $this->setWsError('');
             return -1;
         }
         $return_value = $matches[1];

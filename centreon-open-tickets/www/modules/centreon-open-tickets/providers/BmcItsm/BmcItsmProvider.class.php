@@ -89,7 +89,7 @@ class BmcItsmProvider extends AbstractProvider
     /** @var string */
     protected $_ticket_number;
 
-    function __destruct()
+    public function __destruct()
     {
     }
 

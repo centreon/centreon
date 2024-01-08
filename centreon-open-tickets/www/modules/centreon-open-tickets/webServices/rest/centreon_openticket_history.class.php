@@ -87,7 +87,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                     $stmt_service,
                     array($link['hostname'], $link['service_description'])
                 );
-                if ($row = $res->fetch()) {
+                if ($row = $stmt_service->fetch()) {
                     $links_ok[] = array_merge(
                         $link,
                         array('service_id' => $row['service_id'], 'host_id' => $row['host_id'])
@@ -95,7 +95,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                 }
             } elseif (isset($link['hostname'])) {
                 $res = $this->pearDBMonitoring->execute($stmt_host, array($link['hostname']));
-                if ($row = $res->fetch()) {
+                if ($row = $stmt_host->fetch()) {
                     $links_ok[] = array_merge($link, array('host_id' => $row['host_id']));
                 }
             }

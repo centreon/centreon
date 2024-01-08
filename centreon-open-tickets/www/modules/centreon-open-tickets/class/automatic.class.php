@@ -145,7 +145,7 @@ class Automatic
             $query .=
                 ' AND EXISTS(
                 SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (' .
-                $this->centreon->user->grouplistStr . ') AND ' .
+                $this->centreon->user->groupListStr . ') AND ' .
                 '   centreon_acl.host_id = :host_id AND centreon_acl.service_id = :service_id)';
         }
         $stmt = $this->dbCentstorage->prepare($query);
@@ -219,7 +219,7 @@ class Automatic
             $query .=
                 ' AND EXISTS(
                 SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (' .
-                $this->centreon->user->grouplistStr . ') AND ' .
+                $this->centreon->user->groupListStr . ') AND ' .
                 '   centreon_acl.host_id = :host_id)';
         }
         $stmt = $this->dbCentstorage->prepare($query);
@@ -653,7 +653,7 @@ class Automatic
             $ticketId = $row['ticket_id'];
         }
 
-        return $ticketId;
+        return $ticketId ?? null;
     }
 
     /**
@@ -680,7 +680,7 @@ class Automatic
             $ticketId = $row['ticket_id'];
         }
 
-        return $ticketId;
+        return $ticketId ?? null;
     }
 
     /**

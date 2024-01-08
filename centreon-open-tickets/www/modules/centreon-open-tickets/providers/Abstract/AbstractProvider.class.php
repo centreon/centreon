@@ -1103,7 +1103,7 @@ Output: {$service.output|substr:0:1024}
                 isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
             ),
             'values' => $result,
-            'placeholder' => $placeholder,
+            'placeholder' => $placeholder ?? null,
             'default' => $default,
             'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
         ];
@@ -1796,7 +1796,7 @@ Output: {$service.output|substr:0:1024}
         if (!is_null($_SESSION['ot_cache_' . $this->rule_id][$key]['ttl'])) {
             $timeTtl = $_SESSION['ot_cache_' . $this->rule_id][$key]['ttl']
                 + $_SESSION['ot_cache_' . $this->rule_id][$key]['created'];
-            if ($timeTtl < time()) {
+            if ((int) $timeTtl < time()) {
                 unset($_SESSION['ot_cache_' . $this->rule_id][$key]);
                 return null;
             }

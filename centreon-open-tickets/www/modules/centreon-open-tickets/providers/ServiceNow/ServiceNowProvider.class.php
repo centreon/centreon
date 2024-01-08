@@ -378,7 +378,7 @@ class ServiceNowProvider extends AbstractProvider
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
-                'ticket_value' => $resultInfo['sysTicketId'],
+                'ticket_value' => $resultInfo['sysTicketId'] ?? null,
                 'subject' => $ticket_arguments[
                     $this->internal_arg_name[self::ARG_SHORT_DESCRIPTION]
                 ],

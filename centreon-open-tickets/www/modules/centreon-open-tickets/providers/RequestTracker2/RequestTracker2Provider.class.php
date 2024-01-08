@@ -45,7 +45,7 @@ class RequestTracker2Provider extends AbstractProvider
     /** @var null|array */
     protected $call_response;
 
-    function __destruct()
+    public function __destruct()
     {
     }
 

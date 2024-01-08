@@ -49,7 +49,7 @@ class JiraProvider extends AbstractProvider
     /** @var null|array */
     protected $jira_call_response;
 
-    function __destruct()
+    public function __destruct()
     {
     }
 

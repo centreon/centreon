@@ -380,7 +380,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
         $result = array();
 
-        foreach ($listAssets['records'] as $asset) {
+        foreach ($listAssets['records'] ?? [] as $asset) {
             // HREF structure is the following: https://{your_server}/api/v1/{your_account}/assets/9478 we only keep id
             preg_match('/.*\/([0-9]+)$/', $asset['HREF'], $match);
             $result[$match[1]] = $this->to_utf8($asset['ASSET_TAG']);
@@ -715,6 +715,7 @@ class EasyVistaRestProvider extends AbstractProvider
         $hostCount = count($data['host_list']);
         $listIds = "";
 
+        $queryValues = [];
         foreach ($data['host_list'] as $hostId) {
             $listIds .= ':hId_' . $hostId . ', ';
             $queryValues[':hId_' . $hostId] = (int)$hostId;

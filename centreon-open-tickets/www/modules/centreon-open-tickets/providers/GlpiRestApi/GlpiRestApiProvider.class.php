@@ -570,7 +570,7 @@ class GlpiRestApiProvider extends AbstractProvider
         }
         $result = array();
 
-        foreach ($listEntities['myentities'] as $entity) {
+        foreach ($listEntities['myentities'] ?? [] as $entity) {
             // foreach entity found, if we don't have any filter configured,
             // we just put the id and the name of the entity inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -624,7 +624,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listRequesters as $requester) {
+        foreach ($listRequesters ?? [] as $requester) {
             // foreach requester found, if we don't have any filter configured,
             // we just put the id and the name of the requester inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -678,7 +678,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listUsers as $user) {
+        foreach ($listUsers ?? [] as $user) {
             // foreach user found, if we don't have any filter configured,
             // we just put the id and the name of the user inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -733,7 +733,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $result = array();
 
         // using $glpiGroup to avoid confusion with $groups and $groups_order
-        foreach ($listGroups as $glpiGroup) {
+        foreach ($listGroups ?? [] as $glpiGroup) {
             // foreach group found, if we don't have any filter configured,
             // we just put the id and the name of the group inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -787,7 +787,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listSuppliers as $supplier) {
+        foreach ($listSuppliers ?? [] as $supplier) {
             // foreach supplier found, if we don't have any filter configured,
             // we just put the id and the name of the supplier inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -841,7 +841,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listCategories as $category) {
+        foreach ($listCategories ?? [] as $category) {
             // foreach category found, if we don't have any filter configured,
             // we just put the id and the name of the category inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {

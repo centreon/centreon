@@ -435,7 +435,7 @@ class Centreon_OpenTickets_Rule
                 "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" . $ruleId . "' LIMIT 1"
             );
             if (!$res->rowCount()) {
-                throw new Exception(sprintf('Rule ID: % not found', $ruleId));
+                throw new Exception(sprintf('Rule ID: %d not found', $ruleId));
             }
             $row = $res->fetch();
 
