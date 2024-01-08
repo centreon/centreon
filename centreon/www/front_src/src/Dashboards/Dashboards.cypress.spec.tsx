@@ -376,7 +376,7 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('revokes the acces right when a row is expanded and ', () => {
+    it('revokes the access right when a row is expanded and the corresponding action is clicked ', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
 
