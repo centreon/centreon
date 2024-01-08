@@ -552,7 +552,7 @@ jobs:
           # Parcours de chaque fichier de collection
           for collection_file in $collections; do
               # Extraction du nom de la collection
-              collection_name=$(echo "$collection_file" | jq -r '. | sub(".*/"; "") | sub(".postman_collection.json$"; "")')
+              collection_name=$(basename "$collection_file" .postman_collection.json)
               echo "Collection Name: $collection_name"
 
               # Vérification de chaque issue ID
