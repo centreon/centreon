@@ -15,6 +15,7 @@ export const metricsTopDecoder = JsonDecoder.object<MetricsTop>(
           max: JsonDecoder.nullable(JsonDecoder.number),
           min: JsonDecoder.nullable(JsonDecoder.number),
           name: JsonDecoder.string,
+          parentName: JsonDecoder.string,
           warningHighThreshold: JsonDecoder.nullable(JsonDecoder.number),
           warningLowThreshold: JsonDecoder.nullable(JsonDecoder.number)
         },
@@ -23,6 +24,7 @@ export const metricsTopDecoder = JsonDecoder.object<MetricsTop>(
           criticalHighThreshold: 'critical_high_threshold',
           criticalLowThreshold: 'critical_low_threshold',
           currentValue: 'current_value',
+          parentName: 'parent_name',
           warningHighThreshold: 'warning_high_threshold',
           warningLowThreshold: 'warning_low_threshold'
         }
