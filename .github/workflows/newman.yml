@@ -553,7 +553,10 @@ jobs:
                     echo "Processing issue ID: $issue_id"
                     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                    response=$(curl --request GET --url "$jira_issue_url" --user "***:***" --header 'Accept: application/json')
+                    response=$(curl --request GET \
+                    --url "$jira_issue_url" \
+                    --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                    --header 'Accept: application/json')
 
                     if [ "$response_code" -eq 404 ]; then
                         echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
