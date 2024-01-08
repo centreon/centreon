@@ -541,15 +541,13 @@ jobs:
         run: |
           collection_path="${{ inputs.collection_path }}"
           collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-          echo "colllections: $collections"
+          echo "collections: $collections"
 
           for collection_file in $collections; do
               issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
               echo "issue_ids content: $issue_ids"
 
-              collection_names=$(echo "$collections" | jq -r '.[] | sub(".*/"; "") | sub(".postman_collection.json$"; "")')
-
-
+              collection_name=$(echo "$collection_file" | jq -r 'sub(".*/"; "") | sub(".postman_collection.json$"; "")')
               echo "Contenu de collection_name : $collection_name"
 
               for issue_id in "${issue_ids[@]}"; do
@@ -578,6 +576,7 @@ jobs:
                   fi
               done
           done
+
       # - name: Adding test cases key
       #   run: |
       #       file_to_search="01-Tokens.postman_collection.json"
