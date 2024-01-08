@@ -64,7 +64,7 @@ $centreon_provider = new $classname(
 
 // We get Host or Service
 $selected_values = explode(',', $get_information['form']['selection']);
-$db_storage = new centreonDBManager('centstorage');
+$db_storage = new CentreonDBManager('centstorage');
 
 $problems = array();
 $tickets = array();

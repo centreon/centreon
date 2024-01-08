@@ -29,7 +29,7 @@ $result = [
 $selected_values = explode(',', $get_information['form']['selection']);
 $forced = $get_information['form']['forced'];
 $isService = $get_information['form']['isService'];
-$db_storage = new centreonDBManager('centstorage');
+$db_storage = new CentreonDBManager('centstorage');
 
 $problems = [];
 
