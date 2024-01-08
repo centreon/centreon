@@ -25,22 +25,27 @@ abstract class AbstractProvider
 {
     /**
      * Set the default extra data
+     * @return void
      */
     abstract protected function setDefaultValueExtra();
     /**
      * Check the configuration form
+     * @return void
      */
     abstract protected function checkConfigForm();
     /**
      * Prepare the extra configuration block
+     * @return void
      */
     abstract protected function getConfigContainer1Extra();
     /**
      * Prepare the extra configuration block
+     * @return void
      */
     abstract protected function getConfigContainer2Extra();
     /**
      * Add specific configuration field
+     * @return void
      */
     abstract protected function saveConfigExtra();
     /**
@@ -66,19 +71,33 @@ abstract class AbstractProvider
      */
     abstract protected function doSubmit($db_storage, $contact, $host_problems, $service_problems);
 
+    /** @var Centreon_OpenTickets_Rule */
     protected $rule;
+    /** @var int */
     protected $rule_id;
+    /** @var string */
     protected $centreon_path;
+    /** @var string */
     protected $centreon_open_tickets_path;
+    /** @var array<mixed> */
     protected $config = array("container1_html" => '', "container2_html" => '', "clones" => array());
+    /** @var string */
     protected $required_field = '&nbsp;<font color="red" size="1">*</font>';
+    /** @var mixed */
     protected $submitted_config = null;
+    /** @var string */
     protected $check_error_message = '';
+    /** @var array<mixed> */
     protected $save_config = array();
+    /** @var int */
     protected $widget_id;
+    /** @var string */
     protected $uniq_id;
+    /** @var int */
     protected $attach_files = 0;
+    /** @var int */
     protected $close_advanced = 0;
+    /** @var int */
     protected $proxy_enabled = 0;
 
     public const HOSTGROUP_TYPE = 0;
@@ -96,6 +115,13 @@ abstract class AbstractProvider
 
     /**
      * constructor
+     *
+     * @param Centreon_OpenTickets_Rule $rule
+     * @param string $centreon_path
+     * @param string $centreon_open_tickets_path
+     * @param int $rule_id
+     * @param mixed $submitted_config
+     * @param int $provider_id
      *
      * @return void
      */
@@ -137,6 +163,10 @@ abstract class AbstractProvider
         $this->uniq_id = null;
     }
 
+    /**
+     * @param string $path
+     * @return SmartyBC
+     */
     protected function initSmartyTemplate($path = "providers/Abstract/templates")
     {
         $tpl = new Smarty();
@@ -152,11 +182,19 @@ abstract class AbstractProvider
         return $tpl;
     }
 
+    /**
+     * @param int $widget_id
+     * @return void
+     */
     public function setWidgetId($widget_id)
     {
         $this->widget_id = $widget_id;
     }
 
+    /**
+     * @param ?string $uniq_id
+     * @return void
+     */
     public function setUniqId($uniq_id)
     {
         $this->uniq_id = $uniq_id;
@@ -165,7 +203,7 @@ abstract class AbstractProvider
     /**
      * Set form values
      *
-     * @param  mixed $form
+     * @param mixed $form
      * @return void
      */
     public function setForm($form)
@@ -173,6 +211,9 @@ abstract class AbstractProvider
         $this->submitted_config = $form;
     }
 
+    /**
+     * @return void
+     */
     protected function clearSession()
     {
         if (
@@ -183,6 +224,11 @@ abstract class AbstractProvider
         }
     }
 
+    /**
+     * @param int|string $key
+     * @param mixed $value
+     * @return void
+     */
     protected function saveSession($key, $value)
     {
         if (!is_null($this->uniq_id)) {
@@ -193,6 +239,9 @@ abstract class AbstractProvider
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function getUploadFiles()
     {
         $upload_files = array();
@@ -208,6 +257,9 @@ abstract class AbstractProvider
         return $upload_files;
     }
 
+    /**
+     * @return void
+     */
     public function clearUploadFiles()
     {
         $upload_files = $this->getUploadFiles();
@@ -218,6 +270,10 @@ abstract class AbstractProvider
         unset($_SESSION['ot_upload_files'][$this->uniq_id]);
     }
 
+    /**
+     * @param int|string $key
+     * @return mixed|null
+     */
     protected function getSession($key)
     {
         if (!is_null($key) && !is_null($this->uniq_id) && isset($_SESSION['ot_save_' . $this->uniq_id][$key])) {
@@ -226,6 +282,10 @@ abstract class AbstractProvider
         return null;
     }
 
+    /**
+     * @param ?string $value
+     * @return null|string|false
+     */
     protected function to_utf8($value)
     {
         $encoding = mb_detect_encoding($value);
@@ -236,6 +296,10 @@ abstract class AbstractProvider
         return $value;
     }
 
+    /**
+     * @param bool|int $body_html
+     * @return void
+     */
     protected function setDefaultValueMain($body_html = 0)
     {
         $this->default_data['macro_ticket_id'] = 'TICKET_ID';
@@ -388,7 +452,8 @@ Output: {$service.output|substr:0:1024}
     /**
      * Get a form clone value
      *
-     * @return a array
+     * @param string $uniq_id
+     * @return array<mixed>
      */
     protected function getCloneValue($uniq_id)
     {
@@ -422,7 +487,9 @@ Output: {$service.output|substr:0:1024}
     /**
      * Get a form value
      *
-     * @return a string
+     * @param string $uniq_id
+     * @param bool $htmlentities
+     * @return string
      */
     protected function getFormValue($uniq_id, $htmlentities = true)
     {
@@ -439,6 +506,9 @@ Output: {$service.output|substr:0:1024}
         return $value;
     }
 
+    /**
+     * @return void
+     */
     protected function checkLists()
     {
         $groupList = $this->getCloneSubmitted(
@@ -463,6 +533,11 @@ Output: {$service.output|substr:0:1024}
         }
     }
 
+    /**
+     * @param string $uniq_id
+     * @param string $error_msg
+     * @return void
+     */
     protected function checkFormInteger($uniq_id, $error_msg)
     {
         if (
@@ -475,6 +550,11 @@ Output: {$service.output|substr:0:1024}
         }
     }
 
+    /**
+     * @param string $uniq_id
+     * @param string $error_msg
+     * @return void
+     */
     protected function checkFormValue($uniq_id, $error_msg)
     {
         if (!isset($this->submitted_config[$uniq_id]) || $this->submitted_config[$uniq_id] == '') {
@@ -486,7 +566,7 @@ Output: {$service.output|substr:0:1024}
     /**
      * Build the config form
      *
-     * @return a array
+     * @return array<mixed>
      */
     public function getConfig()
     {
@@ -498,6 +578,9 @@ Output: {$service.output|substr:0:1024}
         return $this->config;
     }
 
+    /**
+     * @return mixed
+     */
     public function getChainRuleList()
     {
         $result = [];
@@ -507,6 +590,9 @@ Output: {$service.output|substr:0:1024}
         return $result;
     }
 
+    /**
+     * @return mixed
+     */
     public function getMacroTicketId()
     {
         return $this->rule_data['macro_ticket_id'];
@@ -740,6 +826,11 @@ Output: {$service.output|substr:0:1024}
         $this->config['clones']['commandList'] = $this->getCloneValue('commandList');
     }
 
+    /**
+     * @param string $clone_key
+     * @param array<mixed> $values
+     * @return array<mixed>
+     */
     protected function getCloneSubmitted($clone_key, $values)
     {
         $result = [];
@@ -765,6 +856,9 @@ Output: {$service.output|substr:0:1024}
         return $result;
     }
 
+    /**
+     * @return void
+     */
     protected function saveConfigMain()
     {
         $this->save_config['provider_id'] = $this->submitted_config['provider_id'];
@@ -821,6 +915,9 @@ Output: {$service.output|substr:0:1024}
         ) ? $this->submitted_config['proxy_password'] : '';
     }
 
+    /**
+     * @return void
+     */
     public function saveConfig()
     {
         $this->checkConfigForm();
@@ -832,6 +929,12 @@ Output: {$service.output|substr:0:1024}
         $this->rule->save($this->rule_id, $this->save_config);
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignHostgroup($entry, &$groups_order, &$groups)
     {
         $result = $this->rule->getHostgroup($entry['Filter']);
@@ -845,6 +948,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignHostcategory($entry, &$groups_order, &$groups)
     {
         $result = $this->rule->getHostcategory($entry['Filter']);
@@ -858,6 +967,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignHostseverity($entry, &$groups_order, &$groups)
     {
         $result = $this->rule->getHostseverity($entry['Filter']);
@@ -871,6 +986,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignServicegroup($entry, &$groups_order, &$groups)
     {
         $result = $this->rule->getServicegroup($entry['Filter']);
@@ -883,6 +1004,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignServicecategory($entry, &$groups_order, &$groups)
     {
         $result = $this->rule->getServicecategory($entry['Filter']);
@@ -896,6 +1023,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignServiceseverity($entry, &$groups_order, &$groups)
     {
         $result = $this->rule->getServiceseverity($entry['Filter']);
@@ -909,6 +1042,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignContactgroup($entry, &$groups_order, &$groups)
     {
         $result = $this->rule->getContactgroup($entry['Filter']);
@@ -922,6 +1061,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignCustom($entry, &$groups_order, &$groups)
     {
         $result = [];
@@ -955,6 +1100,12 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param array<mixed> $entry
+     * @param array<mixed> $groups_order
+     * @param array<mixed> $groups
+     * @return void
+     */
     protected function assignBody($entry, &$groups_order, &$groups)
     {
         $result = array();
@@ -984,6 +1135,11 @@ Output: {$service.output|substr:0:1024}
         $groups_order[] = $entry['Id'];
     }
 
+    /**
+     * @param SmartyBC $tpl
+     * @param array<mixed> $args
+     * @return array<mixed>
+     */
     protected function assignFormatPopupTemplate(&$tpl, $args)
     {
         foreach ($args as $label => $value) {
@@ -1043,6 +1199,10 @@ Output: {$service.output|substr:0:1024}
         return $groups;
     }
 
+    /**
+     * @param array<mixed> $result
+     * @return void
+     */
     protected function validateFormatPopupLists(&$result)
     {
         if (isset($this->rule_data['clones']['groupList'])) {
@@ -1082,6 +1242,11 @@ Output: {$service.output|substr:0:1024}
         return $rv;
     }
 
+    /**
+     * @param array<mixed> $args
+     * @param bool $addGroups
+     * @return array<mixed>|null
+     */
     public function getFormatPopup($args, $addGroups = false)
     {
         if (
@@ -1106,6 +1271,9 @@ Output: {$service.output|substr:0:1024}
         return $result;
     }
 
+    /**
+     * @return 0|1
+     */
     public function doAck()
     {
         if (isset($this->rule_data['ack']) && $this->rule_data['ack'] == 'yes') {
@@ -1128,6 +1296,9 @@ Output: {$service.output|substr:0:1024}
         );
     }
 
+    /**
+     * @return 0|1
+     */
     public function doCloseTicket()
     {
         if (isset($this->rule_data['close_ticket_enable']) && $this->rule_data['close_ticket_enable'] == 'yes') {
@@ -1137,6 +1308,9 @@ Output: {$service.output|substr:0:1024}
         return 0;
     }
 
+    /**
+     * @return 0|1
+     */
     public function doCloseTicketContinueOnError()
     {
         if (isset($this->rule_data['error_close_centreon']) && $this->rule_data['error_close_centreon'] == 'yes') {
@@ -1146,6 +1320,10 @@ Output: {$service.output|substr:0:1024}
         return 0;
     }
 
+    /**
+     * @param SmartyBC $tpl
+     * @return void
+     */
     protected function assignSubmittedValues(&$tpl)
     {
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
@@ -1304,6 +1482,12 @@ Output: {$service.output|substr:0:1024}
         $this->body = $content;
     }
 
+    /**
+     * @param array<mixed> $host_problems
+     * @param array<mixed> $service_problems
+     * @param array<mixed> $submit_result
+     * @return false|string|null
+     */
     protected function setConfirmMessage($host_problems, $service_problems, $submit_result)
     {
         if (!isset($this->rule_data['message_confirm'])
@@ -1330,6 +1514,11 @@ Output: {$service.output|substr:0:1024}
         return $tpl->fetch('eval.ihtml');
     }
 
+    /**
+     * @param string $cmd
+     * @param int $timeout
+     * @return string
+     */
     private function ExecWaitTimeout($cmd, $timeout = 10)
     {
         $descriptorspec = array(
@@ -1366,6 +1555,12 @@ Output: {$service.output|substr:0:1024}
         }
     }
 
+    /**
+     * @param array<mixed> $host_problems
+     * @param array<mixed> $service_problems
+     * @param array<mixed> $submit_result
+     * @return int|void
+     */
     protected function executeCmd($host_problems, $service_problems, &$submit_result)
     {
         $submit_result['commands'] = array();
@@ -1400,6 +1595,13 @@ Output: {$service.output|substr:0:1024}
         }
     }
 
+    /**
+     * @param CentreonDB $db_storage
+     * @param string $contact
+     * @param array<mixed> $host_problems
+     * @param array<mixed> $service_problems
+     * @return array<mixed>
+     */
     public function submitTicket($db_storage, $contact, $host_problems, $service_problems)
     {
         $result = array('confirm_popup' => null);
@@ -1417,6 +1619,11 @@ Output: {$service.output|substr:0:1024}
         return $result;
     }
 
+    /**
+     * @param int|string $ticket_id
+     * @param array<mixed> $data
+     * @return false|string
+     */
     public function getUrl($ticket_id, $data)
     {
         $tpl = $this->initSmartyTemplate();
@@ -1433,6 +1640,12 @@ Output: {$service.output|substr:0:1024}
         return $tpl->fetch('eval.ihtml');
     }
 
+    /**
+     * @param CentreonDB $db_storage
+     * @param array<mixed> $result
+     * @param array<mixed> $extra_args
+     * @return void
+     */
     protected function saveHistory($db_storage, &$result, $extra_args = array())
     {
         $default_values = array(
@@ -1530,6 +1743,10 @@ Output: {$service.output|substr:0:1024}
         }
     }
 
+    /**
+     * @param array<mixed> $tickets
+     * @return void
+     */
     public function closeTicket(&$tickets)
     {
         // By default, yes tickets are removed (even no). -1 means a error
@@ -1578,6 +1795,11 @@ Output: {$service.output|substr:0:1024}
         return $_SESSION['ot_cache_' . $this->rule_id][$key]['value'];
     }
 
+    /**
+     * @param CurlHandle|resource $ch
+     * @param array<mixed> $info
+     * @return int
+     */
     protected static function setProxy(&$ch, $info)
     {
         if (is_null($info['proxy_address']) || !isset($info['proxy_address']) || $info['proxy_address'] == '') {

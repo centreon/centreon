@@ -28,6 +28,7 @@ class SerenaProvider extends AbstractProvider
     public const ARG_SUB_CATEGORY = 5;
     public const ARG_SUB_CATEGORY_DETAILS = 6;
 
+    /** @var array<int, string> */
     protected $internal_arg_name = array(
         self::ARG_PROJECT_ID => 'project_id',
         self::ARG_SUBJECT => 'subject',
@@ -43,8 +44,6 @@ class SerenaProvider extends AbstractProvider
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -87,8 +86,6 @@ class SerenaProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -113,8 +110,6 @@ class SerenaProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -170,8 +165,6 @@ class SerenaProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -256,16 +249,22 @@ class SerenaProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * REST API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {
         $this->ws_error = $error;
     }
 
+    /**
+     * @param array $ticket_arguments
+     * @return int
+     */
     protected function createTicketSerena($ticket_arguments)
     {
         $extended_fields = "";
@@ -387,6 +386,10 @@ class SerenaProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @param array $data
+     * @return int
+     */
     protected function callSOAP($data)
     {
         $this->otrs_call_response = null;

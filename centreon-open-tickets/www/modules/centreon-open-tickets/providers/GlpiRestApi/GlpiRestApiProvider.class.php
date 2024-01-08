@@ -65,8 +65,6 @@ class GlpiRestApiProvider extends AbstractProvider
 
     /*
     * Set default values for our rule form options
-    *
-    * @return {void}
     */
     protected function setDefaultValueExtra()
     {
@@ -137,7 +135,7 @@ class GlpiRestApiProvider extends AbstractProvider
     /*
     * Set default values for the widget popup when opening a ticket
     *
-    * @return {void}
+    * @return void
     */
     protected function setDefaultValueMain($body_html = 0)
     {
@@ -352,8 +350,6 @@ class GlpiRestApiProvider extends AbstractProvider
     /*
     * Verify if every mandatory form field is filled with data
     *
-    * @return {void}
-    *
     * @throw \Exception when a form field is not set
     */
     protected function checkConfigForm()
@@ -377,8 +373,6 @@ class GlpiRestApiProvider extends AbstractProvider
 
     /*
     * Initiate your html configuration and let Smarty display it in the rule form
-    *
-    * @return {void}
     */
     protected function getConfigContainer1Extra()
     {
@@ -481,8 +475,6 @@ class GlpiRestApiProvider extends AbstractProvider
 
     /*
     * Saves the rule form in the database
-    *
-    * @return {void}
     */
     protected function saveConfigExtra()
     {
@@ -521,7 +513,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     */
     protected function assignOthers($entry, &$groups_order, &$groups)
     {
@@ -547,7 +539,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get entities from glpi
     */
@@ -601,7 +593,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get requesters from glpi
     */
@@ -655,7 +647,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get users from glpi
     */
@@ -709,7 +701,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get groups from glpi
     */
@@ -764,7 +756,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get suppliers from glpi
     */
@@ -818,7 +810,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get suppliers from glpi
     */
@@ -1446,7 +1438,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a user
     */
@@ -1482,7 +1474,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a group
     */
@@ -1518,7 +1510,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a supplier
     */
@@ -1554,7 +1546,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a requester
     */
@@ -1626,7 +1618,7 @@ class GlpiRestApiProvider extends AbstractProvider
     *
     * @param {array} $tickets
     *
-    * @return {void}
+    * @return void
     */
     public function closeTicket(&$tickets)
     {

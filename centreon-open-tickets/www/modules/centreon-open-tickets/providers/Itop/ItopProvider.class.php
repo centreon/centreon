@@ -52,8 +52,6 @@ class ItopProvider extends AbstractProvider
 
     /*
     * Set default values for our rule form options
-    *
-    * @return {void}
     */
     protected function setDefaultValueExtra()
     {
@@ -108,7 +106,7 @@ class ItopProvider extends AbstractProvider
     /*
     * Set default values for the widget popup when opening a ticket
     *
-    * @return {void}
+    * @return void
     */
     protected function setDefaultValueMain($body_html = 0)
     {
@@ -264,8 +262,6 @@ class ItopProvider extends AbstractProvider
     /*
     * Verify if every mandatory form field is filled with data
     *
-    * @return {void}
-    *
     * @throw \Exception when a form field is not set
     */
     protected function checkConfigForm()
@@ -289,8 +285,6 @@ class ItopProvider extends AbstractProvider
 
     /*
     * Initiate your html configuration and lets Smarty display it in the rule form
-    *
-    * return {void}
     */
     protected function getConfigContainer1Extra()
     {
@@ -388,8 +382,6 @@ class ItopProvider extends AbstractProvider
 
     /*
     * Saves the rule form in the database
-    *
-    * @return {void}
     */
     protected function saveConfigExtra()
     {
@@ -426,7 +418,7 @@ class ItopProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from itop
     *
-    * @return {void}
+    * @return void
     */
     protected function assignOthers($entry, &$groups_order, &$groups)
     {
@@ -448,7 +440,7 @@ class ItopProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from itop
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get organizations from itop
     */
@@ -501,7 +493,7 @@ class ItopProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from itop
     *
-    * @return {void}
+    * @return void
     */
     protected function assignItopAjax($entry, &$groups_order, &$groups)
     {
@@ -893,6 +885,10 @@ class ItopProvider extends AbstractProvider
         return $listServiceSubcategories;
     }
 
+    /**
+     * @param array $ticketArguments
+     * @return mixed
+     */
     protected function createTicket($ticketArguments)
     {
         $data = array (
@@ -990,7 +986,7 @@ class ItopProvider extends AbstractProvider
     *
     * @param {array} $tickets
     *
-    * @return {void}
+    * @return void
     */
     public function closeTicket(&$tickets)
     {

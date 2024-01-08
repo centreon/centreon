@@ -53,6 +53,7 @@ class EasyvistaSoapProvider extends AbstractProvider
     public const ARG_CI_NAME = 27;
     public const ARG_SUBMIT_DATE = 28;
 
+    /** @var array<int, array<mixed>> */
     protected $internal_arg_name = array(
         self::ARG_ACCOUNT => array(
             'formid' => 'Account',
@@ -99,8 +100,6 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -125,8 +124,6 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -152,8 +149,6 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -235,8 +230,6 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -347,10 +340,12 @@ class EasyvistaSoapProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * SOAP API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {

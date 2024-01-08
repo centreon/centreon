@@ -64,6 +64,7 @@ $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 $rule = new Centreon_OpenTickets_Rule($db);
 
+/** @var \Centreon $centreon */
 $centreon = $_SESSION['centreon'];
 
 /**

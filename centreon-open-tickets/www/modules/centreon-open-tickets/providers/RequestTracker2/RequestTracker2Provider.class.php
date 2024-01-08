@@ -32,6 +32,7 @@ class RequestTracker2Provider extends AbstractProvider
     public const ARG_CC = 4;
     public const ARG_CONTENT = 5;
 
+    /** @var array<int, string> */
     protected $internal_arg_name = array(
         self::ARG_QUEUE => 'Queue',
         self::ARG_SUBJECT => 'Priority',
@@ -46,8 +47,6 @@ class RequestTracker2Provider extends AbstractProvider
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -85,8 +84,6 @@ class RequestTracker2Provider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -108,9 +105,7 @@ class RequestTracker2Provider extends AbstractProvider
     }
 
     /**
-     * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
+     * Build the specific config: from, to, subject, body, headers
      */
     protected function getConfigContainer1Extra()
     {
@@ -178,8 +173,6 @@ class RequestTracker2Provider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -205,6 +198,9 @@ class RequestTracker2Provider extends AbstractProvider
         );
     }
 
+    /**
+     * @return string
+     */
     protected function getGroupListOptions()
     {
         $str = '<option value="' . self::RT_QUEUE_TYPE . '">Rt queue</options>' . 
@@ -212,6 +208,12 @@ class RequestTracker2Provider extends AbstractProvider
         return $str;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignRtQueue($entry, &$groups_order, &$groups)
     {
         // no filter $entry['Filter']. preg_match used
@@ -248,6 +250,12 @@ class RequestTracker2Provider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignRtCustomField($entry, &$groups_order, &$groups)
     {
         // $entry['Filter']: to get the custom list
@@ -277,6 +285,12 @@ class RequestTracker2Provider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignOthers($entry, &$groups_order, &$groups)
     {
         if ($entry['Type'] == self::RT_QUEUE_TYPE) {
@@ -293,6 +307,11 @@ class RequestTracker2Provider extends AbstractProvider
         return $result;
     }
 
+    /**
+     * @param int|string $select_input_id
+     * @param int $selected_id
+     * @return mixed
+     */
     protected function assignSubmittedValuesSelectMore($select_input_id, $selected_id)
     {
         $session_name = null;
@@ -400,16 +419,21 @@ class RequestTracker2Provider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * REST API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {
         $this->ws_error = $error;
     }
 
+    /**
+     * @return array{int, array}
+     */
     protected function listQueueRt()
     {
         $items = array();
@@ -432,6 +456,10 @@ class RequestTracker2Provider extends AbstractProvider
         return [0, $items];
     }
 
+    /**
+     * @param ?string $filter
+     * @return array
+     */
     protected function listCustomFieldRt($filter)
     {
         $items = [];
@@ -476,6 +504,11 @@ class RequestTracker2Provider extends AbstractProvider
         return [0, $items];
     }
 
+    /**
+     * @param array $ticket_arguments
+     * @param array $ticket_dynamic_fields
+     * @return int
+     */
     protected function createTicketRt($ticket_arguments, $ticket_dynamic_fields)
     {
         $argument = array(
@@ -509,6 +542,11 @@ class RequestTracker2Provider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @param string $function
+     * @param null|array $argument
+     * @return int
+     */
     protected function callRest($function, $argument = null)
     {
         if (!extension_loaded("curl")) {

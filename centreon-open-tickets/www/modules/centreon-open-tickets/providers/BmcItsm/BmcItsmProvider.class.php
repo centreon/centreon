@@ -88,8 +88,6 @@ class BmcItsmProvider extends AbstractProvider
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -139,8 +137,6 @@ class BmcItsmProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -165,8 +161,6 @@ class BmcItsmProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -219,8 +213,6 @@ class BmcItsmProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -309,10 +301,12 @@ class BmcItsmProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * REST API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {

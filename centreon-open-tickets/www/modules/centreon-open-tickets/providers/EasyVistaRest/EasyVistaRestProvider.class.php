@@ -62,8 +62,6 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Set default values for our rule form options
-    *
-    * @return {void}
     */
     protected function setDefaultValueExtra()
     {
@@ -139,7 +137,7 @@ class EasyVistaRestProvider extends AbstractProvider
     /*
     * Set default values for the widget popup when opening a ticket
     *
-    * @return {void}
+    * @return void
     */
     protected function setDefaultValueMain($body_html = 0)
     {
@@ -190,8 +188,6 @@ class EasyVistaRestProvider extends AbstractProvider
     /*
     * Verify if every mandatory form field is filled with data
     *
-    * @return {void}
-    *
     * @throw \Exception when a form field is not set
     */
     protected function checkConfigForm()
@@ -216,8 +212,6 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Initiate your html configuration and let Smarty display it in the rule form
-    *
-    * @return {void}
     */
     protected function getConfigContainer1Extra()
     {
@@ -328,8 +322,6 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Saves the rule form in the database
-    *
-    * @return {void}
     */
     protected function saveConfigExtra()
     {
@@ -699,7 +691,7 @@ class EasyVistaRestProvider extends AbstractProvider
     *
     * @param {array} $tickets
     *
-    * @return {void}
+    * @return void
     */
     public function closeTicket(&$tickets)
     {

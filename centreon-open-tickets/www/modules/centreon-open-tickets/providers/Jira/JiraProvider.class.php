@@ -35,6 +35,7 @@ class JiraProvider extends AbstractProvider
     public const ARG_ISSUETYPE = 5;
     public const ARG_PRIORITY = 6;
 
+    /** @var array<int, string> */
     protected $internal_arg_name = array(
         self::ARG_PROJECT => 'Project',
         self::ARG_SUMMARY => 'Summary',
@@ -50,8 +51,6 @@ class JiraProvider extends AbstractProvider
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -112,8 +111,6 @@ class JiraProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -138,8 +135,6 @@ class JiraProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -208,8 +203,6 @@ class JiraProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -485,10 +478,12 @@ class JiraProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * REST API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {

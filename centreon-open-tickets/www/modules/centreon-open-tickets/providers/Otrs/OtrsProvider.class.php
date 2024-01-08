@@ -21,7 +21,9 @@
 
 class OtrsProvider extends AbstractProvider
 {
+    /** @var int */
     protected $otrs_connected = 0;
+    /** @var null|string */
     protected $otrs_session = null;
     protected $attach_files = 1;
     protected $close_advanced = 1;
@@ -46,6 +48,7 @@ class OtrsProvider extends AbstractProvider
     public const ARG_OWNER = 17;
     public const ARG_RESPONSIBLE = 18;
 
+    /** @var array<int, string> */
     protected $internal_arg_name = array(
         self::ARG_QUEUE => 'Queue',
         self::ARG_PRIORITY => 'Priority',
@@ -66,8 +69,6 @@ class OtrsProvider extends AbstractProvider
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -139,8 +140,6 @@ class OtrsProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -165,8 +164,6 @@ class OtrsProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -252,8 +249,6 @@ class OtrsProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -282,6 +277,9 @@ class OtrsProvider extends AbstractProvider
         );
     }
 
+    /**
+     * @return string
+     */
     protected function getGroupListOptions()
     {
         $str = '<option value="' . self::OTRS_QUEUE_TYPE . '">Otrs queue</options>' .
@@ -294,6 +292,12 @@ class OtrsProvider extends AbstractProvider
         return $str;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignOtrsQueue($entry, &$groups_order, &$groups)
     {
         // no filter $entry['Filter']. preg_match used
@@ -329,6 +333,12 @@ class OtrsProvider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignOtrsPriority($entry, &$groups_order, &$groups)
     {
         // no filter $entry['Filter']. preg_match used
@@ -364,6 +374,12 @@ class OtrsProvider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignOtrsState($entry, &$groups_order, &$groups)
     {
         // no filter $entry['Filter']. preg_match used
@@ -399,6 +415,12 @@ class OtrsProvider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignOtrsType($entry, &$groups_order, &$groups)
     {
         // no filter $entry['Filter']. preg_match used
@@ -434,6 +456,12 @@ class OtrsProvider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignOtrsCustomerUser($entry, &$groups_order, &$groups)
     {
         // no filter $entry['Filter']. preg_match used
@@ -469,6 +497,12 @@ class OtrsProvider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return int|void
+     */
     protected function assignOtrsUser($entry, &$groups_order, &$groups, $label_session)
     {
         // no filter $entry['Filter']. preg_match used
@@ -504,6 +538,12 @@ class OtrsProvider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
+    /**
+     * @param array $entry
+     * @param array $groups_order
+     * @param array $groups
+     * @return void
+     */
     protected function assignOthers($entry, &$groups_order, &$groups)
     {
         if ($entry['Type'] == self::OTRS_QUEUE_TYPE) {
@@ -530,6 +570,11 @@ class OtrsProvider extends AbstractProvider
         return $result;
     }
 
+    /**
+     * @param string $select_input_id
+     * @param string $selected_id
+     * @return array
+     */
     protected function assignSubmittedValuesSelectMore($select_input_id, $selected_id)
     {
         $session_name = null;
@@ -651,16 +696,21 @@ class OtrsProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * REST API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {
         $this->ws_error = $error;
     }
 
+    /**
+     * @return int
+     */
     protected function listQueueOtrs()
     {
         if ($this->otrs_connected == 0) {
@@ -677,6 +727,9 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @return int
+     */
     protected function listPriorityOtrs()
     {
         if ($this->otrs_connected == 0) {
@@ -693,6 +746,9 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @return int
+     */
     protected function listStateOtrs()
     {
         if ($this->otrs_connected == 0) {
@@ -709,6 +765,9 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @return int
+     */
     protected function listTypeOtrs()
     {
         if ($this->otrs_connected == 0) {
@@ -725,6 +784,9 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @return int
+     */
     protected function listCustomerUserOtrs()
     {
         if ($this->otrs_connected == 0) {
@@ -741,6 +803,9 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @return int
+     */
     protected function listUserOtrs()
     {
         if ($this->otrs_connected == 0) {
@@ -757,6 +822,10 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @param string $ticket_number
+     * @return int
+     */
     protected function closeTicketOtrs($ticket_number)
     {
         if ($this->otrs_connected == 0) {
@@ -780,6 +849,11 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @param array $ticket_arguments
+     * @param array $ticket_dynamic_fields
+     * @return int
+     */
     protected function createTicketOtrs($ticket_arguments, $ticket_dynamic_fields)
     {
         if ($this->otrs_connected == 0) {
@@ -839,6 +913,9 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @return int
+     */
     protected function loginOtrs()
     {
         if ($this->otrs_connected == 1) {
@@ -860,6 +937,11 @@ class OtrsProvider extends AbstractProvider
         return 0;
     }
 
+    /**
+     * @param string $function
+     * @param mixed $argument
+     * @return int
+     */
     protected function callRest($function, $argument)
     {
         $this->otrs_call_response = null;

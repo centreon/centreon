@@ -28,11 +28,11 @@ class CentreonOpenticketHistory extends CentreonWebService
      *
      * @var type
      */
+    /** @var CentreonDB|null  */
     protected $pearDB;
 
     /**
-     *
-     * @global type $centreon
+     * @global Centreon $centreon
      */
     public function __construct()
     {

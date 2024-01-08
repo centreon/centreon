@@ -39,8 +39,6 @@ class BmcFootprints11Provider extends AbstractProvider
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -72,8 +70,6 @@ class BmcFootprints11Provider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -99,8 +95,6 @@ class BmcFootprints11Provider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -177,8 +171,6 @@ class BmcFootprints11Provider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -291,10 +283,12 @@ class BmcFootprints11Provider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * SOAP API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {

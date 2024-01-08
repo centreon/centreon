@@ -22,20 +22,26 @@
 
 class Automatic
 {
+    /** @var Centreon  */
     protected $centreon;
+    /** @var CentreonDB */
     protected $dbCentstorage;
+    /** @var CentreonDB */
     protected $dbCentreon;
+    /** @var string */
     protected $openTicketPath;
+    /** @var Centreon_OpenTickets_Rule */
     protected $rule;
 
     /**
      * Constructor
      *
-     * @param  object $rule
-     * @param  string $centreonPath
-     * @param  string $openTicketPath
-     * @param  object $dbCentstorage
-     * @param  object $dbCentreon
+     * @param Centreon_OpenTickets_Rule $rule
+     * @param string $centreonPath
+     * @param string $openTicketPath
+     * @param Centreon $centreon
+     * @param CentreonDB $dbCentstorage
+     * @param CentreonDB $dbCentreon
      * @return void
      */
     public function __construct($rule, $centreonPath, $openTicketPath, $centreon, $dbCentstorage, $dbCentreon)
@@ -78,7 +84,7 @@ class Automatic
     /**
      * Get contact information
      *
-     * @param  string   $name
+     * @param array $params
      * @return array
      */
     protected function getContactInformation($params)
@@ -620,7 +626,7 @@ class Automatic
      *
      * @param mixed $params
      * @param string $macroName
-     * @return int $ticketId
+     * @return ?int $ticketId
     */
     protected function getHostTicket($params, $macroName)
     {
@@ -648,7 +654,7 @@ class Automatic
      *
      * @param mixed $params
      * @param string $macroName
-     * @return int $ticketId
+     * @return ?int $ticketId
     */
     protected function getServiceTicket($params, $macroName)
     {

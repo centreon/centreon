@@ -30,8 +30,7 @@ require_once CENTREON_OPENTICKET_PATH . '/class/automatic.class.php';
 class CentreonOpenticket extends CentreonWebService
 {
     /**
-     *
-     * @global type $centreon
+     * @global Centreon $centreon
      */
     public function __construct()
     {

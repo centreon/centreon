@@ -21,6 +21,7 @@
 
 class Centreon_OpenTickets_Rule
 {
+    /** @var CentreonDB */
     protected $_db;
     protected $_provider = null;
 
@@ -339,6 +340,9 @@ class Centreon_OpenTickets_Rule
         $this->_db->commit();
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getRuleList()
     {
         $result = array();
@@ -499,7 +503,7 @@ class Centreon_OpenTickets_Rule
     /**
      * Delete rules
      *
-     * @param array select
+     * @param array $select
      * @return void
      */
     public function delete($select)
