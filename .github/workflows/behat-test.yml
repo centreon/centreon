@@ -181,14 +181,11 @@ jobs:
     steps:
       - name: Download ${{ matrix.type_of_report }} Artifacts
         if: ${{ contains(needs.behat-test-run.result, 'failure') }}
-        uses: Wandalen/wretry.action@master
+        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
-          action: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
-          with: |
-            pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-            path: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-            merge-multiple: true
-          attempt_limit: 3
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          path: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          merge-multiple: true
 
       - name: Upload the Regrouped Artifact
         if: ${{ contains(needs.behat-test-run.result, 'failure') }}
