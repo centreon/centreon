@@ -59,48 +59,19 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          ref: MON-33861
 
-      # - name: List Postman Collections and Environments
-      #   id: set_collections
-      #   run: |
-      #     collection_path="${{ inputs.collection_path }}"
-      #     collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
-      #     echo "collections=$collections" >> $GITHUB_OUTPUT
-      #     echo "GITHUB_OUTPUT contents:"
-      #     cat $GITHUB_OUTPUT
-
-      - name: Adding test cases key
+      - name: List Postman Collections and Environments
+        id: set_collections
         run: |
-          file_to_search="01-Tokens.postman_collection.json"
-          full_path=$(find . -name "$file_to_search" -type f)
-
-          if [ -n "$full_path" ]; then
-              echo "Fichier trouvé : $full_path"
-
-              # Ajoutez "AAA" à la fin du fichier
-              echo "AAA" >> "$full_path"
-              echo "Ligne ajoutée avec succès dans le fichier."
-          else
-              echo "Fichier non trouvé : $file_to_search"
-          fi
-      - name: Commit files
-        run: |
-            git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git config --local user.name "github-actions[bot]"
-            git add collections/authentication/01-Tokens.postman_collection.json
-            git commit -m "changes collection"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token:  ${{ secrets.GITHUB_TOKEN }}
-          branch: MON-33861
+          collection_path="${{ inputs.collection_path }}"
+          collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "collections=$collections" >> $GITHUB_OUTPUT
+          echo "GITHUB_OUTPUT contents:"
+          cat $GITHUB_OUTPUT
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    # if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
 
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
@@ -497,39 +468,6 @@ jobs:
               done
             done
 
-      # - name: Adding test cases key
-      #   run: |
-
-      #       # for summary_file in ./postman_summaries/*.json; do
-      #       #     test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
-      #       #     test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
-      #       #     issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
-      #       #     echo "issue_ids content: $issue_ids"
-
-      #       #     filename=$(basename "$summary_file")
-      #       #     collection_name="${filename%-summary.json}"
-      #       #     collection_name="${collection_name//-/_}"
-      #       #     echo "Contenu de collection_name : $collection_name"
-      #       #   for issue_id in "${issue_ids[@]}"; do
-      #       #     echo "Processing issue ID: $issue_id"
-      #       #     jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
-
-      #       #     response=$(curl --request GET --url "$jira_issue_url" --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" --header 'Accept: application/json')
-
-      #       #     if [ "$response_code" -eq 404 ]; then
-      #       #     echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
-      #       #     else
-      #       #       echo "The issue with ID $issue_id exists."
-      #       #       summary=$(echo "$response" | jq -r '.fields.summary')
-      #       #       echo "Summary: $summary"
-      #       #       echo "Collection Name: $collection_name"
-      #       #       if [ "$summary" == "$collection_name" ]; then
-
-      #       #       fi
-      #       #     fi
-      #       #   done
-      #       # done
-
       - name: Perform Jira Transitions
         if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) }}
         run: |
@@ -590,3 +528,73 @@ jobs:
           if [ -n "$summaries" ]; then
               echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
           fi
+
+  Adding-testCases-keys:
+      needs: [newman-test-list, associate-test-cases]
+      runs-on: ubuntu-22.04
+      defaults:
+        run:
+          shell: bash
+          working-directory: centreon/tests/rest_api
+      steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Adding test cases key key
+        run: |
+
+            for summary_file in ./postman_summaries/*.json; do
+                issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
+                echo "issue_ids content: $issue_ids"
+
+                filename=$(basename "$summary_file")
+                collection_name="${filename%-summary.json}"
+                collection_name="${collection_name//-/_}"
+                echo "Contenu de collection_name : $collection_name"
+              for issue_id in "${issue_ids[@]}"; do
+                echo "Processing issue ID: $issue_id"
+                jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+
+                response=$(curl --request GET --url "$jira_issue_url" --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" --header 'Accept: application/json')
+
+                if [ "$response_code" -eq 404 ]; then
+                echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                else
+                  echo "The issue with ID $issue_id exists."
+                  summary=$(echo "$response" | jq -r '.fields.summary')
+                  echo "Summary: $summary"
+                  echo "Collection Name: $collection_name"
+                  if [ "$summary" == "$collection_name" ]; then
+
+                  fi
+                fi
+              done
+            done
+
+      # - name: Adding test cases key
+      #   run: |
+      #       file_to_search="01-Tokens.postman_collection.json"
+      #       full_path=$(find . -name "$file_to_search" -type f)
+
+      #       if [ -n "$full_path" ]; then
+      #           echo "Fichier trouvé : $full_path"
+
+      #           # Ajoutez "AAA" à la fin du fichier
+      #           echo "AAA" >> "$full_path"
+      #           echo "Ligne ajoutée avec succès dans le fichier."
+      #       else
+      #           echo "Fichier non trouvé : $file_to_search"
+      #       fi
+      # - name: Commit files
+      #   run: |
+      #         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      #         git config --local user.name "github-actions[bot]"
+      #         git add collections/authentication/01-Tokens.postman_collection.json
+      #         git commit -m "changes collection"
+
+      # - name: Push changes
+      #   uses: ad-m/github-push-action@master
+      #   with:
+      #       github_token:  ${{ secrets.GITHUB_TOKEN }}
+      #       branch: MON-33861
