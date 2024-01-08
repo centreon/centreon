@@ -133,36 +133,6 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
-  return cy
-    .startContainer({
-      image: `docker.centreon.com/centreon/keycloak:${Cypress.env(
-        'OPENID_IMAGE_VERSION'
-      )}`,
-      name: 'e2e-tests-openid-centreon',
-      portBindings: [
-        {
-          destination: 8080,
-          source: 8080
-        }
-      ]
-    })
-    .then({ timeout: 30000 }, () => {
-      return cy.task('waitOn', 'http://127.0.0.1:8080/health/ready');
-    })
-    .then(() => {
-      cy.exec(
-        'docker inspect -f "{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}" e2e-tests-openid-centreon'
-      ).then(({ stdout }) => {
-        cy.log(stdout);
-      });
-    });
-});
-
-Cypress.Commands.add('stopOpenIdProviderContainer', (): Cypress.Chainable => {
-  return cy.stopContainer({ name: 'e2e-tests-openid-centreon' });
-});
-
 export enum PatternType {
   contains = '*',
   endsWith = '$',

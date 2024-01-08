@@ -12,7 +12,7 @@ services:
     healthcheck:
       test: curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       start_interval: 1s
-      retries: 30
+      retries: 60
       timeout: 5s
 
   db:
@@ -35,6 +35,13 @@ services:
     image: "${OPENID_IMAGE}"
     ports: ["8080:8080"]
     profiles: ["openid"]
+
+  saml:
+    env_file:
+      - .env
+    image: "${SAML_IMAGE}"
+    ports: ["8080:8080"]
+    profiles: ["saml"]
 
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest

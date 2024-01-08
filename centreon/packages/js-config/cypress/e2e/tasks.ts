@@ -1,13 +1,14 @@
+/* eslint-disable no-console */
 import { execSync } from 'child_process';
-import { existsSync, mkdirSync } from 'fs';
+import { cp, existsSync, mkdirSync } from 'fs';
 
 import Docker from 'dockerode';
 import tar from 'tar-fs';
 import {
   DockerComposeEnvironment,
-  getContainerRuntimeClient,
   StartedTestContainer,
-  Wait
+  Wait,
+  getContainerRuntimeClient
 } from 'testcontainers';
 import { createConnection } from 'mysql2/promise';
 
@@ -62,28 +63,41 @@ export default (on: Cypress.PluginEvents): void => {
 
       return { exitCode, output };
     },
-    getContainersLogs: async (containerNames: Array<string>) => {
-      // const containerRuntimeClient = await getContainerRuntimeClient();
-
-      const containersLogs = await containerNames.reduce(
-        async (acc, containerName) => {
-          const container: StartedTestContainer =
-            dockerEnvironment.getContainer(`${containerName}-1`);
-
-          acc[containerName] = execSync(
-            `docker logs -t ${container.getId()}`
-          ).toString('utf8');
-
-          return acc;
-        },
-        {}
+    getContainerId: (containerName: string) => {
+      const container: StartedTestContainer = dockerEnvironment.getContainer(
+        `${containerName}-1`
       );
 
-      console.log('START');
-      console.log(Object.keys(containersLogs));
-      console.log('END');
+      return container.getId();
+    },
+    getContainerIpAddress: (containerName: string) => {
+      const container: StartedTestContainer = dockerEnvironment.getContainer(
+        `${containerName}-1`
+      );
 
-      return containersLogs;
+      const networkNames = container.getNetworkNames();
+
+      return container.getIpAddress(networkNames[0]);
+    },
+    getContainersLogs: async () => {
+      try {
+        const { dockerode } = (await getContainerRuntimeClient()).container;
+        const containers = await dockerode.listContainers();
+
+        return containers.reduce((acc, container) => {
+          const containerName = container.Names[0].replace('/', '');
+          acc[containerName] = execSync(`docker logs -t ${container.Id}`, {
+            stdio: 'pipe'
+          }).toString('utf8');
+
+          return acc;
+        }, {});
+      } catch (error) {
+        console.warn('Cannot get containers logs');
+        console.warn(error);
+
+        return null;
+      }
     },
     requestOnDatabase: async ({ database, query }) => {
       const container = dockerEnvironment.getContainer('db-1');
@@ -167,6 +181,7 @@ export default (on: Cypress.PluginEvents): void => {
       databaseImage,
       openidImage,
       profiles,
+      samlImage,
       webImage
     }) => {
       const composeFile = 'docker-compose.yml';
@@ -178,6 +193,7 @@ export default (on: Cypress.PluginEvents): void => {
         .withEnvironment({
           MYSQL_IMAGE: databaseImage,
           OPENID_IMAGE: openidImage,
+          SAML_IMAGE: samlImage,
           WEB_IMAGE: webImage
         })
         .withProfiles(...profiles)

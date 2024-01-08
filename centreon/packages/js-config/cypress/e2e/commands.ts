@@ -100,12 +100,23 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
-  'getContainersLogs',
-  (containerNames: Array<string> = ['web', 'db']) => {
-    return cy.task('getContainersLogs', containerNames);
-  }
-);
+Cypress.Commands.add('getContainerId', (containerName: string) => {
+  cy.log(`Getting container id of ${containerName}`);
+
+  return cy.task('getContainerId', containerName);
+});
+
+Cypress.Commands.add('getContainerIpAddress', (containerName: string) => {
+  cy.log(`Getting container ip address of ${containerName}`);
+
+  return cy.task('getContainerIpAddress', containerName);
+});
+
+Cypress.Commands.add('getContainersLogs', () => {
+  cy.log('Getting containers logs');
+
+  return cy.task('getContainersLogs');
+});
 
 interface CopyFromContainerProps {
   destination: string;
@@ -120,6 +131,8 @@ Cypress.Commands.add(
     source,
     destination
   }: CopyFromContainerProps) => {
+    cy.log(`Copy content from ${name}:${source} to ${destination}`);
+
     return cy.task('copyFromContainer', {
       destination,
       serviceName: name,
@@ -144,6 +157,8 @@ Cypress.Commands.add(
     }: CopyToContainerProps,
     options?: Partial<Cypress.ExecOptions>
   ) => {
+    cy.log(`Copy content from ${source} to ${name}:${destination}`);
+
     return cy.exec(`docker cp ${source} ${name}:${destination}`, options);
   }
 );
@@ -254,6 +269,7 @@ interface StartContainersProps {
   databaseImage?: string;
   openidImage?: string;
   profiles?: Array<string>;
+  samlImage?: string;
   useSlim?: boolean;
   webOs?: string;
   webVersion?: string;
@@ -267,6 +283,9 @@ Cypress.Commands.add(
       'OPENID_IMAGE_VERSION'
     )}`,
     profiles = [],
+    samlImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
+      'SAML_IMAGE_VERSION'
+    )}`,
     useSlim = true,
     webOs = Cypress.env('WEB_IMAGE_OS'),
     webVersion = Cypress.env('WEB_IMAGE_VERSION')
@@ -280,7 +299,7 @@ Cypress.Commands.add(
     return cy
       .task(
         'startContainers',
-        { databaseImage, openidImage, profiles, webImage },
+        { databaseImage, openidImage, profiles, samlImage, webImage },
         { timeout: 600000 } // 10 minutes because docker pull can be very slow
       )
       .then(() => {
@@ -311,6 +330,21 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
   return cy
     .visitEmptyPage()
     .createDirectory(logDirectory)
+    .getContainersLogs()
+    .then((containersLogs: Array<Array<string>>) => {
+      Object.entries(containersLogs).forEach(([containerName, logs]) => {
+        cy.writeFile(
+          `results/logs/${Cypress.spec.name.replace(
+            artifactIllegalCharactersMatcher,
+            '_'
+          )}/${Cypress.currentTest.title.replace(
+            artifactIllegalCharactersMatcher,
+            '_'
+          )}/container-${containerName}.log`,
+          logs
+        );
+      });
+    })
     .copyFromContainer({
       destination: `${logDirectory}/broker`,
       name,
@@ -368,21 +402,6 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
       );
     })
     .exec(`chmod -R 755 "${logDirectory}"`)
-    .getContainersLogs()
-    .then((containersLogs: Array<Array<string>>) => {
-      Object.entries(containersLogs).forEach(([containerName, logs]) => {
-        cy.writeFile(
-          `results/logs/${Cypress.spec.name.replace(
-            artifactIllegalCharactersMatcher,
-            '_'
-          )}/${Cypress.currentTest.title.replace(
-            artifactIllegalCharactersMatcher,
-            '_'
-          )}/container-${containerName}.log`,
-          logs
-        );
-      });
-    })
     .task(
       'stopContainers',
       {},
@@ -569,7 +588,9 @@ declare global {
         command,
         name
       }: ExecInContainerProps) => Cypress.Chainable;
-      getContainersLogs: (containerNames?: Array<string>) => Cypress.Chainable;
+      getContainerId: (containerName: string) => Cypress.Chainable;
+      getContainerIpAddress: (containerName: string) => Cypress.Chainable;
+      getContainersLogs: () => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
