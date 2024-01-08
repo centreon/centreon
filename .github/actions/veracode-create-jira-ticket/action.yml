@@ -21,19 +21,6 @@ runs:
     - name: Check if ticket exists already
       id: check_ticket
       run: |
-        #jq --version
-        #
-        #curl --request POST \
-        #  --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
-        #  --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
-        #  --header 'Accept: application/json' \
-        #  --header 'Content-Type: application/json' \
-        #  --data '{
-        #    "fields": ["summary"],
-        #    "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}\"",
-        #    "maxResults": 1
-        #}' | jq
-
         check_if_ticket_exists=$( curl --request POST \
           --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
           --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
@@ -45,14 +32,10 @@ runs:
             "maxResults": 1
         }' | jq .issues[0].key )
 
-        echo "[DEBUG] PRE - result = $check_if_ticket_exists"
-
         if [[ "$check_if_ticket_exists" != "null" ]]; then
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
           echo "::error::ticket found as $check_if_ticket_exists aborting ticket creation"
         fi
-
-        echo "[DEBUG] POST - check_if_ticket_exists=${{ env.abort_ticket_creation }}"
       shell: bash
 
     - name: Create Jira Issue
