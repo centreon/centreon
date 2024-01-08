@@ -33,7 +33,7 @@ runs:
           ],
           "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}\"",
           "maxResults": 1
-        }' | jq .issues || RESULT=$( echo $? )
+        }' || RESULT=$( echo $? )
 
 
         echo [DEBUG] - result = $RESULT
