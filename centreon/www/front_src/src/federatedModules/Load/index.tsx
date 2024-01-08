@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, ReactNode, Suspense, useMemo } from 'react';
 
 import { importRemote } from '@module-federation/utilities';
 import { equals, isEmpty, isNil } from 'ramda';
@@ -13,6 +13,7 @@ import FederatedComponentFallback from './FederatedComponentFallback';
 import FederatedPageFallback from './FederatedPageFallback';
 
 interface RemoteProps {
+  children?: ReactNode;
   component: string;
   isFederatedComponent?: boolean;
   isFederatedWidget?: boolean;
@@ -32,6 +33,7 @@ export const Remote = ({
   isFederatedComponent,
   isFederatedWidget,
   styleMenuSkeleton,
+  children,
   ...props
 }: RemoteProps): JSX.Element => {
   const prefix = isFederatedWidget ? 'widgets' : 'modules';
@@ -77,7 +79,13 @@ export const Remote = ({
             )
           }
         >
-          <Component {...props} store={store} />
+          {children ? (
+            <Component {...props} store={store}>
+              {children}
+            </Component>
+          ) : (
+            <Component {...props} store={store} />
+          )}
         </Suspense>
       </ErrorBoundary>
     );
@@ -88,7 +96,13 @@ export const Remote = ({
       <Suspense
         fallback={isFederatedComponent ? <MenuSkeleton /> : <PageSkeleton />}
       >
-        <Component {...props} store={store} />
+        {children ? (
+          <Component {...props} store={store}>
+            {children}
+          </Component>
+        ) : (
+          <Component {...props} store={store} />
+        )}
       </Suspense>
     </ErrorBoundary>
   );

@@ -1,0 +1,36 @@
+name: "centreon-web-selinux"
+arch: "all"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  SElinux context for centreon-web.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+depends:
+  - policycoreutils
+  - centreon-common-selinux = ${VERSION}-${RELEASE}${DIST}
+
+contents:
+  - src: "../selinux/centreon-web.pp"
+    dst: "/usr/share/selinux/packages/centreon/centreon-web.pp"
+    file_info:
+      mode: 0644
+
+scripts:
+  postinstall: ./scripts/centreon-web-selinux-postinstall.sh
+  preremove: ./scripts/centreon-web-selinux-preremove.sh
+
+rpm:
+  summary: SELinux context for Centreon Web
+  compression: zstd
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

@@ -20,10 +20,8 @@ import {
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
-  labelDashboardLibrary,
   labelDelete,
   labelName,
-  labelPlaylists,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
 import { routerHooks } from './routerHooks';
@@ -291,43 +289,5 @@ describe('Dashboards', () => {
 
     cy.contains(labelCancel).should('not.exist');
     cy.contains(labelDelete).should('not.exist');
-  });
-});
-
-describe('Dashboard layout routing', () => {
-  it('displays the dashboard library when the layout parameter is set to "library"', () => {
-    initializeAndMount({ layout: DashboardLayout.Library });
-
-    cy.contains(labelDashboardLibrary).should('be.visible');
-    cy.get('[href="/home/dashboards/library"]').should(
-      'have.attr',
-      'data-selected',
-      'true'
-    );
-    cy.get('[href="/home/dashboards/playlists"]').should(
-      'have.attr',
-      'data-selected',
-      'false'
-    );
-
-    cy.makeSnapshot();
-  });
-
-  it('displays the playlists when the layout parameter is set to "playlists"', () => {
-    initializeAndMount({ layout: DashboardLayout.Playlist });
-
-    cy.contains(labelPlaylists).should('be.visible');
-    cy.get('[href="/home/dashboards/library"]').should(
-      'have.attr',
-      'data-selected',
-      'false'
-    );
-    cy.get('[href="/home/dashboards/playlists"]').should(
-      'have.attr',
-      'data-selected',
-      'true'
-    );
-
-    cy.makeSnapshot();
   });
 });

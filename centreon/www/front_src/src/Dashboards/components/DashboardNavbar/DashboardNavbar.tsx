@@ -1,47 +1,33 @@
-import { generatePath } from 'react-router';
+import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
 import { Link as RouterLink } from 'react-router-dom';
+import { includes } from 'ramda';
 
 import { Link } from '@mui/material';
 
-import { DashboardLayout } from '../../models';
-import { labelDashboardLibrary, labelPlaylists } from '../../translatedLabels';
+import { labelDashboardLibrary } from '../../translatedLabels';
 import routeMap from '../../../reactRoutes/routeMap';
-import { routerHooks } from '../../routerHooks';
+import FederatedComponent from '../../../components/FederatedComponents';
 
 import { useDashboardNavbarStyles } from './DashboardNavbar.styles';
-
-const links = [
-  {
-    label: labelDashboardLibrary,
-    layout: DashboardLayout.Library
-  },
-  {
-    label: labelPlaylists,
-    layout: DashboardLayout.Playlist
-  }
-];
 
 const DashboardNavbar = (): JSX.Element => {
   const { classes } = useDashboardNavbarStyles();
   const { t } = useTranslation();
-  const { layout } = routerHooks.useParams();
+  const location = useLocation();
 
   return (
     <nav className={classes.navbar}>
-      {links.map(({ layout: linkLayout, label }) => (
-        <Link
-          className={classes.link}
-          component={RouterLink}
-          data-selected={equals(layout, linkLayout)}
-          key={label}
-          to={generatePath(routeMap.dashboards, { layout: linkLayout })}
-          underline="hover"
-        >
-          {t(label)}
-        </Link>
-      ))}
+      <Link
+        className={classes.link}
+        component={RouterLink}
+        data-selected={includes(routeMap.dashboards, location.pathname)}
+        to={routeMap.dashboards}
+        underline="hover"
+      >
+        {t(labelDashboardLibrary)}
+      </Link>
+      <FederatedComponent path="/it-edition-extensions/playlists/NavigationLink" />
     </nav>
   );
 };

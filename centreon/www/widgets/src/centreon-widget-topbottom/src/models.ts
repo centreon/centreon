@@ -10,6 +10,7 @@ export interface Resource {
   max: number | null;
   min: number | null;
   name: string;
+  parentName: string;
   uuid: string | null;
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;

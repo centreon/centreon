@@ -41,8 +41,32 @@ jobs:
       veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
-  package:
+  backend-lint:
+    runs-on: ubuntu-22.04
     needs: [get-version]
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon-dsm
+        shell: bash
+
+      - name: Run of phpstan on /www at level 0
+        run: vendor/bin/phpstan analyse --no-progress --level=0 --configuration=phpstan.neon
+        working-directory: centreon-dsm
+
+  package:
+    needs: [get-version, backend-lint]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
@@ -72,7 +96,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Change macro
         run: |
@@ -98,11 +122,11 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch'}}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -126,7 +150,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -149,7 +173,7 @@ jobs:
         distrib: [bullseye]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -163,7 +187,7 @@ jobs:
 
   promote:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -171,7 +195,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

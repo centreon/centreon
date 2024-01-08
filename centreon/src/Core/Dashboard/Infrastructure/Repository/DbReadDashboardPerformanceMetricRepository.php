@@ -142,7 +142,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *  bindValues: array<mixed>
      * }
      */
-    private function buildSubRequestForHostFilter($hostIds): array
+    private function buildSubRequestForHostFilter(array $hostIds): array
     {
         foreach ($hostIds as $hostId) {
             $bindHostIds[':host_' . $hostId] = [$hostId => \PDO::PARAM_INT];
@@ -293,7 +293,16 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * Get request and bind values information for each search filter.
      *
      * @phpstan-param array{
-     *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
+     *     '$and': array<
+     *         array{
+     *                   'service.name'?: array{'$in': non-empty-array<string>},
+     *                        'host.id'?: array{'$in': non-empty-array<int>},
+     *                   'hostgroup.id'?: array{'$in': non-empty-array<int>},
+     *                'servicegroup.id'?: array{'$in': non-empty-array<int>},
+     *                'hostcategory.id'?: array{'$in': non-empty-array<int>},
+     *             'servicecategory.id'?: array{'$in': non-empty-array<int>},
+     *         }
+     *     >
      * } $search
      *
      * @param array<mixed> $search
@@ -413,14 +422,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         bool $hasMetricName = false): string
     {
         $request
-        = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
-                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id, r.parent_id
-                FROM `:dbstg`.`metrics` AS m
-                INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
-                INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
-            SQL;
+            = <<<'SQL'
+                    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
+                    m.max, r.parent_name, r.name, r.id as service_id, r.parent_id
+                    FROM `:dbstg`.`metrics` AS m
+                    INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
+                    INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
+                SQL;
 
         $accessGroupIds = array_map(
             fn ($accessGroup) => $accessGroup->getId(),
@@ -519,7 +528,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 if (! array_key_exists($record['service_id'], $metricsInformation)) {
                     $metricsInformation[$record['service_id']] = [
                         'service_id' => $record['service_id'],
-                        'resource_name' => $record['resource_name'],
+                        'name' => $record['name'],
+                        'parent_name' => $record['parent_name'],
                         'parent_id' => $record['parent_id'],
                         'metrics' => [],
                     ];
@@ -540,7 +550,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             foreach ($metricsInformation as $information) {
                 $resourceMetrics[] = new ResourceMetric(
                     $information['service_id'],
-                    $information['resource_name'],
+                    $information['name'],
+                    $information['parent_name'],
                     $information['parent_id'],
                     $information['metrics']
                 );

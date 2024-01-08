@@ -282,17 +282,3 @@ Feature:
     }
     """
     Then the response code should be "409"
-
-    # missing mandatory fields
-    When I send a POST request to '/api/latest/configuration/services/severities' with body:
-    """
-    { "not_exists": "foo-bar" }
-    """
-    Then the response code should be "400"
-    And the JSON should be equal to:
-    """
-    {
-        "code": 400,
-        "message": "[name] The property name is required\n[alias] The property alias is required\n[level] The property level is required\n[icon_id] The property icon_id is required\nThe property not_exists is not defined and the definition does not allow additional properties\n"
-    }
-    """

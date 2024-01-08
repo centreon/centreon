@@ -161,11 +161,13 @@ function insertGraphTemplate()
     if (isset($ret["default_tpl1"]) && $ret["default_tpl1"]) {
         noDefaultOreonGraph();
     }
-    $rq = "INSERT INTO `giv_graphs_template` ( `graph_id` , `name` , " .
-        "`vertical_label` , `width` , `height` , `base` , `lower_limit`, `upper_limit` , `size_to_max`, " .
-        "`default_tpl1` , `split_component` , `scaled`, `stacked` , `comment`) ";
-    $rq .= "VALUES (";
-    $rq .= "NULL, ";
+    $rq = <<<SQL
+        INSERT INTO `giv_graphs_template` ( `graph_id` , `name` ,
+        `vertical_label` , `width` , `height` , `base` , `lower_limit`, `upper_limit` , `size_to_max`,
+        `default_tpl1` , `split_component` , `scaled`, `stacked` , `comment`)
+        VALUES (
+        NULL,
+        SQL;
     isset($ret["name"]) && $ret["name"] != null
         ? $rq .= "'" . htmlentities($ret["name"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
@@ -182,19 +184,19 @@ function insertGraphTemplate()
         ? $rq .= "'" . htmlentities($ret["base"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
     isset($ret["lower_limit"]) && $ret["lower_limit"] != null
-        ? $rq .= "'" . $ret["lower_limit"] . "', "
+        ? $rq .= "'" . htmlentities($ret["lower_limit"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
     isset($ret["upper_limit"]) && $ret["upper_limit"] != null
-        ? $rq .= "'" . $ret["upper_limit"] . "', "
+        ? $rq .= "'" . htmlentities($ret["upper_limit"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
     isset($ret["size_to_max"]) && $ret["size_to_max"] != null
-        ? $rq .= "'" . $ret["size_to_max"] . "', "
+        ? $rq .= "'" . htmlentities($ret["size_to_max"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "0, ";
     isset($ret["default_tpl1"]) && $ret["default_tpl1"] != null
-        ? $rq .= "'" . $ret["default_tpl1"] . "', "
+        ? $rq .= "'" . htmlentities($ret["default_tpl1"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
     $rq .= "NULL, "; // Column split chart (removed options)
-    isset($ret["scaled"]) && $ret["scaled"] != null ? $rq .= "'" . $ret["scaled"] . "', " : $rq .= "'0', ";
+    isset($ret["scaled"]) && $ret["scaled"] != null ? $rq .= "'" . htmlentities($ret["scaled"], ENT_QUOTES, "UTF-8") . "', " : $rq .= "'0', ";
     isset($ret["stacked"]) && $ret["stacked"] != null
         ? $rq .= "'" . htmlentities($ret["stacked"], ENT_QUOTES, "UTF-8") . "', "
         : $rq .= "NULL, ";
@@ -202,7 +204,8 @@ function insertGraphTemplate()
         ? $rq .= "'" . htmlentities($ret["comment"], ENT_QUOTES, "UTF-8") . "'"
         : $rq .= "NULL";
     $rq .= ")";
-    $pearDB->query($rq);
+    $statement = $pearDB->prepare($rq);
+    $dbResult = $statement->execute();
     defaultOreonGraph();
     $res = $pearDB->query("SELECT MAX(graph_id) FROM giv_graphs_template");
     $graph_id = $res->fetch();

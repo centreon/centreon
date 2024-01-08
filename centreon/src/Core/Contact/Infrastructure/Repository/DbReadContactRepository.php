@@ -23,17 +23,23 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 
 class DbReadContactRepository extends AbstractRepositoryDRB implements ReadContactRepositoryInterface
 {
+    use LoggerTrait;
+
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findNamesByIds(int ...$ids): array
     {
         if ([] === $ids) {

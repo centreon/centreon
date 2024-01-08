@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { Provider as JotaiProvider, createStore } from 'jotai';
 
 import { createGenerateClassName, StylesProvider } from '@mui/styles';
@@ -9,7 +7,7 @@ import SnackbarProvider from '../Snackbar/SnackbarProvider';
 
 export interface ModuleProps {
   children: React.ReactElement;
-  maxSnackbars: number;
+  maxSnackbars?: number;
   seedName: string;
   store: ReturnType<typeof createStore>;
 }
@@ -17,7 +15,7 @@ export interface ModuleProps {
 const Module = ({
   children,
   seedName,
-  maxSnackbars,
+  maxSnackbars = 3,
   store
 }: ModuleProps): JSX.Element => {
   const generateClassName = createGenerateClassName({

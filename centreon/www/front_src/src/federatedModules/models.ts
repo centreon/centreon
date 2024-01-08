@@ -18,6 +18,7 @@ export interface FederatedModule {
 }
 
 interface PageComponent {
+  children?: string;
   component: string;
   route: string;
 }
