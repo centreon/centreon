@@ -28,6 +28,7 @@ class ResourceMetric
     /**
      * @param int $serviceId
      * @param string $resourceName
+     * @param string $parentName
      * @param int $parentId
      * @param PerformanceMetric[] $metrics
      */
