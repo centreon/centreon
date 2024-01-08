@@ -545,7 +545,7 @@ jobs:
                 echo "issue_ids content: $issue_ids"
 
                 filename=$(basename "$summary_file")
-                collection_name="${filename%-summary.json}"
+                collection_name="${filename%%-summary.json}"
                 collection_name="${collection_name//-/_}"
                 echo "Contenu de collection_name : $collection_name"
 
