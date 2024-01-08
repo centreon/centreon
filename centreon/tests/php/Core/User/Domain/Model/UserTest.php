@@ -37,7 +37,6 @@ beforeEach(function (): void {
                 'email' => 'user@email.com',
                 'isAdmin' => false,
                 'theme' => User::THEME_LIGHT,
-                'userInterfaceDensity' => User::USER_INTERFACE_DENSITY_EXTENDED,
                 'canReachFrontend' => true,
                 ...$fields,
             ]
@@ -89,13 +88,5 @@ it(
     fn() => ($this->createUser)(['id' => 0])
 )->throws(
     InvalidArgumentException::class,
-    AssertionException::positiveInt(0, 'User::id')->getMessage()
-);
-
-it(
-    'should throw an exception when user interface density is invalid',
-    fn() => ($this->createUser)(['userInterfaceDensity' => 'hello world'])
-)->throws(
-    \InvalidArgumentException::class,
-    'User interface view mode provided not handled'
+    AssertionException::min(0, 1, 'User::id')->getMessage()
 );

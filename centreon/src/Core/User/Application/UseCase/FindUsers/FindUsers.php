@@ -47,8 +47,7 @@ final class FindUsers
         private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
-        private readonly RequestParametersInterface $requestParameters,
-        private readonly bool $isCloudPlatform,
+        private readonly RequestParametersInterface $requestParameters
     ) {
     }
 
@@ -58,7 +57,7 @@ final class FindUsers
     public function __invoke(FindUsersPresenterInterface $presenter): void
     {
         try {
-            if ($this->hasAccessToAllUsers()) {
+            if ($this->user->isAdmin()) {
                 $users = $this->readUserRepository->findAllByRequestParameters($this->requestParameters);
             } else {
                 if (
@@ -70,11 +69,12 @@ final class FindUsers
                         ['user_id' => $this->user->getId()]
                     );
                     $presenter->presentResponse(
-                        new ForbiddenResponse(UserException::accessNotAllowed())
+                        new ForbiddenResponse(UserException::accessNotAllowed()->getMessage())
                     );
 
                     return;
                 }
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $users = $this->readUserRepository->findByAccessGroupsAndRequestParameters(
                     $this->accessGroups,
                     $this->requestParameters
@@ -87,7 +87,7 @@ final class FindUsers
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
-                new ErrorResponse(UserException::errorWhileSearching($ex))
+                new ErrorResponse(UserException::errorWhileSearching($ex)->getMessage())
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
@@ -113,16 +113,5 @@ final class FindUsers
         }
 
         return $response;
-    }
-
-    private function hasAccessToAllUsers(): bool
-    {
-        if ($this->user->isAdmin()) {
-            return true;
-        }
-        $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-        $accessGroupNames = array_map(fn(AccessGroup $accessGroup): string => $accessGroup->getName(), $this->accessGroups);
-
-        return ($this->isCloudPlatform && in_array('customer_admin_acl', $accessGroupNames, true));
     }
 }

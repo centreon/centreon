@@ -44,8 +44,7 @@ beforeEach(function (): void {
         $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->requestParameters = $this->createMock(RequestParametersInterface::class),
-        $this->isCloudPlatform = false,
+        $this->requestParameters = $this->createMock(RequestParametersInterface::class)
     );
 
     $this->contact = new User(
@@ -55,7 +54,6 @@ beforeEach(function (): void {
         'email',
         true,
         User::THEME_LIGHT,
-        User::USER_INTERFACE_DENSITY_COMPACT,
         true
     );
 });
@@ -68,6 +66,11 @@ it(
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
+
+        $this->user
+            ->expects($this->exactly(1))
+            ->method('hasTopologyRole')
+            ->willReturn(true);
 
         $this->readAccessGroupRepository
             ->expects($this->once())
@@ -91,11 +94,6 @@ it(
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
-
-        $this->readAccessGroupRepository
-            ->expects($this->once())
-            ->method('findByContact')
-            ->willReturn([]);
 
         $this->user
             ->expects($this->exactly(2))
@@ -168,15 +166,15 @@ it(
             ->method('isAdmin')
             ->willReturn(false);
 
-        $this->readAccessGroupRepository
-            ->expects($this->once())
-            ->method('findByContact')
-            ->willReturn([]);
-
         $this->user
             ->expects($this->exactly(1))
             ->method('hasTopologyRole')
             ->willReturn(true);
+
+        $this->readAccessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn([]);
 
         $this->readUserRepository
             ->expects($this->once())

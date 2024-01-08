@@ -37,9 +37,7 @@ class User
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark',
-                 USER_INTERFACE_DENSITY_EXTENDED = 'extended',
-                 USER_INTERFACE_DENSITY_COMPACT = 'compact';
+                 THEME_DARK = 'dark';
 
     /** @var bool */
     protected bool $isActivate = true;
@@ -54,7 +52,6 @@ class User
      * @param string $email
      * @param bool $isAdmin
      * @param string $theme
-     * @param string $userInterfaceDensity
      * @param bool $canReachFrontend
      *
      * @throws \Assert\AssertionFailedException
@@ -66,16 +63,14 @@ class User
         protected string $email,
         protected bool $isAdmin,
         protected string $theme,
-        protected string $userInterfaceDensity,
         protected bool $canReachFrontend
     ) {
-        Assertion::positiveInt($this->id, 'User::id');
+        Assertion::min($this->id, 1, 'User::id');
 
         $this->setAlias($alias);
         $this->setName($name);
         $this->setEmail($email);
         $this->setTheme($theme);
-        $this->setUserInterfaceDensity($userInterfaceDensity);
         $this->setCanReachFrontend($canReachFrontend);
     }
 
@@ -240,36 +235,6 @@ class User
     public function setActivate(bool $isActivate): self
     {
         $this->isActivate = $isActivate;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserInterfaceDensity(): string
-    {
-        return $this->userInterfaceDensity;
-    }
-
-    /**
-     * @param string $userInterfaceDensity
-     *
-     * @throws \Assert\AssertionFailedException
-     * @throws \InvalidArgumentException
-     *
-     * @return self
-     */
-    public function setUserInterfaceDensity(string $userInterfaceDensity): self
-    {
-        if (
-            $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_EXTENDED
-            && $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_COMPACT
-        ) {
-            throw new \InvalidArgumentException('User interface view mode provided not handled');
-        }
-
-        $this->userInterfaceDensity = $userInterfaceDensity;
 
         return $this;
     }

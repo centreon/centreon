@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace Core\User\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\AbstractRepositoryDRB;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\User\Domain\Model\User;
@@ -41,11 +41,10 @@ use Utility\SqlConcatenator;
  *     contact_email: string,
  *     contact_admin: string,
  *     contact_theme: string,
- *     user_interface_density: string,
  *     user_can_reach_frontend: string,
  * }
  */
-class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepositoryInterface
+class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepositoryInterface
 {
     use LoggerTrait;
 
@@ -69,7 +68,6 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                     contact_email,
                     contact_admin,
                     contact_theme,
-                    user_interface_density,
                     contact_oreon AS `user_can_reach_frontend`
                 FROM `:db`.contact
                 SQL
@@ -136,7 +134,6 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                     contact_email,
                     contact_admin,
                     contact_theme,
-                    user_interface_density,
                     contact_oreon AS `user_can_reach_frontend`
                 FROM (
                     SELECT `contact`.* FROM `:db`.`contact`
@@ -203,7 +200,6 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
             $user['contact_email'],
             $user['contact_admin'] === '1',
             $user['contact_theme'],
-            $user['user_interface_density'],
             $user['user_can_reach_frontend'] === '1'
         );
     }
