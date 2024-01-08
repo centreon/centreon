@@ -21,8 +21,8 @@ import {
 } from '../api/endpoints';
 
 import { useInputStyles } from './Inputs.styles';
-import ResourceDataset from './ResourceDataset';
 import ActivateSwitch from './components/ActivateSwitch';
+import ResourceSelection from './components/ResourceSelection';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -125,9 +125,7 @@ const useFormInputs = (): UseFormInputsState => {
                     columns: [
                       {
                         custom: {
-                          Component: () => (
-                            <ResourceDataset propertyName="datasetFilters" />
-                          )
+                          Component: () => <ResourceSelection />
                         },
                         dataTestId: t(labelResourceSelection),
                         fieldName: 'datasetFilters',
@@ -193,7 +191,7 @@ const useFormInputs = (): UseFormInputsState => {
             type: InputType.Grid
           }
         ],
-        gridTemplateColumns: '4fr 5fr'
+        gridTemplateColumns: '1fr 2fr'
       },
       group: '',
       label: '',

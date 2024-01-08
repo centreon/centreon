@@ -17,7 +17,7 @@ export const useInputStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   ruleProperties: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.background.default,
     borderRadius: '4px',
     display: 'flex',
     flexDirection: 'column',

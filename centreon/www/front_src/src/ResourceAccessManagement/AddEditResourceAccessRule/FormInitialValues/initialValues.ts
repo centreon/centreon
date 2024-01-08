@@ -1,7 +1,7 @@
 export const getEmptyInitialValues = (): object => ({
   contactGroups: [],
   contacts: [],
-  data: { datasetFilters: [{ resourceType: '', resources: [] }] },
+  data: { datasetFilters: [[{ resourceType: '', resources: [] }]] },
   description: '',
   isActivated: true,
   name: ''
