@@ -144,7 +144,7 @@ try {
     $centreon_provider->closeTicket($tickets);
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
     $oreon = $_SESSION['centreon'];
-    $external_cmd = new CentreonExternalCommand($oreon);
+    $external_cmd = new CentreonExternalCommand();
     $method_external_name = 'set_process_command';
     if (method_exists($external_cmd, $method_external_name) == false) {
         $method_external_name = 'setProcessCommand';

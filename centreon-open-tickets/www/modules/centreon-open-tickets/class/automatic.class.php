@@ -438,7 +438,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';
@@ -515,7 +515,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';
@@ -751,7 +751,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';
@@ -785,7 +785,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';
