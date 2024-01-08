@@ -40,3 +40,4 @@ export const labelAccessRightsStatsUpdated = 'updated';
 export const labelDeleteUser = 'Delete user';
 export const labelYouAreGoingToDeleteUser =
   "You are going to delete <strong>{{name}}</strong> from the user list. He/She won't have access to the dashboard.";
+export const labelUserDeleted = 'User deleted';
