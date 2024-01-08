@@ -92,13 +92,6 @@ jobs:
             git add collections/authentication/01-Tokens.postman_collection.json
             git commit -m "changes collection"
 
-      - name: Update resources
-        uses: test-room-7/action-update-file@v1
-        with:
-            file-path: collections/authentication/01-Tokens.postman_collection.json
-            commit-msg: Update resources
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            branch: MON-33861
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
