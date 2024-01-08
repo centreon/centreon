@@ -39,7 +39,9 @@ const useListDashboards = (): UseListDashboards => {
     }
   };
 
-  const { data, isLoading } = useFetchQuery<List<Omit<Dashboard, 'refresh'>>>({
+  const { data, isLoading, isFetching } = useFetchQuery<
+    List<Omit<Dashboard, 'refresh'>>
+  >({
     decoder: dashboardListDecoder,
     getEndpoint: () =>
       buildListingEndpoint({
@@ -70,7 +72,7 @@ const useListDashboards = (): UseListDashboards => {
 
   return {
     data,
-    isLoading
+    isLoading: isLoading || isFetching
   };
 };
 

@@ -73,7 +73,11 @@ const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
         onSettled: onSettledWithInvalidateQueries,
         ...restOptions
       }
-    );
+    ).then(() => {
+      queryClient.invalidateQueries({
+        queryKey: [resource.dashboards]
+      });
+    });
   };
 
   return {

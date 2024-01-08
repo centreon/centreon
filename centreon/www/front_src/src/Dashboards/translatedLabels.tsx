@@ -37,3 +37,6 @@ export const labelAccessRightStateUpdated = 'updated';
 export const labelAccessRightsStatsAdded = 'added';
 export const labelAccessRightsStatsRemoved = 'removed';
 export const labelAccessRightsStatsUpdated = 'updated';
+export const labelDeleteUser = 'Delete user';
+export const labelYouAreGoingToDeleteUser =
+  "You are going to delete <strong>{{name}}</strong> from the user list. He/She won't have access to the dashboard.";
