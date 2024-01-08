@@ -32,7 +32,7 @@ runs:
 
         echo [DEBUG] - result = $RESULT
 
-        check_if_ticket_exists="toto"
+        echo "[DEBUG] - check_if_ticket_exists=${{ env.check_if_ticket_exists }}"
         if [[ -n "$check_if_ticket_exists" ]]; then
           ticket_id=$( echo "$check_if_ticket_exists" | grep "key" | cut -d ":" -f2 )
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
