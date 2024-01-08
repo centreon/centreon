@@ -146,6 +146,9 @@ jobs:
           cat $GITHUB_ENV
 
       - uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
+
+        if: ${{ false }}
+
         with:
           distribution: 'zulu'
           java-version: 8
