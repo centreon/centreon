@@ -81,30 +81,29 @@ jobs:
 
               # Ajoutez "AAA" à la fin du fichier
               echo "AAA" >> "$full_path"
-
-              # Configuration de l'identité de l'utilisateur pour les commits
-              git config user.email "github-actions@github.com"
-              git config user.name "GitHub Actions"
-              git fetch origin/MON-33861
-              git  checkout origin/MON-33861
-              # Ajouter le fichier à l'index
-              git add collections/authentication/01-Tokens.postman_collection.json
-
-              # Effectuer un commit
-              git commit -m "Mise à jour de 01-Tokens.postman_collection.json"
-
-
-
               echo "Ligne ajoutée avec succès dans le fichier."
           else
               echo "Fichier non trouvé : $file_to_search"
           fi
+      - name: Commit files
+        run: |
+            git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add collections/authentication/01-Tokens.postman_collection.json
+            git commit -m "changes collection"
+
+      - name: Update resources
+        uses: test-room-7/action-update-file@v1
+        with:
+            file-path: collections/authentication/01-Tokens.postman_collection.json
+            commit-msg: Update resources
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            branch: MON-33861
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            branch: MON-33861
-
+          github_token:  ${{ secrets.GITHUB_TOKEN }}
+          branch: MON-33861
 
   associate-test-cases:
     runs-on: ubuntu-22.04
