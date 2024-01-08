@@ -18573,14 +18573,14 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
-msgid "List view"
+msgid "View as list"
 msgstr "Vue en liste"
 
-msgid "Cards view"
+msgid "View as cards"
 msgstr "Vue en cartes"
 
 msgid "Edit properties"
-msgstr "Modifier les propriétés"
+msgstr "Éditer les propriétés"
 
 msgid "Delete user"
 msgstr "Supprimer un utilisateur"

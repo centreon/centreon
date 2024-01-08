@@ -11,7 +11,7 @@ import {
   labelName,
   labelRole,
   labelShares,
-  labelUpdate
+  labelLastUpdate
 } from '../translatedLabels';
 import useIsViewerUser from '../useIsViewerUser';
 
@@ -97,7 +97,7 @@ const useColumns = (): {
       disablePadding: false,
       getFormattedString: ({ updatedAt }): string => updatedAt?.slice(0, 10),
       id: 'updated_at',
-      label: t(labelUpdate),
+      label: t(labelLastUpdate),
       type: ColumnType.string
     },
     ...(isViewer

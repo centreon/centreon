@@ -181,7 +181,13 @@ const administratorRole = {
   globalRole: DashboardGlobalRole.administrator
 };
 
-const columns = ['Name', 'Description', 'Creation date', 'Update', 'Actions'];
+const columns = [
+  'Name',
+  'Description',
+  'Creation date',
+  'Last update',
+  'Actions'
+];
 
 describe('Dashboards', () => {
   describe('View mode', () => {
@@ -206,7 +212,7 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the dashboards in "List view" when the corresponding button is clicked', () => {
+    it('displays the dashboards in "View as list" when the corresponding button is clicked', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
 
@@ -239,7 +245,7 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('displays column configuration button only in "List view"', () => {
+    it('displays column configuration button only in "View as list"', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
 
@@ -323,7 +329,7 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('displays all dashboard columns in the "List view" when the user has editor global roles', () => {
+    it('displays all dashboard columns in the "View as list" when the user has editor global roles', () => {
       initializeAndMount(editorRole);
 
       cy.waitForRequest('@getDashboards');
@@ -337,7 +343,7 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('does not display actions in the "List view" when the user has viewer global role', () => {
+    it('does not display actions in the "View as list" when the user has viewer global role', () => {
       initializeAndMount(viewerRole);
 
       cy.waitForRequest('@getDashboards');

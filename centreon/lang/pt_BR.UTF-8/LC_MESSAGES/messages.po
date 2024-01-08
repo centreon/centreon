@@ -17240,10 +17240,10 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "List view"
+# msgid "View as list"
 # msgstr ""
 
-# msgid "Cards view"
+# msgid "View as cards"
 # msgstr ""
 
 # msgid "Edit properties"
