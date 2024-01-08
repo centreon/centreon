@@ -23,6 +23,10 @@ class GlpiProvider extends AbstractProvider
 {
     protected $glpi_connected = 0;
     protected $glpi_session = null;
+    /** @var null|array */
+    protected $glpi_call_response;
+    /** @var string */
+    protected $rpc_error;
 
     public const GPLI_ENTITIES_TYPE = 10;
     public const GPLI_GROUPS_TYPE = 11;

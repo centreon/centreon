@@ -94,6 +94,13 @@ class EasyvistaSoapProvider extends AbstractProvider
         self::ARG_SUBMIT_DATE => array('formid' => 'SubmitDate', 'soapname' => 'SUBMIT_DATE'),
     );
 
+    /** @var string */
+    protected $ws_error;
+    /** @var null|array */
+    protected $soap_result;
+    /** @var string */
+    protected $_ticket_number;
+
     function __destruct()
     {
     }

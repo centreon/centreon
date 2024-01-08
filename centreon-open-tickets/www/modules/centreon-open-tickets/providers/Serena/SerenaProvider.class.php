@@ -37,6 +37,12 @@ class SerenaProvider extends AbstractProvider
         self::ARG_SUB_CATEGORY => 'subcategory',
         self::ARG_SUB_CATEGORY_DETAILS => 'subcategory_details',
     );
+    /** @var string */
+    protected $ws_error;
+    /** @var string */
+    protected $_ticket_number;
+    /** @var mixed */
+    protected $otrs_call_response;
 
     function __destruct()
     {

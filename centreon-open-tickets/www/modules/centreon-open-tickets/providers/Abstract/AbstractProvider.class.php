@@ -71,6 +71,12 @@ abstract class AbstractProvider
      */
     abstract protected function doSubmit($db_storage, $contact, $host_problems, $service_problems);
 
+    /** @var array<mixed> */
+    protected $rule_data;
+    /** @var array<mixed> */
+    protected $default_data;
+    /** @var array<int, string> */
+    protected $rule_list;
     /** @var Centreon_OpenTickets_Rule */
     protected $rule;
     /** @var int */
@@ -87,6 +93,10 @@ abstract class AbstractProvider
     protected $submitted_config = null;
     /** @var string */
     protected $check_error_message = '';
+    /** @var string */
+    protected $check_error_message_append = '';
+    /** @var string */
+    protected $body = '';
     /** @var array<mixed> */
     protected $save_config = array();
     /** @var int */

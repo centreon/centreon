@@ -21,10 +21,14 @@
 
 class OtrsProvider extends AbstractProvider
 {
+    /** @var string */
+    protected $ws_error;
     /** @var int */
     protected $otrs_connected = 0;
     /** @var null|string */
     protected $otrs_session = null;
+    /** @var null|array */
+    protected $otrs_call_response;
     protected $attach_files = 1;
     protected $close_advanced = 1;
 

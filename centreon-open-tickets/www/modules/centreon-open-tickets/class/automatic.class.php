@@ -29,9 +29,15 @@ class Automatic
     /** @var CentreonDB */
     protected $dbCentreon;
     /** @var string */
+    protected $centreonPath;
+    /** @var string */
     protected $openTicketPath;
     /** @var Centreon_OpenTickets_Rule */
     protected $rule;
+    /** @var string */
+    protected $uniqId;
+    /** @var array<string, int> */
+    protected $registerProviders;
 
     /**
      * Constructor

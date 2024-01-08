@@ -44,6 +44,10 @@ class JiraProvider extends AbstractProvider
         self::ARG_PRIORITY => 'Priority',
         self::ARG_ISSUETYPE => 'IssueType',
     );
+    /** @var string */
+    protected $ws_error;
+    /** @var null|array */
+    protected $jira_call_response;
 
     function __destruct()
     {

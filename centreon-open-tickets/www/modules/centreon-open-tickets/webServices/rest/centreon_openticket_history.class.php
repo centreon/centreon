@@ -24,10 +24,10 @@ require_once _CENTREON_PATH_ . "/www/api/class/webService.class.php";
 
 class CentreonOpenticketHistory extends CentreonWebService
 {
-    /**
-     *
-     * @var type
-     */
+    /** @var Centreon  */
+    public $centreon;
+    /** @var CentreonDB  */
+    public $pearDBMonitoring;
     /** @var CentreonDB|null  */
     protected $pearDB;
 

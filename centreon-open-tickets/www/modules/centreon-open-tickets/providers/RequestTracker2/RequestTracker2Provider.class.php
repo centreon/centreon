@@ -40,6 +40,10 @@ class RequestTracker2Provider extends AbstractProvider
         self::ARG_CC => 'Cc',
         self::ARG_CONTENT => 'Content',
     );
+    /** @var string */
+    protected $ws_error;
+    /** @var null|array */
+    protected $call_response;
 
     function __destruct()
     {

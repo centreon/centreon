@@ -36,6 +36,10 @@ class BmcFootprints11Provider extends AbstractProvider
         self::ARG_PRIORITYNUMBER => 'PriorityNumber',
         self::ARG_ASSIGNEE => 'Assignee'
     ];
+    /** @var string */
+    protected $ws_error;
+    /** @var string */
+    protected $_ticket_number;
 
     /**
      * Set default extra value

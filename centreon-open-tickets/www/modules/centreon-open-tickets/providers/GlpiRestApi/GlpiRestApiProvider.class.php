@@ -23,6 +23,8 @@ class GlpiRestApiProvider extends AbstractProvider
 {
     protected $close_advanced = 1;
     protected $proxy_enabled = 1;
+    /** @var null|array */
+    protected $glpiCallResult;
 
     public const GLPI_ENTITY_TYPE = 14;
     public const GLPI_GROUP_TYPE = 15;

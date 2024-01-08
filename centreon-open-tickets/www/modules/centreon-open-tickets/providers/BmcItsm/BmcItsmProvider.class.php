@@ -82,6 +82,13 @@ class BmcItsmProvider extends AbstractProvider
         'Assigned Group' => array('id' => 13, 'soap' => 'Assigned_Group'),
     );
 
+    /** @var string */
+    protected $ws_error;
+    /** @var null|array */
+    protected $otrs_call_response;
+    /** @var string */
+    protected $_ticket_number;
+
     function __destruct()
     {
     }
