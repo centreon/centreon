@@ -1,15 +1,21 @@
-import { Provider, createStore, useAtom, useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
-import { renderHook } from '@testing-library/react';
 
-import { Method, setUrlQueryParameters, TestQueryProvider } from '@centreon/ui';
-import { userAtom, refreshIntervalAtom, aclAtom } from '@centreon/ui-context';
-
-import { ResourceType } from '../models';
 import {
+  Method,
+  SnackbarProvider,
+  TestQueryProvider,
+  setUrlQueryParameters
+} from '@centreon/ui';
+import { aclAtom, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+
+import {
+  labelAcknowledge,
+  labelAcknowledgeCommandSent,
   labelAcknowledgedBy,
   labelAlias,
   labelAt,
+  labelCancel,
   labelCategories,
   labelCheck,
   labelCheckDuration,
@@ -28,43 +34,27 @@ import {
   labelLatency,
   labelMore,
   labelNextCheck,
+  labelNotify,
+  labelNotifyHelpCaption,
   labelPerformanceData,
   labelStatusChangePercentage,
   labelStatusInformation,
+  labelSticky,
   labelTimezone,
   labelTo
 } from '../translatedLabels';
 
-import useDetails from './useDetails';
-import useLoadDetails from './useLoadDetails';
 import {
   panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from './detailsAtoms';
+import useDetails from './useDetails';
+import useLoadDetails from './useLoadDetails';
 
 import Details from '.';
 
-const resourceHostId = 1;
-const resourceHostType = 'host';
-const resourceServiceUuid = 'h1-s1';
 const resourceServiceId = 1;
-const resourceServiceType = ResourceType.service;
-const groups = [
-  {
-    configuration_uri: '/centreon/main.php?p=60102&o=c&hg_id=53',
-    id: 0,
-    name: 'Linux-servers'
-  }
-];
-
-const categories = [
-  {
-    configuration_uri: '/centreon/main.php?p=60102&o=c&hg_id=53',
-    id: 0,
-    name: 'Windows'
-  }
-];
 
 const selectedResource = {
   parentResourceId: undefined,
@@ -72,115 +62,6 @@ const selectedResource = {
   resourceId: resourceServiceId,
   resourcesDetailsEndpoint:
     '/centreon/api/latest/monitoring/resources/hosts/1/services/1'
-};
-
-const retrievedDetails = {
-  acknowledged: true,
-  acknowledgement: {
-    author_id: 1,
-    author_name: 'Admin',
-    comment: 'Acknowledged by Admin',
-    deletion_time: '2020-03-19T18:57:59Z',
-    entry_time: '2020-03-18T18:57:59Z',
-    host_id: 1,
-    id: 1,
-    is_notify_contacts: false,
-    is_persistent_comment: true,
-    is_sticky: true,
-    poller_id: 2,
-    service_id: 1,
-    state: 1
-  },
-  active_checks: false,
-  alias: 'Central-Centreon',
-  categories,
-  checked: true,
-  command_line: 'base_host_alive',
-  downtimes: [
-    {
-      author_name: 'admin',
-      comment: 'First downtime set by Admin',
-      end_time: '2020-01-18T18:57:59Z',
-      entry_time: '2020-01-18T17:57:59Z',
-      start_time: '2020-01-18T17:57:59Z'
-    },
-    {
-      author_name: 'admin',
-      comment: 'Second downtime set by Admin',
-      end_time: '2020-02-18T18:57:59Z',
-      entry_time: '2020-01-18T17:57:59Z',
-      start_time: '2020-02-18T17:57:59Z'
-    }
-  ],
-  duration: '22m',
-  execution_time: 0.070906,
-  flapping: true,
-  fqdn: 'central.centreon.com',
-  groups,
-  id: resourceServiceId,
-  in_downtime: true,
-  information:
-    'OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%',
-  last_check: '2020-05-18T16:00Z',
-  last_notification: '2020-07-18T17:30:00Z',
-  last_status_change: '2020-04-18T15:00Z',
-  last_time_with_no_issue: '2021-09-23T15:49:50+02:00',
-  last_update: '2020-03-18T16:30:00Z',
-  latency: 0.005,
-  links: {
-    endpoints: {
-      details: '/centreon/api/latest/monitoring/resources/hosts/1/services/1',
-      notification_policy: 'notification_policy',
-      performance_graph: 'performance_graph',
-      timeline: 'timeline',
-      timeline_download: 'timeline/download'
-    },
-    externals: {
-      action_url: undefined,
-      notes: undefined
-    },
-    uris: {
-      configuration: undefined,
-      logs: undefined,
-      reporting: undefined
-    }
-  },
-  monitoring_server_name: 'Poller',
-  name: 'Central',
-  next_check: '2020-06-18T17:15:00Z',
-  notification_number: 3,
-  parent: {
-    id: resourceHostId,
-    links: {
-      endpoints: {
-        performance_graph: 'performance_graph',
-        timeline: 'timeline'
-      },
-      externals: {
-        action_url: undefined,
-        notes: undefined
-      },
-      uris: {
-        configuration: undefined,
-        logs: undefined,
-        reporting: undefined
-      }
-    },
-    name: 'Centreon',
-    short_type: 'h',
-    status: { name: 'S1', severity_code: 1 },
-    type: resourceHostType,
-    uuid: 'h1'
-  },
-  passive_checks: false,
-  percent_state_change: 3.5,
-  performance_data:
-    'rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100',
-  status: { name: 'Critical', severity_code: 1 },
-  timezone: 'Europe/Paris',
-  tries: '3/3 (Hard)',
-  type: resourceServiceType,
-  uuid: resourceServiceUuid
 };
 
 const retrievedUser = {
@@ -250,6 +131,21 @@ const getStore = () => {
   return store;
 };
 
+const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
+  const selectedResourceDetailsEndpoint = store.get(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
+
+  cy.fixture(dataPath).then((data) => {
+    cy.interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: selectedResourceDetailsEndpoint,
+      response: data
+    });
+  });
+};
+
 const initialize = (store): void => {
   cy.viewport('macbook-13');
 
@@ -260,24 +156,15 @@ const initialize = (store): void => {
     }
   ]);
 
-  const selectedResourceDetailsEndpoint = store.get(
-    selectedResourceDetailsEndpointDerivedAtom
-  );
-
-  cy.interceptAPIRequest({
-    alias: 'getDetails',
-    method: Method.GET,
-    path: selectedResourceDetailsEndpoint,
-    response: retrievedDetails
-  });
-
   cy.mount({
     Component: (
-      <Provider store={store}>
-        <BrowserRouter>
-          <DetailsTest />
-        </BrowserRouter>
-      </Provider>
+      <SnackbarProvider>
+        <Provider store={store}>
+          <BrowserRouter>
+            <DetailsTest />
+          </BrowserRouter>
+        </Provider>
+      </SnackbarProvider>
     )
   });
 };
@@ -294,6 +181,11 @@ const checkActionsButton = (): void => {
 describe('Details', () => {
   it('displays resource details information', () => {
     const store = getStore();
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/details.json',
+      store
+    });
     initialize(store);
 
     cy.waitForRequest('@getDetails');
@@ -375,27 +267,84 @@ describe('Details', () => {
     cy.contains('base_host_alive').should('exist');
     // cy.makeSnapshot()
   });
-  it.only('displays resource details actions like icons when panel width is less than or equal 615 px ', () => {
+  it('displays resource details actions like icons when panel width is less than or equal 615 px ', () => {
     const store = getStore();
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/details.json',
+      store
+    });
     initialize(store);
     cy.waitForRequest('@getDetails');
     cy.contains('Critical').should('be.visible');
 
     checkActionsButton();
-    // cy.makeSnapshot()
+    // cy.makeSnapshot();
   });
-  it.only('displays resource details actions like buttons when panel width is greater than  615 px ', () => {
+  it('displays resource details actions like buttons when panel width is greater than  615 px ', () => {
     const store = getStore();
     store.set(panelWidthStorageAtom, 800);
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/details.json',
+      store
+    });
     initialize(store);
 
     cy.waitForRequest('@getDetails');
     cy.contains('Critical').should('be.visible');
 
     checkActionsButton();
-    // cy.makeSnapshot()
+    // cy.makeSnapshot();
   });
-  // sends an action of acknowledge when button ack is clicked
+  it('displays the modal of ack when Acknowledge button is clicked and sends an action of acknowledge', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithNoAcknowledgement',
+      dataPath: 'resources/details/detailsWithNoAcknowledgment.json',
+      store
+    });
+    initialize(store);
+    cy.waitForRequest('@getDetailsWithNoAcknowledgement');
+    cy.contains('Unknown').should('be.visible');
+
+    cy.findByTestId('mainAcknowledge')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('dialogAcknowledge').should('be.visible');
+
+    cy.contains(labelCancel).should('be.visible');
+    cy.contains(labelAcknowledge).should('be.visible');
+    cy.contains(labelComment).should('be.visible');
+    cy.contains(labelNotify).should('be.visible');
+    cy.contains(labelNotifyHelpCaption).should('be.visible');
+    cy.contains(labelSticky);
+
+    // cy.makeSnapshot(
+    //   'displays the modal of ack when Acknowledge button is clicked'
+    // );
+
+    cy.interceptAPIRequest({
+      alias: 'sendAck',
+      method: Method.POST,
+      path: './api/latest/monitoring/resources/acknowledge',
+      statusCode: 204
+    });
+
+    cy.findByTestId('Confirm').click();
+    cy.waitForRequest('@sendAck');
+
+    cy.getRequestCalls('@sendAck').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelAcknowledgeCommandSent);
+
+    // cy.makeSnapshot('sends an action of acknowledge');
+  });
   // sends an action of disacknowledge when button disack is clicked
   // sends an action downtime  when button dt is clicked
   // sends an action of check when check action is chose and  clicked
