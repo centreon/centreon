@@ -42,7 +42,7 @@ runs:
           ROOT_REPO_PATH="rpm-standard-internal"
         else
           ROOT_REPO_PATH="rpm-standard"
-        done
+        fi
 
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
