@@ -157,16 +157,6 @@ jobs:
           summary_display: '${{ needs.build.outputs.display_summary }}'
           issue_details: '${{ needs.build.outputs.display_summary }}'
 
-      - name: Create jira ticket
-        # In case of QG failure, a ticket is created
-        if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
-        uses: ./.github/actions/veracode_create_jira_ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: ${{ inputs.module_name }}
-
       - name: Backup analysis reports
         # debug step used to investigate support case
         if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
@@ -222,6 +212,16 @@ jobs:
           ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
+
+      - name: Create jira ticket
+        # In case of QG failure, a ticket is created
+        if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
+        uses: ./.github/actions/veracode_create_jira_ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: ${{ inputs.module_name }}
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
