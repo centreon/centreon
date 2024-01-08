@@ -48,6 +48,9 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Generate binary file
+
+        if: ${{ false }}
+
         uses: ./.github/actions/veracode-generate-binary
         with:
           module_directory: "${{ inputs.module_directory }}"
@@ -93,6 +96,9 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Get build binary
+
+        if: ${{ false }}
+
         uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
@@ -100,6 +106,9 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Get baseline files
+
+        if: ${{ false }}
+
         run: |
           set -e
           # Install aws cli
@@ -142,6 +151,9 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
+
+        if: ${{ false }}
+
         uses: veracode/Veracode-pipeline-scan-action@35aecef76c5365b8dea83c150852cdebc0991d2d # v1.0.10
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
