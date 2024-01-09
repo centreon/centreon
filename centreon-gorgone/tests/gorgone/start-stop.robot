@@ -8,7 +8,7 @@ Library             Examples
 
 
 *** TesT Cases ***
-GSS1_${id}
+GSS${id}
     [Documentation]    Start-Stop Gorgone
     [Tags]    gorgone    start-stop
     Set Log Level    TRACE
