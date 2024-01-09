@@ -1,20 +1,6 @@
 {
-    "acknowledged":true,
-    "acknowledgement":{
-       "author_id":1,
-       "author_name":"Admin",
-       "comment":"Acknowledged by Admin",
-       "deletion_time":"2020-03-19T18:57:59Z",
-       "entry_time":"2020-03-18T18:57:59Z",
-       "host_id":1,
-       "id":1,
-       "is_notify_contacts":false,
-       "is_persistent_comment":true,
-       "is_sticky":true,
-       "poller_id":2,
-       "service_id":1,
-       "state":1
-    },
+    "acknowledged":false,
+    "acknowledgement":null,
     "active_checks":false,
     "alias":"Central-Centreon",
     "categories": [

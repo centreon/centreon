@@ -1,3 +1,8 @@
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -9,6 +14,7 @@ import {
 } from '@centreon/ui';
 import { aclAtom, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
+import { resourcesEndpoint } from '../api/endpoint';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -23,7 +29,14 @@ import {
   labelComment,
   labelCurrentNotificationNumber,
   labelCurrentStatusDuration,
+  labelDisacknowledge,
+  labelDisacknowledgementCommandSent,
+  labelDowntime,
+  labelDowntimeCommandSent,
   labelDowntimeDuration,
+  labelDuration,
+  labelFixed,
+  labelForcedCheck,
   labelFqdn,
   labelFrom,
   labelGroups,
@@ -37,6 +50,11 @@ import {
   labelNotify,
   labelNotifyHelpCaption,
   labelPerformanceData,
+  labelResourceDetailsCheckCommandSent,
+  labelResourceDetailsCheckDescription,
+  labelResourceDetailsForcedCheckCommandSent,
+  labelResourceDetailsForcedCheckDescription,
+  labelSetDowntime,
   labelStatusChangePercentage,
   labelStatusInformation,
   labelSticky,
@@ -54,6 +72,10 @@ import useLoadDetails from './useLoadDetails';
 
 import Details from '.';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(localizedFormat);
+
 const resourceServiceId = 1;
 
 const selectedResource = {
@@ -61,14 +83,14 @@ const selectedResource = {
   parentResourceType: undefined,
   resourceId: resourceServiceId,
   resourcesDetailsEndpoint:
-    '/centreon/api/latest/monitoring/resources/hosts/1/services/1'
+    '/api/latest/monitoring/resources/hosts/1/services/1'
 };
 
 const retrievedUser = {
   alias: 'Admin',
   default_page: '/monitoring/resources',
   isExportButtonEnabled: true,
-  locale: 'en_US.UTF8',
+  locale: 'en',
   name: 'Admin',
   timezone: 'Europe/Paris',
   use_deprecated_pages: false,
@@ -140,7 +162,7 @@ const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
     cy.interceptAPIRequest({
       alias,
       method: Method.GET,
-      path: selectedResourceDetailsEndpoint,
+      path: `**/${selectedResourceDetailsEndpoint}`,
       response: data
     });
   });
@@ -297,22 +319,24 @@ describe('Details', () => {
     checkActionsButton();
     // cy.makeSnapshot();
   });
-  it('displays the modal of ack when Acknowledge button is clicked and sends an action of acknowledge', () => {
+  it('displays the modal of ack when Acknowledge button is clicked and sends the action of acknowledge', () => {
     const store = getStore();
 
     interceptDetailsRequest({
-      alias: 'getDetailsWithNoAcknowledgement',
-      dataPath: 'resources/details/detailsWithNoAcknowledgment.json',
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath: 'resources/details/detailsWithoutAcknowledgment.json',
       store
     });
     initialize(store);
-    cy.waitForRequest('@getDetailsWithNoAcknowledgement');
-    cy.contains('Unknown').should('be.visible');
+    cy.waitForRequest('@getDetailsWithoutAcknowledgement');
+    cy.contains('Critical').should('be.visible');
 
     cy.findByTestId('mainAcknowledge')
       .should('be.visible')
       .should('be.enabled')
       .click();
+
+    cy.findByTestId('mainDisacknowledge').should('be.disabled');
 
     cy.findByTestId('dialogAcknowledge').should('be.visible');
 
@@ -330,7 +354,7 @@ describe('Details', () => {
     cy.interceptAPIRequest({
       alias: 'sendAck',
       method: Method.POST,
-      path: './api/latest/monitoring/resources/acknowledge',
+      path: `${resourcesEndpoint}/acknowledge`,
       statusCode: 204
     });
 
@@ -346,7 +370,183 @@ describe('Details', () => {
     // cy.makeSnapshot('sends an action of acknowledge');
   });
   // sends an action of disacknowledge when button disack is clicked
+  it('displays the modal of disack when Disack button is clicked and sends the action of disack', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithAcknowledgement',
+      dataPath: 'resources/details/detailsWithAcknowledgment.json',
+      store
+    });
+    initialize(store);
+    cy.waitForRequest('@getDetailsWithAcknowledgement');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('mainDisacknowledge')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('mainAcknowledge').should('be.disabled');
+
+    cy.findByTestId('modalDisacknowledge').should('be.visible');
+
+    cy.contains(labelDisacknowledge).should('be.visible');
+    cy.contains(labelCancel).should('be.visible');
+
+    // cy.makeSnapshot(
+    //   'displays the modal of disack when Acknowledge button is clicked'
+    // );
+
+    cy.interceptAPIRequest({
+      alias: 'sendDisack',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/acknowledgements`,
+      statusCode: 204
+    });
+
+    cy.findByTestId('Confirm').click();
+    cy.waitForRequest('@sendDisack');
+
+    cy.getRequestCalls('@sendDisack').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelDisacknowledgementCommandSent);
+
+    // cy.makeSnapshot('sends an action of disack');
+  });
   // sends an action downtime  when button dt is clicked
-  // sends an action of check when check action is chose and  clicked
-  // sends an action of force check when button force check is chose and  clicked
+
+  it('displays the modal of downtime when Dt button is clicked then sends the action of dt', () => {
+    const now = new Date(2023, 1, 14, 10, 55);
+    cy.clock(now);
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutDowntime',
+      dataPath: 'resources/details/detailsWithoutDownTime.json',
+      store
+    });
+
+    const defaultEndDate = dayjs(now).add(3600, 'seconds').toDate();
+    const startTime = dayjs.tz(now, 'Europe/Paris').format('L LT');
+    const endTime = dayjs.tz(defaultEndDate, 'Europe/Paris').format('L LT');
+
+    initialize(store);
+
+    cy.waitForRequest('@getDetailsWithoutDowntime');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('mainSetDowntime')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('dialogDowntime').should('be.visible');
+
+    cy.contains(labelDowntime).should('be.visible');
+    cy.findByDisplayValue(startTime).should('be.visible');
+    cy.contains(labelTo);
+    cy.findByDisplayValue(endTime).should('be.visible');
+    cy.contains(labelDuration).should('be.visible');
+    cy.contains(labelFixed).should('be.visible');
+    cy.contains(labelComment).should('be.visible');
+    cy.contains(labelCancel).should('be.visible');
+    cy.contains(labelSetDowntime).should('be.visible');
+
+    // cy.makeSnapshot(
+    //   'displays the modal of disack when Acknowledge button is clicked'
+    // );
+
+    cy.interceptAPIRequest({
+      alias: 'sendDisack',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/downtime`,
+      statusCode: 204
+    });
+
+    cy.findByTestId('Confirm').click();
+    cy.waitForRequest('@sendDisack');
+
+    cy.getRequestCalls('@sendDisack').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelDowntimeCommandSent);
+
+    // cy.makeSnapshot('sends an action of disack');
+  });
+
+  // array
+  it.only('sends forced/check command when the command is chose and  clicked', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/details.json',
+      store
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'sendForceCheckCommand',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/check`,
+      statusCode: 204
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'sendCheckCommand',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/check`,
+      statusCode: 204
+    });
+
+    initialize(store);
+
+    cy.waitForRequest('@getDetails');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('mainCheck').should('be.visible').should('be.enabled');
+    cy.findByTestId('arrow').click();
+    cy.findByRole('tooltip').should('be.visible').as('list');
+
+    cy.get('@list').contains(labelCheck).should('be.visible');
+    cy.get('@list')
+      .contains(labelResourceDetailsCheckDescription)
+      .should('be.visible');
+    cy.get('@list').contains(labelForcedCheck).should('be.visible');
+    cy.get('@list')
+      .contains(labelResourceDetailsForcedCheckDescription)
+      .should('be.visible');
+
+    cy.contains(labelForcedCheck).click();
+    cy.findByTestId('arrow').click();
+    cy.get('@list').should('not.exist');
+
+    cy.findByTestId('mainCheck').click();
+    cy.waitForRequest('@sendForceCheckCommand');
+
+    cy.getRequestCalls('@sendForceCheckCommand').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelResourceDetailsForcedCheckCommandSent);
+
+    cy.makeSnapshot('sends forced check command');
+
+    cy.findByTestId('arrow').click();
+    cy.findByRole('tooltip').should('be.visible').as('list');
+
+    cy.get('@list').contains(labelCheck).click();
+    cy.findByTestId('arrow').click();
+    cy.get('@list').should('not.exist');
+
+    cy.findByTestId('mainCheck').click();
+
+    cy.waitForRequest('@sendCheckCommand');
+
+    cy.contains(labelResourceDetailsCheckCommandSent);
+    cy.makeSnapshot('sends check command');
+  });
 });
