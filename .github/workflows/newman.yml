@@ -531,9 +531,9 @@ jobs:
       runs-on: ubuntu-22.04
       defaults:
         run:
+          working-directory: centreon/tests/rest_api
           shell: bash
       steps:
-
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
