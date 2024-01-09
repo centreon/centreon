@@ -569,8 +569,14 @@ jobs:
                           new_file_name=$(echo "$collection_name_sanitized" | sed 's/_/-/g')
                           new_file_name="${new_file_name}.postman_collection.json"  # Ajoutez ".postman_collection.json"
                           echo "new file name :$new_file_name "
-                          # Accéder au fichier JSON et mettre à jour le champ "description"
-                          # jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$collection_file" > "$collection_file.tmp" && mv "$collection_file.tmp" "$collection_file"
+                          full_file_path=$(find ./collections -type f -name "$new_file_name")
+                          if [ -n "$full_file_path" ]; then
+                            # Accéder au fichier JSON et mettre à jour le champ "description"
+                            jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$full_file_path" > "$full_file_path.tmp" && mv "$full_file_path.tmp" "$full_file_path"
+                          else
+                            echo "Le fichier $new_file_name n'a pas été trouvé dans les sous-répertoires de ./collections."
+                      fi
+
                       fi
                   fi
               done
