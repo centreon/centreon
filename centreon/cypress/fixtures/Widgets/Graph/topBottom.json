@@ -10,7 +10,8 @@
       "max": 120,
       "min": 0,
       "uuid": "h1s1",
-      "name": "Centreon_server_1",
+      "name": "Ping_1",
+      "parent_name": "Centreon_server",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
     },
@@ -22,7 +23,8 @@
       "max": 120,
       "min": 0,
       "uuid": "h1s2",
-      "name": "Centreon_server_2",
+      "name": "Ping_2",
+      "parent_name": "Centreon_server",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
     },
@@ -34,7 +36,8 @@
       "max": 120,
       "min": 0,
       "uuid": "h1s3",
-      "name": "Centreon_server_3",
+      "name": "Ping_3",
+      "parent_name": "Centreon_server",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
     },
@@ -46,7 +49,8 @@
       "max": 120,
       "min": 0,
       "uuid": "h1s4",
-      "name": "Centreon_server_4",
+      "name": "Ping_4",
+      "parent_name": "Centreon_server",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
     }
