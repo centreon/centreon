@@ -536,7 +536,7 @@ jobs:
     steps:
       - name: Checkout Repository
         with:
-            ref: ${{ github.head_ref }}
+          ref: ${{ github.head_ref }}
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Adding test cases key key
@@ -594,13 +594,13 @@ jobs:
 
       - name: Commit files
         run: |
-            git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git config --local user.name "github-actions[bot]"
-            git add -u collections
-            git commit -m "Add test cases keys into the collections"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -u collections
+          git commit -m "Add test cases keys into the collections"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-            github_token:  ${{ secrets.GITHUB_TOKEN }}
-            branch: MON-33861
+          github_token:  ${{ secrets.GITHUB_TOKEN }}
+          branch: MON-33861
