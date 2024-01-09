@@ -605,7 +605,6 @@ jobs:
               git commit -m "changes collection"
 
       - name: Push changes
-        uses: ad-m/github-push-action@v0.8.0
-        with:
-            github_token:  ${{ secrets.GITHUB_TOKEN }}
-            branch: MON-33861
+        run: |
+              git pull origin MON-33861  # Pull the latest changes from the remote branch
+              git push origin MON-33861
