@@ -261,7 +261,7 @@ jobs:
         uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
           pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-          path: ${{ inputs.name }}-${{ matrix.type_of_report }}
+          path: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
           merge-multiple: true
 
       - name: Upload the Regrouped Artifact
@@ -269,7 +269,7 @@ jobs:
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          path: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
+          path: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.json
           retention-days: 1
 
       - name: Delete ${{ matrix.type_of_report }} Artifacts
