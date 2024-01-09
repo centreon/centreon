@@ -8,7 +8,7 @@ import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/me
 import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
@@ -82,7 +82,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(

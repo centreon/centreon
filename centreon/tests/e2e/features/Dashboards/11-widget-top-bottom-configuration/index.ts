@@ -11,7 +11,7 @@ const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
@@ -93,7 +93,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(

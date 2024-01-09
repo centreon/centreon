@@ -11,7 +11,7 @@ import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widget
 import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoWidgets.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
@@ -74,7 +74,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(

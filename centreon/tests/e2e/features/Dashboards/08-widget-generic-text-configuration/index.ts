@@ -6,7 +6,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -60,7 +60,7 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(

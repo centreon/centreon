@@ -5,7 +5,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import textWidget from '../../../fixtures/dashboards/creation/widgets/textWidget.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -13,7 +13,7 @@ before(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 beforeEach(() => {

@@ -62,7 +62,7 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
@@ -190,7 +190,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given('a dashboard that includes a configured Status Grid widget', () => {

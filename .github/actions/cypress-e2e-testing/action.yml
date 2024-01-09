@@ -16,6 +16,9 @@ inputs:
   openid_image_version:
     description: "Openid image version"
     required: true
+  saml_image_version:
+    description: "SAML image version"
+    required: true
   module:
     description: "module"
     required: true

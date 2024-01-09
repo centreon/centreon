@@ -3,7 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -11,7 +11,7 @@ before(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 beforeEach(() => {
