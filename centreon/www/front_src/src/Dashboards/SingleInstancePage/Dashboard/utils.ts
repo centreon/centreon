@@ -9,8 +9,6 @@ import {
   uniq
 } from 'ramda';
 
-import { setUrlQueryParameters } from '@centreon/ui';
-
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
   const state = JSON.parse(editorState);
@@ -18,7 +16,30 @@ export const isRichTextEditorEmpty = (editorState: string): boolean => {
   return equals(state.root.children?.[0]?.children?.length, 0);
 };
 
-export const getResourcesUrlForMetricsWidgets = (data): string => {
+export const getDetailsPanelQueriers = (data): object => {
+  const uuid = data?.services[0].uuid;
+
+  const hostId = uuid.split('-')[0].slice(1);
+  const serviceId = uuid.split('-')[1].slice(1);
+
+  const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+
+  const queryParameters = {
+    id: parseInt(serviceId, 10),
+    resourcesDetailsEndpoint,
+    selectedTimePeriodId: 'last_24_h',
+    tab: 'graph',
+    tabParameters: {},
+    uuid
+  };
+
+  return queryParameters;
+};
+
+export const getResourcesUrlForMetricsWidgets = ({
+  data,
+  widgetName
+}): string => {
   const values = data?.services?.map(({ name }) => {
     return {
       id: `\\b${name}\\b`,
@@ -46,10 +67,20 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
   const filterQueryParameter = {
     criterias: [serviceCriteria, ...filters, { name: 'search', value: '' }]
   };
+  const encodedFilterParams = encodeURIComponent(
+    JSON.stringify(filterQueryParameter)
+  );
 
-  return `/monitoring/resources?filter=${JSON.stringify(
-    filterQueryParameter
-  )}&fromTopCounter=true`;
+  if (!equals(widgetName, 'centreon-widget-singlemetric')) {
+    return `/monitoring/resources?&filter=${encodedFilterParams}&fromTopCounter=true`;
+  }
+
+  const detailsPanelQueriers = getDetailsPanelQueriers(data);
+  const encodedDetailsParams = encodeURIComponent(
+    JSON.stringify(detailsPanelQueriers)
+  );
+
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 export const getResourcesUrlForStatusGrid = ({
@@ -122,30 +153,6 @@ export const getResourcesUrlForStatusGrid = ({
   return `/monitoring/resources?filter=${JSON.stringify(
     filterQueryParameter
   )}&fromTopCounter=true`;
-};
-
-export const openGraphPanel = (data): void => {
-  const uuid = data?.services[0].uuid;
-
-  const hostId = uuid.split('-')[0].slice(1);
-  const serviceId = uuid.split('-')[1].slice(1);
-
-  const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
-
-  const detailsPanel = [
-    {
-      name: 'details',
-      value: {
-        id: parseInt(serviceId, 10),
-        resourcesDetailsEndpoint,
-        selectedTimePeriodId: 'last_24_h',
-        tab: 'graph',
-        tabParameters: {},
-        uuid
-      }
-    }
-  ];
-  setUrlQueryParameters(detailsPanel);
 };
 
 export const resourceBasedWidgets = [

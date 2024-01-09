@@ -12,7 +12,7 @@ interface Props {
   canEdit?: boolean;
   changeLayout?: (newLayout: Array<Layout>) => void;
   displayMoreActions?: boolean;
-  goToResourceStatus: (data, name, options) => void;
+  getLinkToResourceStatusPage: (data, name, options) => string;
   isEditing?: boolean;
   isStatic: boolean;
   panels: Array<Panel>;
@@ -27,7 +27,7 @@ const PanelsLayout = ({
   canEdit,
   setRefreshCount,
   displayMoreActions = true,
-  goToResourceStatus
+  getLinkToResourceStatusPage
 }: Props): JSX.Element => {
   return (
     <DashboardLayout.Layout
@@ -48,9 +48,11 @@ const PanelsLayout = ({
                 <PanelHeader
                   displayMoreActions={displayMoreActions}
                   id={i}
-                  linkToResourceStatus={() =>
-                    goToResourceStatus(data, name, options)
-                  }
+                  linkToResourceStatus={getLinkToResourceStatusPage(
+                    data,
+                    name,
+                    options
+                  )}
                   setRefreshCount={setRefreshCount}
                   widgetName={name}
                 />

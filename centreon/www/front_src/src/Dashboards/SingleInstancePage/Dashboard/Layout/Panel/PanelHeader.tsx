@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { equals, includes } from 'ramda';
+import { Link } from 'react-router-dom';
 
 import { CardHeader } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -24,7 +25,7 @@ import MorePanelActions from './MorePanelActions';
 interface PanelHeaderProps {
   displayMoreActions: boolean;
   id: string;
-  linkToResourceStatus?;
+  linkToResourceStatus?: string;
   setRefreshCount?: (id) => void;
   widgetName?: string;
 }
@@ -67,13 +68,19 @@ const PanelHeader = ({
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
             {includes(widgetName, resourceBasedWidgets) && (
-              <IconButton
-                ariaLabel={t(labelSeeMoreInRSPage)}
-                title={t(labelSeeMoreInRSPage)}
-                onClick={linkToResourceStatus}
+              <Link
+                style={{ all: 'unset' }}
+                target="_blank"
+                to={linkToResourceStatus as string}
               >
-                <DvrIcon fontSize="small" />
-              </IconButton>
+                <IconButton
+                  ariaLabel={t(labelSeeMoreInRSPage)}
+                  title={t(labelSeeMoreInRSPage)}
+                  onClick={() => undefined}
+                >
+                  <DvrIcon fontSize="small" />
+                </IconButton>
+              </Link>
             )}
             <IconButton
               ariaLabel={t(labelMoreActions) as string}

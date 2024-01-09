@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 import { Box, CardActionArea, Typography, useTheme } from '@mui/material';
 import DvrIcon from '@mui/icons-material/Dvr';
@@ -52,23 +52,34 @@ const Tile = ({
     );
   };
 
-  const goToResourceStatusAndOpenPanel = (): void => {
-    goToResourceStatus();
-    openResourceStatusPanel({ resource: data, type });
-  };
+  // const goToResourceStatusAndOpenPanel = (): void => {
+  //   goToResourceStatus();
+  //   openResourceStatusPanel({ resource: data, type });
+  // };
 
   if (isNil(data)) {
     return (
-      <CardActionArea
-        className={classes.seeMoreContainer}
-        onClick={goToResourceStatus}
+      <Link
+        style={{ all: 'unset' }}
+        target="_blank"
+        to={getResourcesUrl({
+          resources,
+          states,
+          statuses,
+          type
+        })}
       >
-        <DvrIcon
-          color="primary"
-          fontSize={isSmallestSize ? 'medium' : 'large'}
-        />
-        {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
-      </CardActionArea>
+        <CardActionArea
+          className={classes.seeMoreContainer}
+          // onClick={() => openResourceStatusPanel({ resource: data, type })}
+        >
+          <DvrIcon
+            color="primary"
+            fontSize={isSmallestSize ? 'medium' : 'large'}
+          />
+          {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
+        </CardActionArea>
+      </Link>
     );
   }
 
@@ -94,8 +105,33 @@ const Tile = ({
     <Box
       className={classes.container}
       data-status={data.statusName}
-      onClick={goToResourceStatusAndOpenPanel}
+      // onClick={() => openResourceStatusPanel({ resource: data, type })}
+      onClick={() => {
+        const linkUrl = getResourcesUrl({
+          resources,
+          states,
+          statuses,
+          type
+        });
+        const newTab = window.open(linkUrl, '_blank');
+
+        newTab?.onload = () => {
+          newTab?.console.log('New tab opened:', linkUrl);
+        };
+        // openResourceStatusPanel({ resource: data, type });
+      }}
     >
+      {/* <Link
+        style={{ all: 'unset' }}
+        target="_blank"
+        to={getResourcesUrl({
+          resources,
+          states,
+          statuses,
+          type
+        })}
+        // onClick={openResourceStatusPanel}
+      > */}
       {displayStatusTile && (
         <Box
           className={classes.statusTile}
@@ -110,6 +146,7 @@ const Tile = ({
       <EllipsisTypography textAlign="center" variant="body2">
         {data.parentName}
       </EllipsisTypography>
+      {/* </Link> */}
     </Box>
   );
 };
