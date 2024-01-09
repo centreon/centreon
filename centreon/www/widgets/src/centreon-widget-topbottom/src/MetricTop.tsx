@@ -1,4 +1,5 @@
 import { inc } from 'ramda';
+import { Link } from 'react-router-dom';
 
 import { Box, Typography } from '@mui/material';
 
@@ -9,7 +10,7 @@ import { FormThreshold } from '../../models';
 
 import { Resource } from './models';
 import { useTopBottomStyles } from './TopBottom.styles';
-import useGoToResourceStatus from './useGoToResourceStatus';
+import useGoToResourceStatus from './useLinkToResourceStatus';
 
 interface MetricTopProps {
   displayAsRaw: boolean;
@@ -50,7 +51,7 @@ const MetricTop = ({
     ],
     times: []
   };
-  const { goToResourceStatusAndOpenPanel } = useGoToResourceStatus();
+  const { getResourcesStatusUrl } = useGoToResourceStatus();
 
   const formattedThresholds = useThresholds({
     data: formattedData,
@@ -61,26 +62,31 @@ const MetricTop = ({
 
   return (
     <>
-      <Typography
-        className={classes.resourceLabel}
-        onClick={() => goToResourceStatusAndOpenPanel(metricTop)}
-      >
-        <strong>
-          #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-        </strong>
+      <Typography className={classes.resourceLabel}>
+        <Link
+          style={{ all: 'unset' }}
+          target="_blank"
+          to={getResourcesStatusUrl(metricTop)}
+        >
+          <strong>
+            #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
+          </strong>
+        </Link>
       </Typography>
-      <Box
-        className={classes.singleBarContainer}
-        style={{ height: 50 }}
-        onClick={() => goToResourceStatusAndOpenPanel(metricTop)}
-      >
-        <SingleBar
-          data={formattedData}
-          displayAsRaw={displayAsRaw}
-          showLabels={showLabels}
-          size="small"
-          thresholds={formattedThresholds}
-        />
+      <Box className={classes.singleBarContainer} style={{ height: 50 }}>
+        <Link
+          style={{ all: 'unset' }}
+          target="_blank"
+          to={getResourcesStatusUrl(metricTop)}
+        >
+          <SingleBar
+            data={formattedData}
+            displayAsRaw={displayAsRaw}
+            showLabels={showLabels}
+            size="small"
+            thresholds={formattedThresholds}
+          />
+        </Link>
       </Box>
     </>
   );
