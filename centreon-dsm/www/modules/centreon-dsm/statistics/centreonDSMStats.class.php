@@ -39,9 +39,7 @@ require_once __DIR__ . "/../../../class/exceptions/StatisticException.php";
 
 class CentreonDSMStats
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     private $db;
 
     /**
@@ -49,19 +47,27 @@ class CentreonDSMStats
      */
     public function __construct()
     {
-        $this->db = new centreonDB();
+        $this->db = new CentreonDB();
     }
 
     /**
      * Get statistics of module
      * @throws StatisticException
-     * @return array
+     * @return array{
+     *     dsm: array{}|array{
+     *         pools: scalar,
+     *         slot_min: scalar,
+     *         slot_max: scalar,
+     *         slot_avg: scalar,
+     *     }
+     * }
      */
-    public function getStats()
+    public function getStats(): array
     {
-        $data = [];
         try {
             $data = $this->getSlotsUsage();
+
+            return ['dsm' => $data];
         } catch (\Throwable $e) {
             throw new StatisticException(
                 "Unable to get Centreon DSM statistics: " . $e->getMessage(),
@@ -69,29 +75,36 @@ class CentreonDSMStats
                 $e
             );
         }
-
-        return ['dsm' => $data];
     }
 
     /**
      * Get Auto Discovery services rules usage
-     * @return array
+     * @return array{}|array{
+     *     pools: scalar,
+     *     slot_min: scalar,
+     *     slot_max: scalar,
+     *     slot_avg: scalar,
+     * }
      */
-    public function getSlotsUsage()
+    public function getSlotsUsage(): array
     {
-        $data = array();
+        $data = [];
 
-        $query = "SELECT COUNT(pool_id) AS pools, MIN(pool_number) AS min,
-            MAX(pool_number) AS max, AVG(pool_number) as avg
-            FROM mod_dsm_pool";
+        $query = <<<'SQL'
+            SELECT COUNT(pool_id) AS pools, 
+                   MIN(pool_number) AS min,
+                   MAX(pool_number) AS max,
+                   AVG(pool_number) as avg
+            FROM mod_dsm_pool
+            SQL;
         $result = $this->db->query($query);
         while ($row = $result->fetch()) {
-            $data = array(
+            $data = [
                 'pools' => $row['pools'],
                 'slot_min' => $row['min'],
                 'slot_max' => $row['max'],
-                'slot_avg' => $row['avg']
-            );
+                'slot_avg' => $row['avg'],
+            ];
         }
 
         return $data;
