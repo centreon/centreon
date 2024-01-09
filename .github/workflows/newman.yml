@@ -540,14 +540,14 @@ jobs:
       - name: Adding test cases key key
         run: |
           collections=($(find ./collections -type f -name "*.postman_collection.json"))
-
+          echo "collections:$collections"
 
           for collection_file in "${collections[@]}"; do
             collection_name=$(basename "$collection_file" .postman_collection.json)
             collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
             echo "collection_name_sanitized: $collection_name_sanitized"
 
-          issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
+             issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
               echo "issue_ids content: $issue_ids"
 
               for issue_id in "${issue_ids[@]}"; do
