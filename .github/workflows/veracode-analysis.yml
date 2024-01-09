@@ -214,7 +214,7 @@ jobs:
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
       - name: Create jira ticket
-        # In case of QG failure, a ticket is created
+        # In case of QG failure, a ticket must be created
         if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
