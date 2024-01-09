@@ -20,14 +20,14 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
       const { resourceType: type, statuses, states } = options;
       const { resources } = data;
 
-      const linkToRsPage = getResourcesUrlForStatusGrid({
+      const linkToResourceStatus = getResourcesUrlForStatusGrid({
         resources,
         states,
         statuses,
         type
       });
 
-      return linkToRsPage;
+      return linkToResourceStatus;
     }
 
     return getResourcesUrlForMetricsWidgets({ data, widgetName: name });
