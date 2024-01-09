@@ -582,29 +582,30 @@ jobs:
                     fi
                 done
              done
-      # - name: Adding test cases key
-      #   run: |
-      #       file_to_search="01-Tokens.postman_collection.json"
-      #       full_path=$(find . -name "$file_to_search" -type f)
 
-      #       if [ -n "$full_path" ]; then
-      #           echo "Fichier trouvé : $full_path"
+      - name: Adding test cases key
+        run: |
+            file_to_search="01-Tokens.postman_collection.json"
+            full_path=$(find . -name "$file_to_search" -type f)
 
-      #           # Ajoutez "AAA" à la fin du fichier
-      #           echo "AAA" >> "$full_path"
-      #           echo "Ligne ajoutée avec succès dans le fichier."
-      #       else
-      #           echo "Fichier non trouvé : $file_to_search"
-      #       fi
-      # - name: Commit files
-      #   run: |
-      #         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      #         git config --local user.name "github-actions[bot]"
-      #         git add collections/authentication/01-Tokens.postman_collection.json
-      #         git commit -m "changes collection"
+            if [ -n "$full_path" ]; then
+                echo "Fichier trouvé : $full_path"
 
-      # - name: Push changes
-      #   uses: ad-m/github-push-action@master
-      #   with:
-      #       github_token:  ${{ secrets.GITHUB_TOKEN }}
-      #       branch: MON-33861
+                # Ajoutez "AAA" à la fin du fichier
+                echo "AAA" >> "$full_path"
+                echo "Ligne ajoutée avec succès dans le fichier."
+            else
+                echo "Fichier non trouvé : $file_to_search"
+            fi
+      - name: Commit files
+        run: |
+              git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git config --local user.name "github-actions[bot]"
+              git add collections/authentication/01-Tokens.postman_collection.json
+              git commit -m "changes collection"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+            github_token:  ${{ secrets.GITHUB_TOKEN }}
+            branch: MON-33861
