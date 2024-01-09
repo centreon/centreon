@@ -540,6 +540,7 @@ jobs:
 
       - name: Adding test cases key key
         run: |
+          pwd
           collection_path="${{ inputs.collection_path }}"
           collections=$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'gsub("\n"; "\n")' | sed 's/\(["]\)/\\\1/g' | sed 's/["]\(.*\)["]/("\1")/')
 
