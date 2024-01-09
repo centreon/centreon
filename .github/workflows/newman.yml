@@ -582,7 +582,6 @@ jobs:
                     fi
                 done
              done
-
       - name: Adding test cases key
         run: |
             file_to_search="01-Tokens.postman_collection.json"
