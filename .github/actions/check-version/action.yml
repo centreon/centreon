@@ -24,9 +24,9 @@ runs:
         # Make sure version is NOT the same as the current stable.
         # If it is, abort any job beyond this point
 
-        CURRENT_STABLE_VERSION=$(git tag -l 'centreon-${{ inputs.module_name }}-${{ inputs.major_version }}-${{ inputs.minor_version }}' | awk -F '-' '{print $3}' )
-        # CURRENT_STABLE_MAJOR_VERSION=$(awk -F '.' '{printf "%s.%s",$1,$2}' <<< $CURRENT_STABLE_VERSION)
-        # CURRENT_STABLE_MINOR_VERSION=$(awk -F '.' '{print $3}' <<< $CURRENT_STABLE_VERSION)
+        CURRENT_STABLE_VERSION=$(git tag -l 'centreon-${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}' | awk -F '-' '{print $3}' )
+        CURRENT_STABLE_MAJOR_VERSION=$(awk -F '.' '{printf "%s.%s",$1,$2}' <<< $CURRENT_STABLE_VERSION)
+        CURRENT_STABLE_MINOR_VERSION=$(awk -F '.' '{print $3}' <<< $CURRENT_STABLE_VERSION)
         BRANCH_VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
         BRANCH_MAJOR_VERSION="${{ inputs.major_version }}"
         BRANCH_MINOR_VERSION="${{ inputs.minor_version }}"
