@@ -532,6 +532,7 @@ jobs:
       defaults:
         run:
           shell: bash
+          working-directory: centreon/tests/rest_api
       steps:
 
       - name: Checkout Repository
@@ -540,55 +541,42 @@ jobs:
       - name: Adding test cases key key
         run: |
           collection_path="${{ inputs.collection_path }}"
+          collections=("$(find "$collection_path" -type f -name "*.postman_collection.json" -printf "\"%P\"\n" | sort | jq -s -R -c 'gsub("\n"; " ")')")
 
-          # Liste des fichiers de collections
-          collections=($(find "$collection_path" -type f -name "*.postman_collection.json" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1] | map("\"" + . + "\"") | join(" ")'))
-          echo "Collections: $collections"
-
-          # Liste des identifiants d'issues à vérifier
-          issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
-          echo "Issue IDs content: ${issue_ids[@]}"
-
-          # Parcours de chaque fichier de collection
           for collection_file in $collections; do
-              # Extraction du nom de la collection
-              collection_name=$(echo "$collection_file" | jq -r 'sub(".*/"; "") | sub(".postman_collection.json$"; "")')
-              echo "Collection Name: $collection_name"
+              issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
+              echo "issue_ids content: $issue_ids"
 
-              # Vérification de chaque issue ID
+              collection_name="${collection_file%%-summary.json}"
+              collection_name="${collection_name//-/_}"
+              echo "Contenu de collection_name : $collection_name"
+
               for issue_id in "${issue_ids[@]}"; do
                   echo "Processing issue ID: $issue_id"
                   jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                  # Récupération des informations de l'issue depuis Jira
                   response=$(curl --request GET \
-                      --url "$jira_issue_url" \
-                      --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
-                      --header 'Accept: application/json')
+                  --url "$jira_issue_url" \
+                  --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                  --header 'Accept: application/json')
 
-                  response_code=$(echo "$response" | jq -r '.code')
-
-                  # Vérification si l'issue existe
                   if [ "$response_code" -eq 404 ]; then
                       echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
                   else
                       echo "The issue with ID $issue_id exists."
                       summary=$(echo "$response" | jq -r '.fields.summary')
                       echo "Summary: $summary"
-
-                      # Comparaison avec le nom de la collection
+                      echo "Collection Name: $collection_name"
                       if [ "$summary" == "$collection_name" ]; then
                           # Action spécifique lorsque la correspondance est trouvée
                           echo "Match found! Updating JSON file."
 
                           # Accéder au fichier JSON et mettre à jour le champ "description"
-                          jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$collection_path/$collection_file" > "$collection_path/$collection_file.tmp" && mv "$collection_path/$collection_file.tmp" "$collection_path/$collection_file"
+                          jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$collection_file" > "$collection_file.tmp" && mv "$collection_file.tmp" "$collection_file"
                       fi
                   fi
               done
           done
-
-
       # - name: Adding test cases key
       #   run: |
       #       file_to_search="01-Tokens.postman_collection.json"
