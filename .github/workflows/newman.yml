@@ -527,13 +527,13 @@ jobs:
           fi
 
   Adding-testCases-keys:
-      needs: [newman-test-list]
-      runs-on: ubuntu-22.04
-      defaults:
-        run:
-          working-directory: centreon/tests/rest_api
-          shell: bash
-      steps:
+    needs: [newman-test-list]
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: centreon/tests/rest_api
+        shell: bash
+    steps:
       - name: Checkout Repository
         with:
             ref: ${{ github.head_ref }}
