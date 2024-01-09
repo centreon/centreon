@@ -17345,3 +17345,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "The {{name}} dashboard will be permanently deleted."
 # msgstr ""
+
+#  msgid "Page name invalid. Valid page names are: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to access resources status"
+#  msgstr ""

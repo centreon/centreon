@@ -18700,3 +18700,12 @@ msgstr "Le widget sera définitivement supprimé."
 
 msgid "The {{name}} dashboard will be permanently deleted."
 msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
+
+msgid "No Data Available"
+msgstr "Pas de données disponibles"
+
+msgid "Page name invalid. Valid page names are: %s"
+msgstr "Nom de page invalide. Les noms de page valident sont: %s"
+
+msgid "You are not allowed to access resources status"
+msgstr "Vous n'êtes pas autorisé à accéder au Statut des ressources"
