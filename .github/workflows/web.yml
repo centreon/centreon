@@ -1,5 +1,5 @@
-name: dev-23.10.X
-run-name: web dev-23.10.X ${{ github.head_ref || github.ref_name }}
+name: web
+run-name: ${{ github.event_name == 'schedule' || (github.event_name == 'dispatch' && inputs.is_nightly == 'true') && format('web nightly {0}', github.ref_name) }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
