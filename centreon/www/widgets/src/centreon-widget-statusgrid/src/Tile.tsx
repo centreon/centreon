@@ -12,7 +12,7 @@ import { Resource } from '../../models';
 import { useTileStyles } from './StatusGrid.styles';
 import { ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
-import { getColor, getResourcesUrl, openResourceStatusPanel } from './utils';
+import { getColor, getResourcesUrl } from './utils';
 
 interface Props {
   data: ResourceData | null;
@@ -39,39 +39,26 @@ const Tile = ({
   const { classes } = useTileStyles();
   const theme = useTheme();
 
-  const navigate = router.useNavigate();
-
-  const goToResourceStatus = (): void => {
-    navigate(
-      getResourcesUrl({
-        resources,
-        states,
-        statuses,
-        type
-      })
-    );
-  };
-
-  // const goToResourceStatusAndOpenPanel = (): void => {
-  //   goToResourceStatus();
-  //   openResourceStatusPanel({ resource: data, type });
-  // };
+  const getLinkToResourceStatus = ({ isForOneResource }): string =>
+    getResourcesUrl({
+      allResources: resources,
+      isForOneResource,
+      resource: data,
+      states,
+      statuses,
+      type
+    });
 
   if (isNil(data)) {
     return (
       <Link
         style={{ all: 'unset' }}
         target="_blank"
-        to={getResourcesUrl({
-          resources,
-          states,
-          statuses,
-          type
-        })}
+        to={getLinkToResourceStatus({ isForOneResource: false })}
       >
         <CardActionArea
           className={classes.seeMoreContainer}
-          // onClick={() => openResourceStatusPanel({ resource: data, type })}
+          onClick={() => undefined}
         >
           <DvrIcon
             color="primary"
@@ -102,52 +89,28 @@ const Tile = ({
   }
 
   return (
-    <Box
-      className={classes.container}
-      data-status={data.statusName}
-      // onClick={() => openResourceStatusPanel({ resource: data, type })}
-      onClick={() => {
-        const linkUrl = getResourcesUrl({
-          resources,
-          states,
-          statuses,
-          type
-        });
-        const newTab = window.open(linkUrl, '_blank');
-
-        newTab?.onload = () => {
-          newTab?.console.log('New tab opened:', linkUrl);
-        };
-        // openResourceStatusPanel({ resource: data, type });
-      }}
+    <Link
+      style={{ all: 'unset' }}
+      target="_blank"
+      to={getLinkToResourceStatus({ isForOneResource: true })}
     >
-      {/* <Link
-        style={{ all: 'unset' }}
-        target="_blank"
-        to={getResourcesUrl({
-          resources,
-          states,
-          statuses,
-          type
-        })}
-        // onClick={openResourceStatusPanel}
-      > */}
-      {displayStatusTile && (
-        <Box
-          className={classes.statusTile}
-          sx={{
-            backgroundColor: getColor({ severityCode: data.status, theme })
-          }}
-        />
-      )}
-      <EllipsisTypography className={classes.resourceName} textAlign="center">
-        {data.name}
-      </EllipsisTypography>
-      <EllipsisTypography textAlign="center" variant="body2">
-        {data.parentName}
-      </EllipsisTypography>
-      {/* </Link> */}
-    </Box>
+      <Box className={classes.container} data-status={data.statusName}>
+        {displayStatusTile && (
+          <Box
+            className={classes.statusTile}
+            sx={{
+              backgroundColor: getColor({ severityCode: data.status, theme })
+            }}
+          />
+        )}
+        <EllipsisTypography className={classes.resourceName} textAlign="center">
+          {data.name}
+        </EllipsisTypography>
+        <EllipsisTypography textAlign="center" variant="body2">
+          {data.parentName}
+        </EllipsisTypography>
+      </Box>
+    </Link>
   );
 };
 

@@ -18,13 +18,11 @@ import {
 
 import { Theme } from '@mui/material';
 
-import {
-  SeverityCode,
-  getStatusColors,
-  setUrlQueryParameters
-} from '@centreon/ui';
+import { SeverityCode, getStatusColors } from '@centreon/ui';
 
 import { Resource } from '../../models';
+
+import { ResourceData } from './models';
 
 interface GetColorProps {
   is_acknowledged?: boolean;
@@ -125,17 +123,40 @@ const serviceCriteria = {
 };
 
 interface GetResourcesUrlProps {
-  resources: Array<Resource>;
+  allResources: Array<Resource>;
+  isForOneResource: boolean;
+  resource: ResourceData | null;
   states: Array<string>;
   statuses: Array<string>;
   type: string;
 }
 
+export const getDetailsPanelQueriers = ({ resource, type }): object => {
+  const { id, parentId, uuid } = resource;
+
+  const resourcesDetailsEndpoint = equals(type, 'host')
+    ? `/centreon/api/latest/monitoring/resources/hosts/${id}`
+    : `/centreon/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+
+  const queryParameters = {
+    id,
+    resourcesDetailsEndpoint,
+    selectedTimePeriodId: 'last_24_h',
+    tab: 'details',
+    tabParameters: {},
+    uuid
+  };
+
+  return queryParameters;
+};
+
 export const getResourcesUrl = ({
   type,
   statuses,
   states,
-  resources
+  allResources,
+  isForOneResource,
+  resource
 }: GetResourcesUrlProps): string => {
   const formattedStatuses = statuses.map((status) => {
     return {
@@ -153,7 +174,7 @@ export const getResourcesUrl = ({
 
   const groupedResources = groupBy(
     ({ resourceType }) => resourceType,
-    resources
+    allResources
   );
 
   const resourcesFilters = Object.entries(groupedResources).map(
@@ -188,31 +209,18 @@ export const getResourcesUrl = ({
     ]
   };
 
-  return `/monitoring/resources?filter=${JSON.stringify(
-    filterQueryParameter
-  )}&fromTopCounter=true`;
-};
+  const encodedFilterParams = encodeURIComponent(
+    JSON.stringify(filterQueryParameter)
+  );
 
-export const openResourceStatusPanel = ({ resource, type }): void => {
-  const { id, parentId, uuid } = resource;
+  if (!isForOneResource) {
+    return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
+  }
 
-  const resourcesDetailsEndpoint = equals(type, 'host')
-    ? `/centreon/api/latest/monitoring/resources/hosts/${id}`
-    : `/centreon/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+  const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
+  const encodedDetailsParams = encodeURIComponent(
+    JSON.stringify(detailsPanelQueriers)
+  );
 
-  const detailsPanel = [
-    {
-      name: 'details',
-      value: {
-        id,
-        resourcesDetailsEndpoint,
-        selectedTimePeriodId: 'last_24_h',
-        tab: 'details',
-        tabParameters: {},
-        uuid
-      }
-    }
-  ];
-
-  setUrlQueryParameters(detailsPanel);
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
