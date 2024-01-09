@@ -45,14 +45,15 @@ runs:
         description="This ticket relates to:\n[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\n\nThe PR-${{ github.event.pull_request.number }} targets:\n${{ github.base_ref || github.ref_name }}\n"
         DATA=$( cat <<-EOF
         {"fields": {
-          "summary": "${title}", "project": {"key": "MON"}, "issuetype": {"id": "10209"},
-          "parent": {"id": "83818", "key": "AT-268"}, "labels": ["Veracode", "Pipeline"],
+          "summary": "${title}",
+          "project": {"key": "MON"},
+          "issuetype": {"id": "10209"},
+          "parent": {"id": "83818", "key": "AT-268"},
+          "labels": ["Veracode", "Pipeline"],
           "components":[{"name": "${{ inputs.module_name }}"}],
           "customfield_10902": {"id": "10524", "value": "DevSecOps"},
           "customfield_11022": [{"value" : "${{ github.base_ref || github.ref_name }}" }],
-          "priority": {"name": "High"},
           "customfield_10005": 1.0,
-          "customfield_10880": {"version": 1,"type": "doc","content": [{"type": "paragraph","content": [{"type": "text","text": "veracode"}]}]},
           "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
         EOF
         )
