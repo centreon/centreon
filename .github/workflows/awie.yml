@@ -32,10 +32,10 @@ jobs:
     runs-on: ubuntu-22.04
     #if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == 'master' }}
 
-  - name: Checkout sources
-    uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
       - name: Check version
         uses: ./.github/actions/check-version
         with:
