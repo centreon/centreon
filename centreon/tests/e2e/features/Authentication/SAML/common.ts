@@ -11,7 +11,7 @@ interface SamlConfigValues {
 }
 
 const getSamlConfigValues = ({ providerAddress }): SamlConfigValues => {
-  const keycloakURL = `http://${providerAddress}:8080/realms/Centreon_SSO`;
+  const keycloakURL = `${providerAddress}:8080/realms/Centreon_SSO`;
 
   return {
     entityID: keycloakURL,
@@ -24,46 +24,44 @@ const getSamlConfigValues = ({ providerAddress }): SamlConfigValues => {
 };
 
 const configureSAML = (): Cypress.Chainable => {
-  return cy.getContainerIpAddress('saml').then((containerIpAddress) => {
-    const samlConfigValues = getSamlConfigValues({
-      providerAddress: containerIpAddress
-    });
-
-    cy.contains('Enable SAMLv2 authentication').should('be.visible');
-
-    cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
-    cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
-      .should('be.visible')
-      .type(samlConfigValues.remoteLoginURL);
-
-    cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' })
-      .should('be.visible')
-      .type(samlConfigValues.entityID);
-
-    cy.getByLabel({
-      label: 'Copy/paste x.509 certificate',
-      tag: 'textarea'
-    })
-      .should('be.visible')
-      .type(samlConfigValues.x509Certificate);
-
-    cy.getByLabel({
-      label: 'User ID (login) attribute for Centreon user',
-      tag: 'input'
-    })
-      .should('be.visible')
-      .type(samlConfigValues.loginAttribute);
-
-    cy.getByLabel({
-      label: 'Both identity provider and Centreon UI',
-      tag: 'input'
-    }).check();
-
-    return cy
-      .getByLabel({ label: 'Logout URL', tag: 'input' })
-      .should('be.visible')
-      .type(samlConfigValues.logoutURL);
+  const samlConfigValues = getSamlConfigValues({
+    providerAddress: 'http://localhost:8080'
   });
+
+  cy.contains('Enable SAMLv2 authentication').should('be.visible');
+
+  cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
+  cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
+    .should('be.visible')
+    .type(samlConfigValues.remoteLoginURL);
+
+  cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' })
+    .should('be.visible')
+    .type(samlConfigValues.entityID);
+
+  cy.getByLabel({
+    label: 'Copy/paste x.509 certificate',
+    tag: 'textarea'
+  })
+    .should('be.visible')
+    .type(samlConfigValues.x509Certificate);
+
+  cy.getByLabel({
+    label: 'User ID (login) attribute for Centreon user',
+    tag: 'input'
+  })
+    .should('be.visible')
+    .type(samlConfigValues.loginAttribute);
+
+  cy.getByLabel({
+    label: 'Both identity provider and Centreon UI',
+    tag: 'input'
+  }).check();
+
+  return cy
+    .getByLabel({ label: 'Logout URL', tag: 'input' })
+    .should('be.visible')
+    .type(samlConfigValues.logoutURL);
 };
 
 const navigateToSAMLConfigPage = (): Cypress.Chainable => {
