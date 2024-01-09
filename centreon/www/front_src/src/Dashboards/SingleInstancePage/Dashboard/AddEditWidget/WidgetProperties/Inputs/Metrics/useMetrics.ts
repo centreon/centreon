@@ -252,10 +252,10 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     },
     useDeepCompare([servicesMetrics, resources])
   );
-
-  useEffect(() => {
-    setFieldValue(`data.services`, services);
-  }, [values?.data?.[propertyName]]);
+  // let's check tests
+  // useEffect(() => {
+  //   setFieldValue(`data.services`, services);
+  // }, [values?.data?.[propertyName]]);
 
   return {
     changeMetric,
