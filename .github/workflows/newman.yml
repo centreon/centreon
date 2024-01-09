@@ -535,6 +535,8 @@ jobs:
           shell: bash
       steps:
       - name: Checkout Repository
+        with:
+            ref: ${{ github.head_ref }}
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Adding test cases key key
