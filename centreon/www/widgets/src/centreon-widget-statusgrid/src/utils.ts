@@ -169,7 +169,7 @@ export const getResourcesUrl = ({
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
             return subResources.map(({ name: resourceName }) => ({
-              id: resourceName,
+              id: `\\b${resourceName}\\b`,
               name: resourceName
             }));
           })
