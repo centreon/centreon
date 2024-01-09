@@ -33,15 +33,21 @@ export default (on: Cypress.PluginEvents): void => {
 
   on('task', {
     copyFromContainer: async ({ destination, serviceName, source }) => {
-      const container = dockerEnvironment.getContainer(`${serviceName}-1`);
+      try {
+        const container = dockerEnvironment.getContainer(`${serviceName}-1`);
 
-      await container.copyArchiveFromContainer(source).then((archiveStream) => {
-        return new Promise<void>((resolve) => {
-          const dest = tar.extract(destination);
-          archiveStream.pipe(dest);
-          dest.on('finish', resolve);
-        });
-      });
+        await container
+          .copyArchiveFromContainer(source)
+          .then((archiveStream) => {
+            return new Promise<void>((resolve) => {
+              const dest = tar.extract(destination);
+              archiveStream.pipe(dest);
+              dest.on('finish', resolve);
+            });
+          });
+      } catch (error) {
+        console.error(error);
+      }
 
       return null;
     },
@@ -184,23 +190,31 @@ export default (on: Cypress.PluginEvents): void => {
       samlImage,
       webImage
     }) => {
-      const composeFile = 'docker-compose.yml';
+      try {
+        const composeFile = 'docker-compose.yml';
 
-      dockerEnvironment = await new DockerComposeEnvironment(
-        composeFilePath,
-        composeFile
-      )
-        .withEnvironment({
-          MYSQL_IMAGE: databaseImage,
-          OPENID_IMAGE: openidImage,
-          SAML_IMAGE: samlImage,
-          WEB_IMAGE: webImage
-        })
-        .withProfiles(...profiles)
-        .withWaitStrategy('web', Wait.forHealthCheck())
-        .up();
+        dockerEnvironment = await new DockerComposeEnvironment(
+          composeFilePath,
+          composeFile
+        )
+          .withEnvironment({
+            MYSQL_IMAGE: databaseImage,
+            OPENID_IMAGE: openidImage,
+            SAML_IMAGE: samlImage,
+            WEB_IMAGE: webImage
+          })
+          .withProfiles(...profiles)
+          .withWaitStrategy('web', Wait.forHealthCheck())
+          .up();
 
-      return null;
+        return null;
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error.message);
+        }
+
+        throw error;
+      }
     },
     stopContainer: async ({ name }: StopContainerProps) => {
       const container = await docker.getContainer(name);

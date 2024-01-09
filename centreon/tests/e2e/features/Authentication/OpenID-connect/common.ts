@@ -2,18 +2,27 @@
 
 import { ActionClapi } from '../../../commons';
 
-const getOidcConfigValues = ({ providerAddress }) => {
-  return {
-    authEndpoint: '/auth',
-    baseUrl: `http://${providerAddress}:8080/realms/Centreon_SSO/protocol/openid-connect`,
-    clientID: 'centreon-oidc-frontend',
-    clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
-    introspectionTokenEndpoint: '/token/introspect',
-    loginAttrPath: 'preferred_username',
-    scopes: 'openid',
-    tokenEndpoint: '/token'
-  };
-};
+interface OidcConfigValues {
+  authEndpoint: string;
+  baseUrl: string;
+  clientID: string;
+  clientSecret: string;
+  introspectionTokenEndpoint: string;
+  loginAttrPath: string;
+  scopes: string;
+  tokenEndpoint: string;
+}
+
+const getOidcConfigValues = ({ providerAddress }): OidcConfigValues => ({
+  authEndpoint: '/auth',
+  baseUrl: `http://${providerAddress}:8080/realms/Centreon_SSO/protocol/openid-connect`,
+  clientID: 'centreon-oidc-frontend',
+  clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
+  introspectionTokenEndpoint: '/token/introspect',
+  loginAttrPath: 'preferred_username',
+  scopes: 'openid',
+  tokenEndpoint: '/token'
+});
 
 const initializeOIDCUserAndGetLoginPage = (): Cypress.Chainable => {
   return cy
@@ -40,9 +49,9 @@ const removeContact = (): Cypress.Chainable => {
 const configureOpenIDConnect = (): Cypress.Chainable => {
   cy.contains('Enable OpenID Connect authentication').should('be.visible');
 
-  return cy.getContainerIpAddress('openid').then((containerId) => {
+  return cy.getContainerIpAddress('openid').then((containerIpAddress) => {
     const oidcConfigValues = getOidcConfigValues({
-      providerAddress: containerId
+      providerAddress: containerIpAddress
     });
 
     // Identity provider section

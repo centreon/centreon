@@ -1,8 +1,16 @@
-import { ActionClapi } from '../../../commons';
-
 /* eslint-disable cypress/unsafe-to-chain-command */
 
-const getSamlConfigValues = ({ providerAddress }) => {
+import { ActionClapi } from '../../../commons';
+
+interface SamlConfigValues {
+  entityID: string;
+  loginAttribute: string;
+  logoutURL: string;
+  remoteLoginURL: string;
+  x509Certificate: string;
+}
+
+const getSamlConfigValues = ({ providerAddress }): SamlConfigValues => {
   const keycloakURL = `http://${providerAddress}:8080/realms/Centreon_SSO`;
 
   return {
