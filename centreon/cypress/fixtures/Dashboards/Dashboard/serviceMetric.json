@@ -2,7 +2,8 @@
   "result": [
       {
         "id": 1,
-        "name": "Centreon-server_Ping",
+        "parent_name": "Centreon-server",
+        "name": "Ping",
         "metrics": [
             {
               "id": 1,
