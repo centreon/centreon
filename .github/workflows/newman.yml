@@ -566,7 +566,7 @@ jobs:
                       echo "collection_name_sanitized: $collection_name_sanitized"
                       if [ "$summary" == "$collection_name_sanitized" ]; then
                           echo "Match found! Updating JSON file."
-                          new_file_name="${collection_name_sanitized//_/}"  # Remplacez "_" par ""
+                          new_file_name=$(echo "$collection_name_sanitized" | sed 's/_/-/g')
                           new_file_name="${new_file_name}.postman_collection.json"  # Ajoutez ".postman_collection.json"
                           echo "new file name :$new_file_name "
                           # Accéder au fichier JSON et mettre à jour le champ "description"
