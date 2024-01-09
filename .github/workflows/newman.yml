@@ -545,8 +545,6 @@ jobs:
           for collection_file in "${collections[@]}"; do
             collection_name=$(basename "$collection_file" .postman_collection.json)
             collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
-            echo "collection_name_sanitized: $collection_name_sanitized"
-
              issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
               echo "issue_ids content: $issue_ids"
 
@@ -565,13 +563,14 @@ jobs:
                       echo "The issue with ID $issue_id exists."
                       summary=$(echo "$response" | jq -r '.fields.summary')
                       echo "Summary: $summary"
-                      echo "Collection Name: $collection_name"
-                      if [ "$summary" == "$collection_name" ]; then
-                          # Action spécifique lorsque la correspondance est trouvée
+                      echo "collection_name_sanitized: $collection_name_sanitized"
+                      if [ "$summary" == "$collection_name_sanitized" ]; then
                           echo "Match found! Updating JSON file."
-
+                          new_file_name="${collection_name_sanitized//_/}"  # Remplacez "_" par ""
+                          new_file_name="${new_file_name}.postman_collection.json"  # Ajoutez ".postman_collection.json"
+                          echo "new file name :$new_file_name "
                           # Accéder au fichier JSON et mettre à jour le champ "description"
-                          jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$collection_file" > "$collection_file.tmp" && mv "$collection_file.tmp" "$collection_file"
+                          # jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$collection_file" > "$collection_file.tmp" && mv "$collection_file.tmp" "$collection_file"
                       fi
                   fi
               done
