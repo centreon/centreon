@@ -1,7 +1,18 @@
 import { ChangeEvent, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, path, propEq, reject } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  isEmpty,
+  isNil,
+  last,
+  path,
+  propEq,
+  reject
+} from 'ramda';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -33,8 +44,9 @@ type UseDatasetFilterState = {
   getResourceBaseEndpoint: (
     resourceType: ResourceTypeEnum
   ) => (parameters) => string;
+  getResourceTypeOptions: (index: number) => Array<SelectEntry>;
   getSearchField: (resourceType: ResourceTypeEnum) => string;
-  resourceTypeOptions: Array<SelectEntry>;
+  lowestResourceTypeReached: () => boolean;
 };
 
 const resourceTypeOptions = [
@@ -93,8 +105,85 @@ const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
 ): UseDatasetFilterState => {
-  const { setFieldValue, setFieldTouched, touched } =
+  const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<FormikValues>();
+
+  const value = useMemo<Array<Dataset> | undefined>(
+    () =>
+      path<Array<Dataset> | undefined>(
+        ['data', 'datasetFilters', datasetFilterIndex],
+        values
+      ),
+    [
+      path<Array<Dataset> | undefined>(
+        ['data', 'datasetFilters', datasetFilterIndex],
+        values
+      )
+    ]
+  );
+
+  const lowestResourceTypeReached = (): boolean =>
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.Service) ||
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService);
+
+  const getResourceTypeOptions = (index: number): Array<SelectEntry> => {
+    if (isNil(value)) {
+      return resourceTypeOptions;
+    }
+
+    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.HostCategory)) {
+      return [
+        { id: ResourceTypeEnum.Host, name: labelHost },
+        { id: ResourceTypeEnum.HostGroup, name: labelHostGroup },
+        { id: ResourceTypeEnum.Service, name: labelService },
+        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
+        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
+      ];
+    }
+
+    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.HostGroup)) {
+      return [
+        { id: ResourceTypeEnum.Host, name: labelHost },
+        { id: ResourceTypeEnum.HostCategory, name: labelHostCategory },
+        { id: ResourceTypeEnum.Service, name: labelService },
+        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
+        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
+      ];
+    }
+
+    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.Host)) {
+      return [
+        { id: ResourceTypeEnum.Service, name: labelService },
+        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
+        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
+      ];
+    }
+
+    if (
+      equals(value[index - 1]?.resourceType, ResourceTypeEnum.ServiceCategory)
+    ) {
+      return [
+        { id: ResourceTypeEnum.Service, name: labelService },
+        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
+      ];
+    }
+
+    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.ServiceGroup)) {
+      return [
+        { id: ResourceTypeEnum.Service, name: labelService },
+        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory }
+      ];
+    }
+
+    if (
+      equals(value[index - 1]?.resourceType, ResourceTypeEnum.MetaService) ||
+      equals(value[index - 1]?.resourceType, ResourceTypeEnum.Service)
+    ) {
+      return [];
+    }
+
+    return resourceTypeOptions;
+  };
 
   const isTouched = useMemo<boolean | undefined>(
     () =>
@@ -200,8 +289,9 @@ const useDatasetFilter = (
     deleteResourceItem,
     error: errorToDisplay,
     getResourceBaseEndpoint,
+    getResourceTypeOptions,
     getSearchField,
-    resourceTypeOptions
+    lowestResourceTypeReached
   };
 };
 

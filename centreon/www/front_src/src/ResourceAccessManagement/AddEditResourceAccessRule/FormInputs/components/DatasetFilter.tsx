@@ -41,8 +41,9 @@ const DatasetFilter = ({
     deleteResourceItem,
     error,
     getResourceBaseEndpoint,
+    getResourceTypeOptions,
     getSearchField,
-    resourceTypeOptions
+    lowestResourceTypeReached
   } = useDatasetFilter(datasetFilter, datasetFilterIndex);
 
   const deleteButtonHidden = datasetFilter.length <= 1;
@@ -51,7 +52,9 @@ const DatasetFilter = ({
     <div className={classes.resourceComposition}>
       <ItemComposition
         IconAdd={<FilterIcon />}
-        addbuttonDisabled={!areResourcesFilled(datasetFilter)}
+        addbuttonDisabled={
+          !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
+        }
         labelAdd={t(labelRefineFilter)}
         onAddItem={addResource}
       >
@@ -67,7 +70,7 @@ const DatasetFilter = ({
               className={classes.resourceType}
               dataTestId={labelSelectResourceType}
               label={t(labelSelectResourceType) as string}
-              options={resourceTypeOptions}
+              options={getResourceTypeOptions(resourceIndex)}
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(resourceIndex)}
             />
