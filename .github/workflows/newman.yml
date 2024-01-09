@@ -541,70 +541,63 @@ jobs:
 
       - name: Adding test cases key key
         run: |
-            collections=($(find ./collections -type f -name "*.postman_collection.json"))
-            echo "collections: $collections"
+          collections=($(find ./collections -type f -name "*.postman_collection.json"))
+          echo "collections: $collections"
 
-             for collection_file in "${collections[@]}"; do
-                collection_name=$(basename "$collection_file" .postman_collection.json)
-                collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
-                issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
-                echo "issue_ids content: $issue_ids"
+          for collection_file in "${collections[@]}"; do
+              collection_name=$(basename "$collection_file" .postman_collection.json)
+              collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
+              issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
+              echo "issue_ids content: $issue_ids"
 
-                for issue_id in "${issue_ids[@]}"; do
-                    echo "Processing issue ID: $issue_id"
-                    jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+              for issue_id in "${issue_ids[@]}"; do
+                  echo "Processing issue ID: $issue_id"
+                  jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-                    response=$(curl --request GET \
-                        --url "$jira_issue_url" \
-                        --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
-                        --header 'Accept: application/json')
+                  response=$(curl --request GET \
+                      --url "$jira_issue_url" \
+                      --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                      --header 'Accept: application/json')
 
-                    if [ "$response_code" -eq 404 ]; then
-                        echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
-                    else
-                        echo "The issue with ID $issue_id exists."
-                        summary=$(echo "$response" | jq -r '.fields.summary')
-                        echo "Summary: $summary"
-                        echo "collection_name_sanitized: $collection_name_sanitized"
+                  if [ "$response_code" -eq 404 ]; then
+                      echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                  else
+                      echo "The issue with ID $issue_id exists."
+                      summary=$(echo "$response" | jq -r '.fields.summary')
+                      key=$(echo "$response" | jq -r '.key')
+                      echo "Summary: $summary"
+                      echo "collection_name_sanitized: $collection_name_sanitized"
 
-                        if [ "$summary" == "$collection_name_sanitized" ]; then
-                            echo "Match found! Updating JSON file."
-                            new_file_name=$(echo "$collection_name_sanitized" | sed 's/_/-/g')
-                            new_file_name="${new_file_name}.postman_collection.json"  # Ajoutez ".postman_collection.json"
-                            echo "new file name: $new_file_name"
-                            full_file_path=$(find ./collections -type f -name "$new_file_name")
+                      if [ "$summary" == "$collection_name_sanitized" ]; then
+                          echo "Match found! Updating JSON file."
+                          new_file_name=$(echo "$collection_name_sanitized" | sed 's/_/-/g')
+                          new_file_name="${new_file_name}.postman_collection.json"
+                          echo "new file name: $new_file_name"
+                          full_file_path=$(find ./collections -type f -name "$new_file_name")
 
-                            if [ -n "$full_file_path" ]; then
-                                # Accéder au fichier JSON et mettre à jour le champ "description"
-                                jq --arg new_description "Nouvelle description" '.info.description = $new_description' "$full_file_path" > "$full_file_path.tmp" && mv "$full_file_path.tmp" "$full_file_path"
-                            else
-                                echo "Le fichier $new_file_name n'a pas été trouvé dans les sous-répertoires de ./collections."
-                            fi
-                        fi
-                    fi
-                done
-             done
+                          if [ -n "$full_file_path" ]; then
+                              # Check if .info.description exists in the JSON file
+                              if jq -e '.info.description' "$full_file_path" >/dev/null; then
+                                  echo ".info.description already exists. Skip updating."
+                              else
+                                  # Access the JSON file and add .info.description with the Jira issue key
+                                  jq --arg new_description "$key" '.info.description = $new_description' "$full_file_path" > "$full_file_path.tmp" && mv "$full_file_path.tmp" "$full_file_path"
+                                  echo ".info.description added with the Jira issue key."
+                              fi
+                          else
+                              echo "The file $new_file_name was not found in the subdirectories of ./collections."
+                          fi
+                      fi
+                  fi
+              done
+           done
 
-      - name: Adding test cases key
-        run: |
-            file_to_search="01-Tokens.postman_collection.json"
-            full_path=$(find . -name "$file_to_search" -type f)
-
-            if [ -n "$full_path" ]; then
-                echo "Fichier trouvé : $full_path"
-
-                # Ajoutez "AAA" à la fin du fichier
-                echo "AAA" >> "$full_path"
-                echo "Ligne ajoutée avec succès dans le fichier."
-            else
-                echo "Fichier non trouvé : $file_to_search"
-            fi
       - name: Commit files
         run: |
-              git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-              git config --local user.name "github-actions[bot]"
-              git add collections/authentication/01-Tokens.postman_collection.json
-              git commit -m "changes collection"
+            git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add -u collections
+            git commit -m "Add test cases keys into the collections"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
