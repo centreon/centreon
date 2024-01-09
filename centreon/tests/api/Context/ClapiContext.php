@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Centreon\Test\Api\Context;
 
 use Behat\Gherkin\Node\PyStringNode;
+use Centreon\Test\Behat\Api\Context\ApiContext;
 
 class ClapiContext extends ApiContext
 {
