@@ -74,7 +74,7 @@ export const labelCriticalThreshold = 'Critical threshold';
 export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
-  'Thresholds are automatically hidden if you select 2 metric units.';
+  'Thresholds are automatically hidden as soon as you select 2 metric units.';
 export const labelDisplayType = 'Display type';
 export const labelText = 'Text';
 export const labelGauge = 'Gauge';

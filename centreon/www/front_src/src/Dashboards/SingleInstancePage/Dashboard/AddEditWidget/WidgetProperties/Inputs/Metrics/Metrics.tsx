@@ -13,6 +13,7 @@ import {
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
+  labelThresholdsAreAutomaticallyHidden,
   labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
@@ -60,30 +61,29 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
       : t(labelMetrics);
 
+  const warningMessages = [
+    error && isTouched && error,
+    hasReachedTheLimitOfUnits && (
+      <>
+        <span>{t(labelYouCanSelectUpToTwoMetricUnits)}</span>
+        <br />
+        <span>{t(labelThresholdsAreAutomaticallyHidden)}</span>
+      </>
+    ),
+    singleMetricSelection && metricWithSeveralResources && (
+      <>
+        <strong>{metricWithSeveralResources}</strong>{' '}
+        {t(labelIsTheSelectedResource)}
+      </>
+    )
+  ];
+
   const header = (
     <div className={classes.resourcesHeader}>
       <Avatar compact className={avatarClasses.widgetAvatar}>
         3
       </Avatar>
-      <div>
-        <Typography className={classes.resourceTitle}>{title}</Typography>
-        {error && isTouched && (
-          <Typography className={classes.warningText} variant="body2">
-            {error}
-          </Typography>
-        )}
-        {hasReachedTheLimitOfUnits && (
-          <Typography className={classes.warningText} variant="body2">
-            {t(labelYouCanSelectUpToTwoMetricUnits)}
-          </Typography>
-        )}
-        {singleMetricSelection && metricWithSeveralResources && (
-          <Typography className={classes.warningText} variant="body2">
-            <strong>{metricWithSeveralResources}</strong>{' '}
-            {t(labelIsTheSelectedResource)}
-          </Typography>
-        )}
-      </div>
+      <Typography className={classes.resourceTitle}>{title}</Typography>
       {isLoadingMetrics && <CircularProgress size={16} />}
     </div>
   );
@@ -125,11 +125,22 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             onChange={changeMetrics}
           />
         )}
-        {hasTooManyMetrics && (
-          <Typography sx={{ color: 'text.disabled' }}>
-            {t(labelYouHaveTooManyMetrics)}
+      </div>
+      {hasTooManyMetrics && (
+        <Typography sx={{ color: 'text.disabled' }}>
+          {t(labelYouHaveTooManyMetrics)}
+        </Typography>
+      )}
+      <div>
+        {warningMessages.map((content) => (
+          <Typography
+            className={classes.warningText}
+            key={content?.toString()}
+            variant="body2"
+          >
+            {content}
           </Typography>
-        )}
+        ))}
       </div>
     </div>
   );

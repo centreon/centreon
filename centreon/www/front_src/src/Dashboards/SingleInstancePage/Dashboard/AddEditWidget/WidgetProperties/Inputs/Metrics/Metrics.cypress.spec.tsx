@@ -9,7 +9,9 @@ import { metricsEndpoint } from '../../../api/endpoints';
 import { WidgetDataResource } from '../../../models';
 import {
   labelIsTheSelectedResource,
-  labelSelectMetric
+  labelSelectMetric,
+  labelThresholdsAreAutomaticallyHidden,
+  labelYouCanSelectUpToTwoMetricUnits
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -115,6 +117,20 @@ describe('Metrics', () => {
 
     cy.findByTestId('CancelIcon').click();
     cy.findByText('rtmax (ms) / 2').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a warning message when metrics with different units are selected', () => {
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.findByText('rtmax (ms) / Includes 2 resources').click();
+    cy.findByText('pl (%) / Includes 2 resources').click();
+
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
+    cy.contains(labelThresholdsAreAutomaticallyHidden).should('be.visible');
 
     cy.makeSnapshot();
   });
