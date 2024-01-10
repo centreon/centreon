@@ -11,6 +11,8 @@ import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-gen
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
 import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
+import widgetTopbottomConfiguration from 'centreon-widgets/centreon-widget-topbottom/moduleFederation.json';
+import widgetTopbottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -83,6 +85,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetSingleMetricConfiguration,
       moduleFederationName: 'centreon-widget-singlemetric/src'
+    },
+    {
+      ...widgetTopbottomConfiguration,
+      moduleFederationName: 'centreon-widget-topbottom/src'
     }
   ];
 
@@ -92,7 +98,8 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     widgetTextProperties,
     widgetInputProperties,
     widgetGenericTextProperties,
-    widgetSingleMetricProperties
+    widgetSingleMetricProperties,
+    widgetTopbottomProperties
   ]);
 
   return store;
