@@ -89,12 +89,12 @@ const Tile = ({
   }
 
   return (
-    <Link
-      style={{ all: 'unset' }}
-      target="_blank"
-      to={getLinkToResourceStatus({ isForOneResource: true })}
-    >
-      <Box className={classes.container} data-status={data.statusName}>
+    <Box className={classes.container} data-status={data.statusName}>
+      <Link
+        style={{ all: 'unset' }}
+        target="_blank"
+        to={getLinkToResourceStatus({ isForOneResource: true })}
+      >
         {displayStatusTile && (
           <Box
             className={classes.statusTile}
@@ -109,8 +109,8 @@ const Tile = ({
         <EllipsisTypography textAlign="center" variant="body2">
           {data.parentName}
         </EllipsisTypography>
-      </Box>
-    </Link>
+      </Link>
+    </Box>
   );
 };
 
