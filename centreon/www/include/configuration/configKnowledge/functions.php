@@ -11,6 +11,32 @@
  *
  */
 
+/**
+ * This returns an anonymous class to manage alternate CSS class for table lines TR.
+ */
+function getLineTemplate(string $class1, string $class2): object
+{
+    return new class($class1, $class2)
+    {
+        private int $number = 0;
+
+        public function __construct(private string $class1, private string $class2)
+        {
+        }
+
+        public function get(): string
+        {
+            return ($this->number++ % 2) ? $this->class2 : $this->class1;
+        }
+
+        public function reset(): string
+        {
+            $this->number = 0;
+            return '';
+        }
+    };
+}
+
 function versionCentreon($pearDB)
 {
     if (is_null($pearDB)) {
