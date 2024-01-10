@@ -100,17 +100,25 @@ const AddCommentArea = ({
         ariaLabel={t(labelComment)}
         autoComplete="off"
         className={classes.comment}
-        dataTestId="addCommentFromTimeLine"
+        inputProps={{
+          'data-testid': 'commentArea'
+        }}
         label={t(labelComment)}
         rows={3}
         value={comment}
         onChange={changeComment}
       />
       <div className={classes.footer}>
-        <Button size="small" variant="text" onClick={cancel}>
+        <Button
+          data-testid={labelCancel}
+          size="small"
+          variant="text"
+          onClick={cancel}
+        >
           {t(labelCancel)}
         </Button>
         <LoadingButton
+          data-testid={labelSave}
           disabled={!comment}
           loading={isMutating}
           loadingIndicator="Loading…"
