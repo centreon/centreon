@@ -63,6 +63,7 @@ import {
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
+import { metricsEndpoint } from './AddEditWidget/api/endpoints';
 
 const linkToResourceStatusForSingleMetric =
   '/centreon/monitoring/resources?details=%7B%22id%22%3A26%2C%22resourcesDetailsEndpoint%22%3A%22%2Fcentreon%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2F14%2Fservices%2F26%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22graph%22%2C%22tabParameters%22%3A%7B%7D%2C%22uuid%22%3A%22h14-s26%22%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing%5C%5Cb%22%2C%22name%22%3A%22Ping%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon-Server%5C%5Cb%22%2C%22name%22%3A%22Centreon-Server%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true';
@@ -256,6 +257,17 @@ const initializeAndMount = ({
     path: getDashboardAccessRightsEndpoint(1),
     statusCode: 204
   });
+
+  cy.fixture('Dashboards/Dashboard/serviceMetric.json').then(
+    (serviceMetrics) => {
+      cy.interceptAPIRequest({
+        alias: 'getServiceMetrics',
+        method: Method.GET,
+        path: `${metricsEndpoint}**`,
+        response: serviceMetrics
+      });
+    }
+  );
 
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
 
@@ -539,7 +551,7 @@ describe('Dashboard', () => {
     cy.contains('Widget text').should('be.visible');
     cy.contains('Generic text').should('be.visible');
   });
-  it('navigate to resource status page when the correcponding icon was clicked', () => {
+  it('navigate to resource status page when the corresponding icon was clicked', () => {
     initializeAndMount(editorRoles);
 
     cy.waitForRequest('@getDashboardDetails');
