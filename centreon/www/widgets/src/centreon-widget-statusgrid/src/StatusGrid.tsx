@@ -25,7 +25,8 @@ const StatusGrid = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount
+  refreshCount,
+  isEditingDashboard
 }: StatusGridProps): JSX.Element => {
   const theme = useTheme();
 
@@ -149,6 +150,7 @@ const StatusGrid = ({
       {({ isSmallestSize, data: resourceData }) => (
         <Tile
           data={resourceData}
+          isEditingDashboard={isEditingDashboard}
           isSmallestSize={isSmallestSize}
           resources={resources}
           states={states}

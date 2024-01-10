@@ -69,6 +69,7 @@ const PanelHeader = ({
           <div className={classes.panelActionsIcons}>
             {includes(widgetName, resourceBasedWidgets) && (
               <Link
+                data-testid={labelSeeMoreInRSPage}
                 style={{ all: 'unset' }}
                 target="_blank"
                 to={linkToResourceStatus as string}

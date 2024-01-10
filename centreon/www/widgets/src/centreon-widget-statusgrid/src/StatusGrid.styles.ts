@@ -8,6 +8,11 @@ export const useTileStyles = makeStyles()((theme) => ({
     position: 'relative',
     width: '100%'
   },
+  link: {
+    all: 'unset',
+    display: 'block',
+    height: '100%'
+  },
   resourceName: {
     fontWeight: theme.typography.fontWeightMedium
   },

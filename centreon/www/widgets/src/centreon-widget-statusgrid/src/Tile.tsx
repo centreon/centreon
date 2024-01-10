@@ -1,4 +1,4 @@
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -16,6 +16,7 @@ import { getColor, getResourcesUrl } from './utils';
 
 interface Props {
   data: ResourceData | null;
+  isEditingDashboard: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
   states: Array<string>;
@@ -33,7 +34,8 @@ const Tile = ({
   type,
   states,
   statuses,
-  resources
+  resources,
+  isEditingDashboard
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles();
@@ -53,9 +55,12 @@ const Tile = ({
     return (
       <Link
         aria-label={t(labelSeeMore)}
-        style={{ all: 'unset' }}
+        className={classes.link}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: false })}
+        onClick={(e) =>
+          equals(isEditingDashboard, undefined) && e.preventDefault()
+        }
       >
         <CardActionArea
           className={classes.seeMoreContainer}
@@ -75,13 +80,16 @@ const Tile = ({
 
   if (isSmallestSize && !isNil(data)) {
     return (
-      <Box className={classes.container}>
-        <Link
-          data-testid={`link to ${data?.name}`}
-          style={{ all: 'unset' }}
-          target="_blank"
-          to={getLinkToResourceStatus({ isForOneResource: true })}
-        >
+      <Link
+        className={classes.link}
+        data-testid={`link to ${data?.name}`}
+        target="_blank"
+        to={getLinkToResourceStatus({ isForOneResource: true })}
+        onClick={(e) =>
+          equals(isEditingDashboard, undefined) && e.preventDefault()
+        }
+      >
+        <Box className={classes.container}>
           {displayStatusTile ? (
             <Box
               className={classes.statusTile}
@@ -91,18 +99,21 @@ const Tile = ({
               }}
             />
           ) : null}
-        </Link>
-      </Box>
+        </Box>
+      </Link>
     );
   }
 
   return (
     <Box className={classes.container} data-status={data.statusName}>
       <Link
+        className={classes.link}
         data-testid={`link to ${data?.name}`}
-        style={{ all: 'unset' }}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
+        onClick={(e) =>
+          equals(isEditingDashboard, undefined) && e.preventDefault()
+        }
       >
         {displayStatusTile && (
           <Box

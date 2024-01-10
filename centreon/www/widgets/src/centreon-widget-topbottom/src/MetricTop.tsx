@@ -1,4 +1,4 @@
-import { inc } from 'ramda';
+import { equals, inc } from 'ramda';
 import { Link } from 'react-router-dom';
 
 import { Box, Typography } from '@mui/material';
@@ -15,6 +15,7 @@ import useGoToResourceStatus from './useLinkToResourceStatus';
 interface MetricTopProps {
   displayAsRaw: boolean;
   index: number;
+  isEditingDashboard: boolean;
   metricTop: Resource;
   showLabels: boolean;
   thresholds: FormThreshold;
@@ -27,7 +28,8 @@ const MetricTop = ({
   unit,
   thresholds,
   displayAsRaw,
-  showLabels
+  showLabels,
+  isEditingDashboard
 }: MetricTopProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
   const formattedData: LineChartData = {
@@ -68,6 +70,9 @@ const MetricTop = ({
           style={{ all: 'unset' }}
           target="_blank"
           to={getResourcesStatusUrl(metricTop)}
+          onClick={(e) =>
+            equals(isEditingDashboard, undefined) && e.preventDefault()
+          }
         >
           <strong>
             #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
@@ -80,6 +85,9 @@ const MetricTop = ({
           style={{ all: 'unset' }}
           target="_blank"
           to={getResourcesStatusUrl(metricTop)}
+          onClick={(e) =>
+            equals(isEditingDashboard, undefined) && e.preventDefault()
+          }
         >
           <SingleBar
             data={formattedData}
