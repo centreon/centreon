@@ -58,244 +58,245 @@
       }
     },
     {
-      "id": 3,
-      "name": "centreon-widget-topbottom",
-      "layout": {
-          "x": 0,
-          "y": 0,
-          "width": 12,
-          "height": 3,
-          "min_width": 3,
-          "min_height": 3
-      },
-      "widget_type": "0",
-      "widget_settings": {
-          "data": {
-              "resources": [
-                  {
-                      "resourceType": "service",
-                      "resources": [
-                          {
-                              "uuid": "h15-s34",
-                              "duration": "6h 55m",
-                              "last_check": "1m 13s",
-                              "short_type": "s",
-                              "id": 34,
-                              "type": "service",
-                              "name": "Ping",
-                              "alias": null,
-                              "fqdn": null,
-                              "host_id": 15,
-                              "service_id": 34,
-                              "icon": null,
-                              "monitoring_server_name": "Central",
-                              "parent": {
-                                  "uuid": "h15",
-                                  "id": 15,
-                                  "name": "Centreon-Server_1",
-                                  "type": "host",
-                                  "short_type": "h",
-                                  "status": {
-                                      "code": 0,
-                                      "name": "UP",
-                                      "severity_code": 5
-                                  },
-                                  "alias": "Monitoring Server",
-                                  "fqdn": "127.0.0.1",
-                                  "monitoring_server_name": null
-                              },
-                              "status": {
-                                  "code": 0,
-                                  "name": "OK",
-                                  "severity_code": 5
-                              },
-                              "is_in_downtime": false,
-                              "is_acknowledged": false,
-                              "has_active_checks_enabled": true,
-                              "has_passive_checks_enabled": false,
-                              "last_status_change": "2024-01-10T11:01:50+01:00",
-                              "tries": "1\/3 (H)",
-                              "information": "OK - 127.0.0.1 rta 0.023ms lost 0%",
-                              "performance_data": null,
-                              "is_notification_enabled": false,
-                              "severity": null,
-                              "links": {
-                                  "endpoints": {
-                                      "details": "\/centreon\/api\/latest\/monitoring\/resources\/hosts\/15\/services\/34",
-                                      "timeline": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/timeline",
-                                      "status_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/metrics\/status",
-                                      "performance_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/metrics\/performance",
-                                      "acknowledgement": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/acknowledgements?limit=1",
-                                      "downtime": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1704905852%7D,%22end_time%22:%7B%22%24gt%22:1704905852%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1704905852%7D%7D%7D%7D%5D%7D",
-                                      "check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/check",
-                                      "forced_check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/check",
-                                      "metrics": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/metrics"
-                                  },
-                                  "uris": {
-                                      "configuration": "\/centreon\/main.php?p=60201\u0026o=c\u0026service_id=34",
-                                      "logs": "\/centreon\/main.php?p=20301\u0026svc=15_34",
-                                      "reporting": "\/centreon\/main.php?p=30702\u0026period=yesterday\u0026start=\u0026end=\u0026host_id=15\u0026item=34"
-                                  },
-                                  "externals": {
-                                      "action_url": "",
-                                      "notes": {
-                                          "label": "",
-                                          "url": ""
-                                      }
-                                  }
-                              }
-                          },
-                          {
-                              "uuid": "h15-s43",
-                              "duration": "6h 56m",
-                              "last_check": "2m 3s",
-                              "short_type": "s",
-                              "id": 43,
-                              "type": "service",
-                              "name": "Ping_1",
-                              "alias": null,
-                              "fqdn": null,
-                              "host_id": 15,
-                              "service_id": 43,
-                              "icon": null,
-                              "monitoring_server_name": "Central",
-                              "parent": {
-                                  "uuid": "h15",
-                                  "id": 15,
-                                  "name": "Centreon-Server_1",
-                                  "type": "host",
-                                  "short_type": "h",
-                                  "status": {
-                                      "code": 0,
-                                      "name": "UP",
-                                      "severity_code": 5
-                                  },
-                                  "alias": "Monitoring Server",
-                                  "fqdn": "127.0.0.1",
-                                  "monitoring_server_name": null
-                              },
-                              "status": {
-                                  "code": 0,
-                                  "name": "OK",
-                                  "severity_code": 5
-                              },
-                              "is_in_downtime": false,
-                              "is_acknowledged": false,
-                              "has_active_checks_enabled": true,
-                              "has_passive_checks_enabled": false,
-                              "last_status_change": "2024-01-10T11:01:00+01:00",
-                              "tries": "1\/3 (H)",
-                              "information": "OK - 127.0.0.1 rta 0.022ms lost 0%",
-                              "performance_data": null,
-                              "is_notification_enabled": false,
-                              "severity": null,
-                              "links": {
-                                  "endpoints": {
-                                      "details": "\/centreon\/api\/latest\/monitoring\/resources\/hosts\/15\/services\/43",
-                                      "timeline": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/timeline",
-                                      "status_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/metrics\/status",
-                                      "performance_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/metrics\/performance",
-                                      "acknowledgement": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/acknowledgements?limit=1",
-                                      "downtime": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1704905852%7D,%22end_time%22:%7B%22%24gt%22:1704905852%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1704905852%7D%7D%7D%7D%5D%7D",
-                                      "check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/check",
-                                      "forced_check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/check",
-                                      "metrics": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/metrics"
-                                  },
-                                  "uris": {
-                                      "configuration": "\/centreon\/main.php?p=60201\u0026o=c\u0026service_id=43",
-                                      "logs": "\/centreon\/main.php?p=20301\u0026svc=15_43",
-                                      "reporting": "\/centreon\/main.php?p=30702\u0026period=yesterday\u0026start=\u0026end=\u0026host_id=15\u0026item=43"
-                                  },
-                                  "externals": {
-                                      "action_url": "",
-                                      "notes": {
-                                          "label": "",
-                                          "url": ""
-                                      }
-                                  }
-                              }
-                          }
-                      ]
-                  },
-                  {
-                      "resourceType": "host",
-                      "resources": [
-                          {
-                              "id": 14,
-                              "poller_id": 1,
-                              "name": "Centreon-Server",
-                              "acknowledged": false,
-                              "address_ip": "127.0.0.1",
-                              "alias": "Monitoring Server",
-                              "check_attempt": 1,
-                              "checked": true,
-                              "display_name": "Centreon-Server",
-                              "execution_time": 0.066176,
-                              "icon_image": "",
-                              "icon_image_alt": "",
-                              "last_check": "2024-01-10T17:55:13+01:00",
-                              "last_hard_state_change": "2024-01-10T10:47:52+01:00",
-                              "last_state_change": "2024-01-10T10:47:52+01:00",
-                              "last_time_down": null,
-                              "last_time_unreachable": null,
-                              "last_time_up": "2024-01-10T17:55:18+01:00",
-                              "last_update": "2024-01-10T14:41:53+01:00",
-                              "max_check_attempts": 5,
-                              "output": "OK - 127.0.0.1 rta 0.031ms lost 0%\n",
-                              "passive_checks": false,
-                              "state": 0,
-                              "state_type": 1,
-                              "timezone": "",
-                              "scheduled_downtime_depth": 0,
-                              "criticality": null
-                          }
-                      ]
-                  }
-              ],
-              "metrics": [
-                  {
-                      "criticalHighThreshold": null,
-                      "criticalLowThreshold": null,
-                      "id": 19,
-                      "name": "rtmax",
-                      "unit": "ms",
-                      "warningHighThreshold": null,
-                      "warningLowThreshold": null
-                  }
-              ],
-              "services": [
-                  {
-                      "uuid": "h14-s26",
-                      "id": 26,
-                      "name": "Ping",
-                      "parentName": "Centreon-Server"
-                  }
-              ]
-          },
-          "options": {
-              "topBottomSettings": {
-                  "numberOfValues": 10,
-                  "order": "top",
-                  "showLabels": true
-              },
-              "valueFormat": "human",
-              "threshold": {
-                  "enabled": true,
-                  "customCritical": null,
-                  "criticalType": "default",
-                  "customWarning": null,
-                  "warningType": "default",
-                  "baseColor": null
-              },
-              "refreshInterval": "default",
-              "description": {
-                  "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
-                  "enabled": true
-              },
-              "openLinksInNewTab": true
-          }
-      }
-  },
+        "id": 3,
+        "name": "centreon-widget-topbottom",
+        "layout": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3,
+            "min_width": 3,
+            "min_height": 3
+        },
+        "widget_type": "0",
+        "widget_settings": {
+            "data": {
+                "resources": [
+                    {
+                        "resourceType": "service",
+                        "resources": [
+                            {
+                                "uuid": "h15-s34",
+                                "duration": "6h 55m",
+                                "last_check": "1m 13s",
+                                "short_type": "s",
+                                "id": 34,
+                                "type": "service",
+                                "name": "Ping",
+                                "alias": null,
+                                "fqdn": null,
+                                "host_id": 15,
+                                "service_id": 34,
+                                "icon": null,
+                                "monitoring_server_name": "Central",
+                                "parent": {
+                                    "uuid": "h15",
+                                    "id": 15,
+                                    "name": "Centreon-Server_1",
+                                    "type": "host",
+                                    "short_type": "h",
+                                    "status": {
+                                        "code": 0,
+                                        "name": "UP",
+                                        "severity_code": 5
+                                    },
+                                    "alias": "Monitoring Server",
+                                    "fqdn": "127.0.0.1",
+                                    "monitoring_server_name": null
+                                },
+                                "status": {
+                                    "code": 0,
+                                    "name": "OK",
+                                    "severity_code": 5
+                                },
+                                "is_in_downtime": false,
+                                "is_acknowledged": false,
+                                "has_active_checks_enabled": true,
+                                "has_passive_checks_enabled": false,
+                                "last_status_change": "2024-01-10T11:01:50+01:00",
+                                "tries": "1\/3 (H)",
+                                "information": "OK - 127.0.0.1 rta 0.023ms lost 0%",
+                                "performance_data": null,
+                                "is_notification_enabled": false,
+                                "severity": null,
+                                "links": {
+                                    "endpoints": {
+                                        "details": "\/centreon\/api\/latest\/monitoring\/resources\/hosts\/15\/services\/34",
+                                        "timeline": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/timeline",
+                                        "status_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/metrics\/status",
+                                        "performance_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/metrics\/performance",
+                                        "acknowledgement": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/acknowledgements?limit=1",
+                                        "downtime": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1704905852%7D,%22end_time%22:%7B%22%24gt%22:1704905852%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1704905852%7D%7D%7D%7D%5D%7D",
+                                        "check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/check",
+                                        "forced_check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/check",
+                                        "metrics": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/34\/metrics"
+                                    },
+                                    "uris": {
+                                        "configuration": "\/centreon\/main.php?p=60201\u0026o=c\u0026service_id=34",
+                                        "logs": "\/centreon\/main.php?p=20301\u0026svc=15_34",
+                                        "reporting": "\/centreon\/main.php?p=30702\u0026period=yesterday\u0026start=\u0026end=\u0026host_id=15\u0026item=34"
+                                    },
+                                    "externals": {
+                                        "action_url": "",
+                                        "notes": {
+                                            "label": "",
+                                            "url": ""
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "uuid": "h15-s43",
+                                "duration": "6h 56m",
+                                "last_check": "2m 3s",
+                                "short_type": "s",
+                                "id": 43,
+                                "type": "service",
+                                "name": "Ping_1",
+                                "alias": null,
+                                "fqdn": null,
+                                "host_id": 15,
+                                "service_id": 43,
+                                "icon": null,
+                                "monitoring_server_name": "Central",
+                                "parent": {
+                                    "uuid": "h15",
+                                    "id": 15,
+                                    "name": "Centreon-Server_1",
+                                    "type": "host",
+                                    "short_type": "h",
+                                    "status": {
+                                        "code": 0,
+                                        "name": "UP",
+                                        "severity_code": 5
+                                    },
+                                    "alias": "Monitoring Server",
+                                    "fqdn": "127.0.0.1",
+                                    "monitoring_server_name": null
+                                },
+                                "status": {
+                                    "code": 0,
+                                    "name": "OK",
+                                    "severity_code": 5
+                                },
+                                "is_in_downtime": false,
+                                "is_acknowledged": false,
+                                "has_active_checks_enabled": true,
+                                "has_passive_checks_enabled": false,
+                                "last_status_change": "2024-01-10T11:01:00+01:00",
+                                "tries": "1\/3 (H)",
+                                "information": "OK - 127.0.0.1 rta 0.022ms lost 0%",
+                                "performance_data": null,
+                                "is_notification_enabled": false,
+                                "severity": null,
+                                "links": {
+                                    "endpoints": {
+                                        "details": "\/centreon\/api\/latest\/monitoring\/resources\/hosts\/15\/services\/43",
+                                        "timeline": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/timeline",
+                                        "status_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/metrics\/status",
+                                        "performance_graph": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/metrics\/performance",
+                                        "acknowledgement": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/acknowledgements?limit=1",
+                                        "downtime": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1704905852%7D,%22end_time%22:%7B%22%24gt%22:1704905852%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1704905852%7D%7D%7D%7D%5D%7D",
+                                        "check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/check",
+                                        "forced_check": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/check",
+                                        "metrics": "\/centreon\/api\/latest\/monitoring\/hosts\/15\/services\/43\/metrics"
+                                    },
+                                    "uris": {
+                                        "configuration": "\/centreon\/main.php?p=60201\u0026o=c\u0026service_id=43",
+                                        "logs": "\/centreon\/main.php?p=20301\u0026svc=15_43",
+                                        "reporting": "\/centreon\/main.php?p=30702\u0026period=yesterday\u0026start=\u0026end=\u0026host_id=15\u0026item=43"
+                                    },
+                                    "externals": {
+                                        "action_url": "",
+                                        "notes": {
+                                            "label": "",
+                                            "url": ""
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "resourceType": "host",
+                        "resources": [
+                            {
+                                "id": 14,
+                                "poller_id": 1,
+                                "name": "Centreon-Server",
+                                "acknowledged": false,
+                                "address_ip": "127.0.0.1",
+                                "alias": "Monitoring Server",
+                                "check_attempt": 1,
+                                "checked": true,
+                                "display_name": "Centreon-Server",
+                                "execution_time": 0.066176,
+                                "icon_image": "",
+                                "icon_image_alt": "",
+                                "last_check": "2024-01-10T17:55:13+01:00",
+                                "last_hard_state_change": "2024-01-10T10:47:52+01:00",
+                                "last_state_change": "2024-01-10T10:47:52+01:00",
+                                "last_time_down": null,
+                                "last_time_unreachable": null,
+                                "last_time_up": "2024-01-10T17:55:18+01:00",
+                                "last_update": "2024-01-10T14:41:53+01:00",
+                                "max_check_attempts": 5,
+                                "output": "OK - 127.0.0.1 rta 0.031ms lost 0%\n",
+                                "passive_checks": false,
+                                "state": 0,
+                                "state_type": 1,
+                                "timezone": "",
+                                "scheduled_downtime_depth": 0,
+                                "criticality": null
+                            }
+                        ]
+                    }
+                ],
+                "metrics": [
+                    {
+                        "criticalHighThreshold": null,
+                        "criticalLowThreshold": null,
+                        "id": 19,
+                        "name": "rtmax",
+                        "unit": "ms",
+                        "warningHighThreshold": null,
+                        "warningLowThreshold": null
+                    }
+                ],
+                "services": [
+                    {
+                        "uuid": "h14-s26",
+                        "id": 26,
+                        "name": "Ping",
+                        "parentName": "Centreon-Server"
+                    }
+                ]
+            },
+            "options": {
+                "topBottomSettings": {
+                    "numberOfValues": 10,
+                    "order": "top",
+                    "showLabels": true
+                },
+                "valueFormat": "human",
+                "threshold": {
+                    "enabled": true,
+                    "customCritical": null,
+                    "criticalType": "default",
+                    "customWarning": null,
+                    "warningType": "default",
+                    "baseColor": null
+                },
+                "refreshInterval": "default",
+                "description": {
+                    "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
+                    "enabled": true
+                },
+                "openLinksInNewTab": true
+            }
+        }
+    }
+    ,
     {
       "id": 4,
       "name": "centreon-widget-singlemetric",
