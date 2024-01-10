@@ -57,9 +57,9 @@ interface IsAllowedPageProps {
 }
 
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
-  flatten(allowedPages || []).some(
-    (allowedPage) => path?.includes(allowedPage)
-  );
+flatten(allowedPages || []).some((allowedPage) =>
+path?.includes(allowedPage)
+);
 
 const getExternalPageRoutes = ({
   allowedPages,
