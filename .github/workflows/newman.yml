@@ -610,5 +610,5 @@ jobs:
         if: steps.commit-changes.outputs.commit_status == 'true'
         uses: ad-m/github-push-action@master
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            branch: MON-33861
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: MON-33861
