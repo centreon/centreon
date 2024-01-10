@@ -14,24 +14,24 @@
 /**
  * This returns an anonymous class to manage alternate CSS class for table lines TR.
  */
-function getLineTemplate(string $class1, string $class2): object
+function getLineTemplate(string $evenCssClass, string $oddCssClass): object
 {
-    return new class($class1, $class2)
+    return new class($evenCssClass, $oddCssClass)
     {
-        private int $number = 0;
+        private int $counter = 0;
 
-        public function __construct(private string $class1, private string $class2)
+        public function __construct(private string $evenCssClass, private string $oddCssClass)
         {
         }
 
         public function get(): string
         {
-            return ($this->number++ % 2) ? $this->class2 : $this->class1;
+            return ($this->counter++ % 2) ? $this->oddCssClass : $this->evenCssClass;
         }
 
         public function reset(): string
         {
-            $this->number = 0;
+            $this->counter = 0;
             return '';
         }
     };
