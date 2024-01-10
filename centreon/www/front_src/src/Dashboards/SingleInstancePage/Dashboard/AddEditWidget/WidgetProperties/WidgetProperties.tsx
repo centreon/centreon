@@ -39,16 +39,16 @@ const WidgetProperties = (): JSX.Element => {
             <WidgetTextField label={labelTitle} propertyName="name" />
             <div>
               <Subtitle>{t(labelDescription)}</Subtitle>
-              <WidgetSwitch
-                label={labelShowDescription}
-                propertyName="description.enabled"
-              />
               <div className={classes.widgetDescription}>
                 <WidgetRichTextEditor
                   label={labelDescription}
                   propertyName="description.content"
                 />
               </div>
+              <WidgetSwitch
+                label={labelShowDescription}
+                propertyName="description.enabled"
+              />
               <WidgetSwitch
                 endAdornment={
                   <Tooltip
