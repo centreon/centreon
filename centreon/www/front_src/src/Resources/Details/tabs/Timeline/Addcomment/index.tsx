@@ -25,7 +25,7 @@ const AddCommentButton = ({ resources, onClick }: Props): JSX.Element => {
   return (
     <ActionButton
       aria-label={t(labelAddComment) as string}
-      data-testid="AddCommentFronTimeLine"
+      data-testid="AddCommentFromTimeLine"
       disabled={disableAddComment}
       startIcon={<IconComment />}
       variant="contained"

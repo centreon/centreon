@@ -24,6 +24,8 @@ import {
 } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
 
+import { useStyles } from './addComment.styles';
+
 interface Props {
   closeCommentArea: () => void;
   resources: Array<ResourceDetails>;
@@ -33,6 +35,7 @@ const AddCommentArea = ({
   resources,
   closeCommentArea
 }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { toIsoString } = useLocaleDateTimeFormat();
   const { showSuccessMessage } = useSnackbar();
@@ -89,21 +92,21 @@ const AddCommentArea = ({
   }, [(data as ResponseError)?.isError]);
 
   return (
-    <div style={{ marginTop: 12 }}>
+    <div className={classes.container}>
       <TextField
         autoFocus
         multiline
         required
         ariaLabel={t(labelComment)}
         autoComplete="off"
+        className={classes.comment}
         dataTestId="addCommentFromTimeLine"
         label={t(labelComment)}
         rows={3}
-        style={{ width: '100%' }}
         value={comment}
         onChange={changeComment}
       />
-      <div style={{ display: 'flex', justifyContent: 'end', marginTop: 4 }}>
+      <div className={classes.footer}>
         <Button size="small" variant="text" onClick={cancel}>
           {t(labelCancel)}
         </Button>

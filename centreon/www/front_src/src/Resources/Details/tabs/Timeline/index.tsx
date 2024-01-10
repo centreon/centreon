@@ -21,7 +21,7 @@ import { labelEvent } from '../../../translatedLabels';
 import InfiniteScroll from '../../InfiniteScroll';
 
 import AddCommentArea from './Addcomment/AddCommentArea';
-import AddCommentButton from './Addcomment/AddCommentButton';
+import AddCommentButton from './Addcomment';
 import { types } from './Event';
 import Events from './Events';
 import ExportToCsv from './ExportToCsv';
@@ -33,6 +33,13 @@ import { TimelineEvent, Type } from './models';
 type TimelineListing = ListingModel<TimelineEvent>;
 
 const useStyles = makeStyles()((theme) => ({
+  containerActions: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1),
+    marginBottom: 1,
+    marginTop: theme.spacing(1)
+  },
   filterHeader: {
     alignItems: 'center',
     display: 'grid',
@@ -142,15 +149,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
               onChange={changeSelectedTypes}
             />
           </Paper>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 8,
-              marginBottom: 1,
-              marginTop: 8
-            }}
-          >
+          <div className={classes.containerActions}>
             {details && (
               <AddCommentButton
                 resources={[details]}
