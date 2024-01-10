@@ -64,6 +64,7 @@ const MetricTop = ({
     <>
       <Typography className={classes.resourceLabel}>
         <Link
+          data-testid={`link to ${metricTop?.name}`}
           style={{ all: 'unset' }}
           target="_blank"
           to={getResourcesStatusUrl(metricTop)}
@@ -75,6 +76,7 @@ const MetricTop = ({
       </Typography>
       <Box className={classes.singleBarContainer} style={{ height: 50 }}>
         <Link
+          data-testid={`link to ${metricTop?.name}`}
           style={{ all: 'unset' }}
           target="_blank"
           to={getResourcesStatusUrl(metricTop)}

@@ -52,6 +52,7 @@ const Tile = ({
   if (isNil(data)) {
     return (
       <Link
+        aria-label={t(labelSeeMore)}
         style={{ all: 'unset' }}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: false })}
@@ -75,15 +76,22 @@ const Tile = ({
   if (isSmallestSize && !isNil(data)) {
     return (
       <Box className={classes.container}>
-        {displayStatusTile ? (
-          <Box
-            className={classes.statusTile}
-            data-mode="compact"
-            sx={{
-              backgroundColor: getColor({ severityCode: data.status, theme })
-            }}
-          />
-        ) : null}
+        <Link
+          data-testid={`link to ${data?.name}`}
+          style={{ all: 'unset' }}
+          target="_blank"
+          to={getLinkToResourceStatus({ isForOneResource: true })}
+        >
+          {displayStatusTile ? (
+            <Box
+              className={classes.statusTile}
+              data-mode="compact"
+              sx={{
+                backgroundColor: getColor({ severityCode: data.status, theme })
+              }}
+            />
+          ) : null}
+        </Link>
       </Box>
     );
   }
@@ -91,6 +99,7 @@ const Tile = ({
   return (
     <Box className={classes.container} data-status={data.statusName}>
       <Link
+        data-testid={`link to ${data?.name}`}
         style={{ all: 'unset' }}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
