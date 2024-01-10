@@ -594,14 +594,18 @@ jobs:
 
       - name: Commit files
         run: |
-             if git diff --quiet --exit-code collections; then
-               echo "No changes in the collections directory. Skipping commit."
-             else
-               git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-               git config --local user.name "github-actions[bot]"
-               git add -u collections
-               git commit -m "Add test cases keys into the collections"
-               git push MON-33861
-             fi
-        env:
+            if git diff --quiet --exit-code collections; then
+            echo "No changes in the collections directory. Skipping commit."
+            else
+              git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git config --local user.name "github-actions[bot]"
+              git add -u collections
+              git commit -m "Add test cases keys into the collections"
+            fi
+
+      - name: Push changes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/MON-33861' && github.actor == 'github-actions[bot]'
+        uses: ad-m/github-push-action@master
+        with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: MON-33861
