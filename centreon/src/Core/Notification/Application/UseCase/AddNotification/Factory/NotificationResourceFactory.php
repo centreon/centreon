@@ -63,15 +63,7 @@ class NotificationResourceFactory
     public function create(NotificationResourceRepositoryInterface $repository, array $resource): NotificationResource
     {
         $resourceIds = array_unique($resource['ids']);
-
-        if ($this->user->isAdmin()) {
-            // Assert IDs validity without ACLs
-            $existingResources = $repository->exist($resourceIds);
-        } else {
-            // Assert IDs validity with ACLs
-            $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-            $existingResources = $repository->existByAccessGroups($resourceIds, $accessGroups);
-        }
+        $existingResources = $repository->exist($resourceIds);
 
         $difference = new BasicDifference($resourceIds, $existingResources);
         $missingResources = $difference->getRemoved();

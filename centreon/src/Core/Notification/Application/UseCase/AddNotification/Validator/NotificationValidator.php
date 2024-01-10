@@ -106,12 +106,7 @@ class NotificationValidator
         ContactInterface $user
     ):void {
         $contactGroupIds = array_unique($contactGroupIds);
-
-        if ($user->isAdmin()) {
-            $contactGroups = $contactGroupRepository->findByIds($contactGroupIds);
-        } else {
-            $contactGroups = $contactGroupRepository->findByIdsAndUserId($contactGroupIds, $user->getId());
-        }
+        $contactGroups = $contactGroupRepository->findByIds($contactGroupIds);
         $existingContactGroups = array_map(fn (ContactGroup $contactgroup) => $contactgroup->getId(), $contactGroups);
         $difference = new BasicDifference($contactGroupIds, $existingContactGroups);
         $missingContactGroups = $difference->getRemoved();
