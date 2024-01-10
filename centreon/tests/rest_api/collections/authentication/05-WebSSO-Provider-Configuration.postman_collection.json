@@ -4,8 +4,7 @@
     "name": "05 - WebSSO Provider Configuration",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "16182525",
-    "_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f8cadaca-aa3b-4c07-8ae3-2746384946ee?action=share&source=collection_link&creator=16182525",
-    "description": "MON-33588"
+    "_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f8cadaca-aa3b-4c07-8ae3-2746384946ee?action=share&source=collection_link&creator=16182525"
   },
   "item": [
     {

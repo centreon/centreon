@@ -4,8 +4,7 @@
     "name": "20 - Time period management - Centreon Web Refactored API Test Collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "22770334",
-    "_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-d595dcb2-b97a-45fe-9fc3-df43fc81aeba?action=share&source=collection_link&creator=22770334",
-    "description": "MON-33586"
+    "_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-d595dcb2-b97a-45fe-9fc3-df43fc81aeba?action=share&source=collection_link&creator=22770334"
   },
   "item": [
     {

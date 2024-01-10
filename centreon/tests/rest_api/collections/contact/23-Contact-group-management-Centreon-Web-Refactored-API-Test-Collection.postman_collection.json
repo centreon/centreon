@@ -4,8 +4,7 @@
     "name": "23 - Contact group management - Centreon Web Refactored API Test Collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "22770334",
-    "_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-35079df6-8c7c-4aa0-84be-fcfecb2f4f72?action=share&creator=22770334&source=collection_link",
-    "description": "MON-33582"
+    "_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-35079df6-8c7c-4aa0-84be-fcfecb2f4f72?action=share&creator=22770334&source=collection_link"
   },
   "item": [
     {

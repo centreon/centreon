@@ -527,7 +527,7 @@ jobs:
           fi
 
   Adding-testCases-keys:
-    needs: [newman-test-list]
+    needs: [newman-test-list, associate-test-cases, newman-test-run]
     runs-on: ubuntu-22.04
     defaults:
       run:
@@ -547,7 +547,7 @@ jobs:
           for collection_file in "${collections[@]}"; do
               collection_name=$(basename "$collection_file" .postman_collection.json)
               collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
-              issue_ids=(84494 84495 84496 84497 84498 84499 84500 84501 84502 84503 84504)
+              issue_ids= ${{ needs.associate-test-cases.outputs.issue_list_ids }}
               echo "issue_ids content: $issue_ids"
 
               for issue_id in "${issue_ids[@]}"; do
@@ -611,4 +611,4 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: MON-33861
+          branch: ${{ github.head_ref }}

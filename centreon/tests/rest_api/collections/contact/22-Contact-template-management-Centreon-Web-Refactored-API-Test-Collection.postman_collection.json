@@ -4,8 +4,7 @@
     "name": "22 - Contact template management - Centreon Web Refactored API Test Collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "22770334",
-    "_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-9d1d001b-a38a-41f9-89b0-12d51c40dcce?action=share&source=collection_link&creator=22770334",
-    "description": "MON-33583"
+    "_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-9d1d001b-a38a-41f9-89b0-12d51c40dcce?action=share&source=collection_link&creator=22770334"
   },
   "item": [
     {
