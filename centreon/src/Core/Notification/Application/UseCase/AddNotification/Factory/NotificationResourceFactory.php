@@ -39,9 +39,7 @@ class NotificationResourceFactory
     use LoggerTrait;
 
     public function __construct(
-        private NotificationResourceRepositoryProviderInterface $repositoryProvider,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private ContactInterface $user
+        private NotificationResourceRepositoryProviderInterface $repositoryProvider
     ) {
     }
 
