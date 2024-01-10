@@ -15,7 +15,7 @@ import {
   labelShowValueLabels,
   labelNumberOfValues
 } from '../../../../translatedLabels';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
 import WidgetSwitch from '../Switch';
 
@@ -31,7 +31,7 @@ const TopBottomSettings = ({
   const { value, changeOrder, changeNumberOfValues } =
     useTopBottomSettings(propertyName);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   return (
     <div>

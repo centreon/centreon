@@ -18,7 +18,7 @@ import {
   labelYourRightsOnlyAllowToView
 } from '../../translatedLabels';
 import { isGenericText } from '../../utils';
-import { editProperties } from '../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
@@ -29,7 +29,7 @@ const Preview = (): JSX.Element | null => {
 
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
 
-  const { canEdit } = editProperties.useCanEditProperties();
+  const { canEdit } = useCanEditProperties();
 
   const previewRef = useRef<HTMLDivElement | null>(null);
 

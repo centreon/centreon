@@ -20,7 +20,7 @@ import {
 import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
 import Subtitle from '../../../../components/Subtitle';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useThreshold from './useThreshold';
 
@@ -32,7 +32,7 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     propertyName
   });
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   return (
     <Box>

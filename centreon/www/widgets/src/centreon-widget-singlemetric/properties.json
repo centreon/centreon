@@ -1,6 +1,7 @@
 {
   "title": "Single metric",
   "description": "Displays the value of a single metric as a text, a gauge or a bar chart.",
+  "icon": "<path d=\"M10.5 28.03h15v10h-15c-2.21 0-4-1.79-4-4v-2c0-2.21 1.79-4 4-4zM36.5 28.03h13c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-13v-10z\"></path><path d=\"M27.5 17.92l-8.08 2.51v-5.51l14.13-5.06h.73v34.17H27.5V17.92z\"></path",
   "options": {
     "singleMetricGraphType": {
       "type": "single-metric-graph-type",

@@ -1,6 +1,6 @@
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelBottom,
   labelDisplay,
@@ -9,31 +9,35 @@ import {
   labelShowValueLabels,
   labelTop
 } from '../../../../translatedLabels';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import TopBottomSettings from './TopBottomSettings';
 
 const initializeComponent = (canEditField = true): void => {
-  cy.stub(editProperties, 'useCanEditProperties').returns({
-    canEdit: true,
-    canEditField
-  });
+  const store = createStore();
+
+  store.set(hasEditPermissionAtom, canEditField);
+  store.set(isEditingAtom, canEditField);
+
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          moduleName: 'widget',
-          options: {
-            topBottomSettings: {
-              numberOfValues: 10,
-              order: 'top',
-              showLabels: true
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            moduleName: 'widget',
+            options: {
+              topBottomSettings: {
+                numberOfValues: 10,
+                order: 'top',
+                showLabels: true
+              }
             }
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <TopBottomSettings label="" propertyName="topBottomSettings" />
-      </Formik>
+          }}
+          onSubmit={cy.stub()}
+        >
+          <TopBottomSettings label="" propertyName="topBottomSettings" />
+        </Formik>
+      </Provider>
     )
   });
 };

@@ -1,7 +1,8 @@
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import WidgetSwitch from '../Switch';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import WidgetRadio from './Radio';
 
@@ -34,71 +35,75 @@ interface Props {
 }
 
 const initializeSimpleCheckboxes = ({ canEdit = true }: Props): void => {
-  cy.stub(editProperties, 'useCanEditProperties').returns({
-    canEdit,
-    canEditField: canEdit
-  });
+  const store = createStore();
+
+  store.set(hasEditPermissionAtom, canEdit);
+  store.set(isEditingAtom, canEdit);
 
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          moduleName: 'widget',
-          options: {
-            radio: []
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <WidgetRadio
-          defaultValue={[]}
-          label={title}
-          options={primaryOptions}
-          propertyName="radio"
-        />
-      </Formik>
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            moduleName: 'widget',
+            options: {
+              radio: []
+            }
+          }}
+          onSubmit={cy.stub()}
+        >
+          <WidgetRadio
+            defaultValue={[]}
+            label={title}
+            options={primaryOptions}
+            propertyName="radio"
+          />
+        </Formik>
+      </Provider>
     )
   });
 };
 
 const initializeAdvancedCheckboxes = (dependency: boolean): void => {
-  cy.stub(editProperties, 'useCanEditProperties').returns({
-    canEdit: true,
-    canEditField: true
-  });
+  const store = createStore();
+
+  store.set(hasEditPermissionAtom, true);
+  store.set(isEditingAtom, true);
 
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          moduleName: 'widget',
-          options: {
-            dependency,
-            radio: []
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <>
-          <WidgetSwitch label="Dependency" propertyName="dependency" />
-          <WidgetRadio
-            defaultValue={{
-              is: true,
-              otherwise: ['d'],
-              then: ['a'],
-              when: 'dependency'
-            }}
-            label={title}
-            options={{
-              is: true,
-              otherwise: secondaryOptions,
-              then: primaryOptions,
-              when: 'dependency'
-            }}
-            propertyName="radio"
-          />
-        </>
-      </Formik>
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            moduleName: 'widget',
+            options: {
+              dependency,
+              radio: []
+            }
+          }}
+          onSubmit={cy.stub()}
+        >
+          <>
+            <WidgetSwitch label="Dependency" propertyName="dependency" />
+            <WidgetRadio
+              defaultValue={{
+                is: true,
+                otherwise: ['d'],
+                then: ['a'],
+                when: 'dependency'
+              }}
+              label={title}
+              options={{
+                is: true,
+                otherwise: secondaryOptions,
+                then: primaryOptions,
+                when: 'dependency'
+              }}
+              propertyName="radio"
+            />
+          </>
+        </Formik>
+      </Provider>
     )
   });
 };

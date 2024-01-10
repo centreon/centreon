@@ -1,35 +1,38 @@
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import WidgetTiles from './Tiles';
 import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 
 const initialize = (canEdit = true): void => {
-  cy.stub(editProperties, 'useCanEditProperties').returns({
-    canEdit,
-    canEditField: canEdit
-  });
+  const store = createStore();
+
+  store.set(hasEditPermissionAtom, canEdit);
+  store.set(isEditingAtom, canEdit);
 
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          moduleName: 'widget',
-          options: {
-            tiles: 100
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <WidgetTiles label="" propertyName="tiles" />
-      </Formik>
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            moduleName: 'widget',
+            options: {
+              tiles: 100
+            }
+          }}
+          onSubmit={cy.stub()}
+        >
+          <WidgetTiles label="" propertyName="tiles" />
+        </Formik>
+      </Provider>
     )
   });
 };
 
 describe('Tiles', () => {
-  beforeEach(initialize);
+  beforeEach(() => initialize());
 
   it('displays the tile input with an initial value', () => {
     cy.contains(labelDisplayUpTo).should('be.visible');

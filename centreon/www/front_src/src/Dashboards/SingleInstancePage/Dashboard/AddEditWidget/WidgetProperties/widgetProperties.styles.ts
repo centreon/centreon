@@ -60,6 +60,14 @@ export const useWidgetSelectionStyles = makeStyles()((theme) => ({
   selectField: {
     flexGrow: 1
   },
+  widgetIcon: {
+    background: theme.palette.primary.main,
+    borderRadius: theme.shape.borderRadius,
+    fill: 'white',
+    height: '60px',
+    marginRight: theme.spacing(1),
+    width: '60px'
+  },
   widgetSelection: {
     alignItems: 'center',
     display: 'flex',
