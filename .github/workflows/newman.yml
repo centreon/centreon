@@ -597,9 +597,9 @@ jobs:
         run: |
             if git diff --quiet --exit-code collections; then
               echo "No changes in the collections directory. Skipping commit."
-              echo "commit_status==false" >> $GITHUB_OUTPUT
-            else
-              echo "commit_status==true" >> $GITHUB_OUTPUT
+              echo "::set-output name=commit_status::false"
+              else
+              echo "::set-output name=commit_status::true"
               git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
               git config --local user.name "github-actions[bot]"
               git add -u collections
