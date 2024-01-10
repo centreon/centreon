@@ -3,7 +3,7 @@
       {
         "id": 1,
         "name": "Ping",
-        "parentName": "Centreon-server",
+        "parent_name": "Centreon-server",
         "uuid": "h1-s1",
         "metrics": [
             {
