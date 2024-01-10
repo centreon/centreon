@@ -52,7 +52,6 @@ runs:
           "labels": ["Veracode", "Pipeline"],
           "components":[{"name": "${{ inputs.module_name }}"}],
           "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-          "customfield_11022": [{"value" : "${{ github.base_ref || github.ref_name }}" }],
           "customfield_10005": 1.0,
           "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
         EOF
