@@ -9,8 +9,8 @@ import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properti
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
-import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singleMetric/moduleFederation.json';
-import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singleMetric/properties.json';
+import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
+import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
