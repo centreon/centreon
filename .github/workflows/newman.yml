@@ -525,6 +525,7 @@ jobs:
           fi
 
   Adding-testCases-keys:
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
     needs: [newman-test-list, associate-test-cases, newman-test-run]
     runs-on: ubuntu-22.04
     defaults:
