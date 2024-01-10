@@ -287,9 +287,9 @@ describe('Details', () => {
 
     cy.contains(labelCommand).should('exist');
     cy.contains('base_host_alive').should('exist');
-    // cy.makeSnapshot()
+    cy.makeSnapshot();
   });
-  it('displays resource details actions like icons when panel width is less than or equal 615 px ', () => {
+  it('displays actions as icons when the panel width is less than 615 px', () => {
     const store = getStore();
     interceptDetailsRequest({
       alias: 'getDetails',
@@ -301,9 +301,9 @@ describe('Details', () => {
     cy.contains('Critical').should('be.visible');
 
     checkActionsButton();
-    // cy.makeSnapshot();
+    cy.makeSnapshot();
   });
-  it('displays resource details actions like buttons when panel width is greater than  615 px ', () => {
+  it('displays actions as buttons when panel width exceeds 615 px', () => {
     const store = getStore();
     store.set(panelWidthStorageAtom, 800);
     interceptDetailsRequest({
@@ -317,9 +317,9 @@ describe('Details', () => {
     cy.contains('Critical').should('be.visible');
 
     checkActionsButton();
-    // cy.makeSnapshot();
+    cy.makeSnapshot();
   });
-  it('displays the modal of ack when Acknowledge button is clicked and sends the action of acknowledge', () => {
+  it('displays the acknowledgment modal when the "Acknowledge" button is clicked and sends the acknowledgment action', () => {
     const store = getStore();
 
     interceptDetailsRequest({
@@ -347,30 +347,30 @@ describe('Details', () => {
     cy.contains(labelNotifyHelpCaption).should('be.visible');
     cy.contains(labelSticky);
 
-    // cy.makeSnapshot(
-    //   'displays the modal of ack when Acknowledge button is clicked'
-    // );
+    cy.makeSnapshot(
+      'displays the acknowledgment modal when the "Acknowledge" button is clicked'
+    );
 
     cy.interceptAPIRequest({
-      alias: 'sendAck',
+      alias: 'sendAcknowledgmentAction',
       method: Method.POST,
       path: `${resourcesEndpoint}/acknowledge`,
       statusCode: 204
     });
 
     cy.findByTestId('Confirm').click();
-    cy.waitForRequest('@sendAck');
+    cy.waitForRequest('@sendAcknowledgmentAction');
 
-    cy.getRequestCalls('@sendAck').then((calls) => {
+    cy.getRequestCalls('@sendAcknowledgmentAction').then((calls) => {
       expect(calls).to.have.length(1);
     });
 
     cy.contains(labelAcknowledgeCommandSent);
 
-    // cy.makeSnapshot('sends an action of acknowledge');
+    cy.makeSnapshot('sends the acknowledgment action');
   });
-  // sends an action of disacknowledge when button disack is clicked
-  it('displays the modal of disack when Disack button is clicked and sends the action of disack', () => {
+
+  it('displays the disacknowledgment modal when the "Disacknowledge" button is clicked and sends the disacknowledgment action', () => {
     const store = getStore();
 
     interceptDetailsRequest({
@@ -394,31 +394,30 @@ describe('Details', () => {
     cy.contains(labelDisacknowledge).should('be.visible');
     cy.contains(labelCancel).should('be.visible');
 
-    // cy.makeSnapshot(
-    //   'displays the modal of disack when Acknowledge button is clicked'
-    // );
+    cy.makeSnapshot(
+      'displays the disacknowledgment modal when the "Disacknowledge" button is clicked'
+    );
 
     cy.interceptAPIRequest({
-      alias: 'sendDisack',
-      method: Method.POST,
+      alias: 'sendDisacknowledgeAction',
+      method: Method.DELETE,
       path: `${resourcesEndpoint}/acknowledgements`,
       statusCode: 204
     });
 
     cy.findByTestId('Confirm').click();
-    cy.waitForRequest('@sendDisack');
+    cy.waitForRequest('@sendDisacknowledgeAction');
 
-    cy.getRequestCalls('@sendDisack').then((calls) => {
+    cy.getRequestCalls('@sendDisacknowledgeAction').then((calls) => {
       expect(calls).to.have.length(1);
     });
 
     cy.contains(labelDisacknowledgementCommandSent);
 
-    // cy.makeSnapshot('sends an action of disack');
+    cy.makeSnapshot('sends the disacknowledgment action');
   });
-  // sends an action downtime  when button dt is clicked
 
-  it('displays the modal of downtime when Dt button is clicked then sends the action of dt', () => {
+  it('displays the downtime modal when the "Downtime" button is clicked and sends the downtime action', () => {
     const now = new Date(2023, 1, 14, 10, 55);
     cy.clock(now);
     const store = getStore();
@@ -455,31 +454,30 @@ describe('Details', () => {
     cy.contains(labelCancel).should('be.visible');
     cy.contains(labelSetDowntime).should('be.visible');
 
-    // cy.makeSnapshot(
-    //   'displays the modal of disack when Acknowledge button is clicked'
-    // );
+    cy.makeSnapshot(
+      'displays the downtime modal when the "Downtime" button is clicked'
+    );
 
     cy.interceptAPIRequest({
-      alias: 'sendDisack',
+      alias: 'sendDowntimeAction',
       method: Method.POST,
       path: `${resourcesEndpoint}/downtime`,
       statusCode: 204
     });
 
     cy.findByTestId('Confirm').click();
-    cy.waitForRequest('@sendDisack');
+    cy.waitForRequest('@sendDowntimeAction');
 
-    cy.getRequestCalls('@sendDisack').then((calls) => {
+    cy.getRequestCalls('@sendDowntimeAction').then((calls) => {
       expect(calls).to.have.length(1);
     });
 
     cy.contains(labelDowntimeCommandSent);
 
-    // cy.makeSnapshot('sends an action of disack');
+    cy.makeSnapshot('sends the downtime action');
   });
 
-  // array
-  it.only('sends forced/check command when the command is chose and  clicked', () => {
+  it('sends the forced/check command when it is chosen and clicked', () => {
     const store = getStore();
 
     interceptDetailsRequest({
@@ -489,7 +487,7 @@ describe('Details', () => {
     });
 
     cy.interceptAPIRequest({
-      alias: 'sendForceCheckCommand',
+      alias: 'sendForcedCheckCommand',
       method: Method.POST,
       path: `${resourcesEndpoint}/check`,
       statusCode: 204
@@ -525,9 +523,9 @@ describe('Details', () => {
     cy.get('@list').should('not.exist');
 
     cy.findByTestId('mainCheck').click();
-    cy.waitForRequest('@sendForceCheckCommand');
+    cy.waitForRequest('@sendForcedCheckCommand');
 
-    cy.getRequestCalls('@sendForceCheckCommand').then((calls) => {
+    cy.getRequestCalls('@sendForcedCheckCommand').then((calls) => {
       expect(calls).to.have.length(1);
     });
 
