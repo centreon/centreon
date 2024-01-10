@@ -9,10 +9,6 @@ import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properti
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
-import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
-import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
-import widgetTopbottomConfiguration from 'centreon-widgets/centreon-widget-topbottom/moduleFederation.json';
-import widgetTopbottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -58,16 +54,10 @@ import {
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
   labelInterval,
-  labelUnsavedChanges,
-  labelSeeMoreInRSPage
+  labelUnsavedChanges
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
-import { metricsEndpoint } from './AddEditWidget/api/endpoints';
-
-const linkToResourceStatusForSingleMetric =
-  '/centreon/monitoring/resources?details=%7B%22id%22%3A26%2C%22resourcesDetailsEndpoint%22%3A%22%2Fcentreon%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2F14%2Fservices%2F26%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22graph%22%2C%22tabParameters%22%3A%7B%7D%2C%22uuid%22%3A%22h14-s26%22%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing%5C%5Cb%22%2C%22name%22%3A%22Ping%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon-Server%5C%5Cb%22%2C%22name%22%3A%22Centreon-Server%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true';
-const linkToResourceStatusForTopBottom = '';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -82,14 +72,6 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetGenericTextConfiguration,
       moduleFederationName: 'centreon-widget-generictext/src'
-    },
-    {
-      ...widgetSingleMetricConfiguration,
-      moduleFederationName: 'centreon-widget-singlemetric/src'
-    },
-    {
-      ...widgetTopbottomConfiguration,
-      moduleFederationName: 'centreon-widget-topbottom/src'
     }
   ];
 
@@ -98,9 +80,7 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
-    widgetGenericTextProperties,
-    widgetSingleMetricProperties,
-    widgetTopbottomProperties
+    widgetGenericTextProperties
   ]);
 
   return store;
@@ -257,17 +237,6 @@ const initializeAndMount = ({
     path: getDashboardAccessRightsEndpoint(1),
     statusCode: 204
   });
-
-  cy.fixture('Dashboards/Dashboard/serviceMetric.json').then(
-    (serviceMetrics) => {
-      cy.interceptAPIRequest({
-        alias: 'getServiceMetrics',
-        method: Method.GET,
-        path: `${metricsEndpoint}**`,
-        response: serviceMetrics
-      });
-    }
-  );
 
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
 
@@ -550,18 +519,5 @@ describe('Dashboard', () => {
 
     cy.contains('Widget text').should('be.visible');
     cy.contains('Generic text').should('be.visible');
-  });
-  it('navigate to resource status page when the corresponding icon was clicked', () => {
-    initializeAndMount(editorRoles);
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.findAllByTestId(labelSeeMoreInRSPage)
-      .eq(0)
-      .should('have.attr', 'href', linkToResourceStatusForSingleMetric);
-
-    cy.findAllByTestId(labelSeeMoreInRSPage)
-      .eq(1)
-      .should('have.attr', 'href', linkToResourceStatusForTopBottom);
   });
 });
