@@ -11,7 +11,7 @@ import topBottomWidget from '../../fixtures/dashboards/creation/widgets/dashboar
 Cypress.Commands.add('enableDashboardFeature', () => {
   cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
+    name: 'web'
   });
 });
 

@@ -36,7 +36,7 @@ const getCentreonStableMinorVersions = (
         command: `bash -e <<EOF
           dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       })
       .exec(
         `docker exec -i ${Cypress.env(
@@ -51,7 +51,7 @@ EOF`,
           mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
           apt-get update
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       })
       .exec(
         `docker exec -i ${Cypress.env(
@@ -75,7 +75,7 @@ EOF`,
         command: `bash -e <<EOF
             dnf config-manager --set-enabled 'centreon-*'
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       });
     } else {
       cy.execInContainer({
@@ -84,7 +84,7 @@ EOF`,
             mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list
             apt-get update
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       });
     }
 
@@ -109,7 +109,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
         dnf config-manager --set-enabled 'centreon-*'
 EOF`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
   } else {
     cy.execInContainer({
@@ -135,7 +135,7 @@ EOF`,
         apt-get update
         usermod -a -G centreon-broker www-data # temporary fix (MON-20769)
 EOF`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
   }
 
@@ -221,7 +221,7 @@ EOF`,
         systemctl restart centengine
         systemctl restart gorgoned
 EOF`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
 };
 
@@ -239,7 +239,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           rm -f /tmp/packages-update-centreon/centreon-${major_version}*.rpm /tmp/packages-update-centreon/centreon-central-${major_version}*.rpm
           dnf install -y /tmp/packages-update-centreon/*.rpm
 EOF`,
-          name: Cypress.env('dockerName')
+          name: 'web'
         });
       }
 
@@ -249,7 +249,7 @@ EOF`,
         apt-get update
         apt-get install -y /tmp/packages-update-centreon/centreon-*.deb
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       });
     })
     .execInContainer({
@@ -258,7 +258,7 @@ EOF`,
         systemctl restart centengine
         systemctl restart gorgoned
 EOF`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
 };
 

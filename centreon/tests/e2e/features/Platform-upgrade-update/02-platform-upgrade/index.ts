@@ -144,7 +144,7 @@ Given(
                           dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo
                           dnf config-manager --set-enabled 'centreon*'
 EOF`,
-                        name: Cypress.env('dockerName')
+                        name: 'web'
                       });
                     }
 
@@ -159,7 +159,7 @@ EOF`,
                         wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
-                      name: Cypress.env('dockerName')
+                      name: 'web'
                     });
                   })
                   .then(() => {

@@ -8,7 +8,7 @@
     "widgets:build:dev": "(cd www/widgets && pnpm build:dev $WIDGETS)",
     "widgets:watch": "(cd www/widgets && pnpm watch $WIDGETS)",
     "widgets:build:analyze": "(cd www/widgets && pnpm build:analyze)",
-    "centreon:build": "webpack --mode development --config ./webpack.config.prod.js",
+    "centreon:build": "webpack --mode production --config ./webpack.config.prod.js",
     "centreon:build:analyze": "webpack --mode production --config ./webpack.config.analyze.js",
     "centreon:build:dev": "cross-env WEBPACK_ENV=development webpack serve --mode development --config ./webpack.config.dev.js",
     "centreon:watch": "cross-env WEBPACK_ENV=serve webpack serve --mode development --config ./webpack.config.dev.js",

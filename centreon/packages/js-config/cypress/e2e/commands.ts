@@ -129,11 +129,7 @@ interface CopyFromContainerProps {
 
 Cypress.Commands.add(
   'copyFromContainer',
-  ({
-    name = Cypress.env('dockerName'),
-    source,
-    destination
-  }: CopyFromContainerProps) => {
+  ({ name = 'web', source, destination }: CopyFromContainerProps) => {
     cy.log(`Copy content from ${name}:${source} to ${destination}`);
 
     return cy.task('copyFromContainer', {
@@ -153,11 +149,7 @@ interface CopyToContainerProps {
 Cypress.Commands.add(
   'copyToContainer',
   (
-    {
-      name = Cypress.env('dockerName'),
-      source,
-      destination
-    }: CopyToContainerProps,
+    { name = 'web', source, destination }: CopyToContainerProps,
     options?: Partial<Cypress.ExecOptions>
   ) => {
     cy.log(`Copy content from ${source} to ${name}:${destination}`);
