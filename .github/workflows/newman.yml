@@ -596,9 +596,8 @@ jobs:
         id: commit-changes
         run: |
             if git diff --quiet --exit-code collections; then
-            echo "No changes in the collections directory. Skipping commit."
-            echo "commit_status==false" >> $GITHUB_OUTPUT
-
+              echo "No changes in the collections directory. Skipping commit."
+              echo "commit_status==false" >> $GITHUB_OUTPUT
             else
               echo "commit_status==true" >> $GITHUB_OUTPUT
               git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
