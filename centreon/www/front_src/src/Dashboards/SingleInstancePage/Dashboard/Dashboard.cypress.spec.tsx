@@ -9,6 +9,8 @@ import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properti
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singleMetric/moduleFederation.json';
+import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singleMetric/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -72,6 +74,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetGenericTextConfiguration,
       moduleFederationName: 'centreon-widget-generictext/src'
+    },
+    {
+      ...widgetSingleMetricConfiguration,
+      moduleFederationName: 'centreon-widget-singlemetric/src'
     }
   ];
 
@@ -80,7 +86,8 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
-    widgetGenericTextProperties
+    widgetGenericTextProperties,
+    widgetSingleMetricProperties
   ]);
 
   return store;
@@ -519,5 +526,12 @@ describe('Dashboard', () => {
 
     cy.contains('Widget text').should('be.visible');
     cy.contains('Generic text').should('be.visible');
+  });
+  it('single metric', () => {
+    initializeAndMount(editorRoles);
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains('Single metric x');
   });
 });
