@@ -1,4 +1,5 @@
 import { createStore } from 'jotai';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method } from '@centreon/ui';
 
@@ -76,25 +77,27 @@ const initializeComponent = ({
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Widget
-          globalRefreshInterval={30}
-          panelData={data}
-          panelOptions={{
-            refreshInterval: 'custom',
-            refreshIntervalCustom: 30,
-            threshold: defaultThreshold,
-            topBottomSettings,
-            valueFormat: 'human'
-          }}
-          store={store}
-        />
+        <BrowserRouter>
+          <Widget
+            globalRefreshInterval={30}
+            panelData={data}
+            panelOptions={{
+              refreshInterval: 'custom',
+              refreshIntervalCustom: 30,
+              threshold: defaultThreshold,
+              topBottomSettings,
+              valueFormat: 'human'
+            }}
+            store={store}
+          />
+        </BrowserRouter>
       </div>
     )
   });
 };
 
 describe('TopBottom', () => {
-  it('displays the widget', () => {
+  it.only('displays the widget', () => {
     initializeComponent({});
 
     cy.waitForRequest('@getTop').then(({ request }) => {

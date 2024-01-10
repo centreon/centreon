@@ -5,8 +5,8 @@ interface UseLinkToResourceStatus {
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const getDetailsPanelQueriers = (data): object => {
     const uuid = data?.uuid;
-    const hostId = uuid?.split('-')[0].slice(1);
-    const serviceId = uuid?.split('-')[1].slice(1);
+    const hostId = uuid?.split('-')[0]?.slice(1);
+    const serviceId = uuid?.split('-')[1]?.slice(1);
 
     const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
