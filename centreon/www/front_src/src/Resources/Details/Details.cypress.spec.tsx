@@ -143,7 +143,7 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const getStore = () => {
+const getStore = (): unknown => {
   const store = createStore();
   store.set(userAtom, retrievedUser);
   store.set(aclAtom, mockAcl);
