@@ -70,6 +70,9 @@ export interface Metric extends NamedEntity {
 
 export interface ServiceMetric extends NamedEntity {
   metrics: Array<Metric>;
+  name: string;
+  parentName: string;
+  uuid: string;
 }
 
 export enum WidgetResourceType {

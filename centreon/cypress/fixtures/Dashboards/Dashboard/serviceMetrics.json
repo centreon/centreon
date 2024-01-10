@@ -2,7 +2,9 @@
   "result": [
       {
         "id": 1,
-        "name": "Centreon-server_Ping",
+        "name": "Ping",
+        "parentName": "Centreon-server",
+        "uuid": "h1-s1",
         "metrics": [
             {
               "id": 1,
@@ -26,7 +28,9 @@
       },
       {
         "id": 2,
-        "name": "Centreon-server_Ping-copy",
+        "name": "Ping-copy",
+        "parentName": "Centreon-server",
+        "uuid": "h1-s2",
         "metrics": [
             {
               "id": 3,

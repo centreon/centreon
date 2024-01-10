@@ -11,6 +11,8 @@ import {
   isEmpty,
   isNil,
   length,
+  // map,
+  // pick,
   pipe,
   pluck,
   propEq,
@@ -132,6 +134,11 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     uniqBy(({ name }) => name)
   )(servicesMetrics?.result || []);
 
+  // const services = map(
+  //   pick(['uuid', 'id', 'name', 'parentName']),
+  //   servicesMetrics?.result || []
+  // );
+
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
     setFieldValue(`data.${propertyName}`, [newMetric]);
     setFieldTouched(`data.${propertyName}`, true, false);
@@ -242,6 +249,10 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     },
     useDeepCompare([servicesMetrics, resources])
   );
+
+  // useEffect(() => {
+  //   setFieldValue(`data.services`, services);
+  // }, [values?.data?.[propertyName]]);
 
   return {
     changeMetric,
