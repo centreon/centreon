@@ -11,7 +11,7 @@ const serviceInDtName = 'service1';
 const secondServiceInDtName = 'service2';
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.intercept({
     method: 'GET',
@@ -410,5 +410,5 @@ Then('the resources should not be in Downtime anymore', () => {
 });
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

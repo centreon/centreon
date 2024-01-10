@@ -45,7 +45,7 @@ beforeEach(() => {
 });
 
 Given('the user has the necessary rights to page Resource Status', () => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.loginByTypeOfUser({
     jsonName: 'admin',
@@ -567,5 +567,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

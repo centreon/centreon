@@ -40,7 +40,7 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
 };
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.intercept({
     method: 'GET',
@@ -544,5 +544,5 @@ Then(
 );
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
