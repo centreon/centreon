@@ -4,6 +4,7 @@
         "id": 1,
         "parent_name": "Centreon-server",
         "name": "Ping",
+        "uuid": "h1-s1",
         "metrics": [
             {
               "id": 1,
