@@ -57,7 +57,7 @@ interface IsAllowedPageProps {
 }
 
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
-  flatten(allowedPages || []).some((allowedPage) => 
+  flatten(allowedPages || []).some((allowedPage) =>
     path?.includes(allowedPage)
   );
 
