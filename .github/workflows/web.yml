@@ -584,6 +584,7 @@ jobs:
           echo WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}" >> .github/docker/.env
           slim build \
             --compose-file .github/docker/docker-compose.yml \
+            --compose-env-file .github/docker/.env \
             --target-compose-svc web \
             --show-clogs --show-blogs \
             --include-shell \
