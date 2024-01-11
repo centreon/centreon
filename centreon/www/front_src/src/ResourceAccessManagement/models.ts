@@ -6,13 +6,13 @@ export enum ModalMode {
 }
 
 export enum ResourceTypeEnum {
-  Host = 'Host',
-  HostCategory = 'Host category',
-  HostGroup = 'Host group',
-  MetaService = 'Metaservice',
-  Service = 'Service',
-  ServiceCategory = 'Service category',
-  ServiceGroup = 'Service group'
+  Host = 'host',
+  HostCategory = 'host_category',
+  HostGroup = 'hostgroup',
+  MetaService = 'meta_service',
+  Service = 'service',
+  ServiceCategory = 'service_category',
+  ServiceGroup = 'servicegroup'
 }
 
 export interface Listing {
@@ -64,7 +64,7 @@ export type ResourceAccessRuleType = {
 
 export type Dataset = {
   resourceType: ResourceTypeEnum;
-  resources: Array<NamedEntity>;
+  resources: Array<number>;
 };
 
 export type DatasetResource = {
@@ -78,8 +78,8 @@ export type NamedEntity = {
 };
 
 export type ResourceAccessRule = ResourceAccessRuleType & {
-  contactGroups: Array<NamedEntity>;
-  contacts: Array<NamedEntity>;
+  contactGroups: Array<number>;
+  contacts: Array<number>;
   datasets: Array<Array<Dataset>>;
 };
 
