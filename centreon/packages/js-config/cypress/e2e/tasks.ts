@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { execSync } from 'child_process';
-import { cp, existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 
 import Docker from 'dockerode';
 import tar from 'tar-fs';

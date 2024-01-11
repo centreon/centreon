@@ -260,6 +260,30 @@ Cypress.Commands.add(
   }
 );
 
+interface PortBinding {
+  destination: number;
+  source: number;
+}
+
+interface StartContainerProps {
+  image: string;
+  name: string;
+  portBindings: Array<PortBinding>;
+}
+
+Cypress.Commands.add(
+  'startContainer',
+  ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
+    cy.log(`Starting container ${name} from image ${image}`);
+
+    return cy.task(
+      'startContainer',
+      { image, name, portBindings },
+      { timeout: 600000 } // 10 minutes because docker pull can be very slow
+    );
+  }
+);
+
 interface StartContainersProps {
   databaseImage?: string;
   openidImage?: string;
@@ -306,6 +330,19 @@ Cypress.Commands.add(
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
       .setUserTokenApiV1();
+  }
+);
+
+interface StopContainerProps {
+  name: string;
+}
+
+Cypress.Commands.add(
+  'stopContainer',
+  ({ name }: StopContainerProps): Cypress.Chainable => {
+    cy.log(`Stopping container ${name}`);
+
+    return cy.task('stopContainer', { name });
   }
 );
 
@@ -615,6 +652,10 @@ declare global {
         userName,
         role
       }: ShareDashboardToUserProps) => Cypress.Chainable;
+      startContainer: ({
+        name,
+        image
+      }: StartContainerProps) => Cypress.Chainable;
       startContainers: ({
         databaseImage,
         openidImage,
@@ -623,6 +664,7 @@ declare global {
         webOs,
         webVersion
       }?: StartContainersProps) => Cypress.Chainable;
+      stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
       stopContainers: () => Cypress.Chainable;
       visitEmptyPage: () => Cypress.Chainable;
       waitForContainerAndSetToken: () => Cypress.Chainable;
