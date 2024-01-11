@@ -18,7 +18,7 @@ RUN bash -e <<EOF
 
 apt-get update
 
-rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb
+rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb /tmp/debs-centreon/centreon-database_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
 systemctl stop centreon
@@ -56,9 +56,9 @@ su www-data -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
-wget https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper_0.15.1-3.bullseye_amd64.deb
-apt-get install -y ./mydumper_0.15.1-3.bullseye_amd64.deb zstd
-rm -f ./mydumper_*
+wget -P /tmp/ https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper_0.15.1-3.bullseye_amd64.deb
+apt-get install -y /tmp/mydumper_*.deb zstd
+rm -f /tmp/mydumper_*
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage
