@@ -82,10 +82,11 @@ Given(
       }
 
       cy.startContainer({
+        command: 'tail -f /dev/null',
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
           'WEB_IMAGE_OS'
         )}:${major_version_from}`,
-        name: Cypress.env('dockerName'),
+        name: 'web',
         portBindings: [
           {
             destination: 4000,
@@ -124,7 +125,7 @@ Given(
                     `Not needed to test ${version_from_expression} version.`
                   );
 
-                  return cy.wrap('skipped');
+                  return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }
 
                 cy.log(
@@ -176,5 +177,5 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: Cypress.env('dockerName') });
+  cy.visitEmptyPage().stopContainer({ name: 'web' });
 });

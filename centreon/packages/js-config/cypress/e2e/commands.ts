@@ -5,10 +5,7 @@ import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
-installLogsCollector({
-  enableContinuousLogging: true,
-  enableExtendedCollector: true
-});
+installLogsCollector({ enableExtendedCollector: true });
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
@@ -233,7 +230,11 @@ Cypress.Commands.add(
   'execInContainer',
   ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
     return cy
-      .task<ExecInContainerResult>('execInContainer', { command, name })
+      .task<ExecInContainerResult>(
+        'execInContainer',
+        { command, name },
+        { timeout: 120000 }
+      )
       .then((result) => {
         if (result.exitCode) {
           // output will not be truncated
@@ -266,6 +267,7 @@ interface PortBinding {
 }
 
 interface StartContainerProps {
+  command?: string;
   image: string;
   name: string;
   portBindings: Array<PortBinding>;
@@ -273,12 +275,17 @@ interface StartContainerProps {
 
 Cypress.Commands.add(
   'startContainer',
-  ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
+  ({
+    command,
+    name,
+    image,
+    portBindings
+  }: StartContainerProps): Cypress.Chainable => {
     cy.log(`Starting container ${name} from image ${image}`);
 
     return cy.task(
       'startContainer',
-      { image, name, portBindings },
+      { command, image, name, portBindings },
       { timeout: 600000 } // 10 minutes because docker pull can be very slow
     );
   }
@@ -653,8 +660,10 @@ declare global {
         role
       }: ShareDashboardToUserProps) => Cypress.Chainable;
       startContainer: ({
+        command,
         name,
-        image
+        image,
+        portBindings
       }: StartContainerProps) => Cypress.Chainable;
       startContainers: ({
         databaseImage,

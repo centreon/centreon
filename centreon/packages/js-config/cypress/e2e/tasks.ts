@@ -2,21 +2,38 @@
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 
-import Docker from 'dockerode';
 import tar from 'tar-fs';
 import {
   DockerComposeEnvironment,
   GenericContainer,
+  StartedDockerComposeEnvironment,
   StartedTestContainer,
   Wait,
   getContainerRuntimeClient
 } from 'testcontainers';
 import { createConnection } from 'mysql2/promise';
 
+interface Containers {
+  [key: string]: StartedTestContainer;
+}
+
 export default (on: Cypress.PluginEvents): void => {
-  const docker = new Docker();
-  let dockerEnvironment;
-  const containers = {};
+  let dockerEnvironment: StartedDockerComposeEnvironment | null = null;
+  const containers: Containers = {};
+
+  const getContainer = (containerName): StartedTestContainer => {
+    let container;
+
+    if (dockerEnvironment !== null) {
+      container = dockerEnvironment.getContainer(`${containerName}-1`);
+    } else if (containers[containerName]) {
+      container = containers[containerName];
+    } else {
+      throw new Error(`Cannot get container ${containerName}`);
+    }
+
+    return container;
+  };
 
   interface PortBinding {
     destination: number;
@@ -24,6 +41,7 @@ export default (on: Cypress.PluginEvents): void => {
   }
 
   interface StartContainerProps {
+    command?: string;
     image: string;
     name: string;
     portBindings: Array<PortBinding>;
@@ -36,17 +54,19 @@ export default (on: Cypress.PluginEvents): void => {
   on('task', {
     copyFromContainer: async ({ destination, serviceName, source }) => {
       try {
-        const container = dockerEnvironment.getContainer(`${serviceName}-1`);
+        if (dockerEnvironment !== null) {
+          const container = dockerEnvironment.getContainer(`${serviceName}-1`);
 
-        await container
-          .copyArchiveFromContainer(source)
-          .then((archiveStream) => {
-            return new Promise<void>((resolve) => {
-              const dest = tar.extract(destination);
-              archiveStream.pipe(dest);
-              dest.on('finish', resolve);
+          await container
+            .copyArchiveFromContainer(source)
+            .then((archiveStream) => {
+              return new Promise<void>((resolve) => {
+                const dest = tar.extract(destination);
+                archiveStream.pipe(dest);
+                dest.on('finish', resolve);
+              });
             });
-          });
+        }
       } catch (error) {
         console.error(error);
       }
@@ -61,9 +81,7 @@ export default (on: Cypress.PluginEvents): void => {
       return null;
     },
     execInContainer: async ({ command, name }) => {
-      const container = dockerEnvironment.getContainer(`${name}-1`);
-
-      const { exitCode, output } = await container.exec([
+      const { exitCode, output } = await getContainer(name).exec([
         'bash',
         '-c',
         command
@@ -71,17 +89,10 @@ export default (on: Cypress.PluginEvents): void => {
 
       return { exitCode, output };
     },
-    getContainerId: (containerName: string) => {
-      const container: StartedTestContainer = dockerEnvironment.getContainer(
-        `${containerName}-1`
-      );
-
-      return container.getId();
-    },
+    getContainerId: (containerName: string) =>
+      getContainer(containerName).getId(),
     getContainerIpAddress: (containerName: string) => {
-      const container: StartedTestContainer = dockerEnvironment.getContainer(
-        `${containerName}-1`
-      );
+      const container = getContainer(containerName);
 
       const networkNames = container.getNetworkNames();
 
@@ -108,7 +119,13 @@ export default (on: Cypress.PluginEvents): void => {
       }
     },
     requestOnDatabase: async ({ database, query }) => {
-      const container = dockerEnvironment.getContainer('db-1');
+      let container: StartedTestContainer | null = null;
+
+      if (dockerEnvironment !== null) {
+        container = dockerEnvironment.getContainer('db-1');
+      } else {
+        container = getContainer('web');
+      }
 
       const client = await createConnection({
         database,
@@ -125,6 +142,7 @@ export default (on: Cypress.PluginEvents): void => {
       return [rows, fields];
     },
     startContainer: async ({
+      command,
       image,
       name,
       portBindings = []
@@ -138,62 +156,13 @@ export default (on: Cypress.PluginEvents): void => {
         });
       });
 
-      containers[name] = container.start();
-
-      /*
-      const imageList = execSync(
-        'docker image list --format "{{.Repository}}:{{.Tag}}"'
-      ).toString('utf8');
-
-      if (
-        !imageList.match(
-          new RegExp(
-            `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
-            'm'
-          )
-        )
-      ) {
-        execSync(`docker pull ${image}`);
+      if (command) {
+        container
+          .withCommand(['bash', '-c', command])
+          .withWaitStrategy(Wait.forSuccessfulCommand('ls'));
       }
 
-      const webContainers = await docker.listContainers({
-        all: true,
-        filters: { name: [name] }
-      });
-      if (webContainers.length) {
-        return webContainers[0];
-      }
-
-      const container = await docker.createContainer({
-        AttachStderr: true,
-        AttachStdin: false,
-        AttachStdout: true,
-        ExposedPorts: portBindings.reduce((accumulator, currentValue) => {
-          accumulator[`${currentValue.source}/tcp`] = {};
-
-          return accumulator;
-        }, {}),
-        HostConfig: {
-          PortBindings: portBindings.reduce((accumulator, currentValue) => {
-            accumulator[`${currentValue.source}/tcp`] = [
-              {
-                HostIP: '127.0.0.1',
-                HostPort: `${currentValue.destination}`
-              }
-            ];
-
-            return accumulator;
-          }, {})
-        },
-        Image: image,
-        OpenStdin: false,
-        StdinOnce: false,
-        Tty: true,
-        name
-      });
-
-      await container.start();
-      */
+      containers[name] = await container.start();
 
       return container;
     },
@@ -235,8 +204,7 @@ export default (on: Cypress.PluginEvents): void => {
       if (containers[name]) {
         const container = containers[name];
 
-        await container.kill();
-        await container.remove();
+        await container.stop();
 
         delete containers[name];
       }
@@ -244,7 +212,11 @@ export default (on: Cypress.PluginEvents): void => {
       return null;
     },
     stopContainers: async () => {
-      await dockerEnvironment.down();
+      if (dockerEnvironment !== null) {
+        await dockerEnvironment.down();
+
+        dockerEnvironment = null;
+      }
 
       return null;
     },

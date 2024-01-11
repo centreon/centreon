@@ -39,7 +39,7 @@ EOF`,
         name: 'web'
       })
       .execInContainer({
-        command: `dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '`,
+        command: `dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print $2 }' | tr '\n' ' '`,
         name: 'web'
       });
   } else {
@@ -53,7 +53,7 @@ EOF`,
         name: 'web'
       })
       .execInContainer({
-        command: `apt list -a centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }'`,
+        command: `apt list -a centreon-web | grep '${majorVersion}' | awk '{ print $2 }'`,
         name: 'web'
       });
   }
@@ -262,8 +262,8 @@ EOF`,
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
   const command = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? `rpm -qa | grep centreon-web | cut -d '-' -f3`
-    : `apt list --installed centreon-web | awk '{ print \\$2 }' | cut -d '-' -f1`;
+    ? `rpm -qa | grep centreon-web | cut -d '-' -f3 | tr -d '\n'`
+    : `apt list --installed centreon-web | awk '{ print $2 }' | cut -d '-' -f1 | tr -d '\n'`;
 
   return cy
     .execInContainer({

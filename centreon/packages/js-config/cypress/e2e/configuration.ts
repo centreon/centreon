@@ -13,7 +13,6 @@ import tasks from './tasks';
 
 interface ConfigurationOptions {
   cypressFolder?: string;
-  dockerName?: string;
   env?: Record<string, unknown>;
   envFile?: string;
   isDevelopment?: boolean;
@@ -24,7 +23,6 @@ export default ({
   specPattern,
   cypressFolder,
   isDevelopment,
-  dockerName,
   env,
   envFile
 }: ConfigurationOptions): Cypress.ConfigOptions => {
@@ -64,8 +62,7 @@ export default ({
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       WEB_IMAGE_OS: 'alma9',
-      WEB_IMAGE_VERSION: webImageVersion,
-      dockerName: dockerName || 'centreon-dev'
+      WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
     requestTimeout: 10000,
