@@ -11,7 +11,7 @@ interface SamlConfigValues {
 }
 
 const getSamlConfigValues = ({ providerAddress }): SamlConfigValues => {
-  const keycloakURL = `${providerAddress}:8080/realms/Centreon_SSO`;
+  const keycloakURL = `${providerAddress}/realms/Centreon_SSO`;
 
   return {
     entityID: keycloakURL,

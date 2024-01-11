@@ -38,11 +38,10 @@ const getCentreonStableMinorVersions = (
 EOF`,
         name: 'web'
       })
-      .exec(
-        `docker exec -i ${Cypress.env(
-          'dockerName'
-        )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '"`
-      );
+      .execInContainer({
+        command: `dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '`,
+        name: 'web'
+      });
   } else {
     commandResult = cy
       .execInContainer({
@@ -53,19 +52,18 @@ EOF`,
 EOF`,
         name: 'web'
       })
-      .exec(
-        `docker exec -i ${Cypress.env(
-          'dockerName'
-        )} sh -c "apt list -a centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }'"`
-      );
+      .execInContainer({
+        command: `apt list -a centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }'`,
+        name: 'web'
+      });
   }
 
-  return commandResult.then(({ stdout }): Cypress.Chainable<Array<number>> => {
+  return commandResult.then(({ output }): Cypress.Chainable<Array<number>> => {
     const stableVersions: Array<number> = [];
 
     const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
-    [...stdout.matchAll(versionsRegex)].forEach((result) => {
+    [...output.matchAll(versionsRegex)].forEach((result) => {
       cy.log(`available version found: ${majorVersion}.${result[1]}`);
       stableVersions.push(Number(result[1]));
     });
@@ -268,15 +266,18 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
     : `apt list --installed centreon-web | awk '{ print \\$2 }' | cut -d '-' -f1`;
 
   return cy
-    .exec(`docker exec -i ${Cypress.env('dockerName')} sh -c "${command}"`)
-    .then(({ stdout }): Cypress.Chainable<null> | null => {
-      const isExpected = platformVersion === stdout;
+    .execInContainer({
+      command,
+      name: 'web'
+    })
+    .then(({ output }): Cypress.Chainable<null> | null => {
+      const isExpected = platformVersion === output;
       if (isExpected) {
         return null;
       }
 
       throw new Error(
-        `The platform version is not the correct one (expected: ${platformVersion}, actual: ${stdout}).`
+        `The platform version is not the correct one (expected: ${platformVersion}, actual: ${output}).`
       );
     });
 };

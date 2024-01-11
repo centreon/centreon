@@ -19,20 +19,18 @@ const insertHost = (): Cypress.Chainable => {
 
 const getPoller = (pollerName: string): Cypress.Chainable => {
   const query = `SELECT id FROM nagios_server WHERE name = '${pollerName}'`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
 
   return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const pollerId = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(pollerId || '0');
+    .requestOnDatabase({
+      database: 'centreon',
+      query
+    })
+    .then(([rows]) => {
+      if (rows.length) {
+        return cy.wrap(parseInt(rows[0].id, 10));
       }
 
-      return cy.log(`Can't execute command on database.`);
+      return cy.log(`Cannot execute command on database.`);
     });
 };
 
@@ -91,12 +89,11 @@ const checkIfMethodIsAppliedToPollers = (method: string): void => {
 
   cy.wait(waitToExport);
 
-  cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} sh -c "grep '${logToSearch}' /var/log/centreon-engine/centengine.log | tail -1"`
-  ).then(({ stdout }): Cypress.Chainable<null> | null => {
-    if (stdout) {
+  cy.execInContainer({
+    command: `grep '${logToSearch}' /var/log/centreon-engine/centengine.log | tail -1`,
+    name: 'web'
+  }).then(({ output }): Cypress.Chainable<null> | null => {
+    if (output) {
       return null;
     }
 
@@ -106,33 +103,29 @@ const checkIfMethodIsAppliedToPollers = (method: string): void => {
 
 const clearCentengineLogs = (): Cypress.Chainable => {
   return cy
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} truncate -s 0 /var/log/centreon-engine/centengine.log`
-    )
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} truncate -s 0 /etc/centreon-engine/hosts.cfg`
-    );
+    .execInContainer({
+      command: 'truncate -s 0 /var/log/centreon-engine/centengine.log',
+      name: 'web'
+    })
+    .execInContainer({
+      command: 'truncate -s 0 /etc/centreon-engine/hosts.cfg',
+      name: 'web'
+    });
 };
 
 const breakSomePollers = (): Cypress.Chainable => {
-  return cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} sh -c "chmod a-rwx  /var/cache/centreon/config/engine/1/"`
-  );
+  return cy.execInContainer({
+    command: 'chmod a-rwx /var/cache/centreon/config/engine/1/',
+    name: 'web'
+  });
 };
 
 const checkIfConfigurationIsNotExported = (): void => {
-  cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
-  ).then(({ stdout }): Cypress.Chainable<null> | null => {
-    if (!stdout) {
+  cy.execInContainer({
+    command: `grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1`,
+    name: 'web'
+  }).then(({ output }): Cypress.Chainable<null> | null => {
+    if (!output) {
       return null;
     }
 

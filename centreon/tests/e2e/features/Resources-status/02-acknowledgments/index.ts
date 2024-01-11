@@ -42,16 +42,15 @@ beforeEach(() => {
   cy.intercept('/centreon/api/latest/monitoring/resources*').as(
     'monitoringEndpoint'
   );
-});
 
-Given('the user has the necessary rights to page Resource Status', () => {
   cy.startContainers();
-
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
   });
+});
 
+Given('the user has the necessary rights to page Resource Status', () => {
   cy.get(searchInput).should('exist');
 });
 
@@ -177,12 +176,6 @@ Then(
       .trigger('mouseover');
 
     cy.get('div[role="tooltip"]').should('be.visible');
-
-    cy.logout();
-
-    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
-
-    cy.stopWebContainer();
   }
 );
 
@@ -277,8 +270,6 @@ Then(
       .trigger('mouseover');
 
     cy.get('div[role="tooltip"]').should('be.visible');
-
-    cy.stopWebContainer();
   }
 );
 
@@ -452,8 +443,6 @@ When(
 
 Then('no notification are sent to the users', () => {
   checkIfNotificationsAreNotBeingSent();
-
-  cy.stopWebContainer();
 });
 
 Given(
@@ -566,6 +555,6 @@ Then(
   }
 );
 
-after(() => {
+afterEach(() => {
   cy.stopContainers();
 });

@@ -191,17 +191,11 @@ const checkThatConfigurationIsExported = ({
   cy.execInContainer({
     command: 'date -r /etc/centreon-engine/hosts.cfg',
     name: 'web'
-  }).then((stdout): Cypress.Chainable<null> | null => {
-    /*
-      cy.exec(
-        `docker exec -i ${Cypress.env(
-          'dockerName'
-        )} date -r /etc/centreon-engine/hosts.cfg`
-      ).then(({ stdout }): Cypress.Chainable<null> | null => {
-    */
+  }).then(({ output }): Cypress.Chainable<null> | null => {
+    cy.log(output);
     configurationExportedCheckStepCount += 1;
 
-    const configurationExported = now < new Date(stdout).getTime();
+    const configurationExported = now < new Date(output).getTime();
 
     if (configurationExported) {
       return null;
@@ -216,7 +210,9 @@ const checkThatConfigurationIsExported = ({
         .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
     }
 
-    throw new Error(`No configuration export after ${pollingCheckTimeout}ms`);
+    throw new Error(
+      `Configuration not exported after ${pollingCheckTimeout}ms`
+    );
   });
 };
 
@@ -282,13 +278,12 @@ const checkExportedFileContent = (
   testHostName: string
 ): Cypress.Chainable<boolean> => {
   return cy
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
-    )
-    .then(({ stdout }): boolean => {
-      if (stdout) {
+    .execInContainer({
+      command: `grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1`,
+      name: 'web'
+    })
+    .then(({ output }): boolean => {
+      if (output) {
         return true;
       }
 
@@ -305,12 +300,11 @@ const checkIfConfigurationIsExported = ({
 
   cy.wait(waitToExport);
 
-  cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} date -r /etc/centreon-engine/hosts.cfg`
-  ).then(({ stdout }): Cypress.Chainable<null> | null => {
-    const configurationExported = now < new Date(stdout).getTime();
+  cy.execInContainer({
+    command: 'date -r /etc/centreon-engine/hosts.cfg',
+    name: 'web'
+  }).then(({ output }): Cypress.Chainable<null> | null => {
+    const configurationExported = now < new Date(output).getTime();
 
     if (configurationExported && checkExportedFileContent(hostName)) {
       return null;

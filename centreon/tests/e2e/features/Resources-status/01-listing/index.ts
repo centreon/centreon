@@ -186,5 +186,5 @@ Then(
 );
 
 afterEach(() => {
-  cy.stopontainers();
+  cy.stopContainers();
 });
