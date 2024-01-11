@@ -527,7 +527,10 @@ Given(
 );
 
 Then('the acknowledgement is removed', () => {
+  cy.refreshListing();
+
   typeToSearchInput('type:host h.name:test_host');
+
   cy.waitUntil(
     () => {
       return cy
@@ -547,6 +550,8 @@ Then('the acknowledgement is removed', () => {
 Then(
   'the resource is not marked as acknowledged after listing is refreshed with the criteria "state: acknowledged"',
   () => {
+    cy.refreshListing();
+
     typeToSearchInput('state:acknowledged');
 
     cy.wait('@monitoringEndpoint');

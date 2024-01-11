@@ -9,7 +9,7 @@ import {
 } from '../../../../commons';
 
 before(() => {
-  cy.startContainers().then(() => {
+  cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
   });
 });

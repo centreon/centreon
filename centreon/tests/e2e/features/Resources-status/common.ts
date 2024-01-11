@@ -59,7 +59,7 @@ const initializeResourceData = (): Cypress.Chainable => {
   return cy.wrap(Promise.all(files.map(insertFixture)));
 };
 
-const initializeAckChildRessources = (): Cypress.Chainable => {
+const initializeAckChildResources = (): Cypress.Chainable => {
   const files = [
     'resources/clapi/host3/01-add.json',
     'resources/clapi/host3/02-enable-passive-check.json',
@@ -73,7 +73,7 @@ const initializeAckChildRessources = (): Cypress.Chainable => {
   return cy.wrap(Promise.all(files.map(insertFixture)));
 };
 
-const initializeAckRessources = (): Cypress.Chainable => {
+const initializeAckResources = (): Cypress.Chainable => {
   const files = [
     'resources/clapi/host1/01-add.json',
     'resources/clapi/host1/02-enable-passive-check.json',
@@ -98,18 +98,20 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
 
   return cy
     .setUserTokenApiV1()
-    .then(initializeAckRessources)
-    .then(applyConfigurationViaClapi)
-    .then(initializeAckChildRessources)
+    .then(initializeAckResources)
+    .then(initializeAckChildResources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(() =>
       checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
     )
     .then(() => submitResultsViaClapi(results))
-    .refreshListing()
-    .then(() => cy.contains(serviceInAcknowledgementName, { timeout: 30000 }))
-    .then(() => cy.contains('submit_status_2', { timeout: 30000 }));
+    .then(() =>
+      checkServicesAreMonitored([
+        { name: serviceInAcknowledgementName, output: 'submit_status_2' }
+      ])
+    )
+    .refreshListing();
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
