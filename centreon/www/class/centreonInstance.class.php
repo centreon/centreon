@@ -201,7 +201,8 @@ class CentreonInstance
             WHERE pcr.poller_id = ?
             AND pcr.command_id = c.command_id
             ORDER BY pcr.command_order";
-        $res = $this->db->query($sql, array($pollerId));
+        $res = $this->db->prepare($sql);
+        $res->execute([$pollerId]);
         $arr = array();
         while ($row = $res->fetchRow()) {
             $arr[] = $row;
@@ -224,7 +225,8 @@ class CentreonInstance
                 FROM poller_command_relations 
                 WHERE poller_id = ?
                 ORDER BY command_order";
-            $res = $this->db->query($sql, array($pollerId));
+            $res = $this->db->prepare($sql);
+            $res->execute([$pollerId]);
             while ($row = $res->fetchRow()) {
                 $arr[$i]['pollercmd_#index#'] = $row['command_id'];
                 $i++;
