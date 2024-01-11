@@ -586,6 +586,7 @@ jobs:
             --compose-file .github/docker/docker-compose.yml \
             --compose-env-file .github/docker/.env \
             --target-compose-svc web \
+            --dep-exclude-compose-svc-all \
             --show-clogs --show-blogs \
             --include-shell \
             --http-probe-off \
