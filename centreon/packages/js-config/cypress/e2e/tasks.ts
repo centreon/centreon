@@ -6,6 +6,7 @@ import Docker from 'dockerode';
 import tar from 'tar-fs';
 import {
   DockerComposeEnvironment,
+  GenericContainer,
   StartedTestContainer,
   Wait,
   getContainerRuntimeClient
@@ -15,6 +16,7 @@ import { createConnection } from 'mysql2/promise';
 export default (on: Cypress.PluginEvents): void => {
   const docker = new Docker();
   let dockerEnvironment;
+  const containers = {};
 
   interface PortBinding {
     destination: number;
@@ -88,9 +90,9 @@ export default (on: Cypress.PluginEvents): void => {
     getContainersLogs: async () => {
       try {
         const { dockerode } = (await getContainerRuntimeClient()).container;
-        const containers = await dockerode.listContainers();
+        const loggedContainers = await dockerode.listContainers();
 
-        return containers.reduce((acc, container) => {
+        return loggedContainers.reduce((acc, container) => {
           const containerName = container.Names[0].replace('/', '');
           acc[containerName] = execSync(`docker logs -t ${container.Id}`, {
             stdio: 'pipe'
@@ -127,6 +129,18 @@ export default (on: Cypress.PluginEvents): void => {
       name,
       portBindings = []
     }: StartContainerProps) => {
+      let container = await new GenericContainer(image).withName(name);
+
+      portBindings.forEach(({ source, destination }) => {
+        container = container.withExposedPorts({
+          container: source,
+          host: destination
+        });
+      });
+
+      containers[name] = container.start();
+
+      /*
       const imageList = execSync(
         'docker image list --format "{{.Repository}}:{{.Tag}}"'
       ).toString('utf8');
@@ -179,6 +193,7 @@ export default (on: Cypress.PluginEvents): void => {
       });
 
       await container.start();
+      */
 
       return container;
     },
@@ -217,9 +232,14 @@ export default (on: Cypress.PluginEvents): void => {
       }
     },
     stopContainer: async ({ name }: StopContainerProps) => {
-      const container = await docker.getContainer(name);
-      await container.kill();
-      await container.remove();
+      if (containers[name]) {
+        const container = containers[name];
+
+        await container.kill();
+        await container.remove();
+
+        delete containers[name];
+      }
 
       return null;
     },
