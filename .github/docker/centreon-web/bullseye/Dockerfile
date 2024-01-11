@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND noninteractive
 COPY *.deb /tmp/debs-centreon/
 
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint /tmp/entrypoint
-COPY --chown=apache:apache ./.github/docker/centreon-web/bullseye/configuration /tmp/configuration
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/bullseye/configuration /tmp/configuration
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
@@ -31,7 +31,7 @@ chmod -R 755 /usr/share/centreon/container.*
 
 mkdir /usr/share/centreon/www/install/tmp
 mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
-chown -R apache:apache /usr/share/centreon/www/install/tmp
+chown -R www-data:www-data /usr/share/centreon/www/install/tmp
 
 echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
 

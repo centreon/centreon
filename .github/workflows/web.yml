@@ -581,8 +581,9 @@ jobs:
       - name: Build standard slim image
         run: |
           docker compose -f .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/docker-compose.yml pull db
+          export WEB_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
           slim build \
-            --compose-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/docker-compose.yml \
+            --compose-file .github/docker/docker-compose.yml \
             --target-compose-svc web \
             --show-clogs --show-blogs \
             --include-shell \
@@ -592,7 +593,6 @@ jobs:
             --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
             --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
             --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-            # ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
           docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
