@@ -56,7 +56,9 @@ su www-data -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
-apt-get install -y https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper_0.15.1-3.bullseye_amd64.deb zstd
+wget https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper_0.15.1-3.bullseye_amd64.deb
+apt-get install -y ./mydumper_0.15.1-3.bullseye_amd64.deb zstd
+rm -f ./mydumper_*
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage
@@ -69,6 +71,8 @@ sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreo
 
 apt-get remove -y --purge mariadb-server
 rm -rf /var/lib/mysql
+
+apt-get clean all
 
 EOF
 
