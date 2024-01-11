@@ -9,7 +9,8 @@ const client = new QueryClient({
     queries: {
       gcTime: defaultCacheTime,
       refetchOnWindowFocus: false,
-      staleTime: defaultCacheTime
+      staleTime: defaultCacheTime,
+      suspense: true
     }
   }
 });
