@@ -87,8 +87,16 @@ jobs:
           fi
 
           case "$BRANCHNAME" in
-            master | [2-9][0-9].[0-9][0-9].x | release* | hotfix*)
+            master | [2-9][0-9].[0-9][0-9].x)
               echo "release=1" >> $GITHUB_OUTPUT
+              ;;
+            release* | hotfix*)
+              if [[ "$GITHUB_BASE_REF" == "master" ]]; then
+                # This case is specific to cloud release
+                echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              else
+                echo "release=1" >> $GITHUB_OUTPUT
+              fi
               ;;
             *)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
