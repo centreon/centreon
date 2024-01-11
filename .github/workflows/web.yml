@@ -580,13 +580,10 @@ jobs:
 
       - name: Build standard slim image
         run: |
+          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}"
           docker compose -f .github/docker/docker-compose.yml pull db
-          echo WEB_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} >> .github/docker/.env
-          echo "" >> .github/docker/.env
-          cat .github/docker/.env
           slim build \
             --compose-file .github/docker/docker-compose.yml \
-            --compose-env-file .github/docker/.env \
             --target-compose-svc web \
             --show-clogs --show-blogs \
             --include-shell \
