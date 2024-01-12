@@ -18225,23 +18225,35 @@ msgstr "Format de la valeur"
 msgid "Time period"
 msgstr "Période temporelle"
 
-msgid "Last hour (default)"
-msgstr "Dernière heure (par défaut)"
+msgid "Last hour"
+msgstr "La dernière heure"
+
+msgid "Last 3 hours"
+msgstr "Les 3 dernières heures"
+
+msgid "Last 6 hours"
+msgstr "Les 6 dernières heures"
+
+msgid "Last 12 hours"
+msgstr "Les 12 dernières heures"
 
 msgid "Last 24 hours"
-msgstr "Dernières 24 heures"
+msgstr "Les dernières 24 heures"
 
 msgid "Last 7 days"
-msgstr "7 derniers jours"
+msgstr "Les 7 derniers jours"
 
 msgid "Last 30 days"
-msgstr "30 derniers jours"
+msgstr "Les 30 derniers jours"
 
 msgid "Last 3 months"
-msgstr "3 derniers mois"
+msgstr "Les 3 derniers mois"
+
+msgid "Last 6 months"
+msgstr "Les 6 derniers mois"
 
 msgid "Last 12 months"
-msgstr "12 derniers mois"
+msgstr "Les 12 derniers mois"
 
 msgid "Customize"
 msgstr "Personnaliser"
