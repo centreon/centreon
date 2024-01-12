@@ -38,8 +38,6 @@ class NotificationResourceFactory
 
     public function __construct(
         private NotificationResourceRepositoryProviderInterface $repositoryProvider,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private ContactInterface $user
     ) {
     }
 
