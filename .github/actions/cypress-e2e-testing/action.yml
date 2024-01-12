@@ -90,5 +90,7 @@ runs:
         rm "$report_path"
 
         # Show the content of the modified file
+        echo "::group::${feature_name}-report.json"
         cat "$report_path_updated"
+        echo "::endgroup::"
       shell: bash

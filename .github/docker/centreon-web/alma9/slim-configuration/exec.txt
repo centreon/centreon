@@ -12,12 +12,15 @@ curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14}
 
 sleep 5
 
-systemctl stop php-fpm
-systemctl stop httpd
 systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
+systemctl stop php-fpm
+systemctl stop httpd
 
 rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
 
-sleep 5
+dnf search vim
+dnf clean all
+
+sleep 2

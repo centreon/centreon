@@ -239,7 +239,7 @@ Cypress.Commands.add(
         cy.task<ExecInContainerResult>(
           'execInContainer',
           { command: runCommand, name },
-          { timeout: 120000 }
+          { timeout: 600000 }
         ).then((result) => {
           if (result.exitCode) {
             // output will not be truncated

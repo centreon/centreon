@@ -30,6 +30,7 @@ const apiLogout = '/centreon/api/latest/authentication/logout';
 
 let servicesFoundStepCount = 0;
 let hostsFoundStepCount = 0;
+let metricsFoundStepCount = 0;
 
 const getStatusNumberFromString = (status: string): number => {
   const statuses = {
@@ -88,6 +89,8 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
     cy.log('Host database check step count', hostsFoundStepCount);
 
     if (foundHostCount >= hosts.length) {
+      hostsFoundStepCount = 0;
+
       return null;
     }
 
@@ -162,6 +165,8 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
     cy.log('Service database check step count', servicesFoundStepCount);
 
     if (foundServiceCount >= services.length) {
+      servicesFoundStepCount = 0;
+
       return null;
     }
 
@@ -173,6 +178,58 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
 
     throw new Error(
       `Services ${services
+        .map(({ name }) => name)
+        .join()} are not monitored after ${pollingCheckTimeout}ms`
+    );
+  });
+};
+
+interface MonitoredMetric {
+  host: string;
+  name: string;
+  service: string;
+}
+
+const checkMetricsAreMonitored = (metrics: Array<MonitoredMetric>): void => {
+  cy.log('Checking metrics in database');
+
+  let query =
+    'SELECT COUNT(m.metric_id) AS count_metrics FROM metrics m, index_data idata WHERE m.index_id = idata.id AND (';
+  const conditions: Array<string> = [];
+  metrics.forEach(({ host, name, service }) => {
+    conditions.push(
+      `(idata.host_name = '${host}' AND idata.service_description = '${service}' AND m.metric_name = '${name}')`
+    );
+  });
+  query += conditions.join(' OR ');
+  query += ')';
+  cy.log(query);
+
+  cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query
+  }).then(([rows]) => {
+    metricsFoundStepCount += 1;
+
+    const foundMetricCount = rows.length ? rows[0].count_metrics : 0;
+
+    cy.log('Metric count in database', foundMetricCount);
+    cy.log('Metric database check step count', metricsFoundStepCount);
+
+    if (foundMetricCount >= metrics.length) {
+      metricsFoundStepCount = 0;
+
+      return null;
+    }
+
+    if (metricsFoundStepCount < maxSteps) {
+      cy.wait(stepWaitingTime);
+
+      return cy.wrap(null).then(() => checkMetricsAreMonitored(metrics));
+    }
+
+    throw new Error(
+      `Metrics ${metrics
         .map(({ name }) => name)
         .join()} are not monitored after ${pollingCheckTimeout}ms`
     );
@@ -404,6 +461,7 @@ export {
   SubmitResult,
   checkThatConfigurationIsExported,
   checkHostsAreMonitored,
+  checkMetricsAreMonitored,
   checkServicesAreMonitored,
   getStatusNumberFromString,
   submitResultsViaClapi,

@@ -242,20 +242,20 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       }
 
       return cy.execInContainer({
-        command: `bash -e <<EOF
-        rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb
-        apt-get update
-        apt-get install -y /tmp/packages-update-centreon/centreon-*.deb
-EOF`,
+        command: [
+          `rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb`,
+          'apt-get update',
+          'apt-get install -y /tmp/packages-update-centreon/centreon-*.deb'
+        ],
         name: 'web'
       });
     })
     .execInContainer({
-      command: `bash -e <<EOF
-        systemctl restart cbd
-        systemctl restart centengine
-        systemctl restart gorgoned
-EOF`,
+      command: [
+        'systemctl restart cbd',
+        'systemctl restart centengine',
+        'systemctl restart gorgoned'
+      ],
       name: 'web'
     });
 };

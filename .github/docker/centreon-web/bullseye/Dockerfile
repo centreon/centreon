@@ -21,7 +21,9 @@ apt-get update
 rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb /tmp/debs-centreon/centreon-database_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
-systemctl stop centreon
+systemctl stop gorgoned
+systemctl stop centengine
+systemctl stop cbd
 systemctl stop apache2
 systemctl stop php8.1-fpm
 
