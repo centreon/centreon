@@ -217,7 +217,7 @@ Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
 });
 
 interface ExecInContainerProps {
-  command: string;
+  command: string | Array<string>;
   name: string;
 }
 
@@ -229,23 +229,35 @@ interface ExecInContainerResult {
 Cypress.Commands.add(
   'execInContainer',
   ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
-    return cy
-      .task<ExecInContainerResult>(
-        'execInContainer',
-        { command, name },
-        { timeout: 120000 }
-      )
-      .then((result) => {
-        if (result.exitCode) {
-          // output will not be truncated
-          throw new Error(`
-            Execution of "${command}" failed
-            Exit code: ${result.exitCode}
-            Output:\n${result.output}`);
-        }
+    const commands =
+      typeof command === 'string' || command instanceof String
+        ? [command]
+        : command;
 
-        return cy.wrap(result);
-      });
+    const results = commands.reduce(
+      (acc, runCommand) => {
+        cy.task<ExecInContainerResult>(
+          'execInContainer',
+          { command: runCommand, name },
+          { timeout: 120000 }
+        ).then((result) => {
+          if (result.exitCode) {
+            // output will not be truncated
+            throw new Error(`
+Execution of "${runCommand}" failed
+Exit code: ${result.exitCode}
+Output:\n${result.output}`);
+          }
+
+          acc.output = `${acc.output}${result.output}`;
+        });
+
+        return acc;
+      },
+      { exitCode: 0, output: '' }
+    );
+
+    return cy.wrap(results);
   }
 );
 
