@@ -100,6 +100,15 @@ interface ReadHostRepositoryInterface
     public function exists(int $hostId): bool;
 
     /**
+     * Indicates whether the hosts exist and return the ids found.
+     *
+     * @param int[] $hostIds
+     *
+     * @return int[]
+     */
+    public function exist(array $hostIds): array;
+
+    /**
      * Indicates whether the host already exists.
      *
      * @param int $hostId

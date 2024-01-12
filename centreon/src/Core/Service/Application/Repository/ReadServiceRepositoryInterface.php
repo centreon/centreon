@@ -44,6 +44,17 @@ interface ReadServiceRepositoryInterface
     public function exists(int $serviceId): bool;
 
     /**
+     * Indicates whether the services already exists.
+     *
+     * @param int[] $serviceIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function exist(array $serviceIds): array;
+
+    /**
      * Indicates whether the service already exists by access groups.
      *
      * @param int $serviceId
