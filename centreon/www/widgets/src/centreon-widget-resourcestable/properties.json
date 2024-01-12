@@ -1,0 +1,83 @@
+{
+  "title": "Resources table",
+  "description": "To be defined later",
+  "options": {
+    "displayType": {
+      "type": "radio",
+      "label": "Display type",
+      "options": [
+        {
+          "id": "all",
+          "name": "All"
+        },
+        {
+          "id": "host",
+          "name": "View by host" 
+        },
+        {
+          "id": "service",
+          "name": "View By service" 
+        }
+      ],
+      "defaultValue": "all"
+    },
+    "statuses": {
+      "type": "checkbox",
+      "label": "Display resources with this status",
+      "options": [
+          {
+            "id": "success",
+            "name": "Success (OK & Up)"
+          },
+          {
+            "id": "warning",
+            "name": "Warning"
+          },
+          {
+            "id": "malfunction",
+            "name": "Malfunction (Down & Critical)"
+          },
+          {
+            "id": "undefined",
+            "name": "Undefined (Unreachable & Unknown)"
+          },
+          {
+            "id": "pending",
+            "name": "Pending"
+          }
+        ],
+      "defaultValue": ["warning","malfunction"]
+    },
+    "states": {
+      "type": "checkbox",
+      "label": "Display resources with this states",
+      "options": [
+        {
+          "id": "unhandled_problems",
+          "name": "Unhandled"
+        },
+        {
+          "id": "acknowledged",
+          "name": "Acknowledged"
+        },
+        {
+          "id": "in_downtime",
+          "name": "In downtime"
+        }
+      ],
+      "defaultValue": ["unhandled_problems"]
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": []
+    }
+  },
+  "moduleName": "centreon-widget-resourcestable"
+}
