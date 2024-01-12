@@ -51,10 +51,11 @@ sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 systemctl restart gorgoned
-sleep 20
-
 centreon -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 centreon -u admin -p Centreon\!2021 -a CFGMOVE -v 1
+
+sleep 60
+
 systemctl restart cbd
 systemctl restart centengine
 
@@ -64,6 +65,7 @@ for i in \$(seq 1 5); do curl -s -d '{"check":{"is_forced":true},"resources":[{"
 sleep 20
 
 ls -l /etc/centreon-engine
+cat /etc/centreon-engine/services.cfg
 echo "gorgone"
 cat /var/log/centreon-gorgone/gorgoned.log
 echo "engine"
