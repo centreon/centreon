@@ -1,4 +1,6 @@
-import { T, always, cond, equals } from 'ramda';
+import { T, always, cond, equals, map } from 'ramda';
+
+import { ResourceListing, Visualization } from './Listing/models';
 
 export const formatStatusFilter = cond([
   [equals('success'), always(['ok', 'up'])],
@@ -8,3 +10,27 @@ export const formatStatusFilter = cond([
   [equals('pending'), always(['pending'])],
   [T, always([])]
 ]);
+
+export const formatRessourcesResponse = ({
+  data,
+  displayType
+}): ResourceListing => {
+  if (!equals(displayType, Visualization.Host)) {
+    return data;
+  }
+
+  const result = map(
+    (item) => {
+      return {
+        ...item,
+        children: item?.children?.resources,
+        childrenCount: item?.children?.status_count
+      };
+    },
+    data?.result
+  );
+
+  const hostsResponse = { ...data, result };
+
+  return hostsResponse;
+};

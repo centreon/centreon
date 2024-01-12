@@ -1,6 +1,7 @@
 import { useFetchQuery } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../api/endpoints';
+import { formatRessourcesResponse } from '../utils';
 
 import { ResourceListing } from './models';
 
@@ -36,7 +37,6 @@ const useLoadResources = ({
   const sort = { [sortField]: sortOrder };
 
   const { data, isLoading } = useFetchQuery<ResourceListing>({
-    // decoder: listingDecoder,
     getEndpoint: () => {
       return buildResourcesEndpoint({
         limit: limit || 10,
@@ -65,7 +65,7 @@ const useLoadResources = ({
     }
   });
 
-  return { data, isLoading };
+  return { data: formatRessourcesResponse({ data, displayType }), isLoading };
 };
 
 export default useLoadResources;

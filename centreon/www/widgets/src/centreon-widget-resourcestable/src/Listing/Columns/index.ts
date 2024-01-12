@@ -11,7 +11,7 @@ export const defaultSelectedColumnIds = [
 export const defaultSelectedColumnIdsforViewByHost = [
   'status',
   'resource',
-  // 'services',
+  'services',
   'state',
   'severity',
   'duration',
