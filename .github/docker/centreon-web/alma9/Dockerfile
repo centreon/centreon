@@ -52,10 +52,14 @@ systemctl restart gorgoned
 systemctl restart cbd
 systemctl restart centengine
 
-curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login
-curl -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login
-API_TOKEN=`curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login | jq -r .security.token`
-curl -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'
+API_TOKEN=\$(curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login | jq -r .security.token)
+for i in \$(seq 1 5); do curl -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:\$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'; done
+
+sleep 20
+
+cat /var/log/centreon-engine/centengine.log
+echo "broker"
+cat /var/log/centreon-broker/*.log
 
 timeout 60 bash -c 'until [ -f /var/lib/centreon/metrics/4.rrd ]; do sleep 1; done'
 timeout 60 bash -c 'until mysql centreon_storage -e "SELECT metric_name FROM metrics" | grep rta; do sleep 1; done'
