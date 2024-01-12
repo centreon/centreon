@@ -95,9 +95,7 @@ final class AddNotification
             $newMessages = NotificationMessageFactory::createMultipleMessage($request->messages);
 
             $notificationResourceFactory = new NotificationResourceFactory(
-                $this->resourceRepositoryProvider,
-                $this->readAccessGroupRepository,
-                $this->user
+                $this->resourceRepositoryProvider
             );
             $newResources = $notificationResourceFactory->createMultipleResource($request->resources);
 
