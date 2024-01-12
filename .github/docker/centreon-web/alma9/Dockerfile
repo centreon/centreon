@@ -46,10 +46,15 @@ su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
+sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
+sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+
 systemctl restart gorgoned
+sleep 20
+
 centreon -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 centreon -u admin -p Centreon\!2021 -a CFGMOVE -v 1
-sleep 10
 systemctl restart cbd
 systemctl restart centengine
 
