@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\AddNotification\Factory;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
@@ -31,7 +30,6 @@ use Core\Notification\Application\Repository\NotificationResourceRepositoryInter
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Utility\Difference\BasicDifference;
 
 class NotificationResourceFactory

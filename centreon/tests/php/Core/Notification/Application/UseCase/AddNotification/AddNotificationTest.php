@@ -257,10 +257,6 @@ it('should throw an InvalidArgumentResponse if at least one resource ID is not p
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
-    $this->user
-        ->expects($this->atLeast(1))
-        ->method('isAdmin')
-        ->willReturn(true);
     $this->resourceRepositoryProvider
         ->expects($this->atLeast(1))
         ->method('getRepository')
@@ -304,12 +300,6 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
-    $this->request->users = [10,12];
-
-    $this->user
-        ->expects($this->atLeast(1))
-        ->method('isAdmin')
-        ->willReturn(true);
     $this->resourceRepositoryProvider
         ->expects($this->atLeast(1))
         ->method('getRepository')
@@ -349,10 +339,6 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs is n
 });
 
 it('should present an ErrorResponse if the newly created service severity cannot be retrieved', function (): void {
-    $this->user
-        ->expects($this->atLeast(1))
-        ->method('isAdmin')
-        ->willReturn(true);
     $this->resourceRepositoryProvider
         ->expects($this->atLeast(1))
         ->method('getRepository')
@@ -424,7 +410,7 @@ it('should present an ErrorResponse if the newly created service severity cannot
 
 it('should return created object on success', function (): void {
     $this->user
-        ->expects($this->atLeast(2))
+        ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
     $this->resourceRepositoryProvider
