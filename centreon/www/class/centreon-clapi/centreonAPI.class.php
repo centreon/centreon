@@ -559,7 +559,8 @@ class CentreonAPI
 
             $passwordExpirationDelay = $securityPolicy['password_expiration']['expiration_delay'];
             if (
-                $passwordExpirationDelay !== null
+                $row['contact_auth_type'] !== \CentreonAuth::AUTH_TYPE_LDAP
+                && $passwordExpirationDelay !== null
                 && (int) $row['password_creation'] + (int) $passwordExpirationDelay < time()
                 // Do not check expiration for excluded users of local security policy
                 && !in_array($row['contact_alias'], $securityPolicy['password_expiration']['excluded_users'])
