@@ -52,17 +52,9 @@ su www-data -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
-centreon -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-centreon -u admin -p Centreon\!2021 -a CFGMOVE -v 1
-systemctl restart gorgoned
-systemctl restart cbd
-systemctl restart centengine
-
-API_TOKEN=\$(curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login | jq -r .security.token)
-for i in \$(seq 1 5); do curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:\$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'; done
-
-timeout 60 bash -c 'until [ -f /var/lib/centreon/metrics/4.rrd ]; do sleep 1; done'
-timeout 60 bash -c 'until mysql centreon_storage -e "SELECT metric_name FROM metrics" | grep rta; do sleep 1; done'
+sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
+sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 wget -P /tmp/ https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper_0.15.1-3.bullseye_amd64.deb
 apt-get install -y /tmp/mydumper_*.deb zstd
@@ -78,10 +70,6 @@ systemctl stop apache2
 systemctl stop php8.1-fpm
 
 service mysql stop
-
-sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
-sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 apt-get remove -y --purge mariadb-server
 rm -rf /var/lib/mysql

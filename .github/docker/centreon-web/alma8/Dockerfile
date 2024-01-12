@@ -50,20 +50,6 @@ sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
-systemctl restart gorgoned
-sleep 20
-
-centreon -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-centreon -u admin -p Centreon\!2021 -a CFGMOVE -v 1
-systemctl restart cbd
-systemctl restart centengine
-
-API_TOKEN=\$(curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login | jq -r .security.token)
-for i in \$(seq 1 5); do curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:\$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'; done
-
-timeout 60 bash -c 'until [ -f /var/lib/centreon/metrics/4.rrd ]; do sleep 1; done'
-timeout 60 bash -c 'until mysql centreon_storage -e "SELECT metric_name FROM metrics" | grep rta; do sleep 1; done'
-
 dnf install -y https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper-0.15.1-3.el8.x86_64.rpm zstd
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
