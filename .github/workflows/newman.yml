@@ -292,7 +292,7 @@ jobs:
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
       CONTAINER_NAME: ${{ inputs.container_name }}
       CENTREON_URL: ${{ inputs.centreon_url }}
-      CENTREON_IMAGE: ${{ inputs.centreon_image }}
+      WEB_IMAGE: ${{ inputs.centreon_image }}
       DATABASE_IMAGE: ${{ inputs.database_image }}
     steps:
       - name: Checkout Repository
@@ -344,7 +344,6 @@ jobs:
 
       - name: Start Centreon Web and database containers
         env:
-          WEB_IMAGE: ${{ env.CENTREON_IMAGE }}
           MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
         run: docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
         shell: bash
@@ -365,10 +364,10 @@ jobs:
           environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
           if [ -f "$environment_file" ]; then
             echo "Environment: $environment_file"
-              pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
-            else
-              echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
-              exit 1
+            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+          else
+            echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
+            exit 1
           fi
 
       - name: Display container logs

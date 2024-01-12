@@ -575,10 +575,10 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.7
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.8
         shell: bash
 
-      - name: Build standard slim image
+      - name: Build slim image
         run: |
           export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}"
           docker compose -f .github/docker/docker-compose.yml pull db
@@ -587,7 +587,9 @@ jobs:
             --compose-env-file .github/docker/.env \
             --target-compose-svc web \
             --dep-exclude-compose-svc-all \
-            --show-clogs --show-blogs \
+            --dep-include-compose-svc db \
+            --show-clogs \
+            --show-blogs \
             --include-shell \
             --http-probe-off \
             --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
@@ -598,11 +600,11 @@ jobs:
           docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
-      - name: Push standard slim image
+      - name: Push slim image
         run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
-      - name: Store standard slim image in local archive
+      - name: Store slim image in local archive
         run: |
           mkdir -p /tmp/cache/docker-image
           docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
@@ -617,7 +619,7 @@ jobs:
             https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
         shell: bash
 
-      - name: Store standard slim image in cache
+      - name: Store slim image in cache
         uses: actions/cache/save@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
         with:
           path: /tmp/cache/docker-image
