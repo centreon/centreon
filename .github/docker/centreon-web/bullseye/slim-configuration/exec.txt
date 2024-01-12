@@ -16,7 +16,9 @@ apt-get update
 apt search centreon
 apt-get clean all
 
-sleep 10
+sleep 30
+
+cat /var/log/centreon-engine/centengine.log
 
 systemctl stop gorgoned
 systemctl stop centengine
