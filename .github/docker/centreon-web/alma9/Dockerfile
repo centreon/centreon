@@ -46,17 +46,22 @@ su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
+systemctl restart gorgoned
 centreon -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 centreon -u admin -p Centreon\!2021 -a CFGMOVE -v 1
-systemctl restart gorgoned
+sleep 10
 systemctl restart cbd
 systemctl restart centengine
 
 API_TOKEN=\$(curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login | jq -r .security.token)
-for i in \$(seq 1 5); do curl -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:\$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'; done
+for i in \$(seq 1 5); do curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:\$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'; done
 
 sleep 20
 
+ls -l /etc/centreon-engine
+echo "gorgone"
+cat /var/log/centreon-gorgone/gorgoned.log
+echo "engine"
 cat /var/log/centreon-engine/centengine.log
 echo "broker"
 cat /var/log/centreon-broker/*.log
