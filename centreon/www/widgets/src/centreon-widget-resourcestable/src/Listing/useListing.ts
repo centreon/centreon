@@ -1,25 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
-import { Visualization } from './models';
+import { SortOrder, Visualization } from './models';
 import { labelSelectAtLeastOneColumn } from './translatedLabels';
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost,
   useColumns
 } from './Columns';
-import {
-  limitAtom,
-  pageAtom,
-  selectedColumnIdsAtom,
-  sortOrderAtom,
-  sortFieldAtom
-} from './atom';
 import useLoadResources from './useLoadResources';
 
 export const okStatuses = ['OK', 'UP'];
@@ -60,20 +52,14 @@ const useListing = ({
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
 
-  const [page, setPage] = useAtom(pageAtom);
-  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
-    selectedColumnIdsAtom
+  const [page, setPage] = useState(undefined);
+  const [selectedColumnIds, setSelectedColumnIds] = useState(
+    defaultSelectedColumnIds
   );
 
-  const [sortField, setSortf] = useAtom(sortFieldAtom);
-  const [sortOrder, setSorto] = useAtom(sortOrderAtom);
-  // const [visualization, setVisualization] = useAtom(selectedVisualizationAtom);
-  const limit = useAtomValue(limitAtom);
-  const setLimit = useSetAtom(limitAtom);
-
-  // useEffect(() => {
-  //   setVisualization(displayType);
-  // }, [displayType]);
+  const [sortField, setSortf] = useState('name');
+  const [sortOrder, setSorto] = useState(SortOrder.Desc);
+  const [limit, setLimit] = useState(10);
 
   const { data, isLoading } = useLoadResources({
     displayType,
