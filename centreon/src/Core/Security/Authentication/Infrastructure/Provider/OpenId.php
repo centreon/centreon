@@ -71,9 +71,7 @@ class OpenId implements ProviderAuthenticationInterface
      */
     public function authenticateOrFail(LoginRequest $request): void
     {
-        $this->provider->authenticateOrFail($request->code, $request->clientIp);
-
-        $this->username = $this->provider->getUserInformation()['email'];
+        $this->username = $this->provider->authenticateOrFail($request->code, $request->clientIp);
     }
 
     /**
