@@ -16,6 +16,7 @@ dnf search vim
 dnf clean all
 
 timeout 60 bash -c 'until [ -f /var/lib/centreon/metrics/4.rrd ]; do sleep 1; done'
+timeout 60 bash -c 'until mysql -h${MYSQL_HOST} -uroot -p${MYSQL_ROOT_PASSWORD} centreon_storage -e "SELECT metric_name FROM metrics" | grep rta; do sleep 1; done'
 
 systemctl stop gorgoned
 systemctl stop centengine
