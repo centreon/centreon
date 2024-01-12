@@ -581,13 +581,12 @@ jobs:
       - name: Build slim image
         run: |
           export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}"
+          sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
           docker compose -f .github/docker/docker-compose.yml pull db
           slim build \
             --compose-file .github/docker/docker-compose.yml \
             --compose-env-file .github/docker/.env \
             --target-compose-svc web \
-            --dep-exclude-compose-svc-all \
-            --dep-include-compose-svc db \
             --show-clogs \
             --show-blogs \
             --include-shell \
