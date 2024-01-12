@@ -15,9 +15,7 @@ done
 dnf search vim
 dnf clean all
 
-sleep 30
-
-cat /var/log/centreon-engine/centengine.log
+timeout 60 bash -c 'until [ -f /var/lib/centreon/metrics/4.rrd ]; do sleep 1; done'
 
 systemctl stop gorgoned
 systemctl stop centengine
