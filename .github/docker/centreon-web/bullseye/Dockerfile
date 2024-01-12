@@ -21,12 +21,6 @@ apt-get update
 rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb /tmp/debs-centreon/centreon-database_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
-systemctl stop gorgoned
-systemctl stop centengine
-systemctl stop cbd
-systemctl stop apache2
-systemctl stop php8.1-fpm
-
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
 mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
 chmod -R 755 /usr/share/centreon/container.*
@@ -58,12 +52,26 @@ su www-data -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
+timeout 60 bash -c 'until [ -f /var/lib/centreon/metrics/4.rrd ]; do sleep 1; done'
+timeout 60 bash -c 'until mysql centreon_storage -e "SELECT metric_name FROM metrics" | grep rta; do sleep 1; done'
+
+API_TOKEN=$(curl -s -d '{"security": {"credentials": {"login": "admin","password": "Centreon!2021"}}}' -H "Content-Type: application/json" -X POST http://127.0.0.1/centreon/api/latest/login | jq -r .security.token)
+for i in `seq 1 5`; do
+  curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14},"type":"service"},{"id":14,"parent":null,"type":"host"}]}' -H "X-AUTH-TOKEN:$API_TOKEN" -H "Content-Type: application/json" -X POST 'http://127.0.0.1/centreon/api/latest/monitoring/resources/check'
+done
+
 wget -P /tmp/ https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper_0.15.1-3.bullseye_amd64.deb
 apt-get install -y /tmp/mydumper_*.deb zstd
 rm -f /tmp/mydumper_*
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage
+
+systemctl stop gorgoned
+systemctl stop centengine
+systemctl stop cbd
+systemctl stop apache2
+systemctl stop php8.1-fpm
 
 service mysql stop
 
