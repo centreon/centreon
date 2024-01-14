@@ -10,5 +10,3 @@ export const sortOrderAtom = atom<SortOrder>(SortOrder.Desc);
 export const sortFieldAtom = atom<string>('name');
 
 export const selectedColumnIdsAtom = atom(defaultSelectedColumnIds);
-
-// export const selectedVisualizationAtom = atom<Visualization>(Visualization.All);

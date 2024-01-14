@@ -11,5 +11,5 @@ export const labelHost = 'Host';
 export const labelServices = 'Services';
 export const labelInDowntime = 'In downtime';
 export const labelAcknowledged = 'Acknowledged';
-export const labelSelectAtLeastOneColumn =
-  'At least one column must be selected';
+export const labelSelectAtLeastThreeColumns =
+  'At least three columns must be selected';

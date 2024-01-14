@@ -1,18 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
-import { SortOrder, Visualization } from './models';
-import { labelSelectAtLeastOneColumn } from './translatedLabels';
+import { Visualization } from './models';
+import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost,
   useColumns
 } from './Columns';
 import useLoadResources from './useLoadResources';
+import {
+  limitAtom,
+  pageAtom,
+  selectedColumnIdsAtom,
+  sortOrderAtom,
+  sortFieldAtom
+} from './atom';
 
 export const okStatuses = ['OK', 'UP'];
 
@@ -52,14 +60,15 @@ const useListing = ({
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
 
-  const [page, setPage] = useState(undefined);
-  const [selectedColumnIds, setSelectedColumnIds] = useState(
-    defaultSelectedColumnIds
+  const [page, setPage] = useAtom(pageAtom);
+  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
+    selectedColumnIdsAtom
   );
 
-  const [sortField, setSortf] = useState('name');
-  const [sortOrder, setSorto] = useState(SortOrder.Desc);
-  const [limit, setLimit] = useState(10);
+  const [sortField, setSortf] = useAtom(sortFieldAtom);
+  const [sortOrder, setSorto] = useAtom(sortOrderAtom);
+  const limit = useAtomValue(limitAtom);
+  const setLimit = useSetAtom(limitAtom);
 
   const { data, isLoading } = useLoadResources({
     displayType,
@@ -97,17 +106,15 @@ const useListing = ({
     setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
-  useEffect(() => {
-    resetColumns();
-  }, [displayType]);
+  useEffect(() => resetColumns(), [displayType]);
 
   const columns = useColumns({
     visualization: displayType
   });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
-    if (updatedColumnIds.length === 0) {
-      showWarningMessage(t(labelSelectAtLeastOneColumn));
+    if (updatedColumnIds.length < 3) {
+      showWarningMessage(t(labelSelectAtLeastThreeColumns));
 
       return;
     }

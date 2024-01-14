@@ -51,8 +51,6 @@ export const buildResourcesEndpoint = ({
     map((state) => state.toLocaleUpperCase())
   )(statuses);
 
-  console.log('formattedStatuses : ', formattedStatuses);
-
   const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
   );
