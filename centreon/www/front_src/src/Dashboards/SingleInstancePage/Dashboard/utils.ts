@@ -17,10 +17,10 @@ export const isRichTextEditorEmpty = (editorState: string): boolean => {
 };
 
 export const getDetailsPanelQueriers = (data): object => {
-  const uuid = data?.services[0].uuid;
+  const uuid = data?.services[0]?.uuid;
 
-  const hostId = uuid.split('-')[0].slice(1);
-  const serviceId = uuid.split('-')[1].slice(1);
+  const hostId = uuid?.split('-')[0]?.slice(1);
+  const serviceId = uuid?.split('-')[1]?.slice(1);
 
   const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
@@ -55,8 +55,8 @@ export const getResourcesUrlForMetricsWidgets = ({
   });
 
   const filters = [
-    { name: 'name', value: uniq(values) },
-    { name: 'h.name', value: uniq(hostvalues) }
+    { name: 'name', value: uniq(values || []) },
+    { name: 'h.name', value: uniq(hostvalues || []) }
   ];
 
   const serviceCriteria = {
