@@ -99,14 +99,14 @@ export const getResourcesUrlForStatusGrid = ({
     value: [{ id: 'service', name: 'Service' }]
   };
 
-  const formattedStatuses = statuses.map((status) => {
+  const formattedStatuses = statuses?.map((status) => {
     return {
       id: status.toLocaleUpperCase(),
       name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
     };
   });
 
-  const formattedStates = states.map((state) => {
+  const formattedStates = states?.map((state) => {
     return {
       id: state,
       name: `${state.charAt(0).toUpperCase()}${state.slice(1)}`
@@ -118,7 +118,7 @@ export const getResourcesUrlForStatusGrid = ({
     resources
   );
 
-  const resourcesFilters = Object.entries(groupedResources).map(
+  const resourcesFilters = Object.entries(groupedResources)?.map(
     ([resourceType, res]) => {
       const name = cond<Array<string>, string>([
         [equals('host'), always('parent_name')],
@@ -130,7 +130,7 @@ export const getResourcesUrlForStatusGrid = ({
         name: name.replace('-', '_'),
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
-            return subResources.map(({ name: resourceName }) => ({
+            return subResources?.map(({ name: resourceName }) => ({
               id: `\\b${resourceName}\\b`,
               name: resourceName
             }));

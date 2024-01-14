@@ -36,7 +36,7 @@ const PanelsLayout = ({
       isStatic={isStatic}
       layout={panels}
     >
-      {panels.map(
+      {panels?.map(
         ({ i, panelConfiguration, refreshCount, data, name, options }) => (
           <DashboardLayout.Item
             canMove={
