@@ -23,7 +23,7 @@ const getLabelSpacing = (labelPlacement, theme): string => {
 const useStyles = makeStyles<StyleProps>()(
   (theme, { hasIcon, labelPlacement }) => ({
     checkbox: {
-      '&.Mui-checked': {
+      '.Mui-checked': {
         color: theme.palette.primary.main
       },
       color: theme.palette.primary.main
