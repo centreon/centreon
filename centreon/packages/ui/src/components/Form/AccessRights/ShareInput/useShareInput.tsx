@@ -40,6 +40,10 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
 
   const selectContact = (_, entry): void => {
     setSelectedContact(entry);
+    if (equals('editor', entry.most_permissive_role)) {
+      return;
+    }
+    setSelectedRole('viewer');
   };
 
   const add = (): void => {
