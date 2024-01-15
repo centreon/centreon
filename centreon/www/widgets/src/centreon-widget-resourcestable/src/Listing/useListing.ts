@@ -22,8 +22,6 @@ import {
   sortFieldAtom
 } from './atom';
 
-export const okStatuses = ['OK', 'UP'];
-
 interface ListingState {
   areColumnsSortable;
   changeLimit;
@@ -83,7 +81,7 @@ const useListing = ({
     statuses
   });
 
-  const changeSort = ({ sortO, sortF }): void => {
+  const changeSort = ({ sortOrder: sortO, sortField: sortF }): void => {
     setSortf(sortF);
     setSorto(sortO);
   };
