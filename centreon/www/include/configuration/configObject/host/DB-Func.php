@@ -323,7 +323,8 @@ function removeRelationLastHostDependency(int $hostId): void
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
         FROM dependency_serviceParent_relation
         WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_serviceParent_relation
-        WHERE service_service_id =  :service_service_id)';
+        WHERE service_service_id =  :service_service_id) GROUP BY dependency_dep_id';
+
     $countStatement = $pearDB->prepare($query);
     $deleteStatement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
     while ($row = $res->fetch()) {
@@ -341,7 +342,7 @@ function removeRelationLastHostDependency(int $hostId): void
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
               FROM dependency_hostParent_relation
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostParent_relation
-                                         WHERE host_host_id =  ' . $hostId . ')';
+                                         WHERE host_host_id =  ' . $hostId . ') GROUP BY dependency_dep_id';
     $dbResult = $pearDB->query($query);
     $result = $dbResult->fetch();
 
