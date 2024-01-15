@@ -16,7 +16,7 @@ import {
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
-import { labelMoreActions, labelSeeMoreInRSPage } from '../../translatedLabels';
+import { labelMoreActions, labelSeeMore } from '../../translatedLabels';
 import { resourceBasedWidgets } from '../../utils';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
@@ -69,14 +69,14 @@ const PanelHeader = ({
           <div className={classes.panelActionsIcons}>
             {includes(widgetName, resourceBasedWidgets) && (
               <Link
-                data-testid={labelSeeMoreInRSPage}
+                data-testid={labelSeeMore}
                 style={{ all: 'unset' }}
                 target="_blank"
                 to={linkToResourceStatus as string}
               >
                 <IconButton
-                  ariaLabel={t(labelSeeMoreInRSPage)}
-                  title={t(labelSeeMoreInRSPage)}
+                  ariaLabel={t(labelSeeMore)}
+                  title={t(labelSeeMore)}
                   onClick={() => undefined}
                 >
                   <DvrIcon fontSize="small" />
