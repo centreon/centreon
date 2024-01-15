@@ -92,19 +92,19 @@ const AddCommentArea = ({
   }, [(data as ResponseError)?.isError]);
 
   return (
-    <div className={classes.container}>
+    <>
       <TextField
         autoFocus
         multiline
         required
         ariaLabel={t(labelComment)}
         autoComplete="off"
-        className={classes.comment}
         inputProps={{
           'data-testid': 'commentArea'
         }}
         label={t(labelComment)}
         rows={3}
+        sx={{ marginTop: 1.5, width: '100%' }}
         value={comment}
         onChange={changeComment}
       />
@@ -129,7 +129,7 @@ const AddCommentArea = ({
           {t(labelSave)}
         </LoadingButton>
       </div>
-    </div>
+    </>
   );
 };
 
