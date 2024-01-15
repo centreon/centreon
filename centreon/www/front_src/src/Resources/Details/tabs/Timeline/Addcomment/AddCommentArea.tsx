@@ -3,10 +3,8 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import LoadingButton from '@mui/lab/LoadingButton';
-import Button from '@mui/material/Button';
-
 import {
+  SaveButton as Button,
   Method,
   ResponseError,
   TextField,
@@ -111,23 +109,20 @@ const AddCommentArea = ({
       <div className={classes.footer}>
         <Button
           data-testid={labelCancel}
-          size="small"
+          labelSave={t(labelCancel)}
+          startIcon={false}
           variant="text"
           onClick={cancel}
-        >
-          {t(labelCancel)}
-        </Button>
-        <LoadingButton
+        />
+        <Button
           data-testid={labelSave}
           disabled={!comment}
+          labelSave={t(labelSave)}
           loading={isMutating}
-          loadingIndicator="Loading…"
-          size="small"
+          startIcon={false}
           variant="outlined"
           onClick={sendComment}
-        >
-          {t(labelSave)}
-        </LoadingButton>
+        />
       </div>
     </>
   );
