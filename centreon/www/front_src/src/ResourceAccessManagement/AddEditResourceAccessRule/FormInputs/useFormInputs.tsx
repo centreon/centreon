@@ -20,7 +20,7 @@ import {
   findContactsEndpoint
 } from '../api/endpoints';
 
-import { useInputStyles } from './Inputs.styles';
+import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
 import ResourceSelection from './components/ResourceSelection';
 
@@ -31,7 +31,7 @@ interface UseFormInputsState {
 
 const useFormInputs = (): UseFormInputsState => {
   const { t } = useTranslation();
-  const { classes } = useInputStyles();
+  const { classes } = useFormInputStyles();
 
   const titleAttributes = {
     classes: { root: classes.titleGroup },

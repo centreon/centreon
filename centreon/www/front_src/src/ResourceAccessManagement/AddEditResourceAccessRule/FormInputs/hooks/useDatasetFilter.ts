@@ -92,10 +92,6 @@ export const resourceTypeBaseEndpoints = {
 
 const resourceQueryParameters = [
   {
-    name: 'types',
-    value: ['service']
-  },
-  {
     name: 'limit',
     value: 30
   }

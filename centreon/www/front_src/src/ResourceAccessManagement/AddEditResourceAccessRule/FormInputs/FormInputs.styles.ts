@@ -1,10 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useInputStyles = makeStyles()((theme) => ({
-  addDatasetButton: {
-    marginTop: theme.spacing(4),
-    width: '33%'
-  },
+export const useFormInputStyles = makeStyles()((theme) => ({
   contactsAndContactGroups: {
     display: 'flex',
     flexDirection: 'column',

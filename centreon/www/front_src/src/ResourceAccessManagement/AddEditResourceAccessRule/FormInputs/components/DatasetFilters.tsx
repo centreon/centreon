@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { isEmpty } from 'ramda';
+import { equals, isEmpty, isNil, last } from 'ramda';
 
 import useDatasetFilters from '../hooks/useDatasetFilters';
 import { Dataset } from '../../../models';
@@ -10,6 +10,7 @@ import { useDatasetFiltersStyles } from '../styles/DatasetFilters.styles';
 import DatasetFilter from './DatasetFilter';
 import AddDatasetButton from './AddDatasetButton';
 import DeleteDatasetButton from './DeleteDatasetButton';
+import DatasetFilterDivider from './DatasetFilterDivider';
 
 const DatasetFilters = (): ReactElement => {
   const { classes } = useDatasetFiltersStyles();
@@ -22,12 +23,6 @@ const DatasetFilters = (): ReactElement => {
         !isEmpty(resourceType) && !isEmpty(resources)
     );
 
-  const addDatasetFilterButtonDisabled = (
-    datasetFiltersArray: Array<Array<Dataset>>
-  ): boolean =>
-    datasetFiltersArray.length <= 1 &&
-    !areResourcesFilled(datasetFiltersArray[0]);
-
   return (
     <div>
       {datasetFilters.map((datasetFilter, index) => (
@@ -35,19 +30,25 @@ const DatasetFilters = (): ReactElement => {
           className={classes.datasetFiltersContainer}
           key={`${index}-datasetFilter`}
         >
-          <DatasetFilter
-            areResourcesFilled={areResourcesFilled}
-            datasetFilter={datasetFilter}
-            datasetFilterIndex={index}
-          />
-          <DeleteDatasetButton
-            deleteButtonHidden={datasetFilters.length < 2}
-            onDeleteItem={deleteDatasetFilter(index)}
-          />
+          <div className={classes.datasetFiltersComposition}>
+            <DatasetFilter
+              areResourcesFilled={areResourcesFilled}
+              datasetFilter={datasetFilter}
+              datasetFilterIndex={index}
+            />
+            <DeleteDatasetButton
+              deleteButtonHidden={datasetFilters.length <= 1}
+              displayDivider={datasetFilter.length > 1}
+              onDeleteItem={deleteDatasetFilter(index)}
+            />
+          </div>
+          {!equals(datasetFilters.length - 1, index) && (
+            <DatasetFilterDivider />
+          )}
         </div>
       ))}
       <AddDatasetButton
-        addButtonDisabled={addDatasetFilterButtonDisabled(datasetFilters)}
+        addButtonDisabled={areResourcesFilled(last(datasetFilters))}
         onAddItem={addDatasetFilter}
       />
     </div>
