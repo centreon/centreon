@@ -118,7 +118,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.getByLabel({ label: 'Open', tag: 'button' }).click();
   cy.contains(dashboardViewerUser.login).click();
   cy.getByTestId({ testId: 'add' }).should('be.enabled');
-  cy.getByTestId({ testId: `role-${dashboardViewerUser.login}` }).click();
+  cy.getByTestId({ testId: `add_role` }).parent().click();
   cy.get('[role="listbox"]').contains('viewer').click();
   cy.getByTestId({ testId: 'add' }).click();
 
@@ -328,7 +328,7 @@ When(
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains('dashboard-contact-group-viewer').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
-    cy.getByTestId({ testId: 'role-dashboard-contact-group-viewer' }).click();
+    cy.getByTestId({ testId: 'add_role' }).parent().click();
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.getByTestId({ testId: 'add' }).click();
 
@@ -442,7 +442,7 @@ When(
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains('dashboard-contact-group-creator').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
-    cy.getByTestId({ testId: 'role-dashboard-contact-group-creator' }).click();
+    cy.getByTestId({ testId: 'add_role' }).parent().click();
     cy.get('[role="listbox"]').contains('editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
@@ -586,7 +586,7 @@ When(
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCGMember3.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
-    cy.getByTestId({ testId: `role-${dashboardCGMember3.login}` }).click();
+    cy.getByTestId({ testId: `add_role` }).parent().click();
     cy.get('[role="listbox"]').contains('editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
