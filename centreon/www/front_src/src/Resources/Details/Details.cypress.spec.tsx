@@ -372,7 +372,7 @@ describe('Details', () => {
     cy.contains(labelCommand).should('exist');
     cy.contains('base_host_alive').should('exist');
   });
-  it('displays the timeLine tab', () => {
+  it('displays the timeLine tab when clicking on TimeLine title', () => {
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
     cy.waitForRequest('@getTimeLine');
@@ -383,7 +383,7 @@ describe('Details', () => {
 
     cy.makeSnapshot();
   });
-  it('displays the area comment when clicking on "Comment" button', () => {
+  it('displays the comment area when clicking on "Add a comment" button', () => {
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
     cy.waitForRequest('@getTimeLine');
@@ -401,7 +401,7 @@ describe('Details', () => {
     cy.makeSnapshot();
   });
 
-  it('sends the comment when typing on area comment and clicking on "Save" button', () => {
+  it('Submit the comment by typing in the comment area and clicking the "Save" button.', () => {
     cy.interceptAPIRequest({
       alias: 'sendsCommentRequest',
       method: Method.POST,
@@ -437,7 +437,7 @@ describe('Details', () => {
     cy.makeSnapshot();
   });
 
-  it('hides the area comment when clicking on "Cancel" button', () => {
+  it('hides the comment area when clicking on "Cancel" button', () => {
     initialize();
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
