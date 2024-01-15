@@ -1020,7 +1020,11 @@ function insertHostInDB($ret = array(), $onDemandMacro = null)
     updateNagiosServerRelation($hostId, $ret);
 
     $ret = $form->getSubmitValues();
-    if (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc']) {
+
+    if (
+        (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc'])
+        || $isCloudPlatform === true
+    ) {
         createHostTemplateService($hostId);
     }
 
@@ -2632,7 +2636,7 @@ function generateHostServiceMultiTemplate($hID, $hID2 = null, $antiLoop = null)
 
 function createHostTemplateService($hostId = null, $htm_id = null)
 {
-    global $pearDB, $path, $centreon, $form;
+    global $pearDB, $path, $centreon, $form, $isCloudPlatform;
 
     if (! $hostId) {
         return;
@@ -2644,8 +2648,8 @@ function createHostTemplateService($hostId = null, $htm_id = null)
      */
     $submittedValues = $form->getSubmitValues();
     if (
-        isset($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
-        && $submittedValues['dupSvTplAssoc']['dupSvTplAssoc']
+        (isset($submittedValues['dupSvTplAssoc']['dupSvTplAssoc']) && $submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
+        || $isCloudPlatform === true
     ) {
         generateHostServiceMultiTemplate($hostId, $hostId);
     }
