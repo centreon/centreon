@@ -15,6 +15,25 @@ runs:
   steps:
     - name: Publish RPMS to Repositories
       run: |
+        set -eux
+        COMPONENTS=("centreon-awie", "centreon-dsm", "centreon-gorgone", "centreon-ha", "centreon-open-tickets", "centreon")
+        COMPONENTS_RELEASED=()
+        CURRENT_STABLE_BRANCH=""
+
+        # Fetch ID of release JIRA issue
+
+        # Get current stable branch (use branch or use file)
+        CURRENT_STABLE_BRANCH=$(git rev-parse --abbrev-ref HEAD | cut -d '.' -f1,2)
+        # CURRENT_STABLE_BRANCH=$(cat .version | cut -d '='-f2 )
+
+        # Get versions for components with a change using last tags
+        for component in ${COMPONENTS[@]}; do
+          git tag -l "$component-$CURRENT_STABLE_BRANCH"
+
+        done
+
+
+        ####
         NEW_VERSION=""
         MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
         echo "Major version: $MAJOR_VERSION"
