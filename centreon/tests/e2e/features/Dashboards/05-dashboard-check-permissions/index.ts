@@ -213,7 +213,10 @@ Then(
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('admin admin').should('be.visible');
-    cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
+    cy.getByTestId({ testId: 'role-admin admin' }).should(
+      'have.value',
+      'editor'
+    );
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
@@ -407,7 +410,9 @@ Then(
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains(`${dashboardAdministratorUser.login}`).should('be.visible');
-    cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
+    cy.getByTestId({
+      testId: `role-${dashboardAdministratorUser.login}`
+    }).should('have.value', 'editor');
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
@@ -602,7 +607,10 @@ Then(
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains(`${dashboardCreatorUser.login}`).should('be.visible');
-    cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
+    cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` }).should(
+      'have.value',
+      'editor'
+    );
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
@@ -663,7 +671,7 @@ Given(
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardViewerUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
-    cy.getByLabel({ label: 'Update', tag: 'button' })
+    cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
       .click();
     cy.logoutViaAPI();
