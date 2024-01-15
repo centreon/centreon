@@ -2,6 +2,7 @@ export interface AccessRightInitialValues {
   email?: string;
   id: number | string;
   isContactGroup: boolean;
+  most_permissive_role?: 'editor' | 'viewer';
   name: string;
   role: string;
 }

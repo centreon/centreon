@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import IconReset from '@mui/icons-material/RotateLeft';
 
-import IconButton from '../../../Button/Icon';
+import { IconButton } from '../../..';
 import Option from '../Option';
 import { SelectEntry } from '..';
 

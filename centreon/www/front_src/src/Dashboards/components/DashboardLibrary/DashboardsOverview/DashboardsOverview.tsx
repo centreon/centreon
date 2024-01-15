@@ -2,12 +2,12 @@ import { ReactElement, useMemo, useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 
 import AddIcon from '@mui/icons-material/Add';
 
 import { Button, DataTable, PageLayout } from '@centreon/ui/components';
 
-import { useDashboardAccessRights } from '../DashboardAccessRights/useDashboardAccessRights';
 import { useDashboardDelete } from '../../../hooks/useDashboardDelete';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
@@ -21,6 +21,7 @@ import { Dashboard } from '../../../api/models';
 import routeMap from '../../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 import { DashboardLayout } from '../../../models';
+import { isSharesOpenAtom } from '../../../atoms';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 
@@ -30,11 +31,13 @@ const DashboardsOverview = (): ReactElement => {
   const { isEmptyList, dashboards } = useDashboardsOverview();
   const { createDashboard, editDashboard } = useDashboardConfig();
   const deleteDashboard = useDashboardDelete();
-  const { editAccessRights } = useDashboardAccessRights();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
 
   const navigate = useNavigate();
+
+  const setIsSharesOpenAtom = useSetAtom(isSharesOpenAtom);
+
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
     navigate(
       generatePath(routeMap.dashboard, {
@@ -69,6 +72,11 @@ const DashboardsOverview = (): ReactElement => {
       }
     };
   }, []);
+
+  const editAccessRights = useCallback(
+    (dashboard) => () => setIsSharesOpenAtom(dashboard),
+    []
+  );
 
   return (
     <>

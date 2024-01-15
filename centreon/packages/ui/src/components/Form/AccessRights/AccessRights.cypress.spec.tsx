@@ -347,4 +347,27 @@ describe('Access rights', () => {
 
     cy.makeSnapshot();
   });
+
+  it('resets the role to "viewer" when the "editor" role is selected and a contact with "viewer" right is selected', () => {
+    initialize({});
+
+    cy.findByLabelText(labels.add.autocompleteContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains('Entity 10').click();
+
+    cy.findByTestId('add_role').parent().click();
+    cy.get('li[data-value="editor"]').click();
+
+    cy.findByLabelText(labels.add.autocompleteContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains('Entity 11').click();
+
+    cy.findByTestId('add_role').should('have.value', 'viewer');
+
+    cy.makeSnapshot();
+  });
 });

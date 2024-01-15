@@ -2,16 +2,18 @@
   "result": [
     {
       "id": 4,
-      "name": "CG 1"
+      "name": "CG 1",
+      "most_permissive_role": "editor"
     },
     {
       "id": 5,
-      "name": "CG2"
+      "name": "CG2",
+      "most_permissive_role": "viewer"
     }
   ],
   "meta": {
     "page": 1,
     "total": 2,
-    "limit": 100
+    "limit": 10
   }
 }
