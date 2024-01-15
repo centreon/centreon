@@ -20,9 +20,9 @@ beforeEach(() => {
     url: '/centreon/api/latest/configuration/dashboards?'
   }).as('listAllDashboards');
   cy.intercept({
-    method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
-  }).as('addContactToDashboardShareList');
+    method: 'PUT',
+    url: `/centreon/api/latest/configuration/dashboards/*/shares`
+  }).as('updateShares');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
@@ -46,7 +46,9 @@ Given(
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
-    cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+    cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` })
+      .eq(0)
+      .click();
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.getByTestId({ testId: 'add' }).click();
     cy.getByTestId({ testId: 'role-input' })
@@ -58,7 +60,7 @@ Given(
     cy.getByLabel({ label: 'Update', tag: 'button' })
       .should('be.enabled')
       .click();
-    cy.wait('@addContactToDashboardShareList');
+    cy.wait('@updateShares');
     cy.waitUntilForDashboardRoles('edit-access-rights', 3);
   }
 );
@@ -206,7 +208,7 @@ Given(
     cy.getByLabel({ label: 'Update', tag: 'button' })
       .should('be.enabled')
       .click();
-    cy.wait('@addContactToDashboardShareList');
+    cy.wait('@updateShares');
     cy.waitUntilForDashboardRoles('edit-access-rights', 3);
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(
       'exist'
