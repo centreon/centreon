@@ -39,6 +39,7 @@ export default ({
   return defineConfig({
     chromeWebSecurity: false,
     defaultCommandTimeout: 6000,
+    downloadsFolder: `${resultsFolder}/downloads`,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
       fixturesFolder: 'fixtures',
@@ -68,7 +69,7 @@ export default ({
     requestTimeout: 10000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: true,
+    video: isDevelopment,
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`
   });
