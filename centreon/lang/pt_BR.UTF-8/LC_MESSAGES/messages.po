@@ -17239,3 +17239,6 @@ msgstr ""
 
 # msgid "Token has been created"
 # msgstr ""
+
+# msgid "Your comment has been sent !"
+# msgstr "Votre commentaire a été envoyé !"
