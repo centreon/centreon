@@ -159,14 +159,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                     AND host.host_register = '0'
                 WHERE service.service_id = :id
                     AND service.service_register = '0'
-                GROUP BY
-                    service.service_id,
-                    esi.esi_action_url,
-                    esi.esi_icon_image,
-                    esi.esi_icon_image_alt,
-                    esi.esi_notes,
-                    esi.esi_notes_url,
-                    esi.graph_id
+                GROUP BY service.service_id
             SQL;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
@@ -255,15 +248,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
         $sqlConcatenator->appendWhere("service_register = '0'");
-        $sqlConcatenator->appendGroupBy(
-            'service.service_id',
-            'esi.esi_action_url',
-            'esi.esi_icon_image',
-            'esi.esi_icon_image_alt',
-            'esi.esi_notes',
-            'esi.esi_notes_url',
-            'esi.graph_id'
-        );
+        $sqlConcatenator->appendGroupBy('service.service_id');
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
