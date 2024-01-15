@@ -169,7 +169,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request .= !is_null($searchRequest) ? $searchRequest : '';
 
         // Group
-        $request .= ' GROUP BY h.host_id';
+        $request .= ' GROUP BY h.host_id, cv.value';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
