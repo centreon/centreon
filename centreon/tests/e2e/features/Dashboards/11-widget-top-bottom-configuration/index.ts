@@ -1,6 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
@@ -48,6 +51,13 @@ before(() => {
     {
       name: 'Ping',
       status: 'ok'
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: hostName,
+      name: 'rta',
+      service: 'Ping'
     }
   ]);
 });

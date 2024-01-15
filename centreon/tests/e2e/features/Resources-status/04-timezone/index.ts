@@ -5,7 +5,10 @@ import {
   When
 } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import { actionBackgroundColors } from '../common';
 
 const serviceInDtName = 'service_downtime_1';
@@ -141,6 +144,13 @@ Given('the platform is configured with at least one resource', () => {
     },
     {
       name: serviceInAcknowledgementName
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
     }
   ]);
 
