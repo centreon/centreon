@@ -3,20 +3,20 @@
   "description": "To be defined later",
   "options": {
     "displayType": {
-      "type": "radio",
+      "type": "displayType",
       "label": "Display type",
       "options": [
         {
-          "id": "all",
-          "name": "All"
+          "name": "All",
+          "id": "all"
         },
         {
-          "id": "host",
-          "name": "View by host" 
+          "name": "View by host",
+          "id": "host"
         },
         {
-          "id": "service",
-          "name": "View By service" 
+          "name": "View by service",
+          "id": "service"
         }
       ],
       "defaultValue": "all"

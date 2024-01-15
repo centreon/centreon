@@ -34,7 +34,8 @@ import {
   WidgetTopBottomSettings,
   WidgetRadio,
   WidgetCheckboxes,
-  WidgetTiles
+  WidgetTiles,
+  DisplayType
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -65,7 +66,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
   [FederatedWidgetOptionType.radio]: WidgetRadio,
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
-  [FederatedWidgetOptionType.tiles]: WidgetTiles
+  [FederatedWidgetOptionType.tiles]: WidgetTiles,
+  [FederatedWidgetOptionType.displayType]: DisplayType
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
