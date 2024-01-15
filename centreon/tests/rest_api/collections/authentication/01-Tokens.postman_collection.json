@@ -2635,7 +2635,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/administration/tokens",
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2799,7 +2799,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/administration/tokens",
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],

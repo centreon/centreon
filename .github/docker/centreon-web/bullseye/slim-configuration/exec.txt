@@ -21,5 +21,3 @@ systemctl stop php8.1-fpm
 systemctl stop apache2
 
 rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
-
-sleep 2
