@@ -1591,20 +1591,24 @@ Feature:
     {
         "result": [
             {
-                "id": 20,
-                "name": "usr-admin"
-            },
-            {
                 "id": 21,
-                "name": "usr-viewer"
+                "name": "usr-viewer",
+                "email": "usr-viewer@centreon.test",
+                "most_permissive_role": "viewer"
             }
         ],
         "meta": {
             "page": 1,
             "limit": 10,
-            "search": { "$and": { "name": { "$lk": "%usr%" } } },
+            "search": {
+                "$and": {
+                    "name": {
+                        "$lk": "%usr%"
+                    }
+                }
+            },
             "sort_by": {},
-            "total": 2
+            "total": 1
         }
     }
     """
