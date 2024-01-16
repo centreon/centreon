@@ -1,4 +1,15 @@
-import { pipe, T, equals, insert, map, propEq, reject } from 'ramda';
+import {
+  pipe,
+  T,
+  equals,
+  insert,
+  map,
+  propEq,
+  reject,
+  head,
+  split,
+  propOr
+} from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { ColumnType } from '@centreon/ui';
@@ -15,7 +26,8 @@ import {
   labelSeverity,
   labelService,
   labelHost,
-  labelServices
+  labelServices,
+  labelInformation
 } from '../translatedLabels';
 import { Visualization } from '../models';
 
@@ -26,6 +38,7 @@ import ResourceColumn from './Resource';
 import ParentResourceColumn from './Parent';
 import SubItem from './ServiceSubItemColumn/SubItem';
 import useStyles from './Columns.styles';
+import truncate from './truncate';
 
 interface ColumnProps {
   visualization?: Visualization;
@@ -99,6 +112,20 @@ const useColumns = ({
       width: 'max-content'
     },
     {
+      getFormattedString: pipe(
+        propOr('', 'information'),
+        split('\n'),
+        head,
+        truncate
+      ) as (row) => string,
+      id: 'information',
+      label: t(labelInformation),
+      rowMemoProps: ['information'],
+      sortable: false,
+      type: ColumnType.string,
+      width: 'minmax(100px, 1fr)'
+    },
+    {
       Component: SeverityColumn,
       getRenderComponentOnRowUpdateCondition: T,
       id: 'severity',
@@ -155,7 +182,7 @@ const useColumns = ({
         : column;
 
     const columnsForVisualizationByHost = pipe(
-      // reject(propEq('parent_resource', 'id')).
+      // reject(propEq('parent_resource', 'id')),
       insert(1, subItemColumn),
       map(changeResourceLabel)
     )(columns) as Array<Column>;

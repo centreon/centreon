@@ -27,7 +27,7 @@ export const formatRessourcesResponse = ({
         childrenCount: item?.children?.status_count
       };
     },
-    data?.result
+    data?.result || []
   );
 
   const hostsResponse = { ...data, result };

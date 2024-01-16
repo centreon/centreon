@@ -13,3 +13,4 @@ export const labelInDowntime = 'In downtime';
 export const labelAcknowledged = 'Acknowledged';
 export const labelSelectAtLeastThreeColumns =
   'At least three columns must be selected';
+export const labelInformation = 'Information';

@@ -60,7 +60,7 @@ const Listing = ({
       getHighlightRowCondition={({ status }): boolean =>
         equals(status?.severity_code, SeverityCode.High)
       }
-      limit={data?.meta.limit}
+      limit={data?.meta?.limit}
       loading={isLoading}
       memoProps={[data, sortField, sortOrder, page, isLoading, columns]}
       rowColorConditions={rowColorConditions(theme)}
@@ -74,7 +74,7 @@ const Listing = ({
         labelCollapse: 'Collapse',
         labelExpand: 'Expand'
       }}
-      totalRows={data?.meta.total}
+      totalRows={data?.meta?.total}
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
