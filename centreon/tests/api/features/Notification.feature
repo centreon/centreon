@@ -266,38 +266,6 @@ Feature:
       """
     Then the response code should be "201"
 
-    When I send a POST request to '/api/latest/configuration/notifications' with body:
-      """
-      {
-        "name": "notification-name",
-        "timeperiod_id": 2,
-        "resources": [
-          {
-            "type": "hostgroup",
-            "events": 5,
-            "ids": [53,56],
-            "extra": {"event_services": 2}
-          },
-          {
-            "type": "servicegroup",
-            "events": 5,
-            "ids": [1]
-          }
-        ],
-        "messages": [
-          {
-            "channel": "Slack",
-            "subject": "Hello world !",
-            "message": "just a small message",
-            "formatted_message": "a formatted message"
-          }
-        ],
-        "users": [20,21],
-        "contactgroups": [3],
-        "is_activated": true
-      }
-      """
-    Then the response code should be "201"
     And the JSON should be equal to:
       """
       {
