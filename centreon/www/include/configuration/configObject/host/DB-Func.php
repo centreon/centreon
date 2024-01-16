@@ -1022,7 +1022,7 @@ function insertHostInDB($ret = array(), $onDemandMacro = null)
     $ret = $form->getSubmitValues();
 
     if (
-        (! empty($ret['dupSvTplAssoc']['dupSvTplAssoc'])
+        ! empty($ret['dupSvTplAssoc']['dupSvTplAssoc'])
         || $isCloudPlatform === true
     ) {
         createHostTemplateService($hostId);
