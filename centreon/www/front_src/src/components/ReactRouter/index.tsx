@@ -66,7 +66,13 @@ const getExternalPageRoutes = ({
   federatedModules
 }): Array<JSX.Element> => {
   return federatedModules?.map(
-    ({ federatedPages, remoteEntry, moduleFederationName, moduleName }) => {
+    ({
+      federatedPages,
+      remoteEntry,
+      moduleFederationName,
+      moduleName,
+      remoteUrl
+    }) => {
       return federatedPages?.map(({ component, route }) => {
         if (not(isAllowedPage({ allowedPages, path: route }))) {
           return null;
@@ -83,6 +89,7 @@ const getExternalPageRoutes = ({
                   moduleFederationName={moduleFederationName}
                   moduleName={moduleName}
                   remoteEntry={remoteEntry}
+                  remoteUrl={remoteUrl}
                 />
               </PageContainer>
             }
