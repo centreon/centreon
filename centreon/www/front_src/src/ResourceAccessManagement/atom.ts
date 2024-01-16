@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
 import { ModalMode, ResourceAccessRuleType } from './models';
 
@@ -21,3 +22,8 @@ export const selectedRowsAtom = atom<Array<ResourceAccessRuleType>>([]);
 export const resourceAccessRulesNamesAtom = atom<
   Array<{ id: number; name: string }>
 >([]);
+
+export const modalWidthStorageAtom = atomWithStorage(
+  'resource-access-management-modal-width',
+  800
+);

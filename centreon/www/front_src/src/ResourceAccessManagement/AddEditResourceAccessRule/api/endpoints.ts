@@ -14,3 +14,11 @@ export const resourceAccessRuleEndpoint = ({ id }: Props): string =>
 
 export const findContactGroupsEndpoint = `${baseEndpoint}/configuration/contacts/groups`;
 export const findContactsEndpoint = `${baseEndpoint}/configuration/users`;
+
+export const findHostGroupsEndpoint = `${baseEndpoint}/configuration/hosts/groups`;
+export const findHostCategoriesEndpoint = `${baseEndpoint}/configuration/hosts/categories`;
+export const findHostsEndpoint = `${baseEndpoint}/configuration/hosts`;
+export const findServiceGroupsEndpoint = `${baseEndpoint}/configuration/services/groups`;
+export const findServiceCategoriesEndpoint = `${baseEndpoint}/configuration/services/categories`;
+export const findServicesEndpoint = `${baseEndpoint}/configuration/services`;
+export const findMetaServicesEndpoint = `${baseEndpoint}/configuration/metaservices`;
