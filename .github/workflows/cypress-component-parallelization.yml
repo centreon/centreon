@@ -85,11 +85,11 @@ jobs:
         uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: ${{ inputs.name }}-coverage
-          path: .nyc_output_components/
+          path: .nyc_output/
 
       - name: Merge coverage reports
         run: |
-          pnpx nyc merge .nyc_output_components
+          pnpx nyc merge .nyc_output
           mv coverage.json .nyc_output/out.json
         shell: bash
 
