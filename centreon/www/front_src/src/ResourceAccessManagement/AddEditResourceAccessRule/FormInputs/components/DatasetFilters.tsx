@@ -23,6 +23,26 @@ const DatasetFilters = (): ReactElement => {
         !isEmpty(resourceType) && !isEmpty(resources)
     );
 
+  const areAddDatasetButtonDisabled = (
+    datasetFiltersArray: Array<Array<Dataset>>
+  ): boolean => {
+    if (isNil(datasetFiltersArray)) {
+      return false;
+    }
+
+    const lastDatasetFilter = last(datasetFiltersArray);
+    if (isNil(lastDatasetFilter)) {
+      return false;
+    }
+
+    const lastDataset = last(lastDatasetFilter);
+    if (isNil(lastDataset)) {
+      return false;
+    }
+
+    return isEmpty(lastDataset.resourceType) || isEmpty(lastDataset.resources);
+  };
+
   return (
     <div>
       {datasetFilters.map((datasetFilter, index) => (
@@ -48,7 +68,7 @@ const DatasetFilters = (): ReactElement => {
         </div>
       ))}
       <AddDatasetButton
-        addButtonDisabled={areResourcesFilled(last(datasetFilters))}
+        addButtonDisabled={areAddDatasetButtonDisabled(datasetFilters)}
         onAddItem={addDatasetFilter}
       />
     </div>

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { InputProps, Group, InputType } from '@centreon/ui';
@@ -147,9 +147,16 @@ const useFormInputs = (): UseFormInputsState => {
                       {
                         custom: {
                           Component: () => (
-                            <Typography className={classes.titleGroup}>
-                              {t(labelContactsAndContactGroups)}
-                            </Typography>
+                            <div>
+                              <Divider
+                                className={
+                                  classes.contactsAndContactGroupsDivider
+                                }
+                              />
+                              <Typography className={classes.titleGroup}>
+                                {t(labelContactsAndContactGroups)}
+                              </Typography>
+                            </div>
                           )
                         },
                         fieldName: 'contactsAndContactGroupsTitle',

@@ -6,6 +6,10 @@ export const useFormInputStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     width: '100%'
   },
+  contactsAndContactGroupsDivider: {
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1)
+  },
   resourceSelection: {
     display: 'flex',
     flexDirection: 'column',
