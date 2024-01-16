@@ -64,7 +64,7 @@ final class FindDashboardContactsPresenter extends AbstractPresenter implements 
      */
     private function contactsResponseDtoToArray(ContactsResponseDto $dto): array
     {
-        $mostPermissiveRole = DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole) === "creator" ? "editor" : DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole);
+        $mostPermissiveRole = DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole) === 'creator' ? 'editor' : DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole);
 
         return [
             'id' => $dto->id,
