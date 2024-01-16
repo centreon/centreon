@@ -297,7 +297,7 @@ Feature:
         "is_activated": true
       }
       """
-    Then the response code should be "201"
+    Then the response code should be "400"
     And the JSON should be equal to:
       """
       {
