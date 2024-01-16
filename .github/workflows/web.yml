@@ -272,6 +272,57 @@ jobs:
       specs_path: www/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
 
+  cypress-component-coverage-report:
+    needs: [frontend-component-test]
+    if: always()
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+        with:
+          version: 8
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          name: component-coverage
+          path: .nyc_output/
+
+      - name: Merge coverage reports
+        run: |
+          pnpx nyc merge .nyc_output
+          mv coverage.json .nyc_output/out.json
+        shell: bash
+
+      - name: Generate lcov coverage report
+        run: pnpx nyc report --reporter=lcov --reporter html
+        shell: bash
+
+      - name: Format title
+        id: title
+        run: |
+          MODULE_NAME=`echo "centreon" | sed -e "s#/#-#g"`
+          echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Archive HTML code coverage
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        with:
+          name: ${{ steps.title.outputs.replaced }}-component-code-coverage
+          path: coverage
+          retention-days: 1
+
+      - name: Publish code coverage to PR
+        uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          title: Code coverage report for ${{ steps.title.outputs.replaced }} component 🚀
+          delete-old-comments: true
+          filter-changed-files: true
+
   backend-unit-test:
     runs-on: ubuntu-22.04
     needs: [changes, get-version]
