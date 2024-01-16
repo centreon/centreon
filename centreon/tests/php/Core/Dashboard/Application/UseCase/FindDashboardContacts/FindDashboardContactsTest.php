@@ -31,9 +31,11 @@ use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContacts;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContactsResponse;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardContactsPresenterStub();
@@ -41,7 +43,9 @@ beforeEach(function (): void {
         $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class)
+        $this->contact = $this->createMock(ContactInterface::class),
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class)
     );
 });
 
