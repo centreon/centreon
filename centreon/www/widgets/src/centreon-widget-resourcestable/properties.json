@@ -34,7 +34,7 @@
             "name": "Warning"
           },
           {
-            "id": "malfunction",
+            "id": "problem",
             "name": "Problem (Down & Critical)"
           },
           {
